@@ -39,7 +39,6 @@ class ProjectFileIO:
         self.project_setup_filename = "project_setup.json"
         self.fluid_library_filename = "fluid_library.config"
         self.material_library_filename = "material_library.config"
-        self.pipeline_filename = "pipeline.dat"
         self.model_properties_filename = "model_properties.json"
         self.line_properties_filename = "line_properties.json"
         self.mesh_data_filename = "mesh_data.hdf5"
@@ -129,13 +128,6 @@ class ProjectFileIO:
 
     #     self.filebox.write_from_path(internal_path, temp_path)
     #     app().main_window.project_data_modified = True
-
-    def write_pipeline_data_in_file(self, pipeline_data):
-        self.filebox.write(self.pipeline_filename, pipeline_data)
-        app().main_window.project_data_modified = True
-
-    def read_pipeline_data_from_file(self):
-        return self.filebox.read(self.pipeline_filename)
 
     def write_material_library_in_file(self, config):
         self.filebox.write(self.material_library_filename, config)
@@ -361,11 +353,9 @@ class ProjectFileIO:
                     app().main_window.project_data_modified = True
 
     def read_imported_table_data_from_file(self):
-        
-        tables_data = dict()
 
         try:
-
+            tables_data = dict()
             with self.filebox.open(self.imported_table_data_filename) as internal_file:
                 with h5py.File(internal_file, "r") as f:
 
@@ -486,102 +476,23 @@ class ProjectFileIO:
         mesher_setup = project_setup["mesher setup"]
         import_type = mesher_setup["import type"]
 
-        pipeline_data = self.read_pipeline_data_from_file()
-        if pipeline_data is None:
+        lines_data = self.read_line_properties_from_file()
+        if lines_data is None:
             return False
 
-        if len(pipeline_data.sections()):
-            for tag in pipeline_data.sections():
+        if lines_data:
+            for line_id, data in lines_data.items():
+                data: dict
                 if import_type == 0:
                     return True
                 else:
-                    if "-" in tag:
-                        continue
-                    keys_to_check = ["start coords", "end coords"]
+                    keys_to_check = ["start_coords", "end_coords"]
                     for key in keys_to_check:
-                        if key not in pipeline_data[tag].keys():
+                        if key not in data.keys():
                             return False
             return True
         else:
             return False
-
-    def get_pipeline_data_from_file(self) -> dict:
-        '''
-        This method returns the all required data to build pipeline segments.
-        '''
-
-        pipeline_data = dict()
-        config = self.read_pipeline_data_from_file()
-
-        if config is None:
-            return pipeline_data
-
-        for section in config.sections():
-
-            if "-" in section:
-                continue
-
-            tag = int(section)
-            keys = config[section].keys()
-            aux = dict()
-
-            if "start coords" in keys:
-                start_coords = config[section]["start coords"]
-                aux["start_coords"] = get_list_of_values_from_string(start_coords, int_values=False)
-
-            if "end coords" in keys:
-                end_coords = config[section]["end coords"]
-                aux["end_coords"] = get_list_of_values_from_string(end_coords, int_values=False)
-
-            if "corner coords" in keys:
-                corner_coords = config[section]["corner coords"]
-                aux["corner_coords"] = get_list_of_values_from_string(corner_coords, int_values=False)
-
-            if "curvature radius" in keys:
-                curvature_radius = config[section]["curvature radius"]
-                aux["curvature_radius"] = float(curvature_radius)
-
-            if 'structural element type' in keys:
-                structural_element_type = config[section]["structural element type"]
-                aux["structural_element_type"] = structural_element_type
-            else:
-                structural_element_type = "pipe_1"
-
-            if 'section type' in keys:
-                section_type_label = config[section]["section type"]
-                aux["section_type_label"] = section_type_label
-
-            if 'section parameters' in keys:
-                section_parameters = config[section]["section parameters"]
-                aux["section_parameters"] = get_list_of_values_from_string(section_parameters, int_values=False)
-
-            if structural_element_type == "beam_1":
-                if 'section properties' in keys:
-                    section_properties = config[section]["section properties"]
-                    aux["section_properties"] = get_list_of_values_from_string(section_properties, int_values=False)
-                else:
-                    aux["section_properties"] = get_beam_section_properties(section_type_label, aux["section_parameters"])
-
-            if 'material id' in keys:
-                try:
-                    aux["material_id"] = int(config[section]["material id"])
-                except:
-                    pass
-
-            if 'psd label' in keys:
-                aux["psd_label"] = config[section]["psd label"]
-
-            if 'link type' in keys:
-                aux["link type"] = config[section]["link type"]
-
-            is_bend = ('corner coords' in keys) and ('curvature radius' in keys)
-            if is_bend:
-                pipeline_data[tag, "Bend"] = aux
-
-            else:
-                pipeline_data[tag, "Pipe"] = aux
-
-        return pipeline_data
 
     def modify_project_attributes(self, **kwargs):
 
@@ -620,21 +531,6 @@ class ProjectFileIO:
 
             self.write_project_setup_in_file(data)
             # self.load(self._project_ini_file_path)
-
-    # def add_material_segment_in_file(self, lines, material_id):
-
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-
-    #     if material_id is None:
-    #         material_id = ""
-
-    #     config = self.read_pipeline_data_from_file()
-
-    #     for line_id in lines:
-    #         config[str(line_id)]['material id'] = str(material_id)
-
-    #     self.write_pipeline_data_in_file(config)
 
     def load_analysis_file(self):
         return self.read_analysis_setup_from_file()

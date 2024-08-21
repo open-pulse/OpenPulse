@@ -138,16 +138,15 @@ class PlotCrossSectionInput(QDialog):
                 self.window_title = window_title_2
                 return True
 
-            entity = self.model.mesh.lines_from_model[self.line_typed]
-            
-            if entity.cross_section is None and entity.expansion_joint_parameters is None:
+            cross_section = self.model.properties._get_property("cross_section", line_id=self.line_typed)
+            expansion_joint_data = self.model.properties._get_property("expansion_joint_data", ine_id=self.line_typed)
+
+            if cross_section is None and expansion_joint_data is None:
                 self.message = "Please, define a cross-section to the \nselected line before trying to plot the section."
                 self.title = "Error: undefined line cross-section"
                 self.window_title = window_title_1
                 return True
 
-            cross_section = entity.cross_section
-            
         elif index == 1:
 
             lineEdit = self.lineEdit_selected_id.text()

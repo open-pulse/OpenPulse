@@ -208,8 +208,12 @@ class CappedEndInput(QDialog):
 
     def update_capped_end_effect_by_lines_selection(self):
         if len(self.lines_id) == 1:
-            line = self.model.mesh.lines_from_model[self.lines_id[0]]
-            if line.capped_end:
+
+            capped_end = self.properties._get_property("capped_end", line_id=self.lines_id[0])
+            if capped_end is None:
+                return
+            
+            if capped_end:
                 self.comboBox_capped_end.setCurrentIndex(0)
             else:
                 self.comboBox_capped_end.setCurrentIndex(1)

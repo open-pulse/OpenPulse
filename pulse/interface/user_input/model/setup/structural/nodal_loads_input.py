@@ -408,7 +408,7 @@ class NodalLoadsInput(QDialog):
 
     def save_tables_files(self, load_label: str, node_id: int, values: np.ndarray):
 
-        table_name = f"nodal_load_{load_label}_node_{node_id}.dat"
+        table_name = f"nodal_load_{load_label}_node_{node_id}"
 
         real_values = np.real(values)
         imag_values = np.imag(values)

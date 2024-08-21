@@ -521,16 +521,13 @@ class FluidWidget(QWidget):
 
     def reset_fluid_from_lines(self, fluid_identifiers: list):
 
-        # TODO: remove in future review
-        for line_id, line in self.model.mesh.lines_from_model.items():
-            if isinstance(line.fluid, Fluid):
-                if line.fluid.identifier in fluid_identifiers:
-                    self.project.set_fluid_by_lines(line_id, None)
+        for line_id, data in app().project.model.properties.line_properties.items():
+            if "fluid_id" in data.keys():
+                if data["fluid_id"] in fluid_identifiers:
+                    app().project.model.preprocessor.set_fluid_by_lines(line_id, None)
 
         lines_to_remove_fluid = list()
-
         for line_id, data in self.model.properties.line_properties.items():
-
             if "fluid_id" in data.keys():
                 if isinstance(data, Fluid):
                     if data["fluid_id"] in fluid_identifiers:

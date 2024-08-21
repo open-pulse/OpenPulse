@@ -719,7 +719,11 @@ class CompressorModelInput(QDialog):
         return False
 
     def update_analysis_setup_in_file(self, f_min, f_max, f_step):
+
         analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        if analysis_setup is None:
+            analysis_setup = dict()
+    
         analysis_setup["f_min"] = f_min
         analysis_setup["f_max"] = f_max
         analysis_setup["f_step"] = f_step

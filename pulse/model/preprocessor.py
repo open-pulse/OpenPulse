@@ -1940,7 +1940,7 @@ class Preprocessor:
         else:
             first_node = node_2
             last_node = node_1
-        return reord_gdofs, first_node, last_node       
+        return reord_gdofs, first_node, last_node
 
     def get_nodes_and_elements_with_expansion(self, ratio=10):
         title = "Incomplete model setup"
@@ -2099,6 +2099,79 @@ class Preprocessor:
     #                 self.add_acoustic_link_data(nodes)
     #             else:
     #                 self.add_structural_link_data(nodes)
+
+    def process_cross_sections_mapping(self):  
+
+        label_etypes = ['pipe_1', 'valve']
+        indexes = [0, 1]
+
+        dict_etype_index = dict(zip(label_etypes,indexes))
+        dict_index_etype = dict(zip(indexes,label_etypes))
+        map_cross_section_to_elements = defaultdict(list)
+
+        for index, element in self.structural_elements.items():
+
+            # if None not in [element.first_node.cross_section, element.last_node.cross_section]:
+            #     continue
+
+            if element.variable_section:
+                continue
+
+            e_type  = element.element_type
+            if e_type in ['beam_1', 'expansion_joint']:
+                continue
+
+            elif e_type is None:
+                e_type = 'pipe_1'
+                self.acoustic_analysis = True
+        
+            index_etype = dict_etype_index[e_type]
+
+            poisson = element.material.poisson_ratio
+            if poisson is None:
+                poisson = 0
+
+            outer_diameter = element.cross_section.outer_diameter
+            thickness = element.cross_section.thickness
+            offset_y = element.cross_section.offset_y
+            offset_z = element.cross_section.offset_z
+            insulation_thickness = element.cross_section.insulation_thickness
+            insulation_density = element.cross_section.insulation_density
+           
+            map_cross_section_to_elements[str([ outer_diameter, thickness, offset_y, offset_z, poisson,
+                                                index_etype, insulation_thickness, insulation_density ])].append(index)
+            
+            if self.stop_processing:
+                return
+
+        for key, elements in map_cross_section_to_elements.items():
+
+            cross_strings = key[1:-1].split(',')
+            vals = [float(value) for value in cross_strings]
+            el_type = dict_index_etype[vals[5]]
+
+            section_parameters = [vals[0], vals[1], vals[2], vals[3], vals[6], vals[7]]
+
+            if el_type == 'pipe_1':
+                pipe_section_info = {   "section_type_label" : "Pipe",
+                                        "section_parameters" : section_parameters   }   
+                cross_section = CrossSection(pipe_section_info = pipe_section_info)                             
+
+            elif el_type == 'valve':
+                valve_section_info = {  "section_type_label" : "Valve section",
+                                        "section_parameters" : section_parameters,  
+                                        "diameters_to_plot" : [None, None] }
+                cross_section = CrossSection(valve_section_info = valve_section_info)            
+
+            if self.stop_processing:
+                return
+
+            self.set_cross_section_by_elements(
+                                                elements, 
+                                                cross_section, 
+                                                update_cross_section = True, 
+                                                update_section_points = False
+                                               )  
 
     def process_element_cross_sections_orientation_to_plot(self):
         """

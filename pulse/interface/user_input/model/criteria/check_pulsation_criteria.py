@@ -11,7 +11,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import get_new_path
 
 import numpy as np
-from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -263,18 +262,27 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.plotter._multiple_data_to_plot(self.model_results)
 
     def get_line_properties(self):
+
         line_id = int(self.comboBox_line_ids.currentText().replace(" ", ""))
-        line = self.model.mesh.lines_from_model[line_id]
-        fluid = line.fluid
+        fluid = self.model.properties._get_property("fluid", line_id=line_id)
+        if fluid is None:
+            return None, None, None
+        
+        cross_section = self.model.properties._get_property("cross_section", line_id=line_id)
+        if cross_section is None:
+            return None, None, None
+
         speed_of_sound = fluid.speed_of_sound
         line_pressure = fluid.pressure
-        inner_diameter = line.cross_section.inner_diameter
+        inner_diameter = cross_section.inner_diameter
+
         return speed_of_sound, line_pressure/1e5, 1000*inner_diameter
     
     def get_line_pressure(self):
         if len(self.line_ids) == 1:
-            entity = self.model.mesh.lines_from_model[self.line_ids[0]]
-            fluid = entity.fluid
+            fluid = self.model.properties._get_property("fluid", line_id=self.line_ids[0])
+            if fluid is None:
+                return None
             return fluid.pressure
         else:
             return None

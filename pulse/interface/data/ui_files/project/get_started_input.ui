@@ -221,7 +221,7 @@
           </widget>
          </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="project1_path_label">
+          <widget class="QLabel" name="project_path_label_1">
            <property name="minimumSize">
             <size>
              <width>320</width>
@@ -261,7 +261,7 @@
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QPushButton" name="project1_button">
+          <widget class="QPushButton" name="project_button_1">
            <property name="minimumSize">
             <size>
              <width>80</width>
@@ -289,10 +289,7 @@
             <bool>false</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Load 
@@ -314,7 +311,7 @@ project</string>
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="project2_path_label">
+          <widget class="QLabel" name="project_path_label_2">
            <property name="minimumSize">
             <size>
              <width>320</width>
@@ -354,7 +351,7 @@ project</string>
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="project3_path_label">
+          <widget class="QLabel" name="project_path_label_3">
            <property name="minimumSize">
             <size>
              <width>320</width>
@@ -391,7 +388,7 @@ project</string>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QPushButton" name="project2_button">
+          <widget class="QPushButton" name="project_button_2">
            <property name="minimumSize">
             <size>
              <width>80</width>
@@ -419,10 +416,7 @@ project</string>
             <bool>false</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Load
@@ -433,7 +427,7 @@ Project</string>
              <normaloff>../../data/icons/002-analysis.png</normaloff>../../data/icons/002-analysis.png</iconset>
            </property>
            <property name="autoDefault">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="default">
             <bool>false</bool>
@@ -444,7 +438,7 @@ Project</string>
           </widget>
          </item>
          <item row="5" column="0">
-          <widget class="QLabel" name="project5_path_label">
+          <widget class="QLabel" name="project_path_label_5">
            <property name="minimumSize">
             <size>
              <width>320</width>
@@ -481,7 +475,7 @@ Project</string>
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QPushButton" name="project3_button">
+          <widget class="QPushButton" name="project_button_3">
            <property name="minimumSize">
             <size>
              <width>80</width>
@@ -509,10 +503,7 @@ Project</string>
             <bool>false</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Load
@@ -523,7 +514,7 @@ Project</string>
              <normaloff>../../data/icons/002-analysis.png</normaloff>../../data/icons/002-analysis.png</iconset>
            </property>
            <property name="autoDefault">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="default">
             <bool>false</bool>
@@ -534,7 +525,7 @@ Project</string>
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QPushButton" name="project4_button">
+          <widget class="QPushButton" name="project_button_4">
            <property name="minimumSize">
             <size>
              <width>80</width>
@@ -562,10 +553,7 @@ Project</string>
             <bool>false</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Load
@@ -576,7 +564,7 @@ Project</string>
              <normaloff>../../data/icons/002-analysis.png</normaloff>../../data/icons/002-analysis.png</iconset>
            </property>
            <property name="autoDefault">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="default">
             <bool>false</bool>
@@ -587,7 +575,7 @@ Project</string>
           </widget>
          </item>
          <item row="4" column="0">
-          <widget class="QLabel" name="project4_path_label">
+          <widget class="QLabel" name="project_path_label_4">
            <property name="minimumSize">
             <size>
              <width>320</width>
@@ -624,7 +612,7 @@ Project</string>
           </widget>
          </item>
          <item row="5" column="1">
-          <widget class="QPushButton" name="project5_button">
+          <widget class="QPushButton" name="project_button_5">
            <property name="minimumSize">
             <size>
              <width>80</width>
@@ -652,10 +640,7 @@ Project</string>
             <bool>false</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Load
@@ -666,7 +651,7 @@ Project</string>
              <normaloff>../../data/icons/002-analysis.png</normaloff>../../data/icons/002-analysis.png</iconset>
            </property>
            <property name="autoDefault">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="default">
             <bool>false</bool>
@@ -781,10 +766,7 @@ Project</string>
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Create a new Project</string>
@@ -827,10 +809,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Open a local Project</string>
@@ -873,10 +852,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>Reset list of Projects</string>
@@ -916,10 +892,7 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
             </font>
            </property>
            <property name="styleSheet">
-            <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>About Open Pulse</string>

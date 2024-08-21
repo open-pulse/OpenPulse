@@ -155,7 +155,7 @@ class RunAnalysisInput(QDialog):
     def process_cross_sections(self):
         t0 = time()
         self.complete = False
-        self.project.process_cross_sections_mapping()
+        app().project.model.preprocessor.process_cross_sections_mapping()
         self.project.time_to_process_cross_sections = time() - t0
 
     def preparing_mathematical_model_to_solve(self):

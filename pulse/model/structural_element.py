@@ -138,7 +138,7 @@ class StructuralElement:
         self.stress_intensification = kwargs.get('stress_intensification', True)
         
         self._initialize()
-        self.reset_expansion_joint_parameters()
+        self.reset_expansion_joint_data()
         self.reset_valve_parameters()
 
         self.delta_x = self.last_node.x - self.first_node.x
@@ -1616,7 +1616,7 @@ class StructuralElement:
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]
         return M_matrix
 
-    def reset_expansion_joint_parameters(self):
+    def reset_expansion_joint_data(self):
         self.expansion_joint_data = None
         self.joint_length = 0
         self.joint_effective_diameter = 0

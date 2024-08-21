@@ -226,9 +226,7 @@ def cross_section_info_text(cross_section, element_type) -> str:
         tree.add_item("Iyy", round(cross_section.second_moment_area_y, 4), "m⁴")
         tree.add_item("Izz", round(cross_section.second_moment_area_z, 4), "m⁴")
         tree.add_item("Iyz", round(cross_section.second_moment_area_yz, 4), "m⁴")
-        tree.add_item(
-            "x-axis rotation", round(cross_section.second_moment_area_yz, 4), "m⁴"
-        )
+        tree.add_item("x-axis rotation", round(cross_section.second_moment_area_yz, 4), "m⁴")
         info_text += str(tree)
 
     elif element_type in ["pipe_1", "valve"]:

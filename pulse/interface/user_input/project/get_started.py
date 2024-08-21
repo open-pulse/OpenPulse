@@ -52,21 +52,21 @@ class GetStartedInput(QDialog):
 
         # QLabel
         self.recents_label : QLabel
-        self.project1_path_label : QLabel
-        self.project2_path_label : QLabel
-        self.project3_path_label : QLabel
-        self.project4_path_label : QLabel
-        self.project5_path_label : QLabel
+        self.project_path_label_1 : QLabel
+        self.project_path_label_2 : QLabel
+        self.project_path_label_3 : QLabel
+        self.project_path_label_4 : QLabel
+        self.project_path_label_5 : QLabel
 
         # QPushButton
         self.create_button : QPushButton
         self.load_button : QPushButton
         self.about_button : QPushButton
-        self.project1_button : QPushButton
-        self.project2_button : QPushButton
-        self.project3_button : QPushButton
-        self.project4_button : QPushButton
-        self.project5_button : QPushButton
+        self.project_button_1 : QPushButton
+        self.project_button_2 : QPushButton
+        self.project_button_3 : QPushButton
+        self.project_button_4 : QPushButton
+        self.project_button_5 : QPushButton
         self.reset_list_projects_button : QPushButton
 
     def _create_connections(self):
@@ -79,18 +79,18 @@ class GetStartedInput(QDialog):
     def create_lists_of_buttons_and_labels(self):
 
         self.project_buttons = list()
-        self.project_buttons.append(self.project1_button)
-        self.project_buttons.append(self.project2_button)
-        self.project_buttons.append(self.project3_button)
-        self.project_buttons.append(self.project4_button)
-        self.project_buttons.append(self.project5_button)
+        self.project_buttons.append(self.project_button_1)
+        self.project_buttons.append(self.project_button_2)
+        self.project_buttons.append(self.project_button_3)
+        self.project_buttons.append(self.project_button_4)
+        self.project_buttons.append(self.project_button_5)
 
         self.project_path_labels = list()
-        self.project_path_labels.append(self.project1_path_label)
-        self.project_path_labels.append(self.project2_path_label)
-        self.project_path_labels.append(self.project3_path_label)
-        self.project_path_labels.append(self.project4_path_label)
-        self.project_path_labels.append(self.project5_path_label)
+        self.project_path_labels.append(self.project_path_label_1)
+        self.project_path_labels.append(self.project_path_label_2)
+        self.project_path_labels.append(self.project_path_label_3)
+        self.project_path_labels.append(self.project_path_label_4)
+        self.project_path_labels.append(self.project_path_label_5)
 
     def update_buttons_visibility(self):
         self.project_path = list()
@@ -103,7 +103,7 @@ class GetStartedInput(QDialog):
         recents = app().config.get_recent_files()
 
         for i, project_path in enumerate(recents):
-            if i <= 5:
+            if i <= 4:
                 self.project_buttons[i].setVisible(True)
                 self.project_path_labels[i].setVisible(True)
                 self.project_path[i] = project_path

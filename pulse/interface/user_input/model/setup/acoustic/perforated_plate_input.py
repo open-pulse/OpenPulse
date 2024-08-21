@@ -466,7 +466,7 @@ class PerforatedPlateInput(QDialog):
 
     def save_table_file(self, element_id: int, values: np.ndarray):
 
-        table_name = f"perforated_plate_dimensionless_impedance_element_{element_id}.dat"
+        table_name = f"perforated_plate_dimensionless_impedance_element_{element_id}"
 
         real_values = np.real(values)
         imag_values = np.imag(values)

@@ -137,7 +137,6 @@ class ModelProperties:
                     continue
 
                 if table_name in imported_tables.keys():
-
                     data_array = imported_tables[table_name]
                     values = data_array[:, 1] + 1j*data_array[:, 2]
                     tables_values.append(values)

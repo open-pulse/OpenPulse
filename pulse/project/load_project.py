@@ -425,7 +425,7 @@ class LoadProject:
         imported_tables = app().pulse_file.load_imported_table_data_from_file()
         if "acoustic" in imported_tables.keys():
             app().project.model.properties.acoustic_imported_tables = imported_tables["acoustic"]
-        elif "structural" in imported_tables.keys():
+        if "structural" in imported_tables.keys():
             app().project.model.properties.structural_imported_tables = imported_tables["structural"]
 
     def load_mesh_setup_from_file(self):
@@ -473,9 +473,9 @@ class LoadProject:
             for key, value in data.items():
 
                 if "Link-" in key:
-                    link_type = value["link type"]
-                    start_coords = value["start coords"]
-                    end_coords = value["end coords"]
+                    link_type = value["link_type"]
+                    start_coords = value["start_coords"]
+                    end_coords = value["end_coords"]
                     link_data[(psd_label, link_type)].append((start_coords, end_coords))
 
         if link_data:
@@ -502,12 +502,10 @@ class LoadProject:
     def get_device_related_lines(self):
 
         psd_lines = defaultdict(list)
-        config = app().pulse_file.read_pipeline_data_from_file()
-
-        for section in config.sections():
-            if "psd label" in config[section].keys():
-                psd_label = config[section]["psd label"]
-                psd_lines[psd_label].append(int(section))
+        for line_id, data in self.properties.line_properties.items():
+            if "psd_label" in data.keys():
+                psd_label = data["psd_label"]
+                psd_lines[psd_label].append(line_id)
 
         return psd_lines
 

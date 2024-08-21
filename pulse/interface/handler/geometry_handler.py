@@ -4,7 +4,7 @@ from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
-from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam
+from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam, ExpansionJoint
 
 import gmsh
 from math import dist
@@ -17,7 +17,7 @@ window_title_2 = "Warning"
 
 
 def get_data(data):
-    return list(np.round(data, 6))
+    return list(np.array(np.round(data, 6), dtype=float))
 
 def normalize(vector):
     return vector / np.linalg.norm(vector)
@@ -126,32 +126,32 @@ class GeometryHandler:
 
         structures = list()
         self.pipeline.reset()
-        
-        structures_data = app().pulse_file.get_pipeline_data_from_file()
 
-        for key, data in structures_data.items():
-            data : dict
+        lines_data = app().pulse_file.read_line_properties_from_file()
+        if isinstance(lines_data, dict):
+            for data in lines_data.values():
 
-            if "link type" in data.keys():
-                continue
+                data : dict
+                if "link type" in data.keys():
+                    continue
 
-            structural_element_type = data.get("structural_element_type", None)
-            structure = None
+                structural_element_type = data.get("structural_element_type", None)
+                structure = None
 
-            if structural_element_type in ["pipe_1", None]:
-                structure = self._process_pipe(key, data)
+                if structural_element_type in ["pipe_1", None]:
+                    structure = self._process_pipe(data)
 
-            elif structural_element_type == "beam_1":
-                structure = self._process_beam(key, data)
+                elif structural_element_type == "beam_1":
+                    structure = self._process_beam(data)
 
-            elif structural_element_type == "valve":
-                structure = self._process_valve(key, data)
+                elif structural_element_type == "valve":
+                    structure = self._process_valve(data)
 
-            if "material_id" in data.keys():
-                structure.extra_info["material_info"] = data['material_id']
+                if "material_id" in data.keys():
+                    structure.extra_info["material_info"] = data['material_id']
 
-            if structure is not None:
-                structures.append(structure)
+                if structure is not None:
+                    structures.append(structure)
 
         self.pipeline.structures.clear()
         if len(structures):
@@ -160,9 +160,7 @@ class GeometryHandler:
             self.pipeline.merge_coincident_points()
             app().main_window.update_plots()
     
-    def _process_pipe(self, key: str, data: dict):
-
-        # section_type_label = data.get("section_type_label", None)
+    def _process_pipe(self, data: dict):
 
         if "section_parameters" in data.keys():
             section_parameters = data["section_parameters"]
@@ -171,7 +169,7 @@ class GeometryHandler:
 
         if len(section_parameters) == 6:
 
-            if key[1] == "Bend":
+            if data["structure_name"] == "bend":
                 start = Point(*data['start_coords'])
                 end = Point(*data['end_coords'])
                 corner = Point(*data['corner_coords'])
@@ -229,7 +227,7 @@ class GeometryHandler:
 
         return structure
 
-    def _process_beam(self, key: str, data: dict):
+    def _process_beam(self, data: dict):
 
         if "section_parameters" not in data.keys():
             return
@@ -316,7 +314,7 @@ class GeometryHandler:
 
         return structure
 
-    def _process_valve(self, key: str, data: dict):
+    def _process_valve(self, data: dict):
 
         start = Point(*data['start_coords'])
         end = Point(*data['end_coords'])
@@ -390,10 +388,7 @@ class GeometryHandler:
             element_size = in_to_m(element_size)
 
         if self.length_unit !=  "meter":
-            app().pulse_file.modify_project_attributes( 
-                                                                    length_unit = "meter",
-                                                                    element_size = element_size
-                                                                   )
+            app().pulse_file.modify_project_attributes(length_unit = "meter", element_size = element_size)
             app().main_window.mesh_toolbar.update_mesh_attributes()
 
         if len(self.merged_points):
@@ -665,9 +660,10 @@ class GeometryHandler:
 
         if structures_data:
 
-            self.create_pipeline_file(structures_data)
-
-            # self.file.add_cross_section_segment_in_file(section_info)
+            for line_id, structure_data in structures_data.items():
+                structure_data: dict
+                for key, values in structure_data.items():
+                    app().project.model.properties._set_line_property(key, values, line_ids=line_id)
 
             for line_id, cross_data in section_info.items():
                 app().project.model.properties._set_line_cross_section_property(cross_data, line_ids=line_id)
@@ -678,12 +674,13 @@ class GeometryHandler:
             for material_id, line_ids in material_info.items():
                 app().project.model.properties._set_line_property("material_id", material_id, line_ids=line_ids)
 
-            for tag, label in psd_info.items():
-                self.file.add_psd_label_in_file(tag, label)
+            for line_id, psd_label in psd_info.items():
+                app().project.model.properties._set_line_property("psd_label", psd_label, line_ids=line_id)
+
+            print(app().project.model.properties.line_properties)
 
             app().pulse_file.write_line_properties_in_file()
             app().pulse_file.modify_project_attributes(import_type = 1)
-            # self.load_project()
 
     def get_pipeline_data(self, structure):
 
@@ -691,32 +688,36 @@ class GeometryHandler:
         # data["structure name"] = structure.name
 
         if isinstance(structure, Bend):
-            data["structure name"] = "bend"
-            data["start coords"] = get_data(structure.start.coords())
-            data["end coords"] = get_data(structure.end.coords())
-            data["corner coords"] = get_data(structure.corner.coords())
-            data["curvature radius"] = np.round(structure.curvature, 8)
+            data["structure_name"] = self.get_structure_name(structure)
+            data["start_coords"] = get_data(structure.start.coords())
+            data["end_coords"] = get_data(structure.end.coords())
+            data["corner_coords"] = get_data(structure.corner.coords())
+            data["curvature_radius"] = np.round(structure.curvature, 8)
 
-        elif isinstance(structure, Pipe | Beam | Reducer | Valve):
-            data["structure name"] = "not bend"
-            data["start coords"] = get_data(structure.start.coords())
-            data["end coords"] = get_data(structure.end.coords())
+        elif isinstance(structure, Pipe | Beam | Reducer | Valve | ExpansionJoint):
+            data["structure_name"] = self.get_structure_name(structure)
+            data["start_coords"] = get_data(structure.start.coords())
+            data["end_coords"] = get_data(structure.end.coords())
 
         return data
 
-    def create_pipeline_file(self, structures_data):
+    def get_structure_name(self, structure):
 
-        config = app().pulse_file.read_pipeline_data_from_file()
+        # temporary solution, replace for structure.name
 
-        if config is None:
-            from configparser import ConfigParser
-            config = ConfigParser()
-
-        for line_id, structure_data in structures_data.items():
-            config[str(line_id)] = dict()
-            for key, data in structure_data.items():
-                config[str(line_id)][key] = str(data)
-
-        app().pulse_file. write_pipeline_data_in_file(config)
+        if isinstance(structure, Pipe):
+            return "pipe"
+        elif isinstance(structure, Bend):
+            return "bend"
+        elif isinstance(structure, Flange):
+            return "flange"
+        elif isinstance(structure, Reducer):
+            return "reducer"
+        elif isinstance(structure, ExpansionJoint):
+            return "expansion joint"
+        elif isinstance(structure, Valve):
+            return "valve"
+        else:
+            return "undefined"
 
 # fmt: on

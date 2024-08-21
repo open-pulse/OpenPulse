@@ -49,71 +49,7 @@ class ProjectFile:
 
     def default_filenames(self):
         self._project_ini_name = "project.ini"
-        # self._fluid_file_name = "fluid_list.dat"
-        # self._material_file_name = "material_list.dat"
-        # self._node_acoustic_file_name = "acoustic_nodal_info.dat"
-        # self._node_structural_file_name = "structural_nodal_info.dat"
-        # self._elements_file_name = "elements_info.dat"
-        # self._imported_data_folder_name = "imported_data"
-        # self._backup_geometry_foldername = "geometry_backup"
-
-    # def get_list_filenames_to_maintain_after_reset(self, **kwargs):
-
-    #     reset_fluids = kwargs.get('reset_fluids', False)
-    #     reset_materials = kwargs.get('reset_materials', False)
-    #     reset_acoustic_model = kwargs.get('reset_acoustic_model', False)
-    #     reset_structural_model = kwargs.get('reset_structural_model', False)
-
-    #     list_filenames = os.listdir(self._project_path).copy()
-    #     imported_data_files = list()
-    #     if self._imported_data_folder_name in list_filenames:
-    #         imported_data_files = os.listdir(self._imported_data_folder_path).copy()
-
-    #     files_to_maintain_after_reset = list()
-    #     files_to_maintain_after_reset.append(self._project_ini_name)
-
-    #     if not reset_fluids:
-    #         files_to_maintain_after_reset.append(self._fluid_file_name)
-
-    #     if not reset_materials:
-    #         files_to_maintain_after_reset.append(self._material_file_name)
-
-    #     if reset_acoustic_model:
-    #         if self._imported_data_folder_name in list_filenames:
-    #             if "acoustic" in imported_data_files:
-    #                 file_path = get_new_path(self._imported_data_folder_path, "acoustic")
-    #                 rmtree(file_path)
-    #     else:
-    #         files_to_maintain_after_reset.append(self._node_acoustic_file_name)
-
-    #     if reset_structural_model:
-    #         if self._imported_data_folder_name in list_filenames:
-    #             if "structural" in imported_data_files:
-    #                 file_path = get_new_path(self._imported_data_folder_path, "structural")
-    #                 rmtree(file_path)
-    #     else:
-    #         files_to_maintain_after_reset.append(self._node_structural_file_name)
-            
-    #     if os.path.exists(self._geometry_path):
-    #         files_to_maintain_after_reset.append(os.path.basename(self._geometry_path))
-
-    #     return files_to_maintain_after_reset
-
-    # def remove_all_unnecessary_files(self, **kwargs):
-    #     list_filenames = os.listdir(self._project_path).copy()
-    #     files_to_maintain = self.get_list_filenames_to_maintain_after_reset(**kwargs)
-    #     for filename in list_filenames:
-    #         if filename not in files_to_maintain:
-    #             file_path = get_new_path(self._project_path, filename)
-    #             if os.path.exists(file_path):
-    #                 if filename == self._imported_data_folder_name:
-    #                     if len(os.listdir(file_path).copy()):
-    #                         continue
-    #                 if "." in filename:
-    #                     os.remove(file_path)
-    #                 else:
-    #                     rmtree(file_path)
-
+        
     # def reset_project_setup(self, **kwargs):
     #     return
 
@@ -140,19 +76,19 @@ class ProjectFile:
         reset_materials = kwargs.get('reset_materials', False)
 
         keys_to_ignore = list()
-        keys_to_ignore.append("structure name")
-        keys_to_ignore.append("structural element type")
-        keys_to_ignore.append("section parameters")
-        keys_to_ignore.append("start coords")
-        keys_to_ignore.append("corner coords")
-        keys_to_ignore.append("end coords")
-        keys_to_ignore.append("curvature radius")
+        keys_to_ignore.append("structure_name")
+        keys_to_ignore.append("structural_element_type")
+        keys_to_ignore.append("section_parameters")
+        keys_to_ignore.append("start_coords")
+        keys_to_ignore.append("corner_coords")
+        keys_to_ignore.append("end_coords")
+        keys_to_ignore.append("curvature_radius")
 
         if not reset_fluids:
-            keys_to_ignore.append("fluid id")
+            keys_to_ignore.append("fluid_id")
 
         if not reset_materials:
-            keys_to_ignore.append("material id")
+            keys_to_ignore.append("material_id")
 
         config = configparser.ConfigParser()
         config.read(self._pipeline_path)
@@ -211,30 +147,28 @@ class ProjectFile:
 
         self.write_data_in_file(self._pipeline_path, config)
 
-
-    def modify_variable_cross_section_in_file(self, lines, section_info):
+    # def modify_variable_cross_section_in_file(self, lines, section_info):
         
-        if isinstance(lines, int):
-            lines = [lines]
+    #     if isinstance(lines, int):
+    #         lines = [lines]
 
-        parameters = section_info["section_parameters"]
+    #     parameters = section_info["section_parameters"]
 
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
-        sections = list(config.sections())
+    #     config = configparser.ConfigParser()
+    #     config.read(self._pipeline_path)
+    #     sections = list(config.sections())
 
-        for line_id in lines:
-            str_line = str(line_id)
-            if str_line in sections:
-                config[str_line]['section parameters'] = str(parameters)
+    #     for line_id in lines:
+    #         str_line = str(line_id)
+    #         if str_line in sections:
+    #             config[str_line]['section parameters'] = str(parameters)
 
-            for section in sections:
-                prefix = f"{line_id}-"
-                if prefix in section:
-                    config.remove_section(section=section)
+    #         for section in sections:
+    #             prefix = f"{line_id}-"
+    #             if prefix in section:
+    #                 config.remove_section(section=section)
             
-        self.write_data_in_file(self._pipeline_path, config)
-
+    #     self.write_data_in_file(self._pipeline_path, config)
 
     def modify_valve_in_file(self, lines, parameters):
         
@@ -290,61 +224,60 @@ class ProjectFile:
 
         self.write_data_in_file(self._pipeline_path, config)
 
+    # def modify_expansion_joint_in_file(self, lines, parameters):
 
-    def modify_expansion_joint_in_file(self, lines, parameters):
+    #     if isinstance(lines, int):
+    #         lines = [lines]
 
-        if isinstance(lines, int):
-            lines = [lines]
+    #     config = configparser.ConfigParser()
+    #     config.read(self._pipeline_path)
+    #     sections = config.sections()
 
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
-        sections = config.sections()
-
-        list_keys = [   'section type',
-                        'section parameters',
-                        'section properties',
-                        'expansion joint parameters',
-                        'expansion joint stiffness',
-                        'valve parameters',
-                        'valve center coordinates',
-                        'valve section parameters',
-                        'flange section parameters',
-                        'list of elements',
-                        'number of flange elements'   ]
+    #     list_keys = [   'section type',
+    #                     'section parameters',
+    #                     'section properties',
+    #                     'expansion joint parameters',
+    #                     'expansion joint stiffness',
+    #                     'valve parameters',
+    #                     'valve center coordinates',
+    #                     'valve section parameters',
+    #                     'flange section parameters',
+    #                     'list of elements',
+    #                     'number of flange elements'   ]
         
-        for line_id in lines:
-            str_line = str(line_id)
-            for _key in list_keys:
-                if _key in list(config[str_line].keys()):
-                    config.remove_option(section=str_line, option=_key)
+    #     for line_id in lines:
+    #         str_line = str(line_id)
+    #         for _key in list_keys:
+    #             if _key in list(config[str_line].keys()):
+    #                 config.remove_option(section=str_line, option=_key)
             
-            for section in sections:
-                if f'{line_id}-' in section:
-                    config.remove_section(section)
+    #         for section in sections:
+    #             if f'{line_id}-' in section:
+    #                 config.remove_section(section)
             
-            if parameters is not None:
-                list_table_names = parameters[2]
-                config[str_line]['expansion joint parameters'] = str(parameters[0])
-                if list_table_names == [None, None, None, None]:
-                    config[str_line]['expansion joint stiffness'] = str(parameters[1])
-                else:
-                    str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
-                    config[str_line]['expansion joint stiffness'] = str_table_names
+    #         if parameters is not None:
+    #             list_table_names = parameters[2]
+    #             config[str_line]['expansion joint parameters'] = str(parameters[0])
+    #             if list_table_names == [None, None, None, None]:
+    #                 config[str_line]['expansion joint stiffness'] = str(parameters[1])
+    #             else:
+    #                 str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
+    #                 config[str_line]['expansion joint stiffness'] = str_table_names
 
-        self.write_data_in_file(self._pipeline_path, config)
+    #     self.write_data_in_file(self._pipeline_path, config)
 
-    def add_psd_label_in_file(self, lines, psd_label):
+    # def add_psd_label_in_file(self, lines, psd_label):
 
-        if isinstance(lines, int):
-            lines = [lines]
+    #     if isinstance(lines, int):
+    #         lines = [lines]
         
-        config = configparser.ConfigParser()
-        config.read(self._pipeline_path)
+    #     config = configparser.ConfigParser()
+    #     config.read(self._pipeline_path)
 
-        for line_id in lines:
-            config[str(line_id)]['psd label'] = psd_label
+    #     for line_id in lines:
+    #         config[str(line_id)]['psd label'] = psd_label
             
-        self.write_data_in_file(self._pipeline_path, config)
+    #     self.write_data_in_file(self._pipeline_path, config)
 
     def modify_element_ids_in_element_info_file(self, dict_old_to_new_subgroups_elements, dict_non_mapped_subgroups, dict_list_elements_to_subgroups):
         config = configparser.ConfigParser()
@@ -376,72 +309,6 @@ class ProjectFile:
                     config.remove_section(section) 
 
         self.write_data_in_file(self._element_info_path, config)
-
-    def update_node_ids_after_mesh_changed(self):
-
-        aux = dict()
-        non_mapped_nodes = list()
-        preprocessor = app().project.preprocessor
-
-        for key, data in app().project.model.properties.nodal_properties.items():
-
-            (property, *args) = key
-
-            if "coords" in data.keys():
-                coords = np.array(data["coords"], dtype=float)
-                if len(coords) == 6:
-
-                    node_id1, node_id2 = args
-
-                    coords_1 = coords[:3]
-                    coords_2 = coords[3:]
-                    new_node_id1 = preprocessor.get_node_id_by_coordinates(coords_1)
-                    new_node_id2 = preprocessor.get_node_id_by_coordinates(coords_2)
-                    sorted_indexes = np.sort([new_node_id1, new_node_id2])
-
-                    new_key = (property, sorted_indexes[0], sorted_indexes[1])
-
-                    if new_node_id1 is None:
-                        if new_node_id1 not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id1, coords))
-                        continue
-
-                    if new_node_id2 is None:
-                        if new_node_id2 not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id2, coords))
-                        continue
-
-                elif len(coords) == 3:
-
-                    node_id = args
-                    new_node_id = preprocessor.get_node_id_by_coordinates(coords)
-                    new_key = (property, new_node_id)
-
-                    if new_node_id is None:
-                        if new_node_id not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id, coords))
-                        continue
-
-                aux[key] = [new_key, data]
-                
-                if non_mapped_nodes:
-                    print(f"List of non-mapped nodes: {non_mapped_nodes}")
-                    return non_mapped_nodes
-
-        app().project.model.properties.nodal_properties.clear()
-
-        for [new_key, data] in aux.values():
-            (property, *args) = new_key
-            if len(new_key) == 2:
-                property = new_key[0]
-                node_ids = new_key[1]
-            elif len(new_key) == 3:
-                property = new_key[0]
-                node_ids = (new_key[1], new_key[2])
-            else:
-                return
-
-            app().project.model.properties._set_nodal_property(property, data, node_ids=node_ids)
 
     # def add_multiple_cross_sections_expansion_joints_valves_in_file(self, 
     #                                                                 lines, 
@@ -673,412 +540,6 @@ class ProjectFile:
 
     #     except Exception as _error:
     #         print(str(_error))
-
-    # def get_entity_file_data(self):
-
-    #     entity_data = {}
-    #     config = configparser.ConfigParser()
-    #     config.read(self._pipeline_path)
-
-    #     for entity in config.sections():
-    #         keys = config[entity].keys()
-    #         if len(config[entity].keys()) > 0:
-    #             dict_section = {}
-    #             for key in keys:
-    #                 dict_section[key] = config[entity][key]
-                
-    #             entity_data[entity] = dict_section
-
-    #     return entity_data
-
-    # def get_cross_sections_from_file(self):
-    #     """ This method returns a dictionary of already applied cross-sections.
-    #     """
-    #     try:
-
-    #         config = app().pulse_file.read_pipeline_data_from_file()
-    #         sections = config.sections()
-
-    #         _id = 1
-    #         section_info = dict()
-    #         variable_section_line_ids = list()
-    #         parameters_to_line_id = defaultdict(list)
-    #         parameters_to_elements_id = defaultdict(list)
-
-    #         for line in sections:
-
-    #             line_prefix = ""
-    #             list_elements = list()
-
-    #             section = config[line]
-    #             keys = section.keys()
-
-    #             if 'structural element type' in keys:
-    #                 structural_element_type = section['structural element type']
-    #             else:
-    #                 structural_element_type = "pipe_1"
-
-    #             if 'section type' in keys:
-    #                 section_type_label = section['section type']
-    #             else:
-    #                 section_type_label = "Pipe"
-
-    #             if structural_element_type in ["expansion_joint", "valve"]:
-    #                 continue
-                
-    #             section_parameters = list()
-    #             if structural_element_type == "pipe_1":
-
-    #                 if 'section parameters' in keys:
-    #                     str_section_parameters = section['section parameters']
-    #                     section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-  
-    #                 if len(section_parameters) == 10:
-    #                     if line_prefix not in variable_section_line_ids:
-    #                         variable_section_line_ids.append(line)
-
-    #                 if "-" in line:
-    #                     line_prefix = line.split("-")[0]
-    #                     if line_prefix in variable_section_line_ids:
-    #                         continue
-    #                     elif 'list of elements' in keys:
-    #                         str_list_elements = section['list of elements']
-    #                         list_elements = get_list_of_values_from_string(str_list_elements)                 
-
-    #             else:
-
-    #                     structural_element_type = f"beam_1 - {section_type_label}"
-    #                     if section_type_label == "Generic section":   
-    #                         continue              
-
-    #                     else:
-    #                         if 'section parameters' in keys:
-    #                             str_section_parameters = section['section parameters']
-    #                             section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-
-    #             str_section_parameters = str(section_parameters)
-    #             if str_section_parameters not in parameters_to_line_id.keys():
-    #                 section_info[_id] = [structural_element_type, section_parameters]
-    #                 _id += 1
-
-    #             if line_prefix == "":
-    #                 parameters_to_line_id[str_section_parameters].append(int(line))
-
-    #             else:
-    #                 if list_elements:
-    #                     for element_id in list_elements:
-    #                         parameters_to_elements_id[str_section_parameters].append(element_id)
-    #                 else:    
-    #                     parameters_to_line_id[str_section_parameters].append(int(line))
-
-    #         id_1 = 0
-    #         id_2 = 0
-    #         section_info_elements = dict()
-    #         section_info_lines = dict()
-
-    #         for _id, _data in section_info.items():
-
-    #             _section_parameters = _data[1]
-    #             str_section_parameters = str(_section_parameters)
-
-    #             if str_section_parameters in parameters_to_line_id.keys():
-    #                 id_1 += 1
-    #                 data_lines = _data.copy()
-    #                 data_lines.append("line ids")
-    #                 data_lines.append(parameters_to_line_id[str_section_parameters])
-    #                 section_info_lines[id_1] = data_lines
-
-    #             if str_section_parameters in parameters_to_elements_id.keys():
-    #                 id_2 += 1
-    #                 data_elements = _data.copy()
-    #                 data_elements.append("element ids")
-    #                 data_elements.append(parameters_to_elements_id[str_section_parameters])
-    #                 section_info_elements[id_2] = data_elements
-
-    #     except Exception as error_log:
-
-    #         title = "Error while processing cross-sections"
-    #         message = "Error detected while processing the 'get_cross_sections_from_file' method.\n\n"
-    #         message += f"Last line id: {line}\n\n"
-    #         message += f"Details: \n\n {str(error_log)}"
-    #         PrintMessageInput([window_title, title, message])
-
-    #         return dict(), dict()
-
-
-    #     return section_info_lines, section_info_elements
-    
-    # def add_cross_section_in_file(self, lines, cross_section):  
-
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-
-    #     config = configparser.ConfigParser()
-    #     config.read(self._pipeline_path)
-
-    #     for line_id in lines:
-    #         line_id = str(line_id)
-
-    #         for section in config.sections():
-    #             section_prefix = line_id + '-'
-    #             if section_prefix in section:
-    #                 config.remove_section(section)
-        
-    #         str_keys = [    'section type',
-    #                         'section parameters',
-    #                         'section properties',
-    #                         'expansion joint parameters',
-    #                         'expansion joint stiffness',
-    #                         'valve parameters',
-    #                         'valve center coordinates',
-    #                         'valve section parameters',
-    #                         'flange section parameters',
-    #                         'list of elements',
-    #                         'number of flange elements'    ]
-
-    #         for str_key in str_keys:
-    #             if str_key in list(config[line_id].keys()):
-    #                 config.remove_option(section=line_id, option=str_key)
-
-    #         if cross_section is not None:
-    #             config[line_id]['section type'] = cross_section.section_type_label
-    #             if cross_section.beam_section_info is not None:
-    #                 if line_id in list(config.sections()):
-                        
-    #                     if "Generic section" == cross_section.section_type_label:
-    #                         config[line_id]['section properties'] = str(cross_section.section_properties)
-    #                     else:
-    #                         config[line_id]['section parameters'] = str(cross_section.section_parameters)
-    #             else:
-    #                 if line_id in list(config.sections()):
-    #                     section_parameters = cross_section.section_parameters
-    #                     config[line_id]['section parameters'] = str(section_parameters)
-        
-    #     self.write_data_in_file(self._pipeline_path, config)      
-
-    # def add_cross_section_segment_in_file(self, section_info : dict):
-        
-    #     try:
-
-    #         config = app().pulse_file.read_pipeline_data_from_file()
-
-    #         for line_id, data in section_info.items():
-
-    #             line_id = str(line_id)
-
-    #             str_keys = [    'section parameters',
-    #                             'section properties',
-    #                             'section type',
-    #                             'expansion joint parameters',
-    #                             'expansion joint stiffness',
-    #                             'valve parameters',
-    #                             'valve center coordinates',
-    #                             'valve section parameters',
-    #                             'flange section parameters'   ]
-
-    #             for str_key in str_keys:
-    #                 if str_key in list(config[line_id].keys()):
-    #                     config.remove_option(section=line_id, option=str_key)
-
-    #             if data is not None:
-
-    #                 section_type_label = data["section_type_label"]
-    #                 config[line_id]['section type'] = section_type_label
-
-    #                 if section_type_label in ["Pipe" , "Reducer"]:
-    #                     if line_id in list(config.sections()):
-    #                         section_parameters = data["section_parameters"]
-    #                         config[line_id]['section parameters'] = str(section_parameters)
-
-    #                 else:
-
-    #                     if line_id in list(config.sections()):
-
-    #                         if section_type_label == "Generic section":
-    #                             section_properties = data["section_properties"]
-    #                             config[line_id]['section properties'] = str(section_properties)
-
-    #                         else:
-    #                             section_parameters = data["section_parameters"]
-    #                             config[line_id]['section parameters'] = str(section_parameters)                    
-
-    #     except Exception as error_log:
-    #         title = "Error while writing cross-section data in file"
-    #         message = str(error_log)
-    #         PrintMessageInput([window_title_1, title, message])
-    #         return
-
-    #     app().pulse_file.write_pipeline_data_in_file(config)
-
-    # def add_length_correction_in_file(self, elements, _type, section, psd_label=""): 
-        
-    #     config = configparser.ConfigParser()
-    #     config.read(self._element_info_path)
-
-    #     if section in list(config.sections()):
-    #         config[section]['length correction type'] = str(_type)
-    #         config[section]['list of elements'] = str(elements)
-    #         if psd_label != "":
-    #             config[section]['psd label'] = psd_label
-
-    #     else:
-    #         config[section] =   {   'length correction type': str(_type),
-    #                                 'list of elements': str(elements),
-    #                                 'psd label' : psd_label   }
-
-    #     self.write_data_in_file(self._element_info_path, config)
-
-    # def modify_B2PX_rotation_decoupling_in_file(self, 
-    #                                             elements = None, 
-    #                                             nodes = None, 
-    #                                             rotations_maks = None, 
-    #                                             section = None, 
-    #                                             remove = False, 
-    #                                             reset = False):
-
-    #     config = configparser.ConfigParser()
-    #     config.read(self._element_info_path)
-
-    #     if remove:
-    #         config.remove_section(section)
-
-    #     elif reset:
-    #         for section in list(config.sections()):
-    #             if 'B2PX ROTATION DECOUPLING' in section:
-    #                 config.remove_section(section) 
-
-    #     else:
-    #         if section in list(config.sections()):
-    #             config[section]['list of elements'] = str(elements)
-    #             config[section]['list of nodes'] = str(nodes)
-    #             config[section]['rotation dofs mask'] = str(rotations_maks)
-    #         else:
-    #             config[section] = { 'list of elements': str(elements),
-    #                                 'list of nodes': str(nodes),
-    #                                 'rotation dofs mask': str(rotations_maks) }
-
-    #     if len(list(config.sections())):
-    #         self.write_data_in_file(self._element_info_path, config)
-    #     else:
-    #         os.remove(self._element_info_path)
-
-    # def modify_capped_end_elements_in_file(self, elements, value, section): 
-        
-    #     config = configparser.ConfigParser()
-    #     config.read(self._element_info_path)
-
-    #     if value:
-    #         if section in list(config.sections()):
-    #             config[section]['list of elements'] = str(elements)
-    #         else:
-    #             config[section] = {'list of elements' : str(elements)}
-    #     else:
-    #         if section in list(config.sections()):    
-    #             config.remove_section(section)
-
-    #     if len(list(config.sections())):
-    #         self.write_data_in_file(self._element_info_path, config)
-    #     else:
-    #         os.remove(self._element_info_path)
-
-    # def modify_capped_end_lines_in_file(self, lines, value):
-
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-
-    #     config = configparser.ConfigParser()
-    #     config.read(self._pipeline_path)
-        
-    #     for line_id in lines:
-    #         str_entity_id = str(line_id)
-    #         if value:    
-    #             config[str_entity_id]['capped end'] = str(value)
-    #         else:
-    #             config.remove_option(section=str_entity_id, option='capped end')
-
-    #     self.write_data_in_file(self._pipeline_path, config)
-
-    # def modify_structural_element_type_in_file(self, lines, element_type):
-        
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-
-    #     config = app().pulse_file.read_pipeline_data_from_file()
-
-    #     for line_id in lines:
-    #         str_line = str(line_id)
-    #         if element_type in ["beam_1"]:
-    #             str_keys = ['fluid id', 'stress stiffening parameters']
-                
-    #             for str_key in str_keys:
-    #                 if str_key in config[str_line].keys():
-    #                     config.remove_option(section=str_line, option=str_key)
-
-    #         config[str_line]['structural element type'] = element_type
-
-    #     app().pulse_file.write_pipeline_data_in_file(config)
-
-    # def modify_structural_element_wall_formulation_in_file(self, lines, formulation):
-        
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-
-    #     config = configparser.ConfigParser()
-    #     config.read(self._pipeline_path)
-
-    #     for line_id in lines:
-    #         str_line = str(line_id)     
-    #         if formulation is None:
-    #             str_key = 'structural element wall formulation'
-    #             config.remove_option(section=str_line, option=str_key)
-    #         else:
-    #             config[str_line]['structural element wall formulation'] = formulation
-
-    #     self.write_data_in_file(self._pipeline_path, config)
-
-    # def modify_structural_element_force_offset_in_file(self, lines, force_offset):
-        
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-
-    #     config = configparser.ConfigParser()
-    #     config.read(self._pipeline_path)
-
-    #     for line_id in lines:
-    #         str_line = str(line_id)     
-    #         if force_offset is None:
-    #             str_key = 'force offset'
-    #             config.remove_option(section=str_line, option=str_key)
-    #         else:
-    #             config[str_line]['force offset'] = str(force_offset)
-
-    #     self.write_data_in_file(self._pipeline_path, config)
-
-    # def modify_acoustic_element_type_in_file(self, lines, element_type, proportional_damping=None, vol_flow=None):
-        
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-
-    #     config = configparser.ConfigParser()
-    #     config.read(self._pipeline_path)
-        
-    #     for line_id in lines:
-    #         _section = str(line_id)
-
-    #         config[_section]['acoustic element type'] = element_type
-    #         if element_type == 'proportional':
-    #             config[_section]['proportional damping'] = str(proportional_damping)
-                
-    #         if element_type != 'proportional' and 'proportional damping' in config[_section].keys():
-    #             config.remove_option(section=_section, option='proportional damping')  
-
-    #         if element_type in ["undamped mean flow", "peters", "howe"]:
-    #             config[_section]['volume flow rate'] = str(vol_flow)
-
-    #         if element_type not in ["undamped mean flow", "peters", "howe"] and 'volume flow rate' in config[_section].keys():
-    #             config.remove_option(section=_section, option='volume flow rate')  
-    
-    #     self.write_data_in_file(self._pipeline_path, config)
 
     # def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):
     #     """ This method updates the lists of elements in entity file after remesh process. A mapping process checks the boundaries of the
