@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1045</width>
-     <height>21</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -882,6 +882,9 @@
    </property>
   </action>
   <action name="action_section_plane">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset>
      <normaloff>../icons/common/section_plane_icon.png</normaloff>../icons/common/section_plane_icon.png</iconset>

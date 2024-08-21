@@ -145,6 +145,7 @@ class MainWindow(QMainWindow):
         self.action_user_preferences : QAction
         self.action_geometry_editor_help : QAction
         self.action_pulsation_suppression_device_editor : QAction
+        self.action_section_plane : QAction
 
         # QMenu
         self.menu_recent : QMenu
@@ -755,14 +756,17 @@ class MainWindow(QMainWindow):
         render_widget = self.render_widgets_stack.currentWidget()
         render_widget.set_back_view()
     
-    def action_section_plane_callback(self):
-        self.section_plane.show()
-
-        self.section_plane.value_changed.connect(self.set_section_plane_configs)
-        self.section_plane.slider_released.connect(self.apply_section_plane)
-        self.section_plane.closed.connect(self.close_section_plane)
-        self.set_section_plane_configs()
-        self.apply_section_plane()
+    def action_section_plane_callback(self, condition):
+        if condition:
+            self.section_plane.show()
+            self.section_plane.value_changed.connect(self.set_section_plane_configs)
+            self.section_plane.slider_released.connect(self.apply_section_plane)
+            self.section_plane.closed.connect(self.close_section_plane)
+            self.set_section_plane_configs()
+            self.apply_section_plane()
+        else:
+            self.section_plane.keep_section_plane = False
+            self.section_plane.close()
 
     def action_zoom_callback(self):
         self.geometry_widget.renderer.ResetCamera()
@@ -785,7 +789,11 @@ class MainWindow(QMainWindow):
             self.results_widget.hide_section_plane()
             self.mesh_widget.hide_section_plane()
             return
-        
+    
+        self.action_section_plane.blockSignals(True)
+        self.action_section_plane.setChecked(False)
+        self.action_section_plane.blockSignals(False)
+
         self.results_widget.dismiss_section_plane()
         self.mesh_widget.dismiss_section_plane()
 
