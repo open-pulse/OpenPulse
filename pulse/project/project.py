@@ -638,7 +638,7 @@ class Project:
     #     self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, key)
     #     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
     
-    def set_perforated_plate_convergence_dataLog(self, data):
+    def set_perforated_plate_convergence_data_log(self, data):
         self.perforated_plate_data_log = data
 
     def set_color_scale_setup(self, color_scale_setup):

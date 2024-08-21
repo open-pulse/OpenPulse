@@ -48,7 +48,7 @@ class AcousticSolver:
     def _initialize(self):
 
         self.solution_nm1 = None
-        self.convergence_dataLog = None
+        self.convergence_data_log = None
 
         self.relative_error = list()
         self.deltaP_errors = list()
@@ -232,119 +232,126 @@ class AcousticSolver:
         cols = len(self.frequencies)
         solution = np.zeros((rows, cols), dtype=complex)
 
-        for (property, _) in self.model.properties.element_properties.keys():
+        perforated_plate = False
+        for (property, _), data in self.model.properties.element_properties.items():
             if property == "perforated_plate":
-    
-                self.solution_nm1 = np.zeros((rows, cols), dtype=complex)
-                vect_freqs = list(np.arange(cols, dtype=int))[1:]
-
-                self.plt = plt
-
-                # self.iterations = list()
-                pressure_residues = list()
-                delta_residues = list()
-
-                cache_delta_pressures = list()
-                cache_delta = list()
-                
-                self.unstable_frequencies = {}
-                freq_indexes = {}
-
-                count = 0
-                relative_difference = 1
-                converged = False
-
-                if self.non_linear:
-                    while relative_difference > self.target or not converged:
-
-                        if self.stop_processing():
-                            return None, None
-
-                        self.get_global_matrices()
-
-                        for i in range(cols):
-                            solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
-
-                        solution = self._reinsert_prescribed_dofs(solution)
-                        
-                        delta_pressures = []
-                        cache_delta_residues = []
-                        cache_pressure_residues = np.array([])
-
-                        for i, element in enumerate(self.valve_elements):
-                            element.update_pressure(solution)
-                            first = element.first_node.global_index
-                            last = element.last_node.global_index
-                            pressure_residue_first = relative_error(solution[first, vect_freqs], self.solution_nm1[first, vect_freqs])
-                            pressure_residue_last = relative_error(solution[last, vect_freqs], self.solution_nm1[last, vect_freqs])
-                            cache_pressure_residues = np.r_[ cache_pressure_residues, pressure_residue_first, pressure_residue_last ] 
+                perforated_plate = True
+                return
             
-                            index = np.argmax(np.abs(element.delta_pressure[vect_freqs]))
-                            max_value = np.max(np.abs(element.delta_pressure[vect_freqs]))
+        if not perforated_plate:
 
-                            if len(delta_pressures) == len(self.valve_elements):
-                                delta_pressures[i] = element.delta_pressure[1:]
-                                cache_delta_residues[i] = relative_error(delta_pressures[i], cache_delta_pressures[i])
-                            else:
-                                delta_pressures.append(element.delta_pressure[1:])
-                                cache_delta_pressures.append(np.zeros_like(element.delta_pressure[1:], dtype=complex))
-                                cache_delta_residues.append(relative_error(delta_pressures[i], cache_delta_pressures[i]))
-                                            
-                            if count >= 5:
-                                if len(cache_delta) == len(self.valve_elements):                                
-                                    if abs((cache_delta[i]-max_value)/cache_delta[i]) > 0.5:
-                                        if index in freq_indexes.keys():
-                                            freq_indexes[index] += 1
-                                        else:
-                                            freq_indexes[index] = 1
-                                    cache_delta[i] = max_value
-                                else:
-                                    cache_delta.append(max_value)
+            for i in range(cols):
+                solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
 
-                        count += 1
-                        relative_difference = np.max(cache_pressure_residues)
-                        pressure_residues.append(100*relative_difference)
-                        delta_residues.append(100*max(cache_delta_residues))
-                        self.iterations.append(count)
+            solution = self._reinsert_prescribed_dofs(solution)
 
-                        cache_delta_pressures = delta_pressures.copy()
-                        self.solution_nm1 = solution
-                        solution = np.zeros((rows, cols), dtype=complex)
+            return solution, self.convergence_data_log
 
-                        for ind, repetitions in freq_indexes.items():
-                            if repetitions >= 4:
-                                if ind not in self.unstable_frequencies:
-                                    _frequencies = self.frequencies[vect_freqs]
-                                    freq = _frequencies[ind]
-                                    self.unstable_frequencies[ind] = freq
-                                    vect_freqs.remove(freq)
-                                    message = f"The {freq}Hz frequency step produces unstable results, therefore "
-                                    message += "it will be excluded from the calculation of the residue convergence criteria.\n"
-                                    print(message)  
+        else:
 
-                        self.relative_error = pressure_residues
-                        self.deltaP_errors = delta_residues
-                        converged = self.check_convergence_criterias(pressure_residues, delta_residues)
+            self.solution_nm1 = np.zeros((rows, cols), dtype=complex)
+            vect_freqs = list(np.arange(cols, dtype=int))[1:]
 
-                        if converged:
-                            self.convergence_dataLog = [self.iterations, pressure_residues, delta_residues, 100*self.target]
-                            return self.solution_nm1, self.convergence_dataLog
+            self.plt = plt
 
-                else:
+            # self.iterations = list()
+            pressure_residues = list()
+            delta_residues = list()
+
+            cache_delta_pressures = list()
+            cache_delta = list()
+            
+            self.unstable_frequencies = dict()
+            freq_indexes = dict()
+
+            count = 0
+            relative_difference = 1
+            converged = False
+
+            if self.non_linear:
+                while relative_difference > self.target or not converged:
+
+                    if self.stop_processing():
+                        return None, None
+
+                    self.get_global_matrices()
 
                     for i in range(cols):
                         solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
-                        if self.stop_processing():
-                            return None, None
+
                     solution = self._reinsert_prescribed_dofs(solution)
-                    return solution, self.convergence_dataLog                     
+                    
+                    delta_pressures = list()
+                    cache_delta_residues = list()
+                    cache_pressure_residues = np.array([])
+
+                    for i, element in enumerate(self.valve_elements):
+                        element.update_pressure(solution)
+                        first = element.first_node.global_index
+                        last = element.last_node.global_index
+                        pressure_residue_first = relative_error(solution[first, vect_freqs], self.solution_nm1[first, vect_freqs])
+                        pressure_residue_last = relative_error(solution[last, vect_freqs], self.solution_nm1[last, vect_freqs])
+                        cache_pressure_residues = np.r_[ cache_pressure_residues, pressure_residue_first, pressure_residue_last ] 
+        
+                        index = np.argmax(np.abs(element.delta_pressure[vect_freqs]))
+                        max_value = np.max(np.abs(element.delta_pressure[vect_freqs]))
+
+                        if len(delta_pressures) == len(self.valve_elements):
+                            delta_pressures[i] = element.delta_pressure[1:]
+                            cache_delta_residues[i] = relative_error(delta_pressures[i], cache_delta_pressures[i])
+                        else:
+                            delta_pressures.append(element.delta_pressure[1:])
+                            cache_delta_pressures.append(np.zeros_like(element.delta_pressure[1:], dtype=complex))
+                            cache_delta_residues.append(relative_error(delta_pressures[i], cache_delta_pressures[i]))
+                                        
+                        if count >= 5:
+                            if len(cache_delta) == len(self.valve_elements):                                
+                                if abs((cache_delta[i]-max_value)/cache_delta[i]) > 0.5:
+                                    if index in freq_indexes.keys():
+                                        freq_indexes[index] += 1
+                                    else:
+                                        freq_indexes[index] = 1
+                                cache_delta[i] = max_value
+                            else:
+                                cache_delta.append(max_value)
+
+                    count += 1
+                    relative_difference = np.max(cache_pressure_residues)
+                    pressure_residues.append(100*relative_difference)
+                    delta_residues.append(100*max(cache_delta_residues))
+                    self.iterations.append(count)
+
+                    cache_delta_pressures = delta_pressures.copy()
+                    self.solution_nm1 = solution
+                    solution = np.zeros((rows, cols), dtype=complex)
+
+                    for ind, repetitions in freq_indexes.items():
+                        if repetitions >= 4:
+                            if ind not in self.unstable_frequencies:
+                                _frequencies = self.frequencies[vect_freqs]
+                                freq = _frequencies[ind]
+                                self.unstable_frequencies[ind] = freq
+                                vect_freqs.remove(freq)
+                                message = f"The {freq}Hz frequency step produces unstable results, therefore "
+                                message += "it will be excluded from the calculation of the residue convergence criteria.\n"
+                                print(message)  
+
+                    self.relative_error = pressure_residues
+                    self.deltaP_errors = delta_residues
+                    converged = self.check_convergence_criterias(pressure_residues, delta_residues)
+
+                    if converged:
+                        self.convergence_data_log = [self.iterations, pressure_residues, delta_residues, 100*self.target]
+                        return self.solution_nm1, self.convergence_data_log
 
             else:
 
                 for i in range(cols):
                     solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
+                    if self.stop_processing():
+                        return None, None
                 solution = self._reinsert_prescribed_dofs(solution)
-                return solution, self.convergence_dataLog
+                return solution, self.convergence_data_log                     
 
     def graph_callback(self, interval, fig, ax):  
         import matplotlib.pyplot as plt
@@ -411,7 +418,6 @@ class AcousticSolver:
         print(f"Evaluated delta pressure residue criteria: {round(delta_residues[-1], 2)}[%] @ {count}{label} iteration\n")
 
         if count >= self.max_iter:
-            # self.plt.close()
             if pressure_residues[-1] < 100*self.target:
 
                 final_log = f"The solution converged after {count} iterations with the following observations:"
