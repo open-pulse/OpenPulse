@@ -145,20 +145,20 @@ class TubeActorGPU(vtkActor):
             return cross_section_sources.t_beam_data(element.length, h, w1, t1, tw)
         
         elif cross_section.section_label == "Expansion joint section":
-            if self.expansion_joint_plot_key == "major":
-                r_out = self.outer_radius * 1.25 
-            elif self.expansion_joint_plot_key == "minor":
-                r_out = self.outer_radius * 1.1            
+            if cross_section.expansion_joint_plot_key == "major":
+                r_out = cross_section.outer_radius * 1.25 
+            elif cross_section.expansion_joint_plot_key == "minor":
+                r_out = cross_section.outer_radius * 1.1            
             else:
-                r_out = self.outer_radius * 1.4
+                r_out = cross_section.outer_radius * 1.4
             d_out = r_out * 2
             d_in = r_out * 1.6
             t = d_out - d_in
             return cross_section_sources.pipe_data(element.length, d_out, t, sides=tube_sides)
 
         elif cross_section.section_label == "Valve section":
-            d_out = self.outer_diameter_to_plot
-            t = d_out - self.inner_diameter_to_plot
+            d_out = cross_section.outer_diameter_to_plot
+            t = d_out - cross_section.inner_diameter_to_plot
             return cross_section_sources.pipe_data(element.length, d_out, t, sides=tube_sides)
 
         return None
@@ -282,24 +282,24 @@ class TubeActorGPU(vtkActor):
         self.GetMapper().RemoveAllClippingPlanes()
 
     def _hash_element_section(self, element):
-
         if element.cross_section is None:
-            section_label = None
-            section_parameters = None
+            return 0
 
-        elif element.cross_section.section_parameters is None:
-            section_label = None
-            section_parameters = None
+        section_label = element.cross_section.section_label
 
+        if section_label == "Expansion joint section":
+            section_parameters = element.cross_section.expansion_joint_plot_key
         else:
-            section_label = element.cross_section.section_label
-            section_parameters = tuple(element.cross_section.section_parameters)
+            section_parameters = element.cross_section.section_parameters
+
+        if section_parameters is not None:
+            section_parameters = tuple(section_parameters)
 
         return hash((
-                        round(element.length, 5),
-                        section_label,
-                        section_parameters,
-                    ))
+            round(element.length, 5),
+            section_label,
+            section_parameters,
+        ))
 
     def _fixed_section(self, source):
         if source is None:
