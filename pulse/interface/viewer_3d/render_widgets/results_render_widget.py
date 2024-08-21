@@ -286,6 +286,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.plane_actor.VisibilityOn()
         self.update()
+    
+    def hide_section_plane(self):
+        if not self._actor_exists():
+            return
+        self.plane_actor.VisibilityOff()
+        self.update()
 
     def dismiss_section_plane(self):
         if not self._actor_exists():

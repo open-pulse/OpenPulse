@@ -782,6 +782,8 @@ class MainWindow(QMainWindow):
 
     def close_section_plane(self):
         if self.section_plane.keep_section_plane:
+            self.results_widget.hide_section_plane()
+            self.mesh_widget.hide_section_plane()
             return
         
         self.results_widget.dismiss_section_plane()
