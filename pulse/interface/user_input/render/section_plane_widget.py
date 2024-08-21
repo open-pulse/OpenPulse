@@ -44,7 +44,10 @@ class SectionPlaneWidget(QDialog):
         self.setWindowTitle("Section Plane")
 
     def _define_qt_variables(self):
+
         # QPushButton
+        self.pushButton_apply : QPushButton
+        self.pushButton_cancel : QPushButton
         self.pushButton_invert : QPushButton
         self.pushButton_reset : QPushButton
 
@@ -79,6 +82,8 @@ class SectionPlaneWidget(QDialog):
         for spinbox in self._spinboxes():
             spinbox.valueChanged.connect(self.spinbox_value_change_callback)
 
+        self.pushButton_apply.clicked.connect(self.apply_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_reset.clicked.connect(self.reset_button_callback)
         self.pushButton_invert.clicked.connect(self.invert_button_callback)
 
@@ -163,6 +168,9 @@ class SectionPlaneWidget(QDialog):
 
     def slider_pressed_callback(self):
         self.slider_pressed.emit(*self.get_position(), *self.get_rotation())
+
+    def apply_callback(self):
+        self.close()
 
     def closeEvent(self, event):
         self.closed.emit()
