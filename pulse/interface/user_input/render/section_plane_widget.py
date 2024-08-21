@@ -69,9 +69,6 @@ class SectionPlaneWidget(QDialog):
         self.plane_rotation_y_spinbox : QSpinBox
         self.plane_rotation_z_spinbox : QSpinBox
 
-        # QCheckBox
-        self.keep_section_plane_checkbox : QCheckBox
-
     def _create_connections(self):
 
         for slider in self._sliders():
@@ -87,7 +84,9 @@ class SectionPlaneWidget(QDialog):
         self.pushButton_reset.clicked.connect(self.reset_button_callback)
         self.pushButton_invert.clicked.connect(self.invert_button_callback)
 
-        self.keep_section_plane_checkbox.stateChanged.connect(self.keep_section_plane_callback)
+    def show(self):
+        self.keep_section_plane = False
+        return super().show()
 
     def get_position(self, get_from: str = "spinboxes"):
         if get_from == "sliders":
@@ -159,9 +158,6 @@ class SectionPlaneWidget(QDialog):
         self.invert_value = not self.invert_value
         self.value_changed.emit(*self.get_position(), *self.get_rotation())
         self.slider_released.emit(*self.get_position(), *self.get_rotation())
-    
-    def keep_section_plane_callback(self):
-        self.keep_section_plane = self.keep_section_plane_checkbox.checkState()
 
     def slider_release_callback(self):
         self.slider_released.emit(*self.get_position(), *self.get_rotation())
@@ -170,6 +166,7 @@ class SectionPlaneWidget(QDialog):
         self.slider_pressed.emit(*self.get_position(), *self.get_rotation())
 
     def apply_callback(self):
+        self.keep_section_plane = True
         self.close()
 
     def closeEvent(self, event):
