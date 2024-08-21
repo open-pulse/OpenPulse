@@ -1,3 +1,11 @@
+from time import time
+import os
+import sys
+import qdarktheme
+from functools import partial
+from pathlib import Path
+import logging
+
 from PyQt5.QtWidgets import QAbstractButton, QAction, QComboBox, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCursor
@@ -6,6 +14,8 @@ from PyQt5 import uic
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.io.pcf.pcf_exporter import PCFExporter
 from opps.io.pcf.pcf_handler import PCFHandler
+
+from molde.render_widgets import CommonRenderWidget
 
 from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters import icons
@@ -18,16 +28,8 @@ from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
-
-from time import time
-
-from molde.render_widgets import CommonRenderWidget
-import os
-import sys
-import qdarktheme
-from functools import partial
-from pathlib import Path
 
 
 class MainWindow(QMainWindow):
@@ -281,14 +283,22 @@ class MainWindow(QMainWindow):
         self.update_plots()
 
     def open_project(self, path=None):
-        if not self.input_ui.load_project(path):
-            return
+        def tmp():
+            logging.info("Loading project [1/3]")
+            if not self.input_ui.load_project(path):
+                return False
 
-        self._update_recent_projects()
-        self.set_window_title(self.file._project_name)
-        self.update_plots()
-        self.action_front_view_callback()
-    
+            logging.info("Update recent projects [2/3]")
+            self._update_recent_projects()
+
+            logging.info("Configuring visualization [3/3]")
+            self.set_window_title(self.file._project_name)
+            self.update_plots()
+            self.action_front_view_callback()
+            return True
+
+        LoadingWindow(tmp).run()
+
     def open_pcf(self):
         '''
         This function is absolutelly disgusting. I will refactor this next week, 
@@ -446,7 +456,7 @@ class MainWindow(QMainWindow):
         # t0 = time()
         self.mesh_toolbar.pushButton_generate_mesh.setDisabled(True)
         if self.config.open_last_project and self.config.haveRecentProjects():
-            self.import_project_call(self.config.getMostRecentProjectDir())
+            self.open_project(self.config.getMostRecentProjectDir())
         elif self.input_ui.get_started():
             self.action_front_view_callback()
             self._update_recent_projects()
@@ -808,13 +818,6 @@ class MainWindow(QMainWindow):
 
     def action_import_geometry_callback(self):
         self.input_ui.import_geometry()
-
-    def import_project_call(self, path=None):
-        if self.input_ui.load_project(path):
-            self._update_recent_projects()
-            self.change_window_title(self.file.project_name)
-            self.update_plots()
-            self.action_front_view_callback()
 
     def _add_mesh_toolbar(self):
         self.mesh_toolbar = MeshToolbar()

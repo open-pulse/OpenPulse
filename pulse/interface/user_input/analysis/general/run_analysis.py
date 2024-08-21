@@ -8,10 +8,12 @@ from pulse.interface.formatters.icons import *
 from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.postprocessing.save_data import SaveData
 from pulse.postprocessing.read_data import ReadData
 
 from time import time, sleep
+import logging
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -33,39 +35,64 @@ class RunAnalysisInput(QDialog):
         # self._create_connections()
         # self._config_widgets()
 
-        LoadingScreen(title = 'Solution in progress', 
-                      message = 'Processing the cross-sections',  
-                      target = self.process_cross_sections, 
-                      project = self.project)
+        LoadingWindow(self.run_analysis).run()
+
+        # LoadingScreen(title = 'Solution in progress', 
+        #               message = 'Processing the cross-sections',  
+        #               target = self.process_cross_sections, 
+        #               project = self.project)
         
+        # if self.project.preprocessor.stop_processing:
+        #     self.project.preprocessor.stop_processing = False
+        #     return
+
+        # LoadingScreen(title = 'Solution in progress', 
+        #               message = 'Preparing the model to solve', 
+        #               target = self.preparing_mathematical_model_to_solve)
+
+        # self.pre_non_linear_convergence_plot()
+
+        # LoadingScreen(title = 'Solution in progress', 
+        #               message = 'Solving the analysis',  
+        #               target = self.process_analysis, 
+        #               project = self.project)
+
+        # self.post_non_linear_convergence_plot()  
+
+        # if self.project.preprocessor.stop_processing:
+        #     self.reset_all_results()
+        #     self.project.preprocessor.stop_processing = False
+        # else:
+
+        #     LoadingScreen(title = 'Solution in progress', 
+        #                   message = 'Post-processing the obtained results', 
+        #                   target = self.post_process_results)
+            
+        #     # self.timer.start(200)
+        #     # self.exec()
+        #     self.check_warnings()
+    
+    def run_analysis(self):
+        logging.info("Processing the cross-sections [1/4]")
+        self.process_cross_sections()
         if self.project.preprocessor.stop_processing:
             self.project.preprocessor.stop_processing = False
             return
 
-        LoadingScreen(title = 'Solution in progress', 
-                      message = 'Preparing the model to solve', 
-                      target = self.preparing_mathematical_model_to_solve)
-
+        logging.info("Preparing the model to solve [2/4]")
+        self.preparing_mathematical_model_to_solve()
         self.pre_non_linear_convergence_plot()
 
-        LoadingScreen(title = 'Solution in progress', 
-                      message = 'Solving the analysis',  
-                      target = self.process_analysis, 
-                      project = self.project)
-
+        logging.info("Solving the analysis [3/4]")
+        self.process_analysis()
         self.post_non_linear_convergence_plot()  
 
         if self.project.preprocessor.stop_processing:
             self.reset_all_results()
             self.project.preprocessor.stop_processing = False
         else:
-
-            LoadingScreen(title = 'Solution in progress', 
-                          message = 'Post-processing the obtained results', 
-                          target = self.post_process_results)
-            
-            # self.timer.start(200)
-            # self.exec()
+            logging.info("Post-processing the obtained results [4/4]")
+            self.post_process_results()
             self.check_warnings()
 
     def _config_window(self):

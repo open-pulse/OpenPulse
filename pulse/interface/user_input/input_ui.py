@@ -75,6 +75,7 @@ from pulse.interface.user_input.render.section_plane_widget import SectionPlaneW
 from pulse import app
 
 from time import time
+import logging
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -101,6 +102,8 @@ class InputUi:
             read = workingClass(*args, **kwargs)
             return read
         except Exception as log_error:
+            logging.exception(log_error)
+
             title = "Error detected in 'process_input' method"
             message = str(log_error)
             PrintMessageInput([window_title_1, title, message])
