@@ -48,14 +48,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.mouse_click = (0, 0)
         # dont't remove, transparency depends on it
         self.renderer.SetUseDepthPeeling(
             True
         )
 
-        self.interactor_style = BoxSelectionInteractorStyle()
-        self.render_interactor.SetInteractorStyle(self.interactor_style)
+        self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
 
         self.open_pulse_logo = None
@@ -78,6 +76,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_origin = (0, 0, 0)
         self.plane_normal = (1, 0, 0)
         self.config_tube_args = (0, 0, 0, 0, 0, 0)
+        self.mouse_click = (0, 0)
 
         self.analysis_mode = AnalysisMode.EMPTY
         self.colormap = "viridis"
@@ -85,7 +84,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.create_axes()
         self.create_scale_bar()
         self.create_color_bar()
-        self.create_logos()
         self.set_theme("light")
         self.create_camera_light(0.1, 0.1)
         self._create_connections()

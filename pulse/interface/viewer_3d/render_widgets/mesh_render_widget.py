@@ -33,8 +33,7 @@ from ._model_info_text import elements_info_text, entity_info_text, nodes_info_t
 class MeshRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.interactor_style = BoxSelectionInteractorStyle()
-        self.render_interactor.SetInteractorStyle(self.interactor_style)
+        self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
 
         self.open_pulse_logo = None
@@ -61,7 +60,6 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.create_axes()
         self.create_scale_bar()
-        self.create_logos()
         self.set_theme("light")
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
