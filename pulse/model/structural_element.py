@@ -1544,9 +1544,10 @@ class StructuralElement:
         return shear_coefficient
 
     def stiffness_matrix_expansion_joint(self, frequencies=None):
-        L_e = self.joint_length/self.length
+
+        L_e = self.joint_length / self.length
         K_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-        
+
         K1 = self.joint_axial_stiffness*L_e
         K2 = K3 = self.joint_transversal_stiffness/L_e
         K4 = self.joint_torsional_stiffness*L_e
@@ -1562,14 +1563,16 @@ class StructuralElement:
         return K_matrix
 
     def stiffness_matrix_expansion_joint_harmonic(self, frequencies=None):
-        L_e = self.joint_length/self.length
+
+        L_e = self.joint_length / self.length
+
         if frequencies is None:
             number_frequencies = 1
         else:
             number_frequencies = len(frequencies)
-         
+
         K_matrix = np.zeros((number_frequencies, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-            
+
         K1 = self.joint_axial_stiffness*L_e
         K2 = K3 = self.joint_transversal_stiffness/L_e
         K4 = self.joint_torsional_stiffness*L_e
@@ -1592,13 +1595,15 @@ class StructuralElement:
         return K_matrix
 
     def mass_matrix_expansion_joint(self):
-        L_e = self.joint_length/self.length
+
+        L_e = self.joint_length / self.length
         M_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        M1 = M2 = M3 = self.joint_mass/(2*L_e)
+        M1 = M2 = M3 = self.joint_mass / (2 * L_e)
         indexes = np.array([0,1,2,6,7,8], dtype=int)
 
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]
+
         return M_matrix
 
     def mass_matrix_valve(self):
@@ -1612,7 +1617,7 @@ class StructuralElement:
         return M_matrix
 
     def reset_expansion_joint_parameters(self):
-        self.expansion_joint_parameters = None
+        self.expansion_joint_data = None
         self.joint_length = 0
         self.joint_effective_diameter = 0
         self.joint_mass = 0  
@@ -1634,7 +1639,23 @@ class StructuralElement:
         self.valve_mass = 0
         self.valve_center_coordinates = None
         self.flange_parameters = dict()  
-        self.valve_diameters = dict()        
+        self.valve_diameters = dict()
+
+    def set_expansion_joint_data(self, data):
+        if isinstance(data, dict):
+
+            self.expansion_joint_data = data
+            self.joint_length = data["joint_length"]
+            self.joint_effective_diameter = data["effective_diameter"]
+            self.joint_mass = data["joint_mass"]
+            self.joint_axial_locking_criteria = data["axial_locking_criteria"]
+            self.joint_rods_included = data["rods"]
+            stiffness_values = data["stiffness_values"]
+
+            self.joint_axial_stiffness = stiffness_values[0]
+            self.joint_transversal_stiffness = stiffness_values[1]
+            self.joint_torsional_stiffness = stiffness_values[2]
+            self.joint_angular_stiffness = stiffness_values[3]
 
     def get_array_values(self, value, number_frequencies):
         if isinstance(value, np.ndarray):

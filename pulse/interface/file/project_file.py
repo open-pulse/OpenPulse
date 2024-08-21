@@ -841,11 +841,11 @@ class ProjectFile:
     #                 config.remove_option(section=line_id, option=str_key)
 
     #         if cross_section is not None:
-    #             config[line_id]['section type'] = cross_section.section_label
+    #             config[line_id]['section type'] = cross_section.section_type_label
     #             if cross_section.beam_section_info is not None:
     #                 if line_id in list(config.sections()):
                         
-    #                     if "Generic section" == cross_section.section_label:
+    #                     if "Generic section" == cross_section.section_type_label:
     #                         config[line_id]['section properties'] = str(cross_section.section_properties)
     #                     else:
     #                         config[line_id]['section parameters'] = str(cross_section.section_parameters)

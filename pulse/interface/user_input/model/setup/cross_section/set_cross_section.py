@@ -500,14 +500,6 @@ class SetCrossSectionInput(QDialog):
             self.preprocessor.set_structural_element_type_by_lines(line_ids, "beam_1")
             self.properties._set_line_property("structural_element_type", "beam_1", line_ids)
 
-            # section_label = self.input_widget.section_label
-            # section_parameters = self.input_widget.section_parameters
-            # section_properties = self.input_widget.section_properties
-
-            # section_info = {"section_type_label" : section_label,
-            #                 "section_parameters" : section_parameters,
-            #                 "section_properties" : section_properties}
-
             section_info = self.input_widget.beam_section_info
             cross_section = CrossSection(beam_section_info=section_info)
 
@@ -536,7 +528,7 @@ class SetCrossSectionInput(QDialog):
         plt.close()
         self.complete = True
         app().pulse_file.write_line_properties_in_file()
-        # self.preprocessor.add_lids_to_variable_cross_sections()
+        app().project.enhance_pipe_sections_appearance()
 
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)

@@ -230,10 +230,10 @@ class ExpansionJointInput(QDialog):
         try:
 
             self.reset_all_lineEdits()
-            self.lineEdit_joint_length.setText(str(round(joint_data["joint length"], 6)))
-            self.lineEdit_effective_diameter.setText(str(joint_data["effective diameter"]))
-            self.lineEdit_joint_mass.setText(str(joint_data["joint mass"]))
-            self.lineEdit_axial_locking_criteria.setText(str(joint_data["axial locking criteria"]))
+            self.lineEdit_joint_length.setText(str(round(joint_data["joint_length"], 6)))
+            self.lineEdit_effective_diameter.setText(str(joint_data["effective_diameter"]))
+            self.lineEdit_joint_mass.setText(str(joint_data["joint_mass"]))
+            self.lineEdit_axial_locking_criteria.setText(str(joint_data["axial_locking_criteria"]))
             self.comboBox_axial_stop_rod.setCurrentIndex(int(joint_data["rods"]))
 
             if "table paths" in joint_data.keys():
@@ -300,19 +300,19 @@ class ExpansionJointInput(QDialog):
         if stop:
             self.lineEdit_effective_diameter.setFocus()
             return True
-        self.joint_parameters["effective diameter"] = value
+        self.joint_parameters["effective_diameter"] = value
 
         stop, value = self.check_input_parameters(self.lineEdit_joint_mass, 'Joint mass')
         if stop:    
             self.lineEdit_joint_mass.setFocus()
             return True
-        self.joint_parameters["joint mass"] = value
+        self.joint_parameters["joint_mass"] = value
 
         stop, value = self.check_input_parameters(self.lineEdit_axial_locking_criteria, 'Axial locking criteria')
         if stop:
             self.lineEdit_axial_locking_criteria.setFocus()
             return True
-        self.joint_parameters["axial locking criteria"] = value
+        self.joint_parameters["axial_locking_criteria"] = value
 
         self.joint_parameters["rods"] = int(self.comboBox_axial_stop_rod.currentIndex())
 
@@ -344,7 +344,7 @@ class ExpansionJointInput(QDialog):
             return True
         _stiffness.append(value)
 
-        self.joint_parameters["stiffness values"] = _stiffness
+        self.joint_parameters["stiffness_values"] = _stiffness
     
     def get_pipe_cross_section_from_neighbors(self, line_id, list_elements):
 
@@ -566,7 +566,7 @@ class ExpansionJointInput(QDialog):
                         self.Kryz_values,
                         ]
 
-            self.joint_parameters["stiffness values"] = values
+            self.joint_parameters["stiffness_values"] = values
             self.joint_parameters["table names"] = table_names
             self.joint_parameters["table paths"] = table_paths
 
@@ -604,16 +604,15 @@ class ExpansionJointInput(QDialog):
                 if self.check_table_of_values(line_id):
                     return
 
-            self.joint_parameters["joint length"] = self.get_expansion_joint_length(line_id)
+            self.joint_parameters["joint_length"] = self.get_expansion_joint_length(line_id)
 
             self.preprocessor.set_cross_section_by_lines(line_id, None)
             self.preprocessor.add_valve_by_lines(line_id, None)
 
-            cross_sections = get_list_cross_sections_to_plot_expansion_joint(   self.joint_elements, 
-                                                                                self.joint_parameters["effective diameter"]   )
-
-            print(cross_sections)
-            print(self.joint_elements)
+            cross_sections = get_cross_sections_to_plot_expansion_joint(
+                                                                        self.joint_elements, 
+                                                                        self.joint_parameters["effective_diameter"]   
+                                                                        )
 
             self.preprocessor.set_cross_section_by_elements(self.joint_elements, cross_sections)
             self.preprocessor.add_expansion_joint_by_lines(line_id, self.joint_parameters)
@@ -648,9 +647,9 @@ class ExpansionJointInput(QDialog):
             if "expansion_joint" in data.keys():
 
                 ej_data = data["expansion_joint"]
-                L = ej_data["joint length"]
-                d_eff = ej_data["effective diameter"]
-                mass = ej_data["joint mass"]
+                L = ej_data["joint_length"]
+                d_eff = ej_data["effective_diameter"]
+                mass = ej_data["joint_mass"]
                 rods = ej_data["rods"]
 
                 if "table names" in ej_data.keys():
@@ -662,7 +661,7 @@ class ExpansionJointInput(QDialog):
                 if "table names" in ej_data.keys():
                     str_joint_data += "Table, Table, Table, Table"
                 else:
-                    values = ej_data["stiffness values"]
+                    values = ej_data["stiffness_values"]
                     str_joint_data += f"{values[0] : .2e}, {values[1] : .2e}, {values[2] : .2e}, {values[3] : .2e}"
 
                 item = QTreeWidgetItem([str(line_id), str_joint_data[:-2]])
@@ -671,6 +670,7 @@ class ExpansionJointInput(QDialog):
                 self.treeWidget_expansion_joint_by_lines.addTopLevelItem(item)
 
     def on_click_item_lines(self, item):
+        self.lineEdit_selected_id.setText(item.text(0))
         self.pushButton_remove.setDisabled(False)
 
     def on_doubleclick_item_lines(self, item):
@@ -797,7 +797,7 @@ class ExpansionJointInput(QDialog):
         self.keep_window_open = False
         return super().closeEvent(a0)
     
-def get_list_cross_sections_to_plot_expansion_joint(joint_elements: list, effective_diameter: float):
+def get_cross_sections_to_plot_expansion_joint(joint_elements: list, effective_diameter: float):
 
     """"
         This auxiliary function returns a list of cross-sections 
@@ -820,14 +820,15 @@ def get_list_cross_sections_to_plot_expansion_joint(joint_elements: list, effect
             else:
                 plot_key = "major"
 
-        expansion_joint_info = [    "Expansion joint section", 
+        expansion_joint_info = [    "Expansion joint", 
                                     plot_key,
-                                    effective_diameter ]
+                                    effective_diameter 
+                                ]
 
         cross = CrossSection(expansion_joint_info = expansion_joint_info)
         cross_sections.append(cross)
 
-    return cross_sections 
+    return cross_sections
 
 def get_string_from_joint_paramters(parameters):
     for parameter in parameters:

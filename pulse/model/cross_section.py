@@ -197,7 +197,7 @@ class CrossSection:
         self.expansion_joint_info = kwargs.get('expansion_joint_info', None)
         self.valve_section_info = kwargs.get('valve_section_info', None)
 
-        self.section_label = kwargs.get('section_label', None)
+        self.section_type_label = kwargs.get('section_label', None)
         self.section_parameters = kwargs.get('section_parameters', None)
         self.expansion_joint_plot_key = None
 
@@ -229,7 +229,7 @@ class CrossSection:
 
     def load_pipe_section_data(self):
 
-        self.section_label = self.pipe_section_info["section_type_label"]
+        self.section_type_label = self.pipe_section_info["section_type_label"]
         self.section_parameters = self.pipe_section_info["section_parameters"]
 
         self.outer_diameter = self.section_parameters[0]
@@ -243,7 +243,7 @@ class CrossSection:
 
     def load_beam_section_data(self):
 
-        self.section_label = self.beam_section_info["section_type_label"]
+        self.section_type_label = self.beam_section_info["section_type_label"]
         self.section_parameters = self.beam_section_info["section_parameters"]
         self.section_properties = self.beam_section_info["section_properties"]
 
@@ -255,14 +255,14 @@ class CrossSection:
         self.offset_z = self.section_properties['Zc']
         self.offset = [self.offset_y, self.offset_z]
         
-        if self.section_label == "Generic section":
+        if self.section_type_label == "Generic section":
             self.shear_coefficient = self.section_properties['shear factor']
         
         self.section_info = self.beam_section_info
 
     def load_valve_section_data(self):
 
-        self.section_label = self.valve_section_info["section_type_label"]
+        self.section_type_label = self.valve_section_info["section_type_label"]
         self.section_parameters = self.valve_section_info["section_parameters"]
 
         self.outer_diameter = self.section_parameters[0]
@@ -277,7 +277,7 @@ class CrossSection:
         self.section_info = self.valve_section_info
 
     def load_expansion_joint_data(self):
-        self.section_label = self.expansion_joint_info[0]
+        self.section_type_label = self.expansion_joint_info[0]
         self.expansion_joint_plot_key = self.expansion_joint_info[1]
         self.outer_diameter = self.expansion_joint_info[2]
         
@@ -769,15 +769,15 @@ class CrossSection:
             hypothesis so that the thickness of beams t_i -> 0. If the thickness is not small sufficiently greater. 
             deviations are expected.
         '''
-        if self.section_label == "Rectangular section":
+        if self.section_type_label == "Rectangular section":
             _, _, _, _, offset_y, offset_z = self.section_parameters
             return 0, 0
 
-        elif self.section_label == "Circular section":
+        elif self.section_type_label == "Circular section":
             _, _, offset_y, offset_z = self.section_parameters
             return 0, 0
         
-        elif self.section_label == "C-section":
+        elif self.section_type_label == "C-section":
             h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
 
             b1 = w1
@@ -828,7 +828,7 @@ class CrossSection:
             
             return e_y, e_z
 
-        elif self.section_label == "I-section":
+        elif self.section_type_label == "I-section":
             h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
 
             b1 = w1
@@ -879,7 +879,7 @@ class CrossSection:
 
             return e_y, e_z
 
-        elif self.section_label == "T-section":
+        elif self.section_type_label == "T-section":
             h, w1, t1, tw, offset_y, offset_z = self.section_parameters
 
             b1 = w1
@@ -929,7 +929,7 @@ class CrossSection:
         self.poligon_side_number = number_divisions
         N = number_divisions
 
-        if self.section_label in ["Pipe", "Reducer"]: # Pipe section - It's a pipe section, so ignore for beam plots
+        if self.section_type_label in ["Pipe", "Reducer"]: # Pipe section - It's a pipe section, so ignore for beam plots
  
             d_out = self.outer_diameter
             d_in = d_out - 2*self.thickness
@@ -951,7 +951,7 @@ class CrossSection:
             outer_points = list(zip(Y_out, Z_out))
             inner_points = list(zip(Y_in, Z_in))
 
-        elif self.section_label == "Rectangular section": # Beam: Rectangular section
+        elif self.section_type_label == "Rectangular section": # Beam: Rectangular section
 
             b, h, b_in, h_in, offset_y, offset_z = self.section_parameters
             Y_out = np.array([(b/2), (b/2),  (b/2), 0, -(b/2), -(b/2), -(b/2), 0]) - offset_y
@@ -963,7 +963,7 @@ class CrossSection:
                 Z_in = np.array([(h_in/2), -(h_in/2), -(h_in/2), (h_in/2)]) - offset_z
                 inner_points = list(zip(Y_in, Z_in))
             
-        elif self.section_label == "Circular section": # Beam: Circular section
+        elif self.section_type_label == "Circular section": # Beam: Circular section
             
             d_out, thickness, offset_y, offset_z = self.section_parameters
             if thickness == 0:
@@ -986,7 +986,7 @@ class CrossSection:
                 Z_in = (d_in/2)*sine - offset_z
                 inner_points = list(zip(Y_in, Z_in))
             
-        elif self.section_label == 'C-section': # Beam: C-section
+        elif self.section_type_label == 'C-section': # Beam: C-section
 
             h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
             Yp_out = [0, w2, w2, tw, tw, w1, w1, 0]
@@ -996,7 +996,7 @@ class CrossSection:
             Z_out = np.array(Zp_out) - offset_z
             outer_points = list(zip(Y_out, Z_out))
 
-        elif self.section_label == 'I-section': # Beam: I-section
+        elif self.section_type_label == 'I-section': # Beam: I-section
 
             h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
             Yp_out = [(w1/2), (w1/2), (tw/2), (tw/2), (w2/2), (w2/2), -(w2/2), -(w2/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
@@ -1006,7 +1006,7 @@ class CrossSection:
             Z_out = np.array(Zp_out) - offset_z
             outer_points = list(zip(Y_out, Z_out))
     
-        elif self.section_label == 'T-section': # Beam: T-section
+        elif self.section_type_label == 'T-section': # Beam: T-section
 
             h, w1, t1, tw, offset_y, offset_z = self.section_parameters
             Yp_out = [(w1/2), (w1/2), (tw/2), (tw/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
@@ -1016,7 +1016,7 @@ class CrossSection:
             Z_out = np.array(Zp_out) - offset_z
             outer_points = list(zip(Y_out, Z_out))
         
-        elif self.section_label == "Expansion joint section" : #
+        elif self.section_type_label == "Expansion joint" : #
         
             if self.expansion_joint_plot_key == "major":
               r_out = self.outer_radius*1.25 
@@ -1042,7 +1042,7 @@ class CrossSection:
             outer_points = list(zip(Y_out, Z_out))
             inner_points = list(zip(Y_in, Z_in))
 
-        elif self.section_label == "Valve section" : #
+        elif self.section_type_label == "Valve section" : #
     
             d_out = self.outer_diameter_to_plot
             d_in = self.inner_diameter_to_plot
@@ -1081,9 +1081,9 @@ class CrossSection:
 
         if inner_points == []:
             Y_in, Z_in = 0, 0
-            max_min = str([max(Y_out), max(Z_out), 0, 0, min(Y_out), min(Z_out), 0, 0, self.section_label])
+            max_min = str([max(Y_out), max(Z_out), 0, 0, min(Y_out), min(Z_out), 0, 0, self.section_type_label])
         else:
-            max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), self.section_label])        
+            max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), self.section_type_label])        
         
         return outer_points, inner_points, max_min
 
@@ -1093,7 +1093,7 @@ class CrossSection:
         """
         N = self.poligon_side_number
         
-        if section_label == "Expansion joint section":
+        if section_label == "Expansion joint":
 
             d_out, d_in, offset_y, offset_z, insulation_thickness, key = parameters
 

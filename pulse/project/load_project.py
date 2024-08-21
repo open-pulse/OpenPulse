@@ -2,6 +2,7 @@ from pulse import app
 
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.file.project_files_loader import ProjectFilesLoader
 from pulse.tools.utils import *
@@ -36,9 +37,9 @@ class LoadProject:
         self.load_pipeline_file()
         self.load_imported_table_data_from_file()
         #
-        self.load_fluid_library()
-        self.load_material_library()
-        self.load_cross_sections()
+        self.load_fluids_library()
+        self.load_materials_library()
+        self.load_cross_sectionss()
         self.load_lines_properties()
         self.load_model_properties()
         #
@@ -46,7 +47,7 @@ class LoadProject:
         self.load_inertia_load_setup()
         self.load_psd_data_from_file()
 
-    def load_fluid_library(self):
+    def load_fluids_library(self):
 
         self.library_fluids = dict()
         config = app().pulse_file.read_fluid_library_from_file()
@@ -132,7 +133,7 @@ class LoadProject:
             
             self.library_fluids[identifier] = fluid
 
-    def load_material_library(self):
+    def load_materials_library(self):
 
         self.library_materials = dict()
         config = app().pulse_file.read_material_library_from_file()
@@ -168,7 +169,7 @@ class LoadProject:
             
             self.library_materials[identifier] = material
 
-    def load_cross_sections(self):
+    def load_cross_sectionss(self):
 
         self.cross_sections = dict()
         line_properties = app().pulse_file.read_line_properties_from_file()
@@ -254,27 +255,66 @@ class LoadProject:
         for line_id, data in self.properties.line_properties.items():
 
             # general
-            self.load_cross_section_from_lines(line_id, data)
+            self.load_cross_sections(line_id, data)
 
             # acoustic
-            self.load_fluid_from_lines(line_id, data)
-            self.load_acoustic_element_type_from_lines(line_id, data)
+            self.load_fluids(line_id, data)
+            self.load_acoustic_element_types(line_id, data)
 
             # structural
-            self.load_material_from_lines(line_id, data)
-            self.load_structural_element_type_from_lines(line_id, data)
-            self.load_capped_end_from_lines(line_id, data)
-            self.load_force_offset_from_lines(line_id, data)
-            self.load_wall_formulation_from_lines(line_id, data)
+            self.load_materials(line_id, data)
+            self.load_structural_element_types(line_id, data)
+            self.load_capped_ends(line_id, data)
+            self.load_force_offsets(line_id, data)
+            self.load_wall_formulations(line_id, data)
+            self.load_beam_xaxis_rotations(line_id, data)
+
+            self.load_expansion_joints(line_id, data)
+            self.load_valves(line_id, data)
+            self.load_stress_stiffening(line_id, data)
 
     ## line loaders
 
-    # TODO: expansion joints
-    # TODO: valves
-    # TODO: stress stiffning
-    # TODO: beam x-axis rotation
+    def load_expansion_joints(self, line_id: list, data: dict):
 
-    def load_cross_section_from_lines(self, line_id: list, data: dict):
+        expansion_joint = None
+        if "expansion_joint" in data.keys():
+            expansion_joint = data["expansion_joint"]
+
+        if isinstance(expansion_joint, dict):
+
+            joint_elements = self.model.mesh.line_to_elements[line_id]
+            if "effective_diameter" in expansion_joint.keys():
+                effective_diameter = expansion_joint["effective_diameter"]
+
+                cross_sections = get_cross_sections_to_plot_expansion_joint(joint_elements, 
+                                                                            effective_diameter)
+
+                self.preprocessor.add_expansion_joint_by_lines(line_id, 
+                                                            expansion_joint)
+
+                self.preprocessor.set_cross_section_by_elements(joint_elements, 
+                                                                cross_sections)
+
+    def load_valves(self, line_id: list, data: dict):
+
+        valves = None
+        if "valves" in data.keys():
+            valves = data["valves"]
+
+        if valves is not None:
+            self.preprocessor.add_valve_by_lines(line_id, valves)
+
+    def load_stress_stiffening(self, line_id: list, data: dict):
+
+        stress_stiffening = None
+        if "stress_stiffening" in data.keys():
+            stress_stiffening = data["stress_stiffening"]
+
+        if stress_stiffening is not None:
+            self.preprocessor.set_stress_stiffening_by_lines(line_id, stress_stiffening)
+
+    def load_cross_sections(self, line_id: list, data: dict):
 
         cross_section = None
         if "cross_section" in data.keys():
@@ -287,7 +327,7 @@ class LoadProject:
 
         self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
 
-    def load_fluid_from_lines(self, line_id: int, data: dict):
+    def load_fluids(self, line_id: int, data: dict):
 
         fluid = None
         if "fluid" in data.keys():
@@ -295,7 +335,7 @@ class LoadProject:
 
         self.preprocessor.set_fluid_by_lines(line_id, fluid)
 
-    def load_acoustic_element_type_from_lines(self, line_id: int, data: dict):
+    def load_acoustic_element_types(self, line_id: int, data: dict):
 
         element_type = None
         if "acoustic_element_type" in data.keys():
@@ -316,7 +356,7 @@ class LoadProject:
                                                                 vol_flow = volume_flow    
                                                              )
         
-    def load_material_from_lines(self, line_id: int, data: dict):
+    def load_materials(self, line_id: int, data: dict):
 
         material = None
         if "material" in data.keys():
@@ -324,7 +364,7 @@ class LoadProject:
 
         self.preprocessor.set_material_by_lines(line_id, material)
 
-    def load_structural_element_type_from_lines(self, line_id: int, data: dict):
+    def load_structural_element_types(self, line_id: int, data: dict):
 
         element_type = None
         if "structural_element_type" in data.keys():
@@ -335,7 +375,7 @@ class LoadProject:
                                                                 element_type  
                                                                )
 
-    def load_capped_end_from_lines(self, line_id: int, data: dict):
+    def load_capped_ends(self, line_id: int, data: dict):
 
         capped_end = None
         if "capped_end" in data.keys():
@@ -346,7 +386,7 @@ class LoadProject:
                                                     capped_end, 
                                                     )
 
-    def load_force_offset_from_lines(self, line_id: int, data: dict):
+    def load_force_offsets(self, line_id: int, data: dict):
 
         force_offset = None
         if "force_offset" in data.keys():
@@ -357,7 +397,7 @@ class LoadProject:
                                                                         force_offset, 
                                                                        )
 
-    def load_wall_formulation_from_lines(self, line_id: int, data: dict):
+    def load_wall_formulations(self, line_id: int, data: dict):
 
         wall_formulation = None
         if "wall_formulation" in data.keys():
@@ -367,7 +407,18 @@ class LoadProject:
                                                                             line_id, 
                                                                             wall_formulation, 
                                                                            )
-        
+
+    def load_beam_xaxis_rotations(self, line_id: int, data: dict):
+
+        xaxis_beam_rotation = 0
+        if "beam_xaxis_rotation" in data.keys():
+            xaxis_beam_rotation = data["beam_xaxis_rotation"]
+
+        self.preprocessor.set_beam_xaxis_rotation_by_lines(   
+                                                            line_id, 
+                                                            xaxis_beam_rotation, 
+                                                            )
+
     def set_element_properties(self):
         pass
 
@@ -461,8 +512,6 @@ class LoadProject:
 
         return psd_lines
 
-
-
     def get_cross_sections_from_file(self):
         """ This method returns a dictionary of already applied cross-sections.
         """
@@ -531,22 +580,22 @@ class LoadProject:
 
             self.files_loader.load_project_data_from_files()
 
-            # self.load_material_data()
-            # self.load_fluid_data()
+            # self.load_materials_data()
+            # self.load_fluids_data()
             # self.load_constant_section_data()
             # self.load_variable_section_data()
-            # self.load_structural_element_type_data()
+            # self.load_structural_element_types_data()
             # self.load_structural_element_force_offset_data()
             # self.load_structural_element_wall_formulation_data()
-            # self.load_acoustic_element_type_data()
+            # self.load_acoustic_element_types_data()
             # self.load_acoustic_element_length_correction_data()
             # self.load_compressor_data()
             # self.load_perforated_plate_by_elements_data()
             # self.load_xaxis_beam_rotation_data()
             # self.load_b2px_rotation_decoupling_data()
-            # self.load_expansion_joint_data()
+            # self.load_expansion_joints_data()
             # self.load_valve_data()
-            # self.load_capped_end_data()
+            # self.load_capped_ends_data()
             # self.load_stress_stiffening_data()
 
         except Exception as log_error:

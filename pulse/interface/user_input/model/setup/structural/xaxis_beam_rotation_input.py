@@ -26,6 +26,7 @@ class BeamXaxisRotationInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
+        self.preprocessor = app().project.model.preprocessor
 
         self.project = app().project
         self.model = app().project.model
@@ -139,7 +140,7 @@ class BeamXaxisRotationInput(QDialog):
                 self.comboBox_selection.setCurrentIndex(1)
                 element_type = self.properties._get_property("structural_element_type", line_id=line_id)
                 if element_type == "beam_1":
-                    data = self.properties._get_property("xaxis_beam_rotation", line_id=line_id)
+                    data = self.properties._get_property("beam_xaxis_rotation", line_id=line_id)
                     if isinstance(data, dict):
                         angle = data["rotation angle"]
                         self.lineEdit_xaxis_rotation_actual_angle.setText(str(angle))
@@ -247,15 +248,15 @@ class BeamXaxisRotationInput(QDialog):
             return
     
         for line_id in beam_line_ids:
-            actual_angle = self.properties._get_property("xaxis_beam_rotation", line_id=line_id)
+            actual_angle = self.properties._get_property("beam_xaxis_rotation", line_id=line_id)
             if actual_angle is None:
                 actual_angle = rotation_angle
             else:
                 rotation_angle += actual_angle
 
-            app().project.model.preprocessor.set_beam_xaxis_rotation_by_line(line_id, rotation_angle)
+            self.preprocessor.set_beam_xaxis_rotation_by_lines(line_id, rotation_angle)
 
-        app().project.model.preprocessor.process_all_rotation_matrices()
+        self.preprocessor.process_all_rotation_matrices()
         app().pulse_file.write_line_properties_in_file()
         app().main_window.update_plots()
         self.close()
@@ -264,7 +265,7 @@ class BeamXaxisRotationInput(QDialog):
 
         rotation_data = defaultdict(list)
         for line_id, data in self.properties.line_properties.items():
-            if "xaxis_beam_rotation" in data.keys():
+            if "beam_xaxis_rotation" in data.keys():
                 rot_angle = data["ratation angle"]
                 rotation_data[rot_angle].append(line_id)
 
@@ -282,7 +283,7 @@ class BeamXaxisRotationInput(QDialog):
         self.pushButton_remove.setDisabled(True)
         self.tabWidget_xaxis_rotation_angle.setTabVisible(1, False)
         for data in self.properties.line_properties.values():
-            if "xaxis_beam_rotation" in data.keys():
+            if "beam_xaxis_rotation" in data.keys():
                 self.tabWidget_xaxis_rotation_angle.setCurrentIndex(0)
                 self.tabWidget_xaxis_rotation_angle.setTabVisible(1, True)
                 return
@@ -296,8 +297,8 @@ class BeamXaxisRotationInput(QDialog):
             if stop:
                 return
 
-            app().project.model.preprocessor.set_beam_xaxis_rotation_by_line(line_ids[0], 0)
-            app().project.model.preprocessor.process_all_rotation_matrices()
+            self.preprocessor.set_beam_xaxis_rotation_by_lines(line_ids[0], 0)
+            self.preprocessor.process_all_rotation_matrices()
 
             self.properties._remove_line_property("prescribed_dofs", line_ids[0])
             app().pulse_file.write_line_properties_in_file()
@@ -321,13 +322,13 @@ class BeamXaxisRotationInput(QDialog):
 
             line_ids = list()
             for (property, line_id) in self.properties.line_properties.keys():
-                if property == "xaxis_beam_rotation":
+                if property == "beam_xaxis_rotation":
                     line_ids.append(line_id)
 
-            app().project.model.preprocessor.set_beam_xaxis_rotation_by_line(line_ids, 0)
-            app().project.model.preprocessor.process_all_rotation_matrices()
+            self.preprocessor.set_beam_xaxis_rotation_by_lines(line_ids, 0)
+            self.preprocessor.process_all_rotation_matrices()
 
-            self.properties._reset_line_property("xaxis_beam_rotation")
+            self.properties._reset_line_property("beam_xaxis_rotation")
             app().pulse_file.write_line_properties_in_file()
             app().main_window.update_plots()
             self.close()

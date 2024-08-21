@@ -221,7 +221,7 @@ def cross_section_info_text(cross_section, element_type) -> str:
 
     elif element_type == "beam_1":
         tree = TreeInfo("cross section")
-        tree.add_item("Section type", cross_section.section_label, "")
+        tree.add_item("Section type", cross_section.section_type_label, "")
         tree.add_item("Area", round(cross_section.area, 2), "m²")
         tree.add_item("Iyy", round(cross_section.second_moment_area_y, 4), "m⁴")
         tree.add_item("Izz", round(cross_section.second_moment_area_z, 4), "m⁴")
@@ -233,7 +233,7 @@ def cross_section_info_text(cross_section, element_type) -> str:
 
     elif element_type in ["pipe_1", "valve"]:
         tree = TreeInfo("cross section")
-        tree.add_item("Section type", cross_section.section_label, "")
+        tree.add_item("Section type", cross_section.section_type_label, "")
         tree.add_item("Outer diameter", round(cross_section.outer_diameter, 4), "m")
         tree.add_item("Thickness", round(cross_section.thickness, 4), "m")
         tree.add_separator()

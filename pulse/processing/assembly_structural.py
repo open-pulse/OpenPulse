@@ -157,7 +157,7 @@ class AssemblyStructural:
         """
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         number_elements = len(self.preprocessor.structural_elements)
-        self.expansion_joint_data = {}
+        self.expansion_joint_data = dict()
 
         rows, cols = self.preprocessor.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
@@ -197,8 +197,9 @@ class AssemblyStructural:
 
         else: 
 
-            rows = []
-            cols = []  
+            rows = list()
+            cols = list()
+
             mat_Ke = np.zeros((number_frequencies, number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
             mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 

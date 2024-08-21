@@ -673,11 +673,9 @@ class GeometryHandler:
                 app().project.model.properties._set_line_cross_section_property(cross_data, line_ids=line_id)
 
             for element_type, line_ids in element_type_info.items():
-                # self.file.modify_structural_element_type_in_file(line_ids, element_type)
                 app().project.model.properties._set_line_property("structural_element_type", element_type, line_ids=line_ids)
 
             for material_id, line_ids in material_info.items():
-                # app().pulse_file.add_material_segment_in_file(line_ids, material_id)
                 app().project.model.properties._set_line_property("material_id", material_id, line_ids=line_ids)
 
             for tag, label in psd_info.items():

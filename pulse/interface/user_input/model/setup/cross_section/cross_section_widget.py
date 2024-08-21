@@ -38,7 +38,7 @@ class CrossSectionWidget(QWidget):
     def _initialize(self):
         
         self.section_type = None
-        self.section_label = None
+        self.section_type_label = None
         self.section_parameters = None
         self.section_properties = None
         self.beam_section_info = None
@@ -292,7 +292,7 @@ class CrossSectionWidget(QWidget):
 
     def get_constant_section_pipe_parameters(self):
 
-        self.section_label = None
+        self.section_type_label = None
         self.section_parameters = list()
         self.pipe_section_info = dict()
 
@@ -348,8 +348,8 @@ class CrossSectionWidget(QWidget):
         
         if len(self.section_parameters) == 6:
             
-            self.section_label = "Pipe"
-            self.pipe_section_info = {  "section_type_label" : self.section_label ,
+            self.section_type_label = "Pipe"
+            self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
                                         "section_parameters" : self.section_parameters  }
 
     def get_variable_section_pipe_parameters(self):
@@ -454,8 +454,8 @@ class CrossSectionWidget(QWidget):
                                             insulation_thickness, 
                                             insulation_density  ]
 
-        self.section_label = "Reducer"
-        self.pipe_section_info = {  "section_type_label" : self.section_label ,
+        self.section_type_label = "Reducer"
+        self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
                                     "section_parameters" : self.variable_parameters  }
 
     def get_beam_section_parameters(self):
@@ -464,7 +464,7 @@ class CrossSectionWidget(QWidget):
 
         if tab_index == 0: # Rectangular section
 
-            self.section_label = "Rectangular section"
+            self.section_type_label = "Rectangular section"
 
             base = check_inputs(self.lineEdit_base_rectangular_section, 'Base (Rectangular section)')
             if base is None:
@@ -509,7 +509,7 @@ class CrossSectionWidget(QWidget):
 
         elif tab_index == 1: # Circular section
 
-            self.section_label = "Circular section"
+            self.section_type_label = "Circular section"
 
             outside_diameter_beam = check_inputs(self.lineEdit_outside_diameter_circular_section, 'Outside diameter (Circular section)')
             if outside_diameter_beam is None:
@@ -543,7 +543,7 @@ class CrossSectionWidget(QWidget):
 
         elif tab_index == 2: # Beam: C-section
 
-            self.section_label = "C-section"
+            self.section_type_label = "C-section"
 
             h = check_inputs(self.lineEdit_height_C_section, 'Height (C-profile)')
             if h is None:
@@ -595,7 +595,7 @@ class CrossSectionWidget(QWidget):
 
         elif tab_index == 3: # Beam: I-section
 
-            self.section_label = "I-section"
+            self.section_type_label = "I-section"
 
             h = check_inputs(self.lineEdit_height_I_section, 'Height (I-profile)')
             if h is None:
@@ -647,7 +647,7 @@ class CrossSectionWidget(QWidget):
             
         elif tab_index == 4: # Beam: T-section
 
-            self.section_label = "T-section"
+            self.section_type_label = "T-section"
 
             h = check_inputs(self.lineEdit_height_T_section, 'HEIGHT (T-profile)')
             if h is None:
@@ -721,17 +721,17 @@ class CrossSectionWidget(QWidget):
                 return True
             else:  
 
-                self.section_label = "Generic section"
+                self.section_type_label = "Generic section"
                 self.section_parameters = None
                 _section_properties = [area, Iyy, Izz, Iyz, shear_coefficient, 0, 0]
 
         if tab_index == 5:
-            self.section_properties = get_beam_section_properties(self.section_label, _section_properties)
+            self.section_properties = get_beam_section_properties(self.section_type_label, _section_properties)
             
         else:
-            self.section_properties = get_beam_section_properties(self.section_label, self.section_parameters)
+            self.section_properties = get_beam_section_properties(self.section_type_label, self.section_parameters)
 
-        self.beam_section_info = {  "section_type_label" : self.section_label,
+        self.beam_section_info = {  "section_type_label" : self.section_type_label,
                                     "section_parameters" : self.section_parameters,
                                     "section_properties" : self.section_properties  }
 
@@ -769,10 +769,10 @@ class CrossSectionWidget(QWidget):
             if self.get_beam_section_parameters():
                 return
 
-        if self.section_label in ["Pipe", "Reducer"]:
-            Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_label, self.section_parameters)
+        if self.section_type_label in ["Pipe", "Reducer"]:
+            Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
         else:
-            Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_label, self.section_parameters)
+            Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
 
         _max = np.max(np.abs(np.array([Yp, Zp])))
 
@@ -783,7 +783,7 @@ class CrossSectionWidget(QWidget):
         second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
         third_plot = plt.scatter(0, 0, marker="+", linewidth=1.5, zorder=4, color=[0,0,1], s=120)
         
-        if self.section_label in ["Pipe", "Reducer"] and Yp_ins is not None:
+        if self.section_type_label in ["Pipe", "Reducer"] and Yp_ins is not None:
             fourth, = plt.fill(Yp_ins, Zp_ins, color=[0.5,1,1], linewidth=2, zorder=5) 
             _max = np.max(np.abs(np.array([Zp_ins, Yp_ins])))*1.2
             second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))

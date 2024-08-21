@@ -176,6 +176,8 @@ class AcousticElement:
 
         self.acoustic_link_diameters = list()
 
+        self.section_parameters_render = None
+
     def update_pressure(self, solution):
         pressure_first = solution[self.first_node.global_index, :]
         pressure_last = solution[self.last_node.global_index, :]
@@ -227,7 +229,7 @@ class AcousticElement:
         ----------
         .. T. C. Lin and G. W. Morgan, "Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell," The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
         """
-        if self.cross_section.section_label == 'Expansion joint section':
+        if self.cross_section.section_type_label == 'Expansion joint':
             return self.fluid.speed_of_sound
         else:
             factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.elasticity_modulus * self.cross_section.thickness)

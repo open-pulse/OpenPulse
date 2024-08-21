@@ -1,11 +1,10 @@
 from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import get_openpulse_icon
-from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
@@ -24,15 +23,20 @@ class StressStiffeningInput(QDialog):
         self.project = app().project
         self.model = app().project.model
         self.preprocessor = app().project.model.preprocessor
+        self.properties = app().project.model.properties
+        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
+
         self.selection_callback()
         self.load_treeWidgets_info()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -41,189 +45,115 @@ class StressStiffeningInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-
-        self.before_run = self.project.get_pre_solution_model_checks()
-
-        self.structural_elements = self.preprocessor.structural_elements
-
-        # self.dict_group_elements = self.preprocessor.group_elements_with_stress_stiffening
-        self.lines_with_stress_stiffening = self.preprocessor.lines_with_stress_stiffening
-        self.dict_lines_with_stress_stiffening = self.preprocessor.dict_lines_with_stress_stiffening
-
-        self.stop = False
-        self.error_label = ""
-        self.dictKey_label = "STRESS STIFFENING || {}"
-        self.dictkey_to_remove = None
+        self.keep_window_open = True
 
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_selection : QComboBox
+        self.comboBox_attribution_type: QComboBox
 
         # QLabel
-        self.label_attribute_to : QLabel
-        self.label_selected_id : QLabel
+        self.label_attribute_to: QLabel
+        self.label_selected_id: QLabel
 
         # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-        self.lineEdit_external_pressure : QLineEdit
-        self.lineEdit_internal_pressure : QLineEdit
+        self.lineEdit_selected_id: QLineEdit
+        self.lineEdit_external_pressure: QLineEdit
+        self.lineEdit_internal_pressure: QLineEdit
 
         # QPushButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_remove : QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_confirm: QPushButton
+        self.pushButton_reset: QPushButton
+        self.pushButton_remove: QPushButton
 
         # QTabWidget
-        self.tabWidget_groups : QTabWidget
-        self.tabWidget_main : QTabWidget
+        self.tabWidget_groups: QTabWidget
+        self.tabWidget_main: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_stress_stiffening_elements : QTreeWidget
-        self.treeWidget_stress_stiffening_lines : QTreeWidget
+        self.treeWidget_stress_stiffening: QTreeWidget
 
     def _create_connections(self):
         #
-        self.comboBox_selection.currentIndexChanged.connect(self.selection_type_callback)
+        self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
         #
-        self.pushButton_remove.clicked.connect(self.remove_group)
-        self.pushButton_confirm.clicked.connect(self.press_confirm)
-        self.pushButton_reset.clicked.connect(self.check_reset_all)
+        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_confirm.clicked.connect(self.stress_stiffening_attribution_callback)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
-        self.treeWidget_stress_stiffening_elements.itemClicked.connect(self.on_click_item_elem)
-        self.treeWidget_stress_stiffening_elements.itemDoubleClicked.connect(self.on_doubleclick_item_elem)
-        self.treeWidget_stress_stiffening_lines.itemClicked.connect(self.on_click_item_line)
-        self.treeWidget_stress_stiffening_lines.itemDoubleClicked.connect(self.on_doubleclick_item_line)
+        self.treeWidget_stress_stiffening.itemClicked.connect(self.on_click_item_line)
+        self.treeWidget_stress_stiffening.itemDoubleClicked.connect(self.on_doubleclick_item_line)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
+    def attribution_type_callback(self):
+
+        index = self.comboBox_attribution_type.currentIndex()
+        if index == 0:
+            self.lineEdit_selected_id.setText("All lines")
+        elif index == 1:
+            self.selection_callback()
+
+        self.lineEdit_selected_id.setEnabled(bool(index))
+
     def selection_callback(self):
 
+        self.comboBox_attribution_type.blockSignals(True)
+
         selected_lines = app().main_window.list_selected_lines()
-        selected_elements = app().main_window.list_selected_elements()
-
-        self.comboBox_selection.blockSignals(True)
-
         if selected_lines:
 
-            if self.comboBox_selection.currentIndex() == 1:
-                self.selection_type_callback()
-            else:
-                self.comboBox_selection.setCurrentIndex(1)
-            
-            selected_ids = selected_lines
-            self.label_selected_id.setText("Lines IDs:")
-            
+            text = ", ".join([str(i) for i in selected_lines])
+            self.lineEdit_selected_id.setText(text)
+
+            self.lineEdit_selected_id.setEnabled(True)
+            self.comboBox_attribution_type.setCurrentIndex(1)
+
             if len(selected_lines) == 1:
-                entity = self.model.mesh.lines_from_model[selected_lines[0]] 
-                if entity.stress_stiffening_parameters is not None:
-                    pressures = entity.stress_stiffening_parameters
+                line_id = selected_lines[0]
+                prop_data = self.properties._get_property("stress_stiffening", line_id=line_id)
+                
+                if isinstance(prop_data, dict):
+                    pressures = prop_data["pressures"]
                     self.lineEdit_external_pressure.setText(str(pressures[0]))
                     self.lineEdit_internal_pressure.setText(str(pressures[1]))
 
-        elif selected_elements:
-
-            if self.comboBox_selection.currentIndex() == 2:
-                self.selection_type_callback()
-            else:
-                self.comboBox_selection.setCurrentIndex(2)
-
-            selected_ids = selected_elements
-            self.label_selected_id.setText("Elements IDs:")
-
-            if len(selected_elements) == 1:
-                element = self.preprocessor.structural_elements[selected_elements[0]] 
-                self.lineEdit_external_pressure.setText(str(element.external_pressure))       
-                self.lineEdit_internal_pressure.setText(str(element.internal_pressure))
-
-        self.comboBox_selection.blockSignals(False)
-
-        if selected_ids:
-            text = ", ".join([str(i) for i in selected_ids])
-            self.lineEdit_selected_id.setText(text)
-
-    def selection_type_callback(self):
-
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_selected_id.setEnabled(True)
-        selection_index = self.comboBox_selection.currentIndex()
-
-        if selection_index == 0:
-            self.lineEdit_selected_id.setText("All lines")
-            self.lineEdit_selected_id.setEnabled(False)
-
-        self.selection_callback()
+        self.comboBox_attribution_type.blockSignals(False)
 
     def tab_event_callback(self):
 
         self.pushButton_remove.setDisabled(True)
-        tab_index = self.tabWidget_main.currentIndex()
+        if self.tabWidget_main.currentIndex() == 0:
+            self.selection_callback()
 
-        if tab_index == 0:
-
-            selection_index  = self.comboBox_selection.currentIndex()
-            if selection_index == 0:
-                text = "Lines IDs:"
-                self.lineEdit_selected_id.setText("All lines")
-
-            elif selection_index == 1:
-                text = "Lines IDs:"
-
-            elif selection_index == 2:
-                text = "Elements IDs:"
-
-        elif tab_index == 1:
-            text = "Group:"
+        else:
             self.lineEdit_selected_id.setText("")
             self.lineEdit_selected_id.setDisabled(True)
-
-        self.label_selected_id.setText(text)
 
     def _config_widgets(self):
         #
         self.pushButton_remove.setDisabled(True)
         #
-        self.treeWidget_stress_stiffening_elements.setColumnWidth(0, 100)
-        self.treeWidget_stress_stiffening_elements.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_stress_stiffening_elements.headerItem().setTextAlignment(1, Qt.AlignCenter)
-        #
-        self.treeWidget_stress_stiffening_lines.setColumnWidth(0, 100)
-        self.treeWidget_stress_stiffening_lines.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_stress_stiffening_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        self.treeWidget_stress_stiffening.setColumnWidth(0, 100)
+        self.treeWidget_stress_stiffening.headerItem().setTextAlignment(0, Qt.AlignCenter)
+        self.treeWidget_stress_stiffening.headerItem().setTextAlignment(1, Qt.AlignCenter)
         #
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
-
-    def on_click_item_elem(self, item):
-        self.lineEdit_selected_id.setText(item.text(0))
-        self.lineEdit_selected_id.setDisabled(True)
-        self.pushButton_remove.setDisabled(False)
 
     def on_click_item_line(self, item):
         self.lineEdit_selected_id.setText(item.text(0))
         self.lineEdit_selected_id.setDisabled(True)
-        self.pushButton_remove.setDisabled(False) 
-
-    def on_doubleclick_item_elem(self, item):
-        self.on_click_item_elem(item)
-        self.get_information(item)
+        self.pushButton_remove.setDisabled(False)
 
     def on_doubleclick_item_line(self, item):
         self.on_click_item_line(item)
-        self.get_information(item)
 
-    def get_list_typed_entries(self, str_list):
-        tokens = str_list[1:-1].strip().split(',')
-        try:
-            tokens.remove('')
-        except:     
-            pass
-        output = list(map(int, tokens))
-        return output
-
-    def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False):
-        self.stop = False
+    def check_inputs(self, lineEdit: QLineEdit, label: str, only_positive=True, zero_included=False):
+        title = "Input cross-section error"
         if lineEdit.text() != "":
             try:
                 out = float(lineEdit.text())
@@ -234,40 +164,43 @@ class StressStiffeningInput(QDialog):
                         if out < 0:
                             message += "\n\nZero value is allowed."
                             PrintMessageInput([window_title_1, title, message])
-                            self.stop = True
-                            return None
+                            return True, None
                     else:
                         if out <= 0:
                             message += "\n\nZero value is not allowed."
                             PrintMessageInput([window_title_1, title, message])
-                            self.stop = True
-                            return None
+                            return True, None
+
             except Exception as log_error:
-                title = "INPUT CROSS-SECTION ERROR"
+                title = "Input cross-section error"
                 message = f"Wrong input for {label}.\n\n"
                 message += str(log_error)
                 PrintMessageInput([window_title_1, title, message])
-                self.stop = True
-                return None
+                return True, None
+
         else:
             if zero_included:
-                return float(0)
+                return False, float(0)
             else: 
                 title = "INPUT CROSS-SECTION ERROR"
                 message = f"Insert some value at the {label} input field."
-                PrintMessageInput([window_title_1, title, message])                   
-                self.stop = True
-                return None
-        return out
+                PrintMessageInput([window_title_1, title, message])
+                return True, None
 
-    def press_confirm(self):
+        return False, out
 
-        external_pressure = self.check_inputs(self.lineEdit_external_pressure, "'External pressure'", zero_included=True)
-        if self.stop:
+    def stress_stiffening_attribution_callback(self):
+
+        stop, external_pressure = self.check_inputs(self.lineEdit_external_pressure, 
+                                                    "'External pressure'", 
+                                                    zero_included=True)
+        if stop:
             return
 
-        internal_pressure = self.check_inputs(self.lineEdit_internal_pressure, "'Internal pressure'", zero_included=True)
-        if self.stop:
+        stop, internal_pressure = self.check_inputs(self.lineEdit_internal_pressure, 
+                                                    "'Internal pressure'", 
+                                                    zero_included=True)
+        if stop:
             return
         
         if external_pressure == 0 and internal_pressure == 0:
@@ -276,257 +209,109 @@ class StressStiffeningInput(QDialog):
             message += "pressure field inputs to continue."
             PrintMessageInput([window_title_1, title, message])  
             return
-        else:
-            self.stress_stiffening_parameters = [external_pressure, internal_pressure]
+        
+        parameters = {  "external_pressure" : external_pressure,
+                        "internal_pressure" : internal_pressure  }
 
-        selection_index = self.comboBox_selection.currentIndex()
+        selection_index = self.comboBox_attribution_type.currentIndex()
         if selection_index == 0:
-            for line_id in self.model.mesh.lines_from_model.keys():
-                self.project.set_stress_stiffening_by_line(line_id, self.stress_stiffening_parameters)
-
-        elif selection_index == 1:
-
+            line_ids = list(app().project.model.mesh.lines_from_model.keys())
+    
+        else:
             lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.lines_typed = self.before_run.check_selected_ids(lineEdit, "lines")
-            if self.stop:
+            stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
+            if stop:
                 return True                 
 
-            for line_id in self.lines_typed:
-                self.project.set_stress_stiffening_by_line(line_id, self.stress_stiffening_parameters)        
+        self.preprocessor.set_stress_stiffening_by_lines(line_ids, parameters)
+        self.properties._set_line_cross_section_property(line_ids, parameters)
 
-        if selection_index == 2:
-
-            lineEdit = self.lineEdit_selected_id.text()
-            self.stop, self.elements_typed = self.before_run.check_selected_ids(lineEdit, "elements")
-            if self.stop:
-                return
-
-            size = len(self.preprocessor.group_elements_with_stress_stiffening)
-            section = self.dictKey_label.format("Selection-{}".format(size+1))
-            self.set_stress_stiffening_to_elements(section)
-            self.replaced = False
-
-            # checking the oversampling of elements in each group of elements
-            if size > 0:
-                temp_dict = self.preprocessor.group_elements_with_stress_stiffening.copy()
-                for key, item in temp_dict.items():
-                    elements = item[1]
-                    if list(np.sort(self.elements_typed)) == list(np.sort(elements)):
-                        if self.replaced:
-                            self.dictkey_to_remove = key
-                            self.remove_elem_group()
-                        else:
-                            self.set_stress_stiffening_to_elements(key)
-                            self.replaced = True
-                    else:    
-                        count1, count2 = 0, 0
-                        for element in self.elements_typed:
-                            if element in elements:
-                                count1 += 1
-                        fill_rate1 = count1/len(self.elements_typed)
-
-                        for element in elements:
-                            if element in self.elements_typed:
-                                count2 += 1
-                        fill_rate2 = count2/len(elements)
-                        
-                        if np.max([fill_rate1, fill_rate2])>0.5 :
-                            if self.replaced:
-                                self.dictkey_to_remove = key
-                                self.remove_elem_group()
-                            else:
-                                self.set_stress_stiffening_to_elements(key)
-                                self.replaced = True
-                    self.dictkey_to_remove = None 
+        self.load_treeWidgets_info()
+        app().pulse_file.write_line_properties_in_file() 
 
         self.complete = True
         self.close()        
 
-    def set_stress_stiffening_to_elements(self, section):
-        self.project.set_stress_stiffening_by_elements(self.elements_typed, 
-                                                       self.stress_stiffening_parameters, 
-                                                       section)
-        self.load_elements_info()
+    def reset_callback(self):
 
-    def check_reset_all(self):
+        self.hide()
 
-        for line_id in self.model.mesh.lines_from_model.keys():
-            self.project.set_stress_stiffening_by_line(line_id, [0,0,0,0], remove=True)
+        title = "Resetting of stress stiffenings"
+        message = "Would you like to remove the stress stiffenings from the structural model?"
 
-        temp_dict = self.preprocessor.group_elements_with_stress_stiffening.copy()
-        for key, item in temp_dict.items():
-            self.project.set_stress_stiffening_by_elements(item[1], item[0], key, remove=True)
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        self.preprocessor.stress_stiffening_enabled = False
-        self.lineEdit_selected_id.setText("")
-        self.load_treeWidgets_info()
+        if read._cancel:
+            return
 
-        title = "Stress stiffening resetting process complete"
-        message = "The stress stiffening applied to all lines has "
-        message += "been removed from FE model."
-        PrintMessageInput([window_title_2, title, message], auto_close=True)
+        if read._continue:
 
-    def remove_elements(self, key):
-        section = key        
-        list_data = self.preprocessor.group_elements_with_stress_stiffening[section]
-        elements = list_data[1]
-        self.project.set_stress_stiffening_by_elements(elements, [0,0,0,0], section, remove=True)
-        self.load_elements_info()
-        group_label = section.split(" || ")[1]
-        #
-        title = "Stress stiffening removal process complete"
-        message = f"The stress stiffening effects of {group_label} group "
-        message += "have been removed from FE model."
-        PrintMessageInput([window_title_2, title, message], auto_close=True)
+            line_ids = list()
+            for (line_id, data) in self.properties.line_properties.items():
+                if "stress_stiffening" in data.keys():
+                    line_ids.append(line_id)
 
-    def remove_elem_group(self):
-        if self.dictkey_to_remove is None:
-            text = self.lineEdit_selected_id.text()
-            key = self.dictKey_label.format(text)
-            self.remove_elements(key)
-            self.lineEdit_selected_id.setText("")
-        else:
-            self.remove_elements(self.dictkey_to_remove)
+            self.preprocessor.set_stress_stiffening_by_lines(line_ids, [0., 0.])
+            self.properties._reset_line_property("stress_stiffening")
+            self.preprocessor.stress_stiffening_enabled = False
 
-    def remove_line_group(self):
-        parameters = [0,0,0,0]
-        lines = self.preprocessor.lines_with_stress_stiffening.copy()
-        self.project.set_stress_stiffening_by_line(lines, parameters, remove=True)
-        self.load_lines_info()
-        self.lineEdit_selected_id.setText("")
-        #
-        title = "Stress stiffening removal process complete"
-        message = "The stress stiffening effects of the following group "
-        message += "of lines have been removed from FE model.\n\n"
-        message += f"{lines}"
-        PrintMessageInput([window_title_2, title, message], auto_close=True)
+            # self.load_treeWidgets_info()
+            app().pulse_file.write_line_properties_in_file()
+            self.close()
 
-    def remove_group(self):
+    def remove_callback(self):
         if self.lineEdit_selected_id.text() != "":
 
-            index = self.tabWidget_groups.currentIndex()
-            if index == 0:
-                self.remove_elem_group()
-            else:
-                self.remove_line_group()
+            line_id = int(self.lineEdit_selected_id.text())
+
+            self.preprocessor.set_stress_stiffening_by_lines(line_id, [0., 0.])
+            self.properties._remove_line_property("stress_stiffening", line_id)
 
             self.load_treeWidgets_info()
-            if not self.tabWidget_main.isTabVisible(1):
-                if self.comboBox_selection.currentIndex() == 0:
-                    self.selection_type_callback()
-                else:
-                    self.comboBox_selection.setCurrentIndex(0)
-
-            self.pushButton_remove.setDisabled(True)
-
-    def get_information_elem(self, item):
-        try:
-            if self.lineEdit_selected_id.text() != "":
-
-                selected_id = item.text(0)
-                selected_key = self.dictKey_label.format(selected_id)
-
-                if "Selection-" in selected_key:
-                    stiffening_data = self.preprocessor.group_elements_with_stress_stiffening[selected_key]
-
-                    data = dict()
-                    for element in stiffening_data[1]:
-                        data[element] = stiffening_data[0]
-
-                    if len(data):
-                        self.close()
-                        header_labels = ["Elements", "Internal pressure", "External pressure"]
-                        GetInformationOfGroup(  group_label = "Stress stiffening effect",
-                                                selection_label = "Element ID:",
-                                                header_labels = header_labels,
-                                                column_widths = [100, 120, 120],
-                                                data = data  )
-
-            else:
-                title = "Invalid selection"
-                message = "Please, select a group in the list to get the information."
-                PrintMessageInput([window_title_2, title, message])
-                
-        except Exception as error_log:
-            title = "Error while getting information of selected group"
-            message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
-        self.show()
-
-    def get_information_line(self, item):
-        try:
-            if self.lineEdit_selected_id.text() != "":
-
-                data = dict()
-                for line in self.get_list_typed_entries(item.text(1)):
-                    data[line] = ["Enabled"]
-
-                if len(data):
-                    self.close()
-                    header_labels = ["Lines", "Stress stiffening effect"]
-                    GetInformationOfGroup(  group_label = "Stress stiffening effect",
-                                            selection_label = "Line ID:",
-                                            header_labels = header_labels,
-                                            column_widths = [100, 140],
-                                            data = data  )
-
-                # list_lines = self.get_list_typed_entries()          
-                # read = GetInformationOfGroup(self.project, list_lines, "Lines")
-                # if read.lines_removed:
-                #     self.load_lines_info()
-            else:
-                title = "Invalid selection"
-                message = "Please, select a group in the list to get the information."
-                PrintMessageInput([window_title_2, title, message])
-                
-        except Exception as error_log:
-            title = "Error while getting information of selected group"
-            message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
-        self.show()
-
-    def get_information(self, item):
-        if self.tabWidget_groups.currentIndex() == 0:
-            self.get_information_elem(item)
-        else:
-            self.get_information_line(item)
-
-    def load_elements_info(self):
-        self.treeWidget_stress_stiffening_elements.clear()
-        self.tabWidget_groups.setTabVisible(0, False)
-        for section, values in self.preprocessor.group_elements_with_stress_stiffening.items():
-            key = section.split(" || ")[1]
-            new = QTreeWidgetItem([key, str(values[1])])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_stress_stiffening_elements.addTopLevelItem(new)
+            app().pulse_file.write_line_properties_in_file()
 
     def load_lines_info(self):        
-        self.treeWidget_stress_stiffening_lines.clear()
+        self.treeWidget_stress_stiffening.clear()
         self.tabWidget_groups.setTabVisible(1, False)
         lines = self.preprocessor.lines_with_stress_stiffening
         if len(lines) != 0:
             new = QTreeWidgetItem(["Selection-1" , str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_stress_stiffening_lines.addTopLevelItem(new)
+            self.treeWidget_stress_stiffening.addTopLevelItem(new)
 
     def load_treeWidgets_info(self):
 
-        self.load_lines_info()
-        self.load_elements_info()
+        self.treeWidget_stress_stiffening.clear()
+        for line_id, data in self.properties.line_properties.items():
+            if "stress_stiffening" in data.keys():
+
+                prop_data = data["stress_stiffening"]
+                ext_pressure = prop_data["external pressure"]
+                int_pressure = prop_data["internal pressure"]
+
+                item = QTreeWidgetItem([str(line_id) , str(ext_pressure), str(int_pressure)])
+                item.setTextAlignment(0, Qt.AlignCenter)
+                item.setTextAlignment(1, Qt.AlignCenter)
+                self.treeWidget_stress_stiffening.addTopLevelItem(item)
+
+        self.tabs_visibility()
+
+    def tabs_visibility(self):
+        self.pushButton_remove.setDisabled(True)
         self.tabWidget_main.setTabVisible(1, False)
-
-        if len(self.preprocessor.lines_with_stress_stiffening):
-            self.tabWidget_main.setTabVisible(1, True)
-            self.tabWidget_groups.setTabVisible(1, True)
-
-        if len(self.preprocessor.group_elements_with_stress_stiffening):
-            self.tabWidget_main.setTabVisible(1, True)
-            self.tabWidget_groups.setTabVisible(0, True)
+        for data in self.properties.line_properties.values():
+            if "stress_stiffening" in data.keys():
+                self.tabWidget_main.setTabVisible(1, True)
+                return
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.press_confirm()
+            self.stress_stiffening_attribution_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

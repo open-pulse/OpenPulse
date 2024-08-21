@@ -52,10 +52,6 @@ class Preprocessor:
         self.neighbors = defaultdict(list)
         self.elements_connected_to_node = defaultdict(list)
 
-        self.group_elements_with_stress_stiffening = dict()
-     
-        self.dict_lines_with_stress_stiffening = dict()
-
         self.connectivity_matrix = list()
         self.nodal_coordinates_matrix = list()
  
@@ -931,17 +927,25 @@ class Preprocessor:
 
         if isinstance(cross_section, list):
             for i, element in enumerate(elements):
-                _cross_section = cross_section[i]
+
                 _element = [element]
+                _cross_section = cross_section[i]
+
                 for element in slicer(self.structural_elements, _element):
                     element.cross_section = _cross_section
                     element.variable_section = variable_section
+                    element.section_parameters_render = _cross_section.section_parameters
+
                 for element in slicer(self.acoustic_elements, _element):
                     element.cross_section = _cross_section
+
         else:    
+
             for element in slicer(self.structural_elements, elements):
                 element.cross_section = cross_section
                 element.variable_section = variable_section
+                element.section_parameters_render = cross_section.section_parameters
+
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
 
@@ -949,20 +953,28 @@ class Preprocessor:
             return
     
         if update_section_points:
+
+            N = self.section_number_of_divisions
             if isinstance(cross_section, list):
                 for i, element in enumerate(elements):
+
                     _element = [element]
                     _cross_section = cross_section[i]
-                    _cross_section_points = _cross_section.get_cross_section_points(self.section_number_of_divisions)
+                    _cross_section: CrossSection
+
+                    _cross_section_points = _cross_section.get_cross_section_points(N)
                     for element in slicer(self.structural_elements, _element):
                         element.cross_section_points = _cross_section_points
-                        print(element.index, element.cross_section.outer_diameter)
+
                     for element in slicer(self.acoustic_elements, _element):
                         element.cross_section_points = _cross_section_points
-            else:    
-                cross_section_points = cross_section.get_cross_section_points(self.section_number_of_divisions)
+
+            else:
+
+                cross_section_points = cross_section.get_cross_section_points(N)
                 for element in slicer(self.structural_elements, elements):
                     element.cross_section_points = cross_section_points
+
                 for element in slicer(self.acoustic_elements, elements):
                     element.cross_section_points = cross_section_points
 
@@ -1511,7 +1523,7 @@ class Preprocessor:
     def modify_stress_stiffening_effect(self, _bool):
         self.stress_stiffening_enabled = _bool
 
-    def set_stress_stiffening_by_line(self, lines, pressures, remove=False):
+    def set_stress_stiffening_by_lines(self, lines: int | list, pressures: list | tuple):
         """
         This method .
 
@@ -1531,23 +1543,6 @@ class Preprocessor:
             lines = [lines]
         for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_stress_stiffening_by_elements(elements, pressures)
-        if lines == "all":
-            self.group_elements_with_stress_stiffening = {}
-            self.lines_with_stress_stiffening = []
-            if not remove:
-                for line in self.mesh.lines_from_model.keys():
-                    self.lines_with_stress_stiffening.append(line)
-                    self.dict_lines_with_stress_stiffening[line] = pressures
-        else:
-            for line in lines:
-                if remove:
-                    if line in self.lines_with_stress_stiffening:
-                        self.lines_with_stress_stiffening.remove(line) 
-                        self.dict_lines_with_stress_stiffening.pop(line)               
-                else:
-                    if line not in self.lines_with_stress_stiffening:
-                        self.lines_with_stress_stiffening.append(line)
-                        self.dict_lines_with_stress_stiffening[line] = pressures
 
     def set_stress_stiffening_by_elements(self, elements, pressures, section=None, remove=False):
         """
@@ -1575,14 +1570,6 @@ class Preprocessor:
         for element in slicer(self.structural_elements, elements):
             element.external_pressure = pressures[0]
             element.internal_pressure = pressures[1]
-            
-            if section is not None:
-                if remove:
-                    if section in self.group_elements_with_stress_stiffening.keys():
-                        self.group_elements_with_stress_stiffening.pop(section) 
-                else:
-                    self.group_elements_with_stress_stiffening[section] = [pressures, elements]
-
 
     def add_expansion_joint_by_lines(self, lines, parameters: (None | dict)):
         """
@@ -1606,10 +1593,7 @@ class Preprocessor:
         for line_id in lines:
             for elements in slicer(self.mesh.line_to_elements, line_id):
                 for element in slicer(self.structural_elements, elements):
-                    element.expansion_joint_parameters = parameters
-                    # [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
-                    # [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
-                    # list_stiffness_table_names = parameters[2]
+                    element.set_expansion_joint_data(parameters)
 
     def add_valve_by_lines(self, lines, parameters):
         """
@@ -1756,7 +1740,7 @@ class Preprocessor:
             element.delta_pressure = 0
             element.pp_impedance = None
 
-    def set_beam_xaxis_rotation_by_line(self, line_ids: (int | list), angle: float, gimball_shift=1e-5):
+    def set_beam_xaxis_rotation_by_lines(self, line_ids: (int | list), angle: float, gimball_shift=1e-5):
         """
         """
         # promotes a small angle shift to avoid the gimbal lock rotation problems

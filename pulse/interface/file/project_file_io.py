@@ -337,7 +337,7 @@ class ProjectFileIO:
         # print(structural_imported_tables)
 
         if acoustic_imported_tables or structural_imported_tables:
-            print("entrei aqui")
+
             with self.filebox.open(self.imported_table_data_filename, "w") as internal_file:
                 with h5py.File(internal_file, "w") as f:
 
@@ -355,8 +355,8 @@ class ProjectFileIO:
 
                             data_name = f"{group_label}/{table_name}"
                             f.create_dataset(data_name, data=data_array, dtype=float)
-                            print(data_name, data_array.shape)
-                            print("arquivo foi atualizado")
+                            # print(data_name, data_array.shape)
+                            # print("arquivo foi atualizado")
 
                     app().main_window.project_data_modified = True
 

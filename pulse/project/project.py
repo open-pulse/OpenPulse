@@ -121,6 +121,7 @@ class Project:
         self.initial_load_project_actions()
         app().loader.load_project_data()
         # self.model.PSD.load_psd_data_from_file()
+        self.enhance_pipe_sections_appearance()
 
         self.preprocessor.check_disconnected_lines()
 
@@ -140,18 +141,17 @@ class Project:
         self.preprocessor.generate()
         app().main_window.update_status_bar_info()
         self.file.update_node_ids_after_mesh_changed()
-        # self.add_lids_to_variable_cross_sections()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
-    def add_lids_to_variable_cross_sections(self):
+    def enhance_pipe_sections_appearance(self):
         """ 
         This method adds lids to cross-section variations and terminations.
         """
         for elements in self.preprocessor.elements_connected_to_node.values():
 
             element = None
-            if len(elements)==2:
+            if len(elements) == 2:
                 first_element, last_element = elements
                 
                 if 'beam_1' not in [first_element.element_type, last_element.element_type]:
@@ -173,7 +173,7 @@ class Project:
                     if last_outer_diameter < first_inner_diameter:
                         inner_diameter = last_inner_diameter 
                         element = first_element
-            
+
             elif len(elements) == 1: 
 
                 element = elements[0]   
@@ -204,17 +204,34 @@ class Project:
                 offset_y = cross.offset_y
                 offset_z = cross.offset_z
                 insulation_thickness = cross.insulation_thickness
-                section_label = cross.section_label
+                section_label = cross.section_type_label
 
                 if element.element_type == 'expansion_joint':
                     _key = element.cross_section.expansion_joint_plot_key
-                    parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
+                    thickness = (outer_diameter - inner_diameter) / 2
+                    parameters = [  outer_diameter, 
+                                    thickness, 
+                                    offset_y, 
+                                    offset_z, 
+                                    insulation_thickness,
+                                    _key
+                                  ]
+
                 else:
-                    parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
-                element.cross_section_points = element.cross_section.get_circular_section_points(parameters, section_label)
+                    thickness = (outer_diameter - inner_diameter) / 2
+                    parameters = [  outer_diameter, 
+                                    thickness, 
+                                    offset_y, 
+                                    offset_z, 
+                                    insulation_thickness
+                                  ]
+
+                element.section_parameters_render = parameters
+                element.cross_section_points = cross.get_circular_section_points(parameters, 
+                                                                                 section_label)
 
     def is_there_an_acoustic_attribute_in_the_node(self, node_id: int):
-        
+
         acoustic_properties = [
                                 "acoustic_pressure", 
                                 "volume_velocity", 
@@ -593,33 +610,9 @@ class Project:
             dict_multiple_valves[section_key] = [parameters_valve, _group_elements]
         return dict_multiple_valves
 
-    def set_stress_stiffening_by_elements(self, elements, parameters, section, remove=False):
-        self.preprocessor.set_stress_stiffening_by_elements(elements, parameters, section=section, remove=remove)
-        self.file.modify_stress_stiffnening_element_in_file(elements, parameters, section, remove=remove)
-
-    def set_stress_stiffening_by_line(self, lines, parameters, remove=False):
-        
-        if isinstance(lines, int):
-            lines = [lines]
-        
-        self.preprocessor.set_stress_stiffening_by_line(lines, parameters, remove=remove)          
-        if remove:
-            self._set_stress_stiffening_to_selected_lines(lines, [None, None, None, None])
-            self.file.modify_stress_stiffnening_line_in_file(lines, [], remove=True)
-        else:
-            self._set_stress_stiffening_to_selected_lines(lines, parameters)
-            self.file.modify_stress_stiffnening_line_in_file(lines, parameters)
-
     # def load_material_by_line(self, line_id, material):
     #     self.preprocessor.set_material_by_lines(line_id, material)
     #     self._set_material_to_selected_lines(line_id, material)
-    
-    def load_stress_stiffening_by_elements(self, elements_id, parameters, section=None):
-        self.preprocessor.set_stress_stiffening_by_elements(elements_id, parameters, section=section)
-
-    def load_stress_stiffening_by_line(self, line_id, parameters):
-        self.preprocessor.set_stress_stiffening_by_line(line_id, parameters)
-        self._set_stress_stiffening_to_selected_lines(line_id, parameters)
 
     # def load_fluid_by_line(self, line_id, fluid):
     #     self.preprocessor.set_fluid_by_lines(line_id, fluid)
@@ -639,19 +632,19 @@ class Project:
     #     self._set_variable_cross_section_to_selected_line(line_id, data)
     #     self.set_variable_cross_section_by_line(line_id, data)
 
-    def load_expansion_joint_by_lines(self, line_id, data):
-        joint_elements = self.model.mesh.line_to_elements[line_id]
-        cross_sections = get_list_cross_sections_to_plot_expansion_joint(joint_elements, data[0][1])
-        self._set_cross_section_to_selected_line(line_id, cross_sections[0])
-        self.preprocessor.add_expansion_joint_by_lines(line_id, data)
-        self._set_expansion_joint_to_selected_lines(line_id, data)
-        self.preprocessor.set_cross_section_by_element(joint_elements, cross_sections)
+    # def load_expansion_joint_by_lines(self, line_id, data):
+    #     joint_elements = self.model.mesh.line_to_elements[line_id]
+    #     cross_sections = get_cross_sections_to_plot_expansion_joint(joint_elements, data[0][1])
+    #     self._set_cross_section_to_selected_line(line_id, cross_sections[0])
+    #     self.preprocessor.add_expansion_joint_by_lines(line_id, data)
+    #     self._set_expansion_joint_to_selected_lines(line_id, data)
+    #     self.preprocessor.set_cross_section_by_element(joint_elements, cross_sections)
 
-    def load_expansion_joint_by_elements(self, joint_elements, data):
-        self.preprocessor.add_expansion_joint_by_elements(joint_elements, data)
-        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(joint_elements)
-        cross_sections = get_list_cross_sections_to_plot_expansion_joint(joint_elements, data[0][1])
-        self.preprocessor.set_cross_section_by_element(joint_elements, cross_sections)
+    # def load_expansion_joint_by_elements(self, joint_elements, data):
+    #     self.preprocessor.add_expansion_joint_by_elements(joint_elements, data)
+    #     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(joint_elements)
+    #     cross_sections = get_cross_sections_to_plot_expansion_joint(joint_elements, data[0][1])
+    #     self.preprocessor.set_cross_section_by_element(joint_elements, cross_sections)
 
     def load_valve_by_lines(self, line_id, data, cross_sections):
         valve_elements = data["valve_elements"]
@@ -772,18 +765,6 @@ class Project:
     # def _set_beam_xaxis_rotation_to_selected_lines(self, line_id, angle):
     #     entity = self.model.mesh.lines_from_model[line_id]
     #     entity.xaxis_beam_rotation = angle
-
-    # def _set_stress_stiffening_to_selected_lines(self, lines, pressures):
-    #     if isinstance(lines, int):
-    #         lines = [lines]
-    #     for line_id in lines:
-    #         entity = self.model.mesh.lines_from_model[line_id]
-    #         entity.stress_stiffening_parameters = pressures
-            
-    # def _set_stress_stiffening_to_all_entities(self, pressures):
-    #     for entity in self.model.mesh.lines_from_model.values():
-    #         entity.external_pressure = pressures[0]
-    #         entity.internal_pressure = pressures[1]
 
     # def _set_expansion_joint_to_selected_lines(self, lines, parameters):
     #     if isinstance(lines, int):
