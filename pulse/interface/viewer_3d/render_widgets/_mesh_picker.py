@@ -6,7 +6,6 @@ if TYPE_CHECKING:
 from itertools import product
 
 import numpy as np
-from molde.pickers import CellAreaPicker
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkFiltersGeneral import vtkExtractSelectedFrustum
 from vtkmodules.vtkRenderingCore import (
@@ -57,8 +56,7 @@ class MeshPicker:
             if element.cross_section is None:
                 return
 
-            # not sure if it works every time, but is a good approximation
-            radius = max(element.cross_section.section_parameters)
+            radius = element.cross_section.outer_diameter / 2 
             center = element.element_center_coordinates
 
             line_bounds = (x0, x1, y0, y1, z0, z1)
@@ -109,9 +107,9 @@ class MeshPicker:
         }
 
         # Add an extra pick on the last corner
-        element = self.pick_element(x1, y1)
-        if element >= 0:
-            picked_elements.add(element)
+        # element = self.pick_element(x1, y1)
+        # if element >= 0:
+        #     picked_elements.add(element)
 
         return picked_elements
 
