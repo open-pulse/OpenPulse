@@ -291,7 +291,7 @@ class TubeActorGPU(vtkActor):
         if section_label == "Expansion joint":
             section_parameters = element.cross_section.expansion_joint_plot_key
         else:
-            section_parameters = element.cross_section.section_parameters
+            section_parameters = element.section_parameters_render
 
         if section_parameters is not None:
             section_parameters = tuple(section_parameters)
