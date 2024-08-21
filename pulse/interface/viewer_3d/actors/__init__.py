@@ -5,3 +5,6 @@ from .nodes_actor import NodesActor
 from .points_actor import PointsActor
 from .tube_actor import TubeActor
 from .tube_actor_results import TubeActorResults
+from .editor_points_actor import EditorPointsActor
+from .editor_staged_points_actor import EditorStagedPointsActor
+from .editor_selected_points_actor import EditorSelectedPointsActor

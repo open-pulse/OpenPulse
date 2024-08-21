@@ -6,13 +6,7 @@ from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import CommonRenderWidget
 
-from opps.interface.viewer_3d.actors import (
-    ControlPointsActor,
-    SelectedPointsActor,
-    StagedPointsActor,
-)
-
-from molde.render_widgets import CommonRenderWidget
+from pulse.interface.viewer_3d.actors import EditorPointsActor, EditorStagedPointsActor, EditorSelectedPointsActor
 from pulse import ICON_DIR, app
 
 
@@ -53,9 +47,9 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.remove_actors()
 
         self.pipeline_actor = self.pipeline.as_vtk()
-        self.control_points_actor = ControlPointsActor(self.pipeline.points)
-        self.staged_points_actor = StagedPointsActor(self.pipeline.staged_points)
-        self.selected_points_actor = SelectedPointsActor(self.pipeline.selected_points)
+        self.control_points_actor = EditorPointsActor()
+        self.staged_points_actor = EditorStagedPointsActor()
+        self.selected_points_actor = EditorSelectedPointsActor()
 
         # The order matters. It defines wich points will appear first.
         self.add_actors(
