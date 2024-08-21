@@ -1544,7 +1544,7 @@ class Preprocessor:
         for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_stress_stiffening_by_elements(elements, pressures)
 
-    def set_stress_stiffening_by_elements(self, elements, pressures, section=None, remove=False):
+    def set_stress_stiffening_by_elements(self, elements, data: dict):
         """
         This method .
 
@@ -1566,10 +1566,10 @@ class Preprocessor:
         """
 
         self.modify_stress_stiffening_effect(True)
-        
+
         for element in slicer(self.structural_elements, elements):
-            element.external_pressure = pressures[0]
-            element.internal_pressure = pressures[1]
+            element.external_pressure = data["external_pressure"]
+            element.internal_pressure = data["internal_pressure"]
 
     def add_expansion_joint_by_lines(self, lines, parameters: (None | dict)):
         """

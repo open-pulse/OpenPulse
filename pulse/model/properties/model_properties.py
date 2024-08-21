@@ -283,22 +283,6 @@ class ModelProperties:
         for _key in keys_to_remove:
             self.element_properties.pop(_key)
 
-    def _reset_line_property(self, property: str):
-        """
-        Clears all instances of a specific property from the structure.
-        """
-
-        keys_to_remove = list()
-
-        for key in self.line_properties.keys():
-            (existing_property, line_id) = key
-            if property == existing_property:
-                if key not in keys_to_remove:
-                    keys_to_remove.append(key)
-
-        for _key in keys_to_remove:
-            self.line_properties.pop(_key)
-
     def _remove_nodal_property(self, property: str, node_ids: int | list | tuple):
         """Remove a nodal property at specific nodal_id."""
         if isinstance(node_ids, int):

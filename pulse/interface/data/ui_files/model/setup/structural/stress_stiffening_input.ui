@@ -562,7 +562,7 @@
             </property>
             <layout class="QGridLayout" name="gridLayout_9">
              <item row="0" column="1">
-              <widget class="QPushButton" name="pushButton_confirm">
+              <widget class="QPushButton" name="pushButton_attribute">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -588,7 +588,7 @@
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Confirm</string>
+                <string>Attribute</string>
                </property>
               </widget>
              </item>

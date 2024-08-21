@@ -34,7 +34,6 @@ class LoadProject:
     def load_project_data(self):
         #
         self.load_mesh_setup_from_file()
-        self.load_pipeline_file()
         self.load_imported_table_data_from_file()
         #
         self.load_fluids_library()
@@ -580,23 +579,10 @@ class LoadProject:
 
             self.files_loader.load_project_data_from_files()
 
-            # self.load_materials_data()
-            # self.load_fluids_data()
-            # self.load_constant_section_data()
-            # self.load_variable_section_data()
-            # self.load_structural_element_types_data()
-            # self.load_structural_element_force_offset_data()
-            # self.load_structural_element_wall_formulation_data()
-            # self.load_acoustic_element_types_data()
             # self.load_acoustic_element_length_correction_data()
             # self.load_compressor_data()
             # self.load_perforated_plate_by_elements_data()
-            # self.load_xaxis_beam_rotation_data()
-            # self.load_b2px_rotation_decoupling_data()
-            # self.load_expansion_joints_data()
             # self.load_valve_data()
-            # self.load_capped_ends_data()
-            # self.load_stress_stiffening_data()
 
         except Exception as log_error:
             title = "Error while loading project data"

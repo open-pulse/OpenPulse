@@ -62,8 +62,8 @@ class StressStiffeningInput(QDialog):
         self.lineEdit_internal_pressure: QLineEdit
 
         # QPushButton
+        self.pushButton_attribute: QPushButton
         self.pushButton_cancel: QPushButton
-        self.pushButton_confirm: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_remove: QPushButton
 
@@ -78,17 +78,27 @@ class StressStiffeningInput(QDialog):
         #
         self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
         #
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_cancel.clicked.connect(self.close)
-        self.pushButton_confirm.clicked.connect(self.stress_stiffening_attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
-        self.treeWidget_stress_stiffening.itemClicked.connect(self.on_click_item_line)
-        self.treeWidget_stress_stiffening.itemDoubleClicked.connect(self.on_doubleclick_item_line)
+        self.treeWidget_stress_stiffening.itemClicked.connect(self.on_click_item)
+        self.treeWidget_stress_stiffening.itemDoubleClicked.connect(self.on_double_click_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+
+    def _config_widgets(self):
+        #
+        self.pushButton_remove.setDisabled(True)
+        #
+        self.treeWidget_stress_stiffening.setColumnWidth(0, 100)
+        self.treeWidget_stress_stiffening.headerItem().setTextAlignment(0, Qt.AlignCenter)
+        self.treeWidget_stress_stiffening.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        #
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def attribution_type_callback(self):
 
@@ -134,23 +144,21 @@ class StressStiffeningInput(QDialog):
             self.lineEdit_selected_id.setText("")
             self.lineEdit_selected_id.setDisabled(True)
 
-    def _config_widgets(self):
-        #
+    def tabs_visibility(self):
         self.pushButton_remove.setDisabled(True)
-        #
-        self.treeWidget_stress_stiffening.setColumnWidth(0, 100)
-        self.treeWidget_stress_stiffening.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_stress_stiffening.headerItem().setTextAlignment(1, Qt.AlignCenter)
-        #
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        self.tabWidget_main.setTabVisible(1, False)
+        for data in self.properties.line_properties.values():
+            if "stress_stiffening" in data.keys():
+                self.tabWidget_main.setTabVisible(1, True)
+                return
 
-    def on_click_item_line(self, item):
+    def on_click_item(self, item):
         self.lineEdit_selected_id.setText(item.text(0))
         self.lineEdit_selected_id.setDisabled(True)
         self.pushButton_remove.setDisabled(False)
 
-    def on_doubleclick_item_line(self, item):
-        self.on_click_item_line(item)
+    def on_double_click_item(self, item):
+        self.on_click_item(item)
 
     def check_inputs(self, lineEdit: QLineEdit, label: str, only_positive=True, zero_included=False):
         title = "Input cross-section error"
@@ -189,7 +197,7 @@ class StressStiffeningInput(QDialog):
 
         return False, out
 
-    def stress_stiffening_attribution_callback(self):
+    def attribute_callback(self):
 
         stop, external_pressure = self.check_inputs(self.lineEdit_external_pressure, 
                                                     "'External pressure'", 
@@ -226,11 +234,22 @@ class StressStiffeningInput(QDialog):
         self.preprocessor.set_stress_stiffening_by_lines(line_ids, parameters)
         self.properties._set_line_cross_section_property(line_ids, parameters)
 
-        self.load_treeWidgets_info()
-        app().pulse_file.write_line_properties_in_file() 
-
+        self.actions_to_finalize()
         self.complete = True
-        self.close()        
+
+    def remove_callback(self):
+        if self.lineEdit_selected_id.text() != "":
+
+            line_id = int(self.lineEdit_selected_id.text())
+
+            parameters = {  "external_pressure" : 0.,
+                            "internal_pressure" : 0.  }
+
+            self.preprocessor.set_stress_stiffening_by_lines(line_id, parameters)
+            self.properties._remove_line_property("stress_stiffening", line_id)
+
+            self.lineEdit_selected_id.setText("")
+            self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -252,34 +271,24 @@ class StressStiffeningInput(QDialog):
                 if "stress_stiffening" in data.keys():
                     line_ids.append(line_id)
 
-            self.preprocessor.set_stress_stiffening_by_lines(line_ids, [0., 0.])
-            self.properties._reset_line_property("stress_stiffening")
-            self.preprocessor.stress_stiffening_enabled = False
+            parameters = {  "external_pressure" : 0.,
+                            "internal_pressure" : 0.  }
 
-            # self.load_treeWidgets_info()
-            app().pulse_file.write_line_properties_in_file()
-            self.close()
+            self.preprocessor.set_stress_stiffening_by_lines(line_ids, parameters)
+            self.properties._remove_line_property("stress_stiffening", line_ids)
 
-    def remove_callback(self):
-        if self.lineEdit_selected_id.text() != "":
+            self.actions_to_finalize()
 
-            line_id = int(self.lineEdit_selected_id.text())
+    def actions_to_finalize(self):
 
-            self.preprocessor.set_stress_stiffening_by_lines(line_id, [0., 0.])
-            self.properties._remove_line_property("stress_stiffening", line_id)
+        self.load_treeWidgets_info()
+        app().pulse_file.write_line_properties_in_file()
 
-            self.load_treeWidgets_info()
-            app().pulse_file.write_line_properties_in_file()
-
-    def load_lines_info(self):        
-        self.treeWidget_stress_stiffening.clear()
-        self.tabWidget_groups.setTabVisible(1, False)
-        lines = self.preprocessor.lines_with_stress_stiffening
-        if len(lines) != 0:
-            new = QTreeWidgetItem(["Selection-1" , str(lines)])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_stress_stiffening.addTopLevelItem(new)
+        self.preprocessor.stress_stiffening_enabled = False
+        for data in self.properties.line_properties.values():
+            if "stress_stiffening" in data.keys():
+                self.preprocessor.stress_stiffening_enabled = True
+                return
 
     def load_treeWidgets_info(self):
 
@@ -288,8 +297,8 @@ class StressStiffeningInput(QDialog):
             if "stress_stiffening" in data.keys():
 
                 prop_data = data["stress_stiffening"]
-                ext_pressure = prop_data["external pressure"]
-                int_pressure = prop_data["internal pressure"]
+                ext_pressure = prop_data["external_pressure"]
+                int_pressure = prop_data["internal_pressure"]
 
                 item = QTreeWidgetItem([str(line_id) , str(ext_pressure), str(int_pressure)])
                 item.setTextAlignment(0, Qt.AlignCenter)
@@ -298,17 +307,11 @@ class StressStiffeningInput(QDialog):
 
         self.tabs_visibility()
 
-    def tabs_visibility(self):
-        self.pushButton_remove.setDisabled(True)
-        self.tabWidget_main.setTabVisible(1, False)
-        for data in self.properties.line_properties.values():
-            if "stress_stiffening" in data.keys():
-                self.tabWidget_main.setTabVisible(1, True)
-                return
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.stress_stiffening_attribution_callback()
+            self.attribute_callback()
+        elif event.key() == Qt.Key_Delete:
+            self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

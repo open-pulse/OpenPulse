@@ -2113,7 +2113,7 @@
        <number>4</number>
       </property>
       <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_confirm">
+       <widget class="QPushButton" name="pushButton_attribute">
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -2135,7 +2135,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Confirm</string>
+         <string>Attribute</string>
         </property>
         <property name="autoDefault">
          <bool>true</bool>
@@ -2191,7 +2191,7 @@
  </widget>
  <tabstops>
   <tabstop>tabWidget_main</tabstop>
-  <tabstop>pushButton_confirm</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
   <tabstop>comboBox_axial_stop_rod</tabstop>
   <tabstop>tabWidget_inputs</tabstop>
   <tabstop>lineEdit_angular_stiffness</tabstop>

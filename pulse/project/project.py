@@ -122,6 +122,7 @@ class Project:
         app().loader.load_project_data()
         # self.model.PSD.load_psd_data_from_file()
         self.enhance_pipe_sections_appearance()
+        self.preprocessor.process_all_rotation_matrices()
 
         self.preprocessor.check_disconnected_lines()
 

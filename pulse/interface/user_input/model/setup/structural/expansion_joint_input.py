@@ -95,8 +95,8 @@ class ExpansionJointInput(QDialog):
         self._create_lists_of_lineEdits()
 
         # QPushButton
+        self.pushButton_attribute: QPushButton
         self.pushButton_cancel: QPushButton
-        self.pushButton_confirm: QPushButton
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_load_table_axial_stiffness: QPushButton
@@ -115,8 +115,8 @@ class ExpansionJointInput(QDialog):
         #
         self.comboBox_axial_stop_rod.currentIndexChanged.connect(self.axial_stop_rod_callback)
         #
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_cancel.clicked.connect(self.close)
-        self.pushButton_confirm.clicked.connect(self.expansion_joint_attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -584,7 +584,7 @@ class ExpansionJointInput(QDialog):
         self.lineEdit_joint_length.setText(str(round(joint_length, 6)))
         return round(joint_length, 6)
 
-    def expansion_joint_attribution_callback(self):
+    def attribute_callback(self):
         
         lineEdit = self.lineEdit_selected_id.text()
         stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
@@ -770,7 +770,7 @@ class ExpansionJointInput(QDialog):
 
         self.remove_table_files_from_expansion_joints(line_ids)
 
-        self.properties._reset_line_property("expansion_joint")
+        self.properties._remove_line_property("expansion_joint", line_ids)
         self.preprocessor.add_expansion_joint_by_lines(line_ids, None)
         self.restore_the_cross_section(line_ids)
 
@@ -789,7 +789,7 @@ class ExpansionJointInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.expansion_joint_attribution_callback()
+            self.attribute_callback()
         if event.key() == Qt.Key_Escape:
             self.close()
 
@@ -829,12 +829,5 @@ def get_cross_sections_to_plot_expansion_joint(joint_elements: list, effective_d
         cross_sections.append(cross)
 
     return cross_sections
-
-def get_string_from_joint_paramters(parameters):
-    for parameter in parameters:
-        for value in parameter:
-            if isinstance(value, np.ndarray):
-                return True
-    return False
 
 # fmt: on

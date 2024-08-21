@@ -341,7 +341,7 @@
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QLineEdit" name="lineEdit_xaxis_rotation_increment_angle">
+              <widget class="QLineEdit" name="lineEdit_increment_angle">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -449,7 +449,7 @@
               </spacer>
              </item>
              <item row="0" column="2">
-              <widget class="QLineEdit" name="lineEdit_xaxis_rotation_actual_angle">
+              <widget class="QLineEdit" name="lineEdit_actual_angle">
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -527,7 +527,7 @@
               <number>0</number>
              </property>
              <item row="0" column="1">
-              <widget class="QPushButton" name="pushButton_confirm">
+              <widget class="QPushButton" name="pushButton_attribute">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -549,7 +549,7 @@
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Confirm</string>
+                <string>Attribute</string>
                </property>
               </widget>
              </item>
@@ -633,7 +633,7 @@
             </property>
             <column>
              <property name="text">
-              <string>Angle [deg]</string>
+              <string>Lines</string>
              </property>
              <property name="font">
               <font>
@@ -650,7 +650,7 @@
             </column>
             <column>
              <property name="text">
-              <string>Lines</string>
+              <string>Angle [deg]</string>
              </property>
              <property name="font">
               <font>

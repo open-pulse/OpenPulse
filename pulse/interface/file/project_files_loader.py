@@ -225,210 +225,210 @@ class ProjectFilesLoader:
     #         PrintMessageInput([window_title_1, title, message])
 
 
-    def load_cross_section_data_from_file(self):
+    # def load_cross_section_data_from_file(self):
 
-        try:
+    #     try:
             
-            for tag in self.pipeline_data.sections():
+    #         for tag in self.pipeline_data.sections():
 
-                section = self.pipeline_data[tag]
-                keys = section.keys()
+    #             section = self.pipeline_data[tag]
+    #             keys = section.keys()
 
-                list_elements = ""
-                structural_element_type = ""
+    #             list_elements = ""
+    #             structural_element_type = ""
 
-                if 'structural element type' in keys:
-                    structural_element_type = section['structural element type']
+    #             if 'structural element type' in keys:
+    #                 structural_element_type = section['structural element type']
                 
-                if 'section type' in keys:
-                    section_type_label = section['section type']
+    #             if 'section type' in keys:
+    #                 section_type_label = section['section type']
 
-                if structural_element_type != "":
-                    if "-" in tag:
-                        if 'list of elements' in keys:
-                            str_list_elements = section['list of elements']
-                            list_elements = get_list_of_values_from_string(str_list_elements)
-                            self.structural_element_type_data[tag] = [list_elements, structural_element_type]
-                    else:
-                        self.structural_element_type_data[tag] = structural_element_type
-                    self.element_type_is_structural = True
-                else:
-                    self.structural_element_type_data[tag] = 'pipe_1'
+    #             if structural_element_type != "":
+    #                 if "-" in tag:
+    #                     if 'list of elements' in keys:
+    #                         str_list_elements = section['list of elements']
+    #                         list_elements = get_list_of_values_from_string(str_list_elements)
+    #                         self.structural_element_type_data[tag] = [list_elements, structural_element_type]
+    #                 else:
+    #                     self.structural_element_type_data[tag] = structural_element_type
+    #                 self.element_type_is_structural = True
+    #             else:
+    #                 self.structural_element_type_data[tag] = 'pipe_1'
 
-                if 'beam x-axis rotation' in keys:
-                    beam_xaxis_rotation = section['beam x-axis rotation']
-                    self.beam_xaxis_rotation_data[int(tag)] = float(beam_xaxis_rotation)
+    #             if 'beam x-axis rotation' in keys:
+    #                 beam_xaxis_rotation = section['beam x-axis rotation']
+    #                 self.beam_xaxis_rotation_data[int(tag)] = float(beam_xaxis_rotation)
 
-                str_joint_parameters = ""
-                if 'expansion joint parameters' in keys:
-                    str_joint_parameters = section['expansion joint parameters']
-                    joint_parameters = get_list_of_values_from_string(str_joint_parameters, int_values=False)
+    #             str_joint_parameters = ""
+    #             if 'expansion joint parameters' in keys:
+    #                 str_joint_parameters = section['expansion joint parameters']
+    #                 joint_parameters = get_list_of_values_from_string(str_joint_parameters, int_values=False)
 
-                str_joint_stiffness = ""
-                if 'expansion joint stiffness' in keys:
-                    str_joint_stiffness = section['expansion joint stiffness']
-                    joint_stiffness, joint_table_names, joint_list_freq = self._get_expansion_joint_stiffness_from_string(str_joint_stiffness)
+    #             str_joint_stiffness = ""
+    #             if 'expansion joint stiffness' in keys:
+    #                 str_joint_stiffness = section['expansion joint stiffness']
+    #                 joint_stiffness, joint_table_names, joint_list_freq = self._get_expansion_joint_stiffness_from_string(str_joint_stiffness)
 
-                if "-" in tag:
+    #             if "-" in tag:
 
-                    if 'list of elements' in keys:
-                        str_list_elements = section['list of elements']
-                        list_elements = get_list_of_values_from_string(str_list_elements)
+    #                 if 'list of elements' in keys:
+    #                     str_list_elements = section['list of elements']
+    #                     list_elements = get_list_of_values_from_string(str_list_elements)
 
-                    if structural_element_type == 'pipe_1':
+    #                 if structural_element_type == 'pipe_1':
 
-                        section_parameters = list()                        
-                        if 'section parameters' in keys:
-                            str_section_parameters = section['section parameters']
-                            section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-                            pipe_section_info = {   "section_type_label" : section_type_label ,
-                                                    "section_parameters" : section_parameters   }
+    #                     section_parameters = list()                        
+    #                     if 'section parameters' in keys:
+    #                         str_section_parameters = section['section parameters']
+    #                         section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+    #                         pipe_section_info = {   "section_type_label" : section_type_label ,
+    #                                                 "section_parameters" : section_parameters   }
 
-                        if len(section_parameters) == 6:
-                            self.cross_section_data[tag, "pipe"] = [list_elements, pipe_section_info]
+    #                     if len(section_parameters) == 6:
+    #                         self.cross_section_data[tag, "pipe"] = [list_elements, pipe_section_info]
 
-                        elif len(section_parameters) == 10:
-                            self.variable_sections_data[tag, "pipe"] = [list_elements, pipe_section_info]
+    #                     elif len(section_parameters) == 10:
+    #                         self.variable_sections_data[tag, "pipe"] = [list_elements, pipe_section_info]
 
-                    if str_joint_parameters != "" and str_joint_stiffness != "":
-                        _list_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-                        _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
-                        self.expansion_joint_parameters_data[tag]= [_list_elements, _data]
+    #                 if str_joint_parameters != "" and str_joint_stiffness != "":
+    #                     _list_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+    #                     _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
+    #                     self.expansion_joint_parameters_data[tag]= [_list_elements, _data]
 
-                else:
+    #             else:
 
-                    if structural_element_type == 'beam_1':
+    #                 if structural_element_type == 'beam_1':
 
-                        if section_type_label == "Generic section":                 
-                            if 'section properties' in keys:
-                                str_section_properties =  section['section properties']
-                                section_properties = get_list_of_values_from_string(str_section_properties, int_values=False)
-                                section_properties = get_beam_section_properties(section_type_label, section_properties)
-                                section_parameters = None
+    #                     if section_type_label == "Generic section":                 
+    #                         if 'section properties' in keys:
+    #                             str_section_properties =  section['section properties']
+    #                             section_properties = get_list_of_values_from_string(str_section_properties, int_values=False)
+    #                             section_properties = get_beam_section_properties(section_type_label, section_properties)
+    #                             section_parameters = None
 
-                        else:
-                            if 'section parameters' in keys:
-                                str_section_parameters = section['section parameters']
-                                section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
-                                section_properties = get_beam_section_properties(section_type_label, section_parameters)
+    #                     else:
+    #                         if 'section parameters' in keys:
+    #                             str_section_parameters = section['section parameters']
+    #                             section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+    #                             section_properties = get_beam_section_properties(section_type_label, section_parameters)
 
-                        beam_section_info = {   "section_type_label" : section_type_label,
-                                                "section_parameters" : section_parameters,
-                                                "section_properties" : section_properties   }
+    #                     beam_section_info = {   "section_type_label" : section_type_label,
+    #                                             "section_parameters" : section_parameters,
+    #                                             "section_properties" : section_properties   }
 
-                        self.cross_section_data[tag, "beam"] = beam_section_info
+    #                     self.cross_section_data[tag, "beam"] = beam_section_info
 
-                    else:
+    #                 else:
 
-                        section_parameters = list()
-                        if "section parameters" in keys:                            
-                            str_section_parameters = section['section parameters']
-                            section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
+    #                     section_parameters = list()
+    #                     if "section parameters" in keys:                            
+    #                         str_section_parameters = section['section parameters']
+    #                         section_parameters = get_list_of_values_from_string(str_section_parameters, int_values=False)
 
-                        if len(section_parameters) == 6:
-                            pipe_section_info = {   "section_type_label" : "Pipe" ,
-                                                    "section_parameters" : section_parameters  }
-                            self.cross_section_data[tag, "pipe"] = pipe_section_info
+    #                     if len(section_parameters) == 6:
+    #                         pipe_section_info = {   "section_type_label" : "Pipe" ,
+    #                                                 "section_parameters" : section_parameters  }
+    #                         self.cross_section_data[tag, "pipe"] = pipe_section_info
 
-                        elif len(section_parameters) == 10:
-                            pipe_section_info = {   "section_type_label" : "Reducer" ,
-                                                    "section_parameters" : section_parameters  }
-                            self.variable_sections_data[tag, "pipe"] = pipe_section_info
+    #                     elif len(section_parameters) == 10:
+    #                         pipe_section_info = {   "section_type_label" : "Reducer" ,
+    #                                                 "section_parameters" : section_parameters  }
+    #                         self.variable_sections_data[tag, "pipe"] = pipe_section_info
 
-                        if str_joint_parameters != "" and str_joint_stiffness != "":
-                            _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
-                            self.expansion_joint_parameters_data[tag] = _data
+    #                     if str_joint_parameters != "" and str_joint_stiffness != "":
+    #                         _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
+    #                         self.expansion_joint_parameters_data[tag] = _data
 
-        except Exception as error_log:
+    #     except Exception as error_log:
 
-            title = "Error while loading cross-section data from file"
-            message = f"Problem detected at line: {tag}\n\n"
-            message += str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+    #         title = "Error while loading cross-section data from file"
+    #         message = f"Problem detected at line: {tag}\n\n"
+    #         message += str(error_log)
+    #         PrintMessageInput([window_title_1, title, message])
 
 
-    def load_element_type_data_from_file(self):
+    # def load_element_type_data_from_file(self):
 
-        try:
+    #     try:
 
-            for tag in self.pipeline_data.sections():
+    #         for tag in self.pipeline_data.sections():
 
-                section = self.pipeline_data[tag]
-                keys = section.keys()
+    #             section = self.pipeline_data[tag]
+    #             keys = section.keys()
 
-                list_elements = ""
-                acoustic_element_type = ""
-                structural_element_type = ""
+    #             list_elements = ""
+    #             acoustic_element_type = ""
+    #             structural_element_type = ""
 
-                if 'structural element type' in keys:
-                    structural_element_type = section['structural element type']
+    #             if 'structural element type' in keys:
+    #                 structural_element_type = section['structural element type']
 
-                if structural_element_type != "":
-                    if "-" in tag:
-                        if 'list of elements' in keys:
-                            str_list_elements = section['list of elements']
-                            list_elements = get_list_of_values_from_string(str_list_elements)
-                            self.structural_element_type_data[tag] = [list_elements, structural_element_type]
-                    else:
-                        self.structural_element_type_data[tag] = structural_element_type
-                    self.element_type_is_structural = True
-                else:
-                    if "-" not in tag:
-                        self.structural_element_type_data[tag] = 'pipe_1'
+    #             if structural_element_type != "":
+    #                 if "-" in tag:
+    #                     if 'list of elements' in keys:
+    #                         str_list_elements = section['list of elements']
+    #                         list_elements = get_list_of_values_from_string(str_list_elements)
+    #                         self.structural_element_type_data[tag] = [list_elements, structural_element_type]
+    #                 else:
+    #                     self.structural_element_type_data[tag] = structural_element_type
+    #                 self.element_type_is_structural = True
+    #             else:
+    #                 if "-" not in tag:
+    #                     self.structural_element_type_data[tag] = 'pipe_1'
                 
-                if 'structural element wall formulation' in keys:
-                    wall_formulation = section['structural element wall formulation']
-                    if wall_formulation != "":
-                        if "-" in tag:
-                            if 'list of elements' in keys:
-                                str_list_elements = section['list of elements']
-                                list_elements = get_list_of_values_from_string(str_list_elements)
-                                self.structural_element_wall_formulation_data[tag] = [list_elements, wall_formulation]
-                        else:
-                            self.structural_element_wall_formulation_data[tag] = wall_formulation
-                        self.element_type_is_structural = True
-                    else:
-                        self.structural_element_wall_formulation_data[tag] = 'thick_wall'
+    #             if 'structural element wall formulation' in keys:
+    #                 wall_formulation = section['structural element wall formulation']
+    #                 if wall_formulation != "":
+    #                     if "-" in tag:
+    #                         if 'list of elements' in keys:
+    #                             str_list_elements = section['list of elements']
+    #                             list_elements = get_list_of_values_from_string(str_list_elements)
+    #                             self.structural_element_wall_formulation_data[tag] = [list_elements, wall_formulation]
+    #                     else:
+    #                         self.structural_element_wall_formulation_data[tag] = wall_formulation
+    #                     self.element_type_is_structural = True
+    #                 else:
+    #                     self.structural_element_wall_formulation_data[tag] = 'thick_wall'
 
-                if 'force offset' in keys:
-                    force_offset = section['force offset']
-                    if force_offset != "":
-                        if "-" in tag:
-                            if 'list of elements' in keys:
-                                str_list_elements = section['list of elements']
-                                list_elements = get_list_of_values_from_string(str_list_elements)
-                                self.structural_element_force_offset_data[tag] = [list_elements, int(force_offset)]
-                        else:
-                            self.structural_element_force_offset_data[tag] = int(force_offset)
-                        self.element_type_is_structural = True
-                    else:
-                        self.structural_element_force_offset_data[tag] = None
+    #             if 'force offset' in keys:
+    #                 force_offset = section['force offset']
+    #                 if force_offset != "":
+    #                     if "-" in tag:
+    #                         if 'list of elements' in keys:
+    #                             str_list_elements = section['list of elements']
+    #                             list_elements = get_list_of_values_from_string(str_list_elements)
+    #                             self.structural_element_force_offset_data[tag] = [list_elements, int(force_offset)]
+    #                     else:
+    #                         self.structural_element_force_offset_data[tag] = int(force_offset)
+    #                     self.element_type_is_structural = True
+    #                 else:
+    #                     self.structural_element_force_offset_data[tag] = None
 
-                if 'acoustic element type' in keys:
-                    acoustic_element_type = section['acoustic element type']
+    #             if 'acoustic element type' in keys:
+    #                 acoustic_element_type = section['acoustic element type']
                 
-                if acoustic_element_type != "":
-                    if acoustic_element_type == 'proportional':
-                        proportional_damping = section['proportional damping']
-                        self.acoustic_element_type_data[tag] = [acoustic_element_type, float(proportional_damping), None]
+    #             if acoustic_element_type != "":
+    #                 if acoustic_element_type == 'proportional':
+    #                     proportional_damping = section['proportional damping']
+    #                     self.acoustic_element_type_data[tag] = [acoustic_element_type, float(proportional_damping), None]
 
-                    elif acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
-                        vol_flow = section['volume flow rate']
-                        self.acoustic_element_type_data[tag] = [acoustic_element_type, None, float(vol_flow)]
+    #                 elif acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
+    #                     vol_flow = section['volume flow rate']
+    #                     self.acoustic_element_type_data[tag] = [acoustic_element_type, None, float(vol_flow)]
 
-                    else:
-                        self.acoustic_element_type_data[tag] = [acoustic_element_type, None, None]
-                    self.element_type_is_acoustic = True
-                else:
-                    if "-" not in tag:
-                        self.acoustic_element_type_data[tag] = ['undamped', None, None]
+    #                 else:
+    #                     self.acoustic_element_type_data[tag] = [acoustic_element_type, None, None]
+    #                 self.element_type_is_acoustic = True
+    #             else:
+    #                 if "-" not in tag:
+    #                     self.acoustic_element_type_data[tag] = ['undamped', None, None]
         
-        except Exception as error_log:
+    #     except Exception as error_log:
 
-            title = "Error while loading element type data from file"
-            message = f"Problem detected at line: {tag}\n\n"
-            message += str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+    #         title = "Error while loading element type data from file"
+    #         message = f"Problem detected at line: {tag}\n\n"
+    #         message += str(error_log)
+    #         PrintMessageInput([window_title_1, title, message])
 
 
     def load_valve_data_from_file(self):
@@ -548,74 +548,74 @@ class ProjectFilesLoader:
             PrintMessageInput([window_title_1, title, message])
 
 
-    def load_compressor_info_from_file(self):
+    # def load_compressor_info_from_file(self):
 
-        try:
-            for tag in self.pipeline_data.sections():
+    #     try:
+    #         for tag in self.pipeline_data.sections():
 
-                section = self.pipeline_data[tag]
-                keys = section.keys()
+    #             section = self.pipeline_data[tag]
+    #             keys = section.keys()
 
-                if 'compressor info' in keys:
-                    str_compressor_info = section['compressor info']
-                    _data = get_list_of_values_from_string(str_compressor_info, int_values=False)
-                    self.compressor_info[int(tag)] = {  "temperature (suction)" : _data[0],
-                                                        "pressure (suction)" : _data[1],
-                                                        "line_id" : int(_data[2]),
-                                                        "node_id" : int(_data[3]),
-                                                        "pressure ratio" : _data[4],
-                                                        "connection type" : int(_data[5])  }
+    #             if 'compressor info' in keys:
+    #                 str_compressor_info = section['compressor info']
+    #                 _data = get_list_of_values_from_string(str_compressor_info, int_values=False)
+    #                 self.compressor_info[int(tag)] = {  "temperature (suction)" : _data[0],
+    #                                                     "pressure (suction)" : _data[1],
+    #                                                     "line_id" : int(_data[2]),
+    #                                                     "node_id" : int(_data[3]),
+    #                                                     "pressure ratio" : _data[4],
+    #                                                     "connection type" : int(_data[5])  }
 
-        except Exception as error_log:
+    #     except Exception as error_log:
 
-            title = "Error while loading compressor info data from file"
-            message = f"Problem detected at line: {tag}\n\n"
-            message += str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+    #         title = "Error while loading compressor info data from file"
+    #         message = f"Problem detected at line: {tag}\n\n"
+    #         message += str(error_log)
+    #         PrintMessageInput([window_title_1, title, message])
 
 
-    def load_capped_end_data_from_file(self):
+    # def load_capped_end_data_from_file(self):
         
-        try:
+    #     try:
 
-            for tag in self.pipeline_data.sections():
+    #         for tag in self.pipeline_data.sections():
 
-                section = self.pipeline_data[tag]
-                keys = section.keys()
+    #             section = self.pipeline_data[tag]
+    #             keys = section.keys()
         
-                if 'capped end' in keys:
-                    capped_end = section['capped end']
-                    if capped_end != "":
-                        self.capped_end_data[capped_end].append(int(tag))
+    #             if 'capped end' in keys:
+    #                 capped_end = section['capped end']
+    #                 if capped_end != "":
+    #                     self.capped_end_data[capped_end].append(int(tag))
 
-        except Exception as error_log:
+    #     except Exception as error_log:
 
-            title = "Error while loading capped-end data from file"
-            message = f"Problem detected at line: {tag}\n\n"
-            message += str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+    #         title = "Error while loading capped-end data from file"
+    #         message = f"Problem detected at line: {tag}\n\n"
+    #         message += str(error_log)
+    #         PrintMessageInput([window_title_1, title, message])
 
 
-    def load_stress_stiffening_data_from_file(self):
+    # def load_stress_stiffening_data_from_file(self):
         
-        try:
+    #     try:
 
-            for tag in self.pipeline_data.sections():
+    #         for tag in self.pipeline_data.sections():
 
-                section = self.pipeline_data[tag]
-                keys = section.keys()
+    #             section = self.pipeline_data[tag]
+    #             keys = section.keys()
 
-                if 'stress stiffening parameters' in keys:
-                    list_parameters = section['stress stiffening parameters']
-                    _list_parameters = get_list_of_values_from_string(list_parameters, int_values=False)
-                    self.stress_stiffening_data[int(tag)] = _list_parameters
+    #             if 'stress stiffening parameters' in keys:
+    #                 list_parameters = section['stress stiffening parameters']
+    #                 _list_parameters = get_list_of_values_from_string(list_parameters, int_values=False)
+    #                 self.stress_stiffening_data[int(tag)] = _list_parameters
 
-        except Exception as error_log:
+    #     except Exception as error_log:
 
-            title = "Error while loading stress-stiffening data from file"
-            message = f"Problem detected at line: {tag}\n\n"
-            message += str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+    #         title = "Error while loading stress-stiffening data from file"
+    #         message = f"Problem detected at line: {tag}\n\n"
+    #         message += str(error_log)
+    #         PrintMessageInput([window_title_1, title, message])
 
 
     def load_elements_data_from_file(self):
@@ -721,55 +721,54 @@ class ProjectFilesLoader:
                 message = str(err)
                 PrintMessageInput([window_title_1, title, message]) 
     
-    def _get_expansion_joint_stiffness_from_string(self, input_string):   
-        labels = ['Kx', 'Kyz', 'Krx', 'Kryz']
-        read = input_string[1:-1].replace(" ","").split(',')
-        N = len(read)
-        output = [None, None, None, None]
-        list_table_names = [None, None, None, None]
-        list_frequencies = [None, None, None, None]
+    # def _get_expansion_joint_stiffness_from_string(self, input_string):   
+    #     labels = ['Kx', 'Kyz', 'Krx', 'Kryz']
+    #     read = input_string[1:-1].replace(" ","").split(',')
+    #     N = len(read)
+    #     output = [None, None, None, None]
+    #     list_table_names = [None, None, None, None]
+    #     list_frequencies = [None, None, None, None]
 
-        if N==4:
-            for i in range(N):
-                if read[i] == "None":
-                    continue
-                try:
-                    output[i] = float(read[i])
-                except Exception:
-                    try:
+    #     if N==4:
+    #         for i in range(N):
+    #             if read[i] == "None":
+    #                 continue
+    #             try:
+    #                 output[i] = float(read[i])
+    #             except Exception:
+    #                 try:
 
-                        load_path_table = ""    
-                        expansion_joints_tables_folder_path = get_new_path( self.file._structural_imported_data_folder_path, 
-                                                                            "expansion_joints_files" )
-                        load_path_table = get_new_path(expansion_joints_tables_folder_path, read[i])
+    #                     load_path_table = ""    
+    #                     expansion_joints_tables_folder_path = get_new_path( self.file._structural_imported_data_folder_path, 
+    #                                                                         "expansion_joints_files" )
+    #                     load_path_table = get_new_path(expansion_joints_tables_folder_path, read[i])
         
-                        data = np.loadtxt(load_path_table, delimiter=",")
-                        output[i] = data[:,1]
+    #                     data = np.loadtxt(load_path_table, delimiter=",")
+    #                     output[i] = data[:,1]
                         
-                        self.frequencies = data[:,0]
-                        self.f_min = self.frequencies[0]
-                        self.f_max = self.frequencies[-1]
-                        self.f_step = self.frequencies[1] - self.frequencies[0]
-                        list_table_names[i] = read[i]
+    #                     self.frequencies = data[:,0]
+    #                     self.f_min = self.frequencies[0]
+    #                     self.f_max = self.frequencies[-1]
+    #                     self.f_step = self.frequencies[1] - self.frequencies[0]
+    #                     list_table_names[i] = read[i]
 
-                        if self.f_min != 0:
-                            self.non_zero_frequency_info = [False, self.f_min, read[i]]
-                        else:
-                            self.zero_frequency = True
-                        list_frequencies[i] = self.frequencies
+    #                     if self.f_min != 0:
+    #                         self.non_zero_frequency_info = [False, self.f_min, read[i]]
+    #                     else:
+    #                         self.zero_frequency = True
+    #                     list_frequencies[i] = self.frequencies
 
-                    except Exception as log_error:
-                        title = f"Expansion joint: error while loading {labels[i]} table of values"
-                        message = str(log_error)
-                        PrintMessageInput([window_title_1, title, message])
-                        return None, None, None
+    #                 except Exception as log_error:
+    #                     title = f"Expansion joint: error while loading {labels[i]} table of values"
+    #                     message = str(log_error)
+    #                     PrintMessageInput([window_title_1, title, message])
+    #                     return None, None, None
 
-        return output, list_table_names, list_frequencies
+    #     return output, list_table_names, list_frequencies
 
-
-def get_color_rgb(color : str):
-    color = color.replace(" ", "")
-    if ("[" or "(") in color:
-        color = color[1:-1]
-    tokens = color.split(',')
-    return list(map(int, tokens))
+# def get_color_rgb(color : str):
+#     color = color.replace(" ", "")
+#     if ("[" or "(") in color:
+#         color = color[1:-1]
+#     tokens = color.split(',')
+#     return list(map(int, tokens))
