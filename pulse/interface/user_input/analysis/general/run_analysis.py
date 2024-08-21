@@ -82,7 +82,7 @@ class RunAnalysisInput(QDialog):
     def _initialize(self):
         self.solution_acoustic = None
         self.solution_structural = None
-        self.convergence_dataLog = None
+        self.convergence_data_log = None
         self.natural_frequencies_acoustic = []
         self.natural_frequencies_structural = []
         self.complete = False
@@ -204,12 +204,12 @@ class RunAnalysisInput(QDialog):
             self.solution_structural = self.solve.mode_superposition(self.modes)
 
         elif self.analysis_id == 3: # Acoustic Harmonic Analysis - Direct Method
-            self.solution_acoustic, self.convergence_dataLog = self.solve.direct_method()
+            self.solution_acoustic, self.convergence_data_log = self.solve.direct_method()
 
         elif self.analysis_id == 5: # Coupled Harmonic Analysis - Direct Method
             
             t0_acoustic = time()
-            self.solution_acoustic, self.convergence_dataLog = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
+            self.solution_acoustic, self.convergence_data_log = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
             self.project.time_to_solve_acoustic_model = time() - t0_acoustic
             
             self.project.set_acoustic_solution(self.solution_acoustic)
@@ -222,7 +222,7 @@ class RunAnalysisInput(QDialog):
         elif self.analysis_id == 6: # Coupled Harmonic Analysis - Mode Superposition Method
             
             t0_acoustic = time()
-            self.solution_acoustic, self.convergence_dataLog = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
+            self.solution_acoustic, self.convergence_data_log = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
             self.project.time_to_solve_acoustic_model = time() - t0_acoustic
             
             self.project.set_acoustic_solution(self.solution_acoustic)
@@ -253,7 +253,7 @@ class RunAnalysisInput(QDialog):
     def post_process_results(self): 
 
         t0 = time()
-        self.project.set_perforated_plate_convergence_dataLog(self.convergence_dataLog)
+        self.project.set_perforated_plate_convergence_data_log(self.convergence_data_log)
         if self.analysis_id == 2:
             
             if self.solution_structural is None:
