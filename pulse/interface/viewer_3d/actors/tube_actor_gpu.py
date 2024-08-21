@@ -146,14 +146,12 @@ class TubeActorGPU(vtkActor):
         
         elif cross_section.section_label == "Expansion joint section":
             if cross_section.expansion_joint_plot_key == "major":
-                r_out = cross_section.outer_radius * 1.25 
+                d_out = 2 * cross_section.outer_radius * 1.25 
             elif cross_section.expansion_joint_plot_key == "minor":
-                r_out = cross_section.outer_radius * 1.1            
+                d_out = 2 * cross_section.outer_radius * 1.1            
             else:
-                r_out = cross_section.outer_radius * 1.4
-            d_out = r_out * 2
-            d_in = r_out * 1.6
-            t = d_out - d_in
+                d_out = 2 * cross_section.outer_radius * 1.4
+            t = d_out * 0.2
             return cross_section_sources.pipe_data(element.length, d_out, t, sides=tube_sides)
 
         elif cross_section.section_label == "Valve section":
