@@ -1128,6 +1128,8 @@ class MainWindow(QMainWindow):
                 self.combo_box_workspaces.setCurrentIndex(2)
             elif event.key() == Qt.Key_R:
                 self.combo_box_workspaces.setCurrentIndex(3)
+            elif event.key() == Qt.Key_F5:
+                self.update_plots()
         return super(MainWindow, self).eventFilter(obj, event)
 
     def closeEvent(self, event: QCloseEvent | None) -> None:
