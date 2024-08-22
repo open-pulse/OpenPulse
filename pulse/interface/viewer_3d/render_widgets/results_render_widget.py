@@ -1,5 +1,5 @@
 from enum import Enum, auto
-
+import logging
 import numpy as np
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import AnimatedRenderWidget
@@ -14,8 +14,9 @@ from pulse.interface.viewer_3d.actors import (
     ElementLinesActor,
     NodesActor,
     PointsActor,
-    TubeActorGPU,
+    TubeActorResults,
 )
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.postprocessing.plot_acoustic_data import (
     get_acoustic_response,
@@ -48,14 +49,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.mouse_click = (0, 0)
         # dont't remove, transparency depends on it
         self.renderer.SetUseDepthPeeling(
             True
         )
 
-        self.interactor_style = BoxSelectionInteractorStyle()
-        self.render_interactor.SetInteractorStyle(self.interactor_style)
+        self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
 
         self.open_pulse_logo = None
@@ -70,6 +69,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self._result_min = 0
         self._result_max = 0
 
+        self._animation_color_map = None
         self._animation_current_frequency = None
         self._animation_cached_data = dict()
 
@@ -78,6 +78,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_origin = (0, 0, 0)
         self.plane_normal = (1, 0, 0)
         self.config_tube_args = (0, 0, 0, 0, 0, 0)
+        self.mouse_click = (0, 0)
 
         self.analysis_mode = AnalysisMode.EMPTY
         self.colormap = "viridis"
@@ -85,7 +86,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.create_axes()
         self.create_scale_bar()
         self.create_color_bar()
-        self.create_logos()
         self.set_theme("light")
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
@@ -134,11 +134,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         except Exception as e:
             return
+        acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
 
-        self.lines_actor = ElementLinesActor(project, show_deformed=deformed)
-        self.nodes_actor = NodesActor(project, show_deformed=deformed)
+        self.lines_actor = ElementLinesActor(show_deformed=deformed)
+        self.nodes_actor = NodesActor(show_deformed=deformed)
         self.points_actor = PointsActor(show_deformed=deformed)
-        self.tubes_actor = TubeActorGPU(project, show_deformed=deformed)
+        self.tubes_actor = TubeActorResults(show_deformed=deformed, acoustic_plot=acoustic_plot)
         self.plane_actor = SectionPlaneActor(size=self._get_plane_size())
         self.plane_actor.VisibilityOff()
 
@@ -157,31 +158,59 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if self.section_plane_active:
             self.configure_section_plane(*self.config_tube_args)
             self.apply_section_plane()
-        self.set_tube_actors_transparency(self.transparency)
 
         if reset_camera:
             self.renderer.ResetCamera()
         self.update_info_text()
         self.update()
 
+        # It needs to appear after the update to work propperly
+        self.set_tube_actors_transparency(self.transparency)
+
     def set_colormap(self, colormap):
         self.colormap = colormap
         self.update_plot()
 
-    def update_animation(self, frame: int):
-        if self._animation_current_frequency != self.current_frequency_index:
-            self._animation_cached_data.clear()
-            self._animation_current_frequency = self.current_frequency_index
+    def cache_animation_frames(self):
+        self._animation_current_frequency = self.current_frequency_index
+        self._animation_color_map = self.colormap
 
-        d_theta = 2 * np.pi / self._animation_total_frames
-        phase_step = frame * d_theta
-        self.current_phase_step = phase_step
+        for frame in range(self._animation_total_frames):
+            logging.info(f"Caching animation frames [{frame}/{self._animation_total_frames}]")
+            d_theta = 2 * np.pi / self._animation_total_frames
+            phase_step = frame * d_theta
+            self.current_phase_step = phase_step
+
+            self.update_plot()
+            cached = vtkPolyData()
+            cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
+            self._animation_cached_data[frame] = cached
+
+    def update_animation(self, frame: int):
+        conditions_to_clear_cache = [
+            self._animation_current_frequency != self.current_frequency_index,
+            self._animation_color_map != self.colormap,
+        ]
+
+        if any(conditions_to_clear_cache):
+            self._animation_cached_data.clear()
+
+        if not self._animation_cached_data:
+            LoadingWindow(self.cache_animation_frames).run()
 
         if frame in self._animation_cached_data:
+            logging.info(f"Rendering animation frame [{frame}/{self._animation_total_frames}]")
             cached = self._animation_cached_data[frame]
             self.tubes_actor.GetMapper().SetInputData(cached)
             self.update()
         else:
+            # It will only enter here if something wrong happened
+            # in the function that caches the frames
+            logging.warn(f"Cache miss on update_animation function for frame {frame}")
+            d_theta = 2 * np.pi / self._animation_total_frames
+            phase_step = frame * d_theta
+            self.current_phase_step = phase_step
+
             self.update_plot()
             cached = vtkPolyData()
             cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())

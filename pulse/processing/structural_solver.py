@@ -1,4 +1,5 @@
 from time import time
+import logging
 import numpy as np
 from math import pi
 from scipy.sparse.linalg import eigs, spsolve
@@ -283,6 +284,7 @@ class StructuralSolver:
         solution = np.zeros((rows, cols), dtype=complex)
         
         for i, freq in enumerate(self.frequencies):
+            logging.info(f"Solution step {i+1} and frequency {freq} [{i}/{len(self.frequencies)}]")
 
             omega = 2*np.pi*freq
             

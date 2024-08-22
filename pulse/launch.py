@@ -1,9 +1,36 @@
 import sys, os, platform
 from vtkmodules.vtkCommonCore import vtkObject, vtkLogger
+import qdarktheme
+import logging
 
 from pulse.interface.application import Application
 
-import qdarktheme
+
+def configure_logs():
+    """
+    Configures the logging library.
+    Format includes time, log level (info, debug, error and so on).
+
+    The main level is set to NOSET, so every handler can select its
+    own filters.
+
+    All info logs are saved in the file, but only warnings or error
+    are shown to users.
+    """
+    file_formatter = logging.Formatter("%(asctime)s \t | %(levelname)s \t | %(message)s")
+    file_handler = logging.FileHandler("logs.log", "w+")
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(file_formatter)
+
+    stream_formatter = logging.Formatter(logging.BASIC_FORMAT)
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.WARN)
+    stream_handler.setFormatter(stream_formatter)
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.NOTSET)
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
 
 
 def main():
@@ -24,7 +51,8 @@ def main():
         Todo:
             Fix the HighDPI part to not blurry the screen. See more by searching "PyQt5 HighDPI".
     """
-    
+    configure_logs()
+
     # disables vtk terrible error handler
     # you may want to enable them while debugging something
     vtkObject.GlobalWarningDisplayOff()
