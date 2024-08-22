@@ -311,7 +311,7 @@ class CompressorModelInput(QDialog):
 
     def get_aquisition_parameters(self, compressor_info):
         frequencies = compressor_info["frequencies"]
-        rotational_speed = compressor_info["rotational speed"]
+        rotational_speed = compressor_info["rotational_speed"]
         f_min = frequencies[0]
         f_max = frequencies[-1]
         df = frequencies[1]-frequencies[0]
@@ -406,10 +406,15 @@ class CompressorModelInput(QDialog):
         if "points_per_revolution" in compressor_info.keys():
             self.spinBox_number_of_points.setValue(int(compressor_info["points_per_revolution"]))
 
-        f_min, f_max, df, N_rev = self.get_aquisition_parameters(compressor_info)
-        self.lineEdit_frequency_resolution.setText(str(df))
+        f_min, f_max, f_step, N_rev = self.get_aquisition_parameters(compressor_info)
         self.lineEdit_number_of_revolutions.setText(str(N_rev))
         self.spinBox_max_frequency.setValue(int(f_max))
+        self.lineEdit_frequency_resolution.setText(str(f_step))
+
+        f_steps = [0.1, 0.2, 0.5, 1.0, 2.0]
+        if f_step in f_steps:
+            index = f_steps.index(f_step)
+            self.comboBox_frequency_resolution.setCurrentIndex(index)
 
     def reset_entries(self):
         self.comboBox_cylinder_acting.setCurrentIndex(0)
