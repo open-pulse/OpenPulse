@@ -146,10 +146,10 @@ class ModelProperties:
         if isinstance(node_ids, int):
             self.nodal_properties[property, node_ids] = data
 
-        elif isinstance(node_ids, list) and len(node_ids) == 1:
+        elif isinstance(node_ids, list | tuple) and len(node_ids) == 1:
             self.nodal_properties[property, node_ids[0]] = data
 
-        elif isinstance(node_ids, list) and len(node_ids) == 2:
+        elif isinstance(node_ids, list | tuple) and len(node_ids) == 2:
             self.nodal_properties[property, node_ids[0], node_ids[1]] = data
 
     def _set_element_property(self, property: str, data, element_ids: (int | list | tuple | None)):

@@ -542,14 +542,17 @@ def normalize_mesh(prop: dict):
     "property id" = value
     """
     output = dict()
-    for (property, tag), data in prop.items():
+    for (property, *args), data in prop.items():
 
         aux = dict()
-        key = f"{property} {tag}"
+        if len(args) == 1:
+            key = f"{property} {args[0]}"
+        elif len(args) == 2:
+            key = f"{property} {args[0]} {args[1]}"
 
         if isinstance(data, dict):
             for _key, _data in data.items():
-                if _key in ["values", "data arrays"]:
+                if _key in ["values", "link_data"]:
                     continue
                 aux[_key] = _data
 

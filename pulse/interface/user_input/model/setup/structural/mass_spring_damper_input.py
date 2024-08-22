@@ -277,69 +277,63 @@ class MassSpringDamperInput(QDialog):
 
                     # Lumped masses/inertias
                     if "table_names" in lm_data.keys():
-                        table_paths = lm_data["table_paths"]
                         self.tabWidget_inputs.setCurrentIndex(1)
                         self.tabWidget_table_values.setCurrentIndex(0)
-                        for index, lineEdit_table in enumerate(self.table_values_lumped_masses):
-                            table_path = table_paths[index]
+                        for i, table_path in enumerate(lm_data["table_paths"]):
                             if table_path is not None:
-                                lineEdit_table.setText(table_path)
+                                lineEdit = self.table_values_lumped_masses[i]
+                                lineEdit.setText(table_path)
 
                         else:
 
-                            lumped_masses = lm_data["values"]
                             self.tabWidget_inputs.setCurrentIndex(0)
                             self.tabWidget_constant_values.setCurrentIndex(1)
-                            for index, lineEdit_constant in enumerate(self.constant_values_lumped_masses):
-                                value = lumped_masses[index]
-                                if lumped_masses[index] is not None:
-                                    lineEdit_constant.setText(str(value))
-
+                            for i, value in enumerate(lm_data["values"]):
+                                if value is not None:
+                                    lineEdit = self.constant_values_lumped_masses[i]
+                                    lineEdit.setText(f"{value : .3e}")
+     
                 ls_data = self.properties._get_property("lumped_stiffness", node_ids=node_id)
                 if isinstance(ls_data, dict):
 
                     # Lumped stiffness
                     if "table_names" in ls_data.keys():
-                        table_paths = ls_data["table_paths"]
                         self.tabWidget_inputs.setCurrentIndex(1)
                         self.tabWidget_table_values.setCurrentIndex(0)
-                        for index, lineEdit_table in enumerate(self.table_values_lumped_stiffness):
-                            table_path = table_paths[index]
+                        for i, table_path in enumerate(ls_data["table_paths"]):
                             if table_path is not None:
-                                lineEdit_table.setText(table_path)
+                                lineEdit = self.table_values_lumped_stiffness[i]
+                                lineEdit.setText(table_path)
 
                         else:
 
-                            lumped_stiffness = ls_data["values"]
                             self.tabWidget_inputs.setCurrentIndex(0)
                             self.tabWidget_constant_values.setCurrentIndex(1)
-                            for index, lineEdit_constant in enumerate(self.constant_values_lumped_stiffness):
-                                value = lumped_stiffness[index]
-                                if lumped_stiffness[index] is not None:
-                                    lineEdit_constant.setText(str(value))
+                            for i, value in enumerate(ls_data["values"]):
+                                if value is not None:
+                                    lineEdit = self.constant_values_lumped_stiffness[i]
+                                    lineEdit.setText(f"{value : .3e}")
 
                 ld_data = self.properties._get_property("lumped_dampings", node_ids=node_id)
                 if isinstance(ld_data, dict):
 
                     # Lumped dampings
                     if "table_names" in ld_data.keys():
-                        table_paths = ld_data["table_paths"]
                         self.tabWidget_inputs.setCurrentIndex(1)
                         self.tabWidget_table_values.setCurrentIndex(0)
-                        for index, lineEdit_table in enumerate(self.table_values_lumped_dampings):
-                            table_path = table_paths[index]
+                        for i, table_path in enumerate(ld_data["table_paths"]):
                             if table_path is not None:
-                                lineEdit_table.setText(table_path)
+                                lineEdit = self.table_values_lumped_dampings[i]
+                                lineEdit.setText(table_path)
 
                         else:
 
-                            lumped_dampings = ld_data["values"]
                             self.tabWidget_inputs.setCurrentIndex(0)
                             self.tabWidget_constant_values.setCurrentIndex(1)
-                            for index, lineEdit_constant in enumerate(self.constant_values_lumped_dampings):
-                                value = lumped_dampings[index]
-                                if lumped_dampings[index] is not None:
-                                    lineEdit_constant.setText(str(value))
+                            for i, value in enumerate(ld_data["values"]):
+                                if value is not None:
+                                    lineEdit = self.constant_values_lumped_dampings[i]
+                                    lineEdit.setText(f"{value : .3e}")
 
     def _config_widgets(self):
         #

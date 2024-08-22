@@ -99,8 +99,8 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
             if _property in ["structural_stiffness_links", "structural_damping_links"]:
 
                 coords = data["coords"]
-                coords_a = coords[:3]
-                coords_b = coords[3:]
+                coords_a = np.array(coords[:3], dtype=float)
+                coords_b = np.array(coords[3:], dtype=float)
 
                 # divide the value of the coordinates by the scale factor
                 source = vtkLineSource()

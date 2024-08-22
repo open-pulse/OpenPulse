@@ -304,7 +304,7 @@ class ElasticNodalLinksInput(QDialog):
 
                                 self.tabWidget_inputs.setCurrentIndex(0)
                                 self.tabWidget_constant_values.setCurrentIndex(0)
-                                for i, value in data["values"]:
+                                for i, value in enumerate(data["values"]):
                                     if value is not None:
                                         lineEdit = self.lineEdits_constant_values_stiffness[i]
                                         lineEdit.setText(f"{value : .3e}")
@@ -315,7 +315,7 @@ class ElasticNodalLinksInput(QDialog):
 
                                 self.tabWidget_inputs.setCurrentIndex(1)
                                 self.tabWidget_table_values.setCurrentIndex(1)
-                                for i, table_path in data["table_paths"]:
+                                for i, table_path in enumerate(data["table_paths"]):
                                     if table_path is not None:
                                         lineEdit = self.lineEdits_table_values_dampings[i]
                                         lineEdit.setText(table_path)
@@ -336,8 +336,6 @@ class ElasticNodalLinksInput(QDialog):
             self.selection_frame.setDisabled(True)
 
         else:
-            if self.cache_tab == 1:
-                self.lineEdit_selection.setText("")
             self.selection_frame.setDisabled(False)
 
         self.cache_tab = self.tabWidget_main.currentIndex()
@@ -423,7 +421,7 @@ class ElasticNodalLinksInput(QDialog):
         
         if values.count(None) != 6:
 
-            self.lumped_element_applied = True
+            self.link_applied = True
 
             real_values = [value if value is None else np.real(value) for value in values]
             imag_values = [value if value is None else np.imag(value) for value in values]
@@ -440,7 +438,7 @@ class ElasticNodalLinksInput(QDialog):
                     "imag_values" : imag_values
                     }
 
-            self.properties._set_nodal_property("structural_stiffness_links", data, node_id)
+            self.properties._set_nodal_property("structural_stiffness_links", data, node_ids)
 
     def check_constant_dampings_links(self, node_ids: list):
         
@@ -467,7 +465,7 @@ class ElasticNodalLinksInput(QDialog):
 
         if values.count(None) != 6:
 
-            self.lumped_element_applied = True
+            self.link_applied = True
 
             real_values = [value if value is None else np.real(value) for value in values]
             imag_values = [value if value is None else np.imag(value) for value in values]
@@ -503,7 +501,7 @@ class ElasticNodalLinksInput(QDialog):
             self.check_tables_dampings_links(node_ids)
 
         if not self.link_applied:
-            title = 'No table selected for stiffness or dampings links'
+            title = 'No inputs entered for the structural stiffness or damping links'
             message = "Please, define at least one table of values to the stiffness or damping" 
             message += "links to proceed with the structural link attribution."
             PrintMessageInput([window_title_1, title, message])
@@ -714,7 +712,7 @@ class ElasticNodalLinksInput(QDialog):
             
             if (table_names).count(None) != 6:
                 
-                self.lumped_element_applied = True
+                self.link_applied = True
 
                 coords = list()
                 for node_id in node_ids:
@@ -728,7 +726,7 @@ class ElasticNodalLinksInput(QDialog):
                         "values" : values
                         }
 
-                self.properties._set_nodal_property("structural_stiffness_links", data, node_id)
+                self.properties._set_nodal_property("structural_stiffness_links", data, node_ids)
 
     def check_tables_dampings_links(self, node_ids: list):
 
@@ -781,7 +779,7 @@ class ElasticNodalLinksInput(QDialog):
             
             if (table_names).count(None) != 6:
                 
-                self.lumped_element_applied = True
+                self.link_applied = True
 
                 coords = list()
                 for node_id in node_ids:
@@ -795,7 +793,7 @@ class ElasticNodalLinksInput(QDialog):
                         "values" : values
                         }
 
-                self.properties._set_nodal_property("structural_damping_links", data, node_id)
+                self.properties._set_nodal_property("structural_damping_links", data, node_ids)
   
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
@@ -890,7 +888,7 @@ class ElasticNodalLinksInput(QDialog):
         link_data = self.properties._get_property("structural_stiffness_links", node_ids=node_ids)
         if isinstance(link_data, dict):
             self.lineEdit_first_node_id.setText(str(node_ids[0]))
-            self.lineEdit_last_node_id.setText(str(node_ids[0]))
+            self.lineEdit_last_node_id.setText(str(node_ids[1]))
             self.pushButton_remove.setDisabled(False)
 
     def on_click_item_damping(self, item):
@@ -899,7 +897,7 @@ class ElasticNodalLinksInput(QDialog):
         link_data = self.properties._get_property("structural_damping_links", node_ids=node_ids)
         if isinstance(link_data, dict):
             self.lineEdit_first_node_id.setText(str(node_ids[0]))
-            self.lineEdit_last_node_id.setText(str(node_ids[0]))
+            self.lineEdit_last_node_id.setText(str(node_ids[1]))
             self.pushButton_remove.setDisabled(False)
 
     def on_double_click_item_stiffness(self, item):
@@ -937,10 +935,13 @@ class ElasticNodalLinksInput(QDialog):
 
     def remove_callback(self):
 
-        if self.lineEdit_selection.text() != "":
+        _first_node = self.lineEdit_first_node_id.text()
+        _last_node = self.lineEdit_last_node_id.text()
 
-            node_id1 = int(self.lineEdit_first_node_id.text())
-            node_id2 = int(self.lineEdit_last_node_id.text())
+        if _first_node != "" and _last_node != "":
+
+            node_id1 = int(_first_node)
+            node_id2 = int(_last_node)
             node_ids = [node_id1, node_id2]
 
             if self.checkBox_link_stiffness.isChecked():
@@ -986,7 +987,6 @@ class ElasticNodalLinksInput(QDialog):
             self.actions_to_finalize()
 
     def reset_nodes_input_fields(self):
-        self.lineEdit_selection.setText("")
         self.lineEdit_first_node_id.setText("")
         self.lineEdit_last_node_id.setText("")
 

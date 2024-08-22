@@ -3170,6 +3170,7 @@
                <property name="font">
                 <font>
                  <family>MS Shell Dlg 2</family>
+                 <pointsize>10</pointsize>
                 </font>
                </property>
                <property name="currentIndex">
@@ -3185,13 +3186,13 @@
                    <property name="minimumSize">
                     <size>
                      <width>200</width>
-                     <height>25</height>
+                     <height>26</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>250</width>
-                     <height>25</height>
+                     <width>280</width>
+                     <height>26</height>
                     </size>
                    </property>
                    <property name="font">
@@ -3212,13 +3213,13 @@
                    <property name="minimumSize">
                     <size>
                      <width>200</width>
-                     <height>25</height>
+                     <height>26</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>250</width>
-                     <height>25</height>
+                     <width>280</width>
+                     <height>26</height>
                     </size>
                    </property>
                    <property name="font">
