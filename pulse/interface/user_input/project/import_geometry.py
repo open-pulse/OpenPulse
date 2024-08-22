@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
@@ -39,8 +38,6 @@ class ImportGeometry(QFileDialog):
         desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
         self.desktop_path = str(desktop_path)
 
-        self.file = self.project.file
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
@@ -68,12 +65,8 @@ class ImportGeometry(QFileDialog):
 
     def process_initial_actions(self):
         #
-        # new_geometry_path = get_new_path(self.file._project_path, self.geometry_filename)
-        # copyfile(self.geometry_path, new_geometry_path)
-        # self.file.create_backup_geometry_folder()
         #
         self.project.reset(reset_all=True)
-        self.file.load(self.file.project_ini_file_path)
         self.project.process_geometry_and_mesh()
         # self.project.load_project_files()
         app().loader.load_project_data()

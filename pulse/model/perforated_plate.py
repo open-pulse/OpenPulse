@@ -8,10 +8,11 @@ def Foks_function(x):
     return np.sum(np.dot(a,x**b))
 
 class PerforatedPlate:
-    def __init__(self, hole_diameter, thickness, porosity, **kwargs):
-        self.hole_diameter = hole_diameter
-        self.thickness = thickness
-        self.porosity = porosity
+    def __init__(self, **kwargs):
+        
+        self.hole_diameter = kwargs.get("hole_diameter", None)
+        self.thickness = kwargs.get("thickness", None)
+        self.porosity = kwargs.get("porosity", None)
         self.linear_discharge_coefficient = kwargs.get("discharge_coefficient", 1)
         self.single_hole = kwargs.get("single_hole", False)
         self.nonlinear_effect = kwargs.get("nonlinear_effect", False)

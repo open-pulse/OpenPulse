@@ -6,7 +6,8 @@ from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTI
 from pulse.model.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.model.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.model.compressor_model import CompressorModel
-from pulse.model.before_run import BeforeRun
+from pulse.model.perforated_plate import PerforatedPlate
+
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
@@ -1729,7 +1730,7 @@ class Preprocessor:
         for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_vol_flow_by_element(elements, vol_flow)
 
-    def set_perforated_plate_by_elements(self, elements, perforated_plate):
+    def set_perforated_plate_by_elements(self, elements: list | tuple, perforated_plate: PerforatedPlate):
 
         for element in slicer(self.structural_elements, elements):
             element.perforated_plate = perforated_plate

@@ -825,8 +825,6 @@ class ValvesInput(QDialog):
             message = None
 
         # remove_bc_from_file([key], self.elements_info_path, key_strings, message)
-        # self.project.file.filter_bc_data_from_dat_file([key], key_strings, self.elements_info_path)
-
         # self.preprocessor.set_perforated_plate_by_elements(list_elements, None, key, delete_from_dict=True)
 
     def keyPressEvent(self, event):

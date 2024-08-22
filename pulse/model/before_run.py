@@ -24,16 +24,9 @@ class BeforeRun:
     def check_modal_analysis_imported_data(self):
         message = ""
         title = "Modal analysis with imported data from tables"
-        if len(self.project.file.non_zero_frequency_info)==3:
-            [zero_frequency, f_min, table_name] = self.project.file.non_zero_frequency_info
-            if not zero_frequency:
-                message = "The current project setup has at least one loaded table of values for boundary conditions or external elements. "
-                message += f"The first frequency point f={f_min}Hz from '{table_name}' file has been considered in the current analysis, "
-                message += "however, it differs from the 0Hz value. Please, take this information into account when checking the obtained results."
-
-        elif self.project.file.zero_frequency:    
+        if self.properties.check_if_there_are_tables_at_the_model():
             message = "The current project setup has at least one loaded table of values for boundary conditions or external elements. "
-            message += "The first frequency point f=0Hz from imported files have been considered in the current analysis. Please, "
+            message += "The first frequency point near to 0 Hz from imported files have been considered in the current analysis. Please, "
             message += "take this information into account when checking the obtained results."
             
         if message != "":

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>283</width>
+    <width>345</width>
     <height>590</height>
    </rect>
   </property>
@@ -57,6 +57,7 @@
           <pointsize>11</pointsize>
           <weight>50</weight>
           <bold>false</bold>
+          <kerning>false</kerning>
          </font>
         </property>
         <property name="text">
@@ -260,6 +261,9 @@
                <font>
                 <pointsize>10</pointsize>
                </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -485,16 +489,13 @@
                <font>
                 <family>MS Shell Dlg 2</family>
                 <pointsize>10</pointsize>
-                <weight>9</weight>
+                <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 3px; color: rgb(150, 150, 150); background-color: rgb(220, 220, 220); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string>Plot criteria</string>
@@ -769,6 +770,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                 <pointsize>10</pointsize>
                </font>
               </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
               </property>
@@ -831,6 +835,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                <font>
                 <pointsize>10</pointsize>
                </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -908,16 +915,13 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
                <font>
                 <family>MS Shell Dlg 2</family>
                 <pointsize>10</pointsize>
-                <weight>9</weight>
+                <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 3px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255); font: 75 10pt &quot;MS Shell Dlg 2&quot;}
-QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 3px; color: rgb(150, 150, 150); background-color: rgb(220, 220, 220); font: 75 10pt &quot;MS Shell Dlg 2&quot;}</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string>Plot criteria</string>

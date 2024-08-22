@@ -1,10 +1,13 @@
+# fmt: off
+
 from pulse import app
 
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
+from pulse.model.perforated_plate import PerforatedPlate
+
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.file.project_files_loader import ProjectFilesLoader
 from pulse.tools.utils import *
 
 from pulse.model.cross_section import CrossSection
@@ -23,8 +26,6 @@ class LoadProject:
         self.model = app().project.model
         self.properties = app().project.model.properties
         self.preprocessor = app().project.preprocessor
-
-        self.files_loader = ProjectFilesLoader()
 
         self._initialize()
         
@@ -210,7 +211,10 @@ class LoadProject:
     def send_element_properties_to_elements(self):
         for (property, element_id), prop_data in self.properties.element_properties.items():
             if property == "B2P_rotation_decoupling":
-                self.preprocessor.set_B2P_rotation_decoupling(element_id, prop_data)            
+                self.preprocessor.set_B2P_rotation_decoupling(element_id, prop_data)
+            if property == "perforated_plate":
+                perforated_plate = PerforatedPlate(prop_data)
+                self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
 
     def load_lines_properties(self):
 
@@ -574,3 +578,5 @@ class LoadProject:
             return dict()
 
         return section_info_lines
+    
+# fmt: on

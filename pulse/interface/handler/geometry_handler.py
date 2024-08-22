@@ -33,7 +33,6 @@ class GeometryHandler:
         self.points_coords = dict()
         self.points_coords_cache = dict()
         self.pipeline = self.project.pipeline
-        self.file = self.project.file
 
     def set_pipeline(self, pipeline):
         self.pipeline = pipeline

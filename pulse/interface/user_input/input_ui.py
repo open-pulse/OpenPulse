@@ -75,7 +75,6 @@ class InputUi:
 
         self.main_window = app().main_window
         self.project = app().main_window.project
-        self.file = app().project.file
 
         self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
 

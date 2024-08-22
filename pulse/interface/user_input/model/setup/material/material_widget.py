@@ -51,7 +51,6 @@ class MaterialInputs(QWidget):
 
     def _initialize(self):
 
-        self.file = self.project.file
         self.preprocessor = self.project.preprocessor
 
         self.row = None

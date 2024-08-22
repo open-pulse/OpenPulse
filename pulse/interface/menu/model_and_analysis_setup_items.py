@@ -45,7 +45,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_mass_spring_damper = self.add_item('Add: Mass / Spring / Damper')
         self.item_child_add_elastic_nodal_links = self.add_item('Add Elastic Nodal Links')
         self.item_child_set_beam_xaxis_rotation = self.add_item('Set Beam X-axis Rotation')
-        self.item_child_set_rotation_decoupling_dofs = self.add_item('Set Rotation Decoupling')
+        self.item_child_set_rotation_decoupling_dofs = self.add_item('Set B2P Rotation Decoupling')
         self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening')
         self.item_child_add_valves = self.add_item('Add Valves')
         self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
@@ -243,7 +243,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self._update_items()
 
     def enable_actions_according_to_import_type(self):
-        import_type = self.project.file.get_import_type()
+        import_type = app().project.model.mesh.import_type
         if import_type == 0:
             pass
 

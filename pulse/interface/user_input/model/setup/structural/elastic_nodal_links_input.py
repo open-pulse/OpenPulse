@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
@@ -50,11 +49,6 @@ class ElasticNodalLinksInput(QDialog):
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.nodes = self.preprocessor.nodes
-
-        self.structural_bc_info_path = self.project.file._node_structural_path
-        # self.imported_data_path = project.file._imported_data_folder_path 
-        self.structural_folder_path = self.project.file._structural_imported_data_folder_path
-        self.elastic_links_files_folder_path = get_new_path(self.structural_folder_path, "elastic_links_files")
         
         self.userPath = os.path.expanduser('~')       
         self.stop = False

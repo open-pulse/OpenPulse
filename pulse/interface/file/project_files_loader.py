@@ -2,10 +2,8 @@
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
 from pulse.model.perforated_plate import PerforatedPlate
-from pulse.model.cross_section import CrossSection, get_beam_section_properties
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.file.project_file import ProjectFile
 from pulse.tools.utils import *
 
 from pulse import app
@@ -22,7 +20,6 @@ class ProjectFilesLoader:
         super().__init__()
 
         self.project = app().project
-        self.file = app().file
         self._initialize()
         
     def _initialize(self):
@@ -179,7 +176,6 @@ class ProjectFilesLoader:
     def load_elements_data_from_file(self):
 
         element_file = configparser.ConfigParser()
-        element_file.read(self.file._element_info_path)
 
         for section in list(element_file.sections()):
 
@@ -209,7 +205,7 @@ class ProjectFilesLoader:
                         if 'dimensionless impedance' in  element_file[section].keys():
                             dimensionless_data = element_file[section]['dimensionless impedance'] 
 
-                            bc_data = self.file._get_acoustic_bc_from_string(   dimensionless_data, 
+                            bc_data = self._get_acoustic_bc_from_string(   dimensionless_data, 
                                                                                 "dimensionless impedance", 
                                                                                 "perforated_plate_files"   )
                             [dim_impedance, dim_impedance_table_name, frequencies] = bc_data

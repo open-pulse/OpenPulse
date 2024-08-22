@@ -50,7 +50,6 @@ class PulsationSuppressionDeviceInput(QDialog):
     def _initialize(self):
         self.keep_window_open = True
         self.preprocessor = self.project.preprocessor
-        self.file = self.project.file
 
     def _define_qt_variables(self):
 
