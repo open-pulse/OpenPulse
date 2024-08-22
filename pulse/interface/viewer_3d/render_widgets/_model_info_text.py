@@ -1,9 +1,10 @@
 #fmt: off
 
 import numpy as np
-from molde.utils import TreeInfo, format_long_sequence
-
+from numbers import Number
 from pulse import app
+
+from molde.utils import TreeInfo, format_long_sequence
 
 
 def nodes_info_text() -> str:
@@ -303,29 +304,43 @@ def _structural_format(property_name, values, labels, units, has_table):
     if _all_none(values):
         return ""
 
-    u = values[:3]
-    r = values[3:]
-    u_labels = ", ".join([labels[0] + i for i in "xyz"])
-    r_labels = ", ".join([labels[1] + i for i in "xyz"])
+    u_values = []
+    u_labels = []
+    for val, label in zip(values[:3], "xyz"):
+        if val is not None:
+            u_values.append(val)
+            u_labels.append(labels[0] + label)
+
+    r_values = []
+    r_labels = []
+    for val, label in zip(values[3:], "xyz"):
+        if val is None:
+            continue
+
+        if not isinstance(val, Number | str):
+            val = "table"
+
+        r_values.append(val)
+        r_labels.append(labels[1] + label)
 
     tree = TreeInfo(property_name)
     if has_table:
-        tree.add_item(u_labels, "Loaded from table")
-        tree.add_item(r_labels, "Loaded from table")
+        tree.add_item(u_labels, "Table of values")
+        tree.add_item(r_labels, "Table of values")
     else:
-        if not _all_none(u):
-            tree.add_item(u_labels, _pretty_sequence(u), units[0])
-        if not _all_none(r):
-            tree.add_item(r_labels, _pretty_sequence(r), units[1])
+        if u_values:
+            tree.add_item(", ".join(u_labels), u_values, units[0])
+        if r_values:
+            tree.add_item(", ".join(r_labels), r_values, units[1])
     return str(tree)
 
 
 def _acoustic_format(property_name, value, label, unit):
     tree = TreeInfo(property_name)
-    if isinstance(value, np.ndarray):
-        tree.add_item(label, "Table of values")
-    else:
+    if isinstance(value, Number | str):
         tree.add_item(label, value, unit)
+    else:
+        tree.add_item(label, "Table of values")
     return str(tree)
 
 #fmt: on
