@@ -259,9 +259,9 @@ class AssemblyStructural:
         else:
             cols = len(self.frequencies)
         
-        list_Kdata = list()
-        list_Mdata = list()
-        list_Cdata = list()
+        K_data = list()
+        M_data = list()
+        C_data = list()
 
         i_indexes_M, j_indexes_M = list(), list()
         i_indexes_K, j_indexes_K = list(), list()
@@ -269,95 +269,61 @@ class AssemblyStructural:
 
         flag_Clump = False
 
-        for key, data in self.model.properties.nodal_properties.items():
+        for (_property, *args), data in self.model.properties.nodal_properties.items():
 
-            if len(key) == 2:
-
-                (property, node_id) = key
-                node = self.preprocessor.nodes[node_id]
-                position = node.global_dof
-
-            elif len(key) == 3:
-                (property, node_id1, node_id2) = key
+            if len(args) == 1:
+                node_id = args[0]
+                position = self.preprocessor.nodes[node_id].global_dof
 
             else:
-                print("Invalid nodal property", key, data)
+                print("Invalid nodal property", _property, args, data)
                 return
 
             loaded_table = "table names" in data.keys()
             values = data["values"]
 
             # processing lumped masses
-            if property == "lumped_masses":
-                list_Mdata.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+            if _property == "lumped_masses":
+                M_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
                 i_indexes_M.append(position)
                 j_indexes_M.append(position)
 
             # processing lumped stiffness
-            if property == "lumped_stiffness":
-                list_Kdata.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+            if _property == "lumped_stiffness":
+                K_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
                 i_indexes_K.append(position)
                 j_indexes_K.append(position)
 
             # processing lumped dampers
-            if property == "lumped_dampers":
-                list_Cdata.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+            if _property == "lumped_dampings":
+                C_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
                 i_indexes_C.append(position)
                 j_indexes_C.append(position)
                 flag_Clump = True
 
             # structural elastic link in PSDs
-            if property == "psd_elastic_links":
+            if _property == "psd_elastic_links":
                 indexes_i, indexes_j, link_data = data
                 i_indexes_K.append(indexes_i)
                 j_indexes_K.append(indexes_j)
-                list_Kdata.append(self.get_bc_array_for_all_frequencies(None, link_data))
+                K_data.append(self.get_bc_array_for_all_frequencies(None, link_data))
 
             # structural nodal link for stiffness
-            if property == "structural_nodal_link_stiffness":
-                for indexes_i, indexes_j, link_data, in data:
-                    for i in range(2):
-                        i_indexes_K.append(indexes_i[i])
-                        j_indexes_K.append(indexes_j[i])
-                        list_Kdata.append(self.get_bc_array_for_all_frequencies(loaded_table, link_data[i]))
+            if _property == "structural_nodal_link_stiffness":
+                i_indexes_K.append(data["indexes_i"])
+                j_indexes_K.append(data["indexes_j"])
+                K_data.append(self.get_bc_array_for_all_frequencies(loaded_table, (data["link_data"])))
 
             # structural nodal link for damping
-            if property == "structural_nodal_link_dampings":
-                for indexes_i, indexes_j, link_data, in data:
-                    for i in range(2):
-                        i_indexes_K.append(indexes_i[i])
-                        j_indexes_K.append(indexes_j[i])
-                        list_Kdata.append(self.get_bc_array_for_all_frequencies(loaded_table, link_data[i]))
+            if _property == "structural_nodal_link_dampings":
+                i_indexes_C.append(data["indexes_i"])
+                j_indexes_C.append(data["indexes_j"])
+                C_data.append(self.get_bc_array_for_all_frequencies(loaded_table, (data["link_data"])))
 
-            # structural elastic link in PSDs
-            # for key, cluster_data in self.preprocessor.nodes_with_structural_links.items():
-            #     indexes_i, indexes_j, data = cluster_data
-            #     i_indexes_K.append(indexes_i)
-            #     j_indexes_K.append(indexes_j)
-            #     list_Kdata.append(self.get_bc_array_for_all_frequencies(None, data))
+        data_Klump = np.array(K_data).reshape(-1, cols)
+        data_Mlump = np.array(M_data).reshape(-1, cols)
+        data_Clump = np.array(C_data).reshape(-1, cols)
 
-            # structural nodal link for stiffness
-            # for key, cluster_data in self.preprocessor.nodes_with_elastic_link_stiffness.items():
-            #     node = self.preprocessor.nodes[int(key.split("-")[0])]
-            #     for indexes_i, indexes_j, data, in cluster_data:
-            #         for i in range(2):
-            #             i_indexes_K.append(indexes_i[i])
-            #             j_indexes_K.append(indexes_j[i])
-            #             list_Kdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_stiffness, data[i]))
-
-            # # structural nodal link for damping
-            # for key, cluster_data in self.preprocessor.nodes_with_elastic_link_dampings.items():
-            #     node = self.preprocessor.nodes[int(key.split("-")[0])]
-            #     for indexes_i, indexes_j, data, in cluster_data:
-            #         for i in range(2):
-            #             i_indexes_C.append(indexes_i[i])
-            #             j_indexes_C.append(indexes_j[i])
-            #             list_Cdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_dampings, data[i]))
-
-        data_Klump = np.array(list_Kdata).reshape(-1, cols)
-        data_Mlump = np.array(list_Mdata).reshape(-1, cols)
-        data_Clump = np.array(list_Cdata).reshape(-1, cols)
-       
         i_indexes_K = np.array(i_indexes_K).flatten()
         i_indexes_M = np.array(i_indexes_M).flatten()
         i_indexes_C = np.array(i_indexes_C).flatten()

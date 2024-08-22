@@ -112,7 +112,7 @@ class StructuralModelInfo(QDialog):
                 new = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_stiffness_mask, load_labels))])
                 self.treeWidget_springs.addTopLevelItem(new)
 
-            if property == "lumped_dampers":
+            if property == "lumped_dampings":
 
                 node_id = args[0]
                 values = data["values"]

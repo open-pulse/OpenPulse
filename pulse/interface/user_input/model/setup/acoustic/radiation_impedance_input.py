@@ -146,10 +146,12 @@ class RadiationImpedanceInput(QDialog):
             node = app().project.model.preprocessor.nodes[node_id]
             coords = list(np.round(node.coordinates, 5))
 
-            prop_data = {   "coords" : coords,
-                            "impedance type": impedance_type   }
+            data = {
+                    "coords" : coords,
+                    "impedance type": impedance_type
+                    }
 
-            self.properties._set_nodal_property("radiation_impedance", prop_data, node_id)
+            self.properties._set_nodal_property("radiation_impedance", data, node_id)
 
         app().pulse_file.write_nodal_properties_in_file()
         app().main_window.update_plots()

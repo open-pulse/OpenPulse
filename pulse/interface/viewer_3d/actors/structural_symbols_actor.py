@@ -52,17 +52,17 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
     def source(self):
         super().source()
-        self._create_nodal_links()
+        self._create_psd_structural_links()
         self._create_structural_links()
 
-    def _create_nodal_links(self):
+    def _create_psd_structural_links(self):
 
         linked_nodes = set()
         self.linked_symbols = vtkAppendPolyData()
 
-        for (property, *args), data in app().project.model.properties.nodal_properties.items():
+        for (_property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if property == "structural_elastic_links":
+            if _property == "psd_structural_link_stiffnes":
 
                 node_a, node_b = args
                 linked_nodes.add((node_a, node_b))
@@ -78,24 +78,6 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
                 source.Update()
                 self.linked_symbols.AddInputData(source.GetOutput())
 
-        # for key_s in self.project.preprocessor.nodes_with_elastic_link_stiffness.keys():
-        #     node_ids = [int(node) for node in key_s.split("-")]
-        #     linked_nodes.add(tuple(node_ids))
-
-        # for key_d in self.project.preprocessor.nodes_with_elastic_link_dampings.keys():
-        #     node_ids = [int(node) for node in key_d.split("-")]
-        #     linked_nodes.add(tuple(node_ids))
-
-        # nodes = self.project.preprocessor.nodes
-
-        # for a, b in linked_nodes:
-        #     # divide the value of the coordinates by the scale factor
-        #     source = vtkLineSource()
-        #     source.SetPoint1(nodes[a].coordinates / self.scaleFactor) 
-        #     source.SetPoint2(nodes[b].coordinates / self.scaleFactor)
-        #     source.Update()
-        #     self.linked_symbols.AddInputData(source.GetOutput())
-        
         s = vtkSphereSource()
         s.SetRadius(0)
 
@@ -112,9 +94,9 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
     def _create_structural_links(self):
 
-        for (property, *args), data in app().project.model.properties.nodal_properties.items():
+        for (_property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if property == "structural_links":
+            if _property in ["structural_link_stiffnes", "structural_link_dampings"]:
 
                 coords = data["coords"]
                 coords_a = coords[:3]

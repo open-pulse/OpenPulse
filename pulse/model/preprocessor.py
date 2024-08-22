@@ -39,49 +39,39 @@ class Preprocessor:
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
 
         self.nodes = dict()
-        self.structural_elements = dict()
-        self.acoustic_elements = dict()
-
-        self.number_structural_elements = 0
-        self.number_acosutic_elements = 0
-
-        self.transformation_matrices = None
-        self.section_rotations_xyz = None
-
         self.line_to_nodes = dict()
 
-        self.neighbors = defaultdict(list)
-        self.elements_connected_to_node = defaultdict(list)
+        self.structural_elements = dict()
+        self.acoustic_elements = dict()
 
         self.connectivity_matrix = list()
         self.nodal_coordinates_matrix = list()
 
-        self.dict_coordinate_to_update_bc_after_remesh = dict()
+        self.neighbors = defaultdict(list)
+        self.elements_connected_to_node = defaultdict(list)
+
+        self.number_structural_elements = 0
+        self.number_acoustic_elements = 0
+
+        self.transformation_matrices = None
+        self.section_rotations_xyz = None
+
         self.dict_element_info_to_update_indexes_in_entity_file = dict()
         self.dict_element_info_to_update_indexes_in_element_info_file = dict()
         self.dict_list_elements_to_subgroups = dict()
-        self.dict_old_to_new_node_external_indexes = dict()
-
-        self.nodes_with_acoustic_links = dict()
-        self.nodes_with_structural_links = dict()
-
-        self.nodes_with_elastic_link_stiffness = dict()
-        self.nodes_with_elastic_link_dampings = dict()
 
         self.element_type = "pipe_1" # defined as default
         self.flag_fluid_mass_effect = False
         self.stress_stiffening_enabled = False
         self.group_index = 0
 
-        # self.compressor_excitation_table_indexes = list()
         self.structure_principal_diagonal = None
         self.nodal_coordinates_matrix_external = None
-        
+
         self.beam_gdofs = None
         self.pipe_gdofs = None
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
-        self.camera_rotation_center = [0, 0, 0]
 
     def set_mesh(self, mesh: Mesh):
         self.mesh = mesh
@@ -1776,16 +1766,16 @@ class Preprocessor:
         else:
             CompressorModel(list_parameters)
 
-    def get_gdofs_from_nodes(self, nodeID_1, nodeID_2):
+    def get_gdofs_from_nodes(self, node_id1, node_id2):
         """
         This method returns the ordered global degrees of freedom of two nodes.
 
         Parameters
         ----------
-        nodeID_1 : int
+        node_id1 : int
             Node 1 external index.
 
-        nodeID_2 : int
+        node_id2 : int
             Node 2 external index.
 
         Returns
@@ -1799,8 +1789,8 @@ class Preprocessor:
         last_node : Node object
             Last node.
         """
-        node_1 = self.nodes[nodeID_1]
-        node_2 = self.nodes[nodeID_2]
+        node_1 = self.nodes[node_id1]
+        node_2 = self.nodes[node_id2]
         nodes_gdofs = np.array([node_1.global_dof, node_2.global_dof]).flatten()
         reord_gdofs = np.sort(nodes_gdofs)
         if  list(nodes_gdofs) == list(reord_gdofs):
@@ -1814,7 +1804,7 @@ class Preprocessor:
     def get_nodes_and_elements_with_expansion(self, ratio=10):
         title = "Incomplete model setup"
         message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' elements to proceed."
-        self.nodes_with_cross_section_transition = {}
+        self.nodes_with_cross_section_transition = dict()
         for node, neigh_elements in self.elements_connected_to_node.items():
             check_complete = False
             if len(neigh_elements) == 2:
@@ -1843,16 +1833,16 @@ class Preprocessor:
                         # print(node.external_index, diameters_ratio)
 
 
-    def add_elastic_nodal_link(self, nodeID_1, nodeID_2, data, _stiffness=False, _damping=False):
+    def add_elastic_nodal_link(self, node_id1, node_id2, data, _stiffness=False, _damping=False):
         """
         This method ???????
 
         Parameters
         ----------
-        nodeID_1 : int
+        node_id1 : int
             Node 1 external index.
 
-        nodeID_2 : int
+        node_id2 : int
             Node 2 external index.
 
         parameters : ??????
@@ -1869,47 +1859,10 @@ class Preprocessor:
         if not (_stiffness or _damping):
             return
 
-        gdofs, node1, node2 = self.get_gdofs_from_nodes(nodeID_1, nodeID_2)     
-        min_node_ID = min(node1.external_index, node2.external_index)
-        max_node_ID = max(node1.external_index, node2.external_index)
-        key = f"{min_node_ID}-{max_node_ID}"
-        
-        if data is None:
-            for node in [node1, node2]:
-
-                if _stiffness:
-                    count_stiffness = 0
-                    if key in node.elastic_nodal_link_stiffness.keys():
-                        node.elastic_nodal_link_stiffness.pop(key)
-                    for _key in node.elastic_nodal_link_stiffness.keys():
-                        str_nodes = _key.split("-")
-                        node_ids = [int(str_node) for str_node in str_nodes]
-                        if node in node_ids:
-                            count_stiffness += 1
-                    if count_stiffness == 0:
-                        node.loaded_table_for_elastic_link_stiffness = False
-                
-                if _damping:
-                    count_damping = 0
-                    if key in node.elastic_nodal_link_dampings.keys():
-                        node.elastic_nodal_link_dampings.pop(key)
-                    for _key in node.elastic_nodal_link_dampings.keys():
-                        str_nodes = _key.split("-")
-                        node_ids = [int(str_node) for str_node in str_nodes]
-                        if node in node_ids:
-                            count_damping += 1
-                    if count_damping == 0:
-                        node.loaded_table_for_elastic_link_stiffness = False
-                    
-            if _stiffness:
-                if key in self.nodes_with_elastic_link_stiffness.keys():
-                    self.nodes_with_elastic_link_stiffness.pop(key)
-            
-            if _damping:
-                if key in self.nodes_with_elastic_link_dampings.keys():
-                    self.nodes_with_elastic_link_dampings.pop(key)
-
-            return
+        gdofs, node1, node2 = self.get_gdofs_from_nodes(node_id1, node_id2)     
+        # min_node_ID = min(node1.external_index, node2.external_index)
+        # max_node_ID = max(node1.external_index, node2.external_index)
+        # key = f"{min_node_ID}-{max_node_ID}"
 
         [parameters, table_names] = data
                
@@ -1920,40 +1873,17 @@ class Preprocessor:
         neg_data = [-value if value is not None else None for value in parameters]
         mask = [False if value is None else True for value in parameters]
 
-        check_tables = [isinstance(value, np.ndarray) for value in parameters]
-
-        if True in check_tables:
-            node1.loaded_table_for_elastic_link_stiffness = True
-            node2.loaded_table_for_elastic_link_stiffness = True
-            node1.loaded_table_for_elastic_link_dampings = True
-            node2.loaded_table_for_elastic_link_dampings = True
-            value_labels = table_names
-        else:
-            value_labels = parameters
-            node1.loaded_table_for_elastic_link_stiffness = False
-            node2.loaded_table_for_elastic_link_stiffness = False
-            node1.loaded_table_for_elastic_link_dampings = False
-            node2.loaded_table_for_elastic_link_dampings = False
-
         indexes_i = [ [ gdofs_node1, gdofs_node2 ], [ gdofs_node1, gdofs_node2 ] ] 
         indexes_j = [ [ gdofs_node1, gdofs_node1 ], [ gdofs_node2, gdofs_node2 ] ] 
         out_data = [ [ pos_data, neg_data ], [ neg_data, pos_data ] ]
         element_matrix_info_node1 = [ indexes_i[0], indexes_j[0], out_data[0] ] 
         element_matrix_info_node2 = [ indexes_i[1], indexes_j[1], out_data[1] ] 
 
-        if _stiffness:
-            self.nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]
-            node1.elastic_nodal_link_stiffness[key] = [mask, value_labels]
-            node2.elastic_nodal_link_stiffness[key] = [mask, value_labels]
-            node1.there_are_elastic_nodal_link_stiffness = True
-            node2.there_are_elastic_nodal_link_stiffness = True
-
-        if _damping:
-            self.nodes_with_elastic_link_dampings[key] = [element_matrix_info_node1, element_matrix_info_node2]
-            node1.elastic_nodal_link_dampings[key] = [mask, value_labels]
-            node2.elastic_nodal_link_dampings[key] = [mask, value_labels]
-            node1.there_are_elastic_nodal_link_dampings = True
-            node2.there_are_elastic_nodal_link_dampings = True
+        indexes_i = [ gdofs_node1, gdofs_node2, gdofs_node1, gdofs_node2 ] 
+        indexes_j = [ gdofs_node1, gdofs_node1, gdofs_node2, gdofs_node2 ] 
+        out_data = [ pos_data, neg_data, neg_data, pos_data ]
+        element_matrix_info_node1 = [ indexes_i[0], indexes_j[0], out_data[0] ] 
+        element_matrix_info_node2 = [ indexes_i[1], indexes_j[1], out_data[1] ] 
 
     # def add_psd_link_data_to_nodes(self, link_data):
 
@@ -2073,6 +2003,7 @@ class Preprocessor:
                                                                     delta_data[:,1], 
                                                                     delta_data[:,2], 
                                                                     gamma = xaxis_rotation_angle)
+
         # output_data = inverse_matrix_Nx3x3(self.transformation_matrices)
         r = Rotation.from_matrix(self.transformation_matrices)
         rotations = -r.as_euler('zxy', degrees=True)
@@ -2084,15 +2015,15 @@ class Preprocessor:
             element.section_directional_vectors = self.transformation_matrices[index, :, :]
             element.section_rotation_xyz_undeformed = self.section_rotations_xyz[index,:]
 
-    def get_acoustic_link_data(self, nodes):
+    def get_acoustic_link_data(self, node_ids: list):
         """
         """
-        if len(nodes) == 2:
+        if len(node_ids) == 2:
 
             coords = list()
             
-            ext_id1 = min(nodes) 
-            ext_id2 = max(nodes)
+            ext_id1 = min(node_ids) 
+            ext_id2 = max(node_ids)
 
             neigh_elem_node_1 = self.neighboor_elements_of_node(ext_id1)
             neigh_elem_node_2 = self.neighboor_elements_of_node(ext_id2)
@@ -2116,13 +2047,12 @@ class Preprocessor:
             else:
                 return
 
-            node_id1 = self.nodes[ext_id1].global_index
-            node_id2 = self.nodes[ext_id2].global_index
+            int_id1 = self.nodes[ext_id1].global_index
+            int_id2 = self.nodes[ext_id2].global_index
 
-            indexes_i = [ node_id1, node_id2, node_id1, node_id2 ] 
-            indexes_j = [ node_id1, node_id1, node_id2, node_id2 ]
+            indexes_i = [ int_id1, int_id2, int_id1, int_id2 ] 
+            indexes_j = [ int_id1, int_id1, int_id2, int_id2 ]
 
-            self.nodes_with_acoustic_links[(ext_id1, ext_id2)] = [ indexes_i, indexes_j, element_pipe ]
             element_pipe.acoustic_link_diameters = [d_minor, d_major]
 
             coords_1 = self.nodes[ext_id1].coordinates
@@ -2134,26 +2064,26 @@ class Preprocessor:
             node_ids = (ext_id1, ext_id2)
 
             data = {
-                        "coords" : coords,
-                        "indexes_i" : indexes_i,
-                        "indexes_j" : indexes_j,
-                        "element_pipe" : element_pipe,
-                        "diameters" : [d_minor, d_major]
+                    "coords" : coords,
+                    "indexes_i" : indexes_i,
+                    "indexes_j" : indexes_j,
+                    "element_pipe" : element_pipe,
+                    "diameters" : [d_minor, d_major]
                     }
 
             return node_ids, data
 
-            # for node_id in nodes:
-            #     self.nodes[node_id].acoustic_link[(ext_id1, ext_id2)] = [ indexes_i, indexes_j, element ]
-
-    def get_structural_link_data(self, nodes, k=1e9, kr=1e8):
+    def get_structural_link_data(self, node_ids: list, k=1e9, kr=1e8):
         """
         """
-        if len(nodes) == 2:
+        if len(node_ids) == 2:
 
             coords = list()
 
-            gdofs, *args = self.get_gdofs_from_nodes(nodes[0], nodes[1])
+            ext_id1 = node_ids[0]
+            ext_id2 = node_ids[0]
+
+            gdofs, *args = self.get_gdofs_from_nodes(ext_id1, ext_id2)
             gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
             gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
 
@@ -2169,12 +2099,7 @@ class Preprocessor:
             indexes_j = np.array(indexes_j, dtype=int).flatten()
             out_data = np.array(out_data, dtype=float).flatten()
 
-            self.nodes_with_structural_links[nodes] = [indexes_i, indexes_j, out_data]
-
-            # for node_id in nodes:
-            #     self.nodes[node_id].structural_link[nodes] = [indexes_i, indexes_j, out_data]
-
-            ext_id1, ext_id2 = np.sort(nodes)
+            ext_id1, ext_id2 = np.sort(node_ids)
             coords_1 = self.nodes[ext_id1].coordinates
             coords_2 = self.nodes[ext_id2].coordinates
 
@@ -2184,12 +2109,12 @@ class Preprocessor:
             node_ids = (ext_id1, ext_id2)
 
             data = {
-                        "coords" : coords,
-                        "indexes_i" : indexes_i,
-                        "indexes_j" : indexes_j
+                    "coords" : coords,
+                    "indexes_i" : indexes_i,
+                    "indexes_j" : indexes_j
                     }
 
-            return node_ids, data
+            return data
 
     def process_elements_to_update_indexes_after_remesh_in_entity_file(self, list_elements, reset_line=False, line_id=None, dict_map_cross={}, dict_map_expansion_joint={}):
         """

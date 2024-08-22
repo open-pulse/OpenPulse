@@ -128,7 +128,6 @@ class MassSpringDamperInput(QDialog):
         self.checkBox_remove_damper : QCheckBox
 
         self.lineEdit_selected_ids : QLineEdit
-        self.lineEdit_selection : QLineEdit
 
         # QFrame
         self.selection_frame : QFrame
@@ -479,14 +478,14 @@ class MassSpringDamperInput(QDialog):
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords = np.round(node.coordinates, 5)
 
-                _data = {
-                            "coords" : list(coords),
-                            "values" : values,
-                            "real values" : real_values,
-                            "imag values" : imag_values
-                         }
+                data = {
+                        "coords" : list(coords),
+                        "values" : values,
+                        "real values" : real_values,
+                        "imag values" : imag_values
+                        }
 
-                self.properties._set_nodal_property("lumped_masses", _data, node_id)
+                self.properties._set_nodal_property("lumped_masses", data, node_id)
 
     def check_constant_values_lumped_stiffness(self, node_ids: list):
 
@@ -528,14 +527,14 @@ class MassSpringDamperInput(QDialog):
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords = np.round(node.coordinates, 5)
 
-                _data = {
-                            "coords" : list(coords),
-                            "values" : values,
-                            "real values" : real_values,
-                            "imag values" : imag_values
-                         }
+                data = {
+                        "coords" : list(coords),
+                        "values" : values,
+                        "real values" : real_values,
+                        "imag values" : imag_values
+                        }
 
-                self.properties._set_nodal_property("lumped_stiffness", _data, node_id)
+                self.properties._set_nodal_property("lumped_stiffness", data, node_id)
 
     def check_constant_values_lumped_dampings(self, node_ids: list):
 
@@ -572,14 +571,14 @@ class MassSpringDamperInput(QDialog):
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords = np.round(node.coordinates, 5)
 
-                _data = {
-                            "coords" : list(coords),
-                            "values" : values,
-                            "real values" : real_values,
-                            "imag values" : imag_values
-                         }
+                data = {
+                        "coords" : list(coords),
+                        "values" : values,
+                        "real values" : real_values,
+                        "imag values" : imag_values
+                        }
 
-                self.properties._set_nodal_property("lumped_dampings", _data, node_id)
+                self.properties._set_nodal_property("lumped_dampings", data, node_id)
 
     def check_constant_values_inputs(self, node_ids: list):
 
@@ -839,13 +838,13 @@ class MassSpringDamperInput(QDialog):
                 coords = np.round(node.coordinates, 5)
 
                 _data = {
-                            "coords" : list(coords),
-                            "table names" : table_names,
-                            "table paths" : table_paths,
-                            "values" : values
+                        "coords" : list(coords),
+                        "table names" : table_names,
+                        "table paths" : table_paths,
+                        "values" : values
                         }
 
-                self.properties._set_nodal_property("lumped_masses", _data, node_ids=node_id)
+                self.properties._set_nodal_property("lumped_masses", _data, node_id)
 
     def check_table_values_lumped_stiffness(self, node_ids: list):
 
@@ -903,14 +902,14 @@ class MassSpringDamperInput(QDialog):
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords = np.round(node.coordinates, 5)
 
-                _data = {
-                            "coords" : list(coords),
-                            "table names" : table_names,
-                            "table paths" : table_paths,
-                            "values" : values
+                data = {
+                        "coords" : list(coords),
+                        "table names" : table_names,
+                        "table paths" : table_paths,
+                        "values" : values
                         }
 
-                self.properties._set_nodal_property("lumped_stiffness", _data, node_ids=node_id)
+                self.properties._set_nodal_property("lumped_stiffness", data, node_id)
 
     def check_table_values_lumped_dampings(self, node_ids: list):
 
@@ -969,14 +968,14 @@ class MassSpringDamperInput(QDialog):
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords = np.round(node.coordinates, 5)
 
-                _data = {
-                            "coords" : list(coords),
-                            "table names" : table_names,
-                            "table paths" : table_paths,
-                            "values" : values
+                data = {
+                        "coords" : list(coords),
+                        "table names" : table_names,
+                        "table paths" : table_paths,
+                        "values" : values
                         }
 
-                self.properties._set_nodal_property("lumped_dampings", _data, node_ids=node_id)
+                self.properties._set_nodal_property("lumped_dampings", data, node_id)
 
     def check_table_values_inputs(self, node_ids: list):
 
@@ -1030,9 +1029,9 @@ class MassSpringDamperInput(QDialog):
 
     def remove_callback(self):
 
-        if self.lineEdit_selection.text() != "":
+        if self.lineEdit_selected_ids.text() != "":
 
-            node_id = int(self.lineEdit_selection.text())
+            node_id = int(self.lineEdit_selected_ids.text())
 
             if self.checkBox_remove_mass.isChecked():
                 self.properties._remove_nodal_property("lumped_masses", node_ids=node_id)
@@ -1043,7 +1042,7 @@ class MassSpringDamperInput(QDialog):
                 self.remove_conflicting_data(node_id, selected_property="lumped_stiffness")
 
             if self.checkBox_remove_damper.isChecked():
-                self.properties._remove_nodal_property("lumped_damper", node_ids=node_id)
+                self.properties._remove_nodal_property("lumped_dampings", node_ids=node_id)
                 self.remove_conflicting_data(node_id, selected_property="lumped_dampings")
 
         self.actions_to_finalize()
@@ -1078,7 +1077,7 @@ class MassSpringDamperInput(QDialog):
                     self.remove_conflicting_data(node_id, selected_property="lumped_stiffness")
 
                 if self.checkBox_remove_damper.isChecked():
-                    self.properties._remove_nodal_property("lumped_damper", node_id)
+                    self.properties._remove_nodal_property("lumped_dampings", node_id)
                     self.remove_conflicting_data(node_id, selected_property="lumped_dampings")
 
             self.actions_to_finalize()
@@ -1099,7 +1098,7 @@ class MassSpringDamperInput(QDialog):
 
         else:
             if self.cache_tab == 1:
-                self.lineEdit_selection.setText("")
+                self.lineEdit_selected_ids.setText("")
             self.selection_frame.setDisabled(False)
             self.selection_callback()
 

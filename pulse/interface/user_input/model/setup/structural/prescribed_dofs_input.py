@@ -307,14 +307,14 @@ class PrescribedDofsInput(QDialog):
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords = np.round(node.coordinates, 5)
 
-                bc_data = {
-                            "coords" : list(coords),
-                            "values" : prescribed_dofs,
-                            "real values" : real_values,
-                            "imag values" : imag_values
-                          }
+                data = {
+                        "coords" : list(coords),
+                        "values" : prescribed_dofs,
+                        "real values" : real_values,
+                        "imag values" : imag_values
+                        }
 
-                self.properties._set_nodal_property("prescribed_dofs", bc_data, node_ids=node_id)
+                self.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
             app().pulse_file.write_nodal_properties_in_file()
             app().main_window.update_plots()
@@ -546,14 +546,14 @@ class PrescribedDofsInput(QDialog):
             node = app().project.model.preprocessor.nodes[node_id]
             coords = np.round(node.coordinates, 5)
 
-            bc_data = {
-                        "coords" : list(coords),
-                        "table names" : basenames,
-                        "table paths" : table_paths,
-                        "values" : prescribed_dofs
-                       }
+            data = {
+                    "coords" : list(coords),
+                    "table names" : basenames,
+                    "table paths" : table_paths,
+                    "values" : prescribed_dofs
+                    }
 
-            self.properties._set_nodal_property("prescribed_dofs", bc_data, node_ids=node_id)
+            self.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
         app().pulse_file.write_nodal_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()

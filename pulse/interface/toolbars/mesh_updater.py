@@ -18,12 +18,11 @@ class MeshUpdater:
     def _initialize(self):
         self.element_size = 0.01
         self.geometry_tolerance = 1e-6
-        self.dict_old_to_new_node_external_indexes = {}
         self.non_mapped_bcs = list()
-        self.dict_group_elements_to_update_element_info_file = {}
-        self.dict_non_mapped_subgroups_entity_file = {}
-        self.dict_non_mapped_subgroups_info_file = {}
-        self.dict_list_elements_to_subgroups = {}
+        self.dict_group_elements_to_update_element_info_file = dict()
+        self.dict_non_mapped_subgroups_entity_file = dict()
+        self.dict_non_mapped_subgroups_info_file = dict()
+        self.dict_list_elements_to_subgroups = dict()
         self.complete = False
         self.create = False
         self.stop = False

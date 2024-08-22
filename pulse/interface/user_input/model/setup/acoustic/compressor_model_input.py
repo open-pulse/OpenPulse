@@ -789,7 +789,7 @@ class CompressorModelInput(QDialog):
                 if self.save_table_values(table_name, freq, in_flow_rate):
                     return
 
-                self.properties._set_nodal_property("compressor_excitation", data, node_ids=self.suction_node_id)
+                self.properties._set_nodal_property("compressor_excitation", data, self.suction_node_id)
 
         if index in [0, 2]:
 
@@ -838,7 +838,7 @@ class CompressorModelInput(QDialog):
             if self.save_table_values(table_name, freq, out_flow_rate):
                 return
 
-            self.properties._set_nodal_property("compressor_excitation", data, node_ids=self.discharge_node_id)
+            self.properties._set_nodal_property("compressor_excitation", data, self.discharge_node_id)
 
         app().pulse_file.write_nodal_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()

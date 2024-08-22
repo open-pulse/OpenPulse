@@ -146,6 +146,9 @@ class ModelProperties:
         if isinstance(node_ids, int):
             self.nodal_properties[property, node_ids] = data
 
+        elif isinstance(node_ids, list) and len(node_ids) == 1:
+            self.nodal_properties[property, node_ids[0]] = data
+
         elif isinstance(node_ids, list) and len(node_ids) == 2:
             self.nodal_properties[property, node_ids[0], node_ids[1]] = data
 

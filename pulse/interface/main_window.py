@@ -128,6 +128,7 @@ class MainWindow(QMainWindow):
         self.action_import_pcf : QAction
         self.action_set_dark_theme : QAction
         self.action_set_light_theme : QAction
+        self.action_save_project : QAction
         self.action_save_project_as : QAction
         self.action_show_mesh_nodes : QAction
         self.action_show_geometry_points : QAction
@@ -614,6 +615,9 @@ class MainWindow(QMainWindow):
 
     def action_save_project_as_callback(self):
         self.save_project_as_dialog()
+
+    def action_save_project_callback(self):
+        self.save_project_dialog()
 
     def action_import_pcf_callback(self):
         self.open_pcf()

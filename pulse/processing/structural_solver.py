@@ -133,17 +133,17 @@ class StructuralSolver:
             lumped_stiffness = False
             lumped_dampings = False
 
-            for (property, *args) in self.model.properties.nodal_properties.items():
+            for (_property, *args) in self.model.properties.nodal_properties.items():
                 
-                if property == "lumped_masses":
+                if _property == "lumped_masses":
                     lumped_masses = True
                     continue
 
-                if property == "lumped_stiffness":
+                if _property == "lumped_stiffness":
                     lumped_stiffness = True
                     continue
 
-                if property == "lumped_dampings":
+                if _property == "lumped_dampings":
                     lumped_dampings = True
             
             Kr = (self.Kr.toarray())[unprescribed_indexes, :]
@@ -543,7 +543,7 @@ class StructuralSolver:
                     else:
                         springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in values])
 
-                elif property == "lumped_dampers":
+                elif property == "lumped_dampings":
 
                     node_id = args[0]
                     node = self.model.preprocessor.nodes[node_id]

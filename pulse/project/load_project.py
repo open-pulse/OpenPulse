@@ -197,8 +197,8 @@ class LoadProject:
 
     def load_nodal_properties(self):
         nodal_properties = app().pulse_file.load_nodal_properties_from_file()
-        for (property, id), prop_data in nodal_properties.items():
-            self.properties._set_nodal_property(property, prop_data, node_ids=id)
+        for (property, *args), prop_data in nodal_properties.items():
+            self.properties._set_nodal_property(property, prop_data, node_ids=args)
 
     def load_element_properties(self):
         element_properties = app().pulse_file.load_element_properties_from_file()
@@ -488,23 +488,21 @@ class LoadProject:
         if link_data:
             self.add_psd_link_data_to_nodes(link_data)
 
-    def add_psd_link_data_to_nodes(self, link_data: dict):
+    def load_psd_link_data(self):
 
-        for key, values in link_data.items():
-            for (start_coords, end_coords) in values:
+        for (_property, *args), data in self.properties.nodal_properties.items():
 
-                id_1 = self.preprocessor.get_node_id_by_coordinates(start_coords)
-                id_2 = self.preprocessor.get_node_id_by_coordinates(end_coords)
-                nodes = (id_1, id_2)
+            link_data = None
+            if _property == "psd_acoustic_link":
+                # node_id1, node_id1 = args
+                link_data = self.preprocessor.get_acoustic_link_data(args)
 
-                if key[1] == "acoustic_link":
-                    property = "psd_acoustic_link"
-                    node_ids, data = self.preprocessor.get_acoustic_link_data(nodes)
-                else:
-                    property = "psd_structural_link"
-                    node_ids, data = self.preprocessor.get_structural_link_data(nodes)
+            if _property == "psd_structural_link":
+                link_data = self.preprocessor.get_structural_link_data(nodes)
 
-                self.model.properties._set_nodal_property(property, data, node_ids=node_ids)
+            if isinstance(link_data, dict):
+                data["link_data"] = link_data
+                self.model.properties._set_nodal_property(_property, data, args)
 
     def get_device_related_lines(self):
 

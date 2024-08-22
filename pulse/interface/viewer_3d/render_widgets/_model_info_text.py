@@ -45,7 +45,7 @@ def nodes_info_text() -> str:
             loaded_table = "tables data" in data.keys()
             info_text += _structural_format("Lumped stiffness", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table)
 
-        key = ("lumped_dampers", node_id)
+        key = ("lumped_dampings", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             values = data["values"]

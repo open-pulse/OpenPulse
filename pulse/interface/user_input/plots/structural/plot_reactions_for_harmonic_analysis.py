@@ -135,7 +135,7 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_reactions_at_springs.addTopLevelItem(new)
 
-            if property == "lumped_dampers":
+            if property == "lumped_dampings":
                 node_id = args[0]
                 values = data["values"]
 
@@ -213,7 +213,7 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
 
             elif self.tabWidget_springs_dampers.currentIndex()==1:
 
-                data = self.model.properties._get_property("lumped_dampers", node_ids=int(node_id))
+                data = self.model.properties._get_property("lumped_dampings", node_ids=int(node_id))
                 values = data["values"]
 
                 mask = [False if bc is None else True for bc in values]

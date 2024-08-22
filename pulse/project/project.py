@@ -314,7 +314,7 @@ class Project:
             else:
                 return
 
-            self.model.properties._set_nodal_property(property, data, node_ids=node_ids)
+            self.model.properties._set_nodal_property(property, data, node_ids)
 
     def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
         if parameters is None:

@@ -319,19 +319,25 @@ class AssemblyAcoustic:
         cols = list()
         data_Klink = list()
 
-        for key, (row_ind, col_ind, element) in self.preprocessor.nodes_with_acoustic_links.items():
+        for (_property, *args), data in self.model.properties.nodal_properties.items():
 
-            # print(key, element.index)
-            data_Ke = element.fetm_link_matrix(self.frequencies)
+            if _property == "psd_acoustic_link":
 
-            for i in range(len(row_ind)):
-                rows.append(row_ind[i])
-                cols.append(col_ind[i])
+                rows.extend(data["indexes_i"])
+                cols.extend(data["indexes_j"])
 
-            if len(data_Klink):
-                data_Klink = np.c_[data_Klink, data_Ke]
-            else:
-                data_Klink = data_Ke
+                #TODO: check how implement this
+                element = data["element"]
+
+                # print(key, element.index)
+                data_Ke = element.fetm_link_matrix(self.frequencies)
+
+                data_Klink.extend(list(data_Ke))
+
+                if len(data_Klink):
+                    data_Klink = np.c_[data_Klink, data_Ke]
+                else:
+                    data_Klink = data_Ke
 
         if len(data_Klink):
             full_K_link = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof]) for data in data_Klink]
@@ -488,17 +494,20 @@ class AssemblyAcoustic:
         K_link = 0.
         M_link = 0.
 
-        for key, (row_ind, col_ind, element) in self.preprocessor.nodes_with_acoustic_links.items():
+        for (_property, *args), data in self.model.properties.nodal_properties.items():
 
-            data_Ke, data_Me = element.fem_1d_link_matrix()
+            if _property == "psd_acoustic_link":
 
-            for i in range(len(row_ind)):
+                rows.extend(data["indexes_i"])
+                cols.extend(data["indexes_j"])
 
-                rows.append(row_ind[i])
-                cols.append(col_ind[i])
+                #TODO: check how implement this
+                element = data["element"]
 
-                data_Klink.append(data_Ke[i])
-                data_Mlink.append(data_Me[i])
+                data_Ke, data_Me = element.fem_1d_link_matrix()
+
+                data_Klink.extend(list(data_Ke))
+                data_Mlink.extend(list(data_Me))
 
         if len(data_Klink):
             full_K_link = csr_matrix((data_Klink, (rows, cols)), shape=[total_dof, total_dof])

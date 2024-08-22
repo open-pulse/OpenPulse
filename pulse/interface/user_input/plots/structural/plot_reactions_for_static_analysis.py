@@ -183,7 +183,7 @@ class PlotReactionsForStaticAnalysis(QWidget):
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_reactions_at_springs.addTopLevelItem(new)
 
-            if property == "lumped_dampers":
+            if property == "lumped_dampings":
                 node_id = args[0]
                 values = data["values"]
 
