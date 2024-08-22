@@ -277,7 +277,7 @@ class BeforeRun:
             for (property, *args), data in self.properties.nodal_properties.items():
                 data: dict
                 if property == "prescribed_dofs":
-                    if "table names" in data.keys():
+                    if "table_names" in data.keys():
                         self.is_there_prescribed_dofs = True
 
                     elif "values" in data.keys():

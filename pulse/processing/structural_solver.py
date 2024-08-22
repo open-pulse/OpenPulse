@@ -540,7 +540,7 @@ class StructuralSolver:
                     global_dofs_of_springs.append(node.global_dof)
                     values = data["values"]
     
-                    if "table names" in data.keys():
+                    if "table_names" in data.keys():
                         springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else value for value in values])
                     else:
                         springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in values])
@@ -552,7 +552,7 @@ class StructuralSolver:
                     global_dofs_of_dampers.append(node.global_dof)
                     values = data["values"]
 
-                    if "table names" in data.keys():
+                    if "table_names" in data.keys():
                         dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else value for value in values])
                     else:
                         dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in values])

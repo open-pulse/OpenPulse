@@ -765,8 +765,8 @@ class PulsationSuppressionDeviceInput(QDialog):
             for (coords, connection_type) in device.branch_data:
                 index += 1
                 key = f"element length correction - {index}"
-                psd_data[device_label][key] = { "connection coords" : list(np.round(coords, 6)),
-                                                "connection type" : connection_type }
+                psd_data[device_label][key] = { "connection_coords" : list(np.round(coords, 6)),
+                                                "connection_type" : connection_type }
 
         app().pulse_file.write_psd_data_in_file(psd_data)
 
@@ -848,8 +848,8 @@ class PulsationSuppressionDeviceInput(QDialog):
             elc_data = list()
             for key, value in psd_data.items():
                 if "element length correction -" in key:
-                    elc_coords = value["connection coords"]
-                    elc_type = value["connection type"]
+                    elc_coords = value["connection_coords"]
+                    elc_type = value["connection_type"]
                     elc_data.append((elc_coords, elc_type))
 
             if elc_data:

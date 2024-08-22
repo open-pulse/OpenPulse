@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QCheckBox, QDialog, QFileDialog, QFrame, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent, QIcon
+from PyQt5.QtWidgets import QCheckBox, QDialog, QFrame, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -7,8 +7,6 @@ from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.tools.utils import remove_bc_from_file, get_new_path, create_new_folder
-from pulse.interface.formatters.icons import get_openpulse_icon
 
 import os
 import numpy as np
@@ -49,7 +47,9 @@ class MassSpringDamperInput(QDialog):
 
     def _initialize(self):
 
+        self.complete = False
         self.keep_window_open = True
+        self.lumped_element_applied = False
 
         self.reset_table_variables()
 
@@ -118,8 +118,6 @@ class MassSpringDamperInput(QDialog):
         self.Cry_table_values = None
         self.Crz_table_values = None
 
-        self.lumped_element_applied = False
-
     def _define_qt_variables(self):
 
         # QCheckBox
@@ -175,7 +173,7 @@ class MassSpringDamperInput(QDialog):
         self.lineEdit_path_table_Jy : QLineEdit
         self.lineEdit_path_table_Jz : QLineEdit
 
-        self._create_lists_lineEdits()
+        self._create_lists_of_lineEdits()
 
         # QPushButton       
         self.pushButton_attribute : QPushButton
@@ -278,8 +276,8 @@ class MassSpringDamperInput(QDialog):
                 if isinstance(lm_data, dict):
 
                     # Lumped masses/inertias
-                    if "table names" in lm_data.keys():
-                        table_paths = lm_data["table paths"]
+                    if "table_names" in lm_data.keys():
+                        table_paths = lm_data["table_paths"]
                         self.tabWidget_inputs.setCurrentIndex(1)
                         self.tabWidget_table_values.setCurrentIndex(0)
                         for index, lineEdit_table in enumerate(self.table_values_lumped_masses):
@@ -301,8 +299,8 @@ class MassSpringDamperInput(QDialog):
                 if isinstance(ls_data, dict):
 
                     # Lumped stiffness
-                    if "table names" in ls_data.keys():
-                        table_paths = ls_data["table paths"]
+                    if "table_names" in ls_data.keys():
+                        table_paths = ls_data["table_paths"]
                         self.tabWidget_inputs.setCurrentIndex(1)
                         self.tabWidget_table_values.setCurrentIndex(0)
                         for index, lineEdit_table in enumerate(self.table_values_lumped_stiffness):
@@ -324,8 +322,8 @@ class MassSpringDamperInput(QDialog):
                 if isinstance(ld_data, dict):
 
                     # Lumped dampings
-                    if "table names" in ld_data.keys():
-                        table_paths = ld_data["table paths"]
+                    if "table_names" in ld_data.keys():
+                        table_paths = ld_data["table_paths"]
                         self.tabWidget_inputs.setCurrentIndex(1)
                         self.tabWidget_table_values.setCurrentIndex(0)
                         for index, lineEdit_table in enumerate(self.table_values_lumped_dampings):
@@ -356,7 +354,7 @@ class MassSpringDamperInput(QDialog):
             self.treeWidget_springs.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_dampers.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-    def _create_lists_lineEdits(self):
+    def _create_lists_of_lineEdits(self):
 
         self.constant_values_lumped_masses = [  self.lineEdit_Mx,
                                                 self.lineEdit_My,
@@ -418,12 +416,14 @@ class MassSpringDamperInput(QDialog):
         self.actions_to_finalize()
         # self.close()
 
-    def check_entries(self, lineEdit, label):
+    def check_entries(self, lineEdit: QLineEdit, label: str):
 
         stop = False
-        if lineEdit.text() != "":
+        str_value = lineEdit.text()
+        if str_value != "":
             try:
-                value = float(lineEdit.text())
+                str_value = str_value.replace(",", ".")
+                value = float(str_value)
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for real part of {label}."
@@ -481,8 +481,8 @@ class MassSpringDamperInput(QDialog):
                 data = {
                         "coords" : list(coords),
                         "values" : values,
-                        "real values" : real_values,
-                        "imag values" : imag_values
+                        "real_values" : real_values,
+                        "imag_values" : imag_values
                         }
 
                 self.properties._set_nodal_property("lumped_masses", data, node_id)
@@ -530,8 +530,8 @@ class MassSpringDamperInput(QDialog):
                 data = {
                         "coords" : list(coords),
                         "values" : values,
-                        "real values" : real_values,
-                        "imag values" : imag_values
+                        "real_values" : real_values,
+                        "imag_values" : imag_values
                         }
 
                 self.properties._set_nodal_property("lumped_stiffness", data, node_id)
@@ -574,8 +574,8 @@ class MassSpringDamperInput(QDialog):
                 data = {
                         "coords" : list(coords),
                         "values" : values,
-                        "real values" : real_values,
-                        "imag values" : imag_values
+                        "real_values" : real_values,
+                        "imag_values" : imag_values
                         }
 
                 self.properties._set_nodal_property("lumped_dampings", data, node_id)
@@ -839,8 +839,8 @@ class MassSpringDamperInput(QDialog):
 
                 _data = {
                         "coords" : list(coords),
-                        "table names" : table_names,
-                        "table paths" : table_paths,
+                        "table_names" : table_names,
+                        "table_paths" : table_paths,
                         "values" : values
                         }
 
@@ -904,8 +904,8 @@ class MassSpringDamperInput(QDialog):
 
                 data = {
                         "coords" : list(coords),
-                        "table names" : table_names,
-                        "table paths" : table_paths,
+                        "table_names" : table_names,
+                        "table_paths" : table_paths,
                         "values" : values
                         }
 
@@ -970,8 +970,8 @@ class MassSpringDamperInput(QDialog):
 
                 data = {
                         "coords" : list(coords),
-                        "table names" : table_names,
-                        "table paths" : table_paths,
+                        "table_names" : table_names,
+                        "table_paths" : table_paths,
                         "values" : values
                         }
 
@@ -1186,7 +1186,6 @@ class MassSpringDamperInput(QDialog):
         self.on_click_item_masses(item)
 
     def on_click_item_springs(self, item):
-        # self.current_selection = "lumped stiffness"
         self.pushButton_remove.setDisabled(False)
         self.lineEdit_selected_ids.setText(item.text(0))
 
@@ -1194,7 +1193,6 @@ class MassSpringDamperInput(QDialog):
         self.on_click_item_springs(item)
 
     def on_click_item_dampings(self, item):
-        # self.current_selection = "lumped dampings"
         self.pushButton_remove.setDisabled(False)
         self.lineEdit_selected_ids.setText(item.text(0))
 

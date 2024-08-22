@@ -108,8 +108,8 @@ class VolumeVelocityInput(QDialog):
 
                         values = data["values"]
         
-                        if "table paths" in data.keys():
-                            table_paths = data["table paths"]
+                        if "table_paths" in data.keys():
+                            table_paths = data["table_paths"]
                             self.tabWidget_volume_velocity.setCurrentIndex(1)
                             self.lineEdit_table_path.setText(table_paths[0])
 
@@ -216,8 +216,8 @@ class VolumeVelocityInput(QDialog):
 
             data = {   
                     "coords" : coords,
-                    "real values": real_values,
-                    "imag values": imag_values,
+                    "real_values": real_values,
+                    "imag_values": imag_values,
                     }
 
             self.properties._set_nodal_property("volume_velocity", data, node_id)
@@ -353,8 +353,8 @@ class VolumeVelocityInput(QDialog):
 
                 data = {
                         "coords" : list(coords),
-                        "table names" : basenames,
-                        "table paths" : table_paths
+                        "table_names" : basenames,
+                        "table_paths" : table_paths
                         }
 
                 self.properties._set_nodal_property("volume_velocity", data, node_id)

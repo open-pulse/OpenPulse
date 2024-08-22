@@ -1210,8 +1210,8 @@ class Preprocessor:
         N = DOF_PER_NODE_STRUCTURAL
         mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
 
-        node_id = data["T-joint node"]
-        decoupled_rotations = data["decoupled rotations"]
+        node_id = data["T-joint_node"]
+        decoupled_rotations = data["decoupled_rotations"]
 
 
         neighboor_elements = self.neighboor_elements_of_node(node_id)

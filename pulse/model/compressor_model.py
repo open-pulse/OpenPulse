@@ -133,17 +133,17 @@ class CompressorModel:
     def _load_compressor_parameters(self, parameters):
         """
         """
-        self.D = parameters['bore diameter']                    # Cylinder bore diameter [m]
+        self.D = parameters['bore_diameter']                    # Cylinder bore diameter [m]
         self.r = parameters['stroke']/2                         # Length of compressor full stroke [m]
-        self.L = parameters['connecting rod length']            # Connecting rod length [m]
-        self.rod_diam = parameters['rod diameter']              # Rod diameter [m]
-        self.p_ratio = parameters['pressure ratio']             # Compressor pressure ratio Pd/Ps
-        self.c_HE = parameters['clearance (HE)']/100            # Clearance HE volume as percentage of full volume (%)
-        self.c_CE = parameters['clearance (CE)']/100            # Clearance CE volume as percentage of full volume (%)
-        self.crank_angle_1 = parameters['TDC crank angle 1']    # Crank angle (degrees) at which piston in the head end chamber is at top dead center
-        self.rpm = parameters['rotational speed']               # Compressor rotation speed (rpm)
+        self.L = parameters['connecting_rod_length']            # Connecting rod length [m]
+        self.rod_diam = parameters['rod_diameter']              # Rod diameter [m]
+        self.p_ratio = parameters['pressure_ratio']             # Compressor pressure ratio Pd/Ps
+        self.c_HE = parameters['clearance_HE']/100            # Clearance HE volume as percentage of full volume (%)
+        self.c_CE = parameters['clearance_CE']/100            # Clearance CE volume as percentage of full volume (%)
+        self.crank_angle_1 = parameters['TDC_crank_angle_1']    # Crank angle (degrees) at which piston in the head end chamber is at top dead center
+        self.rpm = parameters['rotational_speed']               # Compressor rotation speed (rpm)
         self.capacity = parameters['capacity']/100              # Capacity of compression stage (%)
-        self.acting_label = parameters['acting label']          # Active cylinder(s) key (int)
+        self.acting_label = parameters['acting_label']          # Active cylinder(s) key (int)
 
         if self.acting_label == 0:
             self.active_cylinder = 'both ends'
@@ -154,10 +154,10 @@ class CompressorModel:
 
         self.tdc1 = self.crank_angle_1*pi/180
 
-        pressure_at_suction = parameters['pressure at suction']              # Pressure at suction
-        temperature_at_suction = parameters['temperature at suction']        # Temperature at suction
-        self.pressure_unit = parameters['pressure unit']                     # Pressure unit
-        self.temperature_unit = parameters['temperature unit']               # Temperature unit
+        pressure_at_suction = parameters['pressure_at_suction']              # Pressure at suction
+        temperature_at_suction = parameters['temperature_at_suction']        # Temperature at suction
+        self.pressure_unit = parameters['pressure_unit']                     # Pressure unit
+        self.temperature_unit = parameters['temperature_unit']               # Temperature unit
 
         if self.pressure_unit == "kgf/cm²":
             self.p_suc = pressure_at_suction*kgf_cm2_to_Pa
@@ -176,8 +176,8 @@ class CompressorModel:
         self.tdc2 = pi/2
         self.cap = None
 
-        self.set_fluid_properties_and_update_state(parameters['isentropic exponent'],
-                                                   parameters['molar mass'])
+        self.set_fluid_properties_and_update_state(parameters['isentropic_exponent'],
+                                                   parameters['molar_mass'])
 
 
     def set_fluid_properties_and_update_state(self, isentropic_exponent, molar_mass):
@@ -1534,27 +1534,27 @@ class CompressorModel:
 
 if __name__ == "__main__":
 
-    parameters = {  'bore diameter' : 0.780,
+    parameters = {  'bore_diameter' : 0.780,
                     'stroke' : 0.33,
-                    'connecting rod length' : 1.25,
-                    'rod diameter' : 0.135,
-                    'pressure ratio' : 1.90788804,
-                    'clearance (HE)' : 15.8,
-                    'clearance (CE)' : 18.39,
-                    'TDC crank angle 1' : 0,
-                    'rotational speed' : 360,
+                    'connecting_rod_length' : 1.25,
+                    'rod_diameter' : 0.135,
+                    'pressure_ratio' : 1.90788804,
+                    'clearance_HE' : 15.8,
+                    'clearance_CE' : 18.39,
+                    'TDC_crank_angle_1' : 0,
+                    'rotational_speed' : 360,
                     'capacity' : 100,
-                    'acting label' : 0,
-                    'pressure at suction' : 19.65,
-                    'temperature at suction' : 45,
-                    'pressure unit' : "bar",
-                    'temperature unit' : "°C",
-                    'isentropic exponent' : 1.400,
-                    'molar mass' : 2.01568 }
+                    'acting_label' : 0,
+                    'pressure_at_suction' : 19.65,
+                    'temperature_at_suction' : 45,
+                    'pressure_unit' : "bar",
+                    'temperature_unit' : "°C",
+                    'isentropic_exponent' : 1.400,
+                    'molar_mass' : 2.01568 }
 
     compressor = CompressorModel(parameters)
-    compressor.set_fluid_properties_and_update_state(   parameters['isentropic exponent'],
-                                                        parameters['molar mass']   )
+    compressor.set_fluid_properties_and_update_state(   parameters['isentropic_exponent'],
+                                                        parameters['molar_mass']   )
 
     compressor.number_of_cylinders = 1
     compressor.number_points = 2000

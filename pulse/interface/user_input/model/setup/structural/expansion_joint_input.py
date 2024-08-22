@@ -236,13 +236,13 @@ class ExpansionJointInput(QDialog):
             self.lineEdit_axial_locking_criteria.setText(str(joint_data["axial_locking_criteria"]))
             self.comboBox_axial_stop_rod.setCurrentIndex(int(joint_data["rods"]))
 
-            if "table paths" in joint_data.keys():
+            if "table_paths" in joint_data.keys():
                 self.tabWidget_inputs.setCurrentIndex(1)
-                self.lineEdit_path_table_axial_stiffness.setText(joint_data["table paths"][0])
-                self.lineEdit_path_table_transversal_stiffness.setText(joint_data["table paths"][1])
-                self.lineEdit_path_table_torsional_stiffness.setText(joint_data["table paths"][2])
-                self.lineEdit_path_table_angular_stiffness.setText(joint_data["table paths"][3])
-            
+                self.lineEdit_path_table_axial_stiffness.setText(joint_data["table_paths"][0])
+                self.lineEdit_path_table_transversal_stiffness.setText(joint_data["table_paths"][1])
+                self.lineEdit_path_table_torsional_stiffness.setText(joint_data["table_paths"][2])
+                self.lineEdit_path_table_angular_stiffness.setText(joint_data["table_paths"][3])
+
             else:
                 self.tabWidget_inputs.setCurrentIndex(0)
                 Kx, Kyz, Krx, Kryz = joint_data['stiffness values']
@@ -567,8 +567,8 @@ class ExpansionJointInput(QDialog):
                         ]
 
             self.joint_parameters["stiffness_values"] = values
-            self.joint_parameters["table names"] = table_names
-            self.joint_parameters["table paths"] = table_paths
+            self.joint_parameters["table_names"] = table_names
+            self.joint_parameters["table_paths"] = table_paths
 
             return False
 
@@ -652,13 +652,13 @@ class ExpansionJointInput(QDialog):
                 mass = ej_data["joint_mass"]
                 rods = ej_data["rods"]
 
-                if "table names" in ej_data.keys():
+                if "table_names" in ej_data.keys():
                     pass
                 else:
                     pass
 
                 str_joint_data = "{}, {}, {}, {}, ".format(L, d_eff, mass, rods)
-                if "table names" in ej_data.keys():
+                if "table_names" in ej_data.keys():
                     str_joint_data += "Table, Table, Table, Table"
                 else:
                     values = ej_data["stiffness_values"]
@@ -717,8 +717,8 @@ class ExpansionJointInput(QDialog):
             data: dict
             if "expansion_joint" in data.keys():
                 ej_data = data["expansion_joint"]
-                if line_id in line_ids and "table names" in ej_data.keys():
-                    table_names.append(ej_data["table names"])
+                if line_id in line_ids and "table_names" in ej_data.keys():
+                    table_names.append(ej_data["table_names"])
 
         if table_names:
             self.process_table_file_removal(table_names)

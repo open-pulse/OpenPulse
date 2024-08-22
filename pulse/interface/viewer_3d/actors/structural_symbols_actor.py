@@ -96,7 +96,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
         for (_property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if _property in ["structural_link_stiffnes", "structural_link_dampings"]:
+            if _property in ["structural_stiffness_links", "structural_damping_links"]:
 
                 coords = data["coords"]
                 coords_a = coords[:3]

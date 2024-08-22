@@ -104,8 +104,8 @@ class DecouplingRotationDOFsInput(QDialog):
 
                 for (property, element_id), data in self.properties.element_properties.items():
                     if property == "B2P_rotation_decoupling" and element_id == selected_elements[0]:
-                        decoupled_dofs = data["decoupled rotations"]
-                        node_id = data["T-joint node"]
+                        decoupled_dofs = data["decoupled_rotations"]
+                        node_id = data["T-joint_node"]
                         self.checkBox_rotation_x.setChecked(decoupled_dofs[0])
                         self.checkBox_rotation_y.setChecked(decoupled_dofs[1])
                         self.checkBox_rotation_z.setChecked(decoupled_dofs[2])
@@ -182,8 +182,8 @@ class DecouplingRotationDOFsInput(QDialog):
             if element_type == 'beam_1':
 
                 data = {
-                        "decoupled rotations" : rotations_mask,
-                        "T-joint node" : node_id
+                        "decoupled_rotations" : rotations_mask,
+                        "T-joint_node" : node_id
                         }
 
                 self.preprocessor.set_B2P_rotation_decoupling(element_id, data)
@@ -275,8 +275,8 @@ class DecouplingRotationDOFsInput(QDialog):
                 group_id = int(item.text(0))
                 [element_id, data] = self.decoupling_data[group_id]
 
-                connecting_node = data["T-joint node"]
-                decoupled_dofs = data["decoupled rotations"]
+                connecting_node = data["T-joint_node"]
+                decoupled_dofs = data["decoupled_rotations"]
                 decoupled_dofs_labels = self.text_label(decoupled_dofs)  
 
                 aux = dict()
@@ -327,8 +327,8 @@ class DecouplingRotationDOFsInput(QDialog):
                 group_id += 1
                 self.decoupling_data[group_id] = [element_id, data]
 
-                connecting_node = data["T-joint node"]
-                decoupled_dofs = data["decoupled rotations"]
+                connecting_node = data["T-joint_node"]
+                decoupled_dofs = data["decoupled_rotations"]
                 decoupled_dofs_labels = self.text_label(decoupled_dofs)
 
                 item = QTreeWidgetItem([ str(group_id), 

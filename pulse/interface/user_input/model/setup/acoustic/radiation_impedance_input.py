@@ -91,7 +91,7 @@ class RadiationImpedanceInput(QDialog):
                 for (property, node_id), data in self.properties.nodal_properties.items():
                     if property == "radiation_impedance" and selected_nodes[0] == node_id:
 
-                        impedance_type = data["impedance type"]
+                        impedance_type = data["impedance_type"]
                         self.comboBox_radiation_impedance_type.setCurrentIndex(impedance_type)
 
     def tab_event_callback(self):
@@ -120,7 +120,7 @@ class RadiationImpedanceInput(QDialog):
         for (property, node_id), data in self.properties.nodal_properties.items():
 
             if property == "radiation_impedance":
-                index = data["impedance type"]
+                index = data["impedance_type"]
                 text = radiation_impedances[index]
 
                 new = QTreeWidgetItem([str(node_id), text])
@@ -148,7 +148,7 @@ class RadiationImpedanceInput(QDialog):
 
             data = {
                     "coords" : coords,
-                    "impedance type": impedance_type
+                    "impedance_type": impedance_type
                     }
 
             self.properties._set_nodal_property("radiation_impedance", data, node_id)

@@ -61,9 +61,9 @@ class MaterialInputs(QWidget):
                                     "name",
                                     "identifier",
                                     "density",
-                                    "elasticity modulus",
-                                    "poisson ratio",
-                                    "thermal expansion coefficient",
+                                    "elasticity_modulus",
+                                    "poisson_ratio",
+                                    "thermal_expansion_coefficient",
                                     "color"
                                     ]
 
@@ -133,9 +133,9 @@ class MaterialInputs(QWidget):
                                 name = section['name'],
                                 identifier = int(section['identifier']),
                                 density = float(section['density']),
-                                poisson_ratio = float(section['poisson ratio']),
-                                elasticity_modulus = float(section['elasticity modulus']) * 1e9,
-                                thermal_expansion_coefficient = float(section['thermal expansion coefficient']), 
+                                poisson_ratio = float(section['poisson_ratio']),
+                                elasticity_modulus = float(section['elasticity_modulus']) * 1e9,
+                                thermal_expansion_coefficient = float(section['thermal_expansion_coefficient']), 
                                 color = get_color_rgb(section['color'])
                                 )
 
@@ -337,9 +337,9 @@ class MaterialInputs(QWidget):
     
         prop_labels = {
                         2 : "density", 
-                        3 : "elasticity modulus",
-                        4 : "poisson ratio",
-                        5 : "thermal expansion coefficient"
+                        3 : "elasticity_modulus",
+                        4 : "poisson_ratio",
+                        5 : "thermal_expansion_coefficient"
                     }
         
         if row not in prop_labels.keys():

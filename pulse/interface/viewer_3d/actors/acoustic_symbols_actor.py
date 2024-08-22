@@ -160,7 +160,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
             if property == "compressor_excitation":
 
-                if data["connection type"] == "suction":
+                if data["connection_type"] == "suction":
 
                     pos = data["coords"]
                     node_id = args[0]
@@ -187,7 +187,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
             if property == "compressor_excitation":
 
-                if data["connection type"] == "discharge":
+                if data["connection_type"] == "discharge":
 
                     pos = data["coords"]
                     node_id = args[0]

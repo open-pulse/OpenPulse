@@ -323,8 +323,9 @@ class AssemblyAcoustic:
 
             if _property == "psd_acoustic_link":
 
-                rows.extend(data["indexes_i"])
-                cols.extend(data["indexes_j"])
+                if "link_data" in data.keys():
+                    rows.extend(data["link_data"]["indexes_i"])
+                    cols.extend(data["link_data"]["indexes_j"])
 
                 #TODO: check how implement this
                 element = data["element"]
@@ -388,7 +389,7 @@ class AssemblyAcoustic:
 
                 elif property == "radiation_impedance":
 
-                    impedance_type = data["impedance type"]
+                    impedance_type = data["impedance_type"]
 
                     elements = self.preprocessor.neighboor_elements_of_node(node_id)
 
@@ -496,18 +497,20 @@ class AssemblyAcoustic:
 
         for (_property, *args), data in self.model.properties.nodal_properties.items():
 
+            data: dict
             if _property == "psd_acoustic_link":
 
-                rows.extend(data["indexes_i"])
-                cols.extend(data["indexes_j"])
+                if "link_data" in data.keys():
+                    rows.extend(data["link_data"]["indexes_i"])
+                    cols.extend(data["link_data"]["indexes_j"])
 
-                #TODO: check how implement this
-                element = data["element"]
+                    #TODO: check how implement this
+                    element = data["element"]
 
-                data_Ke, data_Me = element.fem_1d_link_matrix()
+                    data_Ke, data_Me = element.fem_1d_link_matrix()
 
-                data_Klink.extend(list(data_Ke))
-                data_Mlink.extend(list(data_Me))
+                    data_Klink.extend(list(data_Ke))
+                    data_Mlink.extend(list(data_Me))
 
         if len(data_Klink):
             full_K_link = csr_matrix((data_Klink, (rows, cols)), shape=[total_dof, total_dof])

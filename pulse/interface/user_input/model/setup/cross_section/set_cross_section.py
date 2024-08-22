@@ -589,8 +589,8 @@ class SetCrossSectionInput(QDialog):
             data: dict
             if "expansion_joint" in data.keys():
                 ej_data = data["expansion_joint"]
-                if line_id in line_ids and "table names" in ej_data.keys():
-                    table_names.append(ej_data["table names"])
+                if line_id in line_ids and "table_names" in ej_data.keys():
+                    table_names.append(ej_data["table_names"])
 
         if table_names:
             for table_name in table_names:

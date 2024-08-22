@@ -63,30 +63,30 @@ class LoadProject:
 
             name = section['name']
             density =  float(section['density'])
-            speed_of_sound =  float(section['speed of sound'])
+            speed_of_sound =  float(section['speed_of_sound'])
             identifier =  int(section['identifier'])
             color =  get_color_rgb(section['color'])
 
             if len(color) == 4:
                 color = color[:3]
 
-            if 'isentropic exponent' in keys:
-                isentropic_exponent = float(section['isentropic exponent'])
+            if 'isentropic_exponent' in keys:
+                isentropic_exponent = float(section['isentropic_exponent'])
             else:
                 isentropic_exponent = ""
 
-            if 'thermal conductivity' in keys:
-                thermal_conductivity = float(section['thermal conductivity'])
+            if 'thermal_conductivity' in keys:
+                thermal_conductivity = float(section['thermal_conductivity'])
             else:
                 thermal_conductivity = ""
 
-            if 'specific heat Cp' in keys:
-                specific_heat_Cp = float(section['specific heat Cp'])
+            if 'specific_heat_Cp' in keys:
+                specific_heat_Cp = float(section['specific_heat_Cp'])
             else:
                 specific_heat_Cp = ""
 
-            if 'dynamic viscosity' in keys:
-                dynamic_viscosity = float(section['dynamic viscosity'])
+            if 'dynamic_viscosity' in keys:
+                dynamic_viscosity = float(section['dynamic_viscosity'])
             else:
                 dynamic_viscosity = ""
             
@@ -111,11 +111,11 @@ class LoadProject:
             # else:
             #     molar_fractions = None
 
-            if 'molar mass' in keys:
-                if section['molar mass'] == "None":
+            if "molar_mass" in keys:
+                if section["molar_mass"] == "None":
                     molar_mass = None
                 else:
-                    molar_mass = float(section['molar mass'])
+                    molar_mass = float(section["molar_mass"])
             else:
                 molar_mass = None
 
@@ -150,9 +150,9 @@ class LoadProject:
             name = section['name']
             identifier = int(section['identifier'])
             density = float(section['density'])
-            poisson_ratio = float(section['poisson ratio'])
-            elasticity_modulus = float(section['elasticity modulus']) * 1e9
-            thermal_expansion_coefficient = float(section['thermal expansion coefficient'])
+            poisson_ratio = float(section['poisson_ratio'])
+            elasticity_modulus = float(section['elasticity_modulus']) * 1e9
+            thermal_expansion_coefficient = float(section['thermal_expansion_coefficient'])
             color =  get_color_rgb(section['color'])
 
             if len(color) == 4:
@@ -498,7 +498,7 @@ class LoadProject:
                 link_data = self.preprocessor.get_acoustic_link_data(args)
 
             if _property == "psd_structural_link":
-                link_data = self.preprocessor.get_structural_link_data(nodes)
+                link_data = self.preprocessor.get_structural_link_data(args)
 
             if isinstance(link_data, dict):
                 data["link_data"] = link_data

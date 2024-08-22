@@ -191,8 +191,8 @@ class PrescribedDofsInput(QDialog):
 
                         values = data["values"]
         
-                        if "table paths" in data.keys():
-                            table_paths = data["table paths"]
+                        if "table_paths" in data.keys():
+                            table_paths = data["table_paths"]
                             self.tabWidget_prescribed_dofs.setCurrentIndex(1)
                             for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
                                 table_path = table_paths[index]
@@ -310,8 +310,8 @@ class PrescribedDofsInput(QDialog):
                 data = {
                         "coords" : list(coords),
                         "values" : prescribed_dofs,
-                        "real values" : real_values,
-                        "imag values" : imag_values
+                        "real_values" : real_values,
+                        "imag_values" : imag_values
                         }
 
                 self.properties._set_nodal_property("prescribed_dofs", data, node_id)
@@ -548,8 +548,8 @@ class PrescribedDofsInput(QDialog):
 
             data = {
                     "coords" : list(coords),
-                    "table names" : basenames,
-                    "table paths" : table_paths,
+                    "table_names" : basenames,
+                    "table_paths" : table_paths,
                     "values" : prescribed_dofs
                     }
 

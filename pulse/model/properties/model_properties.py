@@ -84,8 +84,8 @@ class ModelProperties:
     def remove_compressor_table_name(self, node_id: int, table_name: str):
         key = ("compressor_excitation", node_id)
         if key in self.nodal_properties.keys():
-            if table_name in self.nodal_properties[key]["table names"]:
-                self.nodal_properties[key]["table names"].remove(table_name)
+            if table_name in self.nodal_properties[key]["table_names"]:
+                self.nodal_properties[key]["table_names"].remove(table_name)
 
     def get_data_group_label(self, property : str):
 
@@ -115,22 +115,22 @@ class ModelProperties:
         group_label = self.get_data_group_label(property)
 
         tables_values = list()
-        if "real values" in data.keys() and "imag values" in data.keys():
-            for i, a in enumerate(data["real values"]):
+        if "real_values" in data.keys() and "imag_values" in data.keys():
+            for i, a in enumerate(data["real_values"]):
                 if a is None:
                     tables_values.append(None)
                 else:
-                    b = data["imag values"][i]
+                    b = data["imag_values"][i]
                     tables_values.append(a + 1j*b)
 
-        if "table names" in data.keys():
+        if "table_names" in data.keys():
 
             if group_label == "acoustic":
                 imported_tables = self.acoustic_imported_tables
             else:
                 imported_tables = self.structural_imported_tables
 
-            for i, table_name in enumerate(data["table names"]):
+            for i, table_name in enumerate(data["table_names"]):
 
                 if table_name is None:
                     tables_values.append(None)
@@ -240,7 +240,7 @@ class ModelProperties:
         for data_dict in data_dicts:
             for data in data_dict.values():
                 if isinstance(data, dict):
-                    if "table names" in data.keys():
+                    if "table_names" in data.keys():
                         return True
 
         return False
@@ -330,8 +330,8 @@ class ModelProperties:
         if test_key in self.nodal_properties.keys():
             data = self.nodal_properties[test_key]
 
-            if "table names" in data.keys():
-                for table_name in data["table names"]:
+            if "table_names" in data.keys():
+                for table_name in data["table_names"]:
                     if table_name is not None:
                         table_names.append(table_name)
 
@@ -344,16 +344,16 @@ class ModelProperties:
         table_names = dict()
         for key, data in self.element_properties.items():
             for element_id in element_ids:
-                if "table names" in data.keys():
+                if "table_names" in data.keys():
                     if equals:
                         if key == (property, element_id):
-                            table_names[key] = data["table names"]
+                            table_names[key] = data["table_names"]
                     else:
                         if key == (property, element_id):
                             continue
                         else:
                             if key[1] == element_id:
-                                table_names[key] = data["table names"]
+                                table_names[key] = data["table_names"]
         return table_names
 
     def add_imported_tables(self, group_label: str, table_name: str, data: ndarray | list | tuple):

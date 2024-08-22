@@ -1,16 +1,15 @@
-from PyQt5.QtWidgets import QDialog, QFileDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent, QIcon
+from PyQt5.QtWidgets import QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.tools.utils import get_new_path, remove_bc_from_file
 
 import os
 import numpy as np
+from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -23,7 +22,11 @@ class ElasticNodalLinksInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.project = app().project
+
+        self.preprocessor = app().project.model.preprocessor
+        self.properties = app().project.model.properties
+
+        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
         self._initialize()
@@ -44,240 +47,130 @@ class ElasticNodalLinksInput(QDialog):
 
     def _initialize(self):
 
-        self.keep_window_open = True
-
-        self.preprocessor = self.project.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-        self.nodes = self.preprocessor.nodes
-        
-        self.userPath = os.path.expanduser('~')       
-        self.stop = False
         self.complete = False
-
-        self.current_selection = None
+        self.keep_window_open = True
+        self.link_applied = False
         
-        self.Kx_table = None
-        self.Ky_table = None
-        self.Kz_table = None
-        self.Krx_table = None
-        self.Kry_table = None
-        self.Krz_table = None
+        self.reset_table_variables()
 
-        self.Kx_filename = None
-        self.Ky_filename = None
-        self.Kz_filename = None
-        self.Krx_filename = None
-        self.Kry_filename = None
-        self.Krz_filename = None
+    def reset_table_variables(self):
 
-        self.Kx_basename = None
-        self.Ky_basename = None
-        self.Kz_basename = None
-        self.Krx_basename = None
-        self.Kry_basename = None
-        self.Krz_basename = None
+        self.Kx_table_name = None
+        self.Ky_table_name = None
+        self.Kz_table_name = None
+        self.Krx_table_name = None
+        self.Kry_table_name = None
+        self.Krz_table_name = None
 
-        self.Cx_table = None
-        self.Cy_table = None
-        self.Cz_table = None
-        self.Crx_table = None
-        self.Cry_table = None
-        self.Crz_table = None
+        self.Kx_table_path = None
+        self.Ky_table_path = None
+        self.Kz_table_path = None
+        self.Krx_table_path = None
+        self.Kry_table_path = None
+        self.Krz_table_path = None
 
-        self.Cx_filename = None
-        self.Cy_filename = None
-        self.Cz_filename = None
-        self.Crx_filename = None
-        self.Cry_filename = None
-        self.Crz_filename = None
+        self.Kx_table_values = None
+        self.Ky_table_values = None
+        self.Kz_table_values = None
+        self.Krx_table_values = None
+        self.Kry_table_values = None
+        self.Krz_table_values = None
 
-        self.Cx_basename = None
-        self.Cy_basename = None
-        self.Cz_basename = None
-        self.Crx_basename = None
-        self.Cry_basename = None
-        self.Crz_basename = None
+        self.Cx_table_name = None
+        self.Cy_table_name = None
+        self.Cz_table_name = None
+        self.Crx_table_name = None
+        self.Cry_table_name = None
+        self.Crz_table_name = None
 
-        self.flag_stiffness_parameters = False
-        self.flag_damping_parameters = False
+        self.Cx_table_path = None
+        self.Cy_table_path = None
+        self.Cz_table_path = None
+        self.Crx_table_path = None
+        self.Cry_table_path = None
+        self.Crz_table_path = None
+
+        self.Cx_table_values = None
+        self.Cy_table_values = None
+        self.Cz_table_values = None
+        self.Crx_table_values = None
+        self.Cry_table_values = None
+        self.Crz_table_values = None
 
     def _define_qt_variables(self):
 
+        # QCheckBox
+        self.checkBox_link_stiffness: QCheckBox
+        self.checkBox_link_dampings: QCheckBox
+
         # QFrame
-        self.selection_frame : QFrame
+        self.selection_frame: QFrame
 
         # QLineEdit
-        self.lineEdit_selection : QLineEdit
-        self.lineEdit_first_node_id : QLineEdit
-        self.lineEdit_last_node_id : QLineEdit
+        self.lineEdit_selection: QLineEdit
+        self.lineEdit_first_node_id: QLineEdit
+        self.lineEdit_last_node_id: QLineEdit
 
-        self.lineEdit_Kx : QLineEdit
-        self.lineEdit_Ky : QLineEdit
-        self.lineEdit_Kz : QLineEdit
-        self.lineEdit_Krx : QLineEdit
-        self.lineEdit_Kry : QLineEdit
-        self.lineEdit_Krz : QLineEdit
+        self.lineEdit_Kx: QLineEdit
+        self.lineEdit_Ky: QLineEdit
+        self.lineEdit_Kz: QLineEdit
+        self.lineEdit_Krx: QLineEdit
+        self.lineEdit_Kry: QLineEdit
+        self.lineEdit_Krz: QLineEdit
 
-        self.lineEdit_Cx : QLineEdit
-        self.lineEdit_Cy : QLineEdit
-        self.lineEdit_Cz : QLineEdit
-        self.lineEdit_Crx : QLineEdit
-        self.lineEdit_Cry : QLineEdit
-        self.lineEdit_Crz : QLineEdit
+        self.lineEdit_Cx: QLineEdit
+        self.lineEdit_Cy: QLineEdit
+        self.lineEdit_Cz: QLineEdit
+        self.lineEdit_Crx: QLineEdit
+        self.lineEdit_Cry: QLineEdit
+        self.lineEdit_Crz: QLineEdit
 
-        self.lineEdit_path_table_Kx : QLineEdit
-        self.lineEdit_path_table_Ky : QLineEdit
-        self.lineEdit_path_table_Kz : QLineEdit
-        self.lineEdit_path_table_Krx : QLineEdit
-        self.lineEdit_path_table_Kry : QLineEdit
-        self.lineEdit_path_table_Krz : QLineEdit
+        self.lineEdit_path_table_Kx: QLineEdit
+        self.lineEdit_path_table_Ky: QLineEdit
+        self.lineEdit_path_table_Kz: QLineEdit
+        self.lineEdit_path_table_Krx: QLineEdit
+        self.lineEdit_path_table_Kry: QLineEdit
+        self.lineEdit_path_table_Krz: QLineEdit
+
+        self._create_lists_of_lineEdits()
 
         # QPushButton
-        self.pushButton_load_Kx_table : QPushButton
-        self.pushButton_load_Ky_table : QPushButton
-        self.pushButton_load_Kz_table : QPushButton
-        self.pushButton_load_Krx_table : QPushButton
-        self.pushButton_load_Kry_table : QPushButton
-        self.pushButton_load_Krz_table : QPushButton 
+        self.pushButton_load_Kx_table: QPushButton
+        self.pushButton_load_Ky_table: QPushButton
+        self.pushButton_load_Kz_table: QPushButton
+        self.pushButton_load_Krx_table: QPushButton
+        self.pushButton_load_Kry_table: QPushButton
+        self.pushButton_load_Krz_table: QPushButton 
 
-        self.lineEdit_path_table_Cx : QLineEdit
-        self.lineEdit_path_table_Cy : QLineEdit
-        self.lineEdit_path_table_Cz : QLineEdit
-        self.lineEdit_path_table_Crx : QLineEdit
-        self.lineEdit_path_table_Cry : QLineEdit
-        self.lineEdit_path_table_Crz : QLineEdit
+        self.lineEdit_path_table_Cx: QLineEdit
+        self.lineEdit_path_table_Cy: QLineEdit
+        self.lineEdit_path_table_Cz: QLineEdit
+        self.lineEdit_path_table_Crx: QLineEdit
+        self.lineEdit_path_table_Cry: QLineEdit
+        self.lineEdit_path_table_Crz: QLineEdit
 
-        self.pushButton_load_Cx_table : QPushButton
-        self.pushButton_load_Cy_table : QPushButton
-        self.pushButton_load_Cz_table : QPushButton
-        self.pushButton_load_Crx_table : QPushButton
-        self.pushButton_load_Cry_table : QPushButton
-        self.pushButton_load_Crz_table : QPushButton
+        self.pushButton_load_Cx_table: QPushButton
+        self.pushButton_load_Cy_table: QPushButton
+        self.pushButton_load_Cz_table: QPushButton
+        self.pushButton_load_Crx_table: QPushButton
+        self.pushButton_load_Cry_table: QPushButton
+        self.pushButton_load_Crz_table: QPushButton
 
-        self.pushButton_confirm : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
 
         # QTabWidget
-        self.tabWidget_main : QTabWidget
-        self.tabWidget_inputs : QTabWidget
-        self.tabWidget_constant_values : QTabWidget
-        self.tabWidget_table_values : QTabWidget
+        self.tabWidget_main: QTabWidget
+        self.tabWidget_inputs: QTabWidget
+        self.tabWidget_remove: QTabWidget
+        self.tabWidget_constant_values: QTabWidget
+        self.tabWidget_table_values: QTabWidget
         
         # QTreeWidget
-        self.treeWidget_nodal_links_stiffness : QTreeWidget
-        self.treeWidget_nodal_links_damping : QTreeWidget
-
-    def _create_connections(self):
-        #
-        self.clickable(self.lineEdit_first_node_id).connect(self.lineEdit_first_node_clicked)
-        self.clickable(self.lineEdit_last_node_id).connect(self.lineEdit_last_node_clicked)
-        self.current_lineEdit = self.lineEdit_first_node_id
-        self._create_lists_of_lineEdits()
-        #
-        self.pushButton_confirm.clicked.connect(self.attribute_callback)
-        self.pushButton_remove.clicked.connect(self.remove_selected_elastic_link)
-        self.pushButton_reset.clicked.connect(self.reset_elastic_links)
-
-        self.pushButton_load_Cx_table.clicked.connect(self.load_Cx_table)
-        self.pushButton_load_Cy_table.clicked.connect(self.load_Cy_table)
-        self.pushButton_load_Cz_table.clicked.connect(self.load_Cz_table)
-        self.pushButton_load_Crx_table.clicked.connect(self.load_Crx_table)
-        self.pushButton_load_Cry_table.clicked.connect(self.load_Cry_table)
-        self.pushButton_load_Crz_table.clicked.connect(self.load_Crz_table)
-
-        self.pushButton_load_Kx_table.clicked.connect(self.load_Kx_table)
-        self.pushButton_load_Ky_table.clicked.connect(self.load_Ky_table)
-        self.pushButton_load_Kz_table.clicked.connect(self.load_Kz_table)
-        self.pushButton_load_Krx_table.clicked.connect(self.load_Krx_table)
-        self.pushButton_load_Kry_table.clicked.connect(self.load_Kry_table)
-        self.pushButton_load_Krz_table.clicked.connect(self.load_Krz_table)
-        #
-        self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
-        #
-        self.treeWidget_nodal_links_stiffness.itemClicked.connect(self.on_click_item_stiffness)
-        self.treeWidget_nodal_links_damping.itemClicked.connect(self.on_click_item_damping)
-        self.treeWidget_nodal_links_stiffness.itemDoubleClicked.connect(self.on_doubleclick_item_stiffness)
-        self.treeWidget_nodal_links_damping.itemDoubleClicked.connect(self.on_doubleclick_item_damping)
-        #
-        app().main_window.selection_changed.connect(self.selection_callback)
-
-    def selection_callback(self):
-
-        key = None
-        selected_nodes = app().main_window.list_selected_nodes()
-
-        if selected_nodes:
-
-            if len(selected_nodes) == 1:
-                self.current_lineEdit.setText(str(selected_nodes[0]))
-
-            elif len(selected_nodes) == 2:
-
-                first_node = min(selected_nodes)
-                last_node = max(selected_nodes)
-                key = f"{first_node}-{last_node}"
-
-                self.lineEdit_first_node_id.setText(str(first_node))
-                self.lineEdit_last_node_id.setText(str(last_node))
-
-        else:
-            return
-        
-        try:
-
-            self.reset_stiffness_input_fields()
-            self.reset_dampings_input_fields()
-            node = self.preprocessor.nodes[selected_nodes[0]]
-
-            #Elastic link stiffness
-            if node.there_are_elastic_nodal_link_stiffness:
-                if key in node.elastic_nodal_link_stiffness.keys():
-                    if node.loaded_table_for_elastic_link_stiffness:
-                        table_names = node.elastic_nodal_link_stiffness[key][1]
-                        self.tabWidget_inputs.setCurrentIndex(1)
-                        self.tabWidget_table_values.setCurrentIndex(0)
-                        for index, lineEdit_table in enumerate(self.lineEdits_table_values_stiffness):
-                            if table_names[index] is not None:
-                                table_name = get_new_path(self.elastic_links_files_folder_path, table_names[index])
-                                lineEdit_table.setText(table_name)
-
-                    else:
-
-                        elastic_link_stiffness = node.elastic_nodal_link_stiffness[key][1]
-                        self.tabWidget_inputs.setCurrentIndex(0)
-                        self.tabWidget_constant_values.setCurrentIndex(0)
-                        for index, lineEdit_constant in enumerate(self.lineEdits_constant_values_stiffness):
-                            value = elastic_link_stiffness[index]
-                            if value is not None:
-                                lineEdit_constant.setText(f"{value : .3e}")
-
-            #Elastic link dampings
-            if node.there_are_elastic_nodal_link_dampings:
-                if key in node.elastic_nodal_link_dampings.keys():
-                    if node.loaded_table_for_elastic_link_dampings:
-                        table_names = node.elastic_nodal_link_dampings[key][1]
-                        self.tabWidget_inputs.setCurrentIndex(1)
-                        self.tabWidget_table_values.setCurrentIndex(1)
-                        for index, lineEdit_table in enumerate(self.lineEdits_table_values_dampings):
-                            if table_names[index] is not None:
-                                table_name = get_new_path(self.elastic_links_files_folder_path, table_names[index])
-                                lineEdit_table.setText(table_name)
-
-                    else:
-
-                        elastic_link_dampings = node.elastic_nodal_link_dampings[key][1]
-                        self.tabWidget_inputs.setCurrentIndex(0)
-                        self.tabWidget_constant_values.setCurrentIndex(1)
-                        for index, lineEdit_constant in enumerate(self.lineEdits_constant_values_dampings):
-                            value = elastic_link_dampings[index]
-                            if value is not None:
-                                lineEdit_constant.setText(f"{value : .3e}")
-
-        except Exception as error_log:
-            title = "Error in 'update' function"
-            message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+        self.treeWidget_structural_stiffness_links: QTreeWidget
+        self.treeWidget_structural_damping_links: QTreeWidget
 
     def _create_lists_of_lineEdits(self):
 
@@ -314,13 +207,11 @@ class ElasticNodalLinksInput(QDialog):
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
         self.cache_tab = self.tabWidget_main.currentIndex()
         #
-        self.treeWidget_nodal_links_stiffness.setColumnWidth(0, 120)
-        self.treeWidget_nodal_links_stiffness.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_nodal_links_stiffness.headerItem().setTextAlignment(1, Qt.AlignCenter)
-        #
-        self.treeWidget_nodal_links_damping.setColumnWidth(0, 120)
-        self.treeWidget_nodal_links_damping.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_nodal_links_damping.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        for i, w in enumerate([120, 200]):
+            self.treeWidget_structural_stiffness_links.setColumnWidth(i, w)
+            self.treeWidget_structural_damping_links.setColumnWidth(i, w)
+            self.treeWidget_structural_stiffness_links.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_structural_damping_links.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def clickable(self, widget):
         class Filter(QObject):
@@ -343,6 +234,101 @@ class ElasticNodalLinksInput(QDialog):
     def lineEdit_last_node_clicked(self):
         self.current_lineEdit = self.lineEdit_last_node_id
 
+    def _create_connections(self):
+        #
+        self.clickable(self.lineEdit_first_node_id).connect(self.lineEdit_first_node_clicked)
+        self.clickable(self.lineEdit_last_node_id).connect(self.lineEdit_last_node_clicked)
+        self.current_lineEdit = self.lineEdit_first_node_id
+        #
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
+
+        self.pushButton_load_Cx_table.clicked.connect(self.load_Cx_table)
+        self.pushButton_load_Cy_table.clicked.connect(self.load_Cy_table)
+        self.pushButton_load_Cz_table.clicked.connect(self.load_Cz_table)
+        self.pushButton_load_Crx_table.clicked.connect(self.load_Crx_table)
+        self.pushButton_load_Cry_table.clicked.connect(self.load_Cry_table)
+        self.pushButton_load_Crz_table.clicked.connect(self.load_Crz_table)
+
+        self.pushButton_load_Kx_table.clicked.connect(self.load_Kx_table)
+        self.pushButton_load_Ky_table.clicked.connect(self.load_Ky_table)
+        self.pushButton_load_Kz_table.clicked.connect(self.load_Kz_table)
+        self.pushButton_load_Krx_table.clicked.connect(self.load_Krx_table)
+        self.pushButton_load_Kry_table.clicked.connect(self.load_Kry_table)
+        self.pushButton_load_Krz_table.clicked.connect(self.load_Krz_table)
+        #
+        self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
+        #
+        self.treeWidget_structural_stiffness_links.itemClicked.connect(self.on_click_item_stiffness)
+        self.treeWidget_structural_damping_links.itemClicked.connect(self.on_click_item_damping)
+        self.treeWidget_structural_stiffness_links.itemDoubleClicked.connect(self.on_double_click_item_stiffness)
+        self.treeWidget_structural_damping_links.itemDoubleClicked.connect(self.on_double_click_item_damping)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        selected_nodes = app().main_window.list_selected_nodes()
+
+        if selected_nodes:
+
+            self.reset_stiffness_input_fields()
+            self.reset_dampings_input_fields()
+
+            if len(selected_nodes) == 1:
+                self.current_lineEdit.setText(str(selected_nodes[0]))
+
+            elif len(selected_nodes) == 2:
+                first_node = min(selected_nodes)
+                last_node = max(selected_nodes)
+                sorted_nodes = [first_node, last_node]
+                self.lineEdit_first_node_id.setText(str(first_node))
+                self.lineEdit_last_node_id.setText(str(last_node))
+
+                for (property, *args), data in self.properties.nodal_properties.items():
+
+                    if property == "structural_stiffness_links":
+                        if sorted_nodes == args:
+                            if "table_paths" in data.keys():
+
+                                self.tabWidget_inputs.setCurrentIndex(1)
+                                self.tabWidget_table_values.setCurrentIndex(0)
+                                for i, table_path in data["table_paths"]:
+                                    if table_path is not None:
+                                        lineEdit = self.lineEdits_table_values_stiffness[i]
+                                        lineEdit.setText(table_path)
+
+                            else:
+
+                                self.tabWidget_inputs.setCurrentIndex(0)
+                                self.tabWidget_constant_values.setCurrentIndex(0)
+                                for i, value in data["values"]:
+                                    if value is not None:
+                                        lineEdit = self.lineEdits_constant_values_stiffness[i]
+                                        lineEdit.setText(f"{value : .3e}")
+
+                    if property == "structural_damping_links":
+                        if sorted_nodes == args:
+                            if "table_paths" in data.keys():
+
+                                self.tabWidget_inputs.setCurrentIndex(1)
+                                self.tabWidget_table_values.setCurrentIndex(1)
+                                for i, table_path in data["table_paths"]:
+                                    if table_path is not None:
+                                        lineEdit = self.lineEdits_table_values_dampings[i]
+                                        lineEdit.setText(table_path)
+
+                            else:
+
+                                self.tabWidget_inputs.setCurrentIndex(0)
+                                self.tabWidget_constant_values.setCurrentIndex(1)
+                                for i, value in data["values"]:
+                                    if value is not None:
+                                        lineEdit = self.lineEdits_constant_values_dampings[i]
+                                        lineEdit.setText(f"{value : .3e}")
+
     def tab_event_callback(self):
 
         self.pushButton_remove.setDisabled(True)
@@ -359,210 +345,241 @@ class ElasticNodalLinksInput(QDialog):
     def check_all_nodes(self):
 
         first_node = self.lineEdit_first_node_id.text()
-        self.stop, self.nodeID = self.before_run.check_selected_ids(first_node, "nodes", single_id=True)
-        if self.stop:
+        stop, node_id = self.before_run.check_selected_ids(first_node, "nodes", single_id=True)
+        if stop:
             return True
-        temp_nodeID_1 = self.nodeID
+        temp_node_id1 = node_id
         
         last_node = self.lineEdit_last_node_id.text()
-        self.stop, self.nodeID = self.before_run.check_selected_ids(last_node, "nodes", single_id=True)
-        if self.stop:
+        stop, node_id = self.before_run.check_selected_ids(last_node, "nodes", single_id=True)
+        if stop:
             return True           
-        temp_nodeID_2 = self.nodeID
+        temp_node_id2 = node_id
 
-        if temp_nodeID_1 == temp_nodeID_2:
-            title = "ERROR IN NODES SELECTION"
+        if temp_node_id1 == temp_node_id2:
+            title = "invalid pair of nodes selected"
             message = "The selected nodes must differ. Try to choose another pair of nodes."
             PrintMessageInput([window_title_1, title, message])
             return True
 
-        if temp_nodeID_2 > temp_nodeID_1:
-            self.nodeID_1 = temp_nodeID_1
-            self.nodeID_2 = temp_nodeID_2
+        if temp_node_id2 > temp_node_id1:
+            node_id1 = temp_node_id1
+            node_id2 = temp_node_id2
         else:
-            self.nodeID_2 = temp_nodeID_1
-            self.nodeID_1 = temp_nodeID_2
+            node_id2 = temp_node_id1
+            node_id1 = temp_node_id2
 
-        return False
-        
-    def check_input_parameters(self, lineEdit, label, _float=True):
-        title = "Invalid input"
-        value_string = lineEdit.text()
-        if value_string != "":
+        return False, (node_id1, node_id2)
+
+    def check_entries(self, lineEdit: QLineEdit, label: str):
+
+        stop = False
+        str_value = lineEdit.text()
+        if str_value != "":
             try:
-                if _float:
-                    value = float(value_string)
-                else:
-                    value = int(value_string) 
-                if value < 0:
-                    message = "You cannot input a negative value to the {}.".format(label)
-                    PrintMessageInput([window_title_1, title, message])
-                    return True
-                else:
-                    self.value = value
+                str_value = str_value.replace(",", ".")
+                value = float(str_value)
             except Exception:
-                message = "You have typed an invalid value to the {}.".format(label)
+                title = f"Invalid entry to the {label}"
+                message = f"Wrong input for real part of {label}."
                 PrintMessageInput([window_title_1, title, message])
-                return True
+                stop = True
+                return
         else:
-            self.value = None
-        return False
+            value = 0
 
-    def check_constant_inputs(self):
+        if value == 0:
+            return stop, None
+        else:
+            return stop, value
 
-        self.parameters_K = None
-        self.parameters_C = None
+    def check_constant_stiffness_links(self, node_ids: list):
 
-        if self.check_all_nodes():
+        stop, Kx = self.check_entries(self.lineEdit_Kx, "Kx")
+        if stop:
             return True
 
-        if self.check_input_parameters(self.lineEdit_Kx, 'Kx'):
+        stop, Ky = self.check_entries(self.lineEdit_Ky, "Ky")
+        if stop:
             return True
-        else:
-            Kx = self.value
+   
+        stop, Kz = self.check_entries(self.lineEdit_Kz, "Kz")
+        if stop:
+            return True
+ 
+        stop, Krx = self.check_entries(self.lineEdit_Krx, "Krx")
+        if stop:
+            return True
 
-        if self.check_input_parameters(self.lineEdit_Ky, 'Ky'):
+        stop, Kry = self.check_entries(self.lineEdit_Kry, "Kry")
+        if stop:
             return True
-        else:
-            Ky = self.value
+ 
+        stop, Krz = self.check_entries(self.lineEdit_Krz, "Krz")
+        if stop:
+            return True
 
-        if self.check_input_parameters(self.lineEdit_Kz, 'Kz'):
-            return True
-        else:
-            Kz = self.value
-
-        if self.check_input_parameters(self.lineEdit_Krx, 'Krx'):
-            return True
-        else:
-            Krx = self.value
-
-        if self.check_input_parameters(self.lineEdit_Kry, 'Kry'):
-            return True
-        else:
-            Kry = self.value
-
-        if self.check_input_parameters(self.lineEdit_Krz, 'Krz'):
-            return True
-        else:
-            Krz = self.value
+        values = [Kx, Ky, Kz, Krx, Kry, Krz]
         
-        if self.check_input_parameters(self.lineEdit_Cx, 'Cx'):
+        if values.count(None) != 6:
+
+            self.lumped_element_applied = True
+
+            real_values = [value if value is None else np.real(value) for value in values]
+            imag_values = [value if value is None else np.imag(value) for value in values]
+
+            coords = list()
+            for node_id in node_ids:
+                node = app().project.model.preprocessor.nodes[node_id]
+                coords.extend(list(np.round(node.coordinates, 5)))
+
+            data = {
+                    "coords" : coords,
+                    "values" : values,
+                    "real_values" : real_values,
+                    "imag_values" : imag_values
+                    }
+
+            self.properties._set_nodal_property("structural_stiffness_links", data, node_id)
+
+    def check_constant_dampings_links(self, node_ids: list):
+        
+        stop, Cx = self.check_entries(self.lineEdit_Cx, "Cx")
+        if stop:
             return True
-        else:
-            Cx = self.value
-
-        if self.check_input_parameters(self.lineEdit_Cy, 'Cy'):
+        stop, Cy = self.check_entries(self.lineEdit_Cy, "Cy")
+        if stop:
+            return True     
+        stop, Cz = self.check_entries(self.lineEdit_Cz, "Cz")
+        if stop:
+            return True       
+        stop, Crx = self.check_entries(self.lineEdit_Crx, "Crx")
+        if stop:
+            return True        
+        stop, Cry = self.check_entries(self.lineEdit_Cry, "Cry")
+        if stop:
+            return True        
+        stop, Crz = self.check_entries(self.lineEdit_Crz, "Crz")
+        if stop:
             return True
-        else:
-            Cy = self.value
 
-        if self.check_input_parameters(self.lineEdit_Cz, 'Cz'):
-            return True
-        else:
-            Cz = self.value
+        values = [Cx, Cy, Cz, Crx, Cry, Crz]
 
-        if self.check_input_parameters(self.lineEdit_Crx, 'Crx'):
-            return True
-        else:
-            Crx = self.value
+        if values.count(None) != 6:
 
-        if self.check_input_parameters(self.lineEdit_Cry, 'Cry'):
-            return True
-        else:
-            Cry = self.value
+            self.lumped_element_applied = True
 
-        if self.check_input_parameters(self.lineEdit_Crz, 'Crz'):
-            return True
-        else:
-            Crz = self.value
+            real_values = [value if value is None else np.real(value) for value in values]
+            imag_values = [value if value is None else np.imag(value) for value in values]
 
-        list_K = [Kx, Ky, Kz, Krx, Kry, Krz]
-        list_C = [Cx, Cy, Cz, Crx, Cry, Crz] 
-                
-        if list_K.count(None) != 6:
-            self.parameters_K = list_K
+            coords = list()
+            for node_id in node_ids:
+                node = app().project.model.preprocessor.nodes[node_id]
+                coords.extend(list(np.round(node.coordinates, 5)))
 
-        if list_C.count(None) != 6:
-            self.parameters_C = list_C
+            data = {
+                    "coords" : coords,
+                    "values" : values,
+                    "real_values" : real_values,
+                    "imag_values" : imag_values
+                    }
 
-        if list_K.count(None) == 6 and list_C.count(None) == 6:
-            title = 'Empty inputs for stiffness and damping'
-            message = "Please insert at least a stiffness or damping "
-            message += "value before confirming the attribution."
-            PrintMessageInput([window_title_1, title, message])
+            self.properties._set_nodal_property("structural_damping_links", data, node_ids)
 
     def attribute_callback(self):
 
+        stop, node_ids = self.check_all_nodes()
+        if stop:
+            return True
+
+        self.remove_conflicting_data(node_ids)
+
         if self.tabWidget_inputs.currentIndex() == 0:
-            self.constant_input_confirm()
+            self.check_constant_stiffness_links(node_ids)
+            self.check_constant_dampings_links(node_ids)
 
         elif self.tabWidget_inputs.currentIndex() == 1:
-            self.table_input_confirm()
+            self.check_tables_stiffiness_links(node_ids)
+            self.check_tables_dampings_links(node_ids)
 
-        app().main_window.update_plots()
-        self.close()
-
-    def constant_input_confirm(self):
-
-        if self.check_constant_inputs():
+        if not self.link_applied:
+            title = 'No table selected for stiffness or dampings links'
+            message = "Please, define at least one table of values to the stiffness or damping" 
+            message += "links to proceed with the structural link attribution."
+            PrintMessageInput([window_title_1, title, message])
             return
 
-        table_names = [None, None, None, None, None, None]
+        self.actions_to_finalize()
+        # self.close()
 
-        if self.parameters_K is not None:
-            self.remove_elastic_link_stiffness_table_files()
-            data = [self.parameters_K, table_names]
-            self.preprocessor.add_elastic_nodal_link(   self.nodeID_1, 
-                                                        self.nodeID_2, 
-                                                        data,
-                                                        _stiffness=True   )
+    def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
 
-        if self.parameters_C is not None:
-            self.remove_elastic_link_damping_table_files()
-            data = [self.parameters_C, table_names]
-            self.preprocessor.add_elastic_nodal_link(   self.nodeID_1, 
-                                                        self.nodeID_2, 
-                                                        data,
-                                                        _damping=True   )
+        title = "Error while loading table"
 
-    def load_table(self, lineEdit, _label, direct_load=False):
-        title = "Error reached while loading table"
         try:
             if direct_load:
-                self.path_imported_table = lineEdit.text()
-            else:
-                window_label = 'Choose a table to import the {} nodal load'.format(_label)
-                self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
+                path_imported_table = lineEdit.text()
 
-            if self.path_imported_table == "":
+            else:
+
+                last_path = app().main_window.config.get_last_folder_for("imported table folder")
+                if last_path is None:
+                    last_path = str(Path().home())
+
+                caption = f"Choose a table to import the {dof_label} nodal load"
+                path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
+                                                                                                caption, 
+                                                                                                last_path, 
+                                                                                                'Table File (*.csv; *.dat; *.txt)'
+                                                                                              )
+
+                if not check:
+                    return None, None
+
+            if path_imported_table == "":
                 return None, None
-            
-            self.imported_filename = os.path.basename(self.path_imported_table)
-            lineEdit.setText(self.path_imported_table)                        
-            imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
+
+            imported_filename = os.path.basename(path_imported_table)
+            lineEdit.setText(path_imported_table)         
+            imported_file = np.loadtxt(path_imported_table, delimiter=",")
         
             if imported_file.shape[1] < 3:
-                message = "The imported table has insufficient number of columns. The imported \n"
-                message += "data must have two columns of values."
+                message = "The imported table has insufficient number of columns. The spectrum "
+                message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([window_title_1, title, message])
                 lineEdit.setFocus()
                 return None, None
 
-            if imported_file.shape[1] >= 3:
-                self.imported_values = imported_file[:,1]
-                self.frequencies = imported_file[:,0]
-                self.f_min = self.frequencies[0]
-                self.f_max = self.frequencies[-1]
-                self.f_step = self.frequencies[1] - self.frequencies[0]
+            imported_values = imported_file[:,1] + 1j*imported_file[:,2]
 
-                if self.project.change_project_frequency_setup(self.imported_filename, list(self.frequencies)):
-                    self.stop = True
-                    return None, None
-                else:
-                    self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
-                    self.stop = False
+            self.frequencies = imported_file[:,0]
+            f_min = self.frequencies[0]
+            f_max = self.frequencies[-1]
+            f_step = self.frequencies[1] - self.frequencies[0] 
             
-                return self.imported_values, self.imported_filename
+            app().main_window.config.write_last_folder_path_in_file("imported table folder", path_imported_table)
+
+            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
+
+                self.lineEdit_reset(lineEdit)
+
+                title = "Project frequency setup cannot be modified"
+                message = f"The following imported table of values has a frequency setup\n"
+                message += "different from the others already imported ones. The current\n"
+                message += "project frequency setup is not going to be modified."
+                message += f"\n\n{imported_filename}"
+                PrintMessageInput([window_title_1, title, message])
+                return None, None
+
+            else:
+
+                frequency_setup = { "f_min" : f_min,
+                                    "f_max" : f_max,
+                                    "f_step" : f_step }
+
+                app().project.model.set_frequency_setup(frequency_setup)
+            
+            return imported_values, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
@@ -571,299 +588,219 @@ class ElasticNodalLinksInput(QDialog):
             return None, None
 
     def load_Kx_table(self):
-        self.Kx_table, self.Kx_filename = self.load_table(self.lineEdit_path_table_Kx, "Kx")
-        if self.stop:
-            self.stop = False
-            self.Kx_table, self.Kx_filename = None, None
+        self.Kx_table_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx")
+        if (self.Kx_table_values, self.Kx_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Kx)
 
     def load_Ky_table(self):
-        self.Ky_table, self.Ky_filename = self.load_table(self.lineEdit_path_table_Ky, "Ky")
-        if self.stop:
-            self.stop = False
-            self.Ky_table, self.Ky_filename = None, None
+        self.Ky_table_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky")
+        if (self.Ky_table_values, self.Ky_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Ky)
 
     def load_Kz_table(self):
-        self.Kz_table, self.Kz_filename = self.load_table(self.lineEdit_path_table_Kz, "Kz")
-        if self.stop:
-            self.stop = False
-            self.Kz_table, self.Kz_filename = None, None
+        self.Kz_table_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz")
+        if (self.Kz_table_values, self.Kz_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Kz)
 
     def load_Krx_table(self):
-        self.Krx_table, self.Krx_filename = self.load_table(self.lineEdit_path_table_Krx, "Krx")
-        if self.stop:
-            self.stop = False
-            self.Krx_table, self.Krx_filename = None, None
+        self.Krx_table_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx")
+        if (self.Krx_table_values, self.Krx_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Krx)
 
     def load_Kry_table(self):
-        self.Kry_table, self.Kry_filename = self.load_table(self.lineEdit_path_table_Kry, "Kry")
-        if self.stop:
-            self.stop = False
-            self.Kry_table, self.Kry_filename = None, None
+        self.Kry_table_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry")
+        if (self.Kry_table_values, self.Kry_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Kry)
 
     def load_Krz_table(self):
-        self.Krz_table, self.Krz_filename = self.load_table(self.lineEdit_path_table_Krz, "Krz")
-        if self.stop:
-            self.stop = False
-            self.Krz_table, self.Krz_filename = None, None
+        self.Krz_table_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz")
+        if (self.Krz_table_values, self.Krz_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Krz)
 
     def load_Cx_table(self):
-        self.Cx_table, self.Cx_filename = self.load_table(self.lineEdit_path_table_Cx, "Cx")
-        if self.stop:
-            self.stop = False
-            self.Cx_table, self.Cx_filename = None, None
+        self.Cx_table_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx")
+        if (self.Cx_table_values, self.Cx_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Cx)
 
     def load_Cy_table(self):
-        self.Cy_table, self.Cy_filename = self.load_table(self.lineEdit_path_table_Cy, "Cy")
-        if self.stop:
-            self.stop = False
-            self.Cy_table, self.Cy_filename = None, None
+        self.Cy_table_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy")
+        if (self.Cy_table_values, self.Cy_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Cy)
 
     def load_Cz_table(self):
-        self.Cz_table, self.Cz_filename = self.load_table(self.lineEdit_path_table_Cz, "Cz")
-        if self.stop:
-            self.stop = False
-            self.Cz_table, self.Cz_filename = None, None
+        self.Cz_table_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz")
+        if (self.Cz_table_values, self.Cz_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Cz)
 
     def load_Crx_table(self):
-        self.Crx_table, self.Crx_filename = self.load_table(self.lineEdit_path_table_Crx, "Crx")
-        if self.stop:
-            self.stop = False
-            self.Crx_table, self.Crx_filename = None, None
+        self.Crx_table_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx")
+        if (self.Crx_table_values, self.Crx_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Crx)
 
     def load_Cry_table(self):
-        self.Cry_table, self.Cry_filename = self.load_table(self.lineEdit_path_table_Cry, "Cry")
-        if self.stop:
-            self.stop = False
-            self.Cry_table, self.Cry_filename = None, None
+        self.Cry_table_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry")
+        if (self.Cry_table_values, self.Cry_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Cry)
 
     def load_Crz_table(self):
-        self.Crz_table, self.Crz_filename = self.load_table(self.lineEdit_path_table_Crz, "Crz")
-        if self.stop:
-            self.stop = False
-            self.Crz_table, self.Crz_filename = None, None
+        self.Crz_table_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz")
+        if (self.Crz_table_values, self.Crz_table_path).count(None) == 2:
             self.lineEdit_reset(self.lineEdit_path_table_Crz)
 
-    def lineEdit_reset(self, lineEdit):
+    def lineEdit_reset(self, lineEdit: QLineEdit):
         lineEdit.setText("")
         lineEdit.setFocus()
 
-    def save_tables_files(self, values, filename, _label, unit_label):
+    def save_tables_files(self, lumped_label: str, _label: str, node_id: int, values: np.ndarray):
+
+        table_name = f"{lumped_label}_{_label}_node_{node_id}"
 
         real_values = np.real(values)
-        data = np.array([self.frequencies, real_values]).T
-        self.project.create_folders_structural("elastic_links_files")
+        imag_values = np.imag(values)
+        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
 
-        if _label in ["Kx", "Ky", "Kz", "Krx", "Kry", "Krz"]:
-            header = f"OpenPulse - stiffness elastic link - imported table for {_label}  @ "
-            basename = f"elastic_link_stiffness_{_label}_linked_nodes_{self.nodeID_1}_{self.nodeID_2}.dat"
-            values_label = "Stiffness values"
+        self.properties.add_imported_tables("structural", table_name, data)
 
-        else:
-            header = f"OpenPulse - damping elastic link - imported table for {_label} @ "
-            basename = f"elastic_link_damping_{_label}_linked_nodes_{self.nodeID_1}_{self.nodeID_2}.dat"
-            values_label = "Damping values"
+        return table_name, data
+
+    def check_tables_stiffiness_links(self, node_ids: list):
+
+        if self.Kx_table_path is None:
+            self.Kx_table_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx", direct_load=True)
+
+        if self.Ky_table_path is None:
+            self.Ky_table_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky", direct_load=True)
+
+        if self.Kz_table_path is None:
+            self.Kz_table_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz", direct_load=True)
+
+        if self.Krx_table_path is None:
+            self.Krx_table_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx", direct_load=True)
+
+        if self.Kry_table_path is None:
+            self.Kry_table_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry", direct_load=True)
+
+        if self.Krz_table_path is None:
+            self.Krz_table_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz", direct_load=True)
+
+        for node_id in node_ids:
+
+            if self.Kx_table_name is not None:
+                self.Kx_table_name, self.Kx_array = self.save_tables_files("Kx", node_id, self.Kx_table_values)
+
+            if self.Ky_table_name is not None:
+                self.Ky_table_name, self.Ky_array = self.save_tables_files("Ky", node_id, self.Ky_table_values)
+
+            if self.Ky_table_name is not None:
+                self.Ky_table_name, self.Ky_array = self.save_tables_files("Ky", node_id, self.Ky_table_values)
+
+            if self.Krx_table_name is not None:
+                self.Krx_table_name, self.Krx_array = self.save_tables_files("Krx", node_id, self.Krx_table_values)
+
+            if self.Kry_table_name is not None:
+                self.Kry_table_name, self.Kry_array = self.save_tables_files("Kry", node_id, self.Kry_table_values)
+
+            if self.Krz_table_name is not None:
+                self.Krz_table_name, self.Krz_array = self.save_tables_files("Krz", node_id, self.Krz_table_values)
+
+            table_names = [ self.Kx_table_name, self.Ky_table_name, self.Kz_table_name, 
+                            self.Krx_table_name, self.Kry_table_name, self.Krz_table_name  ]
+
+            table_paths = [ self.Kx_table_path, self.Ky_table_path, self.Kz_table_path, 
+                            self.Krx_table_path, self.Kry_table_path, self.Krz_table_path ]
+
+            values = [  self.Kx_table_values, self.Ky_table_values, self.Kz_table_values, 
+                        self.Krx_table_values, self.Kry_table_values, self.Krz_table_values  ]
             
-        header += f"linked nodes {self.nodeID_1}-{self.nodeID_2}\n"
-        header += f"\nSource filename: {filename}\n"
-        header += f"\nFrequency [Hz], {values_label} [{unit_label}]"
-        # basename = filename + f"_{_label}_linked_nodes_{self.nodeID_1}_{self.nodeID_1}.dat"
-    
-        new_path_table = get_new_path(self.elastic_links_files_folder_path, basename)
-        np.savetxt(new_path_table, data, delimiter=",", header=header)
+            if (table_names).count(None) != 6:
+                
+                self.lumped_element_applied = True
 
-        return values, basename
+                coords = list()
+                for node_id in node_ids:
+                    node = app().project.model.preprocessor.nodes[node_id]
+                    coords.extend(list(np.round(node.coordinates, 5)))
 
-    def check_table_for_elastic_link_stiffness(self):
+                data = {
+                        "coords" : coords,
+                        "table_names" : table_names,
+                        "table_paths" : table_paths,
+                        "values" : values
+                        }
 
-        Kx = Ky = Kz = None
-        if self.lineEdit_path_table_Kx.text() != "":
-            if self.Kx_table is None:
-                if self.Kx_filename is None:
-                    self.Kx_table, self.Kx_filename = self.load_table(self.lineEdit_path_table_Kx, "Kx", direct_load=True)
-            if self.Kx_table is not None:
-                Kx, self.Kx_basename = self.save_tables_files(self.Kx_table, self.Kx_filename, "Kx", "N/m")
+                self.properties._set_nodal_property("structural_stiffness_links", data, node_id)
 
-        if self.lineEdit_path_table_Ky.text() != "":
-            if self.Ky_table is None:
-                if self.Ky_filename is None:
-                    self.Ky_table, self.Ky_filename = self.load_table(self.lineEdit_path_table_Ky, "Ky", direct_load=True)
-            if self.Ky_table is not None:
-                Ky, self.Ky_basename = self.save_tables_files(self.Ky_table, self.Ky_filename, "Ky", "N/m")
+    def check_tables_dampings_links(self, node_ids: list):
 
-        if self.lineEdit_path_table_Kz.text() != "":
-            if self.Kz_table is None:
-                if self.Kz_filename is None:
-                    self.Kz_table, self.Kz_filename = self.load_table(self.lineEdit_path_table_Kz, "Kz", direct_load=True)
-            if self.Kz_table is not None:
-                Kz, self.Kz_basename = self.save_tables_files(self.Kz_table, self.Kz_filename, "Kz", "N/m")
+        if self.Cx_table_path is None:
+            self.Cx_table_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx", direct_load=True)
 
-        Krx = Kry = Krz = None
-        if self.lineEdit_path_table_Krx.text() != "":
-            if self.Krx_table is None:
-                if self.Krx_filename is None:
-                    self.Krx_table, self.Krx_filename = self.load_table(self.lineEdit_path_table_Krx, "Krx", direct_load=True)
-            if self.Krx_table is not None:
-                Krx, self.Krx_basename = self.save_tables_files(self.Krx_table, self.Krx_filename, "Krx", "N.m/rad")
+        if self.Cy_table_path is None:
+            self.Cy_table_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy", direct_load=True)
 
-        if self.lineEdit_path_table_Kry.text() != "":
-            if self.Kry_table is None:
-                if self.Kry_filename is None:
-                    self.Kry_table, self.Kry_filename = self.load_table(self.lineEdit_path_table_Kry, "Kry", direct_load=True)
-            if self.Kry_table is not None:
-                Kry, self.Kry_basename = self.save_tables_files(self.Kry_table, self.Kry_filename, "Kry", "N.m/rad")
+        if self.Cz_table_path is None:
+            self.Cz_table_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz", direct_load=True)
 
-        if self.lineEdit_path_table_Krz.text() != "":
-            if self.Krz_table is None:
-                if self.Krz_filename is None:
-                    self.Krz_table, self.Krz_filename = self.load_table(self.lineEdit_path_table_Krz, "Krz", direct_load=True)
-            if self.Krz_table is not None:
-                Krz, self.Krz_basename = self.save_tables_files(self.Krz_table, self.Krz_filename, "Krz", "N.m/rad")
-        
-        stiffness_parameters = [Kx, Ky, Kz, Krx, Kry, Krz]
+        if self.Crx_table_path is None:
+            self.Crx_table_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx", direct_load=True)
 
-        if sum([0 if bc is None else 1 for bc in stiffness_parameters]) != 0:
-            self.flag_stiffness_parameters = True
-            self.K_basenames = [self.Kx_basename, self.Ky_basename, self.Kz_basename, 
-                                self.Krx_basename, self.Kry_basename, self.Krz_basename]
-            self.stiffness_parameters = stiffness_parameters
-            data = [stiffness_parameters, self.K_basenames]
+        if self.Cry_table_path is None:
+            self.Cry_table_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry", direct_load=True)
 
-            key = f"{self.nodeID_1}-{self.nodeID_2}"
-            for node_id in [self.nodeID_1, self.nodeID_2]:
-                node = self.preprocessor.nodes[node_id]
-                if node.loaded_table_for_elastic_link_stiffness:
-                    if key in node.elastic_nodal_link_stiffness.keys():
-                        list_table_names = node.elastic_nodal_link_stiffness[key][1]
-                        for basename in self.K_basenames:
-                            if basename in list_table_names:
-                                list_table_names.remove(basename)
-                        self.process_table_file_removal(list_table_names)
+        if self.Crz_table_path is None:
+            self.Crz_table_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz", direct_load=True)
 
-            self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, data, _stiffness=True)
-            return False
-        else:
-            return True
+        for node_id in node_ids:
 
-    def check_table_for_elastic_link_damping(self):
- 
-        Cx = Cy = Cz = None
-        if self.lineEdit_path_table_Cx.text() != "":
-            if self.Cx_table is None:
-                if self.Cx_filename is None:
-                    self.Cx_table, self.Cx_filename = self.load_table(self.lineEdit_path_table_Cx, "Cx", direct_load=True)
-            if self.Cx_table is not None:
-                Cx, self.Cx_basename = self.save_tables_files(self.Cx_table, self.Cx_filename, "Cx", "N.s/m")
-    
-        if self.lineEdit_path_table_Cy.text() != "":
-            if self.Cy_table is None:
-                if self.Cy_filename is None:
-                    self.Cy_table, self.Cy_filename = self.load_table(self.lineEdit_path_table_Cy, "Cy", direct_load=True)
-            if self.Cy_table is not None:
-                Cy, self.Cy_basename = self.save_tables_files(self.Cy_table, self.Cy_filename, "Cy", "N.s/m")
+            if self.Cx_table_name is not None:
+                self.Cx_table_name, self.Cx_array = self.save_tables_files("Cx", node_id, self.Cx_table_values)
 
-        if self.lineEdit_path_table_Cz.text() != "":
-            if self.Cz_table is None:
-                if self.Cz_filename is None:
-                    self.Cz_table, self.Cz_filename = self.load_table(self.lineEdit_path_table_Cz, "Cz", direct_load=True)
-            if self.Cz_table is not None:
-                Cz, self.Cz_basename = self.save_tables_files(self.Cz_table, self.Cz_filename, "Cz", "N.s/m")
+            if self.Cy_table_name is not None:
+                self.Cy_table_name, self.Cy_array = self.save_tables_files("Cy", node_id, self.Cy_table_values)
 
-        Crx = Cry = Crz = None
-        if self.lineEdit_path_table_Crx.text() != "":
-            if self.Crx_table is None:
-                if self.Crx_filename is None:
-                    self.Crx_table, self.Crx_filename = self.load_table(self.lineEdit_path_table_Crx, "Crx", direct_load=True)
-            if self.Crx_table is not None:
-                Crx, self.Crx_basename = self.save_tables_files(self.Crx_table, self.Crx_filename, "Crx", "N.m/rad/s")
+            if self.Cy_table_name is not None:
+                self.Cy_table_name, self.Cy_array = self.save_tables_files("Cy", node_id, self.Cy_table_values)
 
-        if self.lineEdit_path_table_Cry.text() != "":
-            if self.Cry_table is None:
-                if self.Cry_filename is None:
-                    self.Cry_table, self.Cry_filename = self.load_table(self.lineEdit_path_table_Cry, "Cry", direct_load=True)
-            if self.Cry_table is not None:
-                Cry, self.Cry_basename = self.save_tables_files(self.Cry_table, self.Cry_filename, "Cry", "N.m/rad/s")
+            if self.Crx_table_name is not None:
+                self.Crx_table_name, self.Crx_array = self.save_tables_files("Crx", node_id, self.Crx_table_values)
 
-        if self.lineEdit_path_table_Crz.text() != "":
-            if self.Crz_table is None:
-                if self.Crz_filename is None:
-                    self.Crz_table, self.Crz_filename = self.load_table(self.lineEdit_path_table_Crz, "Crz", direct_load=True)
-            if self.Crz_table is not None:
-                Crz, self.Crz_basename = self.save_tables_files(self.Crz_table, self.Crz_filename, "Crz", "N.m/rad/s")
-                    
-        damping_parameters = [Cx, Cy, Cz, Crx, Cry, Crz]
- 
-        if sum([0 if bc is None else 1 for bc in damping_parameters]):
+            if self.Cry_table_name is not None:
+                self.Cry_table_name, self.Cry_array = self.save_tables_files("Cry", node_id, self.Cry_table_values)
 
-            self.flag_damping_parameters = True
-            self.C_basenames = [self.Cx_basename, self.Cy_basename, self.Cz_basename, 
-                                self.Crx_basename, self.Cry_basename, self.Crz_basename]
-            self.damping_parameters = damping_parameters
-            data = [damping_parameters, self.C_basenames]
+            if self.Crz_table_name is not None:
+                self.Crz_table_name, self.Crz_array = self.save_tables_files("Crz", node_id, self.Crz_table_values)
+
+            table_names = [ self.Cx_table_name, self.Cy_table_name, self.Cz_table_name, 
+                            self.Crx_table_name, self.Cry_table_name, self.Crz_table_name  ]
+
+            table_paths = [ self.Cx_table_path, self.Cy_table_path, self.Cz_table_path, 
+                            self.Crx_table_path, self.Cry_table_path, self.Crz_table_path ]
+
+            values = [  self.Cx_table_values, self.Cy_table_values, self.Cz_table_values, 
+                        self.Crx_table_values, self.Cry_table_values, self.Crz_table_values  ]
             
-            key = f"{self.nodeID_1}-{self.nodeID_2}"
+            if (table_names).count(None) != 6:
+                
+                self.lumped_element_applied = True
 
-            for node_id in [self.nodeID_1, self.nodeID_2]:
-                node = self.preprocessor.nodes[node_id]
-                if node.loaded_table_for_elastic_link_dampings:
-                    if key in node.elastic_nodal_link_dampings.keys():
-                        list_table_names = node.elastic_nodal_link_dampings[key][1]
-                        for basename in self.C_basenames:
-                            if basename in list_table_names:
-                                list_table_names.remove(basename)
-                        self.process_table_file_removal(list_table_names)
+                coords = list()
+                for node_id in node_ids:
+                    node = app().project.model.preprocessor.nodes[node_id]
+                    coords.extend(list(np.round(node.coordinates, 5)))
 
-            self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, data, _damping=True)
-            return False
-        else:
-            return True
+                data = {
+                        "coords" : coords,
+                        "table_names" : table_names,
+                        "table_paths" : table_paths,
+                        "values" : values
+                        }
+
+                self.properties._set_nodal_property("structural_damping_links", data, node_id)
   
-    def table_input_confirm(self):
-
-        if self.check_all_nodes():
-            return True
-
-        self.check_table_for_elastic_link_stiffness()
-        self.check_table_for_elastic_link_damping()
-
-        if not (self.flag_stiffness_parameters or self.flag_damping_parameters):
-            title = 'NONE TABLE SELECTED FOR STIFFNESS OR DAMPING'
-            message = "Please, define at least a table of values to the stiffness or damping" 
-            message += "before confirming the elastic link attribution."
-            PrintMessageInput([window_title_1, title, message])
-            return
-
-    def remove_elastic_link_stiffness_table_files(self):
-        for node_id in [self.nodeID_1, self.nodeID_2]:
-            node = self.preprocessor.nodes[node_id]
-            if node.loaded_table_for_elastic_link_stiffness:
-                key = f"{self.nodeID_1}-{self.nodeID_2}"
-                if key in node.elastic_nodal_link_stiffness.keys():
-                    list_table_names = node.elastic_nodal_link_stiffness[key][1]
-                    self.process_table_file_removal(list_table_names)
-
-    def remove_elastic_link_damping_table_files(self):
-        for node_id in [self.nodeID_1, self.nodeID_2]:
-            node = self.preprocessor.nodes[node_id]
-            if node.loaded_table_for_elastic_link_dampings:
-                key = f"{self.nodeID_1}-{self.nodeID_2}"
-                if key in node.elastic_nodal_link_dampings.keys():
-                    list_table_names = node.elastic_nodal_link_dampings[key][1]
-                    self.process_table_file_removal(list_table_names)
-
-    def process_table_file_removal(self, list_table_names):
-        for table_name in list_table_names:
-            self.project.remove_structural_table_files_from_folder(table_name, folder_name="elastic_links_files")
+    def actions_to_finalize(self):
+        app().pulse_file.write_nodal_properties_in_file()
+        app().main_window.update_plots()
+        self.load_treeWidgets_info()
 
     def text_label(self, mask, load_labels):
 
@@ -884,118 +821,144 @@ class ElasticNodalLinksInput(QDialog):
             text = "[{}]".format(*labels)
         return text
 
-    def skip_treeWidget_row(self, treeWidget):
-        new = QTreeWidgetItem(["", "", ""])
-        new.setTextAlignment(0, Qt.AlignCenter)
-        new.setTextAlignment(1, Qt.AlignCenter)
-        new.setTextAlignment(2, Qt.AlignCenter)
-        treeWidget.addTopLevelItem(new)
-
     def load_elastic_links_stiffness_info(self):
 
-        self.treeWidget_nodal_links_stiffness.clear()
+        self.treeWidget_structural_stiffness_links.clear()
         stiffness_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])
-        self.pushButton_remove.setDisabled(True)
 
-        for key in self.preprocessor.nodes_with_elastic_link_stiffness.keys():
-            node_ids = [int(node) for node in key.split("-")]
-            mask, _ = self.preprocessor.nodes[node_ids[0]].elastic_nodal_link_stiffness[key]
-            new = QTreeWidgetItem([key, str(self.text_label(mask, stiffness_labels))])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_nodal_links_stiffness.addTopLevelItem(new)
+        for (_property, *args), data in self.properties.nodal_properties.items():
+            if _property == "structural_stiffness_links":
+
+                key = f"{args[0]}-{args[1]}"
+
+                k_mask = [False if bc is None else True for bc in data["values"]]
+                text = [key, str(self.text_label(k_mask, stiffness_labels))]
+            
+                item = QTreeWidgetItem(text)
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+
+                self.treeWidget_structural_stiffness_links.addTopLevelItem(item)
 
     def load_elastic_links_damping_info(self):
 
-        self.treeWidget_nodal_links_damping.clear()
+        self.treeWidget_structural_damping_links.clear()
         damping_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz']) 
-        self.pushButton_remove.setDisabled(True)
 
-        for key in self.preprocessor.nodes_with_elastic_link_dampings.keys():
-            node_ids = [int(node) for node in key.split("-")]
-            mask, _ = self.preprocessor.nodes[node_ids[0]].elastic_nodal_link_dampings[key]
-            new = QTreeWidgetItem([key, str(self.text_label(mask, damping_labels))])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_nodal_links_damping.addTopLevelItem(new)
+        for (_property, *args), data in self.properties.nodal_properties.items():
+            if _property == "structural_damping_links":
+
+                key = f"{args[0]}-{args[1]}"
+
+                k_mask = [False if bc is None else True for bc in data["values"]]
+                text = [key, str(self.text_label(k_mask, damping_labels))]
+            
+                item = QTreeWidgetItem(text)
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+
+                self.treeWidget_structural_damping_links.addTopLevelItem(item)
 
     def load_treeWidgets_info(self):
 
         self.load_elastic_links_stiffness_info()
         self.load_elastic_links_damping_info()
+
+        self.pushButton_remove.setDisabled(True)
         self.tabWidget_main.setTabVisible(1, False)
 
-        if self.preprocessor.nodes_with_elastic_link_stiffness:
-            self.tabWidget_main.setTabVisible(1, True)
+        self.checkBox_link_stiffness.setChecked(True)
+        self.checkBox_link_dampings.setChecked(True)
 
-        if self.preprocessor.nodes_with_elastic_link_dampings:
-            self.tabWidget_main.setTabVisible(1, True)
+        for (_property, *args) in self.properties.nodal_properties.keys():
+            if _property == "structural_stiffness_links":
+                self.tabWidget_main.setTabVisible(1, True)
+                self.tabWidget_remove.setTabVisible(0, True)
+                self.checkBox_link_stiffness.setChecked(True)
+                break
+
+        for (_property, *args) in self.properties.nodal_properties.keys():
+            if _property == "structural_damping_links":
+                self.tabWidget_main.setTabVisible(1, True)
+                self.tabWidget_remove.setTabVisible(1, True)
+                self.checkBox_link_dampings.setChecked(True)
+                break
 
     def on_click_item_stiffness(self, item):
-        self.current_selection = "stiffness"
-        self.pushButton_remove.setDisabled(False)
-        self.lineEdit_selection.setText(item.text(0))
+        key = item.text(0)
+        node_ids = [int(value) for value in key.split("-")]
+        link_data = self.properties._get_property("structural_stiffness_links", node_ids=node_ids)
+        if isinstance(link_data, dict):
+            self.lineEdit_first_node_id.setText(str(node_ids[0]))
+            self.lineEdit_last_node_id.setText(str(node_ids[0]))
+            self.pushButton_remove.setDisabled(False)
 
     def on_click_item_damping(self, item):
-        self.current_selection = "damping"
-        self.pushButton_remove.setDisabled(False)
-        self.lineEdit_selection.setText(item.text(0))
+        key = item.text(0)
+        node_ids = [int(value) for value in key.split("-")]
+        link_data = self.properties._get_property("structural_damping_links", node_ids=node_ids)
+        if isinstance(link_data, dict):
+            self.lineEdit_first_node_id.setText(str(node_ids[0]))
+            self.lineEdit_last_node_id.setText(str(node_ids[0]))
+            self.pushButton_remove.setDisabled(False)
 
-    def on_doubleclick_item_stiffness(self, item):
+    def on_double_click_item_stiffness(self, item):
         self.on_click_item_stiffness(item)
-        self.get_information()
 
-    def on_doubleclick_item_damping(self, item):
+    def on_double_click_item_damping(self, item):
         self.on_click_item_damping(item)
-        self.get_information()
 
-    def remove_selected_elastic_link(self):
+    def remove_conflicting_data(self, node_ids: int | list | tuple, selected_property = None):
+
+        if selected_property is None:
+            properties = ["structural_stiffness_links", "structural_damping_links"]
+
+        elif isinstance(selected_property, str):
+            properties = [selected_property]
+
+        for node_id in node_ids:
+            for _property in properties:
+                table_names = self.properties.get_nodal_related_table_names(_property, node_id)
+                self.properties._remove_nodal_property(_property, node_id)
+                self.process_table_file_removal(table_names)
+
+        app().pulse_file.write_nodal_properties_in_file()
+
+    def remove_table_files_from_nodes(self, node_ids : list):
+        for _property in ["structural_stiffness_links", "structural_damping_links"]:
+            table_names = self.properties.get_nodal_related_table_names(_property, node_ids)
+            self.process_table_file_removal(table_names)
+
+    def process_table_file_removal(self, table_names : list):
+        if table_names:
+            for table_name in table_names:
+                self.properties.remove_imported_tables("structural", table_name)
+            app().pulse_file.write_imported_table_data_in_file()
+
+    def remove_callback(self):
+
         if self.lineEdit_selection.text() != "":
-            selection = self.lineEdit_selection.text()
-            if self.current_selection == "stiffness":
-                self.remove_selected_link_stiffness(selection)
-            elif self.current_selection == "damping":
-                self.remove_selected_link_damping(selection)
 
-    def remove_selected_link_stiffness(self, selection, reset=False):
+            node_id1 = int(self.lineEdit_first_node_id.text())
+            node_id2 = int(self.lineEdit_last_node_id.text())
+            node_ids = [node_id1, node_id2]
 
-        str_ids = selection.split("-")
-        self.nodeID_1, self.nodeID_2 = [int(str_id) for str_id in str_ids]
-    
-        key_strings = ["connecting stiffness", "connecting torsional stiffness"]
+            if self.checkBox_link_stiffness.isChecked():
+                self.properties._remove_nodal_property("structural_stiffness_links", node_ids=node_ids)
+                self.remove_conflicting_data(node_ids, selected_property="structural_stiffness_links")
 
-        # remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
-        self.remove_elastic_link_stiffness_table_files()
-        self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, None, _stiffness=True)
+            if self.checkBox_link_dampings.isChecked():
+                self.properties._remove_nodal_property("structural_damping_links", node_ids=node_ids)
+                self.remove_conflicting_data(node_ids, selected_property="structural_damping_links")
 
-        if not reset:
-            self.load_elastic_links_stiffness_info()
-            app().main_window.update_plots()
-            self.lineEdit_selection.setText("")
+        self.actions_to_finalize()
 
-    def remove_selected_link_damping(self, selection, reset=False):
-
-        str_ids = selection.split("-")
-        self.nodeID_1, self.nodeID_2 = [int(str_id) for str_id in str_ids]
-
-        key_strings = ["connecting damping", "connecting torsional damping"]
-        message = None
-
-        # remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
-        self.remove_elastic_link_damping_table_files()
-        self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, None, _damping=True)
-
-        if not reset:
-            self.load_elastic_links_damping_info()
-            app().main_window.update_plots()
-            self.lineEdit_selection.setText("")
-
-    def reset_elastic_links(self):
-
+    def reset_callback(self):
+        
         self.hide()
 
-        title = "Resetting of elastic links"
-        message = "Would you like to remove all nodal elastic links from the structural model?"
+        title = "Resetting of structural links"
+        message = "Would you like to remove all structural links from the structural model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
@@ -1004,67 +967,23 @@ class ElasticNodalLinksInput(QDialog):
             return
 
         if read._continue:
+            
+            link_nodes = list()
+            for (_property, *args) in self.properties.nodal_properties.keys():
+                if _property in ["structural_stiffness_links", "structural_damping_links"]:
+                    link_nodes.append(args)
 
-            temp_dict_stiffness = self.preprocessor.nodes_with_elastic_link_stiffness.copy()
-            for key in temp_dict_stiffness.keys():
-                self.remove_selected_link_stiffness(key, reset=True)
+            for node_ids in link_nodes:
 
-            temp_dict_damping = self.preprocessor.nodes_with_elastic_link_dampings.copy()
-            for key in temp_dict_damping.keys():
-                self.remove_selected_link_damping(key, reset=True)
+                if self.checkBox_link_stiffness.isChecked():
+                    self.properties._remove_nodal_property("structural_stiffness_links", node_ids=node_ids)
+                    self.remove_conflicting_data(node_ids, selected_property="structural_stiffness_links")
 
-            self.close()
-            app().main_window.update_plots()
+                if self.checkBox_link_dampings.isChecked():
+                    self.properties._remove_nodal_property("structural_damping_links", node_ids=node_ids)
+                    self.remove_conflicting_data(node_ids, selected_property="structural_damping_links")
 
-    def get_information(self):
-        try:
-            if self.lineEdit_selection.text() != "":
-
-                key = self.lineEdit_selection.text()
-                node_ids = [int(node) for node in key.split("-")]
-
-                if self.current_selection == "stiffness":
-                    group_label = "Stiffness elastic link"
-                    labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])
-                    mask, values = self.preprocessor.nodes[node_ids[0]].elastic_nodal_link_stiffness[key]
-
-                elif self.current_selection == "damping":
-                    group_label = "Damping elastic link"
-                    header_labels = ["Nodes", "Damping elastic link"]
-                    labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz'])
-                    mask, values = self.preprocessor.nodes[node_ids[0]].elastic_nodal_link_damping[key]
-                else:
-                    return
-
-                header_labels = ["Nodes", self.text_label(mask, labels)]
-                # print(self.preprocessor.nodes[node_ids[0]].elastic_nodal_link_stiffness[key])
-
-                data = dict()
-                for node_id in node_ids:
-                    # filtered_values = [list(np.array(values)[mask])]
-                    # data[node_id] = [f"{value : .3e}" if isinstance(value, float) else str(value) for value in filtered_values]
-                    data[node_id] = [list(np.array(values)[mask])]
-
-                if len(data):
-
-                    self.setVisible(False)
-                    GetInformationOfGroup(  group_label = group_label,
-                                            selection_label = "Node ID:",
-                                            header_labels = header_labels,
-                                            column_widths = [80, 90],
-                                            data = data  )
-
-            else:
-                title = "Invalid selection"
-                message = "Please, select an elastic link in the list to get the information."
-                PrintMessageInput([window_title_2, title, message])
-
-        except Exception as error_log:
-            title = "Error while getting information of selected elastic link"
-            message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
-
-        self.setVisible(True)
+            self.actions_to_finalize()
 
     def reset_nodes_input_fields(self):
         self.lineEdit_selection.setText("")

@@ -12,27 +12,27 @@ pi_3_2 = 4.712388980384689
 
 def load_default_compressor_setup(crank_angle=0):
 
-    parameters = {  'bore diameter' : 0.780,
+    parameters = {  'bore_diameter' : 0.780,
                     'stroke' : 0.33,
-                    'connecting rod length' : 1.25,
-                    'rod diameter' : 0.135,
-                    'pressure ratio' : 1.90788804,
-                    'clearance (HE)' : 15.8,
-                    'clearance (CE)' : 18.39,
-                    'TDC crank angle 1' : crank_angle,
-                    'rotational speed' : 360,
+                    'connecting_rod_length' : 1.25,
+                    'rod_diameter' : 0.135,
+                    'pressure_ratio' : 1.90788804,
+                    'clearance_HE' : 15.8,
+                    'clearance_CE' : 18.39,
+                    'TDC_crank_angle_1' : crank_angle,
+                    'rotational_speed' : 360,
                     'capacity' : 100,
-                    'acting label' : 0,
-                    'pressure at suction' : 19.65,
-                    'pressure unit' : "bar",
-                    'temperature at suction' : 45,
-                    'temperature unit' : "°C",
-                    'isentropic exponent' : 1.400,
-                    'molar mass' : 2.01568  }
+                    'acting_label' : 0,
+                    'pressure_at_suction' : 19.65,
+                    'pressure_unit' : "bar",
+                    'temperature_at_suction' : 45,
+                    'temperature_unit' : "°C",
+                    'isentropic_exponent' : 1.400,
+                    'molar_mass' : 2.01568  }
 
     compressor = CompressorModel(parameters)
-    compressor.set_fluid_properties_and_update_state(   parameters['isentropic exponent'],
-                                                        parameters['molar mass']   )
+    compressor.set_fluid_properties_and_update_state(   parameters['isentropic_exponent'],
+                                                        parameters['molar_mass']   )
 
     compressor.number_of_cylinders = 1
 

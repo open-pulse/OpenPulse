@@ -65,16 +65,16 @@ class SetFluidCompositionInput(QDialog):
         self.isentropic_label = "CP/CV"     # isentropic expansion coefficient (ideal gas)
 
         self.map_properties = { "D" : "density",
-                                "CP" : "specific heat Cp",
-                                "CV" : "specific heat Cv",
-                                self.isentropic_label : "isentropic exponent",
-                                "W" : "speed of sound",
-                                "VIS" : "dynamic viscosity",
-                                "TCX" : "thermal conductivity",
-                                "PRANDTL" : "Prandtl number",
-                                "TD" : "thermal diffusivity",
-                                "KV" : "kinematic viscosity",
-                                "M" : "molar mass" }
+                                "CP" : "specific_heat_Cp",
+                                "CV" : "specific_heat_Cv",
+                                self.isentropic_label : "isentropic_exponent",
+                                "W" : "speed_of_sound",
+                                "VIS" : "dynamic_viscosity",
+                                "TCX" : "thermal_conductivity",
+                                "PRANDTL" : "Prandtl_number",
+                                "TD" : "thermal_diffusivity",
+                                "KV" : "kinematic_viscosity",
+                                "M" : "molar_mass" }
 
         self.selected_fluid = ""
         self.unit_temperature = "K"
@@ -166,9 +166,9 @@ class SetFluidCompositionInput(QDialog):
         self.connection_type_comp = self.compressor_info['connection type']
         self.connection_label = "discharge" if self.connection_type_comp else "suction"
         
-        self.T_suction = self.compressor_info[f'temperature (suction)']
-        self.P_suction = self.compressor_info[f'pressure (suction)']
-        self.p_ratio =  self.compressor_info['pressure ratio']
+        self.T_suction = self.compressor_info[f'temperature_suction']
+        self.P_suction = self.compressor_info[f'pressure_suction']
+        self.p_ratio =  self.compressor_info['pressure_ratio']
         self.P_discharge = self.p_ratio*self.P_suction
 
         if self.connection_label == "suction":
@@ -553,7 +553,7 @@ class SetFluidCompositionInput(QDialog):
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
-                self.fluid_properties["impedance"] = round(self.fluid_properties["density"]*self.fluid_properties["speed of sound"],6)
+                self.fluid_properties["impedance"] = round(self.fluid_properties["density"]*self.fluid_properties["speed_of_sound"],6)
                 self.fluid_setup = [fluids_string, molar_fractions]
                 
                 self.process_errors()
@@ -590,16 +590,16 @@ class SetFluidCompositionInput(QDialog):
 
     def actions_to_finalize(self):
         if self.compressor_info:
-            if self.compressor_info["connection type"] == 1:
+            if self.compressor_info["connection_type"] == 1:
                 title = "Fluid properties convergence"
                 message = "The following fluid properties were obtained after completing the iterative updating process:"
                 message += f"\n\nTemperature (discharge) = {round(self.fluid_properties['temperature'],4)} [K]"
-                message += f"\nIsentropic exponent = {round(self.fluid_properties['isentropic exponent'],6)} [-]"
+                message += f"\nIsentropic exponent = {round(self.fluid_properties['isentropic_exponent'],6)} [-]"
                 message += "\n\nReference fluid properties:"
-                message += f"\n\nTemperature (suction) = {self.compressor_info['temperature (suction)']} [K]"
-                message += f"\nPressure (suction) = {self.compressor_info['pressure (suction)']} [Pa]"
-                message += f"\nPressure (discharge) = {round(self.compressor_info['pressure (discharge)'],4)} [Pa]"
-                message += f"\nMolar mass = {round(self.fluid_properties['molar mass'],6)} [kg/mol]"   
+                message += f"\n\nTemperature (suction) = {self.compressor_info['temperature_suction']} [K]"
+                message += f"\nPressure (suction) = {self.compressor_info['pressure_suction']} [Pa]"
+                message += f"\nPressure (discharge) = {round(self.compressor_info['pressure_discharge'],4)} [Pa]"
+                message += f"\nMolar mass = {round(self.fluid_properties['molar_mass'],6)} [kg/mol]"   
                 PrintMessageInput([window_title_2, title, message])
 
     def check_temperature_value(self, lineEdit_temperature):

@@ -178,8 +178,8 @@ class NodalLoadsInput(QDialog):
 
                         values = data["values"]
         
-                        if "table paths" in data.keys():
-                            table_paths = data["table paths"]
+                        if "table_paths" in data.keys():
+                            table_paths = data["table_paths"]
                             self.tabWidget_nodal_loads.setCurrentIndex(1)
                             for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
                                 table_path = table_paths[index]
@@ -280,8 +280,8 @@ class NodalLoadsInput(QDialog):
                 data = {
                         "coords" : list(coords),
                         "values" : nodal_loads,
-                        "real values" : real_values,
-                        "imag values" : imag_values
+                        "real_values" : real_values,
+                        "imag_values" : imag_values
                         }
 
                 self.properties._set_nodal_property("nodal_loads", data, node_id)
@@ -489,10 +489,10 @@ class NodalLoadsInput(QDialog):
 
             data = {
                     "coords" : list(coords),
-                    "table names" : table_names,
-                    "table paths" : table_paths,
+                    "table_names" : table_names,
+                    "table_paths" : table_paths,
                     "values" : nodal_loads
-                     }
+                    }
 
             self.properties._set_nodal_property("nodal_loads", data, node_id)
 
