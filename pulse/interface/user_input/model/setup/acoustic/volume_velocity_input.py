@@ -204,7 +204,7 @@ class VolumeVelocityInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             self.lineEdit_real_value.setFocus()
 
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         real_values = [np.real(volume_velocity)]
         imag_values = [np.imag(volume_velocity)]
@@ -325,7 +325,7 @@ class VolumeVelocityInput(QDialog):
             self.lineEdit_selection_id.setFocus()
             return
 
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         if self.lineEdit_table_path != "":
 
@@ -390,7 +390,7 @@ class VolumeVelocityInput(QDialog):
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
 
-    def remove_conflictant_excitations(self, node_ids: int | list | tuple):
+    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]

@@ -784,7 +784,7 @@ class CompressorModelInput(QDialog):
                         "parameters" : self.parameters
                         }
 
-                self.remove_conflictant_excitations(self.suction_node_id)
+                self.remove_conflicting_excitations(self.suction_node_id)
 
                 if self.save_table_values(table_name, freq, in_flow_rate):
                     return
@@ -833,7 +833,7 @@ class CompressorModelInput(QDialog):
                     "parameters" : self.parameters
                     }
 
-            self.remove_conflictant_excitations(self.discharge_node_id)
+            self.remove_conflicting_excitations(self.discharge_node_id)
 
             if self.save_table_values(table_name, freq, out_flow_rate):
                 return
@@ -851,7 +851,7 @@ class CompressorModelInput(QDialog):
         if table_names:
             app().pulse_file.write_imported_table_data_in_file()
 
-    def remove_conflictant_excitations(self, node_id: int):
+    def remove_conflicting_excitations(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "compressor_excitation"]:
             table_names = self.properties.get_nodal_related_table_names(label, node_id)
             self.properties._remove_nodal_property(label, node_id)

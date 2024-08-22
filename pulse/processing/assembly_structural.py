@@ -266,15 +266,9 @@ class AssemblyStructural:
         i_indexes_M, j_indexes_M = list(), list()
         i_indexes_K, j_indexes_K = list(), list()
         i_indexes_C, j_indexes_C = list(), list()
-        
-        self.nodes_with_lumped_masses = list()
-        self.nodes_connected_to_springs = list()
-        self.nodes_connected_to_dampers = list()
 
         flag_Clump = False
 
-        # processing external elements by node
-        # for node in self.preprocessor.nodes.values():
         for key, data in self.model.properties.nodal_properties.items():
 
             if len(key) == 2:
@@ -295,21 +289,18 @@ class AssemblyStructural:
 
             # processing lumped masses
             if property == "lumped_masses":
-                self.nodes_with_lumped_masses.append(node)
                 list_Mdata.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
                 i_indexes_M.append(position)
                 j_indexes_M.append(position)
 
             # processing lumped stiffness
             if property == "lumped_stiffness":
-                self.nodes_connected_to_springs.append(node)
                 list_Kdata.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
                 i_indexes_K.append(position)
                 j_indexes_K.append(position)
 
             # processing lumped dampers
             if property == "lumped_dampers":
-                self.nodes_connected_to_dampers.append(node)
                 list_Cdata.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
                 i_indexes_C.append(position)
                 j_indexes_C.append(position)

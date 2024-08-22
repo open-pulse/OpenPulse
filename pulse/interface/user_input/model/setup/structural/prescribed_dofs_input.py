@@ -150,8 +150,9 @@ class PrescribedDofsInput(QDialog):
                                             self.lineEdit_path_table_rz ]
 
     def _config_widgets(self):
-        self.treeWidget_prescribed_dofs.setColumnWidth(0, 80)
-        # self.treeWidget_prescribed_dofs.setColumnWidth(1, 60)
+        for i, w in enumerate([80, 60]):
+            self.treeWidget_prescribed_dofs.setColumnWidth(i, w)
+            self.treeWidget_prescribed_dofs.headerItem().setTextAlignment(i, Qt.AlignCenter)
         #
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
@@ -296,7 +297,7 @@ class PrescribedDofsInput(QDialog):
 
         if prescribed_dofs.count(None) != 6:
 
-            self.remove_conflictant_excitations(node_ids)
+            self.remove_conflicting_excitations(node_ids)
 
             real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
             imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
@@ -486,7 +487,7 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_selection_id.setFocus()
             return
 
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         if self.ux_table_path is None:
             self.ux_table_values, self.ux_table_path = self.load_table(self.lineEdit_path_table_ux, "Ux", direct_load = True)
@@ -534,9 +535,6 @@ class PrescribedDofsInput(QDialog):
 
             prescribed_dofs = [ self.ux_table_values, self.uy_table_values, self.uz_table_values, 
                                 self.rx_table_values, self.ry_table_values, self.rz_table_values ]
-            
-            # array_data = [  self.ux_array, self.uy_array, self.uz_array, 
-            #                 self.rx_array, self.ry_array, self.rz_array  ]
 
             if basenames == self.list_Nones:
                 title = "Additional inputs required"
@@ -659,7 +657,7 @@ class PrescribedDofsInput(QDialog):
             PrintMessageInput([window_title, title, message])
             return
 
-    def remove_conflictant_excitations(self, node_ids: int | list | tuple):
+    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]

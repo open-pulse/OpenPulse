@@ -156,7 +156,7 @@ class NodalLoadsInput(QDialog):
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
-        self.tabWidget_nodal_loads.currentChanged.connect(self.tabWidget_selection_event)
+        self.tabWidget_nodal_loads.currentChanged.connect(self.tab_event_callback)
         #
         self.treeWidget_nodal_loads.itemClicked.connect(self.on_click_item)
         self.treeWidget_nodal_loads.itemDoubleClicked.connect(self.on_double_click_item)
@@ -193,8 +193,10 @@ class NodalLoadsInput(QDialog):
                                     lineEdit_imag.setText(str(np.imag(values[index])))
 
     def _config_widgets(self):
-        self.treeWidget_nodal_loads.setColumnWidth(0, 80)
-        # self.treeWidget_nodal_loads.setColumnWidth(1, 60)
+        for i, w in enumerate([80, 60]):
+            self.treeWidget_nodal_loads.setColumnWidth(i, w)
+            self.treeWidget_nodal_loads.headerItem().setTextAlignment(i, Qt.AlignCenter)
+        #
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
@@ -265,7 +267,7 @@ class NodalLoadsInput(QDialog):
         
         if nodal_loads.count(None) != 6:
 
-            self.remove_conflictant_excitations(node_ids)
+            self.remove_conflicting_excitations(node_ids)
 
             real_values = [value if value is None else np.real(value) for value in nodal_loads]
             imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
@@ -426,7 +428,7 @@ class NodalLoadsInput(QDialog):
             self.lineEdit_selection_id.setFocus()
             return
 
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         if self.fx_table_path is None:
             self.fx_table_values, self.fx_table_path = self.load_table(self.lineEdit_path_table_fx, "Fx", direct_load=True)
@@ -466,7 +468,7 @@ class NodalLoadsInput(QDialog):
             if self.mz_table_path is not None:
                 self.mz_table_name, self.mz_array = self.save_tables_files("Mz", node_id, self.mz_table_values)
 
-            basenames = [   self.fx_table_name, self.fy_table_name, self.fz_table_name, 
+            table_names = [   self.fx_table_name, self.fy_table_name, self.fz_table_name, 
                             self.mx_table_name, self.my_table_name, self.mz_table_name  ]
 
             table_paths = [ self.fx_table_path, self.fy_table_path, self.fz_table_path, 
@@ -474,11 +476,8 @@ class NodalLoadsInput(QDialog):
 
             nodal_loads = [ self.fx_table_values, self.fy_table_values, self.fz_table_values, 
                             self.mx_table_values, self.my_table_values, self.mz_table_values ]
-            
-            # array_data = [  self.fx_array, self.fy_array, self.fz_array, 
-            #                 self.mx_array, self.my_array, self.mz_array  ]
 
-            if basenames == self.list_Nones:
+            if (table_names).count(None) == 6:
                 title = "Additional inputs required"
                 message = "You must inform at least one nodal load "
                 message += "table path before confirming the input!"
@@ -488,14 +487,14 @@ class NodalLoadsInput(QDialog):
             node = app().project.model.preprocessor.nodes[node_id]
             coords = np.round(node.coordinates, 5)
 
-            bc_data = {
+            _data = {
                         "coords" : list(coords),
-                        "table names" : basenames,
+                        "table names" : table_names,
                         "table paths" : table_paths,
                         "values" : nodal_loads
-                       }
+                     }
 
-            self.properties._set_nodal_property("nodal_loads", bc_data, node_ids=node_id)
+            self.properties._set_nodal_property("nodal_loads", _data, node_ids=node_id)
 
         app().pulse_file.write_nodal_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
@@ -547,7 +546,7 @@ class NodalLoadsInput(QDialog):
                 self.tabWidget_nodal_loads.setTabVisible(2, True)
                 return
 
-    def tabWidget_selection_event(self):
+    def tab_event_callback(self):
         self.lineEdit_selection_id.setText("")
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_nodal_loads.currentIndex() == 2:
@@ -601,7 +600,7 @@ class NodalLoadsInput(QDialog):
 
         self.show()
 
-    def remove_conflictant_excitations(self, node_ids: int | list | tuple):
+    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]

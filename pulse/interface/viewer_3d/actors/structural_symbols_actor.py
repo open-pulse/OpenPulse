@@ -319,7 +319,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if property == "lumped masses":
+            if property == "lumped_masses":
 
                 pos = data["coords"]
                 values = data["values"]
@@ -355,7 +355,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if property == "lumped_springs":
+            if property == "lumped_stiffness":
 
                 x, y, z = data["coords"]
                 values = data["values"]
@@ -403,7 +403,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if property == "lumped_dampers":
+            if property == "lumped_dampings":
 
                 x, y, z = data["coords"]
                 values = data["values"]

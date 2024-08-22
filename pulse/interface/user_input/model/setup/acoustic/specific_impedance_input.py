@@ -394,7 +394,7 @@ class SpecificImpedanceInput(QDialog):
         self.lineEdit_selection_id.setText(item.text(0))
         # self.remove_callback()
 
-    def remove_conflictant_excitations(self, node_ids: int | list):
+    def remove_conflicting_excitations(self, node_ids: int | list):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]

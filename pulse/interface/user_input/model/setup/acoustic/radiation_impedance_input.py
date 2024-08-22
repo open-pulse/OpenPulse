@@ -137,7 +137,7 @@ class RadiationImpedanceInput(QDialog):
         if stop:
             return
         
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         impedance_type = self.comboBox_radiation_impedance_type.currentIndex()
 
@@ -174,7 +174,7 @@ class RadiationImpedanceInput(QDialog):
         self.lineEdit_selection_id.setText(item.text(0))
         # self.remove_bc_from_node()
 
-    def remove_conflictant_excitations(self, node_ids: int | list | tuple):
+    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]

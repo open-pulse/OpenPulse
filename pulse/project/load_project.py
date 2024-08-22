@@ -394,25 +394,25 @@ class LoadProject:
 
     def load_force_offsets(self, line_id: int, data: dict):
 
-        force_offset = None
+        # force_offset = None
         if "force_offset" in data.keys():
             force_offset = data["force_offset"]
 
-        self.preprocessor.set_structural_element_force_offset_by_lines(   
-                                                                        line_id, 
-                                                                        force_offset, 
-                                                                       )
+            self.preprocessor.set_structural_element_force_offset_by_lines(   
+                                                                            line_id, 
+                                                                            force_offset, 
+                                                                        )
 
     def load_wall_formulations(self, line_id: int, data: dict):
 
-        wall_formulation = None
+        # wall_formulation = None
         if "wall_formulation" in data.keys():
             wall_formulation = data["wall_formulation"]
 
-        self.preprocessor.set_structural_element_wall_formulation_by_lines(   
-                                                                            line_id, 
-                                                                            wall_formulation, 
-                                                                           )
+            self.preprocessor.set_structural_element_wall_formulation_by_lines(   
+                                                                                line_id, 
+                                                                                wall_formulation, 
+                                                                               )
 
     def load_beam_xaxis_rotations(self, line_id: int, data: dict):
 

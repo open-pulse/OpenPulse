@@ -205,9 +205,11 @@ class ProjectFileIO:
 
         try:
 
-            nodal_properties = app().project.model.properties
+            nodal_properties = app().project.model.properties.nodal_properties
+            data = normalize_mesh(nodal_properties)
+
             if nodal_properties:
-                self.filebox.write(self.nodal_properties_filename, nodal_properties)
+                self.filebox.write(self.nodal_properties_filename, data)
             else:
                 self.filebox.remove(self.nodal_properties_filename)
 
@@ -232,11 +234,11 @@ class ProjectFileIO:
 
         try:
 
-            properties = app().project.model.properties
-            element_properties = normalize_mesh(properties.element_properties)
+            element_properties = app().project.model.properties.element_properties
+            data = normalize_mesh(element_properties)
 
             if element_properties:
-                self.filebox.write(self.element_properties_filename, element_properties)
+                self.filebox.write(self.element_properties_filename, data)
             else:
                 self.filebox.remove(self.element_properties_filename)
 
@@ -261,8 +263,8 @@ class ProjectFileIO:
 
         try:
 
-            properties = app().project.model.properties
-            data = normalize_lines(properties.line_properties)
+            line_properties = app().project.model.properties.line_properties
+            data = normalize_lines(line_properties)
 
             self.filebox.write(self.line_properties_filename, data)
             app().main_window.project_data_modified = True
@@ -407,8 +409,16 @@ class ProjectFileIO:
 
         return results_data
 
-    def remove_model_properties_from_project_file(self):
-        self.filebox.remove(self.model_properties_filename)
+    def remove_nodal_properties_from_project_file(self):
+        self.filebox.remove(self.nodal_properties_filename)
+        app().main_window.project_data_modified = True
+
+    def remove_element_properties_from_project_file(self):
+        self.filebox.remove(self.element_properties_filename)
+        app().main_window.project_data_modified = True
+
+    def remove_line_properties_from_project_file(self):
+        self.filebox.remove(self.line_properties_filename)
         app().main_window.project_data_modified = True
 
     def remove_mesh_data_from_project_file(self):

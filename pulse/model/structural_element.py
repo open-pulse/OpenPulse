@@ -123,12 +123,13 @@ class StructuralElement:
         self.index = index
 
         self.element_type = kwargs.get('element_type', 'pipe_1')
-        # self.wall_formulation = kwargs.get('wall_formulation', 'thick_wall')
-        self.wall_formulation = kwargs.get('wall_formulation', None)
+        self.wall_formulation = kwargs.get('wall_formulation', 'thin_wall')
+
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
         self.cross_section_points = kwargs.get('cross_section_points', None)
         self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
+
         self.fluid = kwargs.get('fluid', None)
         self.adding_mass_effect = kwargs.get('adding_mass_effect', False)
         self.decoupling_matrix = kwargs.get('decoupling_matrix', decoupling_matrix)

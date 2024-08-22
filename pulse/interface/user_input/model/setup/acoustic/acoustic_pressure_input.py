@@ -205,7 +205,7 @@ class AcousticPressureInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             self.lineEdit_real_value.setFocus()
 
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         real_values = [np.real(acoustic_pressure)]
         imag_values = [np.imag(acoustic_pressure)]
@@ -329,7 +329,7 @@ class AcousticPressureInput(QDialog):
             self.lineEdit_selection_id.setFocus()
             return
 
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         if self.lineEdit_table_path != "":
 
@@ -393,7 +393,7 @@ class AcousticPressureInput(QDialog):
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
 
-    def remove_conflictant_excitations(self, node_ids: int | list):
+    def remove_conflicting_excitations(self, node_ids: int | list):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]

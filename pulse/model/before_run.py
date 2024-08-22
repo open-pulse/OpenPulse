@@ -274,16 +274,17 @@ class BeforeRun:
                     self.is_there_loads = True
                     return
 
-            for (property, *args), data in self.properties.nodal_properties.values():
-                if "values" in data["values"]:
-                    values = data["values"]
-                    if True in [True if isinstance(value, np.ndarray) else False for value in values]:
+            for (property, *args), data in self.properties.nodal_properties.items():
+                data: dict
+                if property == "prescribed_dofs":
+                    if "table names" in data.keys():
                         self.is_there_prescribed_dofs = True
-                        return
 
-                elif sum([complex(0) if value is None else value for value in values]) != complex(0):
-                    self.is_there_prescribed_dofs = True
-                    return
+                    elif "values" in data.keys():
+                        values = data["values"]
+                        if sum([complex(0) if value is None else value for value in values]) != complex(0):
+                            self.is_there_prescribed_dofs = True
+                            return
 
         if acoustic or coupled:
             for (property, *args) in self.properties.nodal_properties.keys():
