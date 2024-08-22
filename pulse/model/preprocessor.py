@@ -1327,12 +1327,7 @@ class Preprocessor:
                 if node in self.nodes_connected_to_dampers:
                     self.nodes_connected_to_dampers.remove(node)
 
-    def set_B2PX_rotation_decoupling(   
-                                        self, 
-                                        element_id: int, 
-                                        node_id: int, 
-                                        rotations_to_decouple = [False, False, False], 
-                                    ):
+    def set_B2P_rotation_decoupling(self, element_id: int, data: dict):
         """
         This method .
 
@@ -1352,6 +1347,10 @@ class Preprocessor:
         DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
         N = DOF_PER_NODE_STRUCTURAL
         mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
+
+        node_id = data["T-joint node"]
+        decoupled_rotations = data["decoupled rotations"]
+
 
         neighboor_elements = self.neighboor_elements_of_node(node_id)
         if len(neighboor_elements) < 3:
@@ -1373,10 +1372,10 @@ class Preprocessor:
         node = self.nodes[node_id]
         element = self.structural_elements[element_id]
         
-        if rotations_to_decouple.count(False) == 3:
+        if decoupled_rotations.count(False) == 3:
             mat_out = mat_ones
 
-        elif rotations_to_decouple.count(True) == 3:  
+        elif decoupled_rotations.count(True) == 3:  
             mat_out = mat_base
 
         elif node in [element.first_node]:
@@ -1385,7 +1384,7 @@ class Preprocessor:
             mat_base[:N,:N] = np.zeros((N,N), dtype=int)
             mat_base[:int(N/2), :int(N/2)] = temp
 
-            for index, value in enumerate(rotations_to_decouple):
+            for index, value in enumerate(decoupled_rotations):
                 if not value:
                     ij = index + int(N/2)
                     mat_base[:, [ij, ij+N]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
@@ -1398,7 +1397,7 @@ class Preprocessor:
             mat_base[N:,N:] = np.zeros((N,N), dtype=int)
             mat_base[N:int(3*N/2), N:int(3*N/2)] = temp
 
-            for index, value in enumerate(rotations_to_decouple):
+            for index, value in enumerate(decoupled_rotations):
                 if not value:
                     ij = index + int(3*N/2)
                     mat_base[:, [ij-N, ij]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
@@ -1406,7 +1405,7 @@ class Preprocessor:
             mat_out = mat_base
 
         element.decoupling_matrix = mat_out
-        element.decoupling_info = [element_id, node_id, rotations_to_decouple]
+        element.decoupling_info = [element_id, node_id, decoupled_rotations]
                 
         return mat_out  
 

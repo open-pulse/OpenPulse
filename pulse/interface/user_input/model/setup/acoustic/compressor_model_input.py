@@ -840,7 +840,7 @@ class CompressorModelInput(QDialog):
 
             self.properties._set_nodal_property("compressor_excitation", data, node_ids=self.discharge_node_id)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
         app().main_window.update_plots()
         self.close()
@@ -875,7 +875,7 @@ class CompressorModelInput(QDialog):
         self.remove_table_files_from_nodes(node_id)
 
         self.properties._remove_nodal_property("compressor_excitation", node_id)
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
 
         self.load_compressor_excitation_info()
         app().main_window.update_plots()
@@ -907,7 +907,7 @@ class CompressorModelInput(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("compressor_excitation")
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
 
             app().main_window.update_plots()
             self.close()

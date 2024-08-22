@@ -536,7 +536,7 @@ class FluidWidget(QWidget):
         for _line_id in lines_to_remove_fluid:
             self.model.properties._remove_line_property("fluid", line_id=_line_id)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_line_properties_in_file()
 
     def cell_clicked_callback(self, row, col):
         if row == COLOR_ROW:

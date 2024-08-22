@@ -627,9 +627,10 @@ class PerforatedPlateInput(QDialog):
                     self.perforated_plate.dimensionless_impedance_table_name = self.basename
                     # self.perforated_plate.dimensionless_impedance = self.imported_values
 
-            # self.project.set_perforated_plate_by_elements(element_ids, self.perforated_plate, section)
             self.preprocessor.set_perforated_plate_by_elements(element_ids, self.perforated_plate)
             self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(element_ids)
+
+            app().pulse_file.write_element_properties_in_file()
 
             if len(element_ids) > 20:
                 print(f"[Set Perforated Plate] - defined at {len(element_ids)} selected elements")
@@ -661,7 +662,7 @@ class PerforatedPlateInput(QDialog):
             for element_id in element_ids:
                 self.properties._remove_nodal_property("perforated_plate", element_id)
 
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_element_properties_in_file()
 
             self.lineEdit_element_id.setText("")
             self.pushButton_remove.setDisabled(True)
@@ -698,7 +699,7 @@ class PerforatedPlateInput(QDialog):
                 self.remove_table_files_from_elements(element_ids)
 
             self.properties._reset_element_property("perforated_plate")
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_element_properties_in_file()
             app().main_window.update_plots()
             self.close()
 

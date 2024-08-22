@@ -171,7 +171,7 @@ class SectionPlaneWidget(QDialog):
 
     def closeEvent(self, event):
         self.closed.emit()
-    
+
     def _sliders(self):
         return (
             self.relative_plane_position_x_slider,

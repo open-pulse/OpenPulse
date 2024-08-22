@@ -684,7 +684,7 @@
             </column>
             <column>
              <property name="text">
-              <string>External pressure</string>
+              <string>External pressure [Pa]</string>
              </property>
              <property name="textAlignment">
               <set>AlignCenter</set>
@@ -692,7 +692,7 @@
             </column>
             <column>
              <property name="text">
-              <string>Internal pressure</string>
+              <string>Internal pressure [Pa]</string>
              </property>
              <property name="textAlignment">
               <set>AlignCenter</set>

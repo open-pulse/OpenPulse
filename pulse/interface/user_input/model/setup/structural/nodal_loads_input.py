@@ -284,7 +284,7 @@ class NodalLoadsInput(QDialog):
 
                 self.properties._set_nodal_property("nodal_loads", bc_data, node_id)
 
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
             app().main_window.update_plots()
             self.close()
 
@@ -497,7 +497,7 @@ class NodalLoadsInput(QDialog):
 
             self.properties._set_nodal_property("nodal_loads", bc_data, node_ids=node_id)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
         app().main_window.update_plots()
         self.close()
@@ -613,7 +613,7 @@ class NodalLoadsInput(QDialog):
 
                 self.process_table_file_removal(table_names)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
 
     def remove_callback(self):
 
@@ -627,7 +627,7 @@ class NodalLoadsInput(QDialog):
             self.remove_table_files_from_nodes(node_ids[0])
             self.properties._remove_nodal_property("nodal_loads", node_ids[0])
 
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
             self.load_nodes_info()
             app().main_window.update_plots()
             # self.close()
@@ -656,7 +656,7 @@ class NodalLoadsInput(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("nodal_loads")
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
             app().main_window.update_plots()
             self.close()
 

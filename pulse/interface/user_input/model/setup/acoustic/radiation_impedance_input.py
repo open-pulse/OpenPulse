@@ -151,7 +151,7 @@ class RadiationImpedanceInput(QDialog):
 
             self.properties._set_nodal_property("radiation_impedance", prop_data, node_id)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
         app().main_window.update_plots()
         self.close()
 
@@ -186,7 +186,7 @@ class RadiationImpedanceInput(QDialog):
 
                 self.process_table_file_removal(table_names)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
 
     def remove_bc_from_node(self):
 
@@ -200,7 +200,7 @@ class RadiationImpedanceInput(QDialog):
             for node_id in node_ids:
                 self.properties._remove_nodal_property("radiation_impedance", node_id)
 
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
             self.load_nodes_info()
             app().main_window.update_plots()
             # self.close()
@@ -226,7 +226,7 @@ class RadiationImpedanceInput(QDialog):
                         node_ids.append(node_id)
 
                 self.properties._reset_nodal_property("radiation_impedance")
-                app().pulse_file.write_model_properties_in_file()
+                app().pulse_file.write_nodal_properties_in_file()
                 app().main_window.update_plots()
                 self.close()
 

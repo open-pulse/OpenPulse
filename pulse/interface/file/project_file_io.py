@@ -39,8 +39,11 @@ class ProjectFileIO:
         self.project_setup_filename = "project_setup.json"
         self.fluid_library_filename = "fluid_library.config"
         self.material_library_filename = "material_library.config"
-        self.model_properties_filename = "model_properties.json"
+
+        self.nodal_properties_filename = "nodal_properties.json"
+        self.element_properties_filename = "element_properties.json"
         self.line_properties_filename = "line_properties.json"
+
         self.mesh_data_filename = "mesh_data.hdf5"
         self.imported_table_data_filename = "imported_tables_data.hdf5"
         self.results_data_filename = "results_data.hdf5"
@@ -198,114 +201,68 @@ class ProjectFileIO:
 
         return inertia_load
 
-    def write_model_properties_in_file(self):
+    def write_nodal_properties_in_file(self):
 
         try:
 
-            def normalize(prop: dict):
-                """
-                Sadly json doesn't accepts tuple keys,
-                so we need to convert it to a string like:
-                "property id" = value
-                """
-                output = dict()
-                for (property, tag), data in prop.items():
+            nodal_properties = app().project.model.properties
+            if nodal_properties:
+                self.filebox.write(self.nodal_properties_filename, nodal_properties)
+            else:
+                self.filebox.remove(self.nodal_properties_filename)
 
-                    aux = dict()
-                    key = f"{property} {tag}"
-
-                    if property in ["fluid", "material"]:
-                        if isinstance(data, (Fluid, Material)):
-                            output[key] = data.identifier
-                    else:
-                        if isinstance(data, dict):
-                            for _key, _data in data.items():
-                                if _key in ["values", "data arrays"]:
-                                    continue
-                                aux[_key] = _data
-
-                    if aux:
-                        output[key] = aux
-
-                return output
-
-            properties = app().project.model.properties
-
-            data = dict(    element_properties = normalize(properties.element_properties),
-                            nodal_properties = normalize(properties.nodal_properties)    )
-
-            self.filebox.write(self.model_properties_filename, data)
             app().main_window.project_data_modified = True
 
         except Exception as error_log:
 
-            title = "Error while exporting model properties"
+            title = "Error while exporting the nodal properties"
             message = str(error_log)
             PrintMessageInput([window_title_1, title, message])
 
-    def read_model_properties_from_file(self):
+    def read_nodal_properties_from_file(self):
 
-        def denormalize(prop: dict):
+        data = self.filebox.read(self.nodal_properties_filename)
 
-            new_prop = dict()
-            for key, val in prop.items():
+        if data is None:
+            return dict()
+        
+        return denormalize_mesh(data)
+    
+    def write_element_properties_in_file(self):
 
-                if len(key.split()) == 2:
-                    p, id = key.split()
-                    p = p.strip()
-                    id = int(id)
-                    new_prop[p, id] = val
+        try:
 
-                elif len(key.split()) == 3:
-                    p, id_1, id_2 = key.split()
-                    id_1 = int(id_1)
-                    id_2 = int(id_2)
-                    new_prop[p, id_1, id_2] = val
+            properties = app().project.model.properties
+            element_properties = normalize_mesh(properties.element_properties)
 
-            return new_prop
+            if element_properties:
+                self.filebox.write(self.element_properties_filename, element_properties)
+            else:
+                self.filebox.remove(self.element_properties_filename)
 
-        data = self.filebox.read(self.model_properties_filename)
+            app().main_window.project_data_modified = True
+
+        except Exception as error_log:
+
+            title = "Error while exporting element properties"
+            message = str(error_log)
+            PrintMessageInput([window_title_1, title, message])
+
+    def read_element_properties_from_file(self):
+
+        data = self.filebox.read(self.element_properties_filename)
 
         if data is None:
             return dict()
 
-        model_properties = dict(
-                                nodal_properties = denormalize(data["nodal_properties"]),
-                                element_properties = denormalize(data["element_properties"]),
-                                )
-
-        return model_properties
+        return denormalize_mesh(data)
 
     def write_line_properties_in_file(self):
 
         try:
 
-            def normalize(prop: dict):
-                """
-                Sadly json doesn't accepts tuple keys,
-                so we need to convert it to a string like:
-                "property id" = value
-                """
-                output = dict()
-                for tag, data in prop.items():
-
-                    aux = dict()
-                    for property in data.keys():
-                        value = data[property]
-                        if property in ["fluid", "material",  "cross_section"]:
-                            # if isinstance(value, (Fluid, Material)):
-                            #     aux[property] = value.identifier
-                            continue
-                        else:
-                            aux[property] = value
-
-                    if aux:
-                        output[tag] = aux
-
-                return output
-
             properties = app().project.model.properties
-            data = normalize(properties.line_properties)
+            data = normalize_lines(properties.line_properties)
 
             self.filebox.write(self.line_properties_filename, data)
             app().main_window.project_data_modified = True
@@ -540,8 +497,79 @@ class ProjectFileIO:
         if thumbnail is not None:
             app().project.thumbnail = thumbnail
 
-    def load_model_properties_from_file(self):
-        return self.read_model_properties_from_file()
+    def load_nodal_properties_from_file(self):
+        return self.read_nodal_properties_from_file()
+
+    def load_element_properties_from_file(self):
+        return self.read_element_properties_from_file()
 
     def load_imported_table_data_from_file(self):
         return self.read_imported_table_data_from_file()
+    
+def denormalize_mesh(prop: dict):
+
+    new_prop = dict()
+    for key, val in prop.items():
+
+        if len(key.split()) == 2:
+            p, id = key.split()
+            p = p.strip()
+            id = int(id)
+            new_prop[p, id] = val
+
+        elif len(key.split()) == 3:
+            p, id_1, id_2 = key.split()
+            id_1 = int(id_1)
+            id_2 = int(id_2)
+            new_prop[p, id_1, id_2] = val
+
+    return new_prop
+
+def normalize_mesh(prop: dict):
+    """
+    Sadly json doesn't accepts tuple keys,
+    so we need to convert it to a string like:
+    "property id" = value
+    """
+    output = dict()
+    for (property, tag), data in prop.items():
+
+        aux = dict()
+        key = f"{property} {tag}"
+
+        if isinstance(data, dict):
+            for _key, _data in data.items():
+                if _key in ["values", "data arrays"]:
+                    continue
+                aux[_key] = _data
+
+        if aux:
+            output[key] = aux
+
+    return output
+
+
+def normalize_lines(prop: dict):
+    """
+    Sadly json doesn't accepts tuple keys,
+    so we need to convert it to a string like:
+    "property id" = value
+    """
+    output = dict()
+    for tag, data in prop.items():
+
+        aux = dict()
+        for property in data.keys():
+            value = data[property]
+            if property in ["fluid", "material",  "cross_section"]:
+                # if isinstance(value, (Fluid, Material)):
+                #     aux[property] = value.identifier
+                continue
+            else:
+                aux[property] = value
+
+        if aux:
+            output[tag] = aux
+
+    return output
+

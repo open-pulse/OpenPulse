@@ -34,7 +34,7 @@ if load_file==2:
     preprocessor.set_prescribed_dofs([1, 1200, 1325], np.zeros(6, dtype=complex))
     preprocessor.set_structural_loads([361], np.array([1,0,0,0,0,0], dtype=complex))
 
-mat_out = preprocessor.set_B2PX_rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
+mat_out = preprocessor.set_B2P_rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
 
 preprocessor.set_structural_element_type_by_element('all', element_type)
 preprocessor.set_material_by_element('all', steel)
