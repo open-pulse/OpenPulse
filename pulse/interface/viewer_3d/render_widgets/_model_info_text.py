@@ -29,68 +29,68 @@ def nodes_info_text() -> str:
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             values = data["values"]
-            loaded_table = "table_name" in data.keys()
+            loaded_table = "table_names" in data.keys()
             info_text += _structural_format("Prescribed dofs",  values, ("u", "r"), ("m", "rad"), loaded_table)
 
         key = ("nodal_loads", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             values = data["values"]
-            loaded_table = "table_name" in data.keys()
+            loaded_table = "table_names" in data.keys()
             info_text += _structural_format("Nodal loads", values, ("F", "M"), ("N", "N.m"), loaded_table)
 
         key = ("lumped_stiffness", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             values = data["values"]
-            loaded_table = "table_name" in data.keys()
+            loaded_table = "table_names" in data.keys()
             info_text += _structural_format("Lumped stiffness", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table)
 
         key = ("lumped_dampings", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             values = data["values"]
-            loaded_table = "table_name" in data.keys()
+            loaded_table = "table_names" in data.keys()
             info_text += _structural_format("Lumped dampings", values, ("c", "cr"), ("N.s/m", "N.m.s/rad"), loaded_table)        
 
         key = ("lumped_masses", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             values = data["values"]   
-            loaded_table = "table_name" in data.keys()
+            loaded_table = "table_names" in data.keys()
             info_text += _structural_format("Lumped masses", values, ("m", "J"), ("kg", "N.m²"), loaded_table)
 
         for (property, *args), data in properties.nodal_properties.items():
             if property == "stiffness_elastic_link" and node_id in args:
                 values = data["values"]
-                loaded_table = "table_name" in data.keys()
+                loaded_table = "table_names" in data.keys()
                 info_text += _structural_format(f"Stiffness elastic link: {key}", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table)
 
         for (property, *args), data in properties.nodal_properties.items():
             if property == "dampings_elastic_link" and node_id in args:
                 values = data["values"]
-                loaded_table = "table_name" in data.keys()
+                loaded_table = "table_names" in data.keys()
                 info_text += _structural_format(f"Damping elastic link: {key}", values, ("k", "kr"), ("N.s/m", "N.m.s/rad"), loaded_table)
 
         key = ("acoustic_pressure", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             ap_values = data["values"]   
-            loaded_table = "table_name" in data.keys()
+            loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Acoustic pressure", ap_values, "P", "Pa")
 
         key = ("volume_velocity", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             vv_values = data["values"]   
-            loaded_table = "table_name" in data.keys()
+            loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Volume velocity", vv_values, "Q", "m³/s")
 
         key = ("specific_impedance", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             si_values = data["values"]   
-            loaded_table = "table_name" in data.keys()
+            loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Specific impedance", si_values, "Zs", "kg/m².s")
 
         key = ("radiation_impedance", node_id)
