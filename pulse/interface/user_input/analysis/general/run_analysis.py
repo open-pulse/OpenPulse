@@ -9,8 +9,6 @@ from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.user_input.project.loading_window import LoadingWindow
-from pulse.postprocessing.save_data import SaveData
-from pulse.postprocessing.read_data import ReadData
 
 from time import time, sleep
 import logging

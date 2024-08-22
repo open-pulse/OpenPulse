@@ -38,6 +38,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.open_pulse_logo = None
         self.nodes_actor = None
+        self.points_actor = None
         self.lines_actor = None
         self.tubes_actor = None
         self.element_axes_actor = None
@@ -132,6 +133,7 @@ class MeshRenderWidget(CommonRenderWidget):
     def remove_actors(self):
         self.renderer.RemoveActor(self.lines_actor)
         self.renderer.RemoveActor(self.nodes_actor)
+        self.renderer.RemoveActor(self.points_actor)
         self.renderer.RemoveActor(self.tubes_actor)
         self.renderer.RemoveActor(self.element_axes_actor)
         self.renderer.RemoveActor(self.acoustic_nodes_symbols_actor)
@@ -140,6 +142,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.renderer.RemoveActor(self.structural_elements_symbols_actor)
 
         self.nodes_actor = None
+        self.points_actor = None
         self.lines_actor = None
         self.tubes_actor = None
         self.element_axes_actor = None

@@ -922,6 +922,9 @@ class Preprocessor:
             True if the cross section data have to be evaluated or updated. False otherwise.
             Default is False.
         """
+        if cross_section is None:
+            return
+
         if isinstance(cross_section, CrossSection) and update_cross_section:
             cross_section.update_properties()
 
@@ -948,9 +951,6 @@ class Preprocessor:
 
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
-
-        if cross_section is None:
-            return
     
         if update_section_points:
 
