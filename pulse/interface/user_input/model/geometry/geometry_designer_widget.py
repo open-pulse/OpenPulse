@@ -254,6 +254,7 @@ class GeometryDesignerWidget(QWidget):
 
     def options_changed_callback(self):
         self._update_permissions()
+        self.xyz_changed_callback()
         self.render_widget.update_plot(reset_camera=False)
 
     def define_material_callback(self):

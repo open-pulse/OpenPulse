@@ -15,7 +15,7 @@ from pulse.interface.viewer_3d.actors import (
     ElementLinesActor,
     NodesActor,
     PointsActor,
-    TubeActorGPU,
+    TubeActor,
 )
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
     AcousticElementsSymbolsActor,
@@ -33,8 +33,7 @@ from ._model_info_text import elements_info_text, lines_info_text, nodes_info_te
 class MeshRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.interactor_style = BoxSelectionInteractorStyle()
-        self.render_interactor.SetInteractorStyle(self.interactor_style)
+        self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
 
         self.open_pulse_logo = None
@@ -61,7 +60,6 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.create_axes()
         self.create_scale_bar()
-        self.create_logos()
         self.set_theme("light")
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
@@ -81,9 +79,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mesh_picker.update_bounds()
         project = app().project
 
-        self.nodes_actor = NodesActor(project)
-        self.lines_actor = ElementLinesActor(project)
-        self.tubes_actor = TubeActorGPU(project)
+        self.nodes_actor = NodesActor()
+        self.lines_actor = ElementLinesActor()
+        self.tubes_actor = TubeActor()
         self.points_actor = PointsActor()
         self.element_axes_actor = ElementAxesActor()
         self.element_axes_actor.VisibilityOff()

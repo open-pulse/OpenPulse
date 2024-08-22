@@ -1,9 +1,26 @@
+from time import time
+import os
+import sys
+import qdarktheme
+from functools import partial
+from pathlib import Path
+import logging
+from shutil import copy, rmtree
+from time import time
+
 from PyQt5.QtWidgets import QAbstractButton, QAction, QComboBox, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCloseEvent, QCursor
 from PyQt5 import uic
 
-from pulse import *
+from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
+from opps.io.pcf.pcf_exporter import PCFExporter
+from opps.io.pcf.pcf_handler import PCFHandler
+
+from molde.render_widgets import CommonRenderWidget
+
+from pulse import USER_PATH, TEMP_PROJECT_DIR, TEMP_PROJECT_FILE
+from pulse import app, UI_DIR, QSS_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
@@ -16,26 +33,14 @@ from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
 from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
-
 from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 
-from molde.render_widgets import CommonRenderWidget
-
-from opps.io.pcf.pcf_exporter import PCFExporter
-from opps.io.pcf.pcf_handler import PCFHandler
-
-import os
-import sys
-import qdarktheme
-from functools import partial
-from pathlib import Path
-from shutil import copy, rmtree
-from time import time
 
 class MainWindow(QMainWindow):
     theme_changed = pyqtSignal(str)
@@ -1018,35 +1023,58 @@ class MainWindow(QMainWindow):
         self.initial_project_action(obj.complete)
         return obj.complete
 
+    # def new_project(self):
+    #     # TODO: remove repeated
+    #     if not self.input_ui.new_project():
+    #         return 
+    #     self._update_recent_projects()
+    #     self.set_window_title(self.file._project_name)
+    #     self.use_structural_setup_workspace()
+    #     self.update_plots()
+
+
     def open_project(self, project_path: str | Path | None = None):
+        def tmp():
+            self.reset_geometry_render()
 
-        # t0 = time()
-        self.reset_geometry_render()
+            if project_path is not None:
+                app().config.add_recent_file(project_path)
+                app().config.write_last_folder_path_in_file("project folder", project_path)
+                copy(project_path, TEMP_PROJECT_FILE)
+                self.update_window_title(project_path)
 
-        if project_path is not None:
-            app().config.add_recent_file(project_path)
-            app().config.write_last_folder_path_in_file("project folder", project_path)
-            # self.project_menu.update_recents_menu()
-            copy(project_path, TEMP_PROJECT_FILE)
-            self.update_window_title(project_path)
+            self.project.load_project()
+            self.mesh_toolbar.update_mesh_attributes()
 
-        # self.pulse_file = ProjectFileIO(TEMP_PROJECT_FILE)
+            if project_path is not None:
+                path = Path(project_path)
+                self.project.name = path.stem
+                self.project.save_path = path
 
-        self.project.load_project()
-        self.mesh_toolbar.update_mesh_attributes()
+            self.initial_project_action(True)
+            self._update_recent_projects()
+            self.update_plots()
+            self.action_front_view_callback()
+        
+        LoadingWindow(tmp).run()
 
-        if project_path is not None:
-            path = Path(project_path)
-            self.project.name = path.stem
-            self.project.save_path = path
+    # def open_project(self, path=None):
+    #     # TODO: remove repeated
+    #     def tmp():
+    #         logging.info("Loading project [1/3]")
+    #         if not self.input_ui.load_project(path):
+    #             return False
 
-        # dt = time() - t0
-        # print(f"load_project: {dt} [s]")
+    #         logging.info("Update recent projects [2/3]")
+    #         self._update_recent_projects()
 
-        self.initial_project_action(True)
-        self._update_recent_projects()
-        self.update_plots()
-        self.action_front_view_callback()
+    #         logging.info("Configuring visualization [3/3]")
+    #         self.set_window_title(self.file._project_name)
+    #         self.update_plots()
+    #         self.action_front_view_callback()
+    #         return True
+
+    #     LoadingWindow(tmp).run()
 
     def open_project_dialog(self):
 
