@@ -63,7 +63,6 @@ class MainWindow(QMainWindow):
         self.ui_dir = UI_DIR
         self.config = app().config
         self.project = app().project
-        self.file = app().project.file
 
         self._initialize()
 
@@ -555,7 +554,6 @@ class MainWindow(QMainWindow):
         elif self.get_started():
             self.action_front_view_callback()
             # self._update_recent_projects()
-            # self.set_window_title(self.file.project_name)
 
         else:
             self.disable_workspace_selector_and_geometry_editor(True)
@@ -1120,11 +1118,11 @@ class MainWindow(QMainWindow):
 
             if obj.ignore_results_data:
                 pass
-                # self.file.remove_results_data_from_project_file()
+                # self.ulse_file.remove_results_data_from_project_file()
             
             if obj.ignore_mesh_data:
                 pass
-                # self.file.remove_mesh_data_from_project_file()
+                # self.pulse_file.remove_mesh_data_from_project_file()
 
             self.save_project_as(file_path)
 

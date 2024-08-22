@@ -204,7 +204,7 @@ class VolumeVelocityInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             self.lineEdit_real_value.setFocus()
 
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         real_values = [np.real(volume_velocity)]
         imag_values = [np.imag(volume_velocity)]
@@ -222,7 +222,7 @@ class VolumeVelocityInput(QDialog):
 
             self.properties._set_nodal_property("volume_velocity", prop_data, node_id)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
         app().main_window.update_plots()
         self.close()
 
@@ -325,7 +325,7 @@ class VolumeVelocityInput(QDialog):
             self.lineEdit_selection_id.setFocus()
             return
 
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         if self.lineEdit_table_path != "":
 
@@ -359,7 +359,7 @@ class VolumeVelocityInput(QDialog):
 
                 self.properties._set_nodal_property("volume_velocity", bc_data, node_ids=node_id)
 
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
             app().pulse_file.write_imported_table_data_in_file()
             # self.process_table_file_removal(table_names)
             app().main_window.update_plots()
@@ -390,7 +390,7 @@ class VolumeVelocityInput(QDialog):
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
 
-    def remove_conflictant_excitations(self, node_ids: int | list | tuple):
+    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
@@ -402,7 +402,7 @@ class VolumeVelocityInput(QDialog):
                 self.properties._remove_nodal_property(label, node_id)
                 self.process_table_file_removal(table_names)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
 
     def remove_callback(self):
 
@@ -416,7 +416,7 @@ class VolumeVelocityInput(QDialog):
             self.remove_table_files_from_nodes(node_ids[0])
             self.properties._remove_nodal_property("volume_velocity", node_ids[0])
 
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
             self.load_nodes_info()
             app().main_window.update_plots()
             # self.close()
@@ -445,7 +445,7 @@ class VolumeVelocityInput(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("volume_velocity")
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
             app().main_window.update_plots()
             self.close()
 

@@ -205,7 +205,7 @@ class AcousticPressureInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             self.lineEdit_real_value.setFocus()
 
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         real_values = [np.real(acoustic_pressure)]
         imag_values = [np.imag(acoustic_pressure)]
@@ -223,7 +223,7 @@ class AcousticPressureInput(QDialog):
 
             self.properties._set_nodal_property("acoustic_pressure", prop_data, node_id)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
         app().main_window.update_plots()
         self.close()
 
@@ -329,7 +329,7 @@ class AcousticPressureInput(QDialog):
             self.lineEdit_selection_id.setFocus()
             return
 
-        self.remove_conflictant_excitations(node_ids)
+        self.remove_conflicting_excitations(node_ids)
 
         if self.lineEdit_table_path != "":
 
@@ -363,7 +363,7 @@ class AcousticPressureInput(QDialog):
 
                 self.properties._set_nodal_property("acoustic_pressure", bc_data, node_ids=node_id)
 
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
             app().pulse_file.write_imported_table_data_in_file()
             app().main_window.update_plots()
 
@@ -393,7 +393,7 @@ class AcousticPressureInput(QDialog):
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
 
-    def remove_conflictant_excitations(self, node_ids: int | list):
+    def remove_conflicting_excitations(self, node_ids: int | list):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
@@ -405,7 +405,7 @@ class AcousticPressureInput(QDialog):
                 self.properties._remove_nodal_property(label, node_id)
                 self.process_table_file_removal(table_names)
 
-        # app().pulse_file.write_model_properties_in_file()
+        # app().pulse_file.write_nodal_properties_in_file()
 
     def remove_table_files_from_nodes(self, node_ids: list):
         table_names = self.properties.get_nodal_related_table_names("acoustic_pressure", node_ids)
@@ -429,7 +429,7 @@ class AcousticPressureInput(QDialog):
             self.remove_table_files_from_nodes(node_ids[0])
             self.properties._remove_nodal_property("acoustic_pressure", node_ids[0])
 
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
             self.load_nodes_info()
             app().main_window.update_plots()
             # self.close()
@@ -459,7 +459,7 @@ class AcousticPressureInput(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("acoustic_pressure")
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
             app().main_window.update_plots()
             self.close()
 

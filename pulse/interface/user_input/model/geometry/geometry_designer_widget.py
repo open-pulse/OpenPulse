@@ -38,7 +38,6 @@ class GeometryDesignerWidget(QWidget):
 
         self.project = app().project
         self.pipeline = self.project.pipeline
-        self.file = self.project.file
 
         self._define_qt_variables()
         self._create_layout()

@@ -4,11 +4,9 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import get_new_path
 
 import numpy as np
 
@@ -29,6 +27,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.project = app().project
         self.model = app().project.model
         self.preprocessor = app().project.model.preprocessor
+        self.properties = app().project.model.properties
 
         self._config_window()
         self._initialize()        
@@ -51,9 +50,6 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.before_run = self.project.get_pre_solution_model_checks()
         self.frequencies = self.model.frequencies
 
-        self.project_folder_path = self.project.file._project_path
-        self.node_acoustic_path = self.project.file._node_acoustic_path   
-        self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.node_id = app().main_window.list_selected_nodes()
 
         self.solution = self.project.get_acoustic_solution()
@@ -138,33 +134,10 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
     def get_existing_compressor_info(self):
         node = self.preprocessor.nodes[self.node_id[0]]
-        if len(node.compressor_excitation_table_names) > 0:
-            try:
-                self.table_name = node.compressor_excitation_table_names[0]
-                folder_table_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")
-                load_path_table = get_new_path(folder_table_path, self.table_name)
-                
-                if self.table_name != "":
-                    table_file = open(load_path_table, "r")
-                    lines = table_file.readlines()                
-                    stage_data = {}
-                    for str_line in lines[2:21]:
-                        if str_line[2:-1] != "":
-                            key_value = str_line[2:-1].split(" = ")
-                            try:
-                                stage_data[key_value[0]] = float(key_value[1])
-                            except:
-                                stage_data[key_value[0]] = key_value[1]
+        comp_data = self.properties._get_property("compressor_excitation", node_ids=self.node_id[0])
 
-                    data = np.loadtxt(load_path_table, delimiter=",")
-                    stage_data["frequencies"] = data[:,0]
-                    table_file.close()
-                    self.update_compressor_data(stage_data)
-
-            except Exception as log_error:
-                title = f"Error while loading compressor parameters"
-                message = str(log_error) 
-                PrintMessageInput([window_title_1, title, message])
+        if isinstance(comp_data, dict):
+            self.update_compressor_data(comp_data)
 
     def update_compressor_data(self, stage_data):
         self.suction_pressure = stage_data["pressure at suction"]

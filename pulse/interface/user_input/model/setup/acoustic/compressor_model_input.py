@@ -784,7 +784,7 @@ class CompressorModelInput(QDialog):
                         "parameters" : self.parameters
                         }
 
-                self.remove_conflictant_excitations(self.suction_node_id)
+                self.remove_conflicting_excitations(self.suction_node_id)
 
                 if self.save_table_values(table_name, freq, in_flow_rate):
                     return
@@ -833,14 +833,14 @@ class CompressorModelInput(QDialog):
                     "parameters" : self.parameters
                     }
 
-            self.remove_conflictant_excitations(self.discharge_node_id)
+            self.remove_conflicting_excitations(self.discharge_node_id)
 
             if self.save_table_values(table_name, freq, out_flow_rate):
                 return
 
             self.properties._set_nodal_property("compressor_excitation", data, node_ids=self.discharge_node_id)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
         app().main_window.update_plots()
         self.close()
@@ -851,7 +851,7 @@ class CompressorModelInput(QDialog):
         if table_names:
             app().pulse_file.write_imported_table_data_in_file()
 
-    def remove_conflictant_excitations(self, node_id: int):
+    def remove_conflicting_excitations(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "compressor_excitation"]:
             table_names = self.properties.get_nodal_related_table_names(label, node_id)
             self.properties._remove_nodal_property(label, node_id)
@@ -875,7 +875,7 @@ class CompressorModelInput(QDialog):
         self.remove_table_files_from_nodes(node_id)
 
         self.properties._remove_nodal_property("compressor_excitation", node_id)
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_nodal_properties_in_file()
 
         self.load_compressor_excitation_info()
         app().main_window.update_plots()
@@ -907,7 +907,7 @@ class CompressorModelInput(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("compressor_excitation")
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_nodal_properties_in_file()
 
             app().main_window.update_plots()
             self.close()

@@ -44,21 +44,6 @@ class Node:
         
         # Structural boundary conditions and external lumped elements
         
-        self.lumped_masses = [None, None, None, None, None, None]
-        self.lumped_masses_table_names = [None, None, None, None, None, None]
-        self.there_are_lumped_masses = False
-        self.loaded_table_for_lumped_masses = False
-
-        self.lumped_stiffness = [None, None, None, None, None, None]
-        self.lumped_stiffness_table_names = [None, None, None, None, None, None]
-        self.there_are_lumped_stiffness = False
-        self.loaded_table_for_lumped_stiffness = False
-
-        self.lumped_dampings = [None, None, None, None, None, None]
-        self.lumped_dampings_table_names = [None, None, None, None, None, None]
-        self.there_are_lumped_dampings = False
-        self.loaded_table_for_lumped_dampings = False
-        
         self.elastic_nodal_link_stiffness = dict()
         self.there_are_elastic_nodal_link_stiffness = False
         self.loaded_table_for_elastic_link_stiffness = False

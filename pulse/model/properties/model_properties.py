@@ -53,7 +53,7 @@ class ModelProperties:
     """
 
     def __init__(self, model=None):
-        # self.file = ProjectFile()
+
         self._reset_variables()
 
     def _reset_variables(self):

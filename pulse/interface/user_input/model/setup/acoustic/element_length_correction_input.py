@@ -64,7 +64,8 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.lineEdit_element_id : QLineEdit
 
         # QPushButton
-        self.pushButton_confirm : QPushButton
+        self.pushButton_attribute : QPushButton
+        self.pushButton_cancel : QPushButton
         self.pushButton_remove_by_group_confirm : QPushButton
         self.pushButton_reset_confirm : QPushButton
 
@@ -76,7 +77,8 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
     def _create_connections(self):
         #
-        self.pushButton_confirm.clicked.connect(self.element_correction_type_callback)
+        self.pushButton_attribute.clicked.connect(self.attribution_callback)
+        self.pushButton_cancel.clicked.connect(self.stop)
         self.pushButton_reset_confirm.clicked.connect(self.reset_callback)
         self.pushButton_remove_by_group_confirm.clicked.connect(self.remove_callback)
         #
@@ -114,7 +116,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.lineEdit_element_id.setDisabled(bool(index))
         self.label_selection.setText(text)
 
-    def element_correction_type_callback(self):
+    def attribution_callback(self):
 
         lineEdit = self.lineEdit_element_id.text()
         stop, element_ids = self.before_run.check_selected_ids(lineEdit, "elements")
@@ -145,7 +147,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
             self.preprocessor.set_length_correction_by_element(filt_element_ids, data)
             self.properties._set_element_property("element_length_correction", data, element_ids=_element_ids)
 
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_element_properties_in_file()
 
             if len(filt_element_ids) > 20:
                 print("Set acoustic element_length_correction due the {} at {} selected elements".format(self.type_label, len(filt_element_ids)))
@@ -257,7 +259,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
             for element_id in element_ids:
                 self.properties._remove_nodal_property("element_length_correction", element_id)
 
-            app().pulse_file.write_model_properties_in_file()
+            app().pulse_file.write_element_properties_in_file()
 
             self.lineEdit_element_id.setText("")
             self.pushButton_remove_by_group_confirm.setDisabled(True)
@@ -289,7 +291,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                 self.preprocessor.set_length_correction_by_element(element_ids, None)
 
                 self.properties._reset_element_property("element_length_correction")
-                app().pulse_file.write_model_properties_in_file()
+                app().pulse_file.write_element_properties_in_file()
                 app().main_window.update_plots()
                 self.close()
 
@@ -338,9 +340,9 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.element_correction_type_callback()
+            self.attribute_callback()
         elif event.key() == Qt.Key_Delete:
-            self.remove_element_length_correction_by_group()
+            self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

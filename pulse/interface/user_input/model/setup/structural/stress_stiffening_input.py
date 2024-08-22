@@ -94,9 +94,9 @@ class StressStiffeningInput(QDialog):
         #
         self.pushButton_remove.setDisabled(True)
         #
-        self.treeWidget_stress_stiffening.setColumnWidth(0, 100)
-        self.treeWidget_stress_stiffening.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_stress_stiffening.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        for i, w in enumerate([100, 130, 140]):
+            self.treeWidget_stress_stiffening.setColumnWidth(i, w)
+            self.treeWidget_stress_stiffening.headerItem().setTextAlignment(i, Qt.AlignCenter)
         #
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
@@ -161,7 +161,7 @@ class StressStiffeningInput(QDialog):
         self.on_click_item(item)
 
     def check_inputs(self, lineEdit: QLineEdit, label: str, only_positive=True, zero_included=False):
-        title = "Input cross-section error"
+        title = "Ivalid entry"
         if lineEdit.text() != "":
             try:
                 out = float(lineEdit.text())
@@ -180,7 +180,6 @@ class StressStiffeningInput(QDialog):
                             return True, None
 
             except Exception as log_error:
-                title = "Input cross-section error"
                 message = f"Wrong input for {label}.\n\n"
                 message += str(log_error)
                 PrintMessageInput([window_title_1, title, message])
@@ -189,8 +188,7 @@ class StressStiffeningInput(QDialog):
         else:
             if zero_included:
                 return False, float(0)
-            else: 
-                title = "INPUT CROSS-SECTION ERROR"
+            else:
                 message = f"Insert some value at the {label} input field."
                 PrintMessageInput([window_title_1, title, message])
                 return True, None
@@ -211,7 +209,7 @@ class StressStiffeningInput(QDialog):
         if stop:
             return
         
-        if external_pressure == 0 and internal_pressure == 0:
+        if (external_pressure + internal_pressure) == 0:
             title = "Empty entries at the input pressure fields"
             message = f"You should to insert a value different from zero at the external or internal "
             message += "pressure field inputs to continue."
@@ -229,13 +227,23 @@ class StressStiffeningInput(QDialog):
             lineEdit = self.lineEdit_selected_id.text()
             stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
             if stop:
-                return True                 
+                return True
 
-        self.preprocessor.set_stress_stiffening_by_lines(line_ids, parameters)
-        self.properties._set_line_cross_section_property(line_ids, parameters)
+        filtered_selection = list()
+        for line_id in line_ids:
+            element_type = self.properties._get_property("structural_element_type", line_id=line_id)
+            if element_type == "pipe_1":
+                filtered_selection.append(line_id)
 
-        self.actions_to_finalize()
-        self.complete = True
+        if filtered_selection:
+
+            app().main_window.set_selection(lines=filtered_selection)
+
+            self.preprocessor.set_stress_stiffening_by_lines(filtered_selection, parameters)
+            self.properties._set_line_property("stress_stiffening", parameters, filtered_selection)
+
+            self.actions_to_finalize()
+            self.complete = True
 
     def remove_callback(self):
         if self.lineEdit_selected_id.text() != "":
@@ -300,9 +308,10 @@ class StressStiffeningInput(QDialog):
                 ext_pressure = prop_data["external_pressure"]
                 int_pressure = prop_data["internal_pressure"]
 
-                item = QTreeWidgetItem([str(line_id) , str(ext_pressure), str(int_pressure)])
-                item.setTextAlignment(0, Qt.AlignCenter)
-                item.setTextAlignment(1, Qt.AlignCenter)
+                item = QTreeWidgetItem([str(line_id) ,f"{ext_pressure : .4e}", f"{int_pressure : .4e}"])
+                for i in range(3):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+
                 self.treeWidget_stress_stiffening.addTopLevelItem(item)
 
         self.tabs_visibility()

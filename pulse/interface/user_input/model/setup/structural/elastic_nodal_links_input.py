@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import get_openpulse_icon
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
@@ -50,11 +49,6 @@ class ElasticNodalLinksInput(QDialog):
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.nodes = self.preprocessor.nodes
-
-        self.structural_bc_info_path = self.project.file._node_structural_path
-        # self.imported_data_path = project.file._imported_data_folder_path 
-        self.structural_folder_path = self.project.file._structural_imported_data_folder_path
-        self.elastic_links_files_folder_path = get_new_path(self.structural_folder_path, "elastic_links_files")
         
         self.userPath = os.path.expanduser('~')       
         self.stop = False
@@ -181,7 +175,7 @@ class ElasticNodalLinksInput(QDialog):
         self.current_lineEdit = self.lineEdit_first_node_id
         self._create_lists_of_lineEdits()
         #
-        self.pushButton_confirm.clicked.connect(self.add_elastic_link)
+        self.pushButton_confirm.clicked.connect(self.attribute_callback)
         self.pushButton_remove.clicked.connect(self.remove_selected_elastic_link)
         self.pushButton_reset.clicked.connect(self.reset_elastic_links)
 
@@ -497,7 +491,7 @@ class ElasticNodalLinksInput(QDialog):
             message += "value before confirming the attribution."
             PrintMessageInput([window_title_1, title, message])
 
-    def add_elastic_link(self):
+    def attribute_callback(self):
 
         if self.tabWidget_inputs.currentIndex() == 0:
             self.constant_input_confirm()
@@ -971,7 +965,6 @@ class ElasticNodalLinksInput(QDialog):
         key_strings = ["connecting stiffness", "connecting torsional stiffness"]
 
         # remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
-        self.project.file.filter_bc_data_from_dat_file([selection], key_strings, self.structural_bc_info_path)
         self.remove_elastic_link_stiffness_table_files()
         self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, None, _stiffness=True)
 
@@ -989,7 +982,6 @@ class ElasticNodalLinksInput(QDialog):
         message = None
 
         # remove_bc_from_file([selection], self.structural_bc_info_path, key_strings, message, equals_keys=True)
-        self.project.file.filter_bc_data_from_dat_file([selection], key_strings, self.structural_bc_info_path)
         self.remove_elastic_link_damping_table_files()
         self.preprocessor.add_elastic_nodal_link(self.nodeID_1, self.nodeID_2, None, _damping=True)
 
@@ -1093,58 +1085,10 @@ class ElasticNodalLinksInput(QDialog):
             
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.add_elastic_link()
+            self.attribute_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
-        return super().closeEvent(a0)           
-
-    # def remove_table_files(self, values):          
-    #     for value in values:
-    #         if value != 'None' and ".dat" in value:
-    #             self.path_of_selected_table = get_new_path(self.elastic_links_tables_folder_path, value)
-    #             # self.get_path_of_selected_table(value)
-    #             try:
-    #                 os.remove(self.path_of_selected_table)
-    #             except:
-    #                 pass
-
-    # def remove_elastic_link_stiffness_from_file(self, section_key):
-
-    #     path = self.project.file._node_structural_path
-    #     config = configparser.ConfigParser()
-    #     config.read(path)
-
-    #     keys = list(config[section_key].keys())
-    #     if "connecting stiffness" in keys and "connecting torsional stiffness" in keys:
-    #         values_stiffness = config[section_key]["connecting stiffness"][1:-1].split(",")
-    #         self.remove_table_files(values_stiffness)
-    #         values_torsional_stiffness = config[section_key]["connecting torsional stiffness"][1:-1].split(",")
-    #         self.remove_table_files(values_torsional_stiffness)
-    #         config.remove_option(section=section_key, option="connecting stiffness")
-    #         config.remove_option(section=section_key, option="connecting torsional stiffness")
-    #         if len(list(config[section_key].keys())) == 0:
-    #             config.remove_section(section=section_key)
-    #     with open(path, 'w') as config_file:
-    #         config.write(config_file)
-
-    # def remove_elastic_link_damping_from_file(self, section_key):
-
-    #     path = self.project.file._node_structural_path
-    #     config = configparser.ConfigParser()
-    #     config.read(path)        
-
-    #     keys = list(config[section_key].keys())
-    #     if "connecting damping" in keys and "connecting torsional damping" in keys:
-    #         values_damping = config[section_key]["connecting damping"][1:-1].split(",")
-    #         self.remove_table_files(values_damping)
-    #         values_torsional_damping = config[section_key]["connecting torsional damping"][1:-1].split(",")
-    #         self.remove_table_files(values_torsional_damping)
-    #         config.remove_option(section=section_key, option="connecting damping")
-    #         config.remove_option(section=section_key, option="connecting torsional damping")
-    #         if len(list(config[section_key].keys())) == 0:
-    #             config.remove_section(section=section_key)    
-    #     with open(path, 'w') as config_file:
-    #         config.write(config_file)
+        return super().closeEvent(a0)

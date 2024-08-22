@@ -6,7 +6,8 @@ from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTI
 from pulse.model.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.model.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.model.compressor_model import CompressorModel
-from pulse.model.before_run import BeforeRun
+from pulse.model.perforated_plate import PerforatedPlate
+
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
@@ -54,15 +55,6 @@ class Preprocessor:
 
         self.connectivity_matrix = list()
         self.nodal_coordinates_matrix = list()
- 
-        self.nodes_with_masses = list()
-        self.nodes_connected_to_springs = list()
-        self.nodes_connected_to_dampers = list()
-
-        self.nodes_with_acoustic_links = dict()
-        self.nodes_with_structural_links = dict()
-
-        self.element_with_capped_end = list()
 
         self.dict_coordinate_to_update_bc_after_remesh = dict()
         self.dict_element_info_to_update_indexes_in_entity_file = dict()
@@ -70,12 +62,11 @@ class Preprocessor:
         self.dict_list_elements_to_subgroups = dict()
         self.dict_old_to_new_node_external_indexes = dict()
 
+        self.nodes_with_acoustic_links = dict()
+        self.nodes_with_structural_links = dict()
+
         self.nodes_with_elastic_link_stiffness = dict()
         self.nodes_with_elastic_link_dampings = dict()
-
-        self.lines_with_stress_stiffening = list()
-        self.elements_with_adding_mass_effect = list()
-        self.radius = dict()
 
         self.element_type = "pipe_1" # defined as default
         self.flag_fluid_mass_effect = False
@@ -308,16 +299,11 @@ class Preprocessor:
         """
         self.neighbors.clear()
         self.elements_connected_to_node.clear()
-        # self.nodes_with_multiples_neighbors = {}
         for element in self.structural_elements.values():
             self.neighbors[element.first_node].append(element.last_node)
             self.neighbors[element.last_node].append(element.first_node)
             self.elements_connected_to_node[element.first_node].append(element)
             self.elements_connected_to_node[element.last_node].append(element)
-            # if len(self.neighbors[element.first_node]) > 2:
-            #     self.nodes_with_multiples_neighbors[element.first_node] = self.neighbors[element.first_node]
-            # if len(self.neighbors[element.last_node]) > 2:
-            #     self.nodes_with_multiples_neighbors[element.last_node] = self.neighbors[element.last_node]
 
     def update_number_divisions(self):
         """
@@ -1212,127 +1198,8 @@ class Preprocessor:
     def set_force_by_element(self, elements, loads):
         for element in slicer(self.structural_elements, elements):
             element.loaded_forces = loads
-    
-    def add_mass_to_node(self, nodes, data):
-        """
-        This method attributes structural lumped mass to a list of nodes.
 
-        Parameters
-        ----------
-        nodes_id : list
-            Nodes external indexes.
-            
-        values : complex or array
-            Lumped mass. Complex valued input corresponds to a constant mass with respect to the frequency. Array valued input corresponds to a variable mass with respect to the frequency.
-        """
-        [values, table_names] = data
-        for node in slicer(self.nodes, nodes):
-            node.lumped_masses = values
-            node.lumped_masses_table_names = table_names
-
-            # Checking imported tables 
-            check_array = [isinstance(bc, np.ndarray) for bc in values]
-            if True in check_array:
-                node.loaded_table_for_lumped_masses = True
-                node.there_are_lumped_masses = True
-                if not node in self.nodes_with_masses:
-                    self.nodes_with_masses.append(node)
-                continue
-            else:
-                node.loaded_table_for_lumped_masses = False
-            # Checking complex single values    
-            check_values = [False if bc is None else True for bc in values]
-            if True in check_values:
-                node.there_are_lumped_masses = True
-                if not node in self.nodes_with_masses:
-                    self.nodes_with_masses.append(node)
-            else:
-                node.there_are_lumped_masses = False
-                if node in self.nodes_with_masses:
-                    self.nodes_with_masses.remove(node)
-
-    def add_spring_to_node(self, nodes, data):
-        """
-        This method attributes structural lumped stiffness (spring) to a list of nodes.
-
-        Parameters
-        ----------
-        nodes_id : list
-            Nodes external indexes.
-            
-        values : complex or array
-            Lumped stiffness. Complex valued input corresponds to a constant stiffness with respect to the frequency. Array valued input corresponds to a variable stiffness with respect to the frequency.
-        """
-        [values, table_names] = data
-        for node in slicer(self.nodes, nodes):
-            node.lumped_stiffness = values
-            node.lumped_stiffness_table_names = table_names
-
-            # Checking imported tables 
-            check_array = [isinstance(bc, np.ndarray) for bc in values]
-            if True in check_array:
-                node.loaded_table_for_lumped_stiffness = True
-                node.there_are_lumped_stiffness = True
-                if not node in self.nodes_connected_to_springs:
-                    self.nodes_connected_to_springs.append(node)
-                continue
-            else:
-                node.loaded_table_for_lumped_stiffness = False
-            # Checking complex single values    
-            check_values = [False if bc is None else True for bc in values]
-            if True in check_values:
-                node.there_are_lumped_stiffness = True
-                if not node in self.nodes_connected_to_springs:
-                    self.nodes_connected_to_springs.append(node)
-            else:
-                node.there_are_lumped_stiffness = False
-                if node in self.nodes_connected_to_springs:
-                    self.nodes_connected_to_springs.remove(node)
-    
-    def add_damper_to_node(self, nodes, data):
-        """
-        This method attributes structural lumped damping (damper) to a list of nodes.
-
-        Parameters
-        ----------
-        nodes_id : list
-            Nodes external indexes.
-            
-        values : complex or array
-            Lumped damping. Complex valued input corresponds to a constant damping with respect to the frequency. Array valued input corresponds to a variable damping with respect to the frequency.
-        """
-        [values, table_names] = data
-        for node in slicer(self.nodes, nodes):
-            node.lumped_dampings = values
-            node.lumped_dampings_table_names = table_names
-
-            # Checking imported tables 
-            check_array = [isinstance(bc, np.ndarray) for bc in values]
-            if True in check_array:
-                node.loaded_table_for_lumped_dampings = True
-                node.there_are_lumped_dampings = True
-                if not node in self.nodes_connected_to_dampers:
-                    self.nodes_connected_to_dampers.append(node)
-                continue
-            else:
-                node.loaded_table_for_lumped_dampings = False
-            # Checking complex single values    
-            check_values = [False if bc is None else True for bc in values]
-            if True in check_values:
-                node.there_are_lumped_dampings = True
-                if not node in self.nodes_connected_to_dampers:
-                    self.nodes_connected_to_dampers.append(node)
-            else:
-                node.there_are_lumped_dampings = False
-                if node in self.nodes_connected_to_dampers:
-                    self.nodes_connected_to_dampers.remove(node)
-
-    def set_B2PX_rotation_decoupling(   
-                                        self, 
-                                        element_id: int, 
-                                        node_id: int, 
-                                        rotations_to_decouple = [False, False, False], 
-                                    ):
+    def set_B2P_rotation_decoupling(self, element_id: int, data: dict):
         """
         This method .
 
@@ -1352,6 +1219,10 @@ class Preprocessor:
         DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
         N = DOF_PER_NODE_STRUCTURAL
         mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
+
+        node_id = data["T-joint node"]
+        decoupled_rotations = data["decoupled rotations"]
+
 
         neighboor_elements = self.neighboor_elements_of_node(node_id)
         if len(neighboor_elements) < 3:
@@ -1373,10 +1244,10 @@ class Preprocessor:
         node = self.nodes[node_id]
         element = self.structural_elements[element_id]
         
-        if rotations_to_decouple.count(False) == 3:
+        if decoupled_rotations.count(False) == 3:
             mat_out = mat_ones
 
-        elif rotations_to_decouple.count(True) == 3:  
+        elif decoupled_rotations.count(True) == 3:  
             mat_out = mat_base
 
         elif node in [element.first_node]:
@@ -1385,7 +1256,7 @@ class Preprocessor:
             mat_base[:N,:N] = np.zeros((N,N), dtype=int)
             mat_base[:int(N/2), :int(N/2)] = temp
 
-            for index, value in enumerate(rotations_to_decouple):
+            for index, value in enumerate(decoupled_rotations):
                 if not value:
                     ij = index + int(N/2)
                     mat_base[:, [ij, ij+N]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
@@ -1398,7 +1269,7 @@ class Preprocessor:
             mat_base[N:,N:] = np.zeros((N,N), dtype=int)
             mat_base[N:int(3*N/2), N:int(3*N/2)] = temp
 
-            for index, value in enumerate(rotations_to_decouple):
+            for index, value in enumerate(decoupled_rotations):
                 if not value:
                     ij = index + int(3*N/2)
                     mat_base[:, [ij-N, ij]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
@@ -1406,7 +1277,7 @@ class Preprocessor:
             mat_out = mat_base
 
         element.decoupling_matrix = mat_out
-        element.decoupling_info = [element_id, node_id, rotations_to_decouple]
+        element.decoupling_info = [element_id, node_id, decoupled_rotations]
                 
         return mat_out  
 
@@ -1730,7 +1601,7 @@ class Preprocessor:
         for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_vol_flow_by_element(elements, vol_flow)
 
-    def set_perforated_plate_by_elements(self, elements, perforated_plate):
+    def set_perforated_plate_by_elements(self, elements: list | tuple, perforated_plate: PerforatedPlate):
 
         for element in slicer(self.structural_elements, elements):
             element.perforated_plate = perforated_plate
@@ -1781,7 +1652,6 @@ class Preprocessor:
     #             self.radius[last] = radius
     #     return self.radius
 
-
     def get_pipe_and_expansion_joint_elements_global_dofs(self):
         """
         This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements. 
@@ -1791,9 +1661,8 @@ class Preprocessor:
         ----------
         list
             Acoustic global degrees of freedom associated to beam element.
-        """
-        # list_pipe_gdofs = []  
-        pipe_gdofs = {}
+        """ 
+        pipe_gdofs = dict()
         for element in self.structural_elements.values():
             if element.element_type in ['pipe_1', 'expansion_joint', 'valve']:
                 gdofs_node_first = element.first_node.global_index

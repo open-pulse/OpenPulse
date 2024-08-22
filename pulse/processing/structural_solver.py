@@ -41,10 +41,6 @@ class StructuralSolver:
 
         # self.cache_K = self.K.copy()
 
-        self.nodes_connected_to_springs = self.assembly.nodes_connected_to_springs
-        self.nodes_with_lumped_masses = self.assembly.nodes_with_lumped_masses
-        self.nodes_connected_to_dampers = self.assembly.nodes_connected_to_dampers
-
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values, self.array_prescribed_values = self.assembly.get_prescribed_values()
         self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
@@ -133,6 +129,23 @@ class StructuralSolver:
             Kr_add_lump = complex(0)
             Mr_add_lump = complex(0)
             Cr_add_lump = complex(0)
+
+            lumped_masses = False
+            lumped_stiffness = False
+            lumped_dampings = False
+
+            for (property, *args) in self.model.properties.nodal_properties.items():
+                
+                if property == "lumped_masses":
+                    lumped_masses = True
+                    continue
+
+                if property == "lumped_stiffness":
+                    lumped_stiffness = True
+                    continue
+
+                if property == "lumped_dampings":
+                    lumped_dampings = True
             
             Kr = (self.Kr.toarray())[unprescribed_indexes, :]
             _Mr = (self.Mr.toarray())[unprescribed_indexes, :] + (self.Mr_exp_joint.toarray())[unprescribed_indexes, :]
@@ -142,16 +155,16 @@ class StructuralSolver:
                 _Kr = Kr + (self.Kr_exp_joint[i].toarray())[unprescribed_indexes, :]
                 Kr_add = np.sum(_Kr*self.array_prescribed_values[:,i], axis=1)
                 Mr_add = np.sum(_Mr*self.array_prescribed_values[:,i], axis=1)
-                
-                if self.nodes_connected_to_springs != []:
+                                
+                if lumped_stiffness:
                     Kr_lump_i = (self.Kr_lump[i].toarray())[unprescribed_indexes, :]
                     Kr_add_lump = np.sum(Kr_lump_i*self.array_prescribed_values[:,i], axis=1)
 
-                if self.nodes_with_lumped_masses != []:
+                if lumped_masses:
                     Mr_lump_i = (self.Mr_lump[i].toarray())[unprescribed_indexes, :]
                     Mr_add_lump = np.sum(Mr_lump_i*self.array_prescribed_values[:,i], axis=1)
 
-                if self.nodes_connected_to_dampers != []:
+                if lumped_dampings:
                     Cr_lump_i = (self.Cr_lump[i].toarray())[unprescribed_indexes, :]
                     Cr_add_lump = np.sum(Cr_lump_i*self.array_prescribed_values[:,i], axis=1)
 
@@ -522,7 +535,7 @@ class StructuralSolver:
             for (property, *args), data in self.model.properties.nodal_properties.items():
                 if property == "lumped_stiffness":
 
-                    node_id = args 
+                    node_id = args[0]
                     node = self.model.preprocessor.nodes[node_id]
                     global_dofs_of_springs.append(node.global_dof)
                     values = data["values"]
@@ -534,7 +547,7 @@ class StructuralSolver:
 
                 elif property == "lumped_dampers":
 
-                    node_id = args 
+                    node_id = args[0]
                     node = self.model.preprocessor.nodes[node_id]
                     global_dofs_of_dampers.append(node.global_dof)
                     values = data["values"]

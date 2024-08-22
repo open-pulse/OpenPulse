@@ -50,7 +50,6 @@ class PulsationSuppressionDeviceInput(QDialog):
     def _initialize(self):
         self.keep_window_open = True
         self.preprocessor = self.project.preprocessor
-        self.file = self.project.file
 
     def _define_qt_variables(self):
 
@@ -901,7 +900,7 @@ class PulsationSuppressionDeviceInput(QDialog):
                         element_ids.append(element_id)
 
         self.properties._remove_element_property("element length correction", element_ids) 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_element_properties_in_file()
 
     def confirm_button_pressed(self):
 

@@ -14,7 +14,6 @@ class GeometryEditorHelp(QDialog):
 
         self.main_window = app().main_window
         self.project = app().project
-        self.file = self.project.file
 
         self._config_window()
         self._initialize()

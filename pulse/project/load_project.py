@@ -1,10 +1,13 @@
+# fmt: off
+
 from pulse import app
 
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
+from pulse.model.perforated_plate import PerforatedPlate
+
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.file.project_files_loader import ProjectFilesLoader
 from pulse.tools.utils import *
 
 from pulse.model.cross_section import CrossSection
@@ -24,8 +27,6 @@ class LoadProject:
         self.properties = app().project.model.properties
         self.preprocessor = app().project.preprocessor
 
-        self.files_loader = ProjectFilesLoader()
-
         self._initialize()
         
     def _initialize(self):
@@ -40,7 +41,8 @@ class LoadProject:
         self.load_materials_library()
         self.load_cross_sectionss()
         self.load_lines_properties()
-        self.load_model_properties()
+        self.load_element_properties()
+        self.load_nodal_properties()
         #
         self.load_analysis_file()
         self.load_inertia_load_setup()
@@ -193,19 +195,26 @@ class LoadProject:
 
                     self.cross_sections[line_id] = CrossSection(beam_section_info=beam_section_info)
 
-    def load_model_properties(self):
+    def load_nodal_properties(self):
+        nodal_properties = app().pulse_file.load_nodal_properties_from_file()
+        for (property, id), prop_data in nodal_properties.items():
+            self.properties._set_nodal_property(property, prop_data, node_ids=id)
 
-        model_properties = app().pulse_file.load_model_properties_from_file()
+    def load_element_properties(self):
+        element_properties = app().pulse_file.load_element_properties_from_file()
+        for (property, id), prop_data in element_properties.items():
+            self.properties._set_element_property(property, prop_data, element_ids=id)
 
-        for key, data in model_properties.items():
-            if isinstance(data, dict):
-                for (property, id), prop_data in data.items():
+        if element_properties:
+            self.send_element_properties_to_elements()
 
-                    if key == "nodal_properties":
-                        self.properties._set_nodal_property(property, prop_data, node_ids=id)
-
-                    elif key == "element_properties":
-                        self.properties._set_element_property(property, prop_data, element_ids=id)
+    def send_element_properties_to_elements(self):
+        for (property, element_id), prop_data in self.properties.element_properties.items():
+            if property == "B2P_rotation_decoupling":
+                self.preprocessor.set_B2P_rotation_decoupling(element_id, prop_data)
+            if property == "perforated_plate":
+                perforated_plate = PerforatedPlate(prop_data)
+                self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
 
     def load_lines_properties(self):
 
@@ -306,20 +315,18 @@ class LoadProject:
 
     def load_stress_stiffening(self, line_id: list, data: dict):
 
-        stress_stiffening = None
         if "stress_stiffening" in data.keys():
-            stress_stiffening = data["stress_stiffening"]
 
-        if stress_stiffening is not None:
-            self.preprocessor.set_stress_stiffening_by_lines(line_id, stress_stiffening)
+            prop_data = data["stress_stiffening"]
+            if isinstance(prop_data, dict):
+                self.preprocessor.set_stress_stiffening_by_lines(line_id, prop_data)
 
     def load_cross_sections(self, line_id: list, data: dict):
 
         cross_section = None
         if "cross_section" in data.keys():
-            cross_section = data["cross_section"]
 
-        if cross_section is not None:
+            cross_section = data["cross_section"]
             if data["section_type_label"] == "Reducer":
                 self.preprocessor.set_variable_cross_section_by_line(line_id, cross_section)
                 return
@@ -387,25 +394,25 @@ class LoadProject:
 
     def load_force_offsets(self, line_id: int, data: dict):
 
-        force_offset = None
+        # force_offset = None
         if "force_offset" in data.keys():
             force_offset = data["force_offset"]
 
-        self.preprocessor.set_structural_element_force_offset_by_lines(   
-                                                                        line_id, 
-                                                                        force_offset, 
-                                                                       )
+            self.preprocessor.set_structural_element_force_offset_by_lines(   
+                                                                            line_id, 
+                                                                            force_offset, 
+                                                                        )
 
     def load_wall_formulations(self, line_id: int, data: dict):
 
-        wall_formulation = None
+        # wall_formulation = None
         if "wall_formulation" in data.keys():
             wall_formulation = data["wall_formulation"]
 
-        self.preprocessor.set_structural_element_wall_formulation_by_lines(   
-                                                                            line_id, 
-                                                                            wall_formulation, 
-                                                                           )
+            self.preprocessor.set_structural_element_wall_formulation_by_lines(   
+                                                                                line_id, 
+                                                                                wall_formulation, 
+                                                                               )
 
     def load_beam_xaxis_rotations(self, line_id: int, data: dict):
 
@@ -571,18 +578,5 @@ class LoadProject:
             return dict()
 
         return section_info_lines
-
-    def load_pipeline_file(self):
-        try:
-
-            self.files_loader.load_project_data_from_files()
-
-            # self.load_acoustic_element_length_correction_data()
-            # self.load_compressor_data()
-            # self.load_perforated_plate_by_elements_data()
-            # self.load_valve_data()
-
-        except Exception as log_error:
-            title = "Error while loading project data"
-            message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+    
+# fmt: on

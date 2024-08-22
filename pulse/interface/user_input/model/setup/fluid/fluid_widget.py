@@ -41,8 +41,7 @@ class FluidWidget(QWidget):
 
         self.main_window = app().main_window
         self.project = app().project
-        self.model = app().project.model
-        self.file = app().file
+        self.properties = app().project.model.properties
 
         self._initialize()
         self._define_qt_variables()
@@ -527,16 +526,16 @@ class FluidWidget(QWidget):
                     app().project.model.preprocessor.set_fluid_by_lines(line_id, None)
 
         lines_to_remove_fluid = list()
-        for line_id, data in self.model.properties.line_properties.items():
+        for line_id, data in self.properties.line_properties.items():
             if "fluid_id" in data.keys():
                 if isinstance(data, Fluid):
                     if data["fluid_id"] in fluid_identifiers:
                         lines_to_remove_fluid.append(line_id)
 
         for _line_id in lines_to_remove_fluid:
-            self.model.properties._remove_line_property("fluid", line_id=_line_id)
+            self.properties._remove_line_property("fluid", line_id=_line_id)
 
-        app().pulse_file.write_model_properties_in_file()
+        app().pulse_file.write_line_properties_in_file()
 
     def cell_clicked_callback(self, row, col):
         if row == COLOR_ROW:

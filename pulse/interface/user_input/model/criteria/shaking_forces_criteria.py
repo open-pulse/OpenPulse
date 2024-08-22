@@ -1,14 +1,12 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QFileDialog, QLabel, QLineEdit, QPushButton, QTableWidget, QTabWidget, QTableWidgetItem, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import QCheckBox, QLineEdit, QPushButton, QWidget
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse.tools.utils import get_new_path
 
 import os
 import numpy as np
@@ -57,9 +55,6 @@ class ShakingForcesCriteriaInput(QWidget):
 
         # QPushButton
         self.pushButton_confirm : QPushButton
-
-    def _config_widgets(self):
-        ConfigWidgetAppearance(self, tool_tip=True)
 
     def _create_connections(self):
         self.pushButton_confirm.clicked.connect(self.plot_force_spectrum)

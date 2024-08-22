@@ -315,8 +315,8 @@ class BeamXaxisRotationInput(QDialog):
             if "beam_xaxis_rotation" in data.keys():
                 rot_angle = data["beam_xaxis_rotation"]
                 new = QTreeWidgetItem([str(line_id), str(rot_angle)])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
+                for i in range(2):
+                    new.setTextAlignment(i, Qt.AlignCenter)
                 self.treeWidget_xaxis_rotation_angle.addTopLevelItem(new)
         self.update_tabs_visibility()
 
