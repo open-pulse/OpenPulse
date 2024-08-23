@@ -8,7 +8,9 @@ from PyQt5 import uic
 from opps.model import ExpansionJoint
 
 from pulse import app, UI_DIR
+from pulse.interface.utils import set_qt_property
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
+from pulse.interface.user_input.model.setup.structural.expansion_joint_geometry_input import ExpansionJointGeometryInput
 
 
 class ExpansionJointOptionsWidget(QWidget):
@@ -24,10 +26,15 @@ class ExpansionJointOptionsWidget(QWidget):
         self.add_function = self.pipeline.add_expansion_joint
         self.attach_function = self.pipeline.connect_expansion_joints
         self.cross_section_info = None
+        self.expansion_joint_info = None
 
+        self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self._initialize()
+
+    def _initialize(self):
+        self.set_section_button.setProperty("warning", True)
+        self.style().polish(self.set_section_button)
 
     def _define_qt_variables(self):
         self.set_section_button: QPushButton
@@ -43,40 +50,26 @@ class ExpansionJointOptionsWidget(QWidget):
         self.cross_section_widget.hide()
 
     def _create_connections(self):
-        self.set_section_button.clicked.connect(self.show_cross_section_widget_callback)
-        self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.define_cross_section_callback)
-
-    def _initialize(self):
-        self.set_section_button.setProperty("warning", True)
-        self.style().polish(self.set_section_button)
+        self.set_section_button.clicked.connect(self.define_cross_section_callback)
 
     def get_parameters(self) -> dict:
-        if self.cross_section_info is None:
-            return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
+        if self.expansion_joint_info is None:
             return
 
         kwargs = dict()
-        kwargs["diameter"] = parameters[0]
-        kwargs["thickness"] = parameters[1]
-        kwargs["bend_radius"] = 0.3
+        kwargs["diameter"] = self.expansion_joint_info["effective_diameter"]
+        kwargs["thickness"] = 0
         kwargs["extra_info"] = dict(
             structural_element_type = "pipe_1",
-            cross_section_info = deepcopy(self.cross_section_info),
+            expansion_joint_parameters = deepcopy(self.expansion_joint_info),
         )
         return kwargs
 
-    def show_cross_section_widget_callback(self):
-        self._config_layout()
-        self.cross_section_widget.show()
-
     def define_cross_section_callback(self):
-        if self.cross_section_widget.get_constant_section_pipe_parameters():
+        geometry_input = ExpansionJointGeometryInput()
+        self.expansion_joint_info = geometry_input.value
+        if self.expansion_joint_info is None:
             return
-        self.cross_section_info = self.cross_section_widget.pipe_section_info
-        self.cross_section_widget.hide()
-        self.set_section_button.setProperty("warning", False)
-        self.style().polish(self.set_section_button)
+
+        set_qt_property(self.set_section_button, warning=False)
         self.edited.emit()

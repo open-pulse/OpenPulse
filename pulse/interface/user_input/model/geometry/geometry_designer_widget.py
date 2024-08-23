@@ -638,11 +638,12 @@ class GeometryDesignerWidget(QWidget):
     def _update_permissions(self):
         current_widget = self.options_stack_widget.currentWidget()
         cross_section_info = getattr(current_widget, "cross_section_info", None)
+        expansion_joint_info = getattr(current_widget, "expansion_joint_info", None)
 
         # usefull variables
         have_selection = bool(self.pipeline.selected_points or self.pipeline.selected_structures)
         have_staged = bool(self.pipeline.staged_points or self.pipeline.staged_structures)
-        have_cross_section = cross_section_info is not None
+        widget_configured = (cross_section_info is not None) or (expansion_joint_info is not None)
         multiple_points_selected = len(self.pipeline.selected_points) >= 1
         is_point = issubclass(self.current_structure_type, Point)
         is_beam = issubclass(self.current_structure_type, Beam)
@@ -654,11 +655,11 @@ class GeometryDesignerWidget(QWidget):
         self.delete_button.setDisabled(not (have_selection or have_staged))
         self.attach_button.setDisabled(
             is_point
-            or not have_cross_section
+            or not widget_configured
             or not multiple_points_selected
         )
 
-        disable_xyz = (not is_point and not have_cross_section)
+        disable_xyz = (not is_point and not widget_configured)
         self.x_line_edit.setDisabled(disable_xyz)
         self.y_line_edit.setDisabled(disable_xyz)
         self.z_line_edit.setDisabled(disable_xyz)
