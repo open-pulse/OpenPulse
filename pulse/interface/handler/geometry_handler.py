@@ -5,6 +5,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
 from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam, ExpansionJoint
+from opps.model import LinearStructure, SimpleCurve
 
 import gmsh
 from math import dist
@@ -42,13 +43,12 @@ class GeometryHandler:
             self.length_unit = unit
 
     def create_geometry(self, gmsh_GUI=False):
-
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
 
         for structure in self.pipeline.structures: 
-            if isinstance(structure, (Pipe, Flange, Beam, Reducer, Valve)):
+            if isinstance(structure, LinearStructure):
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
 
@@ -69,7 +69,7 @@ class GeometryHandler:
 
                 gmsh.model.occ.add_line(start_coords, end_coords)
 
-            elif isinstance(structure, Bend):
+            elif isinstance(structure, SimpleCurve):
                 if structure.is_colapsed():
                     continue
                 
