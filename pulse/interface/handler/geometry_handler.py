@@ -48,7 +48,7 @@ class GeometryHandler:
         gmsh.option.setNumber("General.Verbosity", 0)
 
         for structure in self.pipeline.structures: 
-            if isinstance(structure, (Pipe, Beam, Reducer, Valve)):
+            if isinstance(structure, (Pipe, Beam, Reducer, Valve, ExpansionJoint)):
 
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
