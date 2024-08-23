@@ -47,8 +47,11 @@ class GeometryHandler:
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
 
-        for structure in self.pipeline.structures: 
-            if isinstance(structure, LinearStructure):
+        for structure in self.pipeline.structures:
+            if isinstance(structure, Valve):
+                "Insert here your valve modeling"
+
+            elif isinstance(structure, LinearStructure):
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
 
