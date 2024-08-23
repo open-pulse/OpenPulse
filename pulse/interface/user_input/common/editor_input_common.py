@@ -18,19 +18,19 @@ class EditorInputCommon(QDialog):
         ui_path = UI_DIR / "common/editor_input_common.ui"
         uic.loadUi(ui_path, self)
         self._define_qt_variables()
+        self._create_connections()
 
     def _define_qt_variables(self):
         self.title_label: QLabel
 
         self.cancel_button: QPushButton
-        self.apply_button: QPushButton
         self.confirm_button: QPushButton
 
         self.central_widget: QWidget
 
     def _create_connections(self):
         self.cancel_button.clicked.connect(self.cancel_button_callback)
-        app().main_window.selection_changed.connect(self.selection_callback)
+        self.confirm_button.clicked.connect(self.confirm_button_callback)
 
     def set_title(self, name: str):
         self.title_label.setText(name)
@@ -43,13 +43,10 @@ class EditorInputCommon(QDialog):
         current = central_widget
         self.central_widget = central_widget
         self.layout().replaceWidget(previous, current)
+        self.layout().removeWidget(previous)
 
     def cancel_button_callback(self):
         self.close()
 
-    def apply_button_callback(self):        
-        pass
-
     def confirm_button_callback(self):
-        self.apply_button_callback()
         self.close()

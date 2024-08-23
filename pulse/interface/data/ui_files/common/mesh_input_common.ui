@@ -192,6 +192,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>attribute_to_combobox</tabstop>
+  <tabstop>selected_lineedit</tabstop>
+  <tabstop>cancel_button</tabstop>
+  <tabstop>apply_button</tabstop>
+  <tabstop>confirm_button</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
