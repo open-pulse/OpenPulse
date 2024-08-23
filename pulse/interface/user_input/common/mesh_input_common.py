@@ -32,7 +32,6 @@ class MeshInputCommon(QDialog):
 
         self.filter = MeshInputFilter()
         self.item_indexes = dict()
-        self.central_widget = None
 
         self._config_window()
         self._define_qt_variables()
@@ -50,9 +49,9 @@ class MeshInputCommon(QDialog):
 
         self.cancel_button: QPushButton
         self.apply_button: QPushButton
-        self.finish_button: QPushButton
+        self.confirm_button: QPushButton
 
-        self.template_frame: QFrame
+        self.central_widget: QWidget
 
     def _create_connections(self):
         self.cancel_button.clicked.connect(self.cancel_button_callback)
@@ -65,8 +64,10 @@ class MeshInputCommon(QDialog):
         if not isinstance(central_widget, QWidget):
             return
         
+        previous = self.central_widget
+        current = central_widget
         self.central_widget = central_widget
-        self.re
+        self.layout().replaceWidget(previous, current)
 
     def filter_attributes(
         self,
@@ -90,22 +91,10 @@ class MeshInputCommon(QDialog):
     def cancel_button_callback(self):
         self.close()
 
-    def apply_button_callback(self, central_widget):
-        if not isinstance(central_widget, QWidget):
-            return
+    def apply_button_callback(self):
+        pass
 
-        # Remove all previous widgets from layout
-        w = self.template_frame.layout().widget()
-        while w is not None:
-            self.template_frame.layout().removeWidget(w)
-            w = self.template_frame.layout().widget()
-
-        # Define new central widget
-        self.central_widget = central_widget
-        self.template_frame.layout().addWidget(central_widget)
-
-
-    def finish_button_callback(self):
+    def confirm_button_callback(self):
         self.apply_button_callback()
         self.close()
 
