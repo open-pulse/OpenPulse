@@ -129,11 +129,12 @@ class SectionPlaneWidget(QDialog):
         self.value_changed_2.emit()
 
     def reset_button_callback(self):
-        for slider in self._sliders():
-            slider.setValue(50)
-
-        for spinbox in self._spinboxes():
-            spinbox.setValue(0)
+        self.relative_plane_position_x_slider.setValue(50),
+        self.relative_plane_position_y_slider.setValue(50),
+        self.relative_plane_position_z_slider.setValue(50),
+        self.plane_rotation_x_slider.setValue(0),
+        self.plane_rotation_y_slider.setValue(0),
+        self.plane_rotation_z_slider.setValue(0),
 
         self.invert_value = False
         self.value_changed_2.emit()
