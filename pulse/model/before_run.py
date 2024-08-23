@@ -157,8 +157,7 @@ class BeforeRun:
                         lines_without_cross_sections.append(line_id)
                     
             else:        
-                
-                print(element.index, element.cross_section, element.element_type, element.cross_section.area_fluid)
+
                 if element.element_type == 'expansion_joint':
                     if element.expansion_joint_data is None:
                         self.check_set_crossSection = True

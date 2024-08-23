@@ -1711,7 +1711,7 @@ class Preprocessor:
                 # if element.element_type == "valve":
                 #     print(element.element_type, element.index)
         return acoustic_elements   
-    
+
     def get_nodes_relative_to_acoustic_elements(self):
         """
         This method returns a dictionary that maps the acoustic node indexes to the acoustic elements.
