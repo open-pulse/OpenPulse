@@ -45,8 +45,8 @@ preprocessor.set_cross_section_by_lines(40, cross_section_expansion)
 preprocessor.set_cross_section_by_lines([37, 38, 39], cross_section_branch)
 preprocessor.set_cross_section_by_lines([21, 22, 23, 24, 25, 27, 28], cross_section_branch)
 
-preprocessor.set_length_correction_by_element([9, 10, 11, 12, 13, 659, 660, 661, 662, 663, 711, 712, 885, 886, 1197, 1198, 1225, 1226, 1227, 1228, 1235, 1236], 0, "section") # Expansion correction
-preprocessor.set_length_correction_by_element([608, 609, 610, 967, 968, 984, 985, 986, 987, 988, 1004, 1005, 1006, 1007, 1008, 1009, 1047, 1048, 1097, 1098, 1147, 1148, 1149], 1, "section") # Side branch correction
+preprocessor.set_element_length_correction_by_element([9, 10, 11, 12, 13, 659, 660, 661, 662, 663, 711, 712, 885, 886, 1197, 1198, 1225, 1226, 1227, 1228, 1235, 1236], 0, "section") # Expansion correction
+preprocessor.set_element_length_correction_by_element([608, 609, 610, 967, 968, 984, 985, 986, 987, 988, 1004, 1005, 1006, 1007, 1008, 1009, 1047, 1048, 1097, 1098, 1147, 1148, 1149], 1, "section") # Side branch correction
 # Analisys Frequencies
 f_max = 250
 df = 1

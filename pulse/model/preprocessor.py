@@ -1554,7 +1554,7 @@ class Preprocessor:
         for elements in slicer(self.mesh.line_to_elements, line_ids):
             self.set_fluid_by_element(elements, fluid)
 
-    def set_length_correction_by_element(self, element_ids: list, data: dict):
+    def set_element_length_correction_by_element(self, element_ids: list, data: dict):
         """
         This method enables or disables the acoustic length correction effect in a list of acoustic elements.
 

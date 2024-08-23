@@ -127,6 +127,7 @@ class GeometryHandler:
         self.pipeline.reset()
 
         lines_data = app().pulse_file.read_line_properties_from_file()
+
         if isinstance(lines_data, dict):
             for data in lines_data.values():
 
@@ -145,6 +146,9 @@ class GeometryHandler:
 
                 elif structural_element_type == "valve":
                     structure = self._process_valve(data)
+
+                elif structural_element_type == "expansion_joint":
+                    continue
 
                 if "material_id" in data.keys():
                     structure.extra_info["material_info"] = data['material_id']
@@ -193,6 +197,7 @@ class GeometryHandler:
                                 )
 
         elif len(section_parameters) == 10:
+
             start = Point(*data['start_coords'])
             end = Point(*data['end_coords'])
             structure = Reducer(
@@ -211,9 +216,10 @@ class GeometryHandler:
             return
 
         section_info = {
-                        "section_type_label" : "Reducer",
+                        "section_type_label" : data["section_type_label"],
                         "section_parameters" : section_parameters
                        }
+        print(section_info)
 
         structure.extra_info["cross_section_info"] = section_info
         structure.extra_info["structural_element_type"] = "pipe_1"

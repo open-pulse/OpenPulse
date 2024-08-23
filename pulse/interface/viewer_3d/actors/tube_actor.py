@@ -145,9 +145,9 @@ class TubeActor(vtkActor):
             # h, w1, t1, tw, *_ = cross_section.section_parameters
             h, w1, t1, tw, *_ = element.section_parameters_render
             return cross_section_sources.t_beam_data(length, h, w1, t1, tw)
-        
+
         elif cross_section.section_type_label == "Expansion joint":
-            d_eff = cross_section.joint_effective_diameter
+            d_eff = cross_section.effective_diameter
             if cross_section.expansion_joint_plot_key == "major":
                 d_out = 2 * cross_section.outer_radius * 1.25
             elif cross_section.expansion_joint_plot_key == "minor":

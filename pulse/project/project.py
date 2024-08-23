@@ -117,8 +117,9 @@ class Project:
         #                     target = load_callback
         #                   )
 
-        self.initial_load_project_actions()
         app().loader.load_project_data()
+        self.initial_load_project_actions()
+        app().loader.load_mesh_dependent_properties()
         self.enhance_pipe_sections_appearance()
         self.preprocessor.process_all_rotation_matrices()
 

@@ -243,8 +243,6 @@ class CrossSection:
 
     def load_beam_section_data(self):
 
-        print("entrei")
-
         self.section_type_label = self.beam_section_info["section_type_label"]
         self.section_parameters = self.beam_section_info["section_parameters"]
         self.section_properties = self.beam_section_info["section_properties"]
@@ -256,13 +254,6 @@ class CrossSection:
         self.offset_y = self.section_properties['Yc']
         self.offset_z = self.section_properties['Zc']
         self.offset = [self.offset_y, self.offset_z]
-
-        print(self.area)
-        print(self.second_moment_area_y)
-        print(self.second_moment_area_z)
-        print(self.second_moment_area_yz)
-
-        print(self.section_properties)
         
         if self.section_type_label == "Generic section":
             self.shear_coefficient = self.section_properties['shear factor']
@@ -289,7 +280,8 @@ class CrossSection:
         self.section_type_label = self.expansion_joint_info[0]
         self.expansion_joint_plot_key = self.expansion_joint_info[1]
         self.outer_diameter = self.expansion_joint_info[2]
-        
+        self.effective_diameter = self.expansion_joint_info[2]
+
     def set_section_parameters(self, parameters):
         self.outer_diameter, self.thickness = parameters
 

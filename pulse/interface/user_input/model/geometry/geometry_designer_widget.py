@@ -666,5 +666,6 @@ class GeometryDesignerWidget(QWidget):
     def _load_project(self):
         app().loader.load_project_data()
         self.project.initial_load_project_actions()
+        app().loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         self.complete = True

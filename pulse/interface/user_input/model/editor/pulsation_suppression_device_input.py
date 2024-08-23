@@ -876,23 +876,23 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.actions_to_finalize()
         app().main_window.update_plots()
 
-    def update_length_correction_after_psd_removal(self):
+    # def update_length_correction_after_psd_removal(self):
 
-        psds_data = app().pulse_file.read_psd_data_from_file()
-        if psds_data is None:
-            return
+    #     psds_data = app().pulse_file.read_psd_data_from_file()
+    #     if psds_data is None:
+    #         return
 
-        for device_label, psd_data in psds_data.items():
+    #     for device_label, psd_data in psds_data.items():
 
-            elc_data = list()
-            for key, data in psd_data.items():
-                if "element_length_correction -" in key:
-                    elc_coords = data["connection_coords"]
-                    elc_type = data["connection_type"]
-                    elc_data.append((elc_coords, elc_type))
+    #         elc_data = list()
+    #         for key, data in psd_data.items():
+    #             if "element_length_correction -" in key:
+    #                 elc_coords = data["connection_coords"]
+    #                 elc_type = data["connection_type"]
+    #                 elc_data.append((elc_coords, elc_type))
 
-            if elc_data:
-                self.set_element_length_corrections(device_label, elc_data)
+    #         if elc_data:
+    #             self.set_element_length_corrections(device_label, elc_data)
 
     def set_element_length_corrections(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
 
@@ -913,7 +913,7 @@ class PulsationSuppressionDeviceInput(QDialog):
                     "psd_label" : psd_label
                     }
 
-            self.preprocessor.set_length_correction_by_element(element_ids, data)
+            self.preprocessor.set_element_length_correction_by_element(element_ids, data)
             self.properties._set_element_property("element_length_correction", data, element_ids)
             app().pulse_file.write_element_properties_in_file()
 
@@ -929,7 +929,7 @@ class PulsationSuppressionDeviceInput(QDialog):
                     elif psd_label == data["psd_label"]:
                         element_ids.append(element_id)
         
-        self.preprocessor.set_length_correction_by_element(element_ids, None)
+        self.preprocessor.set_element_length_correction_by_element(element_ids, None)
         self.properties._remove_element_property("element_length_correction", element_ids) 
         app().pulse_file.write_element_properties_in_file()
         # self.update_length_correction_after_psd_removal()
@@ -1006,8 +1006,9 @@ class PulsationSuppressionDeviceInput(QDialog):
 
     def actions_to_finalize(self):
         app().pulse_file.write_psd_data_in_file(self.psds_data)
-        app().project.initial_load_project_actions()
         app().loader.load_project_data()
+        app().project.initial_load_project_actions()
+        app().loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         self.load_psd_info()
         # app().main_window.use_structural_setup_workspace()
