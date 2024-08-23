@@ -183,7 +183,7 @@ class ModelProperties:
             else:
                 self.line_properties[line_id] = {property : data}
 
-    def _set_line_cross_section_property(self, section_info: dict, line_ids: (int | list | tuple | None)):
+    def _set_multiple_line_properties(self, section_info: dict, line_ids: (int | list | tuple | None)):
         """
         Sets a data to a property by line.
 

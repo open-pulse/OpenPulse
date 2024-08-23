@@ -468,46 +468,44 @@ class LoadProject:
 
     def load_psd_data_from_file(self):
 
-        psd_data = app().pulse_file.read_psd_data_from_file()
-        if psd_data is None:
+        psds_data = app().pulse_file.read_psd_data_from_file()
+        if psds_data is None:
             return
-        
-        self.model.set_psd_data(psd_data)
 
         link_data = defaultdict(list)
 
-        for psd_label, data in psd_data.items():
-            for key, value in data.items():
+        for psd_label, psd_data in psds_data.items():
+            for key, data in psd_data.items():
 
                 if "Link-" in key:
-                    link_type = value["link_type"]
-                    start_coords = value["start_coords"]
-                    end_coords = value["end_coords"]
+
+                    link_type = data["link_type"]
+                    start_coords = data["start_coords"]
+                    end_coords = data["end_coords"]
                     link_data[(psd_label, link_type)].append((start_coords, end_coords))
 
-        if link_data:
-            self.add_psd_link_data_to_nodes(link_data)
+                    node_id1 = self.preprocessor.get_node_id_by_coordinates(start_coords)
+                    node_id2 = self.preprocessor.get_node_id_by_coordinates(end_coords)
+                    node_ids = [node_id1, node_id2]
 
-    def load_psd_link_data(self):
+                    data = {
+                            "start_coords" : start_coords,
+                            "end_coords" : end_coords,
+                            "link_type" : link_type
+                            }
 
-        for (_property, *args), data in self.properties.nodal_properties.items():
+                    if link_type == "acoustic_link":
+                        self.properties._set_nodal_property("psd_acoustic_link", data, node_ids)
 
-            link_data = None
-            if _property == "psd_acoustic_link":
-                # node_id1, node_id1 = args
-                link_data = self.preprocessor.get_acoustic_link_data(args)
+                    if link_type == "structural_link":
+                        self.properties._set_nodal_property("psd_structural_link", data, node_ids)
 
-            if _property == "psd_structural_link":
-                link_data = self.preprocessor.get_structural_link_data(args)
-
-            if isinstance(link_data, dict):
-                data["link_data"] = link_data
-                self.model.properties._set_nodal_property(_property, data, args)
-
-    def get_device_related_lines(self):
+    def get_psd_related_lines(self):
 
         psd_lines = defaultdict(list)
         for line_id, data in self.properties.line_properties.items():
+
+            data: dict
             if "psd_label" in data.keys():
                 psd_label = data["psd_label"]
                 psd_lines[psd_label].append(line_id)

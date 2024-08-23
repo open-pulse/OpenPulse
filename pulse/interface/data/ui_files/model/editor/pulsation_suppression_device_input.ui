@@ -313,7 +313,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string/>
+                    <string>dual_chamber</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -1225,7 +1225,7 @@
                     <double>0.001000000000000</double>
                    </property>
                    <property name="value">
-                    <double>0.023000000000000</double>
+                    <double>0.025000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -1581,7 +1581,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>0.35</string>
+                    <string>0.20</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -2050,7 +2050,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>0.773</string>
+                    <string>0.775</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>

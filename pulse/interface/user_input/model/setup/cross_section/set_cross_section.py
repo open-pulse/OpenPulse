@@ -372,13 +372,13 @@ class SetCrossSectionInput(QDialog):
                                         section_parameters,
                                         variable_section=False)    
 
-    def check_if_lines_belongs_to_psd(self, lines):
+    def check_if_lines_belongs_to_psd(self, line_ids: list):
 
-        device_related_lines =app().loader.get_device_related_lines()
+        device_related_lines =app().loader.get_psd_related_lines()
 
         for psd_lines in device_related_lines.values():
-            for line in lines:
-                if line in psd_lines:
+            for line_id in line_ids:
+                if line_id in psd_lines:
                     self.lineEdit_selected_id.setText("")
                     title = "PSD cross-section edition not allowed"
                     message = "The PSD line sections could not be edited in the cross-section setup interface. "
@@ -467,7 +467,7 @@ class SetCrossSectionInput(QDialog):
         section_info = self.input_widget.pipe_section_info
         cross_section = CrossSection(pipe_section_info=section_info)
 
-        self.properties._set_line_cross_section_property(section_info, line_ids)
+        self.properties._set_multiple_line_properties(section_info, line_ids)
         self.properties._set_line_property("cross_section", cross_section, line_ids)
 
         if self.tabWidget_pipe_section.currentIndex() == 0:
@@ -510,7 +510,7 @@ class SetCrossSectionInput(QDialog):
             self.preprocessor.add_valve_by_lines(line_ids, None)
             self.preprocessor.add_expansion_joint_by_lines(line_ids, None)
 
-            self.properties._set_line_cross_section_property(section_info, line_ids)
+            self.properties._set_multiple_line_properties(section_info, line_ids)
             self.properties._remove_line_property("wall_formulation", line_ids)
             self.properties._remove_line_property("force_offset", line_ids)
             self.properties._remove_line_property("capped_end", line_ids)

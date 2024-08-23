@@ -709,7 +709,7 @@ class ExpansionJointInput(QDialog):
                                 "section_parameters" : cross.section_parameters   }
 
                 self.properties._set_line_property("structural_element_type", element_type, line_id)
-                self.properties._set_line_cross_section_property(pipe_info, line_id)
+                self.properties._set_multiple_line_properties(pipe_info, line_id)
 
     def remove_table_files_from_expansion_joints(self, line_ids: list):
         table_names = list()

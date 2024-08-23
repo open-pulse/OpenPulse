@@ -665,7 +665,7 @@ class GeometryHandler:
                     app().project.model.properties._set_line_property(key, values, line_ids=line_id)
 
             for line_id, cross_data in section_info.items():
-                app().project.model.properties._set_line_cross_section_property(cross_data, line_ids=line_id)
+                app().project.model.properties._set_multiple_line_properties(cross_data, line_ids=line_id)
 
             for element_type, line_ids in element_type_info.items():
                 app().project.model.properties._set_line_property("structural_element_type", element_type, line_ids=line_ids)

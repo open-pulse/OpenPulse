@@ -2071,7 +2071,7 @@ class Preprocessor:
                     "diameters" : [d_minor, d_major]
                     }
 
-            return node_ids, data
+            return data
 
     def get_structural_link_data(self, node_ids: list, k=1e9, kr=1e8):
         """
@@ -2111,7 +2111,8 @@ class Preprocessor:
             data = {
                     "coords" : coords,
                     "indexes_i" : indexes_i,
-                    "indexes_j" : indexes_j
+                    "indexes_j" : indexes_j,
+                    "data" : out_data
                     }
 
             return data

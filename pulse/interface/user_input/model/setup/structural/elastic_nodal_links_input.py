@@ -287,47 +287,45 @@ class ElasticNodalLinksInput(QDialog):
                 self.lineEdit_first_node_id.setText(str(first_node))
                 self.lineEdit_last_node_id.setText(str(last_node))
 
-                for (property, *args), data in self.properties.nodal_properties.items():
+                ss_link_data = self.properties._get_property("structural_stiffness_links", node_ids=sorted_nodes)
+                if isinstance(ss_link_data, dict):
 
-                    if property == "structural_stiffness_links":
-                        if sorted_nodes == args:
-                            if "table_paths" in data.keys():
+                    if "table_paths" in ss_link_data.keys():
+                        self.tabWidget_inputs.setCurrentIndex(1)
+                        self.tabWidget_table_values.setCurrentIndex(0)
+                        for i, table_path in ss_link_data["table_paths"]:
+                            if table_path is not None:
+                                lineEdit = self.lineEdits_table_values_stiffness[i]
+                                lineEdit.setText(table_path)
 
-                                self.tabWidget_inputs.setCurrentIndex(1)
-                                self.tabWidget_table_values.setCurrentIndex(0)
-                                for i, table_path in data["table_paths"]:
-                                    if table_path is not None:
-                                        lineEdit = self.lineEdits_table_values_stiffness[i]
-                                        lineEdit.setText(table_path)
+                    else:
 
-                            else:
+                        self.tabWidget_inputs.setCurrentIndex(0)
+                        self.tabWidget_constant_values.setCurrentIndex(0)
+                        for i, value in enumerate(ss_link_data["values"]):
+                            if value is not None:
+                                lineEdit = self.lineEdits_constant_values_stiffness[i]
+                                lineEdit.setText(f"{value : .3e}")
 
-                                self.tabWidget_inputs.setCurrentIndex(0)
-                                self.tabWidget_constant_values.setCurrentIndex(0)
-                                for i, value in enumerate(data["values"]):
-                                    if value is not None:
-                                        lineEdit = self.lineEdits_constant_values_stiffness[i]
-                                        lineEdit.setText(f"{value : .3e}")
+                sd_link_data = self.properties._get_property("structural_damping_links", node_ids=sorted_nodes)
+                if isinstance(sd_link_data, dict):
 
-                    if property == "structural_damping_links":
-                        if sorted_nodes == args:
-                            if "table_paths" in data.keys():
+                    if "table_paths" in sd_link_data.keys():
+                        self.tabWidget_inputs.setCurrentIndex(1)
+                        self.tabWidget_table_values.setCurrentIndex(1)
+                        for i, table_path in enumerate(sd_link_data["table_paths"]):
+                            if table_path is not None:
+                                lineEdit = self.lineEdits_table_values_dampings[i]
+                                lineEdit.setText(table_path)
 
-                                self.tabWidget_inputs.setCurrentIndex(1)
-                                self.tabWidget_table_values.setCurrentIndex(1)
-                                for i, table_path in enumerate(data["table_paths"]):
-                                    if table_path is not None:
-                                        lineEdit = self.lineEdits_table_values_dampings[i]
-                                        lineEdit.setText(table_path)
+                    else:
 
-                            else:
-
-                                self.tabWidget_inputs.setCurrentIndex(0)
-                                self.tabWidget_constant_values.setCurrentIndex(1)
-                                for i, value in data["values"]:
-                                    if value is not None:
-                                        lineEdit = self.lineEdits_constant_values_dampings[i]
-                                        lineEdit.setText(f"{value : .3e}")
+                        self.tabWidget_inputs.setCurrentIndex(0)
+                        self.tabWidget_constant_values.setCurrentIndex(1)
+                        for i, value in sd_link_data["values"]:
+                            if value is not None:
+                                lineEdit = self.lineEdits_constant_values_dampings[i]
+                                lineEdit.setText(f"{value : .3e}")
 
     def tab_event_callback(self):
 
@@ -371,7 +369,6 @@ class ElasticNodalLinksInput(QDialog):
 
     def check_entries(self, lineEdit: QLineEdit, label: str):
 
-        stop = False
         str_value = lineEdit.text()
         if str_value != "":
             try:
@@ -379,17 +376,16 @@ class ElasticNodalLinksInput(QDialog):
                 value = float(str_value)
             except Exception:
                 title = f"Invalid entry to the {label}"
-                message = f"Wrong input for real part of {label}."
+                message = f"Wrong input for {label}."
                 PrintMessageInput([window_title_1, title, message])
-                stop = True
-                return
+                return True, None
         else:
             value = 0
 
         if value == 0:
-            return stop, None
+            return True, None
         else:
-            return stop, value
+            return False, value
 
     def check_constant_stiffness_links(self, node_ids: list):
 

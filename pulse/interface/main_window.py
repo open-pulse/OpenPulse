@@ -1019,7 +1019,6 @@ class MainWindow(QMainWindow):
         QCursor.setPos(final_pos)
     
     def new_project(self):
-        # self.pulse_file = ProjectFileIO(TEMP_PROJECT_FILE)
         self.reset_geometry_render()
         obj = NewProjectInput()
         self.initial_project_action(obj.complete)
@@ -1033,7 +1032,6 @@ class MainWindow(QMainWindow):
     #     self.set_window_title(self.file._project_name)
     #     self.use_structural_setup_workspace()
     #     self.update_plots()
-
 
     def open_project(self, project_path: str | Path | None = None):
         def tmp():

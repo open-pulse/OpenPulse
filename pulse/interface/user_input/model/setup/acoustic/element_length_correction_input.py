@@ -78,7 +78,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribution_callback)
-        self.pushButton_cancel.clicked.connect(self.stop)
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_reset_confirm.clicked.connect(self.reset_callback)
         self.pushButton_remove_by_group_confirm.clicked.connect(self.remove_callback)
         #
@@ -127,18 +127,18 @@ class AcousticElementLengthCorrectionInput(QDialog):
         index = self.comboBox_element_length_correction_type.currentIndex()
 
         if index == 0:
-            type_id = 0
+            correction_type = 0
             self.type_label = "'Expansion'"
    
         elif index == 1:
-            type_id = 1
+            correction_type = 1
             self.type_label = "'Side branch'"
 
         elif index == 2:
-            type_id = 2
+            correction_type = 2
             self.type_label = "'Loop'"
 
-        data = {"correction type" : type_id}
+        data = {"correction_type" : correction_type}
 
         _element_ids = self.filter_selection(index, element_ids)
         if _element_ids:
@@ -217,7 +217,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         for (property, element_id), data in self.properties.element_properties.items():
             if property == "element_length_correction":
 
-                index = data["correction type"]
+                index = data["correction_type"]
                 elc_label = self.correction_labels[index]
                 self.maps_correction_type[elc_label].append(element_id)
 
@@ -284,7 +284,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
             if read._continue:
 
                 element_ids = list()
-                for (property, element_id), data in self.properties.nodal_properties.items():
+                for (property, element_id) in self.properties.nodal_properties.keys():
                     if property == "element_length_correction":
                         element_ids.append(element_id)
 
@@ -307,7 +307,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                     if prop_data is None:
                         continue
 
-                    index = prop_data["correction type"]
+                    index = prop_data["correction_type"]
                     data[element_id] = self.correction_labels[index]
 
                 if data:

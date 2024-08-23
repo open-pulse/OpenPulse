@@ -43,22 +43,7 @@ class Node:
     def reset(self):
         
         # Structural boundary conditions and external lumped elements
-        
-        self.elastic_nodal_link_stiffness = dict()
-        self.there_are_elastic_nodal_link_stiffness = False
-        self.loaded_table_for_elastic_link_stiffness = False
 
-        self.elastic_nodal_link_dampings = dict()
-        self.there_are_elastic_nodal_link_dampings = False
-        self.loaded_table_for_elastic_link_dampings = False
-
-        self.acoustic_link = dict()
-        self.structural_link = dict()
-
-        # self.compressor_excitation_table_names = list()
-        # self.dict_index_to_compressor_connection_info = dict()
-        # self.compressor_excitation_table_indexes = list()
-        
         self.deformed_coordinates = None
         self.deformed_rotations_xyz_gcs = None
         self.deformed_displacements_xyz_gcs = None

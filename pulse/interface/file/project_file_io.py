@@ -146,8 +146,11 @@ class ProjectFileIO:
     def read_fluid_library_from_file(self):
         return self.filebox.read(self.fluid_library_filename)
 
-    def write_psd_data_in_file(self, psd_data):
-        self.filebox.write(self.psd_info_filename, psd_data)
+    def write_psd_data_in_file(self, psds_data: dict):
+        if psds_data:
+            self.filebox.write(self.psd_info_filename, psds_data)
+        else:
+            self.filebox.remove(self.psd_info_filename)
         app().main_window.project_data_modified = True
 
     def read_psd_data_from_file(self):

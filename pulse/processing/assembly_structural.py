@@ -286,6 +286,8 @@ class AssemblyStructural:
             if len(args) == 1:
                 node_id = args[0]
                 position = self.preprocessor.nodes[node_id].global_dof
+            elif len(args) == 2:
+                node_ids = args
 
             loaded_table = "table_names" in data.keys()
 
@@ -314,9 +316,10 @@ class AssemblyStructural:
             # structural elastic link in PSDs
             if _property == "psd_elastic_links":
                 if "link_data" in data.keys():
-                    i_indexes_K.extend(data["link_data"]["indexes_i"])
-                    j_indexes_K.extend(data["link_data"]["indexes_j"])
-                    values = data["link_data"]["values"]
+                    psd_link_data = self.preprocessor.get_structural_link_data(node_ids)
+                    i_indexes_K.extend(psd_link_data["indexes_i"])
+                    j_indexes_K.extend(psd_link_data["indexes_j"])
+                    values = psd_link_data["values"]
                     K_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
             # structural nodal link for stiffness

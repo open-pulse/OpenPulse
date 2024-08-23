@@ -7,11 +7,9 @@ from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.tools.utils import get_new_path
 
 import os
 from pathlib import Path
-from shutil import copyfile
 
 
 class ImportGeometry(QFileDialog):
@@ -57,18 +55,16 @@ class ImportGeometry(QFileDialog):
                 import_type = 0
                 self.geometry_filename = os.path.basename(self.geometry_path)
                 app().pulse_file.modify_project_attributes(
-                                                                        import_type = import_type,
-                                                                        geometry_filename = self.geometry_filename
-                                                                       )
+                                                            import_type = import_type,
+                                                            geometry_filename = self.geometry_filename
+                                                            )
 
                 self.process_initial_actions()
 
     def process_initial_actions(self):
         #
-        #
         self.project.reset(reset_all=True)
         self.project.process_geometry_and_mesh()
-        # self.project.load_project_files()
         app().loader.load_project_data()
         self.project.preprocessor.check_disconnected_lines()
         #

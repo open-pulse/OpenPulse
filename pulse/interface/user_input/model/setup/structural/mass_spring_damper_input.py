@@ -412,7 +412,6 @@ class MassSpringDamperInput(QDialog):
 
     def check_entries(self, lineEdit: QLineEdit, label: str):
 
-        stop = False
         str_value = lineEdit.text()
         if str_value != "":
             try:
@@ -420,17 +419,16 @@ class MassSpringDamperInput(QDialog):
                 value = float(str_value)
             except Exception:
                 title = f"Invalid entry to the {label}"
-                message = f"Wrong input for real part of {label}."
+                message = f"Wrong input for {label}."
                 PrintMessageInput([window_title_1, title, message])
-                stop = True
-                return
+                return True, None
         else:
             value = 0
 
         if value == 0:
-            return stop, None
+            return True, None
         else:
-            return stop, value
+            return False, value
 
     def check_constant_values_lumped_masses(self, node_ids: list):
 
