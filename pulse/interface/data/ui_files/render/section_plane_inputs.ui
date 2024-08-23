@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>392</width>
+    <width>411</width>
     <height>574</height>
    </rect>
   </property>
@@ -932,5 +932,198 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>relative_plane_position_x_slider</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>relative_plane_position_x_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>214</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relative_plane_position_x_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relative_plane_position_x_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>108</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>126</x>
+     <y>122</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relative_plane_position_y_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relative_plane_position_y_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>173</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relative_plane_position_y_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relative_plane_position_y_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>189</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relative_plane_position_z_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relative_plane_position_z_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>220</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>221</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relative_plane_position_z_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relative_plane_position_z_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>234</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>124</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_x_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_x_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>325</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>316</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_x_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_x_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>334</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>214</x>
+     <y>331</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_y_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_y_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>374</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>371</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_y_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_y_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>388</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>152</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_z_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_z_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>235</x>
+     <y>430</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>422</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_z_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_z_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>441</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>128</x>
+     <y>430</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

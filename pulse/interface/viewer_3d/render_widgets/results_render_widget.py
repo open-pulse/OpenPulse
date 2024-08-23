@@ -140,7 +140,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.nodes_actor = NodesActor(show_deformed=deformed)
         self.points_actor = PointsActor(show_deformed=deformed)
         self.tubes_actor = TubeActorResults(show_deformed=deformed, acoustic_plot=acoustic_plot)
-        self.plane_actor = SectionPlaneActor(size=self._get_plane_size())
+        self.plane_actor = SectionPlaneActor(self.tubes_actor.GetBounds())
         self.plane_actor.VisibilityOff()
 
         self.add_actors(

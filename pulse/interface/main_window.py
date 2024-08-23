@@ -766,11 +766,6 @@ class MainWindow(QMainWindow):
     def action_section_plane_callback(self, condition):
         if condition:
             self.section_plane.show()
-            self.section_plane.value_changed.connect(self.set_section_plane_configs)
-            self.section_plane.slider_released.connect(self.apply_section_plane)
-            self.section_plane.closed.connect(self.close_section_plane)
-            self.set_section_plane_configs()
-            self.apply_section_plane()
         else:
             self.section_plane.keep_section_plane = False
             self.section_plane.close()
@@ -782,27 +777,6 @@ class MainWindow(QMainWindow):
         self.geometry_widget.update()
         self.mesh_widget.update()
         self.results_widget.update()
-
-    def set_section_plane_configs(self):
-        self.results_widget.configure_section_plane(*self.section_plane.get_position(), *self.section_plane.get_rotation()) 
-        self.mesh_widget.configure_section_plane(*self.section_plane.get_position(), *self.section_plane.get_rotation())               
-
-    def apply_section_plane(self):
-        self.results_widget.apply_section_plane(reverse_cut=self.section_plane.invert_value)
-        self.mesh_widget.apply_section_plane(reverse_cut=self.section_plane.invert_value)
-
-    def close_section_plane(self):
-        if self.section_plane.keep_section_plane:
-            self.results_widget.hide_section_plane()
-            self.mesh_widget.hide_section_plane()
-            return
-    
-        self.action_section_plane.blockSignals(True)
-        self.action_section_plane.setChecked(False)
-        self.action_section_plane.blockSignals(False)
-
-        self.results_widget.dismiss_section_plane()
-        self.mesh_widget.dismiss_section_plane()
 
     def action_set_structural_element_type_callback(self):
         self.input_ui.set_structural_element_type()

@@ -76,6 +76,8 @@ class PlotFilter:
     structural_symbols: bool = False
     raw_lines: bool = False
 
+def lerp(a, b, t):
+    return a + (b - a) * t
 
 def set_qt_property(widget: QWidget, **kwargs):
     for key, val in kwargs.items():

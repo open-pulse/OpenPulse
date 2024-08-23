@@ -277,6 +277,7 @@ class TubeActor(vtkActor):
         self.plane = vtkPlane()
         self.plane.SetOrigin(origin)
         self.plane.SetNormal(normal)
+        self.GetMapper().RemoveAllClippingPlanes()
         self.GetMapper().AddClippingPlane(self.plane)
 
     def disable_cut(self):
