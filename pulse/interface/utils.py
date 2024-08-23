@@ -3,6 +3,7 @@ import numpy as np
 from enum import IntEnum
 from pulse import ICON_DIR
 from dataclasses import dataclass
+from PyQt5.QtWidgets import QWidget
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -74,6 +75,12 @@ class PlotFilter:
     acoustic_symbols: bool = False
     structural_symbols: bool = False
     raw_lines: bool = False
+
+
+def set_qt_property(widget: QWidget, **kwargs):
+    for key, val in kwargs.items():
+        widget.setProperty(key, val)
+    widget.style().polish(widget)
 
 
 def check_inputs(lineEdit, label, only_positive=True, zero_included=False, title=None):
