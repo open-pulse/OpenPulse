@@ -104,8 +104,8 @@ class AcousticPressureInput(QDialog):
             self.lineEdit_selection_id.setText(text)
 
             if len(selected_nodes) == 1:
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "acoustic_pressure" and selected_nodes[0] == node_id:
+                for (property, *args), data in self.properties.nodal_properties.items():
+                    if property == "acoustic_pressure" and selected_nodes == args:
 
                         values = data["values"]
         
@@ -129,27 +129,24 @@ class AcousticPressureInput(QDialog):
             self.selection_callback()
             self.lineEdit_selection_id.setDisabled(False)
 
-    def update_tabs_visibility(self):
-        self.tabWidget_acoustic_pressure.setTabVisible(2, False)
-        for (property, _) in self.properties.nodal_properties.keys():
-            if property == "acoustic_pressure":
-                self.tabWidget_acoustic_pressure.setCurrentIndex(0)
-                self.tabWidget_acoustic_pressure.setTabVisible(2, True)
-                return
-
     def load_nodes_info(self):
 
         self.treeWidget_acoustic_pressure.clear()
-        for (property, node_id), data in self.properties.nodal_properties.items():
+        for (property, *args), data in self.properties.nodal_properties.items():
 
             if property == "acoustic_pressure":
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values[0]))])
+                new = QTreeWidgetItem([str(args[0]), str(self.text_label(values[0]))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_acoustic_pressure.addTopLevelItem(new)
 
-        self.update_tabs_visibility()
+        self.tabWidget_acoustic_pressure.setTabVisible(2, False)
+        for (property, *_) in self.properties.nodal_properties.keys():
+            if property == "acoustic_pressure":
+                self.tabWidget_acoustic_pressure.setCurrentIndex(0)
+                self.tabWidget_acoustic_pressure.setTabVisible(2, True)
+                return
 
     def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):
 

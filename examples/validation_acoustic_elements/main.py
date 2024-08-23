@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt 
 
 from pulse.model.cross_section import CrossSection
-from pulse.properties.material import Material
-from pulse.properties.fluid import Fluid
+from pulse.model.properties.material import Material
+from pulse.model.properties.fluid import Fluid
 from pulse.model.preprocessor import  Preprocessor
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
 from pulse.processing.acoustic_solver import AcousticSolver
@@ -40,7 +40,7 @@ element_type = 'LRF full'
 preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=None)
 
 preprocessor.set_fluid_by_element('all', air)
-preprocessor.set_cross_section_by_element('all', cross_section)
+preprocessor.set_cross_section_by_elements('all', cross_section)
 preprocessor.set_cross_section_by_lines(40, cross_section_expansion)
 preprocessor.set_cross_section_by_lines([37, 38, 39], cross_section_branch)
 preprocessor.set_cross_section_by_lines([21, 22, 23, 24, 25, 27, 28], cross_section_branch)

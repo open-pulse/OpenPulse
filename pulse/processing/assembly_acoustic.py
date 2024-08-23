@@ -209,7 +209,10 @@ class AssemblyAcoustic:
             Length correction.
         """
         length_correction = 0
-        if element.acoustic_length_correction is not None:
+        if element.length_correction_data is not None:
+
+            correction_type = element.length_correction_data["correction_type"]
+
             first = element.first_node.global_index
             last = element.last_node.global_index
 
@@ -223,28 +226,34 @@ class AssemblyAcoustic:
 
             for _, _, di in diameters_first:
                 if di_actual < di:
-                    if element.acoustic_length_correction in [0, 2]:
+
+                    if correction_type in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
-                    elif element.acoustic_length_correction == 1:
+                    elif correction_type == 1:
                         correction = length_correction_branch(di_actual, di)
                         if len(diameters_first) == 2:
                             print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
                     else:
                         print("Datatype not understood")
+
                     corrections_first.append(correction)
 
             for _, _, di in diameters_last:
                 if di_actual < di:
-                    if element.acoustic_length_correction in [0, 2]:
+
+                    if correction_type in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
-                    elif element.acoustic_length_correction == 1:
+                    elif correction_type == 1:
                         correction = length_correction_branch(di_actual, di)
                         if len(diameters_last) == 2:
                             print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
                     else:
                         print("Datatype not understood")
+
                     corrections_last.append(correction)
+
             length_correction = max(corrections_first) + max(corrections_last)
+
         return length_correction
 
     def get_length_correction_for_acoustic_link(self, diameters):
@@ -315,15 +324,13 @@ class AssemblyAcoustic:
 
             if _property == "psd_acoustic_link":
 
-                psd_link_data = self.preprocessor.get_acoustic_link_data(args)
+                psd_link_data = self.preprocessor.get_psd_acoustic_link_data(args)
                 rows.extend(psd_link_data["indexes_i"])
                 cols.extend(psd_link_data["indexes_j"])
 
                 element = psd_link_data["element_pipe"]
 
                 data_Ke = element.fetm_link_matrix(self.frequencies)
-
-                data_Klink.extend(list(data_Ke))
 
                 if len(data_Klink):
                     data_Klink = np.c_[data_Klink, data_Ke]

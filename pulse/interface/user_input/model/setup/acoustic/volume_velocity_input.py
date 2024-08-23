@@ -103,8 +103,8 @@ class VolumeVelocityInput(QDialog):
             self.lineEdit_selection_id.setText(text)
 
             if len(selected_nodes) == 1:
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "volume_velocity" and selected_nodes[0] == node_id:
+                for (property, *args), data in self.properties.nodal_properties.items():
+                    if property == "volume_velocity" and selected_nodes == args:
 
                         values = data["values"]
         
@@ -130,7 +130,7 @@ class VolumeVelocityInput(QDialog):
 
     def update_tabs_visibility(self):
         self.tabWidget_volume_velocity.setTabVisible(2, False)
-        for (property, _) in self.properties.nodal_properties.keys():
+        for (property, *_) in self.properties.nodal_properties.keys():
             if property == "volume_velocity":
                 self.tabWidget_volume_velocity.setCurrentIndex(0)
                 self.tabWidget_volume_velocity.setTabVisible(2, True)
@@ -139,11 +139,11 @@ class VolumeVelocityInput(QDialog):
     def load_nodes_info(self):
 
         self.treeWidget_volume_velocity.clear()
-        for (property, node_id), data in self.properties.nodal_properties.items():
+        for (property, *args), data in self.properties.nodal_properties.items():
 
             if property == "volume_velocity":
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values[0]))])
+                new = QTreeWidgetItem([str(args[0]), str(self.text_label(values[0]))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_volume_velocity.addTopLevelItem(new)
@@ -437,9 +437,9 @@ class VolumeVelocityInput(QDialog):
         if read._continue:
 
             node_ids = list()
-            for (property, node_id), data in self.properties.nodal_properties.items():
+            for (property, *args) in self.properties.nodal_properties.keys():
                 if property == "volume_velocity":
-                    node_ids.append(node_id)
+                    node_ids.append(args[0])
             
             for node_id in node_ids:
                 self.remove_table_files_from_nodes(node_id)

@@ -46,7 +46,6 @@ class LoadProject:
         #
         self.load_analysis_file()
         self.load_inertia_load_setup()
-        self.load_psd_data_from_file()
 
     def load_fluids_library(self):
 
@@ -343,7 +342,7 @@ class LoadProject:
 
     def load_acoustic_element_types(self, line_id: int, data: dict):
 
-        element_type = None
+        element_type = "undamped"
         if "acoustic_element_type" in data.keys():
             element_type = data["acoustic_element_type"]
 
@@ -356,12 +355,12 @@ class LoadProject:
             volume_flow = data["volume_flow"]
 
         self.preprocessor.set_acoustic_element_type_by_lines(   
-                                                                line_id, 
-                                                                element_type, 
-                                                                proportional_damping = proportional_damping,
-                                                                vol_flow = volume_flow    
+                                                             line_id, 
+                                                             element_type, 
+                                                             proportional_damping = proportional_damping,
+                                                             vol_flow = volume_flow    
                                                              )
-        
+
     def load_materials(self, line_id: int, data: dict):
 
         material = None
@@ -466,40 +465,6 @@ class LoadProject:
         self.model.set_frequency_setup(analysis_setup)
         self.model.set_global_damping(analysis_setup)
 
-    def load_psd_data_from_file(self):
-
-        psds_data = app().pulse_file.read_psd_data_from_file()
-        if psds_data is None:
-            return
-
-        link_data = defaultdict(list)
-
-        for psd_label, psd_data in psds_data.items():
-            for key, data in psd_data.items():
-
-                if "Link-" in key:
-
-                    link_type = data["link_type"]
-                    start_coords = data["start_coords"]
-                    end_coords = data["end_coords"]
-                    link_data[(psd_label, link_type)].append((start_coords, end_coords))
-
-                    node_id1 = self.preprocessor.get_node_id_by_coordinates(start_coords)
-                    node_id2 = self.preprocessor.get_node_id_by_coordinates(end_coords)
-                    node_ids = [node_id1, node_id2]
-
-                    data = {
-                            "start_coords" : start_coords,
-                            "end_coords" : end_coords,
-                            "link_type" : link_type
-                            }
-
-                    if link_type == "acoustic_link":
-                        self.properties._set_nodal_property("psd_acoustic_link", data, node_ids)
-
-                    if link_type == "structural_link":
-                        self.properties._set_nodal_property("psd_structural_link", data, node_ids)
-
     def get_psd_related_lines(self):
 
         psd_lines = defaultdict(list)
@@ -574,5 +539,5 @@ class LoadProject:
             return dict()
 
         return section_info_lines
-    
+
 # fmt: on

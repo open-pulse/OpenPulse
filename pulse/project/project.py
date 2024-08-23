@@ -222,8 +222,6 @@ class Project:
                                   ]
 
                 element.section_parameters_render = parameters
-                element.cross_section_points = cross.get_circular_section_points(parameters, 
-                                                                                 section_label)
 
     def is_there_an_acoustic_attribute_in_the_node(self, node_id: int):
 
@@ -232,12 +230,14 @@ class Project:
                                 "volume_velocity", 
                                 "specific_impedance", 
                                 "radiation_impedance", 
-                                "compressor_excitation"
+                                "compressor_excitation",
+                                "psd_acoustic_link"
                                 ]
 
         for (property, *args) in self.model.properties.nodal_properties.keys():
-            if property in acoustic_properties and node_id == args[0]:
+            if property in acoustic_properties and node_id in args:
                     return True
+
         return False
 
     def update_project_analysis_setup_state(self, _bool):

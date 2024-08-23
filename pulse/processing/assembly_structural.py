@@ -273,10 +273,12 @@ class AssemblyStructural:
                         "lumped_masses",
                         "lumped_stiffness",
                         "lumped_dampings",
-                        "psd_elastic_links",
+                        "psd_structural_links",
                         "structural_stiffness_links",
                         "structural_damping_links"
                        ]
+
+        print("get_lumped_matrices -> structural")
 
         for (_property, *args), data in self.model.properties.nodal_properties.items():
 
@@ -286,6 +288,7 @@ class AssemblyStructural:
             if len(args) == 1:
                 node_id = args[0]
                 position = self.preprocessor.nodes[node_id].global_dof
+
             elif len(args) == 2:
                 node_ids = args
 
@@ -314,33 +317,37 @@ class AssemblyStructural:
                 C_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
             # structural elastic link in PSDs
-            if _property == "psd_elastic_links":
-                if "link_data" in data.keys():
-                    psd_link_data = self.preprocessor.get_structural_link_data(node_ids)
-                    i_indexes_K.extend(psd_link_data["indexes_i"])
-                    j_indexes_K.extend(psd_link_data["indexes_j"])
-                    values = psd_link_data["values"]
-                    K_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+            if _property == "psd_structural_links":
+                print(f"psd -> {node_ids} {data}")
+                psd_link_data = self.preprocessor.get_psd_structural_link_data(node_ids)
+                i_indexes_K.extend(psd_link_data["indexes_i"])
+                j_indexes_K.extend(psd_link_data["indexes_j"])
+                values = psd_link_data["data"]
+                print(psd_link_data)
+
+                K_data.append(self.get_bc_array_for_all_frequencies(False, values))
 
             # structural nodal link for stiffness
             if _property == "structural_stiffness_links":
-                if "link_data" in data.keys():
-                    i_indexes_K.extend(data["link_data"]["indexes_i"])
-                    j_indexes_K.extend(data["link_data"]["indexes_j"])
-                    values = data["link_data"]["values"]
-                    K_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+                link_data_K = self.preprocessor.get_psd_structural_link_data(node_ids, data)
+                i_indexes_K.extend(link_data_K["indexes_i"])
+                j_indexes_K.extend(link_data_K["indexes_j"])
+                values = link_data_K["data"]
+                K_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
             # structural nodal link for damping
             if _property == "structural_damping_links":
-                if "link_data" in data.keys():
-                    i_indexes_C.extend(data["link_data"]["indexes_i"])
-                    j_indexes_C.extend(data["link_data"]["indexes_j"])
-                    values = data["link_data"]["values"]
-                    C_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+                link_data_C = self.preprocessor.get_psd_structural_link_data(node_ids, data)
+                i_indexes_C.extend(link_data_C["indexes_i"])
+                j_indexes_C.extend(link_data_C["indexes_j"])
+                values = link_data_C["data"]
+                C_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
         data_Klump = np.array(K_data).reshape(-1, cols)
         data_Mlump = np.array(M_data).reshape(-1, cols)
         data_Clump = np.array(C_data).reshape(-1, cols)
+
+        print(data_Klump.shape)
 
         i_indexes_K = np.array(i_indexes_K).flatten()
         i_indexes_M = np.array(i_indexes_M).flatten()
@@ -572,6 +579,8 @@ class AssemblyStructural:
            number_frequencies = 1
         else:
             number_frequencies = len(self.frequencies)
+
+        print(number_frequencies)
 
         if loaded_table:
             list_arrays = [np.zeros(number_frequencies, dtype=float) if bc is None else bc[0:number_frequencies] for bc in boundary_condition]
