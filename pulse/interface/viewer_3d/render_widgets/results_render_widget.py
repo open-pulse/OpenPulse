@@ -131,6 +131,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         except Exception as e:
             return
+
         acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
 
         self.lines_actor = ElementLinesActor(show_deformed=deformed)

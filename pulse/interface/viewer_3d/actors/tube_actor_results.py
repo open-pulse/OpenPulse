@@ -41,7 +41,7 @@ class TubeActorResults(TubeActor):
         if cross_section is None:
             return vtkPolyData()
         
-        pipe_section = ("Pipe section" in cross_section.section_type_label)
+        pipe_section = ("Pipe" in cross_section.section_type_label)
 
         # In acoustic plots we need to show the fluids, not the pipe
         if self.acoustic_plot and pipe_section:
