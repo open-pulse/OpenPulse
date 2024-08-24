@@ -155,7 +155,7 @@ class StructuralElement:
         self.section_rotation_xyz_undeformed = None
         self.deformed_rotation_xyz = None
         self.deformed_length = None
-        self.xaxis_beam_rotation = 0
+        self.beam_xaxis_rotation = 0
         
         self.internal_pressure = 0
         self.external_pressure = 0

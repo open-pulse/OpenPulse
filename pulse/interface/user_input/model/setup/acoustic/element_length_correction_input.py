@@ -144,7 +144,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         if _element_ids:
             filt_element_ids = list(np.sort(_element_ids))
 
-            self.preprocessor.set_length_correction_by_element(filt_element_ids, data)
+            self.preprocessor.set_element_length_correction_by_element(filt_element_ids, data)
             self.properties._set_element_property("element_length_correction", data, element_ids=_element_ids)
 
             app().pulse_file.write_element_properties_in_file()
@@ -254,7 +254,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
             if stop:
                 return
             
-            self.preprocessor.set_length_correction_by_element(element_ids, None)
+            self.preprocessor.set_element_length_correction_by_element(element_ids, None)
 
             for element_id in element_ids:
                 self.properties._remove_nodal_property("element_length_correction", element_id)
@@ -288,7 +288,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                     if property == "element_length_correction":
                         element_ids.append(element_id)
 
-                self.preprocessor.set_length_correction_by_element(element_ids, None)
+                self.preprocessor.set_element_length_correction_by_element(element_ids, None)
 
                 self.properties._reset_element_property("element_length_correction")
                 app().pulse_file.write_element_properties_in_file()

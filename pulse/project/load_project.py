@@ -40,13 +40,13 @@ class LoadProject:
         self.load_fluids_library()
         self.load_materials_library()
         self.load_cross_sectionss()
+        #
         self.load_lines_properties()
         self.load_element_properties()
         self.load_nodal_properties()
         #
         self.load_analysis_file()
         self.load_inertia_load_setup()
-        self.load_psd_data_from_file()
 
     def load_fluids_library(self):
 
@@ -195,27 +195,6 @@ class LoadProject:
 
                     self.cross_sections[line_id] = CrossSection(beam_section_info=beam_section_info)
 
-    def load_nodal_properties(self):
-        nodal_properties = app().pulse_file.load_nodal_properties_from_file()
-        for (property, *args), prop_data in nodal_properties.items():
-            self.properties._set_nodal_property(property, prop_data, node_ids=args)
-
-    def load_element_properties(self):
-        element_properties = app().pulse_file.load_element_properties_from_file()
-        for (property, id), prop_data in element_properties.items():
-            self.properties._set_element_property(property, prop_data, element_ids=id)
-
-        if element_properties:
-            self.send_element_properties_to_elements()
-
-    def send_element_properties_to_elements(self):
-        for (property, element_id), prop_data in self.properties.element_properties.items():
-            if property == "B2P_rotation_decoupling":
-                self.preprocessor.set_B2P_rotation_decoupling(element_id, prop_data)
-            if property == "perforated_plate":
-                perforated_plate = PerforatedPlate(prop_data)
-                self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
-
     def load_lines_properties(self):
 
         line_properties = app().pulse_file.read_line_properties_from_file()
@@ -256,8 +235,16 @@ class LoadProject:
                         self.properties._set_line_property(property, prop_data, line_ids=int(line_id))
 
         print(line_properties)
-        if line_properties:
-            self.send_lines_properties_to_elements()
+
+    def load_element_properties(self):
+        element_properties = app().pulse_file.load_element_properties_from_file()
+        for (property, id), prop_data in element_properties.items():
+            self.properties._set_element_property(property, prop_data, element_ids=id)
+
+    def load_nodal_properties(self):
+        nodal_properties = app().pulse_file.load_nodal_properties_from_file()
+        for (property, *args), prop_data in nodal_properties.items():
+            self.properties._set_nodal_property(property, prop_data, node_ids=args)
 
     def send_lines_properties_to_elements(self):
         for line_id, data in self.properties.line_properties.items():
@@ -280,6 +267,22 @@ class LoadProject:
             self.load_expansion_joints(line_id, data)
             self.load_valves(line_id, data)
             self.load_stress_stiffening(line_id, data)
+
+    def send_element_properties_to_elements(self):
+        for (property, element_id), prop_data in self.properties.element_properties.items():
+            if property == "B2P_rotation_decoupling":
+                self.preprocessor.set_B2P_rotation_decoupling(element_id, prop_data)
+            if property == "element_length_correction":
+                self.preprocessor.set_element_length_correction_by_element(element_id, prop_data)
+            if property == "perforated_plate":
+                perforated_plate = PerforatedPlate(prop_data)
+                self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
+
+    def load_mesh_dependent_properties(self):
+        """ This methods send properties to elements.
+        """
+        self.send_lines_properties_to_elements()
+        self.send_element_properties_to_elements()
 
     ## line loaders
 
@@ -343,7 +346,7 @@ class LoadProject:
 
     def load_acoustic_element_types(self, line_id: int, data: dict):
 
-        element_type = None
+        element_type = "undamped"
         if "acoustic_element_type" in data.keys():
             element_type = data["acoustic_element_type"]
 
@@ -356,12 +359,12 @@ class LoadProject:
             volume_flow = data["volume_flow"]
 
         self.preprocessor.set_acoustic_element_type_by_lines(   
-                                                                line_id, 
-                                                                element_type, 
-                                                                proportional_damping = proportional_damping,
-                                                                vol_flow = volume_flow    
+                                                             line_id, 
+                                                             element_type, 
+                                                             proportional_damping = proportional_damping,
+                                                             vol_flow = volume_flow    
                                                              )
-        
+
     def load_materials(self, line_id: int, data: dict):
 
         material = None
@@ -466,40 +469,6 @@ class LoadProject:
         self.model.set_frequency_setup(analysis_setup)
         self.model.set_global_damping(analysis_setup)
 
-    def load_psd_data_from_file(self):
-
-        psds_data = app().pulse_file.read_psd_data_from_file()
-        if psds_data is None:
-            return
-
-        link_data = defaultdict(list)
-
-        for psd_label, psd_data in psds_data.items():
-            for key, data in psd_data.items():
-
-                if "Link-" in key:
-
-                    link_type = data["link_type"]
-                    start_coords = data["start_coords"]
-                    end_coords = data["end_coords"]
-                    link_data[(psd_label, link_type)].append((start_coords, end_coords))
-
-                    node_id1 = self.preprocessor.get_node_id_by_coordinates(start_coords)
-                    node_id2 = self.preprocessor.get_node_id_by_coordinates(end_coords)
-                    node_ids = [node_id1, node_id2]
-
-                    data = {
-                            "start_coords" : start_coords,
-                            "end_coords" : end_coords,
-                            "link_type" : link_type
-                            }
-
-                    if link_type == "acoustic_link":
-                        self.properties._set_nodal_property("psd_acoustic_link", data, node_ids)
-
-                    if link_type == "structural_link":
-                        self.properties._set_nodal_property("psd_structural_link", data, node_ids)
-
     def get_psd_related_lines(self):
 
         psd_lines = defaultdict(list)
@@ -574,5 +543,5 @@ class LoadProject:
             return dict()
 
         return section_info_lines
-    
+
 # fmt: on

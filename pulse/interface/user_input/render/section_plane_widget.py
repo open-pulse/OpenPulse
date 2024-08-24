@@ -1,10 +1,9 @@
+from PyQt5.QtWidgets import QDialog, QPushButton, QSlider, QSpinBox
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QDialog, QSpinBox, QSlider, QPushButton, QCheckBox
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import get_openpulse_icon
 
 
 class SectionPlaneWidget(QDialog):
@@ -133,7 +132,7 @@ class SectionPlaneWidget(QDialog):
         self.relative_plane_position_y_slider.setValue(50),
         self.relative_plane_position_z_slider.setValue(50),
         self.plane_rotation_x_slider.setValue(0),
-        self.plane_rotation_y_slider.setValue(0),
+        self.plane_rotation_y_slider.setValue(90),
         self.plane_rotation_z_slider.setValue(0),
 
         self.invert_value = False

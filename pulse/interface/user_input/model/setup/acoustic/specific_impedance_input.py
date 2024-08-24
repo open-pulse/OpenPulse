@@ -103,8 +103,8 @@ class SpecificImpedanceInput(QDialog):
             self.lineEdit_selection_id.setText(text)
 
             if len(selected_nodes) == 1:
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "specific_impedance" and selected_nodes[0] == node_id:
+                for (property, *args), data in self.properties.nodal_properties.items():
+                    if property == "specific_impedance" and selected_nodes == args:
 
                         values = data["values"]
         
@@ -128,27 +128,24 @@ class SpecificImpedanceInput(QDialog):
             self.selection_callback()
             self.lineEdit_selection_id.setDisabled(False)
 
-    def update_tabs_visibility(self):
-        self.tabWidget_specific_impedance.setTabVisible(2, False)
-        for (property, _) in self.properties.nodal_properties.keys():
-            if property == "specific_impedance":
-                self.tabWidget_specific_impedance.setCurrentIndex(0)
-                self.tabWidget_specific_impedance.setTabVisible(2, True)
-                return
-
     def load_nodes_info(self):
 
         self.treeWidget_specific_impedance.clear()
-        for (property, node_id), data in self.properties.nodal_properties.items():
+        for (property, *args), data in self.properties.nodal_properties.items():
 
             if property == "specific_impedance":
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values[0]))])
+                new = QTreeWidgetItem([str(args[0]), str(self.text_label(values[0]))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_specific_impedance.addTopLevelItem(new)
 
-        self.update_tabs_visibility()
+        self.tabWidget_specific_impedance.setTabVisible(2, False)
+        for (_property, *_) in self.properties.nodal_properties.keys():
+            if _property == "specific_impedance":
+                self.tabWidget_specific_impedance.setCurrentIndex(0)
+                self.tabWidget_specific_impedance.setTabVisible(2, True)
+                return
 
     def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):
 
@@ -441,9 +438,9 @@ class SpecificImpedanceInput(QDialog):
             if read._continue:
 
                 node_ids = list()
-                for (property, node_id), data in self.properties.nodal_properties.items():
+                for (property, *args) in self.properties.nodal_properties.keys():
                     if property == "specific_impedance":
-                        node_ids.append(node_id)
+                        node_ids.append(args[0])
 
                 for node_id in node_ids:
                     self.remove_table_files_from_nodes(node_id)

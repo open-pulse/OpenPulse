@@ -62,19 +62,18 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
         for (_property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if _property == "psd_structural_link_stiffnes":
+            if _property == "psd_structural_links":
 
                 node_a, node_b = args
                 linked_nodes.add((node_a, node_b))
 
-                coords = data["coords"]
-                coords_a = coords[:3]
-                coords_b = coords[3:]
+                coords_a = np.array(data["coords"][:3], dtype=float)
+                coords_b = np.array(data["coords"][3:], dtype=float)
 
                 # divide the value of the coordinates by the scale factor
                 source = vtkLineSource()
-                source.SetPoint1(coords_a / self.scaleFactor) 
-                source.SetPoint2(coords_b / self.scaleFactor)
+                source.SetPoint1(coords_a / self.scale_factor) 
+                source.SetPoint2(coords_b / self.scale_factor)
                 source.Update()
                 self.linked_symbols.AddInputData(source.GetOutput())
 
@@ -104,8 +103,8 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
                 # divide the value of the coordinates by the scale factor
                 source = vtkLineSource()
-                source.SetPoint1(coords_a / self.scaleFactor) 
-                source.SetPoint2(coords_b / self.scaleFactor)
+                source.SetPoint1(coords_a / self.scale_factor) 
+                source.SetPoint2(coords_b / self.scale_factor)
                 source.Update()
                 self.linked_symbols.AddInputData(source.GetOutput())
 
@@ -128,7 +127,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         src = 1
         scl = (1, 1, 1)
         col = (0, 255, 0)
-        offset = 0 * self.scaleFactor
+        offset = 0 * self.scale_factor
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -170,7 +169,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         src = 2
         scl = (1, 1, 1)
         col = (0, 200, 200)
-        offset = 0 * self.scaleFactor
+        offset = 0 * self.scale_factor
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -212,7 +211,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         src = 3
         scl = (1, 1, 1)
         col = (255, 0, 0)
-        offset = 0.05 * self.scaleFactor
+        offset = 0.05 * self.scale_factor
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -254,7 +253,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         src = 4
         scl = (1, 1, 1)
         col = (0, 0, 255)
-        offset = 0.05 * self.scaleFactor
+        offset = 0.05 * self.scale_factor
 
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -315,13 +314,13 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _get_lumped_spring_symbol(self):
 
         e_size = app().project.preprocessor.mesh.element_size
-        length = self.scaleFactor/2
+        length = self.scale_factor/2
 
-        if self.scaleFactor / 2 > 4 * e_size:
+        if self.scale_factor / 2 > 4 * e_size:
             f = 2
-        elif self.scaleFactor / 2 > 2 * e_size:
+        elif self.scale_factor / 2 > 2 * e_size:
             f = 1
-        elif self.scaleFactor / 2 > e_size / 2:
+        elif self.scale_factor / 2 > e_size / 2:
             f = 0.5
         else:
             f = 0.25
@@ -330,7 +329,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         offset = delta_x * length / 1.19
 
         src = 6
-        scale_x = (length / 1.19) / self.scaleFactor
+        scale_x = (length / 1.19) / self.scale_factor
         scl = (scale_x, scale_x, scale_x)
         col = (242, 121, 0)
 
@@ -363,13 +362,13 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _get_lumped_damper_symbol(self):
 
         e_size = app().project.preprocessor.mesh.element_size
-        length = self.scaleFactor/2
+        length = self.scale_factor/2
 
-        if self.scaleFactor / 2 > 4 * e_size:
+        if self.scale_factor / 2 > 4 * e_size:
             f = 2
-        elif self.scaleFactor / 2 > 2 * e_size:
+        elif self.scale_factor / 2 > 2 * e_size:
             f = 1
-        elif self.scaleFactor / 2 > e_size / 2:
+        elif self.scale_factor / 2 > e_size / 2:
             f = 0.5
         else:
             f = 0.25
@@ -378,7 +377,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         offset = delta_x * length / 1.19
 
         src = 7
-        scale_x = (length / 1.19) / self.scaleFactor
+        scale_x = (length / 1.19) / self.scale_factor
         scl = (scale_x, scale_x, scale_x)
         col = (255, 0, 100)
 
@@ -476,8 +475,8 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
                     if vector[1] < 0:
                         rot[0] += 180
 
-                    factor_x = (valve_length / 0.247) / self.scaleFactor
-                    factor_yz = (valve_section_parameters[0] / 0.130) / self.scaleFactor
+                    factor_x = (valve_length / 0.247) / self.scale_factor
+                    factor_yz = (valve_section_parameters[0] / 0.130) / self.scale_factor
 
                     # factor_yz = 1
                     pos = center_coordinates

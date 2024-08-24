@@ -47,26 +47,25 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
     def source(self):
         super().source()
-        self._create_acoustic_links()
+        self._create_psd_acoustic_links()
 
     # def _createSequence(self):
     #     return self.project.get_nodes().values()
 
-    def _create_acoustic_links(self):
+    def _create_psd_acoustic_links(self):
 
         linkedSymbols = vtkAppendPolyData()
 
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
-            if property == "acoustic_nodal_links":
+            if property == "psd_acoustic_link":
 
-                coords = data["coords"]
-                coords_a = coords[:3]
-                coords_b = coords[3:]
+                coords_a = np.array(data["coords"][:3], dtype=float)
+                coords_b = np.array(data["coords"][3:], dtype=float)
 
                 # divide the value of the coordinates by the scale factor
                 source = vtkLineSource()
-                source.SetPoint1(coords_a / self.scaleFactor) 
-                source.SetPoint2(coords_b / self.scaleFactor)
+                source.SetPoint1(coords_a / self.scale_factor) 
+                source.SetPoint2(coords_b / self.scale_factor)
                 source.Update()
                 linkedSymbols.AddInputData(source.GetOutput())
         
@@ -110,7 +109,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if property == "acoustic_pressure":
+            if property == "volume_velocity":
                 pos = data["coords"]
                 symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
@@ -170,7 +169,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
                     if element.cross_section is not None:
                         diameter = element.cross_section.outer_diameter
-                        factor = (diameter + 0.06) / self.scaleFactor
+                        factor = (diameter + 0.06) / self.scale_factor
                         scl = (factor, factor, factor)
                         symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
@@ -197,7 +196,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
                     if element.cross_section is not None:
                         diameter = element.cross_section.outer_diameter
-                        factor = (diameter + 0.06) / self.scaleFactor
+                        factor = (diameter + 0.06) / self.scale_factor
                         scl = (factor, factor, factor)
                         symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
@@ -248,11 +247,11 @@ class AcousticElementsSymbolsActor(SymbolsActorBase):
                     outer_diameter = element.cross_section.outer_diameter
                     thickness = element.cross_section.thickness
                     inner_diameter = outer_diameter - 4 * thickness
-                    factor_yz = ((inner_diameter / 2) / 0.1) / self.scaleFactor
+                    factor_yz = ((inner_diameter / 2) / 0.1) / self.scale_factor
                 else:
-                    factor_yz = (element.cross_section.inner_diameter/0.1) / self.scaleFactor
+                    factor_yz = (element.cross_section.inner_diameter/0.1) / self.scale_factor
 
-                factor_x = (element.perforated_plate.thickness/0.01) / self.scaleFactor
+                factor_x = (element.perforated_plate.thickness/0.01) / self.scale_factor
                 scl = (factor_x, factor_yz, factor_yz)
 
                 symbols.append(

@@ -47,11 +47,11 @@ class GeometryHandler:
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
 
-        for structure in self.pipeline.structures:
+        for structure in self.pipeline.structures: 
             if isinstance(structure, Valve):
                 "Insert here your valve modeling"
 
-            elif isinstance(structure, LinearStructure):
+            elif isinstance(structure, (Pipe, Beam, Reducer, Valve, ExpansionJoint)):
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
 
@@ -129,6 +129,7 @@ class GeometryHandler:
         self.pipeline.reset()
 
         lines_data = app().pulse_file.read_line_properties_from_file()
+
         if isinstance(lines_data, dict):
             for data in lines_data.values():
 
@@ -147,6 +148,10 @@ class GeometryHandler:
 
                 elif structural_element_type == "valve":
                     structure = self._process_valve(data)
+
+                elif structural_element_type == "expansion_joint":
+                    # continue
+                    structure = self._process_expansion_joint(data)
 
                 if "material_id" in data.keys():
                     structure.extra_info["material_info"] = data['material_id']
@@ -176,44 +181,45 @@ class GeometryHandler:
                 corner = Point(*data['corner_coords'])
                 curvature_radius = data['curvature_radius']
                 structure = Bend(
-                                    start, 
-                                    end, 
-                                    corner, 
-                                    curvature_radius, 
-                                    diameter=section_parameters[0],
-                                    thickness=section_parameters[1]
+                                 start, 
+                                 end, 
+                                 corner, 
+                                 curvature_radius, 
+                                 diameter = section_parameters[0],
+                                 thickness = section_parameters[1]
                                 )
 
             else:
                 start = Point(*data['start_coords'])
                 end = Point(*data['end_coords'])
                 structure = Pipe(
-                                    start, 
-                                    end, 
-                                    diameter=section_parameters[0],
-                                    thickness=section_parameters[1],
+                                 start, 
+                                 end, 
+                                 diameter = section_parameters[0],
+                                 thickness = section_parameters[1],
                                 )
 
         elif len(section_parameters) == 10:
+
             start = Point(*data['start_coords'])
             end = Point(*data['end_coords'])
             structure = Reducer(
-                                    start, 
-                                    end, 
-                                    initial_diameter = section_parameters[0],
-                                    final_diameter = section_parameters[4],
-                                    thickness = section_parameters[1],
-                                    initial_offset_y = -section_parameters[2],
-                                    initial_offset_z = section_parameters[3],
-                                    final_offset_y = -section_parameters[6],
-                                    final_offset_z = section_parameters[7],
+                                start, 
+                                end, 
+                                initial_diameter = section_parameters[0],
+                                final_diameter = section_parameters[4],
+                                thickness = section_parameters[1],
+                                initial_offset_y = -section_parameters[2],
+                                initial_offset_z = section_parameters[3],
+                                final_offset_y = -section_parameters[6],
+                                final_offset_z = section_parameters[7],
                                 )
 
         else:
             return
 
         section_info = {
-                        "section_type_label" : "Reducer",
+                        "section_type_label" : data["section_type_label"],
                         "section_parameters" : section_parameters
                        }
 
@@ -240,71 +246,71 @@ class GeometryHandler:
             start = Point(*data['start_coords'])
             end = Point(*data['end_coords'])
             structure = RectangularBeam(
-                                            start, 
-                                            end,
-                                            width = section_parameters[0],
-                                            height = section_parameters[1],
-                                            thickness = (section_parameters[0] - section_parameters[2]) / 2,
+                                        start, 
+                                        end,
+                                        width = section_parameters[0],
+                                        height = section_parameters[1],
+                                        thickness = (section_parameters[0] - section_parameters[2]) / 2,
                                         )
         
         elif section_type_label == "Circular section":
             start = Point(*data['start_coords'])
             end = Point(*data['end_coords'])
             structure = CircularBeam(
-                                        start, 
-                                        end, 
-                                        diameter=section_parameters[0],
-                                        thickness=section_parameters[1],
+                                     start, 
+                                     end, 
+                                     diameter = section_parameters[0],
+                                     thickness = section_parameters[1],
                                     )
 
         elif section_type_label == "C-section":
             start = Point(*data['start_coords'])
             end = Point(*data['end_coords'])
             structure = CBeam(
-                                start, 
-                                end, 
-                                height = section_parameters[0],
-                                width_1 = section_parameters[1],
-                                width_2 = section_parameters[3],
-                                thickness_1 = section_parameters[2],
-                                thickness_2 = section_parameters[4],
-                                thickness_3 = section_parameters[5],
-                            )
+                              start, 
+                              end, 
+                              height = section_parameters[0],
+                              width_1 = section_parameters[1],
+                              width_2 = section_parameters[3],
+                              thickness_1 = section_parameters[2],
+                              thickness_2 = section_parameters[4],
+                              thickness_3 = section_parameters[5],
+                              )
     
         elif section_type_label == "I-section":
             start = Point(*data['start_coords'])
             end = Point(*data['end_coords'])
             structure = IBeam(
-                                start, 
-                                end, 
-                                height = section_parameters[0],
-                                width_1 = section_parameters[1],
-                                width_2 = section_parameters[3],
-                                thickness_1 = section_parameters[2],
-                                thickness_2 = section_parameters[4],
-                                thickness_3 = section_parameters[5],
-                            )
+                              start, 
+                              end, 
+                              height = section_parameters[0],
+                              width_1 = section_parameters[1],
+                              width_2 = section_parameters[3],
+                              thickness_1 = section_parameters[2],
+                              thickness_2 = section_parameters[4],
+                              thickness_3 = section_parameters[5],
+                              )
                         
         elif section_type_label == "T-section":
             start = Point(*data['start_coords'])
             end = Point(*data['end_coords'])
             structure = TBeam(
-                                start, 
-                                end, 
-                                height = section_parameters[0],
-                                width = section_parameters[1],
-                                thickness_1 = section_parameters[2],
-                                thickness_2 = section_parameters[3],
-                            )
-                        
+                              start, 
+                              end, 
+                              height = section_parameters[0],
+                              width = section_parameters[1],
+                              thickness_1 = section_parameters[2],
+                              thickness_2 = section_parameters[3],
+                              )
+
         else:
             return
 
         section_properties = data["section_properties"]
         section_info = {
-                            "section_type_label" : section_type_label,
-                            "section_parameters" : section_parameters,
-                            "section_properties" : section_properties
+                        "section_type_label" : section_type_label,
+                        "section_parameters" : section_parameters,
+                        "section_properties" : section_properties
                         }
 
         structure.extra_info["cross_section_info"] = section_info
@@ -320,11 +326,32 @@ class GeometryHandler:
         start = Point(*data['start_coords'])
         end = Point(*data['end_coords'])
         structure = Valve(
-                            start, 
-                            end,
-                            diameter = 0.1,
-                            thickness = 0.01
-                        )
+                          start, 
+                          end,
+                          diameter = 0.1,
+                          thickness = 0.01
+                          )
+
+        structure.extra_info["valve_info"] = data["valve"]
+        structure.extra_info["structural_element_type"] = "valve"
+
+        return structure
+
+    def _process_expansion_joint(self, data: dict):
+
+        start = Point(*data['start_coords'])
+        end = Point(*data['end_coords'])
+        diameter  = data["expansion_joint"]["effective_diameter"]
+
+        structure = ExpansionJoint(
+                                   start, 
+                                   end,
+                                   diameter = diameter,
+                                   thickness = 0.05*diameter
+                                   )
+
+        structure.extra_info["expansion_joint_info"] = data["expansion_joint"]
+        structure.extra_info["structural_element_type"] = "expansion_joint"
 
         return structure
 
@@ -624,11 +651,16 @@ class GeometryHandler:
     def export_model_data_file(self):
 
         tag = 1
+
         structures_data = dict()
         section_info = dict()
+
         element_type_info = defaultdict(list)
         material_info = defaultdict(list)
+
         psd_info = dict()
+        expansion_joint_info = dict()
+        valve_info = dict()
 
         for structure in self.pipeline.structures:
 
@@ -654,6 +686,12 @@ class GeometryHandler:
                     structural_element_type = structure.extra_info["structural_element_type"]
                     element_type_info[structural_element_type].append(tag)
 
+            if "expansion_joint_info" in structure.extra_info.keys():
+                expansion_joint_info[tag] = structure.extra_info["expansion_joint_info"]
+
+            if "valve_info" in structure.extra_info.keys():
+                valve_info[tag] = structure.extra_info["valve_info"]
+
             if "psd_label" in structure.extra_info.keys():
                 psd_info[tag] = structure.extra_info["psd_label"]
 
@@ -675,10 +713,14 @@ class GeometryHandler:
             for material_id, line_ids in material_info.items():
                 app().project.model.properties._set_line_property("material_id", material_id, line_ids=line_ids)
 
+            for line_id, ej_data in expansion_joint_info.items():
+                app().project.model.properties._set_line_property("expansion_joint", ej_data, line_ids=line_id)
+
+            for line_id, valve_data in valve_info.items():
+                app().project.model.properties._set_line_property("valve", valve_data, line_ids=line_id)
+
             for line_id, psd_label in psd_info.items():
                 app().project.model.properties._set_line_property("psd_label", psd_label, line_ids=line_id)
-
-            print(app().project.model.properties.line_properties)
 
             app().pulse_file.write_line_properties_in_file()
             app().pulse_file.modify_project_attributes(import_type = 1)

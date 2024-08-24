@@ -147,7 +147,7 @@ class BeforeRun:
                 self.check_set_material = True
                 if line_id not in lines_without_materials:
                     lines_without_materials.append(line_id)
-                
+
             if element.cross_section is None:
                 if element.element_type:
                     self.check_set_crossSection = True
@@ -159,13 +159,13 @@ class BeforeRun:
             else:        
 
                 if element.element_type == 'expansion_joint':
-                    if element.cross_section.area_fluid == 0:
+                    if element.expansion_joint_data is None:
                         self.check_set_crossSection = True
                         if element.index not in elements_without_cross_sections[line_id]:
                             elements_without_cross_sections[line_id].append(element.index)
                         if line_id not in lines_without_cross_sections:
                             lines_without_cross_sections.append(line_id)
-                        
+
                 else:
                     if element.cross_section.thickness == 0:
                         if element.cross_section.area == 0:
@@ -174,7 +174,7 @@ class BeforeRun:
                                 elements_without_cross_sections[line_id].append(element.index)
                             if line_id not in lines_without_cross_sections:
                                 lines_without_cross_sections.append(line_id)
-                            
+                 
         return lines_without_materials, elements_without_cross_sections
 
     def check_fluid_and_cross_section_in_all_elements(self):
@@ -202,7 +202,7 @@ class BeforeRun:
                         lines_without_cross_sections.append(line_id)
             else:
                 if self.structural_elements[element.index].element_type == 'expansion_joint':
-                    if element.cross_section.area_fluid == 0:
+                    if element.expansion_joint_data is None:
                         self.check_set_crossSection = True
                         if element.index not in elements_without_cross_sections[line_id]:
                             elements_without_cross_sections[line_id].append(element.index)

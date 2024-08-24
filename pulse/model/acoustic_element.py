@@ -1,11 +1,13 @@
 # fmt: off
 
+from pulse.model.perforated_plate import Foks_function
+from pulse.model.node import Node, distance
+
 from numpy import sqrt, pi
 import numpy as np
 from scipy.special import jv, hankel1
 from scipy.optimize import root
-from pulse.model.perforated_plate import Foks_function
-from pulse.model.node import distance
+
 
 DOF_PER_NODE = 1
 NODES_PER_ELEMENT = 2
@@ -102,11 +104,12 @@ class AcousticElement:
         2 : loop 
         Default is None.
     """
-    def __init__(self, first_node, last_node, index, **kwargs):
+    def __init__(self, first_node: Node, last_node: Node, index: int, **kwargs):
 
         self.first_node = first_node
         self.last_node = last_node
         self.index = index
+
         self.element_type = kwargs.get('element_type', 'undamped')
         self.proportional_damping = kwargs.get('proportional_damping', None)
         self.material = kwargs.get('material', None)
@@ -116,7 +119,7 @@ class AcousticElement:
         self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
         self.perforated_plate = kwargs.get('perforated_plate', None)
         self.vol_flow = kwargs.get('vol_flow', 0)
-        self.acoustic_length_correction = kwargs.get('acoustic_length_correction', None)
+        self.length_correction_data = kwargs.get('length_correction_data', None)
 
         self.reset()
 

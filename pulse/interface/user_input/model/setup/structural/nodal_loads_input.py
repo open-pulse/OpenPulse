@@ -173,8 +173,8 @@ class NodalLoadsInput(QDialog):
             self.lineEdit_selection_id.setText(text)
 
             if len(selected_nodes) == 1:
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "nodal_loads" and selected_nodes[0] == node_id:
+                for (property, *args), data in self.properties.nodal_properties.items():
+                    if property == "nodal_loads" and selected_nodes == args:
 
                         values = data["values"]
         
@@ -526,21 +526,18 @@ class NodalLoadsInput(QDialog):
     def load_nodes_info(self):
 
         self.treeWidget_nodal_loads.clear()
-        for (property, node_id), data in self.properties.nodal_properties.items():
+        for (property, *args), data in self.properties.nodal_properties.items():
 
             if property == "nodal_loads":
                 values = data["values"]
                 constrained_dofs_mask = [False if value is None else True for value in values]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(constrained_dofs_mask))])
+                new = QTreeWidgetItem([str(args[0]), str(self.text_label(constrained_dofs_mask))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_nodal_loads.addTopLevelItem(new)
 
-        self.update_tabs_visibility()
-
-    def update_tabs_visibility(self):
         self.tabWidget_nodal_loads.setTabVisible(2, False)
-        for (property, _) in self.properties.nodal_properties.keys():
+        for (property, *_) in self.properties.nodal_properties.keys():
             if property == "nodal_loads":
                 self.tabWidget_nodal_loads.setCurrentIndex(0)
                 self.tabWidget_nodal_loads.setTabVisible(2, True)
@@ -571,8 +568,8 @@ class NodalLoadsInput(QDialog):
             loads_info = dict()
             selected_node = int(item.text(0))
 
-            for (property, node_id), data in self.properties.nodal_properties.items():
-                if property == "nodal_loads" and selected_node == node_id:
+            for (property, *args), data in self.properties.nodal_properties.items():
+                if property == "nodal_loads" and selected_node == args[0]:
 
                     values = data["values"]
                     nodal_loads_mask = [False if bc is None else True for bc in values]
@@ -647,9 +644,9 @@ class NodalLoadsInput(QDialog):
         if read._continue:
             
             node_ids = list()
-            for (property, node_id), data in self.properties.nodal_properties.items():
+            for (property, *args) in self.properties.nodal_properties.keys():
                 if property == "nodal_loads":
-                    node_ids.append(node_id)
+                    node_ids.append(args[0])
 
             for node_id in node_ids:
                 self.remove_table_files_from_nodes(node_id)

@@ -616,7 +616,8 @@ class ExpansionJointInput(QDialog):
 
             self.preprocessor.set_cross_section_by_elements(self.joint_elements, cross_sections)
             self.preprocessor.add_expansion_joint_by_lines(line_id, self.joint_parameters)
-            
+            self.preprocessor.set_structural_element_type_by_lines(line_id, "expansion_joint")
+
             self.properties._remove_line_property("valve", line_id)
             self.properties._remove_line_property("section_parameters", line_id)
             self.properties._remove_line_property("section_properties", line_id)
@@ -705,6 +706,8 @@ class ExpansionJointInput(QDialog):
             if element_type == 'pipe_1' and isinstance(cross, CrossSection):
 
                 self.preprocessor.set_cross_section_by_lines(line_id, cross)
+                self.preprocessor.set_structural_element_type_by_lines(line_id, "pipe_1")
+
                 pipe_info = {   "section_type_label" : "Pipe",
                                 "section_parameters" : cross.section_parameters   }
 
@@ -778,10 +781,13 @@ class ExpansionJointInput(QDialog):
         self.close()
 
     def actions_to_finalize(self):
+
+        app().pulse_file.write_line_properties_in_file()
+
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
-        app().pulse_file.write_line_properties_in_file()
+
         app().main_window.update_plots()
 
     def update_plots(self):
