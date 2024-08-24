@@ -181,34 +181,44 @@ class BeforeRun:
         """
         This method checks if all acoustic elements have a fluid object and a cross section object attributed.
         """
+
         self.check_set_fluid = False
         self.check_set_crossSection = False
         lines_without_fluids = list()
         lines_without_cross_sections = list()
         elements_without_cross_sections = defaultdict(list)
+
         for element in self.acoustic_elements.values():
+
+            structural_element = self.structural_elements[element.index]
+
             line_id = self.model.mesh.elements_to_line[element.index]
             if element.fluid is None:
-                if 'pipe_' in self.structural_elements[element.index].element_type:
+                if structural_element.element_type == "pipe_1":
                     self.check_set_fluid = True
                     if line_id not in lines_without_fluids:
                         lines_without_fluids.append(line_id)
                     
             if element.cross_section is None:
+
                 self.check_set_crossSection = True
                 if element.index not in elements_without_cross_sections[line_id]:
                     elements_without_cross_sections[line_id].append(element.index)
                 if line_id not in lines_without_cross_sections:
                         lines_without_cross_sections.append(line_id)
+
             else:
-                if self.structural_elements[element.index].element_type == 'expansion_joint':
-                    if element.expansion_joint_data is None:
+
+                if structural_element.element_type == 'expansion_joint':
+                    if structural_element.expansion_joint_data is None:
                         self.check_set_crossSection = True
                         if element.index not in elements_without_cross_sections[line_id]:
                             elements_without_cross_sections[line_id].append(element.index)
                         if line_id not in lines_without_cross_sections:
                             lines_without_cross_sections.append(line_id)     
+
                 else:    
+
                     if element.cross_section.thickness == 0:
                         if element.cross_section.area == 0:
                             self.check_set_crossSection = True

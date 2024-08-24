@@ -139,16 +139,35 @@ class StructuralElement:
         self.stress_intensification = kwargs.get('stress_intensification', True)
         
         self._initialize()
+
         self.reset_expansion_joint_data()
         self.reset_valve_parameters()
 
-        self.delta_x = self.last_node.x - self.first_node.x
-        self.delta_y = self.last_node.y - self.first_node.y
-        self.delta_z = self.last_node.z - self.first_node.z
+        # self.delta_x = self.last_node.x - self.first_node.x
+        # self.delta_y = self.last_node.y - self.first_node.y
+        # self.delta_z = self.last_node.z - self.first_node.z
 
-        self.element_center_coordinates = np.array([(self.last_node.x + self.first_node.x)/2, 
-                                                    (self.last_node.y + self.first_node.y)/2,
-                                                    (self.last_node.z + self.first_node.z)/2], dtype=float)
+        # self.element_center_coordinates = np.array([(self.last_node.x + self.first_node.x)/2, 
+        #                                             (self.last_node.y + self.first_node.y)/2,
+        #                                             (self.last_node.z + self.first_node.z)/2], dtype=float)
+
+    @ property
+    def delta_x(self):
+        return self.last_node.x - self.first_node.x
+
+    @ property
+    def delta_y(self):
+        return self.last_node.y - self.first_node.y
+
+    @ property
+    def delta_z(self):
+        return self.last_node.z - self.first_node.z
+
+    @ property
+    def element_center_coordinates(self):
+        return np.array([(self.last_node.x + self.first_node.x) / 2, 
+                         (self.last_node.y + self.first_node.y) / 2,
+                         (self.last_node.z + self.first_node.z) / 2 ], dtype=float)
 
     def _initialize(self):
 

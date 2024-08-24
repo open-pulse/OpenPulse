@@ -199,7 +199,6 @@ class CrossSection:
 
         self.section_type_label = kwargs.get('section_label', None)
         self.section_parameters = kwargs.get('section_parameters', None)
-        self.expansion_joint_plot_key = None
 
         self._reset_variables()
 
@@ -278,9 +277,9 @@ class CrossSection:
 
     def load_expansion_joint_data(self):
         self.section_type_label = self.expansion_joint_info[0]
-        self.expansion_joint_plot_key = self.expansion_joint_info[1]
         self.outer_diameter = self.expansion_joint_info[2]
-        self.effective_diameter = self.expansion_joint_info[2]
+        self.section_parameters = [ self.expansion_joint_info[1], 
+                                    self.expansion_joint_info[2] ]
 
     def set_section_parameters(self, parameters):
         self.outer_diameter, self.thickness = parameters

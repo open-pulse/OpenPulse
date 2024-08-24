@@ -828,9 +828,10 @@ def get_cross_sections_to_plot_expansion_joint(joint_elements: list, effective_d
             else:
                 plot_key = "major"
 
-        expansion_joint_info = [    "Expansion joint", 
-                                    plot_key,
-                                    effective_diameter 
+        expansion_joint_info = [
+                                "Expansion joint", 
+                                plot_key,
+                                effective_diameter 
                                 ]
 
         cross = CrossSection(expansion_joint_info = expansion_joint_info)

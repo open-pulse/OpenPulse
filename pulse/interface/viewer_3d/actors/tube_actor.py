@@ -117,44 +117,46 @@ class TubeActor(vtkActor):
         length = element.length
 
         if cross_section.section_type_label in ["Pipe", "Reducer"]:
-            # d_out, t, *_ = cross_section.section_parameters
             d_out, t, *_ = element.section_parameters_render
             return cross_section_sources.pipe_data(length, d_out, t, sides=tube_sides)
 
         elif cross_section.section_type_label == "Rectangular section":
-            # b, h, t, *_ = cross_section.section_parameters
             b, h, t, *_ = element.section_parameters_render
             return cross_section_sources.rectangular_beam_data(length, b, h, t)
 
         elif cross_section.section_type_label == "Circular section":
-            # d_out, t, *_ = cross_section.section_parameters
             d_out, t, *_ = element.section_parameters_render
             return cross_section_sources.circular_beam_data(length, d_out, t)
 
         elif cross_section.section_type_label == "C-section":
-            # h, w1, t1, w2, t2, tw, *_ = cross_section.section_parameters
             h, w1, t1, w2, t2, tw, *_ = element.section_parameters_render
             return cross_section_sources.c_beam_data(length, h, w1, w2, t1, t2, tw)
 
         elif cross_section.section_type_label == "I-section":
-            # h, w1, t1, w2, t2, tw, *_ = cross_section.section_parameters
             h, w1, t1, w2, t2, tw, *_ = element.section_parameters_render
             return cross_section_sources.i_beam_data(length, h, w1, w2, t1, t2, tw)
 
         elif cross_section.section_type_label == "T-section":
-            # h, w1, t1, tw, *_ = cross_section.section_parameters
             h, w1, t1, tw, *_ = element.section_parameters_render
             return cross_section_sources.t_beam_data(length, h, w1, t1, tw)
 
         elif cross_section.section_type_label == "Expansion joint":
-            d_eff = cross_section.effective_diameter
-            if cross_section.expansion_joint_plot_key == "major":
-                d_out = 2 * cross_section.outer_radius * 1.25
-            elif cross_section.expansion_joint_plot_key == "minor":
-                d_out = 2 * cross_section.outer_radius * 1.1            
+
+            plot_key, d_eff, *args = element.section_parameters_render
+
+            if plot_key == "major":
+                d_out = d_eff * 1.25
+            elif plot_key == "minor":
+                d_out = d_eff * 1.1            
             else:
-                d_out = 2 * cross_section.outer_radius * 1.4
-            t = (d_out - d_eff) / 2
+                d_out = d_eff * 1.4
+
+            if args:
+                d_in = args[0]
+                t = (d_out - d_in) / 2
+            else:
+                t = (d_out - d_eff) / 2
+
             return cross_section_sources.pipe_data(length, d_out, t, sides=tube_sides)
 
         elif cross_section.section_type_label == "Valve section":
@@ -284,15 +286,12 @@ class TubeActor(vtkActor):
         self.GetMapper().RemoveAllClippingPlanes()
 
     def _hash_element_section(self, element):
+
         if element.cross_section is None:
             return 0
 
         section_label = element.cross_section.section_type_label
-
-        if section_label == "Expansion joint":
-            section_parameters = element.cross_section.expansion_joint_plot_key
-        else:
-            section_parameters = element.section_parameters_render
+        section_parameters = element.section_parameters_render
 
         if section_parameters is not None:
             section_parameters = tuple(section_parameters)

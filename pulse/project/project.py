@@ -181,6 +181,7 @@ class Project:
 
                 if element.cross_section is None:
                     continue
+
                 inner_diameter = element.cross_section.inner_diameter 
 
                 if len(self.preprocessor.neighbors[first_node]) == 1:
@@ -195,25 +196,24 @@ class Project:
 
             if element:
 
-                cross = element.cross_section
-                outer_diameter = cross.outer_diameter
-                offset_y = cross.offset_y
-                offset_z = cross.offset_z
-                insulation_thickness = cross.insulation_thickness
-                section_label = cross.section_type_label
-
                 if element.element_type == 'expansion_joint':
-                    _key = element.cross_section.expansion_joint_plot_key
+
+                    d_eff = element.cross_section.section_parameters[1]
+                    plot_key = element.cross_section.section_parameters[0]
+
                     thickness = (outer_diameter - inner_diameter) / 2
-                    parameters = [  outer_diameter, 
-                                    thickness, 
-                                    offset_y, 
-                                    offset_z, 
-                                    insulation_thickness,
-                                    _key
-                                  ]
+                    parameters = [plot_key, d_eff, inner_diameter]
+
+                    element.section_parameters_render = parameters
 
                 else:
+
+                    cross = element.cross_section
+                    outer_diameter = cross.outer_diameter
+                    offset_y = cross.offset_y
+                    offset_z = cross.offset_z
+                    insulation_thickness = cross.insulation_thickness
+
                     thickness = (outer_diameter - inner_diameter) / 2
                     parameters = [  outer_diameter, 
                                     thickness, 
@@ -222,7 +222,7 @@ class Project:
                                     insulation_thickness
                                   ]
 
-                element.section_parameters_render = parameters
+                    element.section_parameters_render = parameters
 
     def is_there_an_acoustic_attribute_in_the_node(self, node_id: int):
 
