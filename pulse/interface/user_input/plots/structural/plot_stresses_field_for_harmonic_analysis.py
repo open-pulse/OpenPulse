@@ -178,8 +178,8 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         self.flag_damping_effect = self.checkBox_damping_effect.isChecked()
 
         if self.stress_data == [] or self.update_damping:
-            self.stress_data = self.solve.stress_calculate( pressure_external = 0, 
-                                                            damping_flag = self.flag_damping_effect )
+            self.stress_data = self.solve.stress_calculate( pressure_external = 0,
+                                                            damping = self.flag_damping_effect )
             self.update_damping = False
 
         stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }

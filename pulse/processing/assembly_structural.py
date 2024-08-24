@@ -2,7 +2,6 @@
 
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.model import Model
-# from pulse.model.preprocessor import Preprocessor
 from pulse.model.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 import numpy as np
@@ -278,8 +277,6 @@ class AssemblyStructural:
                         "structural_damping_links"
                        ]
 
-        print("get_lumped_matrices -> structural")
-
         for (_property, *args), data in self.model.properties.nodal_properties.items():
 
             if _property not in _properties:
@@ -318,18 +315,15 @@ class AssemblyStructural:
 
             # structural elastic link in PSDs
             if _property == "psd_structural_links":
-                print(f"psd -> {node_ids} {data}")
                 psd_link_data = self.preprocessor.get_psd_structural_link_data(node_ids)
                 i_indexes_K.extend(psd_link_data["indexes_i"])
                 j_indexes_K.extend(psd_link_data["indexes_j"])
                 values = psd_link_data["data"]
-                print(psd_link_data)
-
                 K_data.append(self.get_bc_array_for_all_frequencies(False, values))
 
             # structural nodal link for stiffness
             if _property == "structural_stiffness_links":
-                link_data_K = self.preprocessor.get_psd_structural_link_data(node_ids, data)
+                link_data_K = self.preprocessor.get_structural_links_data(node_ids, data)
                 i_indexes_K.extend(link_data_K["indexes_i"])
                 j_indexes_K.extend(link_data_K["indexes_j"])
                 values = link_data_K["data"]
@@ -337,7 +331,7 @@ class AssemblyStructural:
 
             # structural nodal link for damping
             if _property == "structural_damping_links":
-                link_data_C = self.preprocessor.get_psd_structural_link_data(node_ids, data)
+                link_data_C = self.preprocessor.get_structural_links_data(node_ids, data)
                 i_indexes_C.extend(link_data_C["indexes_i"])
                 j_indexes_C.extend(link_data_C["indexes_j"])
                 values = link_data_C["data"]
@@ -346,8 +340,6 @@ class AssemblyStructural:
         data_Klump = np.array(K_data).reshape(-1, cols)
         data_Mlump = np.array(M_data).reshape(-1, cols)
         data_Clump = np.array(C_data).reshape(-1, cols)
-
-        print(data_Klump.shape)
 
         i_indexes_K = np.array(i_indexes_K).flatten()
         i_indexes_M = np.array(i_indexes_M).flatten()
@@ -444,7 +436,7 @@ class AssemblyStructural:
                 if self.model.element_distributed_load:
                     loads[position] += element.get_distributed_load()
 
-            if self.preprocessor.project.external_nodal_loads:
+            if self.model.external_nodal_loads:
                 # nodal loads
                 for (property, *args), data in self.model.properties.nodal_properties.items():
                     if property == "nodal_loads":
@@ -492,14 +484,14 @@ class AssemblyStructural:
             _frequencies = np.array([0.], dtype=float)
         else:
             _frequencies = self.frequencies
-        cols = len(_frequencies)
 
+        cols = len(_frequencies)
         loads = np.zeros((total_dof, cols), dtype=complex)
         pressure_loads = np.zeros((total_dof, cols), dtype=complex)
-        
+
         if static_analysis:
             return self.get_global_loads_for_static_analysis()
-        
+
         # distributed loads
         for element in self.preprocessor.structural_elements.values():
             position = element.global_dof 
@@ -579,8 +571,6 @@ class AssemblyStructural:
            number_frequencies = 1
         else:
             number_frequencies = len(self.frequencies)
-
-        print(number_frequencies)
 
         if loaded_table:
             list_arrays = [np.zeros(number_frequencies, dtype=float) if bc is None else bc[0:number_frequencies] for bc in boundary_condition]

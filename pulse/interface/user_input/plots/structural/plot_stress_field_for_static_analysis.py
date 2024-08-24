@@ -25,7 +25,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
 
     def _initialize(self):
 
-        self.stress_data = []
+        self.stress_data = list()
         self.keys = np.arange(7)
         self.selected_index = None
 
@@ -111,10 +111,10 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         stress_label = self.labels[index]
         stress_key = self.keys[index]
 
-        if self.stress_data == []:
+        if self.stress_data == list():
             self.stress_data = self.solve.stress_calculate( pressure_external = 0, 
-                                                            damping_flag = False )
-            
+                                                            damping = False )
+
         stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }
         
         stress_list = list(stress_field.values())

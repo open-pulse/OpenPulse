@@ -201,7 +201,7 @@
          <string/>
         </property>
         <property name="autoDefault">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="default">
          <bool>false</bool>
@@ -240,6 +240,9 @@
         <property name="text">
          <string>Harmonic Analysis - Acoustic</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="4" column="1">
@@ -271,6 +274,9 @@
         <property name="text">
          <string>Modal Analysis - Structural</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="2" column="1">
@@ -301,6 +307,9 @@
         </property>
         <property name="text">
          <string>Harmonic Analysis - Coupled</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -353,6 +362,9 @@
         <property name="text">
          <string>Modal Analysis - Acoustic</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="7" column="1">
@@ -383,6 +395,9 @@
         </property>
         <property name="text">
          <string>Static analysis</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
         </property>
        </widget>
       </item>

@@ -174,7 +174,7 @@ column = 3
 
 ms_results = np.real(modal)
 
-load_reactions = solution_structural.get_reactions_at_fixed_nodes(frequencies, direct)
+load_reactions = solution_structural.get_reactions_at_constrained_dofs(frequencies, direct)
 load_reactions = np.real(load_reactions)
 _, coord_def, _, _ = get_structural_response(mesh, modal, column, Normalize=False)
 

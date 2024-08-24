@@ -45,13 +45,22 @@ class StructuralSolver:
         self.prescribed_values, self.array_prescribed_values = self.assembly.get_prescribed_values()
         self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
 
+        self._initialize()
+
+    def _initialize(self):
+
+        self.solution = None
+        self.reset_stress_stiffening = False
         self.flag_Modal_prescribed_NonNull_DOFs = False
         self.flag_ModeSup_prescribed_NonNull_DOFs = False
+
         self.warning_Clump = ""
         self.warning_ModeSup_prescribedDOFs = ""
         self.warning_Modal_prescribedDOFs = ""
-        self.solution = None
-        self.reset_stress_stiffening = False
+
+        self.reactions_at_constrained_dofs = None
+        self.dict_reactions_at_springs = None
+        self.dict_reactions_at_dampers = None
 
     def update_global_matrices(self):
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
@@ -442,7 +451,7 @@ class StructuralSolver:
         return self.solution
 
 
-    def get_reactions_at_fixed_nodes(self):
+    def get_reactions_at_constrained_dofs(self, static_analysis=False):
         """
         This method evaluates reaction forces and moments at fixed nodes.
 
@@ -466,7 +475,13 @@ class StructuralSolver:
 
             else:
 
-                rows = len(self.frequencies)
+                if static_analysis:
+                    rows = 1
+                    _frequencies = np.array([0.])
+                else:
+                    rows = len(self.frequencies)
+                    _frequencies = self.frequencies
+
                 cols = len(self.prescribed_indexes)
                 _reactions = np.zeros((rows, cols), dtype=complex)
 
@@ -475,7 +490,7 @@ class StructuralSolver:
                 Mr = self.Mr.toarray() + self.Mr_exp_joint.toarray()
                 Ut_Mr = Ut@Mr
 
-                for j, freq in enumerate(self.frequencies):
+                for j, freq in enumerate(_frequencies):
                     
                     omega = 2*np.pi*freq
                     # Ut_Kr = Ut@(Kr+self.Kr_exp_joint[j].toarray())
@@ -484,11 +499,11 @@ class StructuralSolver:
                     # F_M = -(omega**2)*Ut_Mr[j,:]
                     # F_C = 1j*((betaH + omega*betaV)*Ut_Kr[j,:] + (alphaH + omega*alphaV)*Ut_Mr[j,:])
 
-                    Ut_Kr = Ut[j,:]@(Kr+self.Kr_exp_joint[j].toarray())
+                    Ut_Kr = Ut[j,:] @ (Kr + self.Kr_exp_joint[j].toarray())
                     F_K = Ut_Kr
-                    F_M = -(omega**2)*Ut_Mr[j,:]
-                    F_C = 1j*((betaH + omega*betaV)*Ut_Kr + (alphaH + omega*alphaV)*Ut_Mr[j,:])
-                    _reactions[j,:] = F_K + F_M + F_C
+                    F_M = -(omega**2) * Ut_Mr[j, :]
+                    F_C = 1j*((betaH + omega*betaV) * Ut_Kr + (alphaH + omega*alphaV) * Ut_Mr[j, :])
+                    _reactions[j, :] = F_K + F_M + F_C
                 
                 # Mr = self.Mr.toarray()
                 # Ut_Kr = Ut@Kr
@@ -504,10 +519,11 @@ class StructuralSolver:
 
                 for i, prescribed_index in enumerate(self.prescribed_indexes):
                     load_reactions[prescribed_index] =  _reactions[:,i]
-                return load_reactions
+
+                self.reactions_at_constrained_dofs = load_reactions
 
 
-    def get_reactions_at_springs_and_dampers(self):
+    def get_reactions_at_springs_and_dampers(self, static_analysis=False):
         """
         This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.
 
@@ -520,12 +536,18 @@ class StructuralSolver:
         dict_reactions_at_springs = dict()
         dict_reactions_at_dampers = dict()
 
-        if self.solution is not None: 
-
-            omega = 2*np.pi*self.frequencies
-            cols = len(self.frequencies)
+        if self.solution is not None:
 
             U = self.solution
+
+            if static_analysis:
+                cols = 1
+                _frequencies = np.array([0.])
+            else:
+                cols = len(self.frequencies)
+                _frequencies = self.frequencies
+
+            omega = 2*np.pi*_frequencies
 
             springs_stiffness = list()
             dampers_dampings = list()
@@ -535,6 +557,7 @@ class StructuralSolver:
             for (property, *args), data in self.model.properties.nodal_properties.items():
                 if property == "lumped_stiffness":
 
+                    data: dict
                     node_id = args[0]
                     node = self.model.preprocessor.nodes[node_id]
                     global_dofs_of_springs.append(node.global_dof)
@@ -565,6 +588,8 @@ class StructuralSolver:
                 for i, gdof in enumerate(global_dofs_of_springs):
                     dict_reactions_at_springs[gdof] = reactions_at_springs[i,:]
 
+                self.dict_reactions_at_springs = dict_reactions_at_springs
+
             if dampers_dampings:
                 global_dofs_of_dampers = np.array(global_dofs_of_dampers).flatten()
                 dampers_dampings = np.array(dampers_dampings).reshape(-1,cols)
@@ -573,8 +598,7 @@ class StructuralSolver:
                 for i, gdof in enumerate(global_dofs_of_dampers):
                     dict_reactions_at_dampers[gdof] = reactions_at_dampers[i,:]
 
-            return dict_reactions_at_springs, dict_reactions_at_dampers
-
+                self.dict_reactions_at_dampers = dict_reactions_at_dampers
 
     def stress_calculate(self, pressure_external = 0, damping = False, _real_values=False):
         """

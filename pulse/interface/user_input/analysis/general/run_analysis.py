@@ -303,14 +303,26 @@ class RunAnalysisInput(QDialog):
             
             if self.solution_structural is None:
                 return
+            
+            if self.analysis_id == 7:
+                static_analysis = True
+            else:
+                static_analysis = False
 
             self.project.set_structural_solve(self.solve)
             self.project.set_structural_solution(self.solution_structural)
-            self.reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes()
-            self.reactions_at_springs, self.reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
-            self.project.set_structural_reactions([ self.reactions_at_constrained_dofs,
-                                                    self.reactions_at_springs,
-                                                    self.reactions_at_dampers ])
+
+
+            self.solve.get_reactions_at_constrained_dofs(static_analysis=static_analysis)
+            self.solve.get_reactions_at_springs_and_dampers(static_analysis=static_analysis)
+
+            reactions_data = {
+                              "reactions_at_constrained_dofs" : self.solve.reactions_at_constrained_dofs,
+                              "reactions_at_springs" : self.solve.dict_reactions_at_springs,
+                              "reactions_at_dampers" : self.solve.dict_reactions_at_dampers,
+                              }
+
+            self.project.set_structural_reactions(reactions_data)
 
         self.project.time_to_postprocess = time() - t0
         _times =  [self.project.time_to_process_cross_sections, self.project.time_to_preprocess_model, self.project.time_to_solve_model, self.project.time_to_postprocess]

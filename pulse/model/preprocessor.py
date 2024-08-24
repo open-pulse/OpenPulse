@@ -1791,6 +1791,7 @@ class Preprocessor:
         """
         node_1 = self.nodes[node_id1]
         node_2 = self.nodes[node_id2]
+
         nodes_gdofs = np.array([node_1.global_dof, node_2.global_dof]).flatten()
         reord_gdofs = np.sort(nodes_gdofs)
         if  list(nodes_gdofs) == list(reord_gdofs):
@@ -1856,56 +1857,49 @@ class Preprocessor:
             True if ???????. False otherwise.
             Default is False.
         """
+        if len(node_ids) == 2:
 
-        gdofs, *_ = self.get_gdofs_from_nodes(*node_ids)     
-        # min_node_ID = min(node1.external_index, node2.external_index)
-        # max_node_ID = max(node1.external_index, node2.external_index)
-        # key = f"{min_node_ID}-{max_node_ID}"
+            link_data = dict()
 
-        link_data = dict()
-               
-        gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
-        gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
-        
-        if "values" in data.keys():
-            values = data["values"]
+            ext_id1 = min(node_ids) 
+            ext_id2 = max(node_ids)
+            gdofs, *_ = self.get_gdofs_from_nodes(*node_ids)     
 
-            pos_data = values
-            neg_data = [-value if value is not None else None for value in values]
-            # mask = [False if value is None else True for value in values]
+            gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
+            gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
+            
+            if "values" in data.keys():
+                values = data["values"]
 
-            # indexes_i = [ [ gdofs_node1, gdofs_node2 ], [ gdofs_node1, gdofs_node2 ] ] 
-            # indexes_j = [ [ gdofs_node1, gdofs_node1 ], [ gdofs_node2, gdofs_node2 ] ] 
-            # out_data = [ [ pos_data, neg_data ], [ neg_data, pos_data ] ]
-            # element_matrix_info_node1 = [ indexes_i[0], indexes_j[0], out_data[0] ] 
-            # element_matrix_info_node2 = [ indexes_i[1], indexes_j[1], out_data[1] ] 
+                pos_data = values
+                neg_data = [-value if value is not None else None for value in values]
+                # mask = [False if value is None else True for value in values]
 
-            indexes_i = [ gdofs_node1, gdofs_node2, gdofs_node1, gdofs_node2 ] 
-            indexes_j = [ gdofs_node1, gdofs_node1, gdofs_node2, gdofs_node2 ] 
-            out_data = [ pos_data, neg_data, neg_data, pos_data ]
+                indexes_i = [ gdofs_node1, gdofs_node1, gdofs_node2, gdofs_node2 ] 
+                indexes_j = [ gdofs_node1, gdofs_node2, gdofs_node1, gdofs_node2 ] 
+                out_data = [ pos_data, neg_data, neg_data, pos_data ]
 
-            indexes_i = np.array(indexes_i, dtype=int).flatten()
-            indexes_j = np.array(indexes_j, dtype=int).flatten()
-            out_data = np.array(out_data, dtype=float).flatten()
+                indexes_i = np.array(indexes_i, dtype=int).flatten()
+                indexes_j = np.array(indexes_j, dtype=int).flatten()
+                out_data = np.array(out_data, dtype=float).flatten()
 
-            ext_id1, ext_id2 = np.sort(node_ids)
-            coords_1 = self.nodes[ext_id1].coordinates
-            coords_2 = self.nodes[ext_id2].coordinates
+                coords_1 = self.nodes[ext_id1].coordinates
+                coords_2 = self.nodes[ext_id2].coordinates
 
-            coords = list()
-            coords.append(list(np.round(coords_1, 5)))
-            coords.append(list(np.round(coords_2, 5)))
+                coords = list()
+                coords.append(list(np.round(coords_1, 5)))
+                coords.append(list(np.round(coords_2, 5)))
 
-            node_ids = (ext_id1, ext_id2)
+                node_ids = (ext_id1, ext_id2)
 
-            link_data = {
-                        "coords" : coords,
-                        "indexes_i" : indexes_i,
-                        "indexes_j" : indexes_j,
-                        "data" : out_data
-                        }
+                link_data = {
+                            "coords" : coords,
+                            "indexes_i" : indexes_i,
+                            "indexes_j" : indexes_j,
+                            "data" : out_data
+                            }
 
-        return link_data
+            return link_data
 
 
     def get_psd_acoustic_link_data(self, node_ids: list):
@@ -1974,26 +1968,25 @@ class Preprocessor:
 
             coords = list()
 
-            ext_id1 = node_ids[0]
-            ext_id2 = node_ids[0]
+            ext_id1 = min(node_ids) 
+            ext_id2 = max(node_ids)
 
             gdofs, *args = self.get_gdofs_from_nodes(ext_id1, ext_id2)
             gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
             gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
 
             stiffness = np.array([k, k, k, kr, kr, kr], dtype=float)
-            pos_data = np.ones(DOF_PER_NODE_STRUCTURAL, dtype=float)*stiffness
+            pos_data = np.ones(DOF_PER_NODE_STRUCTURAL, dtype=float) * stiffness
             neg_data = -pos_data
 
-            indexes_i = [ gdofs_node1, gdofs_node2, gdofs_node1, gdofs_node2 ] 
-            indexes_j = [ gdofs_node1, gdofs_node1, gdofs_node2, gdofs_node2 ] 
+            indexes_i = [ gdofs_node1, gdofs_node1, gdofs_node2, gdofs_node2 ] 
+            indexes_j = [ gdofs_node1, gdofs_node2, gdofs_node1, gdofs_node2 ] 
             out_data = [ pos_data, neg_data, neg_data, pos_data ]
 
             indexes_i = np.array(indexes_i, dtype=int).flatten()
             indexes_j = np.array(indexes_j, dtype=int).flatten()
             out_data = np.array(out_data, dtype=float).flatten()
 
-            ext_id1, ext_id2 = np.sort(node_ids)
             coords_1 = self.nodes[ext_id1].coordinates
             coords_2 = self.nodes[ext_id2].coordinates
 
@@ -2400,17 +2393,17 @@ class Preprocessor:
                                                 "valve" : 0, 
                                                 None : 0 }
 
-        acoustic_etype_to_elements = defaultdict(list)
         structural_etype_to_elements = defaultdict(list)
         for element in self.structural_elements.values():
             structural_etype_to_number_elements[element.element_type] += 1
             structural_etype_to_elements[element.element_type].append(element.index)
+
+        acoustic_etype_to_elements = defaultdict(list)
         for index, element in self.acoustic_elements.items():
             if self.structural_elements[index].element_type != 'beam_1':
                 acoustic_etype_to_number_elements[element.element_type] += 1
                 acoustic_etype_to_elements[element.element_type].append(element.index)
-        # print(f"acoustic elements data: {acoustic_etype_to_number_elements}")
-        # print(f"structural elements data: {structural_etype_to_number_elements}")
+
         return structural_etype_to_number_elements, acoustic_etype_to_number_elements
 
     def set_unprescribed_pipe_indexes(self, indexes):
@@ -2433,18 +2426,3 @@ class Preprocessor:
 
         for element in self.structural_elements.values():
             element.static_analysis_evaluated = True
-
-    # def remove_selected_lines_and_process_geometry(self, geometry_path, lines):
-    #     """
-    #     """
-    #     gmsh.initialize('', False)
-    #     gmsh.option.setNumber("General.Terminal", 0)
-    #     gmsh.option.setNumber("General.Verbosity", 0)
-    #     gmsh.open(str(geometry_path))
-
-    #     for line in lines:
-    #         gmsh.model.occ.remove([[1, line]], recursive=True)
-
-    #     gmsh.model.occ.synchronize()
-    #     gmsh.write(geometry_path)
-    #     gmsh.finalize()

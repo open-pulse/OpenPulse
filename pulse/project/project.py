@@ -401,7 +401,7 @@ class Project:
     def get_post_solution_model_checks(self):
         return AfterRun()
 
-    def set_structural_solve(self, structural_solve):
+    def set_structural_solve(self, structural_solve: StructuralSolver):
         self.structural_solve = structural_solve
 
     def get_structural_solve(self):
@@ -438,7 +438,7 @@ class Project:
     def set_structural_natural_frequencies(self, value):
         self.natural_frequencies_structural  = value
 
-    def set_structural_reactions(self, value):
+    def set_structural_reactions(self, value: dict):
         self.structural_reactions = value
 
     def get_structural_natural_frequencies(self):

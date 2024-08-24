@@ -454,7 +454,7 @@ class LoadProject:
             return
 
         gravity = np.array(inertia_load["gravity"], dtype=float)
-        stiffening_effect = inertia_load["stiffening effect"]
+        stiffening_effect = inertia_load["stiffening_effect"]
 
         self.project.model.set_gravity_vector(gravity)
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
