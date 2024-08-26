@@ -115,6 +115,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 )
 
             elif self.analysis_mode == AnalysisMode.STRESS:
+                deformed = True
                 color_table = self._compute_stress_field(
                     self.current_frequency_index, self.current_phase_step
                 )
