@@ -628,9 +628,9 @@ class GeometryDesignerWidget(QWidget):
             unit = self._unit_abreviation(self.length_unit)
             tree = TreeInfo("Distance:")
             tree.add_item("Total", distance, unit)
-            tree.add_item("ΔX", dx, unit)
-            tree.add_item("ΔY", dy, unit)
-            tree.add_item("ΔZ", dz, unit)
+            tree.add_item("dx", dx, unit)
+            tree.add_item("dy", dy, unit)
+            tree.add_item("dz", dz, unit)
             message += str(tree) + "\n\n"
 
         self.render_widget.set_info_text(message)
