@@ -233,8 +233,9 @@ class LoadProject:
                     else:
 
                         self.properties._set_line_property(property, prop_data, line_ids=int(line_id))
-
-        print(line_properties)
+        
+        from pprint import pprint
+        pprint(line_properties)
 
     def load_element_properties(self):
         element_properties = app().pulse_file.load_element_properties_from_file()

@@ -60,8 +60,8 @@ class ExpansionJointOptionsWidget(QWidget):
         kwargs["diameter"] = self.expansion_joint_info["effective_diameter"]
         kwargs["thickness"] = 0
         kwargs["extra_info"] = dict(
-            structural_element_type = "pipe_1",
-            expansion_joint_parameters = deepcopy(self.expansion_joint_info),
+            structural_element_type = "expansion_joint",
+            expansion_joint_info = deepcopy(self.expansion_joint_info),
         )
         return kwargs
 
