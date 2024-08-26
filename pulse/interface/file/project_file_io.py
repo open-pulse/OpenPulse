@@ -1,7 +1,4 @@
 from pulse import app
-from pulse.model.properties.material import Material
-from pulse.model.properties.fluid import Fluid
-from pulse.model.cross_section import get_beam_section_properties
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
@@ -17,7 +14,7 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class ProjectFileIO:
+class ProjectFile:
     
     def __init__(self, path : str, override=False):
         super().__init__()
@@ -30,12 +27,12 @@ class ProjectFileIO:
 
         self._initialize()
         self._default_filenames()
-        self._default_foldernames()
 
     def _initialize(self):
         self.project_folder_path = Path(os.path.dirname(self.path))
 
     def _default_filenames(self):
+
         self.project_setup_filename = "project_setup.json"
         self.fluid_library_filename = "fluid_library.config"
         self.material_library_filename = "material_library.config"
@@ -48,10 +45,9 @@ class ProjectFileIO:
         self.imported_table_data_filename = "imported_tables_data.hdf5"
         self.results_data_filename = "results_data.hdf5"
         self.psd_info_filename = "psd_info.json"
-        self.thumbnail_filename = "thumbnail.png"
+        self.valve_info_filename = "valve_info.json"
 
-    def _default_foldernames(self):
-        pass
+        self.thumbnail_filename = "thumbnail.png"
 
     def write_project_setup_in_file(self, data : dict, geometry_path=""):
 
@@ -155,6 +151,16 @@ class ProjectFileIO:
 
     def read_psd_data_from_file(self):
         return self.filebox.read(self.psd_info_filename)
+
+    def write_valve_info_in_file(self, valve_info: dict):
+        if valve_info:
+            self.filebox.write(self.valve_info_filename, valve_info)
+        else:
+            self.filebox.remove(self.valve_info_filename)
+        app().main_window.project_data_modified = True
+
+    def read_valves_info_from_file(self):
+        return self.filebox.read(self.valve_info_filename)
 
     def write_analysis_setup_in_file(self, analysis_setup : dict):
 
@@ -519,6 +525,34 @@ class ProjectFileIO:
     def load_imported_table_data_from_file(self):
         return self.read_imported_table_data_from_file()
     
+    def remove_line_gaps_from_line_properties_file(self):
+        
+        line_data = self.read_line_properties_from_file()
+
+        tag = 0
+        aux = dict()
+        cache_lines = list()
+
+        for str_line_id, data in line_data.items():
+            tag += 1
+
+            # if int(str_line_id) not in cache_lines:
+            #     tag += 1
+            #     cache_lines.append(int(str_line_id))
+
+            aux[tag] = data
+
+        app().project.model.properties.line_properties.clear()
+
+        for line_id, _data in aux.items():
+
+            _data: dict
+            for property, values in _data.items():
+                app().project.model.properties._set_line_property(property, values, line_id)
+
+        if aux:
+            app().pulse_file.write_line_properties_in_file()
+
 def denormalize_mesh(prop: dict):
 
     new_prop = dict()
@@ -578,8 +612,6 @@ def normalize_lines(prop: dict):
         for property in data.keys():
             value = data[property]
             if property in ["fluid", "material",  "cross_section"]:
-                # if isinstance(value, (Fluid, Material)):
-                #     aux[property] = value.identifier
                 continue
             else:
                 aux[property] = value

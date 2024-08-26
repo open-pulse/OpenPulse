@@ -40,6 +40,7 @@ class Project:
         self.reset()
 
     def reset(self, reset_all=False):
+
         # TODO: reimplement this
         if reset_all:
             self.preprocessor.reset_variables()
@@ -51,8 +52,6 @@ class Project:
         self.global_damping = [0, 0, 0, 0]
         self.preferences = dict()
         self.modes = 0
- 
-        self.natural_frequencies_structural = list()
 
         self.solution_structural = None
         self.solution_acoustic = None
@@ -120,17 +119,22 @@ class Project:
         app().loader.load_project_data()
         self.initial_load_project_actions()
         app().loader.load_mesh_dependent_properties()
-        self.enhance_pipe_sections_appearance()
-        self.preprocessor.process_all_rotation_matrices()
 
+        self.enhance_pipe_sections_appearance()
+
+        self.preprocessor.process_all_rotation_matrices()
         self.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
-        # TODO: reimplement the project resetting
-        self.reset()
+
+        self.reset(reset_all=True)
+        app().pulse_file.remove_element_properties_from_project_file()
+        app().pulse_file.remove_nodal_properties_from_project_file()
+
         if app().pulse_file.check_pipeline_data():
-            self.process_geometry_and_mesh()
             app().loader.load_project_data()
+            self.process_geometry_and_mesh()
+            app().loader.load_mesh_dependent_properties()
 
     def process_geometry_and_mesh(self):
         # t0 = time()
@@ -327,7 +331,7 @@ class Project:
             etype = "valve"
 
         self.preprocessor.add_expansion_joint_by_lines(line_ids, None, remove=True)
-        self.preprocessor.add_valve_by_line(line_ids, parameters, remove=remove, reset_cross=reset_cross)
+        self.preprocessor.add_valve_by_lines(line_ids, parameters, remove=remove, reset_cross=reset_cross)
         # self.set_structural_element_type_by_lines(line_ids, etype)
 
     def load_valve_by_lines(self, line_id, data, cross_sections):
@@ -344,20 +348,20 @@ class Project:
             self.preprocessor.set_cross_section_by_element(valve_elements, valve_cross)
         self.preprocessor.set_structural_element_type_by_lines(line_id, 'valve')
 
-    def load_valve_by_elements(self, data, cross_sections):
-        valve_elements = data["valve_elements"]
-        valve_cross, flange_cross = cross_sections
-        self.preprocessor.add_valve_by_elements(valve_elements, data)
-        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(valve_elements)
+    # def load_valve_by_elements(self, data, cross_sections):
+    #     valve_elements = data["valve_elements"]
+    #     valve_cross, flange_cross = cross_sections
+    #     self.preprocessor.add_valve_by_elements(valve_elements, data)
+    #     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(valve_elements)
         
-        if 'flange_elements' in data.keys():
-            flange_elements = data["flange_elements"]
-            _valve_elements = [element_id for element_id in valve_elements if element_id not in flange_elements]
-            self.preprocessor.set_cross_section_by_element(_valve_elements, valve_cross)
-            self.preprocessor.set_cross_section_by_element(flange_elements, flange_cross)
-        else:
-            self.preprocessor.set_cross_section_by_element(valve_elements, valve_cross)
-        self.preprocessor.set_structural_element_type_by_element(valve_elements, "valve")
+    #     if 'flange_elements' in data.keys():
+    #         flange_elements = data["flange_elements"]
+    #         _valve_elements = [element_id for element_id in valve_elements if element_id not in flange_elements]
+    #         self.preprocessor.set_cross_section_by_elements(_valve_elements, valve_cross)
+    #         self.preprocessor.set_cross_section_by_elements(flange_elements, flange_cross)
+    #     else:
+    #         self.preprocessor.set_cross_section_by_elements(valve_elements, valve_cross)
+    #     self.preprocessor.set_structural_element_type_by_element(valve_elements, "valve")
 
     def get_structural_elements(self):
         return self.preprocessor.structural_elements
@@ -390,8 +394,8 @@ class Project:
     def get_modes(self):
         return self.modes
 
-    def set_analysis_type(self, ID, analysis_text, method_text = ""):
-        self.analysis_id = ID
+    def set_analysis_type(self, analysis_id: int, analysis_text: str, method_text = ""):
+        self.analysis_id = analysis_id
         self.analysis_type_label = analysis_text
         self.analysis_method_label = method_text
 
@@ -405,13 +409,10 @@ class Project:
         self.structural_solve = structural_solve
 
     def get_structural_solve(self):
-
         if self.analysis_id in [5, 6]:
             results = StructuralSolver(self.model, acoustic_solution=self.solution_acoustic)
-
         else:
             results = StructuralSolver(self.model)
-
         return results
 
     def set_structural_solution(self, value):

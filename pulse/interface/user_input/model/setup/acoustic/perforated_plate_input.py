@@ -26,7 +26,7 @@ class PerforatedPlateInput(QDialog):
         ui_path = UI_DIR / "model/setup/acoustic/perforated_plate_input.ui"
         uic.loadUi(ui_path, self)
 
-        self.valve_ids = kwargs.get("valve_ids", list())
+        self.valve_line_ids = kwargs.get("valve_line_ids", list())
 
         app().main_window.set_input_widget(self)
 
@@ -43,6 +43,8 @@ class PerforatedPlateInput(QDialog):
 
         self.selection_callback()
         self.load_elements_info()
+
+        self.update_valve_line_id()
         self.exec()
 
     def _config_window(self):
@@ -101,11 +103,12 @@ class PerforatedPlateInput(QDialog):
         self.lineEdit_discharge_coefficient : QLineEdit
 
         # QPushButton
-        self.pushButton_plot_parameter : QPushButton
+        self.pushButton_attribute : QPushButton
+        self.pushButton_cancel : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
-        self.pushButton_confirm : QPushButton
         self.pushButton_load_table : QPushButton
+        self.pushButton_plot_parameter : QPushButton
 
         # QRadioButton
         self.radioButton_impedance : QRadioButton
@@ -134,7 +137,8 @@ class PerforatedPlateInput(QDialog):
         self.comboBox_perforated_plate_model.currentIndexChanged.connect(self.perforated_plate_model_update)
         self.comboBox_parameter_to_plot.currentIndexChanged.connect(self.parameter_to_plot_callback)
         #
-        self.pushButton_confirm.clicked.connect(self.perforated_plate_attribution_callback)
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_load_table.clicked.connect(self.load_table_button_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
@@ -151,11 +155,7 @@ class PerforatedPlateInput(QDialog):
 
     def selection_callback(self):
 
-        if self.valve_ids:
-            selected_elements = self.valve_ids
-            self.lineEdit_element_id.setDisabled(True)
-        else:
-            selected_elements = app().main_window.list_selected_elements()
+        selected_elements = app().main_window.list_selected_elements()
 
         if selected_elements:
 
@@ -206,9 +206,17 @@ class PerforatedPlateInput(QDialog):
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
         self.update_checkboxes()
 
-    def update_valve_ids(self):
-        if self.valve_ids:
-            self.elements_id = self.valve_ids
+    def update_valve_line_id(self):
+
+        element_ids = list()
+        for line_id in self.valve_line_ids:
+            for element_id in self.preprocessor.mesh.line_to_elements[line_id]:
+                element_ids.append(element_id)
+
+        if element_ids:
+            app().main_window.set_selection(elements=element_ids)
+            # text = ", ".join([str(i) for i in element_ids])
+            # self.lineEdit_element_id.setText(text)
             self.lineEdit_element_id.setDisabled(True)
 
     def tab_event_callback(self):
@@ -459,8 +467,8 @@ class PerforatedPlateInput(QDialog):
 
         return table_name, data
 
-    def perforated_plate_attribution_callback(self):
-        
+    def attribute_callback(self):
+
         try:
 
             lineEdit = self.lineEdit_element_id.text()
@@ -868,40 +876,6 @@ class PerforatedPlateInput(QDialog):
                 self.tabWidget_perforated_plate.setTabVisible(1, True)
                 self.tabWidget_perforated_plate.setTabVisible(2, True)
                 return
-
-    def check_if_is_there_a_valve_and_remove_it(self, perforated_plate_elements):
-        _update_renderer = False
-        temp_dict = self.preprocessor.group_elements_with_valves.copy()
-        for key, data in temp_dict.items():
-            [valve_elements, valve_parameters] = data
-            for element_id in perforated_plate_elements:
-                if element_id in valve_elements:
-                    self.preprocessor.add_valve_by_elements(valve_elements, None)
-                    #
-                    lists_element_indexes = []
-                    first_element_id = min(valve_elements)
-                    last_element_id = max(valve_elements)
-                    lists_element_indexes.append([  first_element_id-1, first_element_id+1, 
-                                                    last_element_id-1, last_element_id+1  ])
-                    #
-                    line_id = app().project.model.mesh.elements_to_line[valve_elements[0]]
-                    first_element_id_from_line = self.preprocessor.line_to_elements[line_id][0]
-                    last_element_id_from_line = self.preprocessor.line_to_elements[line_id][-1]
-                    lists_element_indexes.append([  first_element_id_from_line-1, first_element_id_from_line+1, 
-                                                    last_element_id_from_line-1, last_element_id_from_line+1  ])
-                    #
-                    for element_indexes in lists_element_indexes:
-                        for _element_id in element_indexes:
-                            if _element_id not in valve_elements:
-                                cross = app().project.model.preprocessor.structural_elements[_element_id].cross_section
-                                element_type = app().project.model.preprocessor.structural_elements[_element_id].element_type
-                                if element_type == 'pipe_1':
-                                    if cross:
-                                        self.preprocessor.set_cross_section_by_elements(valve_elements, cross)
-                                        _update_renderer = True
-                                        
-        if _update_renderer:
-            app().main_window.update_plots()
     
     def actions_to_finalize(self):
         app().main_window.update_plots()

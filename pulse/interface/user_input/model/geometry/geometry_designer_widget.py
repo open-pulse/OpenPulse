@@ -558,13 +558,13 @@ class GeometryDesignerWidget(QWidget):
 
     def _unit_abreviation(self, unit):
         if self.length_unit == "meter":
-            return "[m]"
+            return "m"
 
         elif self.length_unit == "milimeter":
-            return "[mm]"
+            return "mm"
 
         elif self.length_unit == "inch":
-            return "[in]"
+            return "in"
 
         else:
             return

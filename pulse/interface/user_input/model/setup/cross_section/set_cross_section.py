@@ -453,7 +453,8 @@ class SetCrossSectionInput(QDialog):
         self.properties._remove_line_property("force_offset", line_ids)
         self.properties._remove_line_property("capped_end", line_ids)
         self.properties._remove_line_property("expansion_joint", line_ids=line_ids)
-        self.properties._remove_line_property("valve", line_ids=line_ids)
+        self.properties._remove_line_property("valve_name", line_ids=line_ids)
+        self.properties._remove_line_property("valve_component", line_ids=line_ids)
 
         self.remove_table_files_from_expansion_joints(line_ids)
 
@@ -515,7 +516,8 @@ class SetCrossSectionInput(QDialog):
             self.properties._remove_line_property("force_offset", line_ids)
             self.properties._remove_line_property("capped_end", line_ids)
             self.properties._remove_line_property("expansion_joint", line_ids=line_ids)
-            self.properties._remove_line_property("valve", line_ids=line_ids)
+            self.properties._remove_line_property("valve_name", line_ids=line_ids)
+            self.properties._remove_line_property("valve_component", line_ids=line_ids)
 
             self.remove_acoustic_related_data_from_lines(line_ids)
             self.remove_table_files_from_expansion_joints(line_ids)

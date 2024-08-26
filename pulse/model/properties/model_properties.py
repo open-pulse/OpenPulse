@@ -314,6 +314,10 @@ class ModelProperties:
                 if property in self.line_properties[line_id].keys():
                     self.line_properties[line_id].pop(property)
 
+    def _remove_line(self, line_id: int):
+        if line_id in self.line_properties.keys():
+            self.line_properties.pop(line_id)
+
     def get_nodal_related_table_names(self, property : str, node_ids : int | list) -> list:
         """
         """

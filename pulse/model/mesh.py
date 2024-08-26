@@ -70,7 +70,6 @@ class Mesh:
         self.reset_variables()
 
         if self.import_type == 0:
-
             if os.path.exists(self.geometry_path):
                 self._load_cad_geometry_on_gmsh()
             else:

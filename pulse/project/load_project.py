@@ -7,6 +7,7 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.perforated_plate import PerforatedPlate
 
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
+from pulse.interface.user_input.model.setup.structural.valves_input import get_V_linear_distribution, get_linear_distribution
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
@@ -39,7 +40,7 @@ class LoadProject:
         #
         self.load_fluids_library()
         self.load_materials_library()
-        self.load_cross_sectionss()
+        self.load_cross_sections_from_file()
         #
         self.load_lines_properties()
         self.load_element_properties()
@@ -170,7 +171,7 @@ class LoadProject:
             
             self.library_materials[identifier] = material
 
-    def load_cross_sectionss(self):
+    def load_cross_sections_from_file(self):
 
         self.cross_sections = dict()
         line_properties = app().pulse_file.read_line_properties_from_file()
@@ -194,6 +195,13 @@ class LoadProject:
                                             "section_properties" : data["section_properties"]   }
 
                     self.cross_sections[line_id] = CrossSection(beam_section_info=beam_section_info)
+
+                elif data["section_type_label"] == "Valve":
+
+                    valve_section_info = {  "section_type_label" : data["section_type_label"],
+                                            "section_parameters" : data["section_parameters"]  }
+
+                    self.cross_sections[line_id] = CrossSection(valve_section_info=valve_section_info) 
 
     def load_lines_properties(self):
 
@@ -295,26 +303,56 @@ class LoadProject:
         if isinstance(expansion_joint, dict):
 
             joint_elements = self.model.mesh.line_to_elements[line_id]
+
             if "effective_diameter" in expansion_joint.keys():
                 effective_diameter = expansion_joint["effective_diameter"]
 
                 cross_sections = get_cross_sections_to_plot_expansion_joint(joint_elements, 
                                                                             effective_diameter)
 
-                self.preprocessor.add_expansion_joint_by_lines(line_id, 
-                                                            expansion_joint)
+                self.preprocessor.add_expansion_joint_by_lines( line_id, 
+                                                                expansion_joint )
 
                 self.preprocessor.set_cross_section_by_elements(joint_elements, 
                                                                 cross_sections)
 
     def load_valves(self, line_id: list, data: dict):
 
-        valves = None
-        if "valves" in data.keys():
-            valves = data["valves"]
+        valves_info = app().pulse_file.read_valves_info_from_file()
 
-        if valves is not None:
-            self.preprocessor.add_valve_by_lines(line_id, valves)
+        if "valve_name" in data.keys():
+
+            valve_name = data["valve_name"]
+            valve_component = data["valve_component"]
+
+            valve_info = valves_info[valve_name]
+            self.preprocessor.add_valve_by_lines(line_id, valve_info)
+
+            d_out, t, *_ = data["section_parameters"]
+            line_elements = app().project.model.mesh.line_to_elements[line_id]
+
+            N = len(line_elements) 
+            aux = np.ones(N, dtype=float)
+
+            if valve_component in ["valve_flange_A", "valve_flange_B"]:
+                d_f = valve_info["flange_diameter"]
+                diameters = list(d_f * aux)
+
+            elif valve_component == "valve_body":
+                diameters = get_V_linear_distribution(d_out, N)
+
+            elif valve_component == "valve_body_A":
+                diameters = get_linear_distribution(d_out, 0.5*d_out, N)
+
+            elif valve_component == "valve_body_B":
+                diameters = get_linear_distribution(0.5*d_out, d_out, N)
+
+            else:
+                diameters = list(0.4 * d_out  * aux)
+
+            for i, element_id in enumerate(line_elements):
+                element = app().project.model.preprocessor.structural_elements[element_id]
+                element.section_parameters_render = [diameters[i], t, 0, 0, 0, 0]
 
     def load_stress_stiffening(self, line_id: list, data: dict):
 
