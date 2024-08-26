@@ -42,11 +42,16 @@ class TubeActorResults(TubeActor):
             return vtkPolyData()
         
         pipe_section = ("Pipe" in cross_section.section_type_label)
+        expansion_joint = (cross_section.section_type_label == "Expansion joint")
 
         # In acoustic plots we need to show the fluids, not the pipe
         if self.acoustic_plot and pipe_section:
             d_out, t, *_ = cross_section.section_parameters
             d_inner = d_out - 2 * t
             return cross_section_sources.closed_pipe_data(element.length, d_inner, sides=30)
+
+        elif self.acoustic_plot and expansion_joint:
+            _, d_eff, *_ = element.section_parameters_render
+            return cross_section_sources.closed_pipe_data(element.length, d_eff, sides=30)
 
         return super().create_element_data(element)
