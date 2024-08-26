@@ -1,19 +1,11 @@
-from time import time
-import os
-import sys
-import qdarktheme
-from functools import partial
-from pathlib import Path
-import logging
-from shutil import copy, rmtree
-from time import time
+# fmt: off
 
 from PyQt5.QtWidgets import QAbstractButton, QAction, QComboBox, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCloseEvent, QCursor
 from PyQt5 import uic
 
-from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
+# from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.io.pcf.pcf_exporter import PCFExporter
 from opps.io.pcf.pcf_handler import PCFHandler
 
@@ -41,6 +33,17 @@ from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseIn
 from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
+import logging
+import qdarktheme
+
+from time import time
+from os import listdir, path, remove, mkdir
+from sys import exit
+from functools import partial
+from pathlib import Path
+from shutil import copy, rmtree
+from time import time
+
 
 class MainWindow(QMainWindow):
     theme_changed = pyqtSignal(str)
@@ -56,7 +59,7 @@ class MainWindow(QMainWindow):
         self.selected_nodes = set()
         self.selected_lines = set()
         self.selected_elements = set()
-        
+
         self.visualization_filter = VisualizationFilter.all_true()
         self.selection_filter = SelectionFilter.all_false()
 
@@ -84,7 +87,7 @@ class MainWindow(QMainWindow):
         self.cache_indexes = list()
 
     def _load_stylesheets(self):
-        stylesheets = []
+        stylesheets = list()
         common_dir = QSS_DIR / "common_theme"
         
         if self.interface_theme == "light":
@@ -299,17 +302,17 @@ class MainWindow(QMainWindow):
 
     def reset_temporary_folder(self):
         if TEMP_PROJECT_DIR.exists():
-            for filename in os.listdir(TEMP_PROJECT_DIR).copy():
+            for filename in listdir(TEMP_PROJECT_DIR).copy():
                 file_path = TEMP_PROJECT_DIR / filename
-                if os.path.exists(file_path):
+                if path.exists(file_path):
                     if "." in filename:
-                        os.remove(file_path)
+                        remove(file_path)
                     else:
                         rmtree(file_path)
 
     def is_temporary_folder_empty(self):
         if TEMP_PROJECT_DIR.exists():
-            if os.listdir(TEMP_PROJECT_DIR):
+            if listdir(TEMP_PROJECT_DIR):
                 return False
         return True
     
@@ -567,7 +570,7 @@ class MainWindow(QMainWindow):
         for action in actions:
             self.menu_recent.removeAction(action)
 
-        self.menu_actions = []
+        self.menu_actions = list()
         for name, path in reversed(self.config.recent_projects.items()):
             path = Path(path)
             if not path.exists():
@@ -1152,7 +1155,7 @@ class MainWindow(QMainWindow):
         self.close_dialogs()
 
         condition_1 = self.project.save_path is None
-        condition_2 = os.path.exists(TEMP_PROJECT_FILE)
+        condition_2 = path.exists(TEMP_PROJECT_FILE)
         condition_3 = self.project_data_modified
         condition = (condition_1 and condition_2) or condition_3
 
@@ -1186,7 +1189,7 @@ class MainWindow(QMainWindow):
         self.reset_temporary_folder()
         self.mesh_widget.render_interactor.Finalize()
         self.results_widget.render_interactor.Finalize()
-        sys.exit()
+        exit()
 
     def _create_status_bar(self):
         self.status_bar = StatusBar(self)
@@ -1198,6 +1201,8 @@ class MainWindow(QMainWindow):
 
 def create_new_folder(path : Path, folder_name : str) -> Path:
     folder_path = path / folder_name
-    if not os.path.exists(folder_path):
-        os.mkdir(folder_path)
+    if not path.exists(folder_path):
+        mkdir(folder_path)
     return folder_path
+
+# fmt: on

@@ -736,28 +736,6 @@ def get_linear_distribution(x_initial, x_final, N):
     n = np.arange(N)/(N-1)
     return (x_final-x_initial)*n + x_initial
 
-def get_V_linear_distribution(x, N,  reduction_start=10, reduction_half=50):
-    if N == 3:
-        reduction_start = 25
-    output = np.zeros(N)
-    x_i = x*(1-(reduction_start/100))
-    x_m = x*(1-(reduction_half/100))
-    
-    if N == 1:
-        return x_m
-    
-    if np.remainder(N,2) == 0:
-        half = int(N/2)
-        shift = 0
-    else:
-        half = int((N+1)/2)
-        shift = 1
-    
-    output[0:half] = get_linear_distribution(x_i, x_m, half) 
-    output[half-shift:] = get_linear_distribution(x_m, x_i, half)
-    
-    return output
-
 def create_new_folder(path, folder_name):
     folder_path = get_new_path(path, folder_name)
     if not os.path.exists(folder_path):

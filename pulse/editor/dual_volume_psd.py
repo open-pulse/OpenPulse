@@ -53,10 +53,10 @@ class DualVolumePSD:
         self.project = app().project
         self.preprocessor = app().project.preprocessor
 
-        self.initialize()
+        self._initialize()
         self.unwrap_device_data(device_data)
 
-    def initialize(self):
+    def _initialize(self):
         self.pipe1_angle = None
         self.pipe2_angle = None
         self.segment_data = list()

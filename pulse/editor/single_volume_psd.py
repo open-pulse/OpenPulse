@@ -48,11 +48,11 @@ def rotate_points(points, axis="x-axis (+)"):
 class SingleVolumePSD:
     def __init__(self, device_data : dict) -> None:
 
-        self.initialize()
+        self._initialize()
         self.unwrap_device_data(device_data)
         self.get_section_parameters()
 
-    def initialize(self):
+    def _initialize(self):
         self.pipe1_angle = None
         self.pipe2_angle = None
         self.segment_data = list()

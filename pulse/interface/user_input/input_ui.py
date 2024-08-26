@@ -13,7 +13,7 @@ from pulse.interface.user_input.model.setup.structural.elastic_nodal_links_input
 from pulse.interface.user_input.model.setup.structural.stress_stiffening_input import StressStiffeningInput
 from pulse.interface.user_input.model.setup.structural.beam_xaxis_rotation_input import BeamXaxisRotationInput 
 from pulse.interface.user_input.model.setup.structural.decoupling_rotation_dofs_input import DecouplingRotationDOFsInput
-from pulse.interface.user_input.model.setup.structural.set_valves_input import ValvesInput
+from pulse.interface.user_input.model.setup.structural.valves_input import ValvesInput
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
 from pulse.interface.user_input.model.setup.structural.set_inertial_load import SetInertialLoad
 #

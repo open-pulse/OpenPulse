@@ -48,10 +48,11 @@ class GeometryHandler:
         gmsh.option.setNumber("General.Verbosity", 0)
 
         for structure in self.pipeline.structures: 
-            if isinstance(structure, Valve):
-                "Insert here your valve modeling"
+            # if isinstance(structure, Valve):
+            #     "Insert here your valve modeling"
 
-            elif isinstance(structure, (Pipe, Beam, Reducer, Valve, ExpansionJoint)):
+            if isinstance(structure, (Pipe, Beam, Reducer, Valve, ExpansionJoint)):
+
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
 
@@ -73,9 +74,10 @@ class GeometryHandler:
                 gmsh.model.occ.add_line(start_coords, end_coords)
 
             elif isinstance(structure, SimpleCurve):
+
                 if structure.is_colapsed():
                     continue
-                
+
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
                 _center_coords = structure.center.coords()
@@ -129,6 +131,7 @@ class GeometryHandler:
         self.pipeline.reset()
 
         lines_data = app().pulse_file.read_line_properties_from_file()
+        valves_info = app().pulse_file.read_valves_info_from_file()
 
         if isinstance(lines_data, dict):
             for data in lines_data.values():
@@ -147,10 +150,13 @@ class GeometryHandler:
                     structure = self._process_beam(data)
 
                 elif structural_element_type == "valve":
-                    structure = self._process_valve(data)
+                    if "valve_name" in data.keys():
+                        valve_name = data["valve_name"]
+                        if valve_name in valves_info.keys():
+                            valve_info = valves_info[valve_name]
+                            structure = self._process_valve(data, valve_info)
 
                 elif structural_element_type == "expansion_joint":
-                    # continue
                     structure = self._process_expansion_joint(data)
 
                 if "material_id" in data.keys():
@@ -165,7 +171,7 @@ class GeometryHandler:
             self.pipeline.commit()
             self.pipeline.merge_coincident_points()
             app().main_window.update_plots()
-    
+
     def _process_pipe(self, data: dict):
 
         if "section_parameters" in data.keys():
@@ -321,7 +327,7 @@ class GeometryHandler:
 
         return structure
 
-    def _process_valve(self, data: dict):
+    def _process_valve(self, data, valve_info: dict):
 
         start = Point(*data['start_coords'])
         end = Point(*data['end_coords'])
@@ -332,7 +338,7 @@ class GeometryHandler:
                           thickness = 0.01
                           )
 
-        structure.extra_info["valve_info"] = data["valve"]
+        structure.extra_info["valve_info"] = valve_info
         structure.extra_info["structural_element_type"] = "valve"
 
         return structure
@@ -718,7 +724,7 @@ class GeometryHandler:
                 app().project.model.properties._set_line_property("expansion_joint", ej_data, line_ids=line_id)
 
             for line_id, valve_data in valve_info.items():
-                app().project.model.properties._set_line_property("valve", valve_data, line_ids=line_id)
+                app().project.model.properties._set_line_property("valve_info", valve_data, line_ids=line_id)
 
             for line_id, psd_label in psd_info.items():
                 app().project.model.properties._set_line_property("psd_label", psd_label, line_ids=line_id)

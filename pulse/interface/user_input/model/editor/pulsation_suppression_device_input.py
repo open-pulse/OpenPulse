@@ -826,7 +826,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         app().pulse_file.write_line_properties_in_file()
 
         if remove_gaps:
-            self.remove_line_gaps_from_file()
+            app().pulse_file.remove_line_gaps_from_line_properties_file()
 
     def remove_psd_related_nodal_properties(self, psd_labels: str | list):
 
@@ -840,29 +840,6 @@ class PulsationSuppressionDeviceInput(QDialog):
                     self.properties._remove_nodal_property(property, args)
 
         app().pulse_file.write_line_properties_in_file()
-
-    def remove_line_gaps_from_file(self):
-        
-        line_data = app().pulse_file.read_line_properties_from_file()
-
-        tag = 0
-        aux = dict()
-        cache_lines = list()
-        for line_id, data in line_data.items():
-
-            if line_id not in cache_lines:
-                tag += 1
-                cache_lines.append(line_id)
-
-            aux[tag] = data
-        
-        if aux:
-            for line_id, _data in aux.items():
-                _data: dict
-                for property, values in _data.items():
-                    self.properties._set_line_property(property, values, line_id)
-
-            app().pulse_file.write_line_properties_in_file()
 
     def remove_selected_psd(self, psd_label: str):
 

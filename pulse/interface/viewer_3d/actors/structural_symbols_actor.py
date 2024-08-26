@@ -442,49 +442,56 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
         col = (0, 10, 255)
 
         symbols = list()
-        for (property, element_id), data in app().project.model.properties.element_properties.items():
+        valves_info = app().pulse_file.read_valves_info_from_file()
+        for line_id, data in app().project.model.properties.line_properties.items():
 
-            if property == "valve":
+            if "valve_name" in data.keys():
 
-                center_coordinates = data["center coordinates"]
-                valve_elements = data["valve elements"]
-                valve_length = data["valve length"]
-                valve_section_parameters = data["valve section parameters"]
+                valve_name = data["valve_name"]
+                valve_component = data["valve_component"]
+
+                valve_info = valves_info[valve_name]
+
+                center_coordinates = valve_info["valve_center_coordinates"]
+                valve_length = valve_info["valve_length"]
+
+                try:
+                    valve_elements = app().project.model.mesh.line_to_elements[line_id]
+                except:
+                    return list()
+
+                diameter = data["section_parameters"][0]
+
+                if valve_component == "orifice_plate":
+                    element_id = valve_elements[0]
+
+                elif valve_component == "valve_body":
+                    if np.remainder(len(valve_elements), 2) == 0:
+                        index = int(len(valve_elements) / 2)
+                        element_id = valve_elements[index]
+                    else:
+                        index = int((len(valve_elements) - 1) / 2) + 1
+                        element_id = valve_elements[index]
+
+                else:
+                    continue
 
                 element = app().project.preprocessor.structural_elements[element_id]
 
-                # center_coordinates = element.valve_parameters["valve_center_coordinates"]
-                # valve_elements = element.valve_parameters["valve_elements"]
-                # valve_length = element.valve_parameters["valve_length"]
-                # valve_section_parameters = element.valve_parameters["valve_section_parameters"]
+                rot = element.section_rotation_xyz_undeformed
+                rotation = Rotation.from_euler("xyz", rot, degrees=True)
+                rot_matrix = rotation.as_matrix()
 
-                if np.remainder(len(valve_elements), 2) == 0:
-                    index = int(len(valve_elements) / 2)
-                    center_element = valve_elements[index]
-                else:
-                    index = int((len(valve_elements) - 1) / 2) + 1
-                    center_element = valve_elements[index]
+                vector = [round(value, 5) for value in rot_matrix[:, 1]]
+                if vector[1] < 0:
+                    rot[0] += 180
 
-                if center_element == element.index:
+                factor_x = (valve_length / 0.247) / self.scale_factor
+                factor_yz = (diameter / 0.130) / self.scale_factor
 
-                    rot = element.section_rotation_xyz_undeformed
-                    rotation = Rotation.from_euler("xyz", rot, degrees=True)
-                    rot_matrix = rotation.as_matrix()
-
-                    vector = [round(value, 5) for value in rot_matrix[:, 1]]
-                    if vector[1] < 0:
-                        rot[0] += 180
-
-                    factor_x = (valve_length / 0.247) / self.scale_factor
-                    factor_yz = (valve_section_parameters[0] / 0.130) / self.scale_factor
-
-                    # factor_yz = 1
-                    pos = center_coordinates
-                    scl = (factor_x, factor_yz, factor_yz)
-                    symbols.append(
-                        SymbolTransform(
-                            source=src, position=pos, rotation=rot, scale=scl, color=col
-                        )
-                    )
+                # factor_yz = 1
+                pos = center_coordinates
+                scl = (factor_x, factor_yz, factor_yz)
+                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         return symbols

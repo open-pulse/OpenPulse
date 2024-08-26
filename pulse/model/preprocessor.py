@@ -1094,7 +1094,7 @@ class Preprocessor:
     #     for elements in slicer(self.mesh.line_to_elements, lines):
     #         self.set_cross_section_plot_info_by_element(elements, cross_section)
 
-    def set_structural_element_type_by_lines(self, lines, element_type):
+    def set_structural_element_type_by_lines(self, line_ids: int | list, element_type: str):
         """
         This method attributes structural element type to all elements that belongs to a line/entity.
 
@@ -1110,10 +1110,10 @@ class Preprocessor:
             True if the element_type have to be removed from the structural element type dictionary. False otherwise.
             Default is False.
         """
-        if isinstance(lines, int):
-            lines = [lines]
-        
-        for elements in slicer(self.mesh.line_to_elements, lines):
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
+
+        for elements in slicer(self.mesh.line_to_elements, line_ids):
             self.set_structural_element_type_by_element(elements, element_type)
 
     def set_acoustic_element_type_by_lines( 
@@ -1432,13 +1432,13 @@ class Preprocessor:
             element.external_pressure = data["external_pressure"]
             element.internal_pressure = data["internal_pressure"]
 
-    def add_expansion_joint_by_lines(self, lines, parameters: (None | dict)):
+    def add_expansion_joint_by_lines(self, line_ids: (int | list), parameters: (None | dict)):
         """
         This method .
 
         Parameters
         ----------
-        lines : list
+        line_ids : list
             Lines/entities indexes.
 
         parameters : list
@@ -1448,15 +1448,16 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        if isinstance(lines, int):
-            lines = [lines]
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
 
-        for line_id in lines:
+        for line_id in line_ids:
             for elements in slicer(self.mesh.line_to_elements, line_id):
                 for element in slicer(self.structural_elements, elements):
                     element.set_expansion_joint_data(parameters)
 
-    def add_valve_by_lines(self, lines, parameters):
+
+    def add_valve_by_lines(self, line_ids: (int | list), valve_data: dict):
         """
         This method .
 
@@ -1465,52 +1466,39 @@ class Preprocessor:
         lines : list
             Lines/entities indexes.
 
-        parameters : list
+        valve_data : list
             ????????.
             
         remove : bool, optional
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        if isinstance(lines, int):
-            lines = [lines]
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
 
-        for line_id in lines:
+        for line_id in line_ids:
             for elements in slicer(self.mesh.line_to_elements, line_id):
                 for element in slicer(self.structural_elements, elements):
-                    element.valve_parameters = parameters
+                    element.valve_valve_data = valve_data
 
 
-    def set_stress_intensification_by_element(self, elements, value):
-        """
-        This method enables or disables the stress intensification effect in a list of structural elements.
-
-        Parameters
-        ----------
-        elements : list
-            Elements indexes.
-            
-        value : bool
-            True if the stress intensification effect have to be activated. False otherwise.
-        """  
-        for element in slicer(self.structural_elements, elements):
-            element.stress_intensification = value
-
-    def set_stress_intensification_by_line(self, lines, value):
+    def set_stress_intensification_by_line(self, line_ids: (int | list), value: bool):
         """
         This method enables or disables the stress intensification effect to all structural elements that belongs to a line.
 
         Parameters
         ----------
-        lines : list
+        line_ids : list
             Lines/entities indexes.
             
         value : bool
             True if the stress intensification effect have to be activated. False otherwise.
         """
-        for elements in slicer(self.mesh.line_to_elements, lines):
-            self.set_stress_intensification_by_element(elements, value)
-            
+        for elements in slicer(self.mesh.line_to_elements, line_ids):
+            for element in slicer(self.structural_elements, elements):
+                element.stress_intensification = value
+
+
     # Acoustic physical quantities
     def set_fluid_by_element(self, elements, fluid):
         """
