@@ -1201,8 +1201,7 @@ class MainWindow(QMainWindow):
 
 def create_new_folder(path : Path, folder_name : str) -> Path:
     folder_path = path / folder_name
-    if not path.exists(folder_path):
-        mkdir(folder_path)
+    folder_path.mkdir(exist_ok=True)
     return folder_path
 
 # fmt: on
