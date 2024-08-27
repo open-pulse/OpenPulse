@@ -783,6 +783,7 @@ class GeometryHandler:
                     element_type_info[structural_element_type].append(tag)
 
             if "expansion_joint_info" in structure.extra_info.keys():
+                structure.extra_info["expansion_joint_info"]["joint_length"] = np.linalg.norm(structure.start - structure.end)
                 expansion_joint_info[tag] = structure.extra_info["expansion_joint_info"]
 
             if "valve_info" in structure.extra_info.keys():
