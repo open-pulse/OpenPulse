@@ -109,14 +109,11 @@ class PlotReactionsForStaticAnalysis(QWidget):
 
         node = app().project.model.preprocessor.nodes[node_id]
         reactions = [None, None, None, None, None, None]
-        print("passei 1")
 
         if self.tabWidget_main.currentIndex() == 0:
-            print("passei 2")
             if isinstance(self.reactions_at_constrained_dofs, dict):
-                print("passei 3")
                 for dof_index, value in self.reactions_at_constrained_dofs.items():
-                    print(dof_index, value)
+    
                     global_dofs = list(node.global_dof)
                     if dof_index in global_dofs:
                         i = global_dofs.index(dof_index)

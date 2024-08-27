@@ -66,6 +66,9 @@ class ModelProperties:
         self.element_properties = dict()
         self.nodal_properties = dict()
 
+        self.valves_data = dict()
+        self.expansion_joint_data = dict()
+
         self.global_properties["material", "global"] = DEFAULT_MATERIAL
         self.global_properties["fluid", "global"] = DEFAULT_FLUID
 

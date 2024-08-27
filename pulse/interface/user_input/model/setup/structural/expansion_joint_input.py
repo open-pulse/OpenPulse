@@ -619,7 +619,8 @@ class ExpansionJointInput(QDialog):
             self.preprocessor.set_structural_element_type_by_lines(line_id, "expansion_joint")
 
             self.properties._remove_line_property("valve_name", line_id)
-            self.properties._remove_line_property("valve_component", line_id)
+            self.properties._remove_line_property("flange_section_parameters", line_id)
+            self.properties._remove_line_property("valve_info", line_id)
             self.properties._remove_line_property("section_parameters", line_id)
             self.properties._remove_line_property("section_properties", line_id)
             self.properties._set_line_property("section_type_label", "Expansion joint", line_id)

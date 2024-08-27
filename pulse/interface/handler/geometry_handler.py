@@ -43,15 +43,14 @@ class GeometryHandler:
             self.length_unit = unit
 
     def create_geometry(self, gmsh_GUI=False):
+
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
 
         for structure in self.pipeline.structures: 
-            # if isinstance(structure, Valve):
-            #     "Insert here your valve modeling"
 
-            if isinstance(structure, (Pipe, Beam, Reducer, Valve, ExpansionJoint)):
+            if isinstance(structure, (Pipe, Beam, Reducer, ExpansionJoint)):
 
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
@@ -72,6 +71,69 @@ class GeometryHandler:
                 end_coords = gmsh.model.occ.add_point(*end_coords)
 
                 gmsh.model.occ.add_line(start_coords, end_coords)
+
+            elif isinstance(structure, Valve):
+
+                _start_coords = structure.start.coords()
+                _end_coords = structure.end.coords()
+
+                if self.length_unit == "meter":
+                    start_coords = m_to_mm(_start_coords)
+                    end_coords = m_to_mm(_end_coords)
+
+                elif self.length_unit == "inch":
+                    start_coords = in_to_mm(_start_coords)
+                    end_coords = in_to_mm(_end_coords)
+
+                else:
+                    start_coords = _start_coords
+                    end_coords = _end_coords
+
+                valve_info = structure.extra_info["valve_info"]
+                valve_points = self.process_valve_points(start_coords, end_coords, valve_info)
+
+                print("O Vitor vai ver isso ->")
+                print(valve_points)
+
+                if "external_points" in valve_points.keys():
+                    (coords_A, coords_B) = valve_points["external_points"]
+                    point_A = gmsh.model.occ.add_point(*coords_A, meshSize=1)
+                    point_B = gmsh.model.occ.add_point(*coords_B, meshSize=1)
+
+                if "flange_points" in valve_points.keys():
+                    (coords_C, coords_D) = valve_points["flange_points"]
+                    point_C = gmsh.model.occ.add_point(*coords_C, meshSize=1)
+                    point_D = gmsh.model.occ.add_point(*coords_D, meshSize=1)
+
+                if "orifice_plate_points" in valve_points.keys():
+                    (coords_E, coords_F) = valve_points["orifice_plate_points"]
+                    point_E = gmsh.model.occ.add_point(*coords_E, meshSize=1)
+                    point_F = gmsh.model.occ.add_point(*coords_F, meshSize=1)
+
+                gmsh.model.occ.add_line(point_A, point_B)
+
+                # valve_lines = list()
+                # if "flange_points" in valve_points.keys():
+                #     if "orifice_plate_points" in valve_points.keys():
+                #         valve_lines.append(gmsh.model.occ.add_line(point_A, point_C))
+                #         valve_lines.append(gmsh.model.occ.add_line(point_C, point_E))
+                #         valve_lines.append(gmsh.model.occ.add_line(point_E, point_F))
+                #         valve_lines.append(gmsh.model.occ.add_line(point_F, point_D))
+                #         valve_lines.append(gmsh.model.occ.add_line(point_D, point_B))
+                #         print(valve_lines)
+                #         valve_info["valve_lines"] = valve_lines
+                #     else:
+                #         gmsh.model.occ.add_line(point_A, point_C)
+                #         gmsh.model.occ.add_line(point_C, point_D)
+                #         gmsh.model.occ.add_line(point_D, point_B)    
+
+                # elif "orifice_plate_points" in valve_points.keys():
+                #     gmsh.model.occ.add_line(point_A, point_E)
+                #     gmsh.model.occ.add_line(point_E, point_F)
+                #     gmsh.model.occ.add_line(point_F, point_B)
+
+                # else:
+                #     gmsh.model.occ.add_line(point_A, point_B)
 
             elif isinstance(structure, SimpleCurve):
 
@@ -110,6 +172,36 @@ class GeometryHandler:
             if '-nopopup' not in sys.argv:
                 gmsh.option.setNumber('General.FltkColorScheme', 1)
                 gmsh.fltk.run()
+    
+    def process_valve_points(self, start_coords: np.ndarray, end_coords: np.ndarray, valve_info: dict) -> dict:
+        """
+        """
+
+        valve_points = dict()
+
+        A = start_coords
+        B = end_coords
+
+        L = B - A
+        n = L / np.linalg.norm(L)
+
+        valve_points["external_points"] = (A, B)
+
+        if "flange_length" in valve_info.keys():
+            flange_length = 1e3 * valve_info["flange_length"]
+            C = A + n * flange_length
+            D = A + n * (L - flange_length)
+
+            valve_points["flange_points"] = (C, D)
+
+        if "orifice_plate_thickness" in valve_info.keys():
+            op_thickness = 1e3 * valve_info["orifice_plate_thickness"]
+            E = A + n * (L - op_thickness) / 2
+            F = A + n * (L + op_thickness) / 2
+
+            valve_points["orifice_plate_points"] = (E, F)
+
+        return valve_points
 
     def process_pipeline(self):
         """ This method builds structures based on model_data file data.
@@ -131,7 +223,6 @@ class GeometryHandler:
         self.pipeline.reset()
 
         lines_data = app().pulse_file.read_line_properties_from_file()
-        valves_info = app().pulse_file.read_valves_info_from_file()
 
         if isinstance(lines_data, dict):
             for data in lines_data.values():
@@ -150,11 +241,7 @@ class GeometryHandler:
                     structure = self._process_beam(data)
 
                 elif structural_element_type == "valve":
-                    if "valve_name" in data.keys():
-                        valve_name = data["valve_name"]
-                        if valve_name in valves_info.keys():
-                            valve_info = valves_info[valve_name]
-                            structure = self._process_valve(data, valve_info)
+                    structure = self._process_valve(data)
 
                 elif structural_element_type == "expansion_joint":
                     structure = self._process_expansion_joint(data)
@@ -327,18 +414,21 @@ class GeometryHandler:
 
         return structure
 
-    def _process_valve(self, data, valve_info: dict):
+    def _process_valve(self, data: dict):
 
         start = Point(*data['start_coords'])
         end = Point(*data['end_coords'])
+
+        d_out, t, *_ = data["section_parameters"]
+
         structure = Valve(
                           start, 
                           end,
-                          diameter = 0.1,
-                          thickness = 0.01
+                          diameter = d_out,
+                          thickness = t
                           )
 
-        structure.extra_info["valve_info"] = valve_info
+        structure.extra_info["valve_info"] = data["valve_info"]
         structure.extra_info["structural_element_type"] = "valve"
 
         return structure

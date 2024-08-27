@@ -35,9 +35,9 @@ from pulse.interface.user_input.project.loading_window import LoadingWindow
 
 import logging
 import qdarktheme
+import os
 
 from time import time
-from os import listdir, path, remove, mkdir
 from sys import exit
 from functools import partial
 from pathlib import Path
@@ -302,17 +302,17 @@ class MainWindow(QMainWindow):
 
     def reset_temporary_folder(self):
         if TEMP_PROJECT_DIR.exists():
-            for filename in listdir(TEMP_PROJECT_DIR).copy():
+            for filename in os.listdir(TEMP_PROJECT_DIR).copy():
                 file_path = TEMP_PROJECT_DIR / filename
-                if path.exists(file_path):
+                if os.path.exists(file_path):
                     if "." in filename:
-                        remove(file_path)
+                        os.remove(file_path)
                     else:
                         rmtree(file_path)
 
     def is_temporary_folder_empty(self):
         if TEMP_PROJECT_DIR.exists():
-            if listdir(TEMP_PROJECT_DIR):
+            if os.listdir(TEMP_PROJECT_DIR):
                 return False
         return True
     
@@ -573,7 +573,7 @@ class MainWindow(QMainWindow):
         self.menu_actions = list()
         for name, path in reversed(self.config.recent_projects.items()):
             path = Path(path)
-            if not path.exists():
+            if not os.path.exists():
                 continue
             import_action = QAction(str(name) + "\t" + str(path))
             import_action.setStatusTip(str(path))
@@ -1001,14 +1001,6 @@ class MainWindow(QMainWindow):
         self.initial_project_action(obj.complete)
         return obj.complete
 
-    # def new_project(self):
-    #     # TODO: remove repeated
-    #     if not self.input_ui.new_project():
-    #         return 
-    #     self._update_recent_projects()
-    #     self.set_window_title(self.file._project_name)
-    #     self.use_structural_setup_workspace()
-    #     self.update_plots()
 
     def open_project(self, project_path: str | Path | None = None):
         def tmp():
@@ -1155,7 +1147,7 @@ class MainWindow(QMainWindow):
         self.close_dialogs()
 
         condition_1 = self.project.save_path is None
-        condition_2 = path.exists(TEMP_PROJECT_FILE)
+        condition_2 = os.path.exists(TEMP_PROJECT_FILE)
         condition_3 = self.project_data_modified
         condition = (condition_1 and condition_2) or condition_3
 
@@ -1201,8 +1193,8 @@ class MainWindow(QMainWindow):
 
 def create_new_folder(path : Path, folder_name : str) -> Path:
     folder_path = path / folder_name
-    if not path.exists(folder_path):
-        mkdir(folder_path)
+    if not os.path.exists(folder_path):
+        os.mkdir(folder_path)
     return folder_path
 
 # fmt: on

@@ -1,6 +1,6 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QDialog, QCheckBox, QFrame, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCloseEvent
 from PyQt5 import uic
@@ -25,6 +25,8 @@ class ValvesInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/valve_input.ui"
         uic.loadUi(ui_path, self)
 
+        self.render_type = kwargs.get("render_type", "model")
+
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
@@ -39,9 +41,14 @@ class ValvesInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self._config_widgets()
-        self.load_valves_info()
-        self.selection_callback()
+
+        if self.render_type == "model":
+
+            self._config_widgets()
+            self.load_valves_info()
+            self.selection_callback()
+
+        self._configure_appearance()
 
         while self.keep_window_open:
             self.exec()
@@ -53,60 +60,58 @@ class ValvesInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-
         self.complete = False
         self.keep_window_open = True
-
-        self.element_size = self.preprocessor.mesh.element_size
-        self.structural_elements = self.preprocessor.structural_elements
-
-        self.valves_info = dict()
 
     def _define_qt_variables(self):
 
         # QCheckBox
-        self.checkBox_flanged_valve : QCheckBox
-        self.checkBox_acoustic_effects : QCheckBox
-        self.checkBox_remove_valve_acoustic_effects : QCheckBox
+        self.checkBox_remove_valve_acoustic_effects: QCheckBox
+
+        # QComboBox
+        self.comboBox_acoustic_effects: QComboBox
+        self.comboBox_flange_setup: QComboBox
 
         # QFrame
-        self.main_frame : QFrame
-        self.selection_frame : QFrame
+        self.main_frame: QFrame
+        self.selection_frame: QFrame
 
         # QLabel
-        self.label_selected_id : QLabel
-        self.label_flange_diameter : QLabel
-        self.label_flange_diameter_unit : QLabel
-        self.label_flange_length : QLabel
-        self.label_flange_length_unit : QLabel
+        self.label_selected_id: QLabel
+        self.label_flange_diameter: QLabel
+        self.label_flange_diameter_unit: QLabel
+        self.label_flange_length: QLabel
+        self.label_flange_length_unit: QLabel
         self.label_orifice_plate_thickness: QLabel
         self.label_orifice_plate_thickness_unit: QLabel
 
         # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
+        self.lineEdit_selected_id: QLineEdit
         self.lineEdit_valve_name: QLineEdit
-        self.lineEdit_stiffening_factor : QLineEdit
-        self.lineEdit_valve_mass : QLineEdit
-        self.lineEdit_orifice_plate_thickness : QLineEdit
-        self.lineEdit_flange_length : QLineEdit
-        self.lineEdit_flange_diameter : QLineEdit
+        self.lineEdit_stiffening_factor: QLineEdit
+        self.lineEdit_valve_mass: QLineEdit
+        self.lineEdit_effective_diameter: QLineEdit
+        self.lineEdit_wall_thickness: QLineEdit
+        self.lineEdit_orifice_plate_thickness: QLineEdit
+        self.lineEdit_flange_length: QLineEdit
+        self.lineEdit_flange_diameter: QLineEdit
 
         # QPushButton
-        self.pushButton_attribute : QPushButton
-        self.pushButton_cancel : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_remove : QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_reset: QPushButton
+        self.pushButton_remove: QPushButton
 
         # QTabWidget
-        self.tabWidget_main : QTabWidget
+        self.tabWidget_main: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_valves_info : QTreeWidget
+        self.treeWidget_valves_info: QTreeWidget
 
     def _create_connections(self):
         #
-        self.checkBox_flanged_valve.stateChanged.connect(self.flanged_valves_callback)
-        self.checkBox_acoustic_effects.stateChanged.connect(self.acoustic_effects_callback)
+        self.comboBox_acoustic_effects.currentIndexChanged.connect(self.valve_setup_callback)
+        self.comboBox_flange_setup.currentIndexChanged.connect(self.valve_setup_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_cancel.clicked.connect(self.close)
@@ -119,6 +124,8 @@ class ValvesInput(QDialog):
         self.treeWidget_valves_info.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+        #
+        self.valve_setup_callback()
 
     def selection_callback(self):
 
@@ -135,42 +142,46 @@ class ValvesInput(QDialog):
 
             if len(line_ids) == 1:
 
-                valve_lines = list()
-                acoustic_effects = False
+                line_id = line_ids[0]
+                valve_info = self.properties._get_property("valve_info", line_id=line_id)
+                if valve_info is None:
+                    return
 
-                for line_id, data in self.properties.line_properties.items():
-                    if "valve_name" in data:
+                valve_name = valve_info["valve_name"]
+                valve_mass = valve_info["valve_mass"]
+                stiffening_factor = valve_info["stiffening_factor"]
 
-                        valve_name = data["valve_name"]
+                self.lineEdit_valve_name.setText(valve_name)
+                self.lineEdit_valve_mass.setText(str(valve_mass))
+                self.lineEdit_stiffening_factor.setText(str(stiffening_factor))
 
-                        valves_info = app().pulse_file.read_valves_info_from_file()
+                if "flange_diameter" in valve_info.keys():
+                    flange_diameter = valve_info["flange_diameter"]
+                    flange_length = valve_info["flange_length"]
+                    self.lineEdit_flange_diameter.setText(str(flange_diameter))
+                    self.lineEdit_flange_length.setText(str(flange_length))
+                    self.comboBox_flange_setup.setCurrentIndex(1)
+                else:
+                    self.comboBox_flange_setup.setCurrentIndex(0)
 
-                        if "valve_name" in valves_info.keys():
+                if "acoustic_effects" in valve_info.keys():
+                    # acoustic_effects = valve_info["acoustic_effects"]
+                    self.comboBox_acoustic_effects.setCurrentIndex(1)
+                else:
+                    self.comboBox_acoustic_effects.setCurrentIndex(0)
 
-                            valve_lines.append(line_id)
-                            valve_name = valves_info["valve_name"]
-                            valve_mass = valves_info["valve_mass"]
-                            stiffening_factor = valves_info["stiffening_factor"]
+    def _configure_appearance(self):
+        if self.render_type == "model":
+            self.selection_frame.setVisible(True)
+        else:
+            self.selection_frame.setVisible(False)
+            self.tabWidget_main.setTabVisible(1, False)
 
-                            self.lineEdit_valve_name.setText(valve_name)
-                            self.lineEdit_valve_mass.setText(str(valve_mass))
-                            self.lineEdit_stiffening_factor.setText(str(stiffening_factor))
-
-                            if "flange_diameter" in valves_info.keys():
-                                self.checkBox_flanged_valve.setChecked(True)
-                                flange_diameter = valves_info["flange_diameter"]
-                                flange_length = valves_info["flange_length"]
-                                self.lineEdit_flange_diameter.setText(str(flange_diameter))
-                                self.lineEdit_flange_length.setText(str(flange_length))
-                                self.checkBox_flanged_valve.setChecked(True)
-
-                            if "acoustic_effects" in valves_info.keys():
-                                acoustic_effects = valves_info["acoustic_effects"]
-                                self.checkBox_acoustic_effects.setChecked(acoustic_effects)
+        self.adjustSize()
 
     def _config_widgets(self):
         # self.cache_tab = self.tabWidget_main.currentIndex()
-        for i, w in enumerate([80, 120, 160]):
+        for i, w in enumerate([100, 120, 160]):
             self.treeWidget_valves_info.setColumnWidth(i, w)
             self.treeWidget_valves_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
@@ -202,32 +213,32 @@ class ValvesInput(QDialog):
             self.selection_frame.setDisabled(False)
         # self.cache_tab = self.tabWidget_main.currentIndex()
 
-    def acoustic_effects_callback(self):
-        if self.checkBox_acoustic_effects.isChecked():
-            self.label_orifice_plate_thickness.setDisabled(False)
-            self.label_orifice_plate_thickness_unit.setDisabled(False)
-            self.lineEdit_orifice_plate_thickness.setDisabled(False)
-        else:
-            self.label_orifice_plate_thickness.setDisabled(True)
-            self.label_orifice_plate_thickness_unit.setDisabled(True)
-            self.lineEdit_orifice_plate_thickness.setDisabled(True)
+    def valve_setup_callback(self):
+
+        index_A = self.comboBox_acoustic_effects.currentIndex()
+        index_B = self.comboBox_flange_setup.currentIndex()
+
+        self.acoustic_effects_callback(bool(index_A))
+        self.flanged_valves_callback(bool(index_B))
+
+    def acoustic_effects_callback(self, enabled: bool):
+
+        self.label_orifice_plate_thickness.setEnabled(enabled)
+        self.label_orifice_plate_thickness_unit.setEnabled(enabled)
+        self.lineEdit_orifice_plate_thickness.setEnabled(enabled)
+
+        if not enabled:
             self.lineEdit_orifice_plate_thickness.setText("")
 
-    def flanged_valves_callback(self):
-        if self.checkBox_flanged_valve.isChecked():
-            self.label_flange_diameter.setDisabled(False)
-            self.label_flange_diameter_unit.setDisabled(False)
-            self.label_flange_length.setDisabled(False)
-            self.label_flange_length_unit.setDisabled(False)
-            self.lineEdit_flange_diameter.setDisabled(False)
-            self.lineEdit_flange_length.setDisabled(False)
-        else:
-            self.label_flange_diameter.setDisabled(True)
-            self.label_flange_diameter_unit.setDisabled(True)
-            self.label_flange_length.setDisabled(True)
-            self.label_flange_length_unit.setDisabled(True)
-            self.lineEdit_flange_diameter.setDisabled(True)
-            self.lineEdit_flange_length.setDisabled(True)
+    def flanged_valves_callback(self, enabled: bool):
+        self.label_flange_diameter.setEnabled(enabled)
+        self.label_flange_diameter_unit.setEnabled(enabled)
+        self.label_flange_length.setEnabled(enabled)
+        self.label_flange_length_unit.setEnabled(enabled)
+        self.lineEdit_flange_diameter.setEnabled(enabled)
+        self.lineEdit_flange_length.setEnabled(enabled)
+
+        if not enabled:
             self.lineEdit_flange_diameter.setText("")
             self.lineEdit_flange_length.setText("")
 
@@ -236,37 +247,23 @@ class ValvesInput(QDialog):
         self.pushButton_remove.setDisabled(True)
         self.treeWidget_valves_info.clear()
 
-        self.valves_info = app().pulse_file.read_valves_info_from_file()
-        if self.valve_info is None:
-            self.valves_info = dict()
-
-        lines_from_valve = defaultdict(list)
         for line_id, data in self.properties.line_properties.items():
-            if "valve_name" in data.keys():
+            if "valve_info" in data.keys():
+
                 valve_name = data["valve_name"]
-                lines_from_valve[valve_name].append(line_id)
+                valve_info = data["valve_info"]
+                mass = valve_info["valve_mass"]
+                stiffening_factor = valve_info["stiffening_factor"]
+                acoustic_effects = valve_info["acoustic_effects"]
+                outer_diameter = data["section_parameters"][0]
 
-        for name, line_ids in lines_from_valve.items():
-            self.valves_info[name]["valve_lines"] = line_ids
+                parameters = str([outer_diameter, stiffening_factor, mass, acoustic_effects])
 
-        for valve_name, _data in self.valves_info.items():
-  
-            line_ids = lines_from_valve[valve_name]
-            # line_ids = _data["valve_lines"]
+                item = QTreeWidgetItem([valve_name, str(line_id), parameters])
+                for i in range(3):
+                    item.setTextAlignment(i, Qt.AlignCenter)
 
-            mass = _data["valve_mass"]
-            stiffening_factor = _data["stiffening_factor"]
-            acoustic_effects = _data["acoustic_effects"]
-
-            outer_diameter = data["section_parameters"][0]
-
-            valve_info = str([outer_diameter, stiffening_factor, mass, acoustic_effects])
-
-            item = QTreeWidgetItem([name, str(line_ids), valve_info])
-            for i in range(2):
-                item.setTextAlignment(i, Qt.AlignCenter)
-
-            self.treeWidget_valves_info.addTopLevelItem(item)
+                self.treeWidget_valves_info.addTopLevelItem(item)
 
         self.update_tab_visibility()
 
@@ -352,14 +349,21 @@ class ValvesInput(QDialog):
 
         self.valve_info["stiffening_factor"] = value
 
-    def check_flange_parameters(self):
-
-        stop, value = self.check_input_parameters(self.lineEdit_flange_length, 'Flange length')
+        stop, value = self.check_input_parameters(self.lineEdit_effective_diameter, 'Effective diameter')
         if stop:
-            self.lineEdit_flange_length.setFocus()
+            self.lineEdit_stiffening_factor.setFocus()
             return True
 
-        self.valve_info["flange_length"] = value
+        self.valve_info["valve_effective_diameter"] = value
+
+        stop, value = self.check_input_parameters(self.lineEdit_wall_thickness, 'Valve wall thickness')
+        if stop:
+            self.lineEdit_wall_thickness.setFocus()
+            return True
+
+        self.valve_info["valve_wall_thickness"] = value
+
+    def check_flange_parameters(self):
 
         stop, value = self.check_input_parameters(self.lineEdit_flange_diameter, 'Flange diameter')
         if stop:
@@ -367,6 +371,13 @@ class ValvesInput(QDialog):
             return True
 
         self.valve_info["flange_diameter"] = value
+
+        stop, value = self.check_input_parameters(self.lineEdit_flange_length, 'Flange length')
+        if stop:
+            self.lineEdit_flange_length.setFocus()
+            return True
+
+        self.valve_info["flange_length"] = value
 
         return False
 
@@ -378,118 +389,6 @@ class ValvesInput(QDialog):
             return True
 
         self.valve_info["orifice_plate_thickness"] = value
-
-    def get_list_of_values(self, coords: np.ndarray):
-        return list(np.round(coords, 6))
-
-    def process_valve_points(self, line_id: int) -> dict:
-        """
-        """
-        points_from_valve = dict()
-
-        start_coords = self.properties._get_property("start_coords", line_id=line_id)
-        end_coords = self.properties._get_property("end_coords", line_id=line_id)
-
-        A = np.array(start_coords, dtype=float)
-        B = np.array(end_coords, dtype=float) 
-
-        L = B - A
-        n = L / np.linalg.norm(L)
-
-        self.valve_info["valve_length"] = round(np.linalg.norm(L), 6)
-        self.valve_info["valve_center_coordinates"] = self.get_list_of_values((A + B) / 2)
-
-        points_from_valve["main_points"] = (self.get_list_of_values(A), self.get_list_of_values(B))
-
-        if self.checkBox_flanged_valve.isChecked():
-            if "flange_length" in self.valve_info.keys():
-                flange_length = self.valve_info["flange_length"]
-                C = A + n * flange_length
-                D = A + n * (L - flange_length)
-                points_from_valve["flange_points"] = (self.get_list_of_values(C), self.get_list_of_values(D))
-
-        if self.checkBox_acoustic_effects.isChecked():
-            if "orifice_plate_thickness" in self.valve_info.keys():
-                op_thickness = self.valve_info["orifice_plate_thickness"]
-                E = A + n * (L - op_thickness) / 2
-                F = A + n * (L + op_thickness) / 2
-                points_from_valve["op_points"] = (self.get_list_of_values(E), self.get_list_of_values(F))
-
-        return points_from_valve
-
-    def create_valve(self, line_id: list, neighboor_section_parameters: list):
-
-        tag = self.get_shifted_line_id()
-        valve_points = self.process_valve_points(line_id)
-
-        (coords_A, coords_B) = valve_points["main_points"]
-
-        if "flange_points" in valve_points.keys():
-
-            (coords_C, coords_D) = valve_points["flange_points"]
-
-            flange_diameter = self.valve_info["flange_diameter"]
-
-            d_out = neighboor_section_parameters[0]
-            t = neighboor_section_parameters[1]
-
-            flange_thickness = (flange_diameter - (d_out - 2 * t)) / 2
-
-            flange_diameter = round(flange_diameter, 6)
-            flange_thickness = round(flange_thickness, 6)
-
-            section_parameters = [flange_diameter, flange_thickness, 0, 0, 0, 0]
-
-            self.set_valve_data_to_lines(tag + 0, "valve_flange_A", coords_A, coords_C, section_parameters)
-            self.set_valve_data_to_lines(tag + 1, "valve_flange_B", coords_D, coords_B, section_parameters)
-
-            if "op_points" in valve_points.keys():
-
-                (coords_E, coords_F) = valve_points["op_points"]
-
-                self.set_valve_data_to_lines(tag + 2, "valve_body_A", coords_C, coords_E, neighboor_section_parameters)
-                self.set_valve_data_to_lines(tag + 3, "orifice_plate", coords_E, coords_F, neighboor_section_parameters)
-                self.set_valve_data_to_lines(tag + 4, "valve_body_B", coords_F, coords_D, neighboor_section_parameters)
-                self.op_line_ids.append(tag + 3)
-
-        elif "op_points" in valve_points.keys():
-
-            (coords_E, coords_F) = valve_points["op_points"]
-
-            self.set_valve_data_to_lines(tag + 0, "valve_body_A", coords_A, coords_E, neighboor_section_parameters)
-            self.set_valve_data_to_lines(tag + 1,"orifice_plate", coords_E, coords_F, neighboor_section_parameters)
-            self.set_valve_data_to_lines(tag + 2, "valve_body_B", coords_F, coords_B, neighboor_section_parameters)
-            self.op_line_ids.append(tag + 1)
-
-        else:
-
-            self.set_valve_data_to_lines(tag, "valve_body", coords_A, coords_B, neighboor_section_parameters)
-
-    def get_shifted_line_id(self):
-
-        lines_properties = self.properties.line_properties
-        if lines_properties:
-            line_tags = list(lines_properties.keys())
-        else:
-            return 1
-
-        return max(line_tags) + 1
-
-    def set_valve_data_to_lines(self, line_id: int, valve_component: str, coords_1: np.ndarray, coords_2: np.ndarray, section_parameters: list):
-        """
-        """
-        line_data = dict()
-        line_data["start_coords"] = coords_1
-        line_data["end_coords"] = coords_2
-        line_data["section_type_label"] = "Valve"
-        line_data["section_parameters"] = section_parameters
-        line_data["structural_element_type"] = "valve"
-        line_data["valve_name"] = self.valve_name
-        line_data["component"] = valve_component
-
-        self.properties._set_multiple_line_properties(line_data, line_ids=line_id)
-        self.properties._set_line_property("valve_name", self.valve_name, line_id)
-        self.properties._set_line_property("valve_component", valve_component, line_id)
 
     def attribute_callback(self):
 
@@ -507,34 +406,25 @@ class ValvesInput(QDialog):
         if self.check_valve_parameters():
             return
 
-        acoustic_effects = self.checkBox_acoustic_effects.isChecked()
+        acoustic_effects = bool(self.comboBox_acoustic_effects.currentIndex())
         if acoustic_effects:
             if self.check_orifice_plate_parameters():
                 return
+
         self.valve_info["acoustic_effects"] = acoustic_effects
 
-        if self.checkBox_flanged_valve.isChecked():
+        if self.comboBox_flange_setup.currentIndex() == 1:
             if self.check_flange_parameters():
                 return
 
         if self.valve_info:
 
             for line_id in line_ids:
-
-                neigh_section_parameters = self.search_for_cross_section_in_neighborhood(line_id)
-
-                if neigh_section_parameters is None:
-                    title = "No pipe cross-section has been detected in the valve neighborhood"
-                    message = "There are no pipe cross-sections defined in the valve neighbor elements. " 
-                    message += "You must define cross-sections to the neighbor valve elements to proceed."    
-                    PrintMessageInput([window_title_2, title, message])
                 
-                self.create_valve(line_id, neigh_section_parameters)
-                self.properties._remove_line(line_id)
-
-                self.valve_info["section_parameters"]
-                self.valves_info[self.valve_name] = self.valve_info
-                app().pulse_file.write_valve_info_in_file(self.valves_info)
+                self.process_section_parameters(line_id)
+                self.properties._set_line_property("structural_element_type", "valve", line_ids=line_id)
+                self.properties._set_line_property("valve_name", self.valve_name, line_ids=line_id)
+                self.properties._set_line_property("valve_info", self.valve_info, line_ids=line_id)
 
                 self.remove_table_files_from_expansion_joints(line_id)
                 self.properties._remove_line_property("expansion_joint", line_id)
@@ -548,7 +438,7 @@ class ValvesInput(QDialog):
     def actions_to_finalize(self):
 
         app().pulse_file.write_line_properties_in_file()
-        app().pulse_file.remove_line_gaps_from_line_properties_file()
+        # app().pulse_file.remove_line_gaps_from_line_properties_file()
 
         # geometry_handler = GeometryHandler()
         # geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
@@ -583,83 +473,22 @@ class ValvesInput(QDialog):
                 app().main_window.set_input_widget(self)
                 return
 
-    # def set_valve_by_lines(self, valve_data):
-    #     message = ""
-    #     for line_id, data in valve_data.items():
+    def process_section_parameters(self, line_id: int):
 
-    #         valve_elements = data["valve_elements"]
-    #         valve_diameters = data["valve_diameters"]
+        self.properties._set_line_property("section_type_label", "Valve", line_id)
 
-    #         valve_section_parameters = data["valve_section_parameters"]
-    #         outer_diameter = valve_section_parameters[0]
+        d_in = self.valve_info["valve_effective_diameter"]
+        t = round(self.valve_info["valve_wall_thickness"], 6)
+        d_out = round(d_in + 2 * t, 6)
 
-    #         if self.checkBox_flanged_valve.isChecked():
+        section_parameters = [d_out, t, 0, 0, 0, 0]
+        self.properties._set_line_property("section_parameters", section_parameters, line_id)
 
-    #             if "flange_elements" in data.keys():
-    #                 flange_elements = data["flange_elements"]
-
-    #             flange_outer_diameter = data["flange_section_parameters"][0]
-    #             offset_y = valve_section_parameters[2]
-    #             offset_z = valve_section_parameters[3]
-
-    #             if outer_diameter != 0:
-    #                 if flange_outer_diameter <= self.inner_diameter:
-    #                     title = "Invalid input to the outer/inner diameters"
-    #                     message = "The outer diameter input should be greater than the inner diameter. \n"
-    #                     message += "This condition must  be satified to proceed."
-    #                     PrintMessageInput([window_title_1, title, message])
-    #                     return True
-
-    #                 else:
-    #                     outer_diameter = self.flange_outer_diameter
-    #                     thickness = round((self.flange_outer_diameter - self.inner_diameter)/2, 6)
-    #                     flange_section_parameters = [outer_diameter, thickness, offset_y, offset_z, 0, 0]
-    #                     data["flange_section_parameters"] = flange_section_parameters
-
-    #                 self.project.add_valve_by_line(line_id, data)
-    #                 if self.set_cross_section_to_list_elements(flange_elements, flange_section_parameters, valve_diameters):
-    #                     return
-
-    #                 _valve_elements = [element_id for element_id in valve_elements if element_id not in flange_elements]
-    #                 if self.set_cross_section_to_list_elements(_valve_elements, valve_section_parameters, valve_diameters):
-    #                     return
-
-    #             else:
-    #                 title = "None cross-section defined"
-    #                 message = "The selected lines or elements has no cross-section defined. "
-    #                 message += "Please, define a pipe cross-section before proceed."   
-
-    #         else:
-
-    #             if outer_diameter != 0:
-
-    #                 self.project.add_valve_by_line(line_id, data)
-    #                 if self.set_cross_section_to_list_elements(valve_elements, valve_section_parameters, valve_diameters):
-    #                     return
-
-    #             else:
-    #                 title = "None cross-section defined"
-    #                 message = "The selected lines or elements has no cross-section defined. "
-    #                 message += "Please, define a pipe cross-section before proceed."
-
-    #         if message != "":
-    #             PrintMessageInput([window_title_1, title, message])
-    #             return True
-
-    # def set_cross_section_to_list_elements(self, list_elements, section_parameters, valve_diameters): 
-
-    #     list_cross_sections = list()
-    #     valve_section_info = {  "section_type_label" : "Valve section" ,
-    #                             "section_parameters" : section_parameters  }
-
-    #     for element_id in list_elements:             
-    #         valve_section_info["diameters_to_plot"] = valve_diameters[element_id] 
-    #         cross_section = CrossSection(valve_section_info=valve_section_info)
-    #         list_cross_sections.append(cross_section)
-
-    #     self.preprocessor.set_cross_section_by_elements(list_elements, list_cross_sections)
-
-    #     return False
+        if "flange_diameter" in self.valve_info.keys():
+            df_out = self.valve_info["flange_diameter"]
+            tf = round((df_out - d_in) / 2, 6)
+            flange_section_parameters = [df_out, tf, 0, 0, 0, 0]
+            self.properties._set_line_property("flange_section_parameters", flange_section_parameters, line_id)
 
     def search_for_cross_section_in_neighborhood(self, line_id: int):
 
@@ -680,8 +509,8 @@ class ValvesInput(QDialog):
         for element_id in element_ids:
             if element_id not in line_elements:
                 if element_id in self.preprocessor.structural_elements.keys():
-                    cross = self.structural_elements[element_id].cross_section 
-                    element_type = self.structural_elements[element_id].element_type
+                    cross = self.preprocessor.structural_elements[element_id].cross_section 
+                    element_type = self.preprocessor.structural_elements[element_id].element_type
                     if element_type == 'pipe_1':
                         if cross is None:
                             continue
@@ -704,8 +533,7 @@ class ValvesInput(QDialog):
         self.lineEdit_selected_id.setText(item.text(0))
         self.pushButton_remove.setEnabled(True)
         if item.text(0) != "":
-            valve_name = item.text(0)
-            line_ids = self.lines_from_valve[valve_name]
+            line_ids = [int(item.text(1))]
             app().main_window.set_selection(lines = line_ids)
 
     def on_doubleclick_item(self, item):
@@ -737,9 +565,6 @@ class ValvesInput(QDialog):
 
             if element_type == 'pipe_1' and isinstance(cross, CrossSection):
 
-                # self.preprocessor.set_cross_section_by_lines(line_id, cross)
-                # self.preprocessor.set_structural_element_type_by_lines(line_id, "pipe_1")
-
                 pipe_info = {   "section_type_label" : "Pipe",
                                 "section_parameters" : cross.section_parameters   }
 
@@ -768,12 +593,9 @@ class ValvesInput(QDialog):
         if self.lineEdit_selected_id.text() != "":
 
             line_id = int(self.lineEdit_selected_id.text())
-
-            # self.preprocessor.add_valve_by_lines(line_id, None)
             self.properties._remove_line_property("valve_name", line_id)
-            self.properties._remove_line_property("valve_component", line_id)
-
-            # self.reset_all_lineEdits()
+            self.properties._remove_line_property("flange_section_parameters", line_id)
+            self.properties._remove_line_property("valve_info", line_id)
 
             self.restore_the_cross_section([line_id])
 
@@ -801,12 +623,14 @@ class ValvesInput(QDialog):
                 if "valve_name" in data.keys():
                     line_ids.append(line_id)
 
-            if line_ids:
-
+            for line_id in line_ids:
                 self.properties._remove_line_property("valve_name", line_id)
-                self.properties._remove_line_property("valve_component", line_id)
-
+                self.properties._remove_line_property("flange_section_parameters", line_id)
+                self.properties._remove_line_property("valve_info", line_id)
                 self.restore_the_cross_section(line_ids)
+
+            if line_ids:
+                self.load_valves_info()
                 self.actions_to_finalize()
                 # self.close()
 

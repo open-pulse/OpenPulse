@@ -12,6 +12,7 @@ def nodes_info_text() -> str:
     nodes = app().main_window.list_selected_nodes()
     preprocessor = app().project.preprocessor
     properties = app().project.model.properties
+
     info_text = ""
 
     if len(nodes) > 1:
@@ -146,7 +147,8 @@ def elements_info_text() -> str:
         info_text += cross_section_info_text(
                                              structural_element.cross_section, 
                                              structural_element.element_type,
-                                             structural_element.beam_xaxis_rotation
+                                             structural_element.beam_xaxis_rotation,
+                                             structural_element.valve_parameters
                                              )
 
     return info_text
@@ -179,11 +181,18 @@ def lines_info_text() -> str:
         if fluid is not None:
             info_text += fluid_info_text(fluid)
 
+        properties = app().project.model.properties
         cross_section = properties._get_property("cross_section", line_id=line_id)
         structural_element_type = properties._get_property("structural_element_type", line_id=line_id)
         beam_xaxis_rotation = properties._get_property("beam_xaxis_rotation", line_id=line_id)
+        valve_name = properties._get_property("valve_name", line_id=line_id)
 
-        info_text += cross_section_info_text(structural_element_type, cross_section, beam_xaxis_rotation)
+        info_text += cross_section_info_text(
+                                             cross_section, 
+                                             structural_element_type, 
+                                             beam_xaxis_rotation, 
+                                             valve_name
+                                             )
 
     return info_text
 
@@ -213,7 +222,8 @@ def fluid_info_text(fluid) -> str:
     return str(tree)
 
 
-def cross_section_info_text(element_type, cross_section, beam_xaxis_rotation) -> str:
+def cross_section_info_text(cross_section, structural_element_type, beam_xaxis_rotation, valve_name) -> str:
+
     info_text = ""
 
     if cross_section is None:
@@ -221,7 +231,7 @@ def cross_section_info_text(element_type, cross_section, beam_xaxis_rotation) ->
         tree.add_item("Info", "Undefined")
         info_text += str(tree)
 
-    elif element_type == "beam_1":
+    elif structural_element_type == "beam_1":
         tree = TreeInfo("cross section")
 
         area = cross_section.area
@@ -240,10 +250,13 @@ def cross_section_info_text(element_type, cross_section, beam_xaxis_rotation) ->
 
         info_text += str(tree)
 
-    elif element_type in ["pipe_1", "valve"]:
+    elif structural_element_type in ["pipe_1", "valve"]:
 
         tree = TreeInfo("cross section")
         tree.add_item("Section type", cross_section.section_type_label, "")
+        if structural_element_type == "valve":
+            tree.add_item("Valve name", valve_name, "")
+
         tree.add_item("Outer diameter", round(cross_section.outer_diameter, 4), "m")
         tree.add_item("Thickness", round(cross_section.thickness, 4), "m")
         tree.add_separator()

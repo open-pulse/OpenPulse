@@ -442,18 +442,22 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
         col = (0, 10, 255)
 
         symbols = list()
-        valves_info = app().pulse_file.read_valves_info_from_file()
+
         for line_id, data in app().project.model.properties.line_properties.items():
 
+            start_coords = data["start_coords"]
+            end_coords = data["end_coords"]
+
             if "valve_name" in data.keys():
+                return list()
 
-                valve_name = data["valve_name"]
-                valve_component = data["valve_component"]
+                # valve_name = data["valve_name"]
 
-                valve_info = valves_info[valve_name]
+                A = np.array(start_coords, dtype=float)
+                B = np.array(end_coords, dtype=float) 
 
-                center_coordinates = valve_info["valve_center_coordinates"]
-                valve_length = valve_info["valve_length"]
+                valve_length = np.linalg.norm(B - A)
+                center_coordinates = (B + A) / 2
 
                 try:
                     valve_elements = app().project.model.mesh.line_to_elements[line_id]
@@ -462,19 +466,12 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
 
                 diameter = data["section_parameters"][0]
 
-                if valve_component == "orifice_plate":
-                    element_id = valve_elements[0]
-
-                elif valve_component == "valve_body":
-                    if np.remainder(len(valve_elements), 2) == 0:
-                        index = int(len(valve_elements) / 2)
-                        element_id = valve_elements[index]
-                    else:
-                        index = int((len(valve_elements) - 1) / 2) + 1
-                        element_id = valve_elements[index]
-
+                if np.remainder(len(valve_elements), 2) == 0:
+                    index = int(len(valve_elements) / 2)
+                    element_id = valve_elements[index]
                 else:
-                    continue
+                    index = int((len(valve_elements) - 1) / 2) + 1
+                    element_id = valve_elements[index]
 
                 element = app().project.preprocessor.structural_elements[element_id]
 

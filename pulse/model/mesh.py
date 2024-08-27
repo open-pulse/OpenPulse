@@ -128,8 +128,10 @@ class Mesh:
         else:
             length = self.element_size
 
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', length)
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', 0.5*length)
         gmsh.option.setNumber('Mesh.CharacteristicLengthMax', length)
+        gmsh.option.setNumber('Mesh.CharacteristicLengthExtendFromBoundary', 1)
+        gmsh.option.setNumber('Mesh.MeshSizeFromPoints', 1)
         gmsh.option.setNumber('Mesh.Optimize', 1)
         gmsh.option.setNumber('Mesh.OptimizeNetgen', 0)
         gmsh.option.setNumber('Mesh.HighOrderOptimize', 0)
