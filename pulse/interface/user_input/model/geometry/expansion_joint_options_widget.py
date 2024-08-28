@@ -9,7 +9,6 @@ from opps.model import ExpansionJoint
 
 from pulse import app, UI_DIR
 from pulse.interface.utils import set_qt_property
-from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
 
 
@@ -25,7 +24,6 @@ class ExpansionJointOptionsWidget(QWidget):
         self.structure_type = ExpansionJoint
         self.add_function = self.pipeline.add_expansion_joint
         self.attach_function = self.pipeline.connect_expansion_joints
-        self.cross_section_info = None
         self.expansion_joint_info = None
 
         self._initialize()
@@ -38,19 +36,9 @@ class ExpansionJointOptionsWidget(QWidget):
 
     def _define_qt_variables(self):
         self.set_section_button: QPushButton
-        self.cross_section_widget: CrossSectionWidget = self.parent().cross_section_widget
-
-    def _config_layout(self):
-        self.cross_section_widget._add_icon_and_title()
-        self.cross_section_widget.set_inputs_to_geometry_creator()     
-        self.cross_section_widget.hide_all_tabs()     
-        self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
-        self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
-        self.cross_section_widget.lineEdit_outside_diameter.setFocus()
-        self.cross_section_widget.hide()
 
     def _create_connections(self):
-        self.set_section_button.clicked.connect(self.define_cross_section_callback)
+        self.set_section_button.clicked.connect(self.define_expansion_joint_parameters)
 
     def get_parameters(self) -> dict:
         if self.expansion_joint_info is None:
@@ -65,12 +53,12 @@ class ExpansionJointOptionsWidget(QWidget):
         )
         return kwargs
 
-    def define_cross_section_callback(self):
-        geometry_input = ExpansionJointInput(render_type="geometry")
-        if not geometry_input.complete:
+    def define_expansion_joint_parameters(self):
+        expansion_joint_input = ExpansionJointInput(render_type="geometry")
+        if not expansion_joint_input.complete:
             self.expansion_joint_info = None
             return
 
-        self.expansion_joint_info = geometry_input.expansion_joint_info
+        self.expansion_joint_info = expansion_joint_input.expansion_joint_info
         set_qt_property(self.set_section_button, warning=False)
         self.edited.emit()

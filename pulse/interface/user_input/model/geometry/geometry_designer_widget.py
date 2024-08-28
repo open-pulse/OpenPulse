@@ -639,11 +639,16 @@ class GeometryDesignerWidget(QWidget):
         current_widget = self.options_stack_widget.currentWidget()
         cross_section_info = getattr(current_widget, "cross_section_info", None)
         expansion_joint_info = getattr(current_widget, "expansion_joint_info", None)
+        valve_info = getattr(current_widget, "valve_info", None)
 
         # usefull variables
         have_selection = bool(self.pipeline.selected_points or self.pipeline.selected_structures)
         have_staged = bool(self.pipeline.staged_points or self.pipeline.staged_structures)
-        widget_configured = (cross_section_info is not None) or (expansion_joint_info is not None)
+        widget_configured = (
+            (cross_section_info is not None) 
+            or (expansion_joint_info is not None) 
+            or (valve_info is not None)
+        )
         multiple_points_selected = len(self.pipeline.selected_points) >= 1
         is_point = issubclass(self.current_structure_type, Point)
         is_beam = issubclass(self.current_structure_type, Beam)

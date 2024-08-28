@@ -21,7 +21,7 @@ window_title_2 = "Warning"
 
 class ValvesInput(QDialog):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args)
 
         ui_path = UI_DIR / "model/setup/structural/valve_input.ui"
         uic.loadUi(ui_path, self)
