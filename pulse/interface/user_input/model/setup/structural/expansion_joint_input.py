@@ -21,7 +21,7 @@ window_title_2 = "Warning"
 
 class ExpansionJointInput(QDialog):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args)
 
         ui_path = UI_DIR / "model/setup/structural/expansion_joint_input.ui"
         uic.loadUi(ui_path, self)
@@ -645,8 +645,8 @@ class ExpansionJointInput(QDialog):
                 self.properties._set_line_property("expansion_joint_info", self.expansion_joint_info, line_id)
 
             self.actions_to_finalize()
-
-        # pprint(self.expansion_joint_info)
+        
+        self.complete = True
         self.close()
     
     def load_expansion_joints_info(self):

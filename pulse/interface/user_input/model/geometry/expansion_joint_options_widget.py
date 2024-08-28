@@ -10,7 +10,7 @@ from opps.model import ExpansionJoint
 from pulse import app, UI_DIR
 from pulse.interface.utils import set_qt_property
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
-from pulse.interface.user_input.model.setup.structural.expansion_joint_geometry_input import ExpansionJointGeometryInput
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
 
 
 class ExpansionJointOptionsWidget(QWidget):
@@ -66,10 +66,11 @@ class ExpansionJointOptionsWidget(QWidget):
         return kwargs
 
     def define_cross_section_callback(self):
-        geometry_input = ExpansionJointGeometryInput()
-        self.expansion_joint_info = geometry_input.value
-        if self.expansion_joint_info is None:
+        geometry_input = ExpansionJointInput(render_type="geometry")
+        if not geometry_input.complete:
+            self.expansion_joint_info = None
             return
 
+        self.expansion_joint_info = geometry_input.expansion_joint_info
         set_qt_property(self.set_section_button, warning=False)
         self.edited.emit()
