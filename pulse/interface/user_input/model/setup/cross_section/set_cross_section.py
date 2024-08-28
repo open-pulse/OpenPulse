@@ -428,7 +428,7 @@ class SetCrossSectionInput(QDialog):
     def pipe_section_attribution_callback(self):
 
         if self.comboBox_attribution_type.currentIndex() == 0:
-            line_ids = list(app().project.model.mesh.lines_from_model.keys())
+            line_ids = app().project.model.mesh.lines_from_model
 
         else:
 
@@ -483,7 +483,7 @@ class SetCrossSectionInput(QDialog):
     def beam_section_attribution_callback(self):
         
         if self.comboBox_attribution_type.currentIndex() == 0:
-            line_ids = list(app().project.model.mesh.lines_from_model.keys())
+            line_ids = app().project.model.mesh.lines_from_model
 
         else:
             lineEdit = self.lineEdit_selected_id.text()

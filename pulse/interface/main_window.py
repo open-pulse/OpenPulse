@@ -11,8 +11,7 @@ from opps.io.pcf.pcf_handler import PCFHandler
 
 from molde.render_widgets import CommonRenderWidget
 
-from pulse import USER_PATH, TEMP_PROJECT_DIR, TEMP_PROJECT_FILE
-from pulse import app, UI_DIR, QSS_DIR
+from pulse import *
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar

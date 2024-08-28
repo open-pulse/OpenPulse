@@ -272,7 +272,6 @@ class CrossSection:
         self.insulation_density = self.section_parameters[5]
         self.offset = [self.offset_y, self.offset_z]
 
-        # self.outer_diameter_to_plot, self.inner_diameter_to_plot = self.valve_section_info["diameters_to_plot"]
         self.section_info = self.valve_section_info
 
     def load_expansion_joint_data(self):

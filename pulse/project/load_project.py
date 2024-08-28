@@ -318,40 +318,54 @@ class LoadProject:
 
         if "valve_name" in data.keys():
 
-            valve_name = data["valve_name"]
+            flange_elements = list()
+            valve_body_elements = list()
+
+            # valve_name = data["valve_name"]
             valve_info = data["valve_info"]
 
-            self.preprocessor.add_valve_by_lines(line_id, valve_info)
+            start_coords = np.array(data["start_coords"], dtype=float)
+            end_coords = np.array(data["end_coords"], dtype=float)
 
-            d_out, t, *_ = data["section_parameters"]
+            valve_length = np.linalg.norm(end_coords - start_coords)
+            valve_info["valve_length"] = valve_length
+
+            self.preprocessor.add_valve_by_lines(line_id, valve_info)
             line_elements = app().project.model.mesh.line_to_elements[line_id]
 
-            N = len(line_elements)
+            if "flange_length" in valve_info.keys():
+
+                flange_length = valve_info["flange_length"]
+                df_out, tf, *_ = data["flange_section_parameters"]
+
+                for element_id in line_elements:
+
+                    element = self.model.preprocessor.structural_elements[element_id]
+                    center_coords = element.center_coordinates
+
+                    if np.linalg.norm(center_coords-start_coords) <= flange_length:
+                        flange_elements.append(element_id)
+                    elif np.linalg.norm(center_coords-end_coords) <= flange_length:
+                        flange_elements.append(element_id)
+                    else:
+                        valve_body_elements.append(element_id)
+
+            else:
+
+                for element_id in line_elements:
+                    valve_body_elements.append(element_id)
+
+            N = len(valve_body_elements)
+            d_out, t, *_ = data["section_parameters"]
             diameters = get_V_linear_distribution(d_out, N)
 
-            # aux = np.ones(N, dtype=float)
-            # if valve_component in ["valve_flange_A", "valve_flange_B"]:
-            #     d_f = valve_info["flange_diameter"]
-            #     diameters = list(d_f * aux)
-
-            # elif valve_component == "valve_body":
-            #     diameters = get_V_linear_distribution(d_out, N)
-
-            # elif valve_component == "valve_body_A":
-            #     diameters = get_linear_distribution(d_out, 0.5*d_out, N)
-
-            # elif valve_component == "valve_body_B":
-            #     diameters = get_linear_distribution(0.5*d_out, d_out, N)
-
-            # else:
-            #     diameters = list(0.4 * d_out  * aux)
-
-            for i, element_id in enumerate(line_elements):
+            for i, element_id in enumerate(flange_elements):
                 element = app().project.model.preprocessor.structural_elements[element_id]
-                if isinstance(diameters, float):
-                    element.section_parameters_render = [diameters, t, 0, 0, 0, 0]
-                else:
-                    element.section_parameters_render = [diameters[i], t, 0, 0, 0, 0]
+                element.section_parameters_render = [df_out, tf, 0, 0, 0, 0]
+
+            for i, element_id in enumerate(valve_body_elements):
+                element = app().project.model.preprocessor.structural_elements[element_id]
+                element.section_parameters_render = [diameters[i], t, 0, 0, 0, 0]
 
     def load_stress_stiffening(self, line_id: list, data: dict):
 

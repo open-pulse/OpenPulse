@@ -274,7 +274,7 @@ class Preprocessor:
         """
         dict_line_to_vertex_coords = defaultdict(list)
         if self.line_to_nodes:
-            for line_id in self.mesh.lines_from_model.keys():
+            for line_id in self.mesh.lines_from_model:
                 _, vertex_nodes = self.get_line_length(line_id)
                 for vertex_node in vertex_nodes:
                     if _array:
@@ -639,7 +639,7 @@ class Preprocessor:
         self.center_coordinates_matrix = np.zeros((len(self.structural_elements), 4))
         for index, element in self.structural_elements.items():
             self.center_coordinates_matrix[index-1, 0] = index
-            self.center_coordinates_matrix[index-1, 1:] = element.element_center_coordinates
+            self.center_coordinates_matrix[index-1, 1:] = element.center_coordinates
 
     def get_principal_diagonal_structure_parallelepiped(self):
         """
@@ -1479,7 +1479,7 @@ class Preprocessor:
         for line_id in line_ids:
             for elements in slicer(self.mesh.line_to_elements, line_id):
                 for element in slicer(self.structural_elements, elements):
-                    element.valve_valve_data = valve_data
+                    element.set_valve_data(valve_data)
 
 
     def set_stress_intensification_by_line(self, line_ids: (int | list), value: bool):
@@ -2323,9 +2323,9 @@ class Preprocessor:
         for element_start in elements_start_node:
             for element_end in elements_end_node:
                 
-                difference = self.structural_elements[element_start].element_center_coordinates - self.structural_elements[element_end].element_center_coordinates
+                difference = self.structural_elements[element_start].center_coordinates - self.structural_elements[element_end].center_coordinates
                 distance = np.linalg.norm(difference)
-                
+
                 if first:
                     first = False
                     previous_distance = distance

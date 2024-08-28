@@ -144,11 +144,13 @@ def elements_info_text() -> str:
         if acoustic_element.fluid:
             info_text += fluid_info_text(acoustic_element.fluid)
 
+        valve_name = structural_element.valve_data.get("valve_name", "")
+
         info_text += cross_section_info_text(
                                              structural_element.cross_section, 
                                              structural_element.element_type,
                                              structural_element.beam_xaxis_rotation,
-                                             structural_element.valve_parameters
+                                             valve_name
                                              )
 
     return info_text

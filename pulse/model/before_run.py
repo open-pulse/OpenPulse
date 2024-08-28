@@ -72,7 +72,7 @@ class BeforeRun:
                         for typed_id in typed_ids:
 
                             if selection_type == "lines":
-                                self.model.mesh.lines_from_model[typed_id]
+                                self.model.mesh.line_to_elements[typed_id]
 
                             elif selection_type == "elements":
                                 self.structural_elements[typed_id]

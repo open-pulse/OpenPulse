@@ -240,24 +240,18 @@ class AcousticElementsSymbolsActor(SymbolsActorBase):
 
                 element = app().project.preprocessor.structural_elements[element_id]
             
-                pos = element.element_center_coordinates
+                pos = element.center_coordinates
                 rot = element.section_rotation_xyz_undeformed
     
-                if element.valve_parameters:
-                    outer_diameter = element.cross_section.outer_diameter
-                    thickness = element.cross_section.thickness
-                    inner_diameter = outer_diameter - 4 * thickness
-                    factor_yz = ((inner_diameter / 2) / 0.1) / self.scale_factor
+                if element.valve_data:
+                    d_in = element.valve_data["valve_effective_diameter"]
+                    factor_yz = ((d_in / 2) / 0.1) / self.scale_factor
                 else:
                     factor_yz = (element.cross_section.inner_diameter/0.1) / self.scale_factor
 
                 factor_x = (element.perforated_plate.thickness/0.01) / self.scale_factor
                 scl = (factor_x, factor_yz, factor_yz)
 
-                symbols.append(
-                    SymbolTransform(
-                        source=src, position=pos, rotation=rot, scale=scl, color=col
-                    )
-                )
+                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         return symbols

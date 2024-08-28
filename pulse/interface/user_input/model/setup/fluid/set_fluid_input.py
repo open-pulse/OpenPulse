@@ -170,7 +170,7 @@ class SetFluidInput(QDialog):
 
             else:
 
-                line_ids = list(app().project.model.mesh.lines_from_model.keys())
+                line_ids = app().project.model.mesh.lines_from_model
                 print("[Set fluid] - {} defined in all entities".format(selected_fluid.name))
     
             app().project.model.preprocessor.set_fluid_by_lines(line_ids, selected_fluid)

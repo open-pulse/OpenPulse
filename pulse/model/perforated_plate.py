@@ -8,20 +8,21 @@ def Foks_function(x):
     return np.sum(np.dot(a,x**b))
 
 class PerforatedPlate:
-    def __init__(self, **kwargs):
+    def __init__(self, pp_data: dict):
         
-        self.hole_diameter = kwargs.get("hole_diameter", None)
-        self.thickness = kwargs.get("thickness", None)
-        self.porosity = kwargs.get("porosity", None)
-        self.linear_discharge_coefficient = kwargs.get("discharge_coefficient", 1)
-        self.single_hole = kwargs.get("single_hole", False)
-        self.nonlinear_effect = kwargs.get("nonlinear_effect", False)
-        self.nonlinear_discharge_coefficient = kwargs.get("nonlinear_discharge_coefficient", 0.76)
-        self.correction_factor = kwargs.get("correction_factor", 1)
-        self.bias_effect = kwargs.get("bias_effect", True)
-        self.bias_coefficient = kwargs.get("bias_coefficient", 1)
-        self.type = kwargs.get("type", 0)
-        self.dimensionless_impedance = kwargs.get("dimensionless_impedance", None)
+        self.hole_diameter = pp_data.get("hole_diameter", None)
+        self.thickness = pp_data.get("plate_thickness", None)
+        print(self.thickness)
+        self.porosity = pp_data.get("area_porosity", None)
+        self.linear_discharge_coefficient = pp_data.get("discharge_coefficient", 1)
+        self.single_hole = pp_data.get("single_hole", False)
+        self.nonlinear_effect = pp_data.get("nonlinear_effect", False)
+        self.nonlinear_discharge_coefficient = pp_data.get("nonlinear_discharge_coefficient", 0.76)
+        self.correction_factor = pp_data.get("correction_factor", 1)
+        self.bias_effect = pp_data.get("bias_effect", True)
+        self.bias_coefficient = pp_data.get("bias_coefficient", 1)
+        self.type = pp_data.get("type", 0)
+        self.dimensionless_impedance = pp_data.get("dimensionless_impedance", None)
         self.dimensionless_impedance_table_name = None
 
     @property

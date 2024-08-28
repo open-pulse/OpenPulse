@@ -33,6 +33,7 @@ class GeometryHandler:
         self.merged_points = list()
         self.points_coords = dict()
         self.points_coords_cache = dict()
+        self.valve_lines = dict()
         self.pipeline = self.project.pipeline
 
     def set_pipeline(self, pipeline):
@@ -67,10 +68,10 @@ class GeometryHandler:
                     start_coords = _start_coords
                     end_coords = _end_coords
 
-                start_coords = gmsh.model.occ.add_point(*start_coords)
-                end_coords = gmsh.model.occ.add_point(*end_coords)
+                start_coords = gmsh.model.occ.addPoint(*start_coords)
+                end_coords = gmsh.model.occ.addPoint(*end_coords)
 
-                gmsh.model.occ.add_line(start_coords, end_coords)
+                gmsh.model.occ.addLine(start_coords, end_coords)
 
             elif isinstance(structure, Valve):
 
@@ -92,48 +93,54 @@ class GeometryHandler:
                 valve_info = structure.extra_info["valve_info"]
                 valve_points = self.process_valve_points(start_coords, end_coords, valve_info)
 
-                print("O Vitor vai ver isso ->")
-                print(valve_points)
-
+                lc = 0
                 if "external_points" in valve_points.keys():
                     (coords_A, coords_B) = valve_points["external_points"]
-                    point_A = gmsh.model.occ.add_point(*coords_A, meshSize=1)
-                    point_B = gmsh.model.occ.add_point(*coords_B, meshSize=1)
+                    point_A = gmsh.model.occ.addPoint(*coords_A, meshSize=lc)
+                    point_B = gmsh.model.occ.addPoint(*coords_B, meshSize=lc)
 
                 if "flange_points" in valve_points.keys():
                     (coords_C, coords_D) = valve_points["flange_points"]
-                    point_C = gmsh.model.occ.add_point(*coords_C, meshSize=1)
-                    point_D = gmsh.model.occ.add_point(*coords_D, meshSize=1)
+                    point_C = gmsh.model.occ.addPoint(*coords_C, meshSize=lc)
+                    point_D = gmsh.model.occ.addPoint(*coords_D, meshSize=lc)
 
                 if "orifice_plate_points" in valve_points.keys():
                     (coords_E, coords_F) = valve_points["orifice_plate_points"]
-                    point_E = gmsh.model.occ.add_point(*coords_E, meshSize=1)
-                    point_F = gmsh.model.occ.add_point(*coords_F, meshSize=1)
+                    point_E = gmsh.model.occ.addPoint(*coords_E, meshSize=lc)
+                    point_F = gmsh.model.occ.addPoint(*coords_F, meshSize=lc)
 
-                gmsh.model.occ.add_line(point_A, point_B)
+                line = gmsh.model.occ.addLine(point_A, point_B)
 
-                # valve_lines = list()
+                # self.valve_lines = dict()
+                # lines = list()
                 # if "flange_points" in valve_points.keys():
                 #     if "orifice_plate_points" in valve_points.keys():
-                #         valve_lines.append(gmsh.model.occ.add_line(point_A, point_C))
-                #         valve_lines.append(gmsh.model.occ.add_line(point_C, point_E))
-                #         valve_lines.append(gmsh.model.occ.add_line(point_E, point_F))
-                #         valve_lines.append(gmsh.model.occ.add_line(point_F, point_D))
-                #         valve_lines.append(gmsh.model.occ.add_line(point_D, point_B))
-                #         print(valve_lines)
-                #         valve_info["valve_lines"] = valve_lines
+                #         lines.append(gmsh.model.occ.addLine(point_A, point_C))
+                #         lines.append(gmsh.model.occ.addLine(point_C, point_E))
+                #         lines.append(gmsh.model.occ.addLine(point_E, point_F))
+                #         lines.append(gmsh.model.occ.addLine(point_F, point_D))
+                #         lines.append(gmsh.model.occ.addLine(point_D, point_B))
+
+                #         self.valve_lines["lines"] = lines
+                #         self.valve_lines["inside_points"] = (point_C, point_D, point_E, point_F)
+
+                #         # fuse_1 = gmsh.model.occ.fragment([(1, line_1)], [(1, line_2)], removeObject=True, removeTool=True)
+                #         # fuse_2 = gmsh.model.occ.fragment(fuse_1[0], [(1, line_3)], removeObject=True, removeTool=True)
+                #         # fuse_3 = gmsh.model.occ.fragment(fuse_2[0], [(1, line_4)], removeObject=True, removeTool=True)
+                #         # fuse_4 = gmsh.model.occ.fragment(fuse_3[0], [(1, line_5)], removeObject=True, removeTool=True)
+
                 #     else:
-                #         gmsh.model.occ.add_line(point_A, point_C)
-                #         gmsh.model.occ.add_line(point_C, point_D)
-                #         gmsh.model.occ.add_line(point_D, point_B)    
+                #         gmsh.model.occ.addLine(point_A, point_C)
+                #         gmsh.model.occ.addLine(point_C, point_D)
+                #         gmsh.model.occ.addLine(point_D, point_B) 
 
                 # elif "orifice_plate_points" in valve_points.keys():
-                #     gmsh.model.occ.add_line(point_A, point_E)
-                #     gmsh.model.occ.add_line(point_E, point_F)
-                #     gmsh.model.occ.add_line(point_F, point_B)
+                #     gmsh.model.occ.addLine(point_A, point_E)
+                #     gmsh.model.occ.addLine(point_E, point_F)
+                #     gmsh.model.occ.addLine(point_F, point_B)
 
                 # else:
-                #     gmsh.model.occ.add_line(point_A, point_B)
+                #     gmsh.model.occ.addLine(point_A, point_B)
 
             elif isinstance(structure, SimpleCurve):
 
@@ -159,13 +166,14 @@ class GeometryHandler:
                     end_coords = _end_coords
                     center_coords = _center_coords
 
-                start_coords = gmsh.model.occ.add_point(*start_coords)
-                end_coords = gmsh.model.occ.add_point(*end_coords)
-                center_point = gmsh.model.occ.add_point(*center_coords)
+                start_coords = gmsh.model.occ.addPoint(*start_coords)
+                end_coords = gmsh.model.occ.addPoint(*end_coords)
+                center_point = gmsh.model.occ.addPoint(*center_coords)
 
                 gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
 
         gmsh.model.occ.synchronize()
+        # gmsh.model.mesh.setCompound(1, [line])
 
         if gmsh_GUI:
             import sys

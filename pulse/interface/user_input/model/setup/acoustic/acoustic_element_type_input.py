@@ -268,7 +268,7 @@ class AcousticElementTypeInput(QDialog):
 
         index_selection = self.comboBox_selection.currentIndex()
         if index_selection == 0:
-            line_ids = list(self.model.mesh.lines_from_model.keys())
+            line_ids = app().project.model.mesh.lines_from_model
             print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
 
         elif index_selection == 1:

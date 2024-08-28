@@ -221,7 +221,7 @@ class StressStiffeningInput(QDialog):
 
         selection_index = self.comboBox_attribution_type.currentIndex()
         if selection_index == 0:
-            line_ids = list(app().project.model.mesh.lines_from_model.keys())
+            line_ids = app().project.model.mesh.lines_from_model
     
         else:
             lineEdit = self.lineEdit_selected_id.text()

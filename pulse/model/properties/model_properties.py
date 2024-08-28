@@ -2,8 +2,7 @@
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
 
-from json import load
-from numpy import ndarray
+import numpy as np
 
 
 DEFAULT_MATERIAL = Material(
@@ -321,6 +320,15 @@ class ModelProperties:
         if line_id in self.line_properties.keys():
             self.line_properties.pop(line_id)
 
+    def get_line_length(self, line_id: int):
+        line_data = self.line_properties[line_id]
+        if "start_coords" in line_data.keys() and "end_coords" in line_data.keys():
+            start_coords = np.array(line_data["start_coords"], dtype=float)
+            end_coords = np.array(line_data["end_coords"], dtype=float)
+            return np.linalg.norm(end_coords - start_coords)
+        else:
+            return None
+
     def get_nodal_related_table_names(self, property : str, node_ids : int | list) -> list:
         """
         """
@@ -363,7 +371,7 @@ class ModelProperties:
                                 table_names[key] = data["table_names"]
         return table_names
 
-    def add_imported_tables(self, group_label: str, table_name: str, data: ndarray | list | tuple):
+    def add_imported_tables(self, group_label: str, table_name: str, data: np.ndarray | list | tuple):
         """
         """
         if group_label == "acoustic":

@@ -32,7 +32,6 @@ class ValvesInput(QDialog):
         self.preprocessor = app().project.model.preprocessor
 
         self.project = app().project
-        self.model = app().project.model
 
         self.before_run = app().project.get_pre_solution_model_checks()
         self.preprocessor._map_lines_to_nodes()
@@ -135,7 +134,6 @@ class ValvesInput(QDialog):
 
             text = ", ".join([str(i) for i in line_ids])
             self.lineEdit_selected_id.setText(text)
-            # app().main_window.plot_lines_with_cross_sections()
 
             if self.check_selection_type(line_ids):
                 return
@@ -165,10 +163,11 @@ class ValvesInput(QDialog):
                     self.comboBox_flange_setup.setCurrentIndex(0)
 
                 if "acoustic_effects" in valve_info.keys():
-                    # acoustic_effects = valve_info["acoustic_effects"]
-                    self.comboBox_acoustic_effects.setCurrentIndex(1)
-                else:
-                    self.comboBox_acoustic_effects.setCurrentIndex(0)
+                    acoustic_effects = valve_info["acoustic_effects"]
+                    if acoustic_effects:
+                        self.comboBox_acoustic_effects.setCurrentIndex(1)
+                    else:
+                        self.comboBox_acoustic_effects.setCurrentIndex(0)
 
     def _configure_appearance(self):
         if self.render_type == "model":
@@ -277,7 +276,7 @@ class ValvesInput(QDialog):
     def check_flanges_by_lines(self):
         elements_from_line = defaultdict(list)
         for element_id in app().main_window.list_selected_elements():
-            line = self.model.mesh.elements_to_line[element_id]
+            line = self.preprocessor.mesh.elements_to_line[element_id]
             elements_from_line[line].append(element_id)
         return elements_from_line
 
@@ -321,7 +320,7 @@ class ValvesInput(QDialog):
 
         if message != "":
             PrintMessageInput([window_title_1, title, message])
-            return True, value
+            return True, None
         else:
             return False, value
 
@@ -393,15 +392,16 @@ class ValvesInput(QDialog):
     def attribute_callback(self):
 
         self.valve_info = dict()
-        self.op_line_ids = list()
 
-        lineEdit_selection = self.lineEdit_selected_id.text()
-        stop, line_ids = self.before_run.check_selected_ids(lineEdit_selection, "lines")
-        if stop:
-            return
+        if self.render_type == "model":
 
-        if self.check_selection_type(line_ids):
-            return
+            lineEdit_selection = self.lineEdit_selected_id.text()
+            stop, line_ids = self.before_run.check_selected_ids(lineEdit_selection, "lines")
+            if stop:
+                return
+
+            if self.check_selection_type(line_ids):
+                return
 
         if self.check_valve_parameters():
             return
@@ -416,29 +416,34 @@ class ValvesInput(QDialog):
         if self.comboBox_flange_setup.currentIndex() == 1:
             if self.check_flange_parameters():
                 return
+        
+        #TODO: pass self.valve_info to pipeline editor
 
-        if self.valve_info:
+        if self.render_type == "model":
 
-            for line_id in line_ids:
-                
-                self.process_section_parameters(line_id)
-                self.properties._set_line_property("structural_element_type", "valve", line_ids=line_id)
-                self.properties._set_line_property("valve_name", self.valve_name, line_ids=line_id)
-                self.properties._set_line_property("valve_info", self.valve_info, line_ids=line_id)
+            if self.valve_info:
 
-                self.remove_table_files_from_expansion_joints(line_id)
-                self.properties._remove_line_property("expansion_joint", line_id)
+                for line_id in line_ids:
+                    
+                    self.process_section_parameters(line_id)
+                    self.properties._set_line_property("structural_element_type", "valve", line_ids=line_id)
+                    self.properties._set_line_property("valve_name", self.valve_name, line_ids=line_id)
+                    self.properties._set_line_property("valve_info", self.valve_info, line_ids=line_id)
 
-            self.actions_to_finalize()
-            self.configure_orifice_plate()
+                    self.remove_table_files_from_expansion_joints(line_id)
+                    self.properties._remove_line_property("expansion_joint", line_id)
 
-            self.complete = True
-            self.close()
+                self.actions_to_finalize()
+
+                if self.valve_info["acoustic_effects"]:
+                    self.configure_orifice_plate(line_ids)
+
+        self.complete = True
+        self.close()
 
     def actions_to_finalize(self):
 
         app().pulse_file.write_line_properties_in_file()
-        # app().pulse_file.remove_line_gaps_from_line_properties_file()
 
         # geometry_handler = GeometryHandler()
         # geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
@@ -451,7 +456,7 @@ class ValvesInput(QDialog):
         app().main_window.update_plots()
         self.complete = True
 
-    def configure_orifice_plate(self):
+    def configure_orifice_plate(self, line_ids: list):
         
         self.hide()
 
@@ -465,9 +470,19 @@ class ValvesInput(QDialog):
             return
 
         if read._continue:
-        
-            line_ids = self.op_line_ids
-            perforated_plate = PerforatedPlateInput(line_id = line_ids)
+
+            element_ids = list()
+            for line_id in line_ids:
+                line_elements = app().project.model.mesh.line_to_elements[line_id]
+                N = len(line_elements)
+                if np.remainder(N, 2) == 0:
+                    index = int(N/2) + 1
+                else:
+                    index = int((N+1)/2)
+
+                element_ids.append(line_elements[index-1])
+
+            perforated_plate = PerforatedPlateInput(valve_element_ids = element_ids)
 
             if not perforated_plate.complete:
                 app().main_window.set_input_widget(self)
@@ -684,7 +699,7 @@ class ValvesInput(QDialog):
 
         return diameters_data
 
-def get_V_linear_distribution(x, N,  reduction_start=0.1, reduction_half=0.5):
+def get_V_linear_distribution(x, N,  reduction_start=0.0, reduction_half=0.5):
 
     if N == 3:
         reduction_start = 25

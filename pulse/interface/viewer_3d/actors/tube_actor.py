@@ -160,8 +160,6 @@ class TubeActor(vtkActor):
             return cross_section_sources.pipe_data(length, d_out, t, sides=tube_sides)
 
         elif cross_section.section_type_label == "Valve":
-            # d_out = cross_section.outer_diameter_to_plot
-            # t = d_out - cross_section.inner_diameter_to_plot
             d_out, t, *_ = element.section_parameters_render
             return cross_section_sources.pipe_data(length, d_out, t, sides=tube_sides)
 

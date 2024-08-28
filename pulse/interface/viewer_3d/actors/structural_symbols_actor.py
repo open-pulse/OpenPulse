@@ -449,7 +449,7 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
             end_coords = data["end_coords"]
 
             if "valve_name" in data.keys():
-                return list()
+                # return list()
 
                 # valve_name = data["valve_name"]
 

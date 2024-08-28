@@ -61,7 +61,7 @@ class MeshPicker:
                 return
 
             radius = element.cross_section.outer_diameter / 2 
-            center = element.element_center_coordinates
+            center = element.center_coordinates
 
             line_bounds = (x0, x1, y0, y1, z0, z1)
             self.line_bounds[key] = line_bounds
@@ -185,7 +185,7 @@ class MeshPicker:
         closest_dist = None
         # TODO: we dont need bounds here
         for i, bounds in self.tube_bounds.items():
-            dist = np.linalg.norm(elements[i].element_center_coordinates - point)
+            dist = np.linalg.norm(elements[i].center_coordinates - point)
             if (closest_dist is None) or (dist < closest_dist):
                 closest_id = i
                 closest_dist = dist

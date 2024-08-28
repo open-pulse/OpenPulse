@@ -162,7 +162,7 @@ class SetMaterialInput(QDialog):
 
             else:
 
-                line_ids = list(app().project.model.mesh.lines_from_model.keys())
+                line_ids = app().project.model.mesh.lines_from_model
                 print("[Set Material] - {} defined in all entities".format(selected_material.name))
 
             app().project.model.preprocessor.set_material_by_lines(line_ids, selected_material)

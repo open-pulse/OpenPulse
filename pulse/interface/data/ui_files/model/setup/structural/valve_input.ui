@@ -187,9 +187,9 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>0</y>
-                  <width>432</width>
-                  <height>347</height>
+                  <y>-2</y>
+                  <width>415</width>
+                  <height>344</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_10">
@@ -960,6 +960,11 @@
                      <string> Included</string>
                     </property>
                    </item>
+                   <item>
+                    <property name="text">
+                     <string> Valve closed</string>
+                    </property>
+                   </item>
                   </widget>
                  </item>
                  <item row="8" column="2">
@@ -997,7 +1002,7 @@
                     <string notr="true"/>
                    </property>
                    <property name="text">
-                    <string>0.32</string>
+                    <string>0.320</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -1153,7 +1158,7 @@
                     <string notr="true"/>
                    </property>
                    <property name="text">
-                    <string>0.20</string>
+                    <string>0.180</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>

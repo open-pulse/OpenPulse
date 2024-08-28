@@ -36,7 +36,7 @@ class AcousticSolver:
         self.assembly = AssemblyAcoustic(model)
         self.acoustic_elements = model.preprocessor.acoustic_elements
 
-        self.valve_elements = self.check_non_linear_valves()
+        self.nl_pp_elements = self.check_non_linear_perforated_plate()
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
@@ -57,7 +57,7 @@ class AcousticSolver:
         self.max_iter = 100
         self.target = 10/100
 
-    def check_non_linear_valves(self):
+    def check_non_linear_perforated_plate(self):
 
         elements = list()
         self.non_linear = False
@@ -236,7 +236,7 @@ class AcousticSolver:
         for (property, _), data in self.model.properties.element_properties.items():
             if property == "perforated_plate":
                 perforated_plate = True
-                return
+                break
             
         if not perforated_plate:
 
@@ -285,7 +285,7 @@ class AcousticSolver:
                     cache_delta_residues = list()
                     cache_pressure_residues = np.array([])
 
-                    for i, element in enumerate(self.valve_elements):
+                    for i, element in enumerate(self.nl_pp_elements):
                         element.update_pressure(solution)
                         first = element.first_node.global_index
                         last = element.last_node.global_index
@@ -296,7 +296,7 @@ class AcousticSolver:
                         index = np.argmax(np.abs(element.delta_pressure[vect_freqs]))
                         max_value = np.max(np.abs(element.delta_pressure[vect_freqs]))
 
-                        if len(delta_pressures) == len(self.valve_elements):
+                        if len(delta_pressures) == len(self.nl_pp_elements):
                             delta_pressures[i] = element.delta_pressure[1:]
                             cache_delta_residues[i] = relative_error(delta_pressures[i], cache_delta_pressures[i])
                         else:
@@ -305,7 +305,7 @@ class AcousticSolver:
                             cache_delta_residues.append(relative_error(delta_pressures[i], cache_delta_pressures[i]))
                                         
                         if count >= 5:
-                            if len(cache_delta) == len(self.valve_elements):                                
+                            if len(cache_delta) == len(self.nl_pp_elements):                                
                                 if abs((cache_delta[i]-max_value)/cache_delta[i]) > 0.5:
                                     if index in freq_indexes.keys():
                                         freq_indexes[index] += 1

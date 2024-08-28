@@ -195,7 +195,7 @@ class StructuralElementTypeInput(QDialog):
         line_ids = app().main_window.list_selected_lines()
 
         if len(line_ids) == 0:
-            line_ids = list(self.model.mesh.lines_from_model.keys())
+            line_ids = app().project.model.mesh.lines_from_model
 
         for line_id in line_ids:
 
@@ -248,8 +248,7 @@ class StructuralElementTypeInput(QDialog):
         self.check_element_type_changes()
 
         if self.comboBox_element_type.currentIndex() == 0:
-
-            line_ids = list(self.model.mesh.lines_from_model.keys())
+            line_ids = app().project.model.mesh.lines_from_model
             print(f"[Set Structural Element Type] - {self.element_type} assigned to all lines")
 
         else:

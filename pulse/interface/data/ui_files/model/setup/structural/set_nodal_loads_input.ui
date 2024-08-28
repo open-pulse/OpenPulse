@@ -986,14 +986,14 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <widget class="QPushButton" name="pushButton_constant_value_confirm">
                <property name="minimumSize">
                 <size>
-                 <width>80</width>
-                 <height>30</height>
+                 <width>100</width>
+                 <height>28</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>80</width>
-                 <height>30</height>
+                 <width>100</width>
+                 <height>28</height>
                 </size>
                </property>
                <property name="font">
@@ -1005,35 +1005,36 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Confirm</string>
+                <string>Attribute</string>
                </property>
               </widget>
              </item>
              <item row="0" column="0">
-              <spacer name="horizontalSpacer_3">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
+              <widget class="QPushButton" name="pushButton_cancel_tab0">
+               <property name="minimumSize">
                 <size>
-                 <width>40</width>
-                 <height>20</height>
+                 <width>100</width>
+                 <height>28</height>
                 </size>
                </property>
-              </spacer>
-             </item>
-             <item row="0" column="2">
-              <spacer name="horizontalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
+               <property name="maximumSize">
                 <size>
-                 <width>40</width>
-                 <height>20</height>
+                 <width>100</width>
+                 <height>28</height>
                 </size>
                </property>
-              </spacer>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="text">
+                <string>Cancel</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -1100,13 +1101,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <widget class="QPushButton" name="pushButton_table_values_confirm">
                <property name="minimumSize">
                 <size>
-                 <width>80</width>
+                 <width>100</width>
                  <height>30</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>80</width>
+                 <width>100</width>
                  <height>30</height>
                 </size>
                </property>
@@ -1119,35 +1120,36 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Confirm</string>
+                <string>Atribute</string>
                </property>
               </widget>
              </item>
              <item row="0" column="0">
-              <spacer name="horizontalSpacer_9">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
+              <widget class="QPushButton" name="pushButton_cancel_tab1">
+               <property name="minimumSize">
                 <size>
-                 <width>40</width>
-                 <height>20</height>
+                 <width>100</width>
+                 <height>30</height>
                 </size>
                </property>
-              </spacer>
-             </item>
-             <item row="0" column="2">
-              <spacer name="horizontalSpacer_10">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
+               <property name="maximumSize">
                 <size>
-                 <width>40</width>
-                 <height>20</height>
+                 <width>100</width>
+                 <height>30</height>
                 </size>
                </property>
-              </spacer>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="text">
+                <string>Cancel</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
