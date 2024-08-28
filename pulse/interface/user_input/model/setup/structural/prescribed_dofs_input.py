@@ -87,52 +87,54 @@ class PrescribedDofsInput(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_linear_data_type : QComboBox
-        self.comboBox_angular_data_type : QComboBox
+        self.comboBox_linear_data_type: QComboBox
+        self.comboBox_angular_data_type: QComboBox
 
         # QLineEdit
-        self.lineEdit_selection_id : QLineEdit
-        self.lineEdit_real_ux : QLineEdit
-        self.lineEdit_real_uy : QLineEdit
-        self.lineEdit_real_uz : QLineEdit
-        self.lineEdit_real_rx : QLineEdit
-        self.lineEdit_real_ry : QLineEdit
-        self.lineEdit_real_rz : QLineEdit
-        self.lineEdit_real_alldofs : QLineEdit
+        self.lineEdit_selection_id: QLineEdit
+        self.lineEdit_real_ux: QLineEdit
+        self.lineEdit_real_uy: QLineEdit
+        self.lineEdit_real_uz: QLineEdit
+        self.lineEdit_real_rx: QLineEdit
+        self.lineEdit_real_ry: QLineEdit
+        self.lineEdit_real_rz: QLineEdit
+        self.lineEdit_real_alldofs: QLineEdit
         #
-        self.lineEdit_imag_ux : QLineEdit
-        self.lineEdit_imag_uy : QLineEdit
-        self.lineEdit_imag_uz : QLineEdit
-        self.lineEdit_imag_rx : QLineEdit
-        self.lineEdit_imag_ry : QLineEdit
-        self.lineEdit_imag_rz : QLineEdit
+        self.lineEdit_imag_ux: QLineEdit
+        self.lineEdit_imag_uy: QLineEdit
+        self.lineEdit_imag_uz: QLineEdit
+        self.lineEdit_imag_rx: QLineEdit
+        self.lineEdit_imag_ry: QLineEdit
+        self.lineEdit_imag_rz: QLineEdit
         #
-        self.lineEdit_imag_alldofs : QLineEdit
-        self.lineEdit_path_table_ux : QLineEdit
-        self.lineEdit_path_table_uy : QLineEdit
-        self.lineEdit_path_table_uz : QLineEdit
-        self.lineEdit_path_table_rx : QLineEdit
-        self.lineEdit_path_table_ry : QLineEdit
-        self.lineEdit_path_table_rz : QLineEdit
+        self.lineEdit_imag_alldofs: QLineEdit
+        self.lineEdit_path_table_ux: QLineEdit
+        self.lineEdit_path_table_uy: QLineEdit
+        self.lineEdit_path_table_uz: QLineEdit
+        self.lineEdit_path_table_rx: QLineEdit
+        self.lineEdit_path_table_ry: QLineEdit
+        self.lineEdit_path_table_rz: QLineEdit
         self._create_list_lineEdits()
 
         # QPushButton
-        self.pushButton_load_ux_table : QPushButton
-        self.pushButton_load_uy_table : QPushButton
-        self.pushButton_load_uz_table : QPushButton
-        self.pushButton_load_rx_table : QPushButton
-        self.pushButton_load_ry_table : QPushButton
-        self.pushButton_load_rz_table : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_constant_value_confirm : QPushButton
-        self.pushButton_table_values_confirm : QPushButton
+        self.pushButton_cancel_tab0: QPushButton
+        self.pushButton_cancel_tab1: QPushButton
+        self.pushButton_load_ux_table: QPushButton
+        self.pushButton_load_uy_table: QPushButton
+        self.pushButton_load_uz_table: QPushButton
+        self.pushButton_load_rx_table: QPushButton
+        self.pushButton_load_ry_table: QPushButton
+        self.pushButton_load_rz_table: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
+        self.pushButton_constant_value_confirm: QPushButton
+        self.pushButton_table_values_confirm: QPushButton
 
         # QTabWidget
-        self.tabWidget_prescribed_dofs : QTabWidget
+        self.tabWidget_prescribed_dofs: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_prescribed_dofs : QTreeWidget
+        self.treeWidget_prescribed_dofs: QTreeWidget
 
     def _create_list_lineEdits(self):
         self.list_lineEdit_constant_values = [  [self.lineEdit_real_ux, self.lineEdit_imag_ux],
@@ -158,6 +160,8 @@ class PrescribedDofsInput(QDialog):
 
     def _create_connections(self):
         #
+        self.pushButton_cancel_tab0.clicked.connect(self.close)
+        self.pushButton_cancel_tab1.clicked.connect(self.close)
         self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
         self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)

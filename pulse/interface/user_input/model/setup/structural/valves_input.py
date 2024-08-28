@@ -34,7 +34,6 @@ class ValvesInput(QDialog):
         self.project = app().project
 
         self.before_run = app().project.get_pre_solution_model_checks()
-        self.preprocessor._map_lines_to_nodes()
 
         self._config_window()
         self._initialize()
@@ -416,7 +415,7 @@ class ValvesInput(QDialog):
         if self.comboBox_flange_setup.currentIndex() == 1:
             if self.check_flange_parameters():
                 return
-        
+
         #TODO: pass self.valve_info to pipeline editor
 
         if self.render_type == "model":

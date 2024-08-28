@@ -54,38 +54,40 @@ class StructuralElementTypeInput(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_selection : QComboBox
-        self.comboBox_element_type : QComboBox
-        self.comboBox_capped_end : QComboBox
-        self.comboBox_force_offset : QComboBox
-        self.comboBox_wall_formulation : QComboBox
+        self.comboBox_selection: QComboBox
+        self.comboBox_element_type: QComboBox
+        self.comboBox_capped_end: QComboBox
+        self.comboBox_force_offset: QComboBox
+        self.comboBox_wall_formulation: QComboBox
 
         # QLabel
-        self.label_selected_id : QLabel
-        self.label_capped_end : QLabel
-        self.label_force_offset : QLabel
-        self.label_wall_formulation : QLabel
+        self.label_selected_id: QLabel
+        self.label_capped_end: QLabel
+        self.label_force_offset: QLabel
+        self.label_wall_formulation: QLabel
 
         # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
+        self.lineEdit_selected_id: QLineEdit
 
         # QPushButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
 
         # QTabWidget
-        self.tabWidget_main : QTabWidget
+        self.tabWidget_main: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_element_type : QTreeWidget
+        self.treeWidget_element_type: QTreeWidget
 
     def _create_connections(self):
         #
         self.comboBox_element_type.currentIndexChanged.connect(self.element_type_change_callback)
         self.comboBox_selection.currentIndexChanged.connect(self.attribution_type_callback)
         #
-        self.pushButton_confirm.clicked.connect(self.element_type_attribution_callback)
+        self.pushButton_attribute.clicked.connect(self.element_type_attribution_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #

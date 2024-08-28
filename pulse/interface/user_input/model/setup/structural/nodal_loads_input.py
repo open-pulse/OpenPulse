@@ -86,46 +86,48 @@ class NodalLoadsInput(QDialog):
 
     def _define_qt_variables(self):
 
-        # QLineEdit        
-        self.lineEdit_selection_id : QLineEdit
-        self.lineEdit_real_fx : QLineEdit
-        self.lineEdit_real_fy : QLineEdit
-        self.lineEdit_real_fz : QLineEdit
-        self.lineEdit_real_mx : QLineEdit
-        self.lineEdit_real_my : QLineEdit
-        self.lineEdit_real_mz : QLineEdit
-        self.lineEdit_imag_fx : QLineEdit
-        self.lineEdit_imag_fy : QLineEdit
-        self.lineEdit_imag_fz : QLineEdit
-        self.lineEdit_imag_mx : QLineEdit
-        self.lineEdit_imag_my : QLineEdit
-        self.lineEdit_imag_mz : QLineEdit
+        # QLineEdit   
+        self.lineEdit_selection_id: QLineEdit
+        self.lineEdit_real_fx: QLineEdit
+        self.lineEdit_real_fy: QLineEdit
+        self.lineEdit_real_fz: QLineEdit
+        self.lineEdit_real_mx: QLineEdit
+        self.lineEdit_real_my: QLineEdit
+        self.lineEdit_real_mz: QLineEdit
+        self.lineEdit_imag_fx: QLineEdit
+        self.lineEdit_imag_fy: QLineEdit
+        self.lineEdit_imag_fz: QLineEdit
+        self.lineEdit_imag_mx: QLineEdit
+        self.lineEdit_imag_my: QLineEdit
+        self.lineEdit_imag_mz: QLineEdit
         #
-        self.lineEdit_path_table_fx : QLineEdit
-        self.lineEdit_path_table_fy : QLineEdit
-        self.lineEdit_path_table_fz : QLineEdit
-        self.lineEdit_path_table_mx : QLineEdit
-        self.lineEdit_path_table_my : QLineEdit
-        self.lineEdit_path_table_mz : QLineEdit
+        self.lineEdit_path_table_fx: QLineEdit
+        self.lineEdit_path_table_fy: QLineEdit
+        self.lineEdit_path_table_fz: QLineEdit
+        self.lineEdit_path_table_mx: QLineEdit
+        self.lineEdit_path_table_my: QLineEdit
+        self.lineEdit_path_table_mz: QLineEdit
         self._create_list_lineEdits()
 
         # QPushButton
-        self.pushButton_load_fx_table : QPushButton
-        self.pushButton_load_fy_table : QPushButton
-        self.pushButton_load_fz_table : QPushButton
-        self.pushButton_load_mx_table : QPushButton
-        self.pushButton_load_my_table : QPushButton
-        self.pushButton_load_mz_table : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_constant_value_confirm : QPushButton
-        self.pushButton_table_values_confirm : QPushButton
+        self.pushButton_cancel_tab0: QPushButton
+        self.pushButton_cancel_tab1: QPushButton
+        self.pushButton_load_fx_table: QPushButton
+        self.pushButton_load_fy_table: QPushButton
+        self.pushButton_load_fz_table: QPushButton
+        self.pushButton_load_mx_table: QPushButton
+        self.pushButton_load_my_table: QPushButton
+        self.pushButton_load_mz_table: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
+        self.pushButton_constant_value_confirm: QPushButton
+        self.pushButton_table_values_confirm: QPushButton
 
         # QTabWidget
-        self.tabWidget_nodal_loads : QTabWidget
+        self.tabWidget_nodal_loads: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_nodal_loads : QTreeWidget
+        self.treeWidget_nodal_loads: QTreeWidget
 
     def _create_list_lineEdits(self):
 
@@ -145,16 +147,18 @@ class NodalLoadsInput(QDialog):
 
     def _create_connections(self):
         #
+        self.pushButton_cancel_tab0.clicked.connect(self.close)
+        self.pushButton_cancel_tab1.clicked.connect(self.close)
+        self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
         self.pushButton_load_fx_table.clicked.connect(self.load_fx_table)
         self.pushButton_load_fy_table.clicked.connect(self.load_fy_table)
         self.pushButton_load_fz_table.clicked.connect(self.load_fz_table)
         self.pushButton_load_mx_table.clicked.connect(self.load_mx_table)
         self.pushButton_load_my_table.clicked.connect(self.load_my_table)
         self.pushButton_load_mz_table.clicked.connect(self.load_mz_table)
-        self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
-        self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
         #
         self.tabWidget_nodal_loads.currentChanged.connect(self.tab_event_callback)
         #

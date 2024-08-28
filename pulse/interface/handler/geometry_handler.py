@@ -49,7 +49,7 @@ class GeometryHandler:
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
 
-        for structure in self.pipeline.structures: 
+        for structure in self.pipeline.structures:
 
             if isinstance(structure, (Pipe, Beam, Reducer, ExpansionJoint)):
 
@@ -173,7 +173,6 @@ class GeometryHandler:
                 gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
 
         gmsh.model.occ.synchronize()
-        # gmsh.model.mesh.setCompound(1, [line])
 
         if gmsh_GUI:
             import sys
@@ -233,11 +232,11 @@ class GeometryHandler:
         lines_data = app().pulse_file.read_line_properties_from_file()
 
         if isinstance(lines_data, dict):
-            for data in lines_data.values():
+            for line_id, data in lines_data.items():
 
                 data : dict
-                if "link type" in data.keys():
-                    continue
+                # if "link_type" in data.keys():
+                #     continue
 
                 structural_element_type = data.get("structural_element_type", None)
                 structure = None
@@ -330,8 +329,8 @@ class GeometryHandler:
         # if "material_id" in data.keys():
         #     structure.extra_info["material_info"] = data['material_id']
         
-        if "psd_label" in data.keys():
-            structure.extra_info["psd_label"] = data["psd_label"]
+        if "psd_name" in data.keys():
+            structure.extra_info["psd_name"] = data["psd_name"]
 
         return structure
 
@@ -797,8 +796,8 @@ class GeometryHandler:
             if "valve_info" in structure.extra_info.keys():
                 valve_info[tag] = structure.extra_info["valve_info"]
 
-            if "psd_label" in structure.extra_info.keys():
-                psd_info[tag] = structure.extra_info["psd_label"]
+            if "psd_name" in structure.extra_info.keys():
+                psd_info[tag] = structure.extra_info["psd_name"]
 
             tag += 1
 
@@ -825,7 +824,7 @@ class GeometryHandler:
                 app().project.model.properties._set_line_property("valve_info", valve_data, line_ids=line_id)
 
             for line_id, psd_label in psd_info.items():
-                app().project.model.properties._set_line_property("psd_label", psd_label, line_ids=line_id)
+                app().project.model.properties._set_line_property("psd_name", psd_label, line_ids=line_id)
 
             app().pulse_file.write_line_properties_in_file()
             app().pulse_file.modify_project_attributes(import_type = 1)

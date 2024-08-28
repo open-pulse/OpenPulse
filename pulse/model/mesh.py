@@ -34,8 +34,6 @@ class Mesh:
 
         self.line_elements = defaultdict(list)
 
-        self.valve_lines = dict()
-
     def set_element_size(self, element_size):
         self.element_size = element_size
 
@@ -72,7 +70,6 @@ class Mesh:
             The length unit in use.
             
         """
-
         self.reset_variables()
 
         if self.import_type == 0:
@@ -85,10 +82,9 @@ class Mesh:
         self._set_gmsh_options()
         self._process_mesh()
         self._map_lines_to_elements()
-
         self._save_geometry_points()
         self._finalize_gmsh()
-
+    
     def _load_cad_geometry_on_gmsh(self):
         """
         This method initializes mesher algorithm gmsh.
@@ -113,7 +109,6 @@ class Mesh:
         geometry_handler.set_length_unit(self.length_unit) 
         geometry_handler.process_pipeline()
         geometry_handler.create_geometry()
-        self.valve_lines = geometry_handler.valve_lines
 
     def _set_gmsh_options(self):
         """
@@ -221,6 +216,10 @@ class Mesh:
                 # self.lines_from_model[line_tag] = new_line
 
         self.lines_from_model = list(self.line_to_elements.keys())
+
+        # for line_id, elements in self.line_to_elements.items():
+        #     print(line_id, len(elements))
+
         # dt = time() - t0
         # print(f"Time to process : {dt}")
 

@@ -50,20 +50,18 @@ class Preprocessor:
         self.neighbors = defaultdict(list)
         self.elements_connected_to_node = defaultdict(list)
 
+        if isinstance(self.mesh, Mesh):
+            self.mesh.reset_variables()
+
         self.number_structural_elements = 0
         self.number_acoustic_elements = 0
 
         self.transformation_matrices = None
         self.section_rotations_xyz = None
 
-        self.dict_element_info_to_update_indexes_in_entity_file = dict()
-        self.dict_element_info_to_update_indexes_in_element_info_file = dict()
-        self.dict_list_elements_to_subgroups = dict()
-
         self.element_type = "pipe_1" # defined as default
         self.flag_fluid_mass_effect = False
         self.stress_stiffening_enabled = False
-        self.group_index = 0
 
         self.structure_principal_diagonal = None
         self.nodal_coordinates_matrix_external = None
@@ -72,6 +70,10 @@ class Preprocessor:
         self.pipe_gdofs = None
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
+
+        self.dict_element_info_to_update_indexes_in_entity_file = dict()
+        self.dict_element_info_to_update_indexes_in_element_info_file = dict()
+        self.dict_list_elements_to_subgroups = dict()
 
     def set_mesh(self, mesh: Mesh):
         self.mesh = mesh
@@ -221,7 +223,7 @@ class Preprocessor:
                 if i==0:
                     list_nodes[i] = first_node_id
                 list_nodes[i+1] = last_node_id
-            self.line_to_nodes[line_ID] = np.sort(list_nodes)              
+            self.line_to_nodes[line_ID] = np.sort(list_nodes)          
         # dt = time() - t0
         # print(f"Time to process : {dt}")
 
@@ -880,8 +882,7 @@ class Preprocessor:
     def set_cross_section_by_elements(  self, 
                                         elements, 
                                         cross_section, 
-                                        update_cross_section = False, 
-                                        update_section_points = True, 
+                                        update_cross_section = False,
                                         variable_section = False  ):
         """
         This method attributes cross section object to a list of acoustic and structural elements.
@@ -927,32 +928,6 @@ class Preprocessor:
 
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
-    
-        # if update_section_points:
-
-        #     N = self.section_number_of_divisions
-        #     if isinstance(cross_section, list):
-        #         for i, element in enumerate(elements):
-
-        #             _element = [element]
-        #             _cross_section = cross_section[i]
-        #             _cross_section: CrossSection
-
-        #             _cross_section_points = _cross_section.get_cross_section_points(N)
-        #             for element in slicer(self.structural_elements, _element):
-        #                 element.cross_section_points = _cross_section_points
-
-        #             for element in slicer(self.acoustic_elements, _element):
-        #                 element.cross_section_points = _cross_section_points
-
-        #     else:
-
-        #         cross_section_points = cross_section.get_cross_section_points(N)
-        #         for element in slicer(self.structural_elements, elements):
-        #             element.cross_section_points = cross_section_points
-
-        #         for element in slicer(self.acoustic_elements, elements):
-        #             element.cross_section_points = cross_section_points
 
     def set_cross_section_by_lines(self, lines, cross_section):
         """
@@ -968,7 +943,7 @@ class Preprocessor:
         """
         for elements in slicer(self.mesh.line_to_elements, lines):
             self.set_cross_section_by_elements(elements, cross_section)
-    
+
     def set_variable_cross_section_by_line(self, line_id, section_data: dict):
         """
         This method sets the variable section info by line selection.

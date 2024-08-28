@@ -33,7 +33,14 @@ class LoadProject:
     def _initialize(self):
         self.bc_loader = None
 
+    def reset_model_properties(self):
+        self.properties.line_properties.clear()
+        self.properties.nodal_properties.clear()
+        self.properties.element_properties.clear()
+
     def load_project_data(self):
+        #
+        self.reset_model_properties()
         #
         self.load_mesh_setup_from_file()
         self.load_imported_table_data_from_file()
@@ -526,9 +533,9 @@ class LoadProject:
         for line_id, data in self.properties.line_properties.items():
 
             data: dict
-            if "psd_label" in data.keys():
-                psd_label = data["psd_label"]
-                psd_lines[psd_label].append(line_id)
+            if "psd_name" in data.keys():
+                psd_name = data["psd_name"]
+                psd_lines[psd_name].append(line_id)
 
         return psd_lines
 

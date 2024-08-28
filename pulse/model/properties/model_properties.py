@@ -291,6 +291,8 @@ class ModelProperties:
         """Remove a nodal property at specific nodal_id."""
         if isinstance(node_ids, int):
             key = (property, node_ids)
+        elif isinstance(node_ids, list | tuple) and len(node_ids) == 1:
+            key = (property, node_ids[0])
         elif isinstance(node_ids, list | tuple) and len(node_ids) == 2:
             key = (property, node_ids[0], node_ids[1])
         else:
@@ -316,7 +318,9 @@ class ModelProperties:
                 if property in self.line_properties[line_id].keys():
                     self.line_properties[line_id].pop(property)
 
-    def _remove_line(self, line_id: int):
+    def _remove_line(self, line_id: int | str):
+        if isinstance(line_id, str):
+            line_id = int(line_id)
         if line_id in self.line_properties.keys():
             self.line_properties.pop(line_id)
 

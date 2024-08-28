@@ -7,6 +7,7 @@ from pulse import app, UI_DIR
 from pulse.editor.single_volume_psd import SingleVolumePSD
 from pulse.editor.dual_volume_psd import DualVolumePSD
 
+from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.utils import check_inputs
@@ -50,6 +51,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
     def _initialize(self):
         self.keep_window_open = True
+        self.nodes_from_removed_lines = list()
 
     def _define_qt_variables(self):
 
@@ -702,6 +704,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         else:
             device = SingleVolumePSD(self._psd_data)
 
+        self.close()
         self.build_device(psd_label, device)
         self.actions_to_finalize()
 
@@ -710,15 +713,13 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.set_element_length_corrections(psd_label, device)
 
         app().main_window.update_plots()
-        self.close()
+        # self.close()
 
     def build_device(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
 
-        lines_data = app().pulse_file.read_line_properties_from_file()
-        if lines_data is None:
-            lines_data = dict()
+        lines_properties = self.properties.line_properties
+        line_tags = list(lines_properties.keys())
 
-        line_tags = list(lines_data.keys())
         if line_tags:
             shifted_line = max(line_tags) + 1
         else:
@@ -740,7 +741,7 @@ class PulsationSuppressionDeviceInput(QDialog):
                         "section_type_label" : "Pipe",
                         "section_parameters" : section_data,
                         "structural_element_type" : "pipe_1",
-                        "psd_label" : psd_label,
+                        "psd_name" : psd_label,
                         "psd_segment" : segment_label
                        }
 
@@ -755,7 +756,7 @@ class PulsationSuppressionDeviceInput(QDialog):
                 coords.extend(self.get_values(end_coords))
 
                 link = { 
-                        "psd_label" : psd_label,
+                        "psd_name" : psd_label,
                         "coords" : coords,
                         "link_type" : section_data
                         }
@@ -789,7 +790,6 @@ class PulsationSuppressionDeviceInput(QDialog):
 
     def write_psd_element_properties_in_file(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
 
-        # psd_data = app().pulse_file.read_psd_data_from_file()
         if self.psds_data is None:
             return
 
@@ -815,12 +815,16 @@ class PulsationSuppressionDeviceInput(QDialog):
         if lines_data is None:
             return
 
+        self.nodes_from_removed_lines.clear()
+
         remove_gaps = False
         for line_id, data in lines_data.items():
-            if "psd_label" in data.keys():
-                if data["psd_label"] in psd_labels:
-                    for property in data.keys():
-                        self.properties._remove_line_property(property, line_id)
+            if "psd_name" in data.keys():
+
+                if data["psd_name"] in psd_labels:
+                    self.properties._remove_line(line_id)
+                    line_nodes = self.preprocessor.line_to_nodes[int(line_id)]
+                    self.nodes_from_removed_lines.extend(list(line_nodes))
                     remove_gaps = True
 
         app().pulse_file.write_line_properties_in_file()
@@ -835,23 +839,20 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         aux = self.properties.nodal_properties.copy()
         for (property, *args), data in aux.items():
-            if "psd_label" in data.keys():
-                if data["psd_label"] in psd_labels:
+            if "psd_name" in data.keys():
+
+                if data["psd_name"] in psd_labels:
                     self.properties._remove_nodal_property(property, args)
 
-        app().pulse_file.write_line_properties_in_file()
+            else:
 
-    def remove_selected_psd(self, psd_label: str):
+                for node_id in args:
+                    if node_id in self.nodes_from_removed_lines:
+                        self.properties._remove_nodal_property(property, node_id)
 
-        if psd_label in self.psds_data.keys():
-            self.psds_data.pop(psd_label)
+        self.nodes_from_removed_lines.clear()
 
-        self.remove_psd_related_line_properties(psd_label)
-        self.remove_psd_related_nodal_properties(psd_label)
-        self.remove_psd_related_element_properties(psd_label)
-
-        self.actions_to_finalize()
-        app().main_window.update_plots()
+        app().pulse_file.write_nodal_properties_in_file()
 
     # def update_length_correction_after_psd_removal(self):
 
@@ -887,7 +888,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
             data = {
                     "correction_type" : _type,
-                    "psd_label" : psd_label
+                    "psd_name" : psd_label
                     }
 
             self.preprocessor.set_element_length_correction_by_element(element_ids, data)
@@ -900,10 +901,10 @@ class PulsationSuppressionDeviceInput(QDialog):
         for (_property, element_id), data in self.properties.element_properties.items():
             if _property == "element_length_correction":
                 data: dict
-                if "psd_label" in data.keys():
+                if "psd_name" in data.keys():
                     if psd_label == "_remove_all_":
                         element_ids.append(element_id)
-                    elif psd_label == data["psd_label"]:
+                    elif psd_label == data["psd_name"]:
                         element_ids.append(element_id)
         
         self.preprocessor.set_element_length_correction_by_element(element_ids, None)
@@ -915,17 +916,25 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         if self.lineEdit_selection.text() != "":
 
-            device_label = self.lineEdit_selection.text()
-            self.remove_selected_psd(device_label)
-            self.load_psd_info()
+            psd_name = self.lineEdit_selection.text()
+
+            if psd_name in self.psds_data.keys():
+                self.psds_data.pop(psd_name)
+
+            self.remove_psd_related_line_properties(psd_name)
+            self.remove_psd_related_nodal_properties(psd_name)
+            self.remove_psd_related_element_properties(psd_name)
+
+            self.actions_to_finalize()
 
             app().main_window.update_plots()
+            self.load_psd_info()
 
     def reset_callback(self):
 
         self.hide()
 
-        title = "Resetting of the Pulsation Suppression Devices"
+        title = "PSDs resetting requested"
         message = "Would you to remove the all Pulsation Suppression Devices from model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
@@ -936,9 +945,8 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         if read._continue:
 
-            self.psds_data.clear()
-
             psds_labels = list(self.psds_data.keys())
+            self.psds_data.clear()
 
             self.remove_psd_related_line_properties(psds_labels)
             self.remove_psd_related_nodal_properties(psds_labels)
@@ -951,6 +959,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.treeWidget_psd_info.clear()
         self.psds_lines = app().loader.get_psd_related_lines()
+
         self.psds_data = app().pulse_file.read_psd_data_from_file()
         if self.psds_data is None:
             self.psds_data = dict()
@@ -965,11 +974,10 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.treeWidget_psd_info.addTopLevelItem(new)
 
         if self.psds_data:
-            if self.psds_data:
-                self.tabWidget_main.setTabVisible(1, True)
-            else:
-                self.tabWidget_main.setCurrentIndex(0)
-                self.tabWidget_main.setTabVisible(1, False)
+            self.tabWidget_main.setTabVisible(1, True)
+        else:
+            self.tabWidget_main.setCurrentIndex(0)
+            self.tabWidget_main.setTabVisible(1, False)
 
     def get_device_tag(self):
         index = 1
@@ -982,11 +990,19 @@ class PulsationSuppressionDeviceInput(QDialog):
         return index
 
     def actions_to_finalize(self):
+
+        app().main_window.set_selection()
         app().pulse_file.write_psd_data_in_file(self.psds_data)
         app().loader.load_project_data()
         app().project.initial_load_project_actions()
-        app().loader.load_mesh_dependent_properties()
-        app().main_window.initial_project_action(True)
+
+        if app().pulse_file.check_pipeline_data():
+            app().loader.load_mesh_dependent_properties()
+            app().main_window.initial_project_action(True)
+            app().project.enhance_pipe_sections_appearance()
+        else:
+            self.preprocessor.mesh._create_gmsh_geometry()
+
         self.load_psd_info()
         # app().main_window.use_structural_setup_workspace()
 

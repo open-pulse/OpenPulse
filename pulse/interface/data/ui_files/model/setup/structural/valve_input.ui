@@ -187,7 +187,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>-2</y>
+                  <y>0</y>
                   <width>415</width>
                   <height>344</height>
                  </rect>
@@ -948,7 +948,7 @@
                     </font>
                    </property>
                    <property name="currentIndex">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <item>
                     <property name="text">
@@ -1306,7 +1306,7 @@
                    <string>Attribute</string>
                   </property>
                   <property name="autoDefault">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="default">
                    <bool>false</bool>
@@ -1342,7 +1342,7 @@
                    <string>Cancel</string>
                   </property>
                   <property name="autoDefault">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="default">
                    <bool>false</bool>

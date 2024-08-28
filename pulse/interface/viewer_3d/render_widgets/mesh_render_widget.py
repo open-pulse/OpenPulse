@@ -1,3 +1,5 @@
+# fmt: off
+
 import numpy as np
 from pulse.interface.utils import rotation_matrices
 
@@ -9,22 +11,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
 from pulse import ICON_DIR, app
-from pulse.interface.viewer_3d.actors import (
-    SectionPlaneActor,
-    ElementAxesActor,
-    ElementLinesActor,
-    NodesActor,
-    PointsActor,
-    TubeActor,
-)
-from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
-    AcousticElementsSymbolsActor,
-    AcousticNodesSymbolsActor,
-)
-from pulse.interface.viewer_3d.actors.structural_symbols_actor import (
-    StructuralElementsSymbolsActor,
-    StructuralNodesSymbolsActor,
-)
+from pulse.interface.viewer_3d.actors import SectionPlaneActor, ElementAxesActor, ElementLinesActor, NodesActor, PointsActor, TubeActor
+from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticElementsSymbolsActor, AcousticNodesSymbolsActor
+from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralElementsSymbolsActor, StructuralNodesSymbolsActor
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text
@@ -73,6 +62,7 @@ class MeshRenderWidget(CommonRenderWidget):
         app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
 
     def update_plot(self, reset_camera=False):
+
         self.remove_actors()
         self.mesh_picker.update_bounds()
         project = app().project
@@ -89,21 +79,19 @@ class MeshRenderWidget(CommonRenderWidget):
         # TODO: Replace these actors for newer ones that
         # are lighter and easier to update
         self._acoustic_nodes_symbols = AcousticNodesSymbolsActor(project)
-        self._acoustic_elements_symbols = AcousticElementsSymbolsActor(project)
-        self._structural_nodes_symbols = StructuralNodesSymbolsActor(project)
+        self._acoustic_elements_symbols = AcousticElementsSymbolsActor(project)        
+        self._structural_nodes_symbols = StructuralNodesSymbolsActor(project)        
         self._structural_elements_symbols = StructuralElementsSymbolsActor(project)
+
         self._acoustic_nodes_symbols.build()
         self._acoustic_elements_symbols.build()
         self._structural_nodes_symbols.build()
         self._structural_elements_symbols.build()
+
         self.acoustic_nodes_symbols_actor = self._acoustic_nodes_symbols.getActor()
-        self.acoustic_elements_symbols_actor = (
-            self._acoustic_elements_symbols.getActor()
-        )
+        self.acoustic_elements_symbols_actor = self._acoustic_elements_symbols.getActor()
         self.structural_nodes_symbols_actor = self._structural_nodes_symbols.getActor()
-        self.structural_elements_symbols_actor = (
-            self._structural_elements_symbols.getActor()
-        )
+        self.structural_elements_symbols_actor = self._structural_elements_symbols.getActor()
 
         self.add_actors(
             self.lines_actor,
@@ -119,10 +107,12 @@ class MeshRenderWidget(CommonRenderWidget):
         )
 
         self.visualization_changed_callback()
-        self.update_section_plane()
+        self.update_section_plane()        
         self.set_tube_actors_transparency(self.transparency)
+        
         if reset_camera:
             self.renderer.ResetCamera()
+
         self.update_info_text()
 
     def remove_actors(self):
@@ -159,15 +149,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self.tubes_actor.GetProperty().SetOpacity(opacity)
 
         self.acoustic_nodes_symbols_actor.SetVisibility(visualization.acoustic_symbols)
-        self.acoustic_elements_symbols_actor.SetVisibility(
-            visualization.acoustic_symbols
-        )
-        self.structural_nodes_symbols_actor.SetVisibility(
-            visualization.structural_symbols
-        )
-        self.structural_elements_symbols_actor.SetVisibility(
-            visualization.structural_symbols
-        )
+        self.acoustic_elements_symbols_actor.SetVisibility(visualization.acoustic_symbols)
+        self.structural_nodes_symbols_actor.SetVisibility(visualization.structural_symbols)
+        self.structural_elements_symbols_actor.SetVisibility(visualization.structural_symbols)
 
         # To update default, material or fluid visualization
         self.tubes_actor.clear_colors()
@@ -349,3 +333,5 @@ class MeshRenderWidget(CommonRenderWidget):
         self.plane_actor.GetProperty().SetColor(0.5, 0.5, 0.5)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
+
+# fmt: on
