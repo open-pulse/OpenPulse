@@ -1,6 +1,6 @@
 from pulse.model.cross_section import *
 from pulse.model.line import Line
-# from pulse.model.geometry import Geometry
+
 # from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.model.acoustic_element import AcousticElement, NODES_PER_ELEMENT
@@ -8,6 +8,7 @@ from pulse.model.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.model.compressor_model import CompressorModel
 from pulse.model.perforated_plate import PerforatedPlate
 
+from pulse.interface.user_input.model.setup.structural.valves_input import get_V_linear_distribution
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
@@ -1022,6 +1023,69 @@ class Preprocessor:
             self.set_cross_section_by_elements( elements_from_line,
                                                 cross_sections_first,
                                                 variable_section = True )
+
+    def set_cross_sections_to_valve_elements(self, line_id: int, data: dict):
+
+        start_coords = np.array(data["start_coords"], dtype=float)
+        end_coords = np.array(data["end_coords"], dtype=float)
+
+        line_elements = self.mesh.line_to_elements[line_id]
+
+        valve_info = data.get("valve_info", None)
+        if valve_info is None:
+            return
+
+        valve_flange_elements = list()
+        valve_body_elements = list()
+
+        if "flange_length" in valve_info.keys():
+
+            flange_length = valve_info["flange_length"]
+            df_out, tf, *_ = valve_info["flange_section_parameters"]
+
+            for element_id in line_elements:
+
+                element = self.structural_elements[element_id]
+                center_coords = element.center_coordinates
+
+                if np.linalg.norm(center_coords-start_coords) <= flange_length:
+                    valve_flange_elements.append(element_id)
+                elif np.linalg.norm(center_coords-end_coords) <= flange_length:
+                    valve_flange_elements.append(element_id)
+                else:
+                    valve_body_elements.append(element_id)
+
+        else:
+
+            for element_id in line_elements:
+                valve_body_elements.append(element_id)
+
+        body_section_info = {   "section_type_label" : "Valve",
+                                "section_parameters" : valve_info["body_section_parameters"]   }
+
+        body_cross_section = CrossSection(valve_section_info=body_section_info)
+        self.set_cross_section_by_elements(valve_flange_elements, body_cross_section)
+
+        if "flange_section_parameters" in valve_info.keys():
+
+            flange_section_info = { "section_type_label" : "Valve",
+                                    "section_parameters" : valve_info["flange_section_parameters"] }
+
+            flange_cross_section = CrossSection(valve_section_info=flange_section_info)
+
+            self.set_cross_section_by_elements(valve_flange_elements, flange_cross_section)
+
+        N = len(valve_body_elements)
+        d_out, t, *_ = data["section_parameters"]
+        diameters = get_V_linear_distribution(d_out, N)
+
+        for i, element_id in enumerate(valve_flange_elements):
+            element = self.structural_elements[element_id]
+            element.section_parameters_render = [df_out, tf, 0, 0, 0, 0]
+
+        for i, element_id in enumerate(valve_body_elements):
+            element = self.structural_elements[element_id]
+            element.section_parameters_render = [diameters[i], t, 0, 0, 0, 0]
 
     # def set_cross_section_plot_info_by_element(self, elements, cross_section):
     #     """
@@ -2041,8 +2105,7 @@ class Preprocessor:
             self.set_cross_section_by_elements(
                                                 elements, 
                                                 cross_section, 
-                                                update_cross_section = True, 
-                                                update_section_points = False
+                                                update_cross_section = True
                                                )  
 
     def process_element_cross_sections_orientation_to_plot(self):

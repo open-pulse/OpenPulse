@@ -369,12 +369,12 @@ class StructuralElement:
             else:
                 stiffness = Rt @ self.stiffness_matrix_pipes() @ R
                 mass = Rt @ self.mass_matrix_pipes() @ R
-        elif self.element_type in ['beam_1']:
+        elif self.element_type == 'beam_1':
             stiffness = Rt @ self.stiffness_matrix_beam() @ R
             mass = Rt @ self.mass_matrix_beam() @ R
-        elif self.element_type in ['valve']:
-            stiffness = Rt @ self.stiffness_matrix_pipes()*self.valve_stiffening_factor @ R
-            mass = Rt @ self.mass_matrix_valve() @ R   
+        elif self.element_type == 'valve':
+            stiffness = Rt @ (self.stiffness_matrix_pipes() * self.valve_stiffening_factor) @ R
+            mass = Rt @ self.mass_matrix_valve() @ R
         # elif self.element_type == "expansion_joint":
         #     stiffness = Rt @ self.stiffness_matrix_expansion_joint() @ R
         #     mass = Rt @ self.mass_matrix_expansion_joint() @ R            
@@ -1663,10 +1663,10 @@ class StructuralElement:
         return M_matrix
 
     def mass_matrix_valve(self):
-        L_e = self.valve_length/self.length
+        L_e = self.valve_length / self.length
         M_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        M1 = M2 = M3 = self.valve_mass/(2*L_e)
+        M1 = M2 = M3 = self.valve_mass / (2 * L_e)
         indexes = np.array([0,1,2,6,7,8], dtype=int)
 
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]

@@ -194,11 +194,11 @@ class BeforeRun:
 
             line_id = self.model.mesh.elements_to_line[element.index]
             if element.fluid is None:
-                if structural_element.element_type == "pipe_1":
+                if structural_element.element_type in ["pipe_1", "valve", "expansion_joint"]:
                     self.check_set_fluid = True
                     if line_id not in lines_without_fluids:
                         lines_without_fluids.append(line_id)
-                    
+
             if element.cross_section is None:
 
                 self.check_set_crossSection = True
@@ -382,7 +382,7 @@ class BeforeRun:
                 PrintMessageInput([window_title, title, list_messages[index]])
 
 
-    def check_is_there_a_problem(self, analysis_ID):
+    def check_is_there_a_problem(self, analysis_id):
 
         title = " Insufficient model inputs "
 
@@ -403,7 +403,7 @@ class BeforeRun:
         acoustic_message = "Enter a nodal acoustic excitation to proceed with the Harmonic Analysis processing. "
         acoustic_message += "\n\nAvailable acoustic excitations: acoustic pressure; compressor excitation; volume velocity."
 
-        if analysis_ID == 2:
+        if analysis_id == 2:
 
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             if self.check_set_material:
@@ -432,7 +432,7 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
-        elif analysis_ID == 4:
+        elif analysis_id == 4:
             lines_without_materials = self.check_material_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
@@ -472,7 +472,7 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
-        elif analysis_ID == 0 or analysis_ID == 1:
+        elif analysis_id == 0 or analysis_id == 1:
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             self.check_nodes_attributes(structural=True)
 
@@ -506,7 +506,7 @@ class BeforeRun:
                     PrintMessageInput([window_title_1, title, structural_message])
                     return True
 
-        elif analysis_ID == 3:
+        elif analysis_id == 3:
 
             lines_without_materials = self.check_material_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
@@ -556,7 +556,7 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, acoustic_message])
                 return True
 
-        elif analysis_ID == 5 or analysis_ID == 6:
+        elif analysis_id == 5 or analysis_id == 6:
 
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()

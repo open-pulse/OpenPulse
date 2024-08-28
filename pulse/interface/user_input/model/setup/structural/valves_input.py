@@ -12,6 +12,7 @@ from pulse.model.cross_section import CrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
+from pprint import pprint
 import numpy as np
 from collections import defaultdict
 
@@ -424,10 +425,13 @@ class ValvesInput(QDialog):
 
                 for line_id in line_ids:
                     
-                    self.process_section_parameters(line_id)
+                    self.add_section_parameters_into_valve_info(line_id)
                     self.properties._set_line_property("structural_element_type", "valve", line_ids=line_id)
                     self.properties._set_line_property("valve_name", self.valve_name, line_ids=line_id)
                     self.properties._set_line_property("valve_info", self.valve_info, line_ids=line_id)
+
+                    line_data = self.properties.line_properties[line_id]
+                    self.preprocessor.set_cross_sections_to_valve_elements(line_id, line_data)
 
                     self.remove_table_files_from_expansion_joints(line_id)
                     self.properties._remove_line_property("expansion_joint", line_id)
@@ -436,6 +440,8 @@ class ValvesInput(QDialog):
 
                 if self.valve_info["acoustic_effects"]:
                     self.configure_orifice_plate(line_ids)
+
+        # pprint(self.valve_info)
 
         self.complete = True
         self.close()
@@ -487,7 +493,7 @@ class ValvesInput(QDialog):
                 app().main_window.set_input_widget(self)
                 return
 
-    def process_section_parameters(self, line_id: int):
+    def add_section_parameters_into_valve_info(self, line_id: int):
 
         self.properties._set_line_property("section_type_label", "Valve", line_id)
 
@@ -496,13 +502,13 @@ class ValvesInput(QDialog):
         d_out = round(d_in + 2 * t, 6)
 
         section_parameters = [d_out, t, 0, 0, 0, 0]
-        self.properties._set_line_property("section_parameters", section_parameters, line_id)
+        self.valve_info["body_section_parameters"] = section_parameters
 
         if "flange_diameter" in self.valve_info.keys():
             df_out = self.valve_info["flange_diameter"]
             tf = round((df_out - d_in) / 2, 6)
             flange_section_parameters = [df_out, tf, 0, 0, 0, 0]
-            self.properties._set_line_property("flange_section_parameters", flange_section_parameters, line_id)
+            self.valve_info["flange_section_parameters"] = flange_section_parameters
 
     def search_for_cross_section_in_neighborhood(self, line_id: int):
 

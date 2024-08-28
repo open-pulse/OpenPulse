@@ -8,10 +8,7 @@ from pulse.interface.others.splash_screen import SplashScreen
 from pulse.project.config import Config
 from pulse.project.project import Project
 from pulse.project.load_project import LoadProject
-from pulse.interface.file.project_file_io import ProjectFile
-
-
-from opps.interface.toolboxes import GeometryToolbox
+from pulse.interface.file.project_file import ProjectFile
 
 
 class Application(QApplication):
