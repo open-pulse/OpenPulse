@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>391</width>
+    <width>445</width>
     <height>812</height>
    </rect>
   </property>
@@ -389,7 +389,7 @@
          <string>Add</string>
         </property>
         <property name="shortcut">
-         <string>Return, Enter</string>
+         <string>Return</string>
         </property>
        </widget>
       </item>
@@ -448,7 +448,7 @@
          <string>Finalize</string>
         </property>
         <property name="shortcut">
-         <string>Ctrl+Return, Ctrl+Enter</string>
+         <string>Ctrl+Return</string>
         </property>
        </widget>
       </item>
