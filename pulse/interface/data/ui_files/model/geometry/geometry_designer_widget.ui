@@ -389,7 +389,7 @@
          <string>Add</string>
         </property>
         <property name="shortcut">
-         <string>Return</string>
+         <string>Return, Enter</string>
         </property>
        </widget>
       </item>
@@ -448,7 +448,7 @@
          <string>Finalize</string>
         </property>
         <property name="shortcut">
-         <string>Ctrl+Return</string>
+         <string>Ctrl+Return, Ctrl+Enter</string>
         </property>
        </widget>
       </item>
