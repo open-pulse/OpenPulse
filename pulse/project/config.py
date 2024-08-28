@@ -22,12 +22,21 @@ class Config:
 
         if not config.has_section("Recents"):
             return list()
+        
+        repeated = set()
+        recents = []
 
-        # only keep existing files
-        recents = [Path(file) for i, file in sorted(config["Recents"].items()) 
-                   if Path(file).exists()]
-        # avoid repetitions
-        recents = list(set(recents))
+        for _, path in sorted(config["Recents"].items(), reverse=True):
+            path = Path(path)
+            if not path.exists():
+                continue
+
+            if str(path) in repeated:
+                continue
+
+            repeated.add(str(path))
+            recents.append(path)
+
         return recents
 
     def load_config_file(self):
@@ -44,6 +53,7 @@ class Config:
     def add_recent_file(self, recent_file: str | Path):
         # try:
         recents = self.get_recent_files()
+        recents.reverse()
         recents.append(str(recent_file))
 
         # only keep the last N files
