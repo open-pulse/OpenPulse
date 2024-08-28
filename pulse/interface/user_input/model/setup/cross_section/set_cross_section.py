@@ -452,9 +452,8 @@ class SetCrossSectionInput(QDialog):
         self.properties._remove_line_property("wall_formulation", line_ids)
         self.properties._remove_line_property("force_offset", line_ids)
         self.properties._remove_line_property("capped_end", line_ids)
-        self.properties._remove_line_property("expansion_joint", line_ids=line_ids)
+        self.properties._remove_line_property("expansion_joint_info", line_ids=line_ids)
         self.properties._remove_line_property("valve_name", line_ids=line_ids)
-        self.properties._remove_line_property("flange_section_parameters", line_ids=line_ids)
         self.properties._remove_line_property("valve_info", line_ids=line_ids)
 
         self.remove_table_files_from_expansion_joints(line_ids)
@@ -516,9 +515,8 @@ class SetCrossSectionInput(QDialog):
             self.properties._remove_line_property("wall_formulation", line_ids)
             self.properties._remove_line_property("force_offset", line_ids)
             self.properties._remove_line_property("capped_end", line_ids)
-            self.properties._remove_line_property("expansion_joint", line_ids=line_ids)
+            self.properties._remove_line_property("expansion_joint_info", line_ids=line_ids)
             self.properties._remove_line_property("valve_name", line_ids=line_ids)
-            self.properties._remove_line_property("flange_section_parameters", line_ids=line_ids)
             self.properties._remove_line_property("valve_info", line_ids=line_ids)
 
             self.remove_acoustic_related_data_from_lines(line_ids)
@@ -582,19 +580,21 @@ class SetCrossSectionInput(QDialog):
             self.process_table_file_removal(table_names)
 
     def process_table_file_removal(self, table_names : list):
+
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("acoustic", table_name)
             app().pulse_file.write_imported_table_data_in_file()
 
     def remove_table_files_from_expansion_joints(self, line_ids: list):
+
         table_names = list()
         for line_id, data in self.properties.line_properties.items():
             data: dict
-            if "expansion_joint" in data.keys():
-                ej_data = data["expansion_joint"]
-                if line_id in line_ids and "table_names" in ej_data.keys():
-                    table_names.append(ej_data["table_names"])
+            if "expansion_joint_info" in data.keys():
+                ej_info = data["expansion_joint_info"]
+                if line_id in line_ids and "table_names" in ej_info.keys():
+                    table_names.append(ej_info["table_names"])
 
         if table_names:
             for table_name in table_names:

@@ -444,7 +444,7 @@ class GeometryHandler:
 
         start = Point(*data['start_coords'])
         end = Point(*data['end_coords'])
-        diameter  = data["expansion_joint"]["effective_diameter"]
+        diameter  = data["expansion_joint_info"]["effective_diameter"]
 
         structure = ExpansionJoint(
                                    start, 
@@ -453,7 +453,7 @@ class GeometryHandler:
                                    thickness = 0.05*diameter
                                    )
 
-        structure.extra_info["expansion_joint_info"] = data["expansion_joint"]
+        structure.extra_info["expansion_joint_info"] = data["expansion_joint_info"]
         structure.extra_info["structural_element_type"] = "expansion_joint"
 
         return structure
@@ -818,7 +818,7 @@ class GeometryHandler:
                 app().project.model.properties._set_line_property("material_id", material_id, line_ids=line_ids)
 
             for line_id, ej_data in expansion_joint_info.items():
-                app().project.model.properties._set_line_property("expansion_joint", ej_data, line_ids=line_id)
+                app().project.model.properties._set_line_property("expansion_joint_info", ej_data, line_ids=line_id)
 
             for line_id, valve_data in valve_info.items():
                 app().project.model.properties._set_line_property("valve_info", valve_data, line_ids=line_id)

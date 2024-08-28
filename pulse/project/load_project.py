@@ -302,10 +302,12 @@ class LoadProject:
     def load_expansion_joints(self, line_id: list, data: dict):
 
         expansion_joint = None
-        if "expansion_joint" in data.keys():
-            expansion_joint = data["expansion_joint"]
+        if "expansion_joint_info" in data.keys():
+            expansion_joint = data["expansion_joint_info"]
 
         if isinstance(expansion_joint, dict):
+
+            expansion_joint["joint_length"] = self.properties.get_line_length(line_id)
 
             joint_elements = self.model.mesh.line_to_elements[line_id]
 

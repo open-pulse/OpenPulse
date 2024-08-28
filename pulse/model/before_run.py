@@ -1,4 +1,5 @@
 # fmt: off
+
 from collections import defaultdict
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 import numpy as np
@@ -668,8 +669,8 @@ class BeforeRun:
             if (element_type == "pipe_1" and len(section_parameters) == 6) or "beam_1" in element_type:
 
                 if len(tags) == 1:
-                    line_ID = tags[0]
-                    length_1, edge_nodes_1 = self.preprocessor.get_line_length(line_ID)
+                    line_id = tags[0]
+                    length_1, edge_nodes_1 = self.properties.get_line_length(line_id)
 
                     if element_type == "pipe_1" and len(section_parameters) == 6:
                         parameter = section_parameters[0]
@@ -689,7 +690,7 @@ class BeforeRun:
 
                     for i, tag in enumerate(tags):
                         filtered_lines = list()                                
-                        length_0, edge_nodes_0 = self.preprocessor.get_line_length(tag)
+                        length_0, edge_nodes_0 = self.properties.get_line_length(tag)
                         lines = self.get_lines_from_nodes(edge_nodes_0)
                         for line in lines:
                             if line in tags and line not in filtered_lines:
@@ -709,7 +710,7 @@ class BeforeRun:
                                                                                                     neighboor_data, 
                                                                                                     index   )
                     
-                    aux = {}
+                    aux = dict()
                     if len(neighboor_data)>0:
                         for ind, neigh_lines in neighboor_data.items():
 
@@ -719,17 +720,21 @@ class BeforeRun:
                                 parameter = max(section_parameters)
 
                             lengths = list()
-                            for n_line in neigh_lines:
-                                length, _ = self.preprocessor.get_line_length(n_line)
+                            for _line_id in neigh_lines:
+                                length, _ = self.properties.get_line_length(_line_id)
                                 lengths.append(length)
+
                             total_length = np.sum(lengths)
                             ratio = total_length/parameter
-                            aux[ind] = {"section parameter" : parameter,
+
+                            aux[ind] = {
+                                        "section parameter" : parameter,
                                         "lines" : neigh_lines,
                                         "lengths" : lengths,
                                         "total length" : total_length,
-                                        "ratio" : ratio}
-                    
+                                        "ratio" : ratio
+                                        }
+
                     self.one_section_multiple_lines[section_id] = aux
 
     def get_lines_from_nodes(self, edge_nodes):

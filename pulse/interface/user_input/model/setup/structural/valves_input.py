@@ -12,8 +12,8 @@ from pulse.model.cross_section import CrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from pprint import pprint
 import numpy as np
+from pprint import pprint
 from collections import defaultdict
 
 window_title_1 = "Error"
@@ -176,7 +176,7 @@ class ValvesInput(QDialog):
             self.selection_frame.setVisible(False)
             self.tabWidget_main.setTabVisible(1, False)
 
-        self.adjustSize()
+        self.setMinimumHeight(620)
 
     def _config_widgets(self):
         # self.cache_tab = self.tabWidget_main.currentIndex()
@@ -434,7 +434,7 @@ class ValvesInput(QDialog):
                     self.preprocessor.set_cross_sections_to_valve_elements(line_id, line_data)
 
                     self.remove_table_files_from_expansion_joints(line_id)
-                    self.properties._remove_line_property("expansion_joint", line_id)
+                    self.properties._remove_line_property("expansion_joint_info", line_id)
 
                 self.actions_to_finalize()
 
@@ -595,10 +595,10 @@ class ValvesInput(QDialog):
         table_names = list()
         for line_id, data in self.properties.line_properties.items():
             data: dict
-            if "expansion_joint" in data.keys():
-                ej_data = data["expansion_joint"]
-                if line_id in line_ids and "table_names" in ej_data.keys():
-                    table_names.append(ej_data["table_names"])
+            if "expansion_joint_info" in data.keys():
+                ej_info = data["expansion_joint_info"]
+                if line_id in line_ids and "table_names" in ej_info.keys():
+                    table_names.append(ej_info["table_names"])
 
         if table_names:
             self.process_table_file_removal(table_names)
@@ -614,7 +614,6 @@ class ValvesInput(QDialog):
 
             line_id = int(self.lineEdit_selected_id.text())
             self.properties._remove_line_property("valve_name", line_id)
-            self.properties._remove_line_property("flange_section_parameters", line_id)
             self.properties._remove_line_property("valve_info", line_id)
 
             self.restore_the_cross_section([line_id])
@@ -645,7 +644,6 @@ class ValvesInput(QDialog):
 
             for line_id in line_ids:
                 self.properties._remove_line_property("valve_name", line_id)
-                self.properties._remove_line_property("flange_section_parameters", line_id)
                 self.properties._remove_line_property("valve_info", line_id)
                 self.restore_the_cross_section(line_ids)
 
@@ -673,7 +671,8 @@ class ValvesInput(QDialog):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()
         elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
+            if self.render_type == "model":
+                self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

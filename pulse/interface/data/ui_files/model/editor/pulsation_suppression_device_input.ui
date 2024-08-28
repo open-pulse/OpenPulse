@@ -120,7 +120,7 @@
        <number>0</number>
       </property>
       <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_confirm">
+       <widget class="QPushButton" name="pushButton_create_psd">
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -142,7 +142,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Confirm</string>
+         <string>Create PSD</string>
         </property>
         <property name="autoDefault">
          <bool>true</bool>

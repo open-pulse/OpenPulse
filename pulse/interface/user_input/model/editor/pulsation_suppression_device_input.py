@@ -108,7 +108,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         # QPushButton
         self.pushButton_cancel : QPushButton
-        self.pushButton_confirm : QPushButton
+        self.pushButton_create_psd : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
 
@@ -136,7 +136,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
         #
         self.pushButton_cancel.clicked.connect(self.close)
-        self.pushButton_confirm.clicked.connect(self.confirm_callback)
+        self.pushButton_create_psd.clicked.connect(self.create_psd_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -295,10 +295,10 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 0:
             self.pushButton_cancel.setDisabled(False)
-            self.pushButton_confirm.setDisabled(False)
+            self.pushButton_create_psd.setDisabled(False)
         else:
             self.pushButton_cancel.setDisabled(True)
-            self.pushButton_confirm.setDisabled(True)
+            self.pushButton_create_psd.setDisabled(True)
 
     def on_click_item(self, item):
         self.lineEdit_selection.setText(item.text(0))
@@ -681,7 +681,7 @@ class PulsationSuppressionDeviceInput(QDialog):
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
 
-    def confirm_callback(self):
+    def create_psd_callback(self):
 
         stop, psd_label = self.check_psd_label()
         if stop:
@@ -1010,7 +1010,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         if event.key() == Qt.Key_Escape:
             self.close()
         elif event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.confirm_callback()
+            self.create_psd_callback()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
