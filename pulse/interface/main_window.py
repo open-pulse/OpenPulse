@@ -669,15 +669,14 @@ class MainWindow(QMainWindow):
 
     def action_results_workspace_callback(self):
         self.results_widget.update_selection()
-        self.results_viewer_wigdet.animation_widget.setVisible(False)
         self.results_viewer_wigdet.update_visibility_items()
 
         if self.project.is_the_solution_finished():
-            self.results_viewer_wigdet.animation_widget.setVisible(False)
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
             self.render_widgets_stack.setCurrentWidget(self.results_widget)
             self.results_viewer_wigdet.update_visibility_items()
             self._configure_visualization(tubes=True)
+
         else:
             if self.cache_indexes:
                 self.combo_box_workspaces.setCurrentIndex(self.cache_indexes[-2])
