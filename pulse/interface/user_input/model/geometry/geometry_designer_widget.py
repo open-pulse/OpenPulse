@@ -45,42 +45,53 @@ class GeometryDesignerWidget(QWidget):
         self._initialize()
 
     def _define_qt_variables(self):
+
+        # QAction
+        self.select_all_action: QAction
+        self.addAction(self.select_all_action)
+
+        # QComboBox
         self.unit_combobox: QComboBox
         self.structure_combobox: QComboBox
+        self.division_combobox: QComboBox
 
-        self.set_material_button: QPushButton
+        #QPushButton
+        self.add_button: QPushButton
+        self.apply_division_button: QPushButton
+        self.attach_button: QPushButton
+        self.cancel_button: QPushButton
+        self.cancel_division_button: QPushButton
+        self.delete_button: QPushButton
+        self.finalize_button: QPushButton
         self.set_fluid_button: QPushButton
+        self.set_material_button: QPushButton
 
+        # QLineEdit
         self.x_line_edit: QLineEdit
         self.y_line_edit: QLineEdit
         self.z_line_edit: QLineEdit
 
-        self.sizes_coords_label: QLabel
+        # QLabel
         self.dx_label: QLabel
         self.dy_label: QLabel
         self.dz_label: QLabel
-
-        self.division_combobox: QComboBox
-        self.division_slider: QSlider
-        self.cancel_division_button: QPushButton
-        self.apply_division_button: QPushButton
-        self.division_amount_spinbox: QSpinBox
         self.division_slider_label: QLabel
+        self.sizes_coords_label: QLabel
 
+        # QSlider
+        self.division_slider: QSlider
+
+        # QSpinBox
+        self.division_amount_spinbox: QSpinBox
+
+        # QStackedWidget
         self.options_stack_widget: QStackedWidget
+
+        # QWidget
         self.empty_widget: QWidget
-
-        self.add_button: QPushButton
-        self.attach_button: QPushButton
-        self.delete_button: QPushButton
-
-        self.cancel_button: QPushButton
-        self.finalize_button: QPushButton
-
-        self.select_all_action: QAction
-        self.addAction(self.select_all_action)
     
     def _create_layout(self):
+
         self.cross_section_widget = CrossSectionWidget()
 
         self.pipe_options_widget = PipeOptionsWidget(self)
@@ -396,11 +407,11 @@ class GeometryDesignerWidget(QWidget):
         geometry_handler.export_model_data_file()
 
         app().pulse_file.modify_project_attributes(
-                                                                length_unit = self.length_unit,
-                                                                element_size = 0.01, 
-                                                                geometry_tolerance = 1e-6,
-                                                                import_type = 1,
-                                                              )
+                                                    length_unit = self.length_unit,
+                                                    element_size = 0.01, 
+                                                    geometry_tolerance = 1e-6,
+                                                    import_type = 1,
+                                                    )
 
         self._load_project()
 
@@ -429,6 +440,8 @@ class GeometryDesignerWidget(QWidget):
 
         if not expression:
             return None
+
+        expression = expression.replace(",", ".")
 
         try:
             result = eval(expression, global_context, local_context)

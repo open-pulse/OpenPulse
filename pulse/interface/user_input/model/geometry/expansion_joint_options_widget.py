@@ -54,7 +54,11 @@ class ExpansionJointOptionsWidget(QWidget):
         return kwargs
 
     def define_expansion_joint_parameters(self):
-        expansion_joint_input = ExpansionJointInput(render_type="geometry")
+
+        app().main_window.close_dialogs()
+        expansion_joint_input = app().main_window.input_ui.add_expansion_joint()
+        app().main_window.set_input_widget(None)
+
         if not expansion_joint_input.complete:
             self.expansion_joint_info = None
             return

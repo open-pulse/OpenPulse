@@ -144,6 +144,8 @@ class ExpansionJointInput(QDialog):
 
         try:
 
+            print("passando aqui...")
+
             selected_lines = app().main_window.list_selected_lines()
 
             if selected_lines:
@@ -254,7 +256,7 @@ class ExpansionJointInput(QDialog):
 
             else:
                 self.tabWidget_inputs.setCurrentIndex(0)
-                Kx, Kyz, Krx, Kryz = joint_data['stiffness values']
+                Kx, Kyz, Krx, Kryz = joint_data['stiffness_values']
                 self.lineEdit_axial_stiffness.setText(f"{Kx : .3e}")
                 self.lineEdit_transversal_stiffness.setText(f"{Kyz : .3e}")
                 self.lineEdit_torsional_stiffness.setText(f"{Krx : .3e}")

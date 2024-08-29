@@ -32,8 +32,6 @@ class ValvesInput(QDialog):
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
 
-        self.project = app().project
-
         self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
@@ -254,9 +252,9 @@ class ValvesInput(QDialog):
                 mass = valve_info["valve_mass"]
                 stiffening_factor = valve_info["stiffening_factor"]
                 acoustic_effects = valve_info["acoustic_effects"]
-                outer_diameter = data["section_parameters"][0]
+                effective_diameter = valve_info["valve_effective_diameter"]
 
-                parameters = str([outer_diameter, stiffening_factor, mass, acoustic_effects])
+                parameters = str([effective_diameter, stiffening_factor, mass, acoustic_effects])
 
                 item = QTreeWidgetItem([valve_name, str(line_id), parameters])
                 for i in range(3):
@@ -417,15 +415,13 @@ class ValvesInput(QDialog):
             if self.check_flange_parameters():
                 return
 
-        #TODO: pass self.valve_info to pipeline editor
+        self.add_section_parameters_into_valve_info()
 
         if self.render_type == "model":
-
             if self.valve_info:
-
                 for line_id in line_ids:
                     
-                    self.add_section_parameters_into_valve_info(line_id)
+                    self.properties._set_line_property("section_type_label", "Valve", line_id)
                     self.properties._set_line_property("structural_element_type", "valve", line_ids=line_id)
                     self.properties._set_line_property("valve_name", self.valve_name, line_ids=line_id)
                     self.properties._set_line_property("valve_info", self.valve_info, line_ids=line_id)
@@ -434,6 +430,7 @@ class ValvesInput(QDialog):
                     self.preprocessor.set_cross_sections_to_valve_elements(line_id, line_data)
 
                     self.remove_table_files_from_expansion_joints(line_id)
+                    self.properties._remove_line_property("section_parameters", line_id)
                     self.properties._remove_line_property("expansion_joint_info", line_id)
 
                 self.actions_to_finalize()
@@ -455,7 +452,7 @@ class ValvesInput(QDialog):
         # geometry_handler.process_pipeline()
 
         app().loader.load_project_data()
-        self.project.initial_load_project_actions()
+        app().project.initial_load_project_actions()
         app().loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         app().main_window.update_plots()
@@ -493,15 +490,14 @@ class ValvesInput(QDialog):
                 app().main_window.set_input_widget(self)
                 return
 
-    def add_section_parameters_into_valve_info(self, line_id: int):
-
-        self.properties._set_line_property("section_type_label", "Valve", line_id)
+    def add_section_parameters_into_valve_info(self):
 
         d_in = self.valve_info["valve_effective_diameter"]
         t = round(self.valve_info["valve_wall_thickness"], 6)
-        d_out = round(d_in + 2 * t, 6)
 
+        d_out = round(d_in + 2 * t, 6)
         section_parameters = [d_out, t, 0, 0, 0, 0]
+
         self.valve_info["body_section_parameters"] = section_parameters
 
         if "flange_diameter" in self.valve_info.keys():

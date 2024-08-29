@@ -449,7 +449,6 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
             end_coords = data["end_coords"]
 
             if "valve_name" in data.keys():
-                # return list()
 
                 # valve_name = data["valve_name"]
 
@@ -464,7 +463,7 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
                 except:
                     return list()
 
-                diameter = data["section_parameters"][0]
+                diameter, *_ = data["valve_info"]["body_section_parameters"]
 
                 if np.remainder(len(valve_elements), 2) == 0:
                     index = int(len(valve_elements) / 2)

@@ -8,6 +8,7 @@ from pulse.model.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.model.compressor_model import CompressorModel
 from pulse.model.perforated_plate import PerforatedPlate
 
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
 from pulse.interface.user_input.model.setup.structural.valves_input import get_V_linear_distribution
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
@@ -1064,7 +1065,8 @@ class Preprocessor:
                                 "section_parameters" : valve_info["body_section_parameters"]   }
 
         body_cross_section = CrossSection(valve_section_info=body_section_info)
-        self.set_cross_section_by_elements(valve_flange_elements, body_cross_section)
+
+        self.set_cross_section_by_elements(valve_body_elements, body_cross_section)
 
         if "flange_section_parameters" in valve_info.keys():
 
@@ -1076,7 +1078,7 @@ class Preprocessor:
             self.set_cross_section_by_elements(valve_flange_elements, flange_cross_section)
 
         N = len(valve_body_elements)
-        d_out, t, *_ = data["section_parameters"]
+        d_out, t, *_ = valve_info["body_section_parameters"]
         diameters = get_V_linear_distribution(d_out, N)
 
         for i, element_id in enumerate(valve_flange_elements):
@@ -1086,6 +1088,22 @@ class Preprocessor:
         for i, element_id in enumerate(valve_body_elements):
             element = self.structural_elements[element_id]
             element.section_parameters_render = [diameters[i], t, 0, 0, 0, 0]
+
+    def set_cross_sections_to_expansion_joint(self, line_id: int, expansion_joint_info: dict):
+
+        joint_elements = self.mesh.line_to_elements[line_id]
+
+        if isinstance(expansion_joint_info, dict):
+            if "effective_diameter" in expansion_joint_info.keys():
+
+                effective_diameter = expansion_joint_info["effective_diameter"]
+
+                cross_sections = get_cross_sections_to_plot_expansion_joint(
+                                                                            joint_elements, 
+                                                                            effective_diameter
+                                                                            )
+
+                self.set_cross_section_by_elements(joint_elements, cross_sections)
 
     # def set_cross_section_plot_info_by_element(self, elements, cross_section):
     #     """

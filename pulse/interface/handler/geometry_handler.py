@@ -325,9 +325,6 @@ class GeometryHandler:
 
         structure.extra_info["cross_section_info"] = section_info
         structure.extra_info["structural_element_type"] = "pipe_1"
-
-        # if "material_id" in data.keys():
-        #     structure.extra_info["material_info"] = data['material_id']
         
         if "psd_name" in data.keys():
             structure.extra_info["psd_name"] = data["psd_name"]
@@ -416,9 +413,6 @@ class GeometryHandler:
         structure.extra_info["cross_section_info"] = section_info
         structure.extra_info["structural_element_type"] = "beam_1"
 
-        # if "material_id" in data.keys():
-        #     structure.extra_info["material_info"] = data['material_id']
-
         return structure
 
     def _process_valve(self, data: dict):
@@ -426,7 +420,8 @@ class GeometryHandler:
         start = Point(*data['start_coords'])
         end = Point(*data['end_coords'])
 
-        d_out, t, *_ = data["section_parameters"]
+        valve_info = data["valve_info"]
+        d_out, t, *_ = valve_info["body_section_parameters"]
 
         structure = Valve(
                           start, 
@@ -435,7 +430,10 @@ class GeometryHandler:
                           thickness = t
                           )
 
-        structure.extra_info["valve_info"] = data["valve_info"]
+        section_info = {"section_type_label" : "Valve"}
+        structure.extra_info["cross_section_info"] = section_info
+
+        structure.extra_info["valve_info"] = valve_info
         structure.extra_info["structural_element_type"] = "valve"
 
         return structure
@@ -444,7 +442,9 @@ class GeometryHandler:
 
         start = Point(*data['start_coords'])
         end = Point(*data['end_coords'])
-        diameter  = data["expansion_joint_info"]["effective_diameter"]
+
+        expansion_joint_info = data["expansion_joint_info"]
+        diameter  = expansion_joint_info["effective_diameter"]
 
         structure = ExpansionJoint(
                                    start, 
@@ -453,7 +453,10 @@ class GeometryHandler:
                                    thickness = 0.05*diameter
                                    )
 
-        structure.extra_info["expansion_joint_info"] = data["expansion_joint_info"]
+        section_info = {"section_type_label" : "Expansion joint"}
+        structure.extra_info["cross_section_info"] = section_info
+
+        structure.extra_info["expansion_joint_info"] = expansion_joint_info
         structure.extra_info["structural_element_type"] = "expansion_joint"
 
         return structure
@@ -762,8 +765,8 @@ class GeometryHandler:
         material_info = defaultdict(list)
 
         psd_info = dict()
-        expansion_joint_info = dict()
         valve_info = dict()
+        expansion_joint_info = dict()
 
         for structure in self.pipeline.structures:
 
@@ -777,6 +780,7 @@ class GeometryHandler:
 
             structures_data[tag] = pipeline_data
 
+            print(tag, list(structure.extra_info.keys()))
             if "cross_section_info" in structure.extra_info.keys():
                 section_info[tag] = structure.extra_info["cross_section_info"]
 
@@ -790,7 +794,6 @@ class GeometryHandler:
                     element_type_info[structural_element_type].append(tag)
 
             if "expansion_joint_info" in structure.extra_info.keys():
-                structure.extra_info["expansion_joint_info"]["joint_length"] = np.linalg.norm(structure.start - structure.end)
                 expansion_joint_info[tag] = structure.extra_info["expansion_joint_info"]
 
             if "valve_info" in structure.extra_info.keys():
@@ -809,6 +812,7 @@ class GeometryHandler:
                     app().project.model.properties._set_line_property(key, values, line_ids=line_id)
 
             for line_id, cross_data in section_info.items():
+                print(line_id, cross_data)
                 app().project.model.properties._set_multiple_line_properties(cross_data, line_ids=line_id)
 
             for element_type, line_ids in element_type_info.items():

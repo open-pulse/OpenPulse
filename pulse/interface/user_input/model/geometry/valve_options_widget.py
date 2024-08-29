@@ -58,7 +58,11 @@ class ValveOptionsWidget(QWidget):
         return kwargs
 
     def define_valve_parameters(self):
+
+        app().main_window.close_dialogs()
         valve_input = ValvesInput(render_type="geometry")
+        app().main_window.set_input_widget(None)
+
         if not valve_input.complete:
             self.valve_info = None
             return

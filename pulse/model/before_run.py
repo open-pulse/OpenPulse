@@ -168,6 +168,7 @@ class BeforeRun:
                             lines_without_cross_sections.append(line_id)
 
                 else:
+
                     if element.cross_section.thickness == 0:
                         if element.cross_section.area == 0:
                             self.check_set_crossSection = True
@@ -175,7 +176,7 @@ class BeforeRun:
                                 elements_without_cross_sections[line_id].append(element.index)
                             if line_id not in lines_without_cross_sections:
                                 lines_without_cross_sections.append(line_id)
-                 
+
         return lines_without_materials, elements_without_cross_sections
 
     def check_fluid_and_cross_section_in_all_elements(self):
@@ -387,19 +388,19 @@ class BeforeRun:
 
         title = " Insufficient model inputs "
 
-        cross_section_message = "You should set a Cross-Section to all elements before proceeding with the model solution.!"
+        cross_section_message = "You should set a Cross-Section to all elements before proceeding with the model solution.\n\n"
         #
-        material_message = "You should to set a Material to all elements before trying to run any Analysis!\n\n"
+        material_message = "You should to set a Material to all elements before trying to run any Analysis.\n\n"
         material_message += "Lines without material assignment: \n{}"
         #
-        fluid_message = "You should to set a Fluid to all elements before trying to run any Analysis!\n\n"
+        fluid_message = "You should to set a Fluid to all elements before trying to run any Analysis.\n\n"
         fluid_message += "Lines without fluid assignment: \n{}"
         #
         all_fluid_inputs_message = "You should insert all fluid properties for wide-duct, LRF fluid equivalent and " 
         all_fluid_inputs_message += "LRF full acoustic element types before proceeding with the model solution.\n\n"
         all_fluid_inputs_message += "Lines with incomplete fluid properties: \n{}"
         #
-        structural_message = "You should to apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis!"
+        structural_message = "You should to apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis."
         #
         acoustic_message = "Enter a nodal acoustic excitation to proceed with the Harmonic Analysis processing. "
         acoustic_message += "\n\nAvailable acoustic excitations: acoustic pressure; compressor excitation; volume velocity."

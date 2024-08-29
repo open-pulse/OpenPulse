@@ -6,8 +6,6 @@ from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
 from pulse.model.perforated_plate import PerforatedPlate
 
-from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
-from pulse.interface.user_input.model.setup.structural.valves_input import get_V_linear_distribution
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
@@ -30,13 +28,16 @@ class LoadProject:
 
         self._initialize()
         
+
     def _initialize(self):
-        self.bc_loader = None
+        pass
+
 
     def reset_model_properties(self):
         self.properties.line_properties.clear()
         self.properties.nodal_properties.clear()
         self.properties.element_properties.clear()
+
 
     def load_project_data(self):
         #
@@ -55,6 +56,7 @@ class LoadProject:
         #
         self.load_analysis_file()
         self.load_inertia_load_setup()
+
 
     def load_fluids_library(self):
 
@@ -142,6 +144,7 @@ class LoadProject:
             
             self.library_fluids[identifier] = fluid
 
+
     def load_materials_library(self):
 
         self.library_materials = dict()
@@ -178,6 +181,7 @@ class LoadProject:
             
             self.library_materials[identifier] = material
 
+
     def load_cross_sections_from_file(self):
 
         self.cross_sections = dict()
@@ -188,6 +192,7 @@ class LoadProject:
         for line_id, data in line_properties.items():
 
             if "section_type_label" in data.keys() and "section_parameters" in data.keys():
+
                 if data["section_type_label"] in ["Pipe", "Bend"]:
 
                     pipe_section_info = {   "section_type_label" : data["section_type_label"],
@@ -203,12 +208,6 @@ class LoadProject:
 
                     self.cross_sections[line_id] = CrossSection(beam_section_info=beam_section_info)
 
-                elif data["section_type_label"] == "Valve":
-
-                    valve_section_info = {  "section_type_label" : data["section_type_label"],
-                                            "section_parameters" : data["section_parameters"]  }
-
-                    self.cross_sections[line_id] = CrossSection(valve_section_info=valve_section_info) 
 
     def load_lines_properties(self):
 
@@ -249,15 +248,18 @@ class LoadProject:
 
                         self.properties._set_line_property(property, prop_data, line_ids=int(line_id))
 
+
     def load_element_properties(self):
         element_properties = app().pulse_file.load_element_properties_from_file()
         for (property, id), prop_data in element_properties.items():
             self.properties._set_element_property(property, prop_data, element_ids=id)
 
+
     def load_nodal_properties(self):
         nodal_properties = app().pulse_file.load_nodal_properties_from_file()
         for (property, *args), prop_data in nodal_properties.items():
             self.properties._set_nodal_property(property, prop_data, node_ids=args)
+
 
     def send_lines_properties_to_elements(self):
         for line_id, data in self.properties.line_properties.items():
@@ -281,6 +283,7 @@ class LoadProject:
             self.load_valves(line_id, data)
             self.load_stress_stiffening(line_id, data)
 
+
     def send_element_properties_to_elements(self):
         for (property, element_id), prop_data in self.properties.element_properties.items():
             if property == "B2P_rotation_decoupling":
@@ -291,15 +294,15 @@ class LoadProject:
                 perforated_plate = PerforatedPlate(prop_data)
                 self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
 
+
     def load_mesh_dependent_properties(self):
         """ This methods send properties to elements.
         """
         self.send_lines_properties_to_elements()
         self.send_element_properties_to_elements()
 
-    ## line loaders
 
-    def load_expansion_joints(self, line_id: list, data: dict):
+    def load_expansion_joints(self, line_id: int, data: dict):
 
         expansion_joint = None
         if "expansion_joint_info" in data.keys():
@@ -309,34 +312,29 @@ class LoadProject:
 
             expansion_joint["joint_length"] = self.properties.get_line_length(line_id)
 
-            joint_elements = self.model.mesh.line_to_elements[line_id]
-
             if "effective_diameter" in expansion_joint.keys():
-                effective_diameter = expansion_joint["effective_diameter"]
 
-                cross_sections = get_cross_sections_to_plot_expansion_joint(joint_elements, 
-                                                                            effective_diameter)
+                self.preprocessor.add_expansion_joint_by_lines(
+                                                               line_id, 
+                                                               expansion_joint
+                                                               )
 
-                self.preprocessor.add_expansion_joint_by_lines( line_id, 
-                                                                expansion_joint )
+                self.preprocessor.set_cross_sections_to_expansion_joint(
+                                                                        line_id, 
+                                                                        expansion_joint
+                                                                        )
 
-                self.preprocessor.set_cross_section_by_elements(joint_elements, 
-                                                                cross_sections)
 
-    def load_valves(self, line_id: list, data: dict):
+    def load_valves(self, line_id: int, data: dict):
 
         if "valve_name" in data.keys():
 
             valve_info = data["valve_info"]
-
-            start_coords = np.array(data["start_coords"], dtype=float)
-            end_coords = np.array(data["end_coords"], dtype=float)
-
-            valve_length = np.linalg.norm(end_coords - start_coords)
-            valve_info["valve_length"] = valve_length
+            valve_info["valve_length"] = self.properties.get_line_length(line_id)
 
             self.preprocessor.add_valve_by_lines(line_id, valve_info)
             self.preprocessor.set_cross_sections_to_valve_elements(line_id, data)
+
 
     def load_stress_stiffening(self, line_id: list, data: dict):
 
@@ -345,6 +343,7 @@ class LoadProject:
             prop_data = data["stress_stiffening"]
             if isinstance(prop_data, dict):
                 self.preprocessor.set_stress_stiffening_by_lines(line_id, prop_data)
+
 
     def load_cross_sections(self, line_id: list, data: dict):
 
@@ -356,7 +355,8 @@ class LoadProject:
                 self.preprocessor.set_variable_cross_section_by_line(line_id, cross_section)
                 return
 
-        self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
+            self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
+
 
     def load_fluids(self, line_id: int, data: dict):
 
@@ -365,6 +365,7 @@ class LoadProject:
             fluid = data["fluid"]
 
         self.preprocessor.set_fluid_by_lines(line_id, fluid)
+
 
     def load_acoustic_element_types(self, line_id: int, data: dict):
 
@@ -387,6 +388,7 @@ class LoadProject:
                                                              vol_flow = volume_flow    
                                                              )
 
+
     def load_materials(self, line_id: int, data: dict):
 
         material = None
@@ -395,16 +397,18 @@ class LoadProject:
 
         self.preprocessor.set_material_by_lines(line_id, material)
 
+
     def load_structural_element_types(self, line_id: int, data: dict):
 
         element_type = None
         if "structural_element_type" in data.keys():
             element_type = data["structural_element_type"]
 
-        self.preprocessor.set_structural_element_type_by_lines(   
-                                                                line_id, 
-                                                                element_type  
-                                                               )
+            self.preprocessor.set_structural_element_type_by_lines( 
+                                                                   line_id, 
+                                                                   element_type  
+                                                                   )
+
 
     def load_capped_ends(self, line_id: int, data: dict):
 
@@ -417,6 +421,7 @@ class LoadProject:
                                                     capped_end, 
                                                     )
 
+
     def load_force_offsets(self, line_id: int, data: dict):
 
         # force_offset = None
@@ -427,6 +432,7 @@ class LoadProject:
                                                                             line_id, 
                                                                             force_offset, 
                                                                         )
+
 
     def load_wall_formulations(self, line_id: int, data: dict):
 
@@ -439,6 +445,7 @@ class LoadProject:
                                                                                 wall_formulation, 
                                                                                )
 
+
     def load_beam_xaxis_rotations(self, line_id: int, data: dict):
 
         xaxis_beam_rotation = 0
@@ -450,8 +457,6 @@ class LoadProject:
                                                             xaxis_beam_rotation, 
                                                             )
 
-    def set_element_properties(self):
-        pass
 
     def load_imported_table_data_from_file(self):
         imported_tables = app().pulse_file.load_imported_table_data_from_file()
@@ -459,6 +464,7 @@ class LoadProject:
             app().project.model.properties.acoustic_imported_tables = imported_tables["acoustic"]
         if "structural" in imported_tables.keys():
             app().project.model.properties.structural_imported_tables = imported_tables["structural"]
+
 
     def load_mesh_setup_from_file(self):
 
@@ -468,6 +474,7 @@ class LoadProject:
 
         if "mesher setup" in project_setup.keys():
             self.preprocessor.mesh.set_mesher_setup(mesh_setup=project_setup["mesher setup"])
+
 
     def load_inertia_load_setup(self):
 
@@ -481,6 +488,7 @@ class LoadProject:
         self.project.model.set_gravity_vector(gravity)
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
 
+
     def load_analysis_file(self):
 
         analysis_setup = app().pulse_file.load_analysis_file()
@@ -490,6 +498,7 @@ class LoadProject:
 
         self.model.set_frequency_setup(analysis_setup)
         self.model.set_global_damping(analysis_setup)
+
 
     def get_psd_related_lines(self):
 
@@ -502,6 +511,7 @@ class LoadProject:
                 psd_lines[psd_name].append(line_id)
 
         return psd_lines
+
 
     def get_cross_sections_from_file(self):
         """ This method returns a dictionary of already applied cross-sections.
@@ -525,12 +535,12 @@ class LoadProject:
                 else:
                     continue
 
+                if section_type in ["Valve", "Expansion joint", "Generic beam section"]:
+                    continue
+
                 if "section_parameters" in data.keys():
                     section_parameters = data["section_parameters"]
                 else:
-                    continue
-
-                if section_type in ["Valve", "Expansion joint", "Generic beam section"]:
                     continue
 
                 if str(section_parameters) not in parameters_to_line_id.keys():
