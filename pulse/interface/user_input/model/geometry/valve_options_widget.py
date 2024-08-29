@@ -53,6 +53,7 @@ class ValveOptionsWidget(QWidget):
         kwargs["thickness"] = 0
         kwargs["extra_info"] = dict(
             structural_element_type = "valve",
+            cross_section_info = {"section_type_label" : "Valve"},
             valve_info = deepcopy(self.valve_info),
         )
         return kwargs

@@ -327,7 +327,7 @@ class LoadProject:
 
     def load_valves(self, line_id: int, data: dict):
 
-        if "valve_name" in data.keys():
+        if "valve_info" in data.keys():
 
             valve_info = data["valve_info"]
             valve_info["valve_length"] = self.properties.get_line_length(line_id)
