@@ -545,7 +545,8 @@ class GeometryDesignerWidget(QWidget):
         kwargs = current_widget.get_parameters()
         if kwargs is None:
             return
-        kwargs["extra_info"]["material_info"] = self.current_material_info
+        if self.current_material_info is not None:
+            kwargs["extra_info"]["material_info"] = self.current_material_info
         return kwargs
 
     def _update_section_of_selected_structures(self):
