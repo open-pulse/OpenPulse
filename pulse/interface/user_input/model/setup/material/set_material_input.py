@@ -29,7 +29,7 @@ class SetMaterialInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
 
-        self.attribution_type_callback()
+        self.selection_callback()
 
         while self.keep_window_open:
             self.exec()
@@ -114,6 +114,8 @@ class SetMaterialInput(QDialog):
 
             self.lineEdit_selected_id.setEnabled(True)
             self.comboBox_attribution_type.setCurrentIndex(1)
+        else:
+            self.lineEdit_selected_id.setText("")
 
         self.comboBox_attribution_type.blockSignals(False)
 
