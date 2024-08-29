@@ -467,6 +467,9 @@ class MainWindow(QMainWindow):
 
         self.selection_changed.emit()
     
+    def clear_selection(self):
+        self.set_selection()
+    
     def list_selected_nodes(self) -> list[int]:
         return list(self.selected_nodes)
 
@@ -636,6 +639,7 @@ class MainWindow(QMainWindow):
         self.export_geometry()
 
     def action_geometry_workspace_callback(self):
+        self.clear_selection()
         self._configure_visualization(
             points=True, tubes=True,
             acoustic_symbols=self.visualization_filter.acoustic_symbols,
