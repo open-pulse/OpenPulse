@@ -3,7 +3,14 @@ from vtkmodules.vtkCommonCore import vtkObject, vtkLogger
 import qdarktheme
 import logging
 
+from pulse import USER_PATH
 from pulse.interface.application import Application
+
+
+def custom_exception_hooks(exc_type, exc_value, exc_traceback):
+    # Logs unhandled errors for future checks 
+    logging.error("Unhandled error", exc_info=(exc_type, exc_value, exc_traceback))
+sys.excepthook = custom_exception_hooks
 
 
 def configure_logs():
@@ -18,7 +25,7 @@ def configure_logs():
     are shown to users.
     """
     file_formatter = logging.Formatter("%(asctime)s \t | %(levelname)s \t | %(message)s")
-    file_handler = logging.FileHandler("logs.log", "w+")
+    file_handler = logging.FileHandler(USER_PATH / ".pulse.log", "w+")
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_formatter)
 
