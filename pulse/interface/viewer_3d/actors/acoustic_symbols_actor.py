@@ -238,7 +238,10 @@ class AcousticElementsSymbolsActor(SymbolsActorBase):
 
             if property == "perforated_plate":
 
-                element = app().project.preprocessor.structural_elements[element_id]
+                if element_id in app().project.preprocessor.structural_elements.keys():
+                    element = app().project.preprocessor.structural_elements[element_id]
+                else:
+                    return list()
             
                 pos = element.center_coordinates
                 rot = element.section_rotation_xyz_undeformed

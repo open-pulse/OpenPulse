@@ -30,9 +30,12 @@ class Mesh:
         self.geometry_points = list()
 
         self.elements_to_line = dict()
-        self.line_to_elements = dict()
+        self.line_to_elements = defaultdict(list)
+        self.gmsh_elements_from_line = dict()
 
         self.line_elements = defaultdict(list)
+
+        self.lines_mapping = dict()
 
     def set_element_size(self, element_size):
         self.element_size = element_size
@@ -82,6 +85,7 @@ class Mesh:
         self._set_gmsh_options()
         self._process_mesh()
         self._map_lines_to_elements()
+        self._concatenate_line_elements()
         self._save_geometry_points()
         self._finalize_gmsh()
     
@@ -105,10 +109,13 @@ class Mesh:
         ----------
 
         """
+
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(self.length_unit) 
         geometry_handler.process_pipeline()
         geometry_handler.create_geometry()
+
+        self.lines_mapping = geometry_handler.lines_mapping
 
     def _set_gmsh_options(self):
         """
@@ -175,21 +182,20 @@ class Mesh:
 
         """
         # t0 = time()
+        self.gmsh_elements_from_line.clear()
+        # self.elements_to_line.clear()
+        for dim, tag in gmsh.model.getEntities(1):
 
-        self.line_to_elements.clear()
-        self.elements_to_line.clear()
-        for dim, line_tag in gmsh.model.getEntities(1):
+            _, list_line_elements, _ = gmsh.model.mesh.getElements(dim, tag)
+            if list_line_elements:
 
-            elements_of_entity = gmsh.model.mesh.getElements(dim, line_tag)
+                line_elements = list_line_elements[0]
+                mapped_element_ids = [self.map_elements[element] for element in line_elements]
+                # mapped_element_ids = np.array([self.map_elements[element] for element in line_elements], dtype=int)
+                self.gmsh_elements_from_line[tag] = mapped_element_ids
 
-            if elements_of_entity and elements_of_entity[1]:
-
-                elements_of_entity = elements_of_entity[1][0]
-                list_elements = np.array([self.map_elements[element] for element in elements_of_entity], dtype=int)
-                self.line_to_elements[line_tag] = list_elements
-
-                for element_id in list_elements:
-                    self.elements_to_line[element_id] = line_tag
+                # for element_id in list_elements:
+                #     self.elements_to_line[element_id] = tag
 
                 # Element
                 # _, line_element_indexes, line_connectivity = gmsh.model.mesh.getElements(dim, line_tag) 
@@ -215,13 +221,34 @@ class Mesh:
 
                 # self.lines_from_model[line_tag] = new_line
 
-        self.lines_from_model = list(self.line_to_elements.keys())
+        # self.lines_from_model = list(self.line_to_elements.keys())
 
         # for line_id, elements in self.line_to_elements.items():
         #     print(line_id, len(elements))
 
         # dt = time() - t0
         # print(f"Time to process : {dt}")
+
+        print(self.gmsh_elements_from_line)
+
+    def _concatenate_line_elements(self):
+
+        """
+        """
+        print(self.lines_mapping)
+        
+        self.line_to_elements.clear()
+        self.elements_to_line.clear()
+        
+        for tag, line_elements in self.gmsh_elements_from_line.items():
+            line_id = self.lines_mapping[tag]
+            self.line_to_elements[line_id].extend(line_elements)
+
+        for _line_id, element_ids in self.line_to_elements.items():
+            for element_id in element_ids:
+                self.elements_to_line[element_id] = _line_id
+
+        self.lines_from_model = list(self.line_to_elements.keys())
 
     def _save_geometry_points(self):
         self.geometry_points.clear()

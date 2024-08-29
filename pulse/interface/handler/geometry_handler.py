@@ -5,13 +5,15 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
 from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam, ExpansionJoint
-from opps.model import LinearStructure, SimpleCurve
+from opps.model import SimpleCurve
 
 import gmsh
 from math import dist
 import os
 import numpy as np
 from collections import defaultdict
+from pprint import pprint
+
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -33,7 +35,8 @@ class GeometryHandler:
         self.merged_points = list()
         self.points_coords = dict()
         self.points_coords_cache = dict()
-        self.valve_lines = dict()
+        self.lines_mapping = dict()
+        self.valve_points_to_ignore = dict()
         self.pipeline = self.project.pipeline
 
     def set_pipeline(self, pipeline):
@@ -71,7 +74,8 @@ class GeometryHandler:
                 start_coords = gmsh.model.occ.addPoint(*start_coords)
                 end_coords = gmsh.model.occ.addPoint(*end_coords)
 
-                gmsh.model.occ.addLine(start_coords, end_coords)
+                line_tag = gmsh.model.occ.addLine(start_coords, end_coords)
+                self.lines_mapping[line_tag] = structure.tag
 
             elif isinstance(structure, Valve):
 
@@ -109,38 +113,37 @@ class GeometryHandler:
                     point_E = gmsh.model.occ.addPoint(*coords_E, meshSize=lc)
                     point_F = gmsh.model.occ.addPoint(*coords_F, meshSize=lc)
 
-                line = gmsh.model.occ.addLine(point_A, point_B)
+                # line_tag = gmsh.model.occ.addLine(point_A, point_B)
+                # self.lines_mapping[line_tag] = structure.tag
 
-                # self.valve_lines = dict()
-                # lines = list()
-                # if "flange_points" in valve_points.keys():
-                #     if "orifice_plate_points" in valve_points.keys():
-                #         lines.append(gmsh.model.occ.addLine(point_A, point_C))
-                #         lines.append(gmsh.model.occ.addLine(point_C, point_E))
-                #         lines.append(gmsh.model.occ.addLine(point_E, point_F))
-                #         lines.append(gmsh.model.occ.addLine(point_F, point_D))
-                #         lines.append(gmsh.model.occ.addLine(point_D, point_B))
+                lines = list()
+                if "flange_points" in valve_points.keys():
+                    if "orifice_plate_points" in valve_points.keys():
+                        lines.append(gmsh.model.occ.addLine(point_A, point_C))
+                        lines.append(gmsh.model.occ.addLine(point_C, point_E))
+                        lines.append(gmsh.model.occ.addLine(point_E, point_F))
+                        lines.append(gmsh.model.occ.addLine(point_F, point_D))
+                        lines.append(gmsh.model.occ.addLine(point_D, point_B))
 
-                #         self.valve_lines["lines"] = lines
-                #         self.valve_lines["inside_points"] = (point_C, point_D, point_E, point_F)
+                        self.valve_points_to_ignore[structure.tag] = (point_C, point_D, point_E, point_F)
 
-                #         # fuse_1 = gmsh.model.occ.fragment([(1, line_1)], [(1, line_2)], removeObject=True, removeTool=True)
-                #         # fuse_2 = gmsh.model.occ.fragment(fuse_1[0], [(1, line_3)], removeObject=True, removeTool=True)
-                #         # fuse_3 = gmsh.model.occ.fragment(fuse_2[0], [(1, line_4)], removeObject=True, removeTool=True)
-                #         # fuse_4 = gmsh.model.occ.fragment(fuse_3[0], [(1, line_5)], removeObject=True, removeTool=True)
+                    else:
+                        lines.append(gmsh.model.occ.addLine(point_A, point_C))
+                        lines.append(gmsh.model.occ.addLine(point_C, point_D))
+                        lines.append(gmsh.model.occ.addLine(point_D, point_B))
+                        self.valve_points_to_ignore[structure.tag] = (point_C, point_D)
 
-                #     else:
-                #         gmsh.model.occ.addLine(point_A, point_C)
-                #         gmsh.model.occ.addLine(point_C, point_D)
-                #         gmsh.model.occ.addLine(point_D, point_B) 
+                elif "orifice_plate_points" in valve_points.keys():
+                    lines.append(gmsh.model.occ.addLine(point_A, point_E))
+                    lines.append(gmsh.model.occ.addLine(point_E, point_F))
+                    lines.append(gmsh.model.occ.addLine(point_F, point_B))
+                    self.valve_points_to_ignore[structure.tag] = (point_E, point_F)
 
-                # elif "orifice_plate_points" in valve_points.keys():
-                #     gmsh.model.occ.addLine(point_A, point_E)
-                #     gmsh.model.occ.addLine(point_E, point_F)
-                #     gmsh.model.occ.addLine(point_F, point_B)
+                else:
+                    lines.append(gmsh.model.occ.addLine(point_A, point_B))
 
-                # else:
-                #     gmsh.model.occ.addLine(point_A, point_B)
+                for line_tag in lines:
+                    self.lines_mapping[line_tag] = structure.tag
 
             elif isinstance(structure, SimpleCurve):
 
@@ -170,7 +173,8 @@ class GeometryHandler:
                 end_coords = gmsh.model.occ.addPoint(*end_coords)
                 center_point = gmsh.model.occ.addPoint(*center_coords)
 
-                gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
+                line_tag = gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
+                self.lines_mapping[line_tag] = structure.tag
 
         gmsh.model.occ.synchronize()
 
@@ -232,26 +236,25 @@ class GeometryHandler:
         lines_data = app().pulse_file.read_line_properties_from_file()
 
         if isinstance(lines_data, dict):
-            for line_id, data in lines_data.items():
+            for _line_id, data in lines_data.items():
 
                 data : dict
-                # if "link_type" in data.keys():
-                #     continue
+                line_id = int(_line_id)
 
                 structural_element_type = data.get("structural_element_type", None)
                 structure = None
 
                 if structural_element_type in ["pipe_1", None]:
-                    structure = self._process_pipe(data)
+                    structure = self._process_pipe(line_id, data)
 
                 elif structural_element_type == "beam_1":
-                    structure = self._process_beam(data)
+                    structure = self._process_beam(line_id, data)
 
                 elif structural_element_type == "valve":
-                    structure = self._process_valve(data)
+                    structure = self._process_valve(line_id, data)
 
                 elif structural_element_type == "expansion_joint":
-                    structure = self._process_expansion_joint(data)
+                    structure = self._process_expansion_joint(line_id, data)
 
                 if "material_id" in data.keys():
                     structure.extra_info["material_info"] = data['material_id']
@@ -266,7 +269,7 @@ class GeometryHandler:
             self.pipeline.merge_coincident_points()
             app().main_window.update_plots()
 
-    def _process_pipe(self, data: dict):
+    def _process_pipe(self, line_id: int, data: dict):
 
         if "section_parameters" in data.keys():
             section_parameters = data["section_parameters"]
@@ -318,6 +321,8 @@ class GeometryHandler:
         else:
             return
 
+        structure.tag = line_id
+
         section_info = {
                         "section_type_label" : data["section_type_label"],
                         "section_parameters" : section_parameters
@@ -331,7 +336,7 @@ class GeometryHandler:
 
         return structure
 
-    def _process_beam(self, data: dict):
+    def _process_beam(self, line_id: int, data: dict):
 
         if "section_parameters" not in data.keys():
             return
@@ -403,6 +408,8 @@ class GeometryHandler:
         else:
             return
 
+        structure.tag = line_id
+
         section_properties = data["section_properties"]
         section_info = {
                         "section_type_label" : section_type_label,
@@ -415,7 +422,7 @@ class GeometryHandler:
 
         return structure
 
-    def _process_valve(self, data: dict):
+    def _process_valve(self, line_id: int, data: dict):
 
         start = Point(*data['start_coords'])
         end = Point(*data['end_coords'])
@@ -430,6 +437,8 @@ class GeometryHandler:
                           thickness = t
                           )
 
+        structure.tag = line_id
+
         section_info = {"section_type_label" : "Valve"}
         structure.extra_info["cross_section_info"] = section_info
 
@@ -438,7 +447,7 @@ class GeometryHandler:
 
         return structure
 
-    def _process_expansion_joint(self, data: dict):
+    def _process_expansion_joint(self, line_id: int, data: dict):
 
         start = Point(*data['start_coords'])
         end = Point(*data['end_coords'])
@@ -452,6 +461,8 @@ class GeometryHandler:
                                    diameter = diameter,
                                    thickness = 0.05*diameter
                                    )
+
+        structure.tag = line_id
 
         section_info = {"section_type_label" : "Expansion joint"}
         structure.extra_info["cross_section_info"] = section_info
@@ -780,7 +791,6 @@ class GeometryHandler:
 
             structures_data[tag] = pipeline_data
 
-            print(tag, list(structure.extra_info.keys()))
             if "cross_section_info" in structure.extra_info.keys():
                 section_info[tag] = structure.extra_info["cross_section_info"]
 
@@ -812,7 +822,6 @@ class GeometryHandler:
                     app().project.model.properties._set_line_property(key, values, line_ids=line_id)
 
             for line_id, cross_data in section_info.items():
-                print(line_id, cross_data)
                 app().project.model.properties._set_multiple_line_properties(cross_data, line_ids=line_id)
 
             for element_type, line_ids in element_type_info.items():
