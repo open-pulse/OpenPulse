@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1045</width>
-     <height>29</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -202,8 +202,8 @@
    <addaction name="action_isometric_view"/>
    <addaction name="action_zoom"/>
    <addaction name="separator"/>
-   <addaction name="action_show_mesh_nodes"/>
-   <addaction name="action_show_geometry_points"/>
+   <addaction name="action_show_mesh_data"/>
+   <addaction name="action_show_geometry_data"/>
    <addaction name="action_show_lines"/>
    <addaction name="action_show_tubes"/>
    <addaction name="action_show_symbols"/>
@@ -737,7 +737,7 @@
     <string>About OpenPulse</string>
    </property>
   </action>
-  <action name="action_show_mesh_nodes">
+  <action name="action_show_mesh_data">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -749,10 +749,10 @@
      <normaloff>../icons/common/show_mesh_points.png</normaloff>../icons/common/show_mesh_points.png</iconset>
    </property>
    <property name="text">
-    <string>Show Mesh Nodes</string>
+    <string>Show Mesh Data</string>
    </property>
    <property name="toolTip">
-    <string>Show Mesh Nodes</string>
+    <string>Show Mesh Data</string>
    </property>
   </action>
   <action name="action_show_lines">
@@ -910,7 +910,7 @@
     <string>Pulsation suppression device editor</string>
    </property>
   </action>
-  <action name="action_show_geometry_points">
+  <action name="action_show_geometry_data">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -919,7 +919,10 @@
      <normaloff>../icons/common/show_geometry_points.png</normaloff>../icons/common/show_geometry_points.png</iconset>
    </property>
    <property name="text">
-    <string>Show Geometry Points</string>
+    <string>Show Geometry Data</string>
+   </property>
+   <property name="toolTip">
+    <string>Show Geometry Data</string>
    </property>
   </action>
   <action name="action_plot_default_color">

@@ -120,8 +120,7 @@ class Project:
         self.initial_load_project_actions()
         app().loader.load_mesh_dependent_properties()
 
-        self.enhance_pipe_sections_appearance()
-
+        # self.enhance_pipe_sections_appearance()
         self.preprocessor.process_all_rotation_matrices()
         self.preprocessor.check_disconnected_lines()
 

@@ -208,7 +208,6 @@ class Mesh:
 
         """
         """
-        print(self.lines_mapping)
         
         self.elements_from_line.clear()
         self.line_from_element.clear()
@@ -230,9 +229,6 @@ class Mesh:
         for tag, line_nodes in self.nodes_from_gmsh_lines.items():
             line_id = self.lines_mapping[tag]
             self.nodes_from_line[line_id].extend(line_nodes)
-
-        # for tag, nodes in self.nodes_from_line.items():
-        #     print(tag, nodes)
 
     def _save_geometry_points(self):
         self.geometry_points.clear()

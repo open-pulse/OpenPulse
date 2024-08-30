@@ -528,7 +528,7 @@ class SetCrossSectionInput(QDialog):
         plt.close()
         self.complete = True
         app().pulse_file.write_line_properties_in_file()
-        app().project.enhance_pipe_sections_appearance()
+        # app().project.enhance_pipe_sections_appearance()
 
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
