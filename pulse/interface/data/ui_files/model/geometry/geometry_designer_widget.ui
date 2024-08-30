@@ -450,6 +450,9 @@
         <property name="shortcut">
          <string>Ctrl+Return</string>
         </property>
+        <property name="status" stdset="0">
+         <string>main</string>
+        </property>
        </widget>
       </item>
      </layout>

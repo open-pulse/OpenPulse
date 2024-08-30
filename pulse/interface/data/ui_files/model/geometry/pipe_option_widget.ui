@@ -22,6 +22,9 @@
      <property name="text">
       <string>Set Section</string>
      </property>
+     <property name="status" stdset="0">
+      <string>danger</string>
+     </property>
     </widget>
    </item>
    <item>

@@ -10,6 +10,7 @@ from opps.io.pcf.pcf_exporter import PCFExporter
 from opps.io.pcf.pcf_handler import PCFHandler
 
 from molde.render_widgets import CommonRenderWidget
+from molde import stylesheets
 
 from pulse import *
 from pulse.interface.formatters import icons
@@ -86,6 +87,7 @@ class MainWindow(QMainWindow):
         self.cache_indexes = list()
 
     def _load_stylesheets(self):
+        return
         stylesheets = list()
         common_dir = QSS_DIR / "common_theme"
         
@@ -940,7 +942,7 @@ class MainWindow(QMainWindow):
         self.update_themes_in_file(theme)
         if self.interface_theme == theme:
             return
-        
+
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
@@ -950,7 +952,8 @@ class MainWindow(QMainWindow):
             icon_color = QColor("#1a73e8")
     
         self.interface_theme = theme
-        qdarktheme.setup_theme(theme, custom_colors=self.custom_colors)
+        stylesheets.set_theme(theme)
+        # qdarktheme.setup_theme(theme, custom_colors=self.custom_colors)
         self.theme_changed.emit(theme)
         
         self.action_set_light_theme.setDisabled(theme == "light")
