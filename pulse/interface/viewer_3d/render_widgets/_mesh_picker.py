@@ -123,7 +123,7 @@ class MeshPicker:
         picker.AreaPick(x0, y0, x1, y1, self.mesh_render_widget.renderer)
         extractor.SetFrustum(picker.GetFrustum())
 
-        elements_to_line = app().project.model.mesh.elements_to_line
+        elements_to_line = app().project.model.mesh.line_from_element
         picked_lines = set()
 
         for element, bound in self.line_bounds.items():
@@ -162,7 +162,7 @@ class MeshPicker:
         if element < 0:
             return -1
 
-        line_to_elements = app().project.model.mesh.line_to_elements
+        line_to_elements = app().project.model.mesh.elements_from_line
         for i, entity_elements in line_to_elements.items():
             if element in entity_elements:
                 return i

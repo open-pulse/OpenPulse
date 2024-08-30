@@ -71,6 +71,13 @@ class ModelProperties:
         self.global_properties["material", "global"] = DEFAULT_MATERIAL
         self.global_properties["fluid", "global"] = DEFAULT_FLUID
 
+    def get_next_line_id(self):
+        line_ids = list(self.line_properties.keys())
+        if line_ids:
+            return max(line_ids) + 1
+        else:
+            return 1
+
     def get_material(self, **kwargs) -> Material:
         return self._get_property("material", **kwargs)
 

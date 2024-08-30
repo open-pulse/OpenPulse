@@ -74,6 +74,8 @@ class MainWindow(QMainWindow):
         self.pulse_file = None
         self.input_ui = None
 
+        self.current_plot_type = None
+
         self.model_and_analysis_setup_widget = None
         self.results_viewer_wigdet = None
 
@@ -137,8 +139,8 @@ class MainWindow(QMainWindow):
         self.action_set_light_theme : QAction
         self.action_save_project : QAction
         self.action_save_project_as : QAction
-        self.action_show_mesh_nodes : QAction
-        self.action_show_geometry_points : QAction
+        self.action_show_mesh_data : QAction
+        self.action_show_geometry_data : QAction
         self.action_show_lines : QAction
         self.action_show_tubes : QAction
         self.action_show_symbols : QAction
@@ -426,6 +428,7 @@ class MainWindow(QMainWindow):
 
     # public
     def update_plots(self):
+        self.project.enhance_pipe_sections_appearance()
         self.geometry_widget.update_plot(reset_camera=True)
         self.mesh_widget.update_plot(reset_camera=True)
         self.results_widget.update_plot(reset_camera=True)
@@ -496,18 +499,21 @@ class MainWindow(QMainWindow):
 
     def plot_lines(self):
         self._configure_visualization(points=True, lines=True)
+        self.current_plot_type = "lines_plot"
 
     def plot_lines_with_cross_sections(self):
         self._configure_visualization(
             points=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
         )
+        self.current_plot_type = "lines_with_cross_section_plot"
 
     def plot_mesh(self):
         self._configure_visualization(
             nodes=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
         )
+        self.current_plot_type = "mesh_plot"
     
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
@@ -590,8 +596,8 @@ class MainWindow(QMainWindow):
         kwargs.setdefault("color_mode", self.visualization_filter.color_mode)
 
         self.visualization_filter = VisualizationFilter(*args, **kwargs)
-        self.action_show_geometry_points.setChecked(self.visualization_filter.points)
-        self.action_show_mesh_nodes.setChecked(self.visualization_filter.nodes)
+        self.action_show_geometry_data.setChecked(self.visualization_filter.points)
+        self.action_show_mesh_data.setChecked(self.visualization_filter.nodes)
         self.action_show_lines.setChecked(self.visualization_filter.lines)
         self.action_show_tubes.setChecked(self.visualization_filter.tubes)
         symbols = self.visualization_filter.acoustic_symbols | self.visualization_filter.structural_symbols
@@ -601,8 +607,8 @@ class MainWindow(QMainWindow):
 
     def _update_visualization(self):
         symbols = self.action_show_symbols.isChecked()
-        self.visualization_filter.nodes = self.action_show_mesh_nodes.isChecked()
-        self.visualization_filter.points = self.action_show_geometry_points.isChecked()
+        self.visualization_filter.nodes = self.action_show_mesh_data.isChecked()
+        self.visualization_filter.points = self.action_show_geometry_data.isChecked()
         self.visualization_filter.tubes = self.action_show_tubes.isChecked()
         self.visualization_filter.lines = self.action_show_lines.isChecked()
         self.visualization_filter.transparent = self.action_show_transparent.isChecked()
@@ -707,7 +713,7 @@ class MainWindow(QMainWindow):
         self.input_ui.reset_project()
 
     def action_plot_geometry_editor_callback(self):
-        self.action_show_mesh_nodes.setChecked(True)
+        self.action_show_mesh_data.setChecked(True)
         self.action_show_lines.setChecked(True)
         self.action_show_tubes.setChecked(True)
         self.action_show_symbols.setChecked(True)
@@ -843,18 +849,18 @@ class MainWindow(QMainWindow):
     def action_about_openpulse_callback(self):
         AboutOpenPulseInput()
 
-    def action_show_mesh_nodes_callback(self, cond):
-        self.action_show_geometry_points.blockSignals(True)
-        status = self.action_show_geometry_points.isChecked()
-        self.action_show_geometry_points.setChecked(status and not cond)
-        self.action_show_geometry_points.blockSignals(False)
+    def action_show_mesh_data_callback(self, cond):
+        self.action_show_geometry_data.blockSignals(True)
+        status = self.action_show_geometry_data.isChecked()
+        self.action_show_geometry_data.setChecked(status and not cond)
+        self.action_show_geometry_data.blockSignals(False)
         self._update_visualization()
     
-    def action_show_geometry_points_callback(self, cond):
-        self.action_show_mesh_nodes.blockSignals(True)
-        status = self.action_show_mesh_nodes.isChecked()
-        self.action_show_mesh_nodes.setChecked(status and not cond)
-        self.action_show_mesh_nodes.blockSignals(False)
+    def action_show_geometry_data_callback(self, cond):
+        self.action_show_mesh_data.blockSignals(True)
+        status = self.action_show_mesh_data.isChecked()
+        self.action_show_mesh_data.setChecked(status and not cond)
+        self.action_show_mesh_data.blockSignals(False)
         self._update_visualization()
 
     def action_show_lines_callback(self, cond):

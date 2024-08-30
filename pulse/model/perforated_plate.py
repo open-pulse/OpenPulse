@@ -12,7 +12,6 @@ class PerforatedPlate:
         
         self.hole_diameter = pp_data.get("hole_diameter", None)
         self.thickness = pp_data.get("plate_thickness", None)
-        print(self.thickness)
         self.porosity = pp_data.get("area_porosity", None)
         self.linear_discharge_coefficient = pp_data.get("discharge_coefficient", 1)
         self.single_hole = pp_data.get("single_hole", False)

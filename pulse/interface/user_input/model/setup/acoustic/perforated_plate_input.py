@@ -1,5 +1,5 @@
 
-from PyQt5.QtWidgets import QComboBox, QDialog, QCheckBox, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -45,7 +45,9 @@ class PerforatedPlateInput(QDialog):
         self.load_elements_info()
 
         self.update_valve_line_id()
-        self.exec()
+
+        if self.keep_window_open:
+            self.exec()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -56,6 +58,7 @@ class PerforatedPlateInput(QDialog):
     def _initialize(self):
 
         self.complete = False
+        self.keep_window_open = True
 
         self.imported_values = None
         self.table_path = None
@@ -83,9 +86,13 @@ class PerforatedPlateInput(QDialog):
 
         # QLabel
         self.label_selection : QLabel
+        self.label_area_porosity: QLabel
         self.label_non_linear_discharge_coefficient : QLabel
         self.label_correction_factor : QLabel
         self.label_bias_flow_coefficient : QLabel
+
+        # QFrame
+        self.selection_frame: QFrame
 
         # QLineEdit
         self.lineEdit_element_id : QLineEdit
@@ -133,6 +140,7 @@ class PerforatedPlateInput(QDialog):
         self.checkBox_bias_flow_coefficient.toggled.connect(self.checkBoxEvent_bias)
         self.checkBox_nonlinear_discharge_coefficient.toggled.connect(self.checkBoxEvent_nonlinear)
         self.checkBox_dimensionless_impedance.toggled.connect(self.checkBoxEvent_dimensionless)
+        self.checkBox_single_hole.stateChanged.connect(self.single_hole_perforated_plate_callback)
         #
         self.comboBox_perforated_plate_model.currentIndexChanged.connect(self.perforated_plate_model_update)
         self.comboBox_parameter_to_plot.currentIndexChanged.connect(self.parameter_to_plot_callback)
@@ -163,16 +171,22 @@ class PerforatedPlateInput(QDialog):
             text = ", ".join([str(i) for i in selected_elements])
             self.lineEdit_element_id.setText(text)
 
+            self.single_hole_perforated_plate_callback()
+
             if len(selected_elements) == 1:
 
                 element_id = selected_elements[0]                
                 pp_data = self.properties._get_property("perforated_plate", element_id=element_id)
-                if pp_data is not None:
+                if isinstance(pp_data, dict):
 
                     self.reset_input_fields()
                     
                     self.lineEdit_hole_diameter.setText(str(pp_data["hole_diameter"]))
                     self.lineEdit_plate_thickness.setText(str(pp_data["thickness"]))
+
+                    if pp_data["single_hole"]:
+                        self.checkBox_single_hole.setChecked(pp_data["single_hole"])
+
                     self.lineEdit_area_porosity.setText(str(pp_data["porosity"]))
 
                     self.comboBox_perforated_plate_model.setCurrentIndex(pp_data["type"])
@@ -275,6 +289,37 @@ class PerforatedPlateInput(QDialog):
         self.checkBoxEvent_bias()
         self.checkBoxEvent_dimensionless()
 
+    def get_area_porosity(self, element_id: int):
+        element = self.preprocessor.structural_elements[element_id]
+        if element.element_type == "pipe_1":
+            if element.cross_section is not None:
+                cross_section = element.cross_section
+                d_in = cross_section.inner_diameter
+                if self.lineEdit_hole_diameter.text() != "":
+                    lineEdit = self.lineEdit_hole_diameter
+                    stop, hole_diameter = self.check_input_parameters(lineEdit, "Hole diameter")
+                    if stop:
+                        return None
+
+                    area_porosity = (hole_diameter / d_in)**2
+                    return area_porosity
+
+    def single_hole_perforated_plate_callback(self):
+        key = self.checkBox_single_hole.isChecked()
+        self.label_area_porosity.setDisabled(key)
+        self.lineEdit_area_porosity.setDisabled(key)
+        if key:
+            selected_elements = app().main_window.list_selected_elements()
+            if selected_elements:
+                if len(selected_elements) == 1:
+                    area_porosity = self.get_area_porosity(selected_elements[0])
+                    if isinstance(area_porosity, float):
+                        self.lineEdit_area_porosity.setText(str(round(area_porosity, 6)))
+                    else:
+                        self.lineEdit_area_porosity.setText("")
+                else:
+                    self.lineEdit_area_porosity.setText("multiple selection")
+
     def perforated_plate_model_update(self):
 
         self.lineEdit_plate_thickness.setDisabled(False)
@@ -311,28 +356,38 @@ class PerforatedPlateInput(QDialog):
             self.checkBox_single_hole.setDisabled(True)
             self.lineEdit_hole_diameter.setFocus()
 
-    def check_input_parameters(self, string, label, not_None = False):
-        title = "INPUT ERROR"
-        if string != "":
+    def check_input_parameters(self, lineEdit: QLineEdit, label: str, _float=True):
+
+        message = ""
+        title = f"Invalid entry to the '{label}'"
+        str_value = lineEdit.text()
+
+        if str_value != "":
+
             try:
-                value = float(string)
-                if value < 0:
-                    message = f"The {label} must be a positive number."
-                    PrintMessageInput([window_title_1, title, message])
-                    return True
+
+                str_value = str_value.replace(",", ".")
+                if _float:
+                    value = float(str_value)
                 else:
-                    self.value = value
-            except Exception:
-                message = f"You have typed an invalid value to the {label}."
-                PrintMessageInput([window_title_1, title, message])
-                return True
-        elif not_None:
-            message = f"The {label} must be given."
-            PrintMessageInput([window_title_1, title, message])
-            return True
+                    value = int(str_value) 
+
+                if value <= 0:
+                    message = f"You cannot input a non-positive value to the '{label}'."
+
+            except Exception as _log_error:
+                message = f"You have typed an invalid value to the '{label}' input field."
+                message += "The input value should be a positive float number.\n\n"
+                message += f"{str(_log_error)}"
         else:
-            self.value = None
-        return False
+            message = f"An empty entry has been detected at the '{label}' input field. " 
+            message += "You should to enter a positive value to proceed."
+
+        if message != "":
+            PrintMessageInput([window_title_1, title, message])
+            return True, value
+        else:
+            return False, value
 
     def check_svalues(self):
         if self.lineEdit_impedance_real.text() != "":
@@ -482,19 +537,20 @@ class PerforatedPlateInput(QDialog):
                 elements_lengths.append(element.length)
 
             # Check hole diameter
-            if self.check_input_parameters(self.lineEdit_hole_diameter.text(), 'hole_diameter', True):
+            stop, hole_diameter = self.check_input_parameters(self.lineEdit_hole_diameter, 'Hole diameter')
+            if stop:
                 self.lineEdit_hole_diameter.setFocus()
                 return True
-            else:
-                self.min_diameter = min(elements_diameter)
-                if self.value > self.min_diameter:
-                    title = "Invalid hole diameter value"
-                    message = "The hole diameter must be less than element inner diameter."
-                    PrintMessageInput([window_title_1, title, message])
-                    self.lineEdit_hole_diameter.setFocus()
-                    return True
-                self.perforated_plate_inputs['hole_diameter'] = self.value
-            
+
+            if hole_diameter > min(elements_diameter):
+                title = "Invalid hole diameter value"
+                message = "The hole diameter must be less than element inner diameter."
+                PrintMessageInput([window_title_1, title, message])
+                self.lineEdit_hole_diameter.setFocus()
+                return True
+
+            self.perforated_plate_inputs['hole_diameter'] = hole_diameter
+
             if self.perforated_plate_inputs['type'] == 2:
                 self.perforated_plate_inputs['plate_thickness'] = round(min(elements_lengths), 6)
                 self.perforated_plate_inputs['area_porosity'] = 0
@@ -507,74 +563,83 @@ class PerforatedPlateInput(QDialog):
             else:
 
                 # Check plate thickness
-                if self.check_input_parameters(self.lineEdit_plate_thickness.text(), 'plate thickness', True):
+                stop, plate_thickness = self.check_input_parameters(self.lineEdit_plate_thickness, 'Plate thickness')
+                if stop:
                     self.lineEdit_plate_thickness.setFocus()
                     return True
-                else:
-                    for length in elements_lengths:
-                        if np.abs(length - self.value)/length > 0.01:
-                            title = "Plate thickness different from element length"
-                            message = "If possible, use plate thickness equal to the element length for better precision."
-                            PrintMessageInput([window_title_2, title, message])
-                            self.lineEdit_plate_thickness.setFocus()
-                    self.perforated_plate_inputs['plate_thickness'] = self.value
+
+                for length in elements_lengths:
+                    if np.abs(length - plate_thickness)/length > 0.01:
+                        title = "Plate thickness different from element length"
+                        message = "If possible, use plate thickness equal to the element length for better precision."
+                        PrintMessageInput([window_title_2, title, message])
+                        self.lineEdit_plate_thickness.setFocus()
+
+                self.perforated_plate_inputs['plate_thickness'] = plate_thickness
 
                 # Check area porosity
-                if self.check_input_parameters(self.lineEdit_area_porosity.text(), 'area porosity', True):
-                    self.lineEdit_area_porosity.setFocus()
-                    return True
-                else:
-                    if self.value >= 1:
+                if not self.checkBox_single_hole.isChecked():
+                    stop, area_porosity = self.check_input_parameters(self.lineEdit_area_porosity, 'Area porosity')
+                    if stop:
+                        self.lineEdit_area_porosity.setFocus()
+                        return True
+
+                    if area_porosity >= 1:
                         title = "Invalid area porosity value"
                         message = "The area porosity must be less than 1."
                         PrintMessageInput([window_title_1, title, message])
                         self.lineEdit_area_porosity.setFocus()
                         return True
-                    self.perforated_plate_inputs['area_porosity'] = self.value
+
+                    self.perforated_plate_inputs['area_porosity'] = area_porosity
 
                 # Check discharge coefficient
-                if self.check_input_parameters(self.lineEdit_discharge_coefficient.text(), 'discharge coefficient'):
+                stop, discharge_coefficient = self.check_input_parameters(self.lineEdit_discharge_coefficient, 'Discharge coefficient')
+                if stop:
                     self.lineEdit_discharge_coefficient.setFocus()
                     return True
-                else:
-                    if self.value > 1:
-                        title = "Invalid discharge coefficient value"
-                        message = "The discharge coefficient must be less than or equal to 1."
-                        PrintMessageInput([window_title_1, title, message])
-                        self.lineEdit_discharge_coefficient.setFocus()
-                        return True
-                    self.perforated_plate_inputs['discharge _coefficient'] = self.value
 
+                if discharge_coefficient > 1:
+                    title = "Invalid discharge coefficient value"
+                    message = "The discharge coefficient must be less than or equal to 1."
+                    PrintMessageInput([window_title_1, title, message])
+                    self.lineEdit_discharge_coefficient.setFocus()
+                    return True
+
+                self.perforated_plate_inputs['discharge _coefficient'] = discharge_coefficient
                 self.perforated_plate_inputs['nonlinear_effects'] = self.checkBox_nonlinear_discharge_coefficient.isChecked()
 
                 # Check nonlinear discharge coefficient
-                if self.check_input_parameters(self.lineEdit_nonlin_discharge.text(), 'nonlinear discharge coefficient'):
+                stop, nl_discharge_coefficient = self.check_input_parameters(self.lineEdit_nonlin_discharge, 'Non-linear discharge coefficient')
+                if stop:
                     self.lineEdit_nonlin_discharge.setFocus()
                     return True
-                else:
-                    if self.value > 1:
-                        title = "Invalid nonlinear discharge coefficient value"
-                        message = "The nonlinear discharge coefficient must be less than or equal to 1."
-                        PrintMessageInput([window_title_1, title, message])
-                        self.lineEdit_nonlin_discharge.setFocus()
-                        return True
-                    self.perforated_plate_inputs['nonlinear_discharge_coefficient'] = self.value
+
+                if nl_discharge_coefficient > 1:
+                    title = "Invalid nonlinear discharge coefficient value"
+                    message = "The nonlinear discharge coefficient must be less than or equal to 1."
+                    PrintMessageInput([window_title_1, title, message])
+                    self.lineEdit_nonlin_discharge.setFocus()
+                    return True
+
+                self.perforated_plate_inputs['nonlinear_discharge_coefficient'] = nl_discharge_coefficient
 
                 # Check correction factor
-                if self.check_input_parameters(self.lineEdit_correction_factor.text(), 'correction factor'):
+                stop, correction_factor = self.check_input_parameters(self.lineEdit_correction_factor, 'Correction factor')
+                if stop:
                     self.lineEdit_correction_factor.setFocus()
                     return True
-                else:
-                    self.perforated_plate_inputs['correction _factor'] = self.value
-
+                
+                self.perforated_plate_inputs['correction _factor'] = correction_factor
                 self.perforated_plate_inputs['bias_flow_effects'] = self.flag_bias
 
                 # Check bias flow
-                if self.check_input_parameters(self.lineEdit_bias_flow_coefficient.text(), 'bias flow coefficient'):
+                stop, bias_flow_coefficient = self.check_input_parameters(self.lineEdit_bias_flow_coefficient, 'Bias flow coefficient')
+                if stop:
                     self.lineEdit_bias_flow_coefficient.setFocus()
                     return True
-                else:
-                    self.perforated_plate_inputs['bias_flow_coefficient'] = self.value
+
+                self.perforated_plate_inputs['bias_flow_coefficient'] = bias_flow_coefficient
 
                 # Check dimensionless impedance
                 if self.tabWidget_dimensionless.currentIndex()==0:
@@ -583,27 +648,34 @@ class PerforatedPlateInput(QDialog):
             
             self.perforated_plate_inputs['single_hole'] = self.checkBox_single_hole.isChecked()
 
-            perforated_plate = PerforatedPlate(self.perforated_plate_inputs)
+            for element_id in element_ids:
 
-            if self.lineEdit_load_table_path.text() != "":
-                if self.imported_values is None:
+                if self.checkBox_single_hole.isChecked():
+                    area_porosity = self.get_area_porosity(element_id)
+                    if area_porosity is None:
+                        return
 
-                    self.imported_values, self.table_path = self.load_table()
-                    for element_id in element_ids:
-                        self.save_table_file(element_id, self.imported_values)
+                    self.perforated_plate_inputs['area_porosity'] = area_porosity
 
-                else:
-                    perforated_plate.dimensionless_impedance_table_name = self.table_path
-                    # self.perforated_plate.dimensionless_impedance = self.imported_values
+                perforated_plate = PerforatedPlate(self.perforated_plate_inputs)
 
-            self.preprocessor.set_perforated_plate_by_elements(element_ids, perforated_plate)
-            # self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(element_ids)
+                if self.lineEdit_load_table_path.text() != "":
+                    if self.imported_values is None:
+                        self.imported_values, self.table_path = self.load_table()
+                        self.save_table_file(element_id, self.imported_values)                           
 
-            self.properties._set_element_property(  
-                                                  "perforated_plate", 
-                                                  self.perforated_plate_inputs, 
-                                                  element_ids=element_ids  
-                                                  )
+                    else:
+                        perforated_plate.dimensionless_impedance_table_name = self.table_path
+                        # self.perforated_plate.dimensionless_impedance = self.imported_values
+
+                self.preprocessor.set_perforated_plate_by_elements(element_ids, perforated_plate)
+                # self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(element_ids)
+
+                self.properties._set_element_property(  
+                                                      "perforated_plate", 
+                                                      self.perforated_plate_inputs, 
+                                                      element_ids=element_id 
+                                                      )
 
             app().pulse_file.write_element_properties_in_file()
 
@@ -676,8 +748,9 @@ class PerforatedPlateInput(QDialog):
 
             self.properties._reset_element_property("perforated_plate")
             app().pulse_file.write_element_properties_in_file()
+
             app().main_window.update_plots()
-            self.close()
+            # self.close()
 
     def process_table_file_removal(self, table_names : list):
         if table_names:
@@ -853,9 +926,18 @@ class PerforatedPlateInput(QDialog):
         self.checkBox_nonlinear_discharge_coefficient.setChecked(False)            
         self.checkBox_bias_flow_coefficient.setChecked(False)
 
-    def actions_to_finalize(self):
-        app().main_window.update_plots()
-        self.close()
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.attribute_callback()
+        elif event.key() == Qt.Key_Delete:
+            self.remove_callback()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)
+
 
 class GetInformationOfGroup(QDialog):
     def __init__(self, value, selected_key, *args, **kwargs):
@@ -964,4 +1046,4 @@ class GetInformationOfGroup(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
-        return super().closeEvent(a0)    
+        return super().closeEvent(a0)

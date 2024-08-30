@@ -130,11 +130,11 @@ class VolumeVelocityInput(QDialog):
             self.lineEdit_selection_id.setDisabled(False)
 
     def update_tabs_visibility(self):
-        self.tabWidget_main.setTabVisible(2, False)
+        self.tabWidget_main.setTabVisible(1, False)
         for (property, *_) in self.properties.nodal_properties.keys():
             if property == "volume_velocity":
                 self.tabWidget_main.setCurrentIndex(0)
-                self.tabWidget_main.setTabVisible(2, True)
+                self.tabWidget_main.setTabVisible(1, True)
                 return
 
     def load_nodes_info(self):

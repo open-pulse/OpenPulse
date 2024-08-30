@@ -196,7 +196,7 @@ class TubeActor(vtkActor):
             elements = set(elements)
 
         # Get the elements inside every entity to paint them
-        line_to_elements = self.model.mesh.line_to_elements
+        line_to_elements = self.model.mesh.elements_from_line
         for line in lines:
             line_elements = line_to_elements[line]
             elements |= set(line_elements)
