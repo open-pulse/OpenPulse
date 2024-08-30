@@ -78,7 +78,7 @@ class ShakingForcesCriteriaInput(QWidget):
         
         element_ids = list()
         for line_id in self.lines_typed:
-            elements_from_line = app().project.model.preprocessor.mesh.line_to_elements[line_id]
+            elements_from_line = app().project.model.preprocessor.mesh.elements_from_line[line_id]
             element_ids.extend(elements_from_line)
         
         pressure_external = 0

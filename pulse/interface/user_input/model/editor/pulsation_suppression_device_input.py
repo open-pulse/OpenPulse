@@ -823,7 +823,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
                 if data["psd_name"] in psd_labels:
                     self.properties._remove_line(line_id)
-                    line_nodes = self.preprocessor.line_to_nodes[int(line_id)]
+                    line_nodes = self.preprocessor.mesh.nodes_from_line[int(line_id)]
                     self.nodes_from_removed_lines.extend(list(line_nodes))
                     remove_gaps = True
 

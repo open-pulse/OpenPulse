@@ -13,7 +13,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import numpy as np
-from pprint import pprint
 from collections import defaultdict
 
 window_title_1 = "Error"
@@ -267,14 +266,14 @@ class ValvesInput(QDialog):
     def update_tab_visibility(self):
         self.tabWidget_main.setTabVisible(1, False)
         for data in self.properties.line_properties.values():
-            if "valve_name" in data.keys():
+            if "valve_info" in data.keys():
                 self.tabWidget_main.setTabVisible(1, True)
                 return
 
     def check_flanges_by_lines(self):
         elements_from_line = defaultdict(list)
         for element_id in app().main_window.list_selected_elements():
-            line = self.preprocessor.mesh.elements_to_line[element_id]
+            line = self.preprocessor.mesh.line_from_element[element_id]
             elements_from_line[line].append(element_id)
         return elements_from_line
 
@@ -423,7 +422,6 @@ class ValvesInput(QDialog):
                     
                     self.properties._set_line_property("section_type_label", "Valve", line_id)
                     self.properties._set_line_property("structural_element_type", "valve", line_ids=line_id)
-                    self.properties._set_line_property("valve_name", self.valve_name, line_ids=line_id)
                     self.properties._set_line_property("valve_info", self.valve_info, line_ids=line_id)
 
                     line_data = self.properties.line_properties[line_id]
@@ -437,8 +435,6 @@ class ValvesInput(QDialog):
 
                 if self.valve_info["acoustic_effects"]:
                     self.configure_orifice_plate(line_ids)
-
-        # pprint(self.valve_info)
 
         self.complete = True
         self.close()
@@ -475,7 +471,7 @@ class ValvesInput(QDialog):
 
             element_ids = list()
             for line_id in line_ids:
-                line_elements = app().project.model.mesh.line_to_elements[line_id]
+                line_elements = app().project.model.mesh.elements_from_line[line_id]
                 N = len(line_elements)
                 if np.remainder(N, 2) == 0:
                     index = int(N/2) + 1
@@ -514,7 +510,7 @@ class ValvesInput(QDialog):
         offset_z = None
         self.inner_diameter = 0
 
-        line_to_elements = app().project.model.mesh.line_to_elements
+        line_to_elements = app().project.model.mesh.elements_from_line
         line_elements = line_to_elements[line_id]
 
         element_ids = [ line_elements[0] - 1,
@@ -557,7 +553,7 @@ class ValvesInput(QDialog):
 
     def restore_the_cross_section(self, line_ids: list):
 
-        line_to_elements = app().project.model.mesh.line_to_elements
+        line_to_elements = app().project.model.mesh.elements_from_line
         for line_id in line_ids:
 
             line_elements = line_to_elements[line_id]
@@ -609,7 +605,7 @@ class ValvesInput(QDialog):
         if self.lineEdit_selected_id.text() != "":
 
             line_id = int(self.lineEdit_selected_id.text())
-            self.properties._remove_line_property("valve_name", line_id)
+
             self.properties._remove_line_property("valve_info", line_id)
 
             self.restore_the_cross_section([line_id])
@@ -635,11 +631,10 @@ class ValvesInput(QDialog):
             line_ids = list()
             for line_id, data in self.properties.line_properties.items():
                 data: dict
-                if "valve_name" in data.keys():
+                if "valve_info" in data.keys():
                     line_ids.append(line_id)
 
             for line_id in line_ids:
-                self.properties._remove_line_property("valve_name", line_id)
                 self.properties._remove_line_property("valve_info", line_id)
                 self.restore_the_cross_section(line_ids)
 
@@ -654,8 +649,8 @@ class ValvesInput(QDialog):
         for valve_name in valve_names:
             for (property, element_id), data in self.properties.element_properties.items():
                 if property == "perforated_plate":
-                    if "valve_name" in data.keys():
-                        if valve_name == data["valve_name"]:
+                    if "valve_info" in data.keys():
+                        if valve_name == data["valve_info"]["valve_name"]:
                             element_ids.append(element_id)                        
                             break
         

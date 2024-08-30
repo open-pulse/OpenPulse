@@ -456,8 +456,8 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
                 valve_length = np.linalg.norm(B - A)
                 center_coordinates = (B + A) / 2
 
-                if line_id in app().project.model.mesh.line_to_elements.keys():
-                    valve_elements = app().project.model.mesh.line_to_elements[line_id]
+                if line_id in app().project.model.mesh.elements_from_line.keys():
+                    valve_elements = app().project.model.mesh.elements_from_line[line_id]
                 else:
                     return list()
 

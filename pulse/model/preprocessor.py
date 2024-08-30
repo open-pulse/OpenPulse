@@ -41,7 +41,6 @@ class Preprocessor:
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
 
         self.nodes = dict()
-        self.line_to_nodes = dict()
 
         self.structural_elements = dict()
         self.acoustic_elements = dict()
@@ -109,9 +108,6 @@ class Preprocessor:
 
         self.reset_variables()
         self.mesh.generate()
-
-        # self._map_lines_to_elements()
-        self._map_lines_to_nodes()
 
         # t0 = time()
         self._load_neighbors()
@@ -210,36 +206,36 @@ class Preprocessor:
             self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node, map_elements[i])
             self.number_acoustic_elements = len(self.acoustic_elements)
 
-    def _map_lines_to_nodes(self):
-        """
-        This method maps entities to nodes.
-        """
-        # t0 = time()
-        self.line_to_nodes = dict()
-        for line_ID, list_elements in self.mesh.line_to_elements.items():
-            list_nodes = np.zeros(len(list_elements)+1, dtype=int)
-            for i, _id in enumerate(list_elements):
-                element = self.structural_elements[_id]
-                first_node_id = element.first_node.external_index
-                last_node_id = element.last_node.external_index
-                if i==0:
-                    list_nodes[i] = first_node_id
-                list_nodes[i+1] = last_node_id
-            self.line_to_nodes[line_ID] = np.sort(list_nodes)          
-        # dt = time() - t0
-        # print(f"Time to process : {dt}")
+    # def _map_lines_to_nodes(self):
+    #     """
+    #     This method maps entities to nodes.
+    #     """
+    #     # t0 = time()
+    #     self.nodes_from_line = dict()
+    #     for line_ID, list_elements in self.mesh.elements_from_line.items():
+    #         list_nodes = np.zeros(len(list_elements)+1, dtype=int)
+    #         for i, _id in enumerate(list_elements):
+    #             element = self.structural_elements[_id]
+    #             first_node_id = element.first_node.external_index
+    #             last_node_id = element.last_node.external_index
+    #             if i==0:
+    #                 list_nodes[i] = first_node_id
+    #             list_nodes[i+1] = last_node_id
+    #         self.nodes_from_line[line_ID] = np.sort(list_nodes)          
+    #     # dt = time() - t0
+    #     # print(f"Time to process : {dt}")
 
     def get_model_statistics(self):
         return len(self.nodes), len(self.acoustic_elements), len(self.structural_elements)
 
     def _create_dict_gdofs_to_external_indexes(self):
         # t0 = time()
-        self.dict_gdofs_to_external_indexes = {}
+        self.gdofs_to_external_indexes = dict()
         for external_index, node in self.nodes.items():
             for gdof in node.global_dof:
-                self.dict_gdofs_to_external_indexes[gdof] = external_index
+                self.gdofs_to_external_indexes[gdof] = external_index
         # dt = time()-t0
-        # print(len(self.dict_gdofs_to_external_indexes))
+        # print(len(self.gdofs_to_external_indexes))
         # print("Time to process: ", dt)
 
     def get_line_length(self, line_id: int):
@@ -251,8 +247,8 @@ class Preprocessor:
         line_id : int
         
         """
-        first_element_ID = self.mesh.line_to_elements[line_id][0]
-        last_element_ID = self.mesh.line_to_elements[line_id][-1]
+        first_element_ID = self.mesh.elements_from_line[line_id][0]
+        last_element_ID = self.mesh.elements_from_line[line_id][-1]
 
         node1_first_element = self.structural_elements[first_element_ID].first_node
         node2_first_element = self.structural_elements[first_element_ID].last_node
@@ -276,16 +272,16 @@ class Preprocessor:
         """
         This method returns a dictionary containing line IDs as keys and its vertex node coordinates as values.
         """
-        dict_line_to_vertex_coords = defaultdict(list)
-        if self.line_to_nodes:
+        line_to_vertex_coords = defaultdict(list)
+        if self.mesh.nodes_from_line:
             for line_id in self.mesh.lines_from_model:
                 _, vertex_nodes = self.get_line_length(line_id)
                 for vertex_node in vertex_nodes:
                     if _array:
-                        dict_line_to_vertex_coords[line_id].append(vertex_node.coordinates)
+                        line_to_vertex_coords[line_id].append(vertex_node.coordinates)
                     else:
-                        dict_line_to_vertex_coords[line_id].append(list(vertex_node.coordinates))         
-        return dict_line_to_vertex_coords
+                        line_to_vertex_coords[line_id].append(list(vertex_node.coordinates))         
+        return line_to_vertex_coords
 
     def _load_neighbors(self):
         """
@@ -433,14 +429,14 @@ class Preprocessor:
             if node_id in self.dict_first_node_to_element_index.keys():
                 element_id = self.dict_first_node_to_element_index[node_id]
                 for _id in element_id:
-                    line_id = self.mesh.elements_to_line[_id]
+                    line_id = self.mesh.line_from_element[_id]
                     if line_id not in line_ids:
                         line_ids.append(line_id)
             
             if node_id in self.dict_last_node_to_element_index.keys():
                 element_id = self.dict_last_node_to_element_index[node_id]
                 for _id in element_id:
-                    line_id = self.mesh.elements_to_line[_id]
+                    line_id = self.mesh.line_from_element[_id]
                     if line_id not in line_ids:
                         line_ids.append(line_id)
 
@@ -943,7 +939,7 @@ class Preprocessor:
         cross_section : Cross section object
             Tube cross section data.
         """
-        for elements in slicer(self.mesh.line_to_elements, lines):
+        for elements in slicer(self.mesh.elements_from_line, lines):
             self.set_cross_section_by_elements(elements, cross_section)
 
     def set_variable_cross_section_by_line(self, line_id, section_data: dict):
@@ -956,7 +952,7 @@ class Preprocessor:
                 outer_diameter_final, thickness_final, offset_y_final, offset_z_final,
                 insulation_thickness, insulation_density  ] = section_data["section_parameters"]
 
-            elements_from_line = self.mesh.line_to_elements[line_id]
+            elements_from_line = self.mesh.elements_from_line[line_id]
             self.add_expansion_joint_by_lines(line_id, None, remove=True)
 
             first_element = self.structural_elements[elements_from_line[0]]
@@ -1030,7 +1026,7 @@ class Preprocessor:
         start_coords = np.array(data["start_coords"], dtype=float)
         end_coords = np.array(data["end_coords"], dtype=float)
 
-        line_elements = self.mesh.line_to_elements[line_id]
+        line_elements = self.mesh.elements_from_line[line_id]
 
         valve_info = data.get("valve_info", None)
         if valve_info is None:
@@ -1091,7 +1087,7 @@ class Preprocessor:
 
     def set_cross_sections_to_expansion_joint(self, line_id: int, expansion_joint_info: dict):
 
-        joint_elements = self.mesh.line_to_elements[line_id]
+        joint_elements = self.mesh.elements_from_line[line_id]
 
         if isinstance(expansion_joint_info, dict):
             if "effective_diameter" in expansion_joint_info.keys():
@@ -1148,7 +1144,7 @@ class Preprocessor:
     #     cross_section : Cross section plot info object
     #         Tube cross section data.
     #     """
-    #     for elements in slicer(self.mesh.line_to_elements, lines):
+    #     for elements in slicer(self.mesh.elements_from_line, lines):
     #         self.set_cross_section_plot_info_by_element(elements, cross_section)
 
     def set_structural_element_type_by_lines(self, line_ids: int | list, element_type: str):
@@ -1170,7 +1166,7 @@ class Preprocessor:
         if isinstance(line_ids, int):
             line_ids = [line_ids]
 
-        for elements in slicer(self.mesh.line_to_elements, line_ids):
+        for elements in slicer(self.mesh.elements_from_line, line_ids):
             self.set_structural_element_type_by_element(elements, element_type)
 
     def set_acoustic_element_type_by_lines( 
@@ -1200,7 +1196,7 @@ class Preprocessor:
         if isinstance(line_ids, int):
             line_ids = [line_ids]
 
-        for elements in slicer(self.mesh.line_to_elements, line_ids):
+        for elements in slicer(self.mesh.elements_from_line, line_ids):
             self.set_acoustic_element_type_by_element(  elements, 
                                                         element_type, 
                                                         proportional_damping = proportional_damping, 
@@ -1239,7 +1235,7 @@ class Preprocessor:
         if isinstance(line_ids, int):
             line_ids = [line_ids]
 
-        for elements in slicer(self.mesh.line_to_elements, line_ids):
+        for elements in slicer(self.mesh.elements_from_line, line_ids):
             self.set_material_by_element(elements, material)
 
     def set_force_by_element(self, elements, loads):
@@ -1368,7 +1364,7 @@ class Preprocessor:
             element.capped_end = value
 
     # def set_capped_end_line_to_element(self, lines, value):
-    #     for elements in slicer(self.mesh.line_to_elements, lines):
+    #     for elements in slicer(self.mesh.elements_from_line, lines):
     #         for element in slicer(self.structural_elements, elements):
     #             element.capped_end = value
  
@@ -1388,7 +1384,7 @@ class Preprocessor:
         if isinstance(line_ids, int):
             line_ids = [line_ids]
 
-        for elements in slicer(self.mesh.line_to_elements, line_ids):
+        for elements in slicer(self.mesh.elements_from_line, line_ids):
             for element in slicer(self.structural_elements, elements):
                 element.capped_end = value
 
@@ -1408,7 +1404,7 @@ class Preprocessor:
             if isinstance(lines, int):
                 lines = [lines]
 
-            for elements in slicer(self.mesh.line_to_elements, lines):
+            for elements in slicer(self.mesh.elements_from_line, lines):
                 for element in slicer(self.structural_elements, elements):
                     element.wall_formulation = formulation
 
@@ -1431,7 +1427,7 @@ class Preprocessor:
             if isinstance(lines, int):
                 lines = [lines]
 
-            for elements in slicer(self.mesh.line_to_elements, lines):
+            for elements in slicer(self.mesh.elements_from_line, lines):
                 for element in slicer(self.structural_elements, elements):
                     element.force_offset = bool(force_offset)
 
@@ -1459,7 +1455,7 @@ class Preprocessor:
         """
         if isinstance(lines, int):
             lines = [lines]
-        for elements in slicer(self.mesh.line_to_elements, lines):
+        for elements in slicer(self.mesh.elements_from_line, lines):
             self.set_stress_stiffening_by_elements(elements, pressures)
 
     def set_stress_stiffening_by_elements(self, elements, data: dict):
@@ -1509,7 +1505,7 @@ class Preprocessor:
             line_ids = [line_ids]
 
         for line_id in line_ids:
-            for elements in slicer(self.mesh.line_to_elements, line_id):
+            for elements in slicer(self.mesh.elements_from_line, line_id):
                 for element in slicer(self.structural_elements, elements):
                     element.set_expansion_joint_data(parameters)
 
@@ -1534,7 +1530,7 @@ class Preprocessor:
             line_ids = [line_ids]
 
         for line_id in line_ids:
-            for elements in slicer(self.mesh.line_to_elements, line_id):
+            for elements in slicer(self.mesh.elements_from_line, line_id):
                 for element in slicer(self.structural_elements, elements):
                     element.set_valve_data(valve_data)
 
@@ -1551,7 +1547,7 @@ class Preprocessor:
         value : bool
             True if the stress intensification effect have to be activated. False otherwise.
         """
-        for elements in slicer(self.mesh.line_to_elements, line_ids):
+        for elements in slicer(self.mesh.elements_from_line, line_ids):
             for element in slicer(self.structural_elements, elements):
                 element.stress_intensification = value
 
@@ -1596,7 +1592,7 @@ class Preprocessor:
         if isinstance(line_ids, int):
             line_ids = [line_ids]
 
-        for elements in slicer(self.mesh.line_to_elements, line_ids):
+        for elements in slicer(self.mesh.elements_from_line, line_ids):
             self.set_fluid_by_element(elements, fluid)
 
     def set_element_length_correction_by_element(self, element_ids: list, data: dict):
@@ -1633,7 +1629,7 @@ class Preprocessor:
                 element.vol_flow = None
     
     def set_vol_flow_by_line(self, lines, vol_flow):
-        for elements in slicer(self.mesh.line_to_elements, lines):
+        for elements in slicer(self.mesh.elements_from_line, lines):
             self.set_vol_flow_by_element(elements, vol_flow)
 
     def set_perforated_plate_by_elements(self, elements: list | tuple, perforated_plate: PerforatedPlate):
@@ -1656,7 +1652,7 @@ class Preprocessor:
             angle += gimball_shift
         angle *= np.pi/180
 
-        for elements in slicer(self.mesh.line_to_elements, line_ids):
+        for elements in slicer(self.mesh.elements_from_line, line_ids):
             self.set_beam_xaxis_rotation_by_elements(elements, angle)
 
     def set_beam_xaxis_rotation_by_elements(self, elements, angle):
@@ -2184,7 +2180,7 @@ class Preprocessor:
                 start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
                 first_node_coordinates = self.nodes[start_node_id].coordinates
                 last_node_coordinates = self.nodes[end_node_id].coordinates
-                line_id = self.mesh.elements_to_line[first_element_id]
+                line_id = self.mesh.line_from_element[first_element_id]
                 key = f"{first_element_id}-{last_element_id}||{line_id}"
                 self.dict_element_info_to_update_indexes_in_entity_file[key] = [list(first_node_coordinates),
                                                                                 list(last_node_coordinates),
@@ -2221,7 +2217,7 @@ class Preprocessor:
                 start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
                 first_node_coordinates = self.nodes[start_node_id].coordinates
                 last_node_coordinates = self.nodes[end_node_id].coordinates
-                line_id = self.mesh.elements_to_line[first_element_id]
+                line_id = self.mesh.line_from_element[first_element_id]
                 key = f"{first_element_id}-{last_element_id}||{line_id}"
                 self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
                                                                                     list(last_node_coordinates),
@@ -2237,7 +2233,7 @@ class Preprocessor:
         for input_group in input_groups_elements:
             line_to_elements = defaultdict(list)
             for element_id in input_group:
-                line = self.mesh.elements_to_line[element_id]
+                line = self.mesh.line_from_element[element_id]
                 line_to_elements[line].append(element_id)
             for line, elements in line_to_elements.items():
                 output_subgroups_elements.append(elements)

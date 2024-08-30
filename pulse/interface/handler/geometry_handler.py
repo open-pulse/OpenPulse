@@ -12,7 +12,6 @@ from math import dist
 import os
 import numpy as np
 from collections import defaultdict
-from pprint import pprint
 
 
 window_title_1 = "Error"
