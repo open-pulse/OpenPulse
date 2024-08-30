@@ -17,7 +17,10 @@
    <item>
     <widget class="QPushButton" name="set_section_button">
      <property name="text">
-      <string>Set Section</string>
+      <string>Set Configuration</string>
+     </property>
+     <property name="status" stdset="0">
+      <string>danger</string>
      </property>
     </widget>
    </item>

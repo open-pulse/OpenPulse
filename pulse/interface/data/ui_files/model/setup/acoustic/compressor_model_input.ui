@@ -184,10 +184,10 @@
          <string>Confirm</string>
         </property>
         <property name="autoDefault">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="default">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -223,7 +223,7 @@
          <string>Cancel</string>
         </property>
         <property name="autoDefault">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="default">
          <bool>false</bool>
@@ -351,7 +351,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>479</width>
+                  <width>485</width>
                   <height>714</height>
                  </rect>
                 </property>
@@ -1193,6 +1193,9 @@
                         <width>22</width>
                         <height>22</height>
                        </size>
+                      </property>
+                      <property name="autoDefault">
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
@@ -2193,6 +2196,9 @@
                         <height>22</height>
                        </size>
                       </property>
+                      <property name="autoDefault">
+                       <bool>false</bool>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -2659,6 +2665,9 @@
                   <property name="text">
                    <string>Process data</string>
                   </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
                  </widget>
                 </item>
                 <item row="5" column="1">
@@ -2764,6 +2773,9 @@
                     <string>Volumetric flow rate 
 at discharge</string>
                    </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item row="1" column="0">
@@ -2791,6 +2803,9 @@ at discharge</string>
                    <property name="text">
                     <string>Volumetric flow rate 
 at suction</string>
+                   </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -2820,6 +2835,9 @@ at suction</string>
                     <string>Piston position and 
 velocity</string>
                    </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item row="0" column="1">
@@ -2846,6 +2864,9 @@ velocity</string>
                    </property>
                    <property name="text">
                     <string>Rod pressure load</string>
+                   </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -2899,6 +2920,9 @@ velocity</string>
                    <property name="text">
                     <string>Pressure head end</string>
                    </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item row="0" column="1">
@@ -2929,6 +2953,9 @@ velocity</string>
                    <property name="text">
                     <string>Volume head end</string>
                    </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item row="1" column="0">
@@ -2956,6 +2983,9 @@ velocity</string>
                    <property name="text">
                     <string>Pressure crank end</string>
                    </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item row="1" column="1">
@@ -2982,6 +3012,9 @@ velocity</string>
                    </property>
                    <property name="text">
                     <string>Volume crank end</string>
+                   </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -3033,6 +3066,9 @@ velocity</string>
                     <string>Volumetric flow rate 
 at discharge</string>
                    </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item row="1" column="0">
@@ -3061,6 +3097,9 @@ at discharge</string>
                     <string>Volumetric flow rate 
 at suction</string>
                    </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item row="2" column="0">
@@ -3087,6 +3126,9 @@ at suction</string>
                    </property>
                    <property name="text">
                     <string>Rod pressure load</string>
+                   </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -3138,6 +3180,9 @@ at suction</string>
                     <string>P-V diagram 
  both ends</string>
                    </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item row="0" column="0">
@@ -3166,6 +3211,9 @@ at suction</string>
                     <string>P-V diagram 
  crank end</string>
                    </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
                   </widget>
                  </item>
                  <item row="0" column="1">
@@ -3193,6 +3241,9 @@ at suction</string>
                    <property name="text">
                     <string>P-V diagram 
  head end</string>
+                   </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -3539,6 +3590,12 @@ at suction</string>
                   <property name="text">
                    <string>Remove</string>
                   </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                  <property name="status" stdset="0">
+                   <string>danger</string>
+                  </property>
                  </widget>
                 </item>
                 <item row="0" column="0">
@@ -3565,6 +3622,9 @@ at suction</string>
                   </property>
                   <property name="text">
                    <string>Reset</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>

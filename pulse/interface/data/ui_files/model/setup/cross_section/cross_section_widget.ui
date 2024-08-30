@@ -192,6 +192,9 @@
             <property name="shortcut">
              <string>Ctrl+Return</string>
             </property>
+            <property name="default">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -6427,6 +6430,9 @@
             <property name="shortcut">
              <string>Ctrl+Return</string>
             </property>
+            <property name="default">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -6641,6 +6647,9 @@
             </property>
             <property name="text">
              <string>Load section</string>
+            </property>
+            <property name="default">
+             <bool>false</bool>
             </property>
            </widget>
           </item>

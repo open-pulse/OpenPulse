@@ -17,7 +17,7 @@ class ExpansionJointOptionsWidget(QWidget):
 
     def __init__(self, parent):
         super().__init__(parent)
-        ui_path = UI_DIR / "model/geometry/expansion_joint_option_widget.ui"
+        ui_path = UI_DIR / "model/geometry/only_section_option_widget.ui"
         uic.loadUi(ui_path, self)
 
         self.pipeline = app().project.pipeline

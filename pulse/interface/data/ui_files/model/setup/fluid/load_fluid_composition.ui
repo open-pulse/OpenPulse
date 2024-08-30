@@ -162,6 +162,9 @@
         <property name="text">
          <string>Search</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="1" column="0">
@@ -314,6 +317,9 @@
         <property name="text">
          <string>Cancel</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="1">
@@ -337,6 +343,12 @@
         </property>
         <property name="text">
          <string>Confirm</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
