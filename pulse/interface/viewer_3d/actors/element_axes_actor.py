@@ -14,7 +14,7 @@ class ElementAxesActor(vtkAxesActor):
         self._make_ghost()
 
     def position_from_element(self, element):
-        xyz = element.element_center_coordinates
+        xyz = element.center_coordinates
         rx, ry, rz = element.section_rotation_xyz_undeformed
         size = [element.length] * 3
 

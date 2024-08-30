@@ -159,12 +159,16 @@ class ResultsViewerWidget(QWidget):
         self.main_window.plot_lines()
 
     def add_widget(self, widget, animation_widget=False):
+
         self.remove_widget()
         self.current_widget = widget
+
         if self.current_widget is None:
             return
+
         if self.grid_layout.indexOf(self.current_widget) == -1:
             self.grid_layout.addWidget(self.current_widget, 1, 0)
+
         self.animation_widget.setVisible(animation_widget)
 
     def remove_widget(self):

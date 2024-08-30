@@ -63,7 +63,7 @@ column = 50
 
 _, coord_def, _, _ = get_structural_response(preprocessor, direct_structural, column, Normalize=False)
 
-solution_structural.stress_calculate(global_damping, pressure_external = 0, damping_flag = False)
+solution_structural.stress_calculate(global_damping, pressure_external = 0, damping = False)
 stress_data = get_stress_data(solution_structural.preprocessor, column, real=True)
 stress_plot = stress_data[:,[0,2]]
 

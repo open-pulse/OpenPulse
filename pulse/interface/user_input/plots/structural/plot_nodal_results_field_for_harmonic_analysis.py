@@ -23,15 +23,15 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.load_user_preference_colormap()
 
     def _initialize(self):
-        self.frequencies = app().project.model.frequencies
-        self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
-        self.frequency = None
-        self.colormaps = ["jet",
+
+        self.colormaps = [
+                          "jet",
                           "viridis",
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "grayscale"
+                          ]
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -105,6 +105,8 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         for i, width in enumerate(widths):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
+        #
+        self.lineEdit_selected_frequency.setDisabled(True)
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
@@ -114,14 +116,14 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.update_animation_widget_visibility()
         if self.lineEdit_selected_frequency.text() == "":
             return
-        else:
-            frequency_selected = float(self.lineEdit_selected_frequency.text())
-            if frequency_selected in self.frequencies:
-                self.frequency = self.frequency_to_index[frequency_selected]
-                color_scale_setup = self.get_user_color_scale_setup()
-                app().project.set_color_scale_setup(color_scale_setup)
-                app().main_window.results_widget.show_displacement_field(self.frequency)
 
+        frequency_selected = float(self.lineEdit_selected_frequency.text())
+        if frequency_selected in self.frequencies:
+            # frequency = self.frequency_to_index[frequency_selected]
+            frequency = self.frequencies.index(frequency_selected)
+            color_scale_setup = self.get_user_color_scale_setup()
+            app().project.set_color_scale_setup(color_scale_setup)
+            app().main_window.results_widget.show_displacement_field(frequency)
 
     def get_user_color_scale_setup(self):
 
@@ -191,23 +193,34 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
     def load_frequencies_vector(self):
 
         if app().project.analysis_id == 7:
+            self.frequencies = [0]
+            self.treeWidget_frequencies.setDisabled(True)
             self.plot_displacement_for_static_analysis()
-            
+
+        else:
+
+            self.treeWidget_frequencies.setDisabled(False)
+            if isinstance(app().project.model.frequencies, np.ndarray):
+                _frequencies = app().project.model.frequencies
+                self.frequencies = list(_frequencies)
+
+            self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
+
         self.treeWidget_frequencies.clear()
         for index, frequency in enumerate(self.frequencies):
-            new = QTreeWidgetItem([str(index+1), str(frequency)])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_frequencies.addTopLevelItem(new)
+
+            item = QTreeWidgetItem([str(index+1), str(frequency)])
+            for i in range(2):
+                item.setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_frequencies.addTopLevelItem(item)
 
     def plot_displacement_for_static_analysis(self):
-        self.lineEdit_selected_frequency.setDisabled(True)
-        self.treeWidget_frequencies.setDisabled(True)
-        self.frequency = [0]
-        self.lineEdit_selected_frequency.setText(str(self.frequency[0]))
+        #
+        self.lineEdit_selected_frequency.setText("0.0")
         color_scale_setup = self.get_user_color_scale_setup()
+        #
         app().project.set_color_scale_setup(color_scale_setup)
-        app().main_window.results_widget.show_displacement_field(self.frequency[0])
+        app().main_window.results_widget.show_displacement_field(0)
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(1))

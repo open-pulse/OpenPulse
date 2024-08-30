@@ -25,12 +25,11 @@ class BeamXaxisRotationInput(QDialog):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
+
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
 
-        self.project = app().project
-        self.model = app().project.model
-        self.preprocessor = app().project.preprocessor
+        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
         self._initialize()
@@ -52,17 +51,11 @@ class BeamXaxisRotationInput(QDialog):
     def _initialize(self):
 
         self.keep_window_open = True
-
-        self.index = 0
-        self.element_type = 'pipe_1'
         self.complete = False
-        self.update_cross_section = False
         self.pipe_to_beam = False
         self.beam_to_pipe = False
-        self.list_lines_to_update_cross_section = list()
-        self.beam_lines = list()
 
-        self.before_run = self.project.get_pre_solution_model_checks()
+        self.element_type = 'pipe_1'
 
     def _define_qt_variables(self):
 
@@ -237,7 +230,7 @@ class BeamXaxisRotationInput(QDialog):
 
         selection_index = self.comboBox_selection.currentIndex()
         if selection_index == 0:
-            line_ids = list(self.model.mesh.lines_from_model.keys())
+            line_ids = app().project.model.mesh.lines_from_model
 
         else:
             str_lines = self.lineEdit_selected_id.text()

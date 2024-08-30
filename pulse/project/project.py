@@ -40,6 +40,7 @@ class Project:
         self.reset()
 
     def reset(self, reset_all=False):
+
         # TODO: reimplement this
         if reset_all:
             self.preprocessor.reset_variables()
@@ -51,8 +52,6 @@ class Project:
         self.global_damping = [0, 0, 0, 0]
         self.preferences = dict()
         self.modes = 0
- 
-        self.natural_frequencies_structural = list()
 
         self.solution_structural = None
         self.solution_acoustic = None
@@ -117,20 +116,25 @@ class Project:
         #                     target = load_callback
         #                   )
 
-        self.initial_load_project_actions()
         app().loader.load_project_data()
-        # self.model.PSD.load_psd_data_from_file()
-        self.enhance_pipe_sections_appearance()
-        self.preprocessor.process_all_rotation_matrices()
+        self.initial_load_project_actions()
+        app().loader.load_mesh_dependent_properties()
 
+        self.enhance_pipe_sections_appearance()
+
+        self.preprocessor.process_all_rotation_matrices()
         self.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
-        # TODO: reimplement the project resetting
-        self.reset()
+
+        self.reset(reset_all=True)
+        app().pulse_file.remove_element_properties_from_project_file()
+        app().pulse_file.remove_nodal_properties_from_project_file()
+
         if app().pulse_file.check_pipeline_data():
-            self.process_geometry_and_mesh()
             app().loader.load_project_data()
+            self.process_geometry_and_mesh()
+            app().loader.load_mesh_dependent_properties()
 
     def process_geometry_and_mesh(self):
         # t0 = time()
@@ -181,6 +185,7 @@ class Project:
 
                 if element.cross_section is None:
                     continue
+
                 inner_diameter = element.cross_section.inner_diameter 
 
                 if len(self.preprocessor.neighbors[first_node]) == 1:
@@ -195,25 +200,24 @@ class Project:
 
             if element:
 
-                cross = element.cross_section
-                outer_diameter = cross.outer_diameter
-                offset_y = cross.offset_y
-                offset_z = cross.offset_z
-                insulation_thickness = cross.insulation_thickness
-                section_label = cross.section_type_label
-
                 if element.element_type == 'expansion_joint':
-                    _key = element.cross_section.expansion_joint_plot_key
+
+                    d_eff = element.cross_section.section_parameters[1]
+                    plot_key = element.cross_section.section_parameters[0]
+
                     thickness = (outer_diameter - inner_diameter) / 2
-                    parameters = [  outer_diameter, 
-                                    thickness, 
-                                    offset_y, 
-                                    offset_z, 
-                                    insulation_thickness,
-                                    _key
-                                  ]
+                    parameters = [plot_key, d_eff, inner_diameter]
+
+                    element.section_parameters_render = parameters
 
                 else:
+
+                    cross = element.cross_section
+                    outer_diameter = cross.outer_diameter
+                    offset_y = cross.offset_y
+                    offset_z = cross.offset_z
+                    insulation_thickness = cross.insulation_thickness
+
                     thickness = (outer_diameter - inner_diameter) / 2
                     parameters = [  outer_diameter, 
                                     thickness, 
@@ -222,9 +226,7 @@ class Project:
                                     insulation_thickness
                                   ]
 
-                element.section_parameters_render = parameters
-                element.cross_section_points = cross.get_circular_section_points(parameters, 
-                                                                                 section_label)
+                    element.section_parameters_render = parameters
 
     def is_there_an_acoustic_attribute_in_the_node(self, node_id: int):
 
@@ -233,12 +235,14 @@ class Project:
                                 "volume_velocity", 
                                 "specific_impedance", 
                                 "radiation_impedance", 
-                                "compressor_excitation"
+                                "compressor_excitation",
+                                "psd_acoustic_link"
                                 ]
 
         for (property, *args) in self.model.properties.nodal_properties.keys():
-            if property in acoustic_properties and node_id == args[0]:
+            if property in acoustic_properties and node_id in args:
                     return True
+
         return False
 
     def update_project_analysis_setup_state(self, _bool):
@@ -327,7 +331,7 @@ class Project:
             etype = "valve"
 
         self.preprocessor.add_expansion_joint_by_lines(line_ids, None, remove=True)
-        self.preprocessor.add_valve_by_line(line_ids, parameters, remove=remove, reset_cross=reset_cross)
+        self.preprocessor.add_valve_by_lines(line_ids, parameters, remove=remove, reset_cross=reset_cross)
         # self.set_structural_element_type_by_lines(line_ids, etype)
 
     def load_valve_by_lines(self, line_id, data, cross_sections):
@@ -344,20 +348,20 @@ class Project:
             self.preprocessor.set_cross_section_by_element(valve_elements, valve_cross)
         self.preprocessor.set_structural_element_type_by_lines(line_id, 'valve')
 
-    def load_valve_by_elements(self, data, cross_sections):
-        valve_elements = data["valve_elements"]
-        valve_cross, flange_cross = cross_sections
-        self.preprocessor.add_valve_by_elements(valve_elements, data)
-        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(valve_elements)
+    # def load_valve_by_elements(self, data, cross_sections):
+    #     valve_elements = data["valve_elements"]
+    #     valve_cross, flange_cross = cross_sections
+    #     self.preprocessor.add_valve_by_elements(valve_elements, data)
+    #     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(valve_elements)
         
-        if 'flange_elements' in data.keys():
-            flange_elements = data["flange_elements"]
-            _valve_elements = [element_id for element_id in valve_elements if element_id not in flange_elements]
-            self.preprocessor.set_cross_section_by_element(_valve_elements, valve_cross)
-            self.preprocessor.set_cross_section_by_element(flange_elements, flange_cross)
-        else:
-            self.preprocessor.set_cross_section_by_element(valve_elements, valve_cross)
-        self.preprocessor.set_structural_element_type_by_element(valve_elements, "valve")
+    #     if 'flange_elements' in data.keys():
+    #         flange_elements = data["flange_elements"]
+    #         _valve_elements = [element_id for element_id in valve_elements if element_id not in flange_elements]
+    #         self.preprocessor.set_cross_section_by_elements(_valve_elements, valve_cross)
+    #         self.preprocessor.set_cross_section_by_elements(flange_elements, flange_cross)
+    #     else:
+    #         self.preprocessor.set_cross_section_by_elements(valve_elements, valve_cross)
+    #     self.preprocessor.set_structural_element_type_by_element(valve_elements, "valve")
 
     def get_structural_elements(self):
         return self.preprocessor.structural_elements
@@ -390,8 +394,8 @@ class Project:
     def get_modes(self):
         return self.modes
 
-    def set_analysis_type(self, ID, analysis_text, method_text = ""):
-        self.analysis_id = ID
+    def set_analysis_type(self, analysis_id: int, analysis_text: str, method_text = ""):
+        self.analysis_id = analysis_id
         self.analysis_type_label = analysis_text
         self.analysis_method_label = method_text
 
@@ -401,17 +405,14 @@ class Project:
     def get_post_solution_model_checks(self):
         return AfterRun()
 
-    def set_structural_solve(self, structural_solve):
+    def set_structural_solve(self, structural_solve: StructuralSolver):
         self.structural_solve = structural_solve
 
     def get_structural_solve(self):
-
         if self.analysis_id in [5, 6]:
             results = StructuralSolver(self.model, acoustic_solution=self.solution_acoustic)
-
         else:
             results = StructuralSolver(self.model)
-
         return results
 
     def set_structural_solution(self, value):
@@ -438,7 +439,7 @@ class Project:
     def set_structural_natural_frequencies(self, value):
         self.natural_frequencies_structural  = value
 
-    def set_structural_reactions(self, value):
+    def set_structural_reactions(self, value: dict):
         self.structural_reactions = value
 
     def get_structural_natural_frequencies(self):

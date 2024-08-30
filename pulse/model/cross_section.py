@@ -199,7 +199,6 @@ class CrossSection:
 
         self.section_type_label = kwargs.get('section_label', None)
         self.section_parameters = kwargs.get('section_parameters', None)
-        self.expansion_joint_plot_key = None
 
         self._reset_variables()
 
@@ -273,14 +272,14 @@ class CrossSection:
         self.insulation_density = self.section_parameters[5]
         self.offset = [self.offset_y, self.offset_z]
 
-        self.outer_diameter_to_plot, self.inner_diameter_to_plot = self.valve_section_info["diameters_to_plot"]
         self.section_info = self.valve_section_info
 
     def load_expansion_joint_data(self):
         self.section_type_label = self.expansion_joint_info[0]
-        self.expansion_joint_plot_key = self.expansion_joint_info[1]
         self.outer_diameter = self.expansion_joint_info[2]
-        
+        self.section_parameters = [ self.expansion_joint_info[1], 
+                                    self.expansion_joint_info[2] ]
+
     def set_section_parameters(self, parameters):
         self.outer_diameter, self.thickness = parameters
 
@@ -921,216 +920,6 @@ class CrossSection:
             e_z = h*F1_Vy
      
             return e_y, e_z
-    
-    def get_cross_section_points(self, number_divisions):
-
-        inner_points = []
-        # length = round(length, 4)
-        self.poligon_side_number = number_divisions
-        N = number_divisions
-
-        if self.section_type_label in ["Pipe", "Reducer"]: # Pipe section - It's a pipe section, so ignore for beam plots
- 
-            d_out = self.outer_diameter
-            d_in = d_out - 2*self.thickness
-
-            d_theta = 2*np.pi/N
-            theta = -np.arange(0, 2*np.pi, d_theta)
-            sine = np.sin(theta)
-            cossine = np.cos(theta)
-            
-            Y_out = (d_out/2)*cossine - self.offset_y
-            Z_out = (d_out/2)*sine - self.offset_z
-            Y_in = (d_in/2)*cossine - self.offset_y
-            Z_in = (d_in/2)*sine - self.offset_z
-
-            if self.insulation_thickness != float(0):
-                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine - self.offset_y
-                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine - self.offset_z
-
-            outer_points = list(zip(Y_out, Z_out))
-            inner_points = list(zip(Y_in, Z_in))
-
-        elif self.section_type_label == "Rectangular section": # Beam: Rectangular section
-
-            b, h, b_in, h_in, offset_y, offset_z = self.section_parameters
-            Y_out = np.array([(b/2), (b/2),  (b/2), 0, -(b/2), -(b/2), -(b/2), 0]) - offset_y
-            Z_out = np.array([(h/2), 0, -(h/2), -(h/2), -(h/2), 0, (h/2), (h/2)]) - offset_z
-            outer_points = list(zip(Y_out, Z_out))
-
-            if b_in != 0:
-                Y_in = np.array([(b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]) - offset_y
-                Z_in = np.array([(h_in/2), -(h_in/2), -(h_in/2), (h_in/2)]) - offset_z
-                inner_points = list(zip(Y_in, Z_in))
-            
-        elif self.section_type_label == "Circular section": # Beam: Circular section
-            
-            d_out, thickness, offset_y, offset_z = self.section_parameters
-            if thickness == 0:
-                d_in = 0
-            else:
-                d_in = d_out - 2*thickness
-
-            d_theta = np.pi/N
-            theta = -np.arange(0, 2*np.pi, d_theta)
-
-            sine = np.sin(theta)
-            cossine = np.cos(theta)
-
-            Y_out = (d_out/2)*cossine - offset_y 
-            Z_out = (d_out/2)*sine - offset_z
-            outer_points = list(zip(Y_out, Z_out))
-                        
-            if d_in != 0.:
-                Y_in = (d_in/2)*cossine - offset_y
-                Z_in = (d_in/2)*sine - offset_z
-                inner_points = list(zip(Y_in, Z_in))
-            
-        elif self.section_type_label == 'C-section': # Beam: C-section
-
-            h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
-            Yp_out = [0, w2, w2, tw, tw, w1, w1, 0]
-            Zp_out = [-(h/2), -(h/2), -((h/2)-t2), -((h/2)-t2), ((h/2)-t1), ((h/2)-t1), (h/2), (h/2)]
-
-            Y_out = np.array(Yp_out) - offset_y
-            Z_out = np.array(Zp_out) - offset_z
-            outer_points = list(zip(Y_out, Z_out))
-
-        elif self.section_type_label == 'I-section': # Beam: I-section
-
-            h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
-            Yp_out = [(w1/2), (w1/2), (tw/2), (tw/2), (w2/2), (w2/2), -(w2/2), -(w2/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
-            Zp_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t2, -(h/2)+t2, -(h/2), -(h/2), -(h/2)+t2, -(h/2)+t2, (h/2)-t1, (h/2)-t1, (h/2)]
-            
-            Y_out = np.array(Yp_out) - offset_y
-            Z_out = np.array(Zp_out) - offset_z
-            outer_points = list(zip(Y_out, Z_out))
-    
-        elif self.section_type_label == 'T-section': # Beam: T-section
-
-            h, w1, t1, tw, offset_y, offset_z = self.section_parameters
-            Yp_out = [(w1/2), (w1/2), (tw/2), (tw/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
-            Zp_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2), -(h/2), (h/2)-t1, (h/2)-t1, (h/2)]
-
-            Y_out = np.array(Yp_out) - offset_y
-            Z_out = np.array(Zp_out) - offset_z
-            outer_points = list(zip(Y_out, Z_out))
-        
-        elif self.section_type_label == "Expansion joint" : #
-        
-            if self.expansion_joint_plot_key == "major":
-              r_out = self.outer_radius*1.25 
-            
-            elif self.expansion_joint_plot_key == "minor":
-                r_out = self.outer_radius*1.1            
-            
-            else:
-                r_out = self.outer_radius*1.4
-            
-            r_in = self.outer_radius*0.8
-
-            d_theta = 2*np.pi/N
-            theta = -np.arange(0, 2*np.pi, d_theta)
-            sine = np.sin(theta)
-            cossine = np.cos(theta)
-            
-            Y_out = r_out*cossine - self.offset_y
-            Z_out = r_out*sine - self.offset_z
-            Y_in = r_in*cossine - self.offset_y
-            Z_in = r_in*sine - self.offset_z
-            
-            outer_points = list(zip(Y_out, Z_out))
-            inner_points = list(zip(Y_in, Z_in))
-
-        elif self.section_type_label == "Valve section" : #
-    
-            d_out = self.outer_diameter_to_plot
-            d_in = self.inner_diameter_to_plot
-            # d_in = d_out - 2*self.thickness
-
-            if d_in < 0:
-                d_in = 0.004
-                self.inner_diameter_to_plot = d_in
-
-            d_theta = 2*np.pi/N
-            theta = -np.arange(0, 2*np.pi, d_theta)
-            sine = np.sin(theta)
-            cossine = np.cos(theta)
-            
-            Y_out = (d_out/2)*cossine - self.offset_y
-            Z_out = (d_out/2)*sine - self.offset_z
-            Y_in = (d_in/2)*cossine - self.offset_y
-            Z_in = (d_in/2)*sine - self.offset_z
-
-            if self.insulation_thickness != float(0):
-                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine - self.offset_y
-                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine - self.offset_z
-
-            outer_points = list(zip(Y_out, Z_out))
-            inner_points = list(zip(Y_in, Z_in))
-
-        else:
-
-            # A very small triangle to prevent bugs
-            Y_out = [0, 1e-10, 0]
-            Z_out = [0, 0, 1e-10]
-            outer_points = list(zip(Y_out, Z_out))
-
-        # TODO: section_type == 6: creates an equivalent beam section
-        # return outer_points, inner_points
-
-        if inner_points == []:
-            Y_in, Z_in = 0, 0
-            max_min = str([max(Y_out), max(Z_out), 0, 0, min(Y_out), min(Z_out), 0, 0, self.section_type_label])
-        else:
-            max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), self.section_type_label])        
-        
-        return outer_points, inner_points, max_min
-
-    def get_circular_section_points(self, parameters, section_label):
-        """" 
-        This method returns 
-        """
-        N = self.poligon_side_number
-        
-        if section_label == "Expansion joint":
-
-            d_out, d_in, offset_y, offset_z, insulation_thickness, key = parameters
-
-            if key == "major":
-                d_out *= 1.25
-            elif key == "minor":
-                d_out *= 1.1        
-            else:
-                d_out *= 1.4
-
-        else:
-
-            d_out, d_in, offset_y, offset_z, insulation_thickness = parameters
-        
-        r_out = d_out/2
-        r_in = d_in/2
-
-        d_theta = 2*np.pi/N
-        theta = -np.arange(0, 2*np.pi, d_theta)
-        sine = np.sin(theta)
-        cossine = np.cos(theta)
-        
-        Y_out = r_out*cossine - offset_y
-        Z_out = r_out*sine - offset_z
-        Y_in = r_in*cossine - offset_y
-        Z_in = r_in*sine - offset_z
-
-        if insulation_thickness != float(0):
-            Y_out = (r_out + insulation_thickness)*cossine - offset_y
-            Z_out = (r_out + insulation_thickness)*sine - offset_z
-
-        outer_points = list(zip(Y_out, Z_out))
-        inner_points = list(zip(Y_in, Z_in))
-
-        max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), section_label])
-        
-        return outer_points, inner_points, max_min
 
 def get_points_to_plot_section(section_label, section_parameters):   
     

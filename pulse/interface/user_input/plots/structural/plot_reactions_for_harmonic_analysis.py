@@ -22,22 +22,21 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
         self.project = app().project
         self.model = app().project.model
 
+        self.before_run = app().project.get_pre_solution_model_checks()
+
         self._initialize()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self.load_nodes_info()
+        self._load_nodes_info()
 
     def _initialize(self):
 
-        [   self.reactions_at_constrained_dofs, 
-            self.reactions_at_springs, 
-            self.reactions_at_dampers   ] = self.project.get_structural_reactions()
-        
-        self.analysis_method = self.project.analysis_method_label
-        self.preprocessor = self.project.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-        self.frequencies = self.model.frequencies
+        reactions_data = self.project.get_structural_reactions()
+
+        self.reactions_at_constrained_dofs = reactions_data.get("reactions_at_constrained_dofs", None)
+        self.reactions_at_springs = reactions_data.get("reactions_at_springs", None)
+        self.reactions_at_dampers = reactions_data.get("reactions_at_dampers", None)
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -48,7 +47,7 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
     def _define_qt_variables(self):
 
         # QLineEdit
-        self.lineEdit_nodeID : QLineEdit
+        self.lineEdit_node_id : QLineEdit
 
         # QPushButton
         self.pushButton_plot_data : QPushButton
@@ -70,13 +69,19 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
                                     self.radioButton_Mz  ]
 
         # QTabWidget
-        self.tabWidget_reactions : QTabWidget
-        self.tabWidget_springs_dampers : QTabWidget
+        self.tabWidget_main: QTabWidget
+        self.tabWidget_springs_dampers: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_reactions_at_springs : QTreeWidget
-        self.treeWidget_reactions_at_dampers : QTreeWidget
-        self.treeWidget_reactions_at_constrained_dofs : QTreeWidget
+        self.treeWidget_reactions_at_constrained_dofs: QTreeWidget
+        self.treeWidget_reactions_at_dampers: QTreeWidget
+        self.treeWidget_reactions_at_springs: QTreeWidget
+
+        # QWidget
+        self.tab_external_springs_dampers: QWidget
+        self.tab_constrained_dofs: QWidget
+        self.tab_reactions_at_springs: QWidget
+        self.tab_reactions_at_dampers: QWidget
 
     def _create_connections(self):
         #
@@ -121,67 +126,85 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
             text = "[{}]".format(*labels)
         return text
 
-    def load_nodes_info(self):
-        
+    def _load_nodes_info(self):
+
         for (property, *args), data in self.model.properties.nodal_properties.items():
 
             if property == "lumped_stiffness":
                 node_id = args[0]
                 values = data["values"]
 
-                lumped_stiffness_mask = self.get_lumped_stiffness_mask(values)
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_stiffness_mask))])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_reactions_at_springs.addTopLevelItem(new)
+                lumped_stiffness_mask = self.get_mask_for_values(values)
+                if lumped_stiffness_mask.count(False) != 6: 
+                    item = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_stiffness_mask))])
+                    for i in range(2):
+                        item.setTextAlignment(i, Qt.AlignCenter)
+                    self.treeWidget_reactions_at_springs.addTopLevelItem(item)
 
             if property == "lumped_dampings":
                 node_id = args[0]
                 values = data["values"]
 
-                lumped_dampings_mask = self.get_lumped_dampings_mask(values)
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_dampings_mask))])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_reactions_at_dampers.addTopLevelItem(new)
-        
+                lumped_dampings_mask = self.get_mask_for_values(values)
+                if lumped_dampings_mask.count(False) != 6: 
+                    item = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_dampings_mask))])
+                    for i in range(2):
+                        item.setTextAlignment(i, Qt.AlignCenter)
+                    self.treeWidget_reactions_at_dampers.addTopLevelItem(item)
+
             if property == "prescribed_dofs":
                 node_id = args[0]
                 values = data["values"]
 
-                constrained_dofs_mask = self.get_constrained_dofs_mask(values)
+                constrained_dofs_mask = self.get_mask_for_values(values)
                 if constrained_dofs_mask.count(False) != 6:         
-                    new = QTreeWidgetItem([str(node_id), str(self.text_label(constrained_dofs_mask))])
-                    new.setTextAlignment(0, Qt.AlignCenter)
-                    new.setTextAlignment(1, Qt.AlignCenter)
-                    self.treeWidget_reactions_at_constrained_dofs.addTopLevelItem(new)
+                    item = QTreeWidgetItem([str(node_id), str(self.text_label(constrained_dofs_mask))])
+                    for i in range(2):
+                        item.setTextAlignment(i, Qt.AlignCenter)
+                    self.treeWidget_reactions_at_constrained_dofs.addTopLevelItem(item)
 
-    def get_lumped_dampings_mask(self, values: list) -> list:
-        return [False if bc is None else True for bc in values]
+        self._tabWidgets_visibility()
 
-    def get_lumped_stiffness_mask(self, values: list) -> list:
-        return [False if bc is None else True for bc in values]
+    def _tabWidgets_visibility(self):
 
-    def get_constrained_dofs_mask(self, values: list) -> list:
+        check_1 = self.reactions_at_constrained_dofs is None
+        self.tab_constrained_dofs.setDisabled(check_1)
+        
+        check_2 = self.reactions_at_springs is None
+        self.tab_reactions_at_springs.setDisabled(check_2)
 
-        constrained_dofs_mask = [False, False, False, False, False, False]
-        for index, value in enumerate(values):
+        check_3 = self.reactions_at_dampers is None
+        self.tab_reactions_at_dampers.setDisabled(check_3)
 
-            if isinstance(value, complex):
-                if value == complex(0):
-                    constrained_dofs_mask[index] = True
+    def get_mask_for_values(self, values: list) -> list:
+        return [False if value is None else True for value in values]
 
-            elif isinstance(value, np.ndarray):
-                if np.sum(value) == complex(0):
-                    constrained_dofs_mask[index] = True
-                else:
-                    constrained_dofs_mask[index] = False
+    # def get_lumped_dampings_mask(self, values: list) -> list:
+    #     return [False if bc is None else True for bc in values]
 
-        return constrained_dofs_mask
+    # def get_lumped_stiffness_mask(self, values: list) -> list:
+    #     return [False if bc is None else True for bc in values]
+
+    # def get_constrained_dofs_mask(self, values: list) -> list:
+
+    #     constrained_dofs_mask = [False, False, False, False, False, False]
+    #     for index, value in enumerate(values):
+
+    #         if isinstance(value, complex):
+    #             if value == complex(0):
+    #                 constrained_dofs_mask[index] = True
+
+    #         elif isinstance(value, np.ndarray):
+    #             if np.sum(value) == complex(0):
+    #                 constrained_dofs_mask[index] = True
+    #             else:
+    #                 constrained_dofs_mask[index] = False
+
+    #     return constrained_dofs_mask
 
     def disable_non_existing_reactions(self, node_id):
         
-        if self.tabWidget_reactions.currentIndex()==0:
+        if self.tabWidget_main.currentIndex()==0:
 
             data = self.model.properties._get_property("prescribed_dofs", node_ids=int(node_id))
             values = data["values"]
@@ -200,7 +223,7 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
             self.reactions = self.reactions_at_constrained_dofs
             self.damper = False
 
-        elif self.tabWidget_reactions.currentIndex()==1:
+        elif self.tabWidget_main.currentIndex()==1:
 
             if self.tabWidget_springs_dampers.currentIndex()==0:
 
@@ -233,11 +256,11 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
                     break
 
     def on_click_item(self, item):
-        self.lineEdit_nodeID.setText(item.text(0))
+        self.lineEdit_node_id.setText(item.text(0))
         self.disable_non_existing_reactions(item.text(0))
 
     def on_doubleclick_item(self, item):
-        self.lineEdit_nodeID.setText(item.text(0))
+        self.lineEdit_node_id.setText(item.text(0))
         self.call_plotter()
 
     def call_plotter(self):
@@ -256,8 +279,8 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
 
     def check_inputs(self):
         
-        str_nodes = self.lineEdit_nodeID.text()
-        stop, self.node_ID = self.before_run.check_selected_ids(str_nodes, "nodes", single_id=True)
+        str_nodes = self.lineEdit_node_id.text()
+        stop, self.node_id = self.before_run.check_selected_ids(str_nodes, "nodes", single_id=True)
         if stop:
             return True
 
@@ -299,25 +322,43 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
             self.reaction_label = "Moment reactions"
 
     def get_reactions(self):
-        response = get_reactions(   self.reactions, 
-                                    self.node_ID, 
-                                    self.local_dof   )
-        return response
+        return get_reactions(self.reactions, self.node_id, self.local_dof)
 
     def join_model_data(self):
+
         self.model_results = dict()
-        self.title = "Structural frequency response - {}".format(self.analysis_method)
-        legend_label = "Reaction {} at node {}".format(self.local_dof_label, self.node_ID)
-        self.model_results = {  "x_data" : self.frequencies,
-                                "y_data" : self.get_reactions(),
-                                "x_label" : "Frequency [Hz]",
-                                "y_label" : "Reaction",
-                                "title" : self.title,
-                                "data_information" : legend_label,
-                                "legend" : legend_label,
-                                "unit" : self.unit_label,
-                                "color" : [0,0,1],
-                                "linestyle" : "-"  }
+        analysis_method = self.project.analysis_method_label
+        self.title = f"Structural frequency response - {analysis_method}"
+        legend_label = f"Reaction {self.local_dof_label} at node {self.node_id}"
+
+        key = ("node", self.node_id)
+        self.model_results[key] = {
+                                    "x_data" : self.model.frequencies,
+                                    "y_data" : self.get_reactions(),
+                                    "x_label" : "Frequency [Hz]",
+                                    "y_label" : "Reaction",
+                                    "title" : self.title,
+                                    "data_information" : legend_label,
+                                    "legend" : legend_label,
+                                    "unit" : self.unit_label,
+                                    "color" : self.get_color(0),
+                                    "linestyle" : "-"  
+                                    }
+
+    def get_color(self, index):
+
+        colors = [  (0,0,1), 
+                    (0,0,0), 
+                    (1,0,0),
+                    (0,1,1), 
+                    (1,0,1), 
+                    (1,1,0),
+                    (0.25,0.25,0.25)  ]
+        
+        if index <= 6:
+            return colors[index]
+        else:
+            return tuple(np.random.randint(0, 255, size=3) / 255)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

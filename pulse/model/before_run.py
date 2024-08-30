@@ -1,4 +1,5 @@
 # fmt: off
+
 from collections import defaultdict
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 import numpy as np
@@ -72,7 +73,7 @@ class BeforeRun:
                         for typed_id in typed_ids:
 
                             if selection_type == "lines":
-                                self.model.mesh.lines_from_model[typed_id]
+                                self.model.mesh.line_to_elements[typed_id]
 
                             elif selection_type == "elements":
                                 self.structural_elements[typed_id]
@@ -147,7 +148,7 @@ class BeforeRun:
                 self.check_set_material = True
                 if line_id not in lines_without_materials:
                     lines_without_materials.append(line_id)
-                
+
             if element.cross_section is None:
                 if element.element_type:
                     self.check_set_crossSection = True
@@ -159,14 +160,15 @@ class BeforeRun:
             else:        
 
                 if element.element_type == 'expansion_joint':
-                    if element.cross_section.area_fluid == 0:
+                    if element.expansion_joint_data is None:
                         self.check_set_crossSection = True
                         if element.index not in elements_without_cross_sections[line_id]:
                             elements_without_cross_sections[line_id].append(element.index)
                         if line_id not in lines_without_cross_sections:
                             lines_without_cross_sections.append(line_id)
-                        
+
                 else:
+
                     if element.cross_section.thickness == 0:
                         if element.cross_section.area == 0:
                             self.check_set_crossSection = True
@@ -174,41 +176,51 @@ class BeforeRun:
                                 elements_without_cross_sections[line_id].append(element.index)
                             if line_id not in lines_without_cross_sections:
                                 lines_without_cross_sections.append(line_id)
-                            
+
         return lines_without_materials, elements_without_cross_sections
 
     def check_fluid_and_cross_section_in_all_elements(self):
         """
         This method checks if all acoustic elements have a fluid object and a cross section object attributed.
         """
+
         self.check_set_fluid = False
         self.check_set_crossSection = False
         lines_without_fluids = list()
         lines_without_cross_sections = list()
         elements_without_cross_sections = defaultdict(list)
+
         for element in self.acoustic_elements.values():
+
+            structural_element = self.structural_elements[element.index]
+
             line_id = self.model.mesh.elements_to_line[element.index]
             if element.fluid is None:
-                if 'pipe_' in self.structural_elements[element.index].element_type:
+                if structural_element.element_type in ["pipe_1", "valve", "expansion_joint"]:
                     self.check_set_fluid = True
                     if line_id not in lines_without_fluids:
                         lines_without_fluids.append(line_id)
-                    
+
             if element.cross_section is None:
+
                 self.check_set_crossSection = True
                 if element.index not in elements_without_cross_sections[line_id]:
                     elements_without_cross_sections[line_id].append(element.index)
                 if line_id not in lines_without_cross_sections:
                         lines_without_cross_sections.append(line_id)
+
             else:
-                if self.structural_elements[element.index].element_type == 'expansion_joint':
-                    if element.cross_section.area_fluid == 0:
+
+                if structural_element.element_type == 'expansion_joint':
+                    if structural_element.expansion_joint_data is None:
                         self.check_set_crossSection = True
                         if element.index not in elements_without_cross_sections[line_id]:
                             elements_without_cross_sections[line_id].append(element.index)
                         if line_id not in lines_without_cross_sections:
                             lines_without_cross_sections.append(line_id)     
+
                 else:    
+
                     if element.cross_section.thickness == 0:
                         if element.cross_section.area == 0:
                             self.check_set_crossSection = True
@@ -372,28 +384,28 @@ class BeforeRun:
                 PrintMessageInput([window_title, title, list_messages[index]])
 
 
-    def check_is_there_a_problem(self, analysis_ID):
+    def check_is_there_a_problem(self, analysis_id):
 
         title = " Insufficient model inputs "
 
-        cross_section_message = "You should set a Cross-Section to all elements before proceeding with the model solution.!"
+        cross_section_message = "You should set a Cross-Section to all elements before proceeding with the model solution.\n\n"
         #
-        material_message = "You should to set a Material to all elements before trying to run any Analysis!\n\n"
+        material_message = "You should to set a Material to all elements before trying to run any Analysis.\n\n"
         material_message += "Lines without material assignment: \n{}"
         #
-        fluid_message = "You should to set a Fluid to all elements before trying to run any Analysis!\n\n"
+        fluid_message = "You should to set a Fluid to all elements before trying to run any Analysis.\n\n"
         fluid_message += "Lines without fluid assignment: \n{}"
         #
         all_fluid_inputs_message = "You should insert all fluid properties for wide-duct, LRF fluid equivalent and " 
         all_fluid_inputs_message += "LRF full acoustic element types before proceeding with the model solution.\n\n"
         all_fluid_inputs_message += "Lines with incomplete fluid properties: \n{}"
         #
-        structural_message = "You should to apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis!"
+        structural_message = "You should to apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis."
         #
         acoustic_message = "Enter a nodal acoustic excitation to proceed with the Harmonic Analysis processing. "
         acoustic_message += "\n\nAvailable acoustic excitations: acoustic pressure; compressor excitation; volume velocity."
 
-        if analysis_ID == 2:
+        if analysis_id == 2:
 
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             if self.check_set_material:
@@ -422,7 +434,7 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
-        elif analysis_ID == 4:
+        elif analysis_id == 4:
             lines_without_materials = self.check_material_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
@@ -462,7 +474,7 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
-        elif analysis_ID == 0 or analysis_ID == 1:
+        elif analysis_id == 0 or analysis_id == 1:
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             self.check_nodes_attributes(structural=True)
 
@@ -496,7 +508,7 @@ class BeforeRun:
                     PrintMessageInput([window_title_1, title, structural_message])
                     return True
 
-        elif analysis_ID == 3:
+        elif analysis_id == 3:
 
             lines_without_materials = self.check_material_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
@@ -546,7 +558,7 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, acoustic_message])
                 return True
 
-        elif analysis_ID == 5 or analysis_ID == 6:
+        elif analysis_id == 5 or analysis_id == 6:
 
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
@@ -658,8 +670,8 @@ class BeforeRun:
             if (element_type == "pipe_1" and len(section_parameters) == 6) or "beam_1" in element_type:
 
                 if len(tags) == 1:
-                    line_ID = tags[0]
-                    length_1, edge_nodes_1 = self.preprocessor.get_line_length(line_ID)
+                    line_id = tags[0]
+                    length_1, edge_nodes_1 = self.properties.get_line_length(line_id)
 
                     if element_type == "pipe_1" and len(section_parameters) == 6:
                         parameter = section_parameters[0]
@@ -679,7 +691,7 @@ class BeforeRun:
 
                     for i, tag in enumerate(tags):
                         filtered_lines = list()                                
-                        length_0, edge_nodes_0 = self.preprocessor.get_line_length(tag)
+                        length_0, edge_nodes_0 = self.properties.get_line_length(tag)
                         lines = self.get_lines_from_nodes(edge_nodes_0)
                         for line in lines:
                             if line in tags and line not in filtered_lines:
@@ -699,7 +711,7 @@ class BeforeRun:
                                                                                                     neighboor_data, 
                                                                                                     index   )
                     
-                    aux = {}
+                    aux = dict()
                     if len(neighboor_data)>0:
                         for ind, neigh_lines in neighboor_data.items():
 
@@ -709,17 +721,21 @@ class BeforeRun:
                                 parameter = max(section_parameters)
 
                             lengths = list()
-                            for n_line in neigh_lines:
-                                length, _ = self.preprocessor.get_line_length(n_line)
+                            for _line_id in neigh_lines:
+                                length, _ = self.properties.get_line_length(_line_id)
                                 lengths.append(length)
+
                             total_length = np.sum(lengths)
                             ratio = total_length/parameter
-                            aux[ind] = {"section parameter" : parameter,
+
+                            aux[ind] = {
+                                        "section parameter" : parameter,
                                         "lines" : neigh_lines,
                                         "lengths" : lengths,
                                         "total length" : total_length,
-                                        "ratio" : ratio}
-                    
+                                        "ratio" : ratio
+                                        }
+
                     self.one_section_multiple_lines[section_id] = aux
 
     def get_lines_from_nodes(self, edge_nodes):

@@ -139,23 +139,16 @@ class StructuralElement:
         self.stress_intensification = kwargs.get('stress_intensification', True)
         
         self._initialize()
+
         self.reset_expansion_joint_data()
-        self.reset_valve_parameters()
-
-        self.delta_x = self.last_node.x - self.first_node.x
-        self.delta_y = self.last_node.y - self.first_node.y
-        self.delta_z = self.last_node.z - self.first_node.z
-
-        self.element_center_coordinates = np.array([(self.last_node.x + self.first_node.x)/2, 
-                                                    (self.last_node.y + self.first_node.y)/2,
-                                                    (self.last_node.z + self.first_node.z)/2], dtype=float)
+        self.reset_valve_data()
 
     def _initialize(self):
 
         self.section_rotation_xyz_undeformed = None
         self.deformed_rotation_xyz = None
         self.deformed_length = None
-        self.xaxis_beam_rotation = 0
+        self.beam_xaxis_rotation = 0
         
         self.internal_pressure = 0
         self.external_pressure = 0
@@ -178,9 +171,53 @@ class StructuralElement:
         self.internal_load = None
         self.static_analysis_evaluated = False
         self.perforated_plate = None
-        self.valve_parameters = None
+
         self.variable_section = False
         self.force_offset = True
+
+    def reset_expansion_joint_data(self):
+        self.expansion_joint_data = None
+        self.joint_length = 0
+        self.joint_effective_diameter = 0
+        self.joint_mass = 0  
+        self.joint_axial_locking_criteria = 0
+        self.joint_rods_included = False
+        self.joint_axial_stiffness = 0
+        self.joint_transversal_stiffness = 0
+        self.joint_torsional_stiffness = 0
+        self.joint_angular_stiffness = 0
+        self.joint_stiffness_table_names = list()
+
+    def reset_valve_data(self):
+        self.valve_data = dict()
+        self.valve_length = 0
+        self.valve_stiffening_factor = 10
+        self.valve_mass = 0
+
+    def set_expansion_joint_data(self, data):
+        if isinstance(data, dict):
+
+            self.expansion_joint_data = data
+            self.joint_length = data["joint_length"]
+            self.joint_effective_diameter = data["effective_diameter"]
+            self.joint_mass = data["joint_mass"]
+            self.joint_axial_locking_criteria = data["axial_locking_criteria"]
+            self.joint_rods_included = data["rods"]
+
+            stiffness_values = data["stiffness_values"]
+
+            self.joint_axial_stiffness = stiffness_values[0]
+            self.joint_transversal_stiffness = stiffness_values[1]
+            self.joint_torsional_stiffness = stiffness_values[2]
+            self.joint_angular_stiffness = stiffness_values[3]
+
+    def set_valve_data(self, data):
+        if isinstance(data, dict):
+
+            self.valve_data = data
+            self.valve_length = data["valve_length"]
+            self.valve_stiffening_factor = data["stiffening_factor"]
+            self.valve_mass = data["valve_mass"]
 
     @property
     def length(self):
@@ -193,6 +230,24 @@ class StructuralElement:
             Element length.
         """
         return distance(self.first_node, self.last_node) 
+
+    @ property
+    def delta_x(self):
+        return self.last_node.x - self.first_node.x
+
+    @ property
+    def delta_y(self):
+        return self.last_node.y - self.first_node.y
+
+    @ property
+    def delta_z(self):
+        return self.last_node.z - self.first_node.z
+
+    @ property
+    def center_coordinates(self):
+        return np.array([(self.last_node.x + self.first_node.x) / 2, 
+                         (self.last_node.y + self.first_node.y) / 2,
+                         (self.last_node.z + self.first_node.z) / 2 ], dtype=float)
 
     @property
     def global_dof(self):
@@ -314,12 +369,12 @@ class StructuralElement:
             else:
                 stiffness = Rt @ self.stiffness_matrix_pipes() @ R
                 mass = Rt @ self.mass_matrix_pipes() @ R
-        elif self.element_type in ['beam_1']:
+        elif self.element_type == 'beam_1':
             stiffness = Rt @ self.stiffness_matrix_beam() @ R
             mass = Rt @ self.mass_matrix_beam() @ R
-        elif self.element_type in ['valve']:
-            stiffness = Rt @ self.stiffness_matrix_pipes()*self.valve_stiffening_factor @ R
-            mass = Rt @ self.mass_matrix_valve() @ R   
+        elif self.element_type == 'valve':
+            stiffness = Rt @ (self.stiffness_matrix_pipes() * self.valve_stiffening_factor) @ R
+            mass = Rt @ self.mass_matrix_valve() @ R
         # elif self.element_type == "expansion_joint":
         #     stiffness = Rt @ self.stiffness_matrix_expansion_joint() @ R
         #     mass = Rt @ self.mass_matrix_expansion_joint() @ R            
@@ -462,7 +517,7 @@ class StructuralElement:
         # invR = inverse_matrix_3x3(self.sub_transformation_matrix)
         # u ,v, w = invR.T
         # self.section_directional_vectors = [u, v, w]
-        return self.element_center_coordinates, self.section_directional_vectors 
+        return self.center_coordinates, self.section_directional_vectors 
 
     def stiffness_matrix_pipes(self):
         """
@@ -1608,55 +1663,14 @@ class StructuralElement:
         return M_matrix
 
     def mass_matrix_valve(self):
-        L_e = self.valve_length/self.length
+        L_e = self.valve_length / self.length
         M_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        M1 = M2 = M3 = self.valve_mass/(2*L_e)
+        M1 = M2 = M3 = self.valve_mass / (2 * L_e)
         indexes = np.array([0,1,2,6,7,8], dtype=int)
 
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]
         return M_matrix
-
-    def reset_expansion_joint_data(self):
-        self.expansion_joint_data = None
-        self.joint_length = 0
-        self.joint_effective_diameter = 0
-        self.joint_mass = 0  
-        self.joint_axial_locking_criteria = 0
-        self.joint_rods_included = False
-        self.joint_axial_stiffness = 0
-        self.joint_transversal_stiffness = 0
-        self.joint_torsional_stiffness = 0
-        self.joint_angular_stiffness = 0
-        self.joint_stiffness_table_names = list()
-
-    def reset_valve_parameters(self):
-        self.valve_parameters = None
-        self.valve_elements = list()
-        self.flange_elements = list()
-        self.valve_section_parameters = dict()
-        self.valve_length = 0
-        self.valve_stiffening_factor = 10
-        self.valve_mass = 0
-        self.valve_center_coordinates = None
-        self.flange_parameters = dict()  
-        self.valve_diameters = dict()
-
-    def set_expansion_joint_data(self, data):
-        if isinstance(data, dict):
-
-            self.expansion_joint_data = data
-            self.joint_length = data["joint_length"]
-            self.joint_effective_diameter = data["effective_diameter"]
-            self.joint_mass = data["joint_mass"]
-            self.joint_axial_locking_criteria = data["axial_locking_criteria"]
-            self.joint_rods_included = data["rods"]
-            stiffness_values = data["stiffness_values"]
-
-            self.joint_axial_stiffness = stiffness_values[0]
-            self.joint_transversal_stiffness = stiffness_values[1]
-            self.joint_torsional_stiffness = stiffness_values[2]
-            self.joint_angular_stiffness = stiffness_values[3]
 
     def get_array_values(self, value, number_frequencies):
         if isinstance(value, np.ndarray):

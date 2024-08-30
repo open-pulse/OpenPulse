@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>392</width>
-    <height>574</height>
+    <height>426</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -407,18 +407,18 @@
          <property name="bottomMargin">
           <number>6</number>
          </property>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_14">
+         <item row="3" column="2">
+          <widget class="QSpinBox" name="plane_rotation_z_spinbox">
            <property name="minimumSize">
             <size>
-             <width>0</width>
-             <height>22</height>
+             <width>60</width>
+             <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>16777215</width>
-             <height>22</height>
+             <width>60</width>
+             <height>16777215</height>
             </size>
            </property>
            <property name="font">
@@ -426,16 +426,16 @@
              <pointsize>10</pointsize>
             </font>
            </property>
-           <property name="text">
-            <string>Plane rotation</string>
-           </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
+           <property name="maximum">
+            <number>360</number>
+           </property>
           </widget>
          </item>
-         <item row="1" column="3">
-          <widget class="QLabel" name="label_10">
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_8">
            <property name="minimumSize">
             <size>
              <width>36</width>
@@ -454,12 +454,15 @@
             </font>
            </property>
            <property name="text">
-            <string>[deg]</string>
+            <string>Ry:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QSlider" name="plane_rotation_x_slider">
+         <item row="3" column="1">
+          <widget class="QSlider" name="plane_rotation_z_slider">
            <property name="maximum">
             <number>360</number>
            </property>
@@ -468,54 +471,16 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="3">
-          <widget class="QLabel" name="label_11">
-           <property name="minimumSize">
-            <size>
-             <width>36</width>
-             <height>0</height>
-            </size>
+         <item row="2" column="1">
+          <widget class="QSlider" name="plane_rotation_y_slider">
+           <property name="maximum">
+            <number>360</number>
            </property>
-           <property name="maximumSize">
-            <size>
-             <width>36</width>
-             <height>16777215</height>
-            </size>
+           <property name="value">
+            <number>90</number>
            </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>[deg]</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_7">
-           <property name="minimumSize">
-            <size>
-             <width>36</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>36</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Rx:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
@@ -570,13 +535,142 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QSlider" name="plane_rotation_y_slider">
+         <item row="1" column="1">
+          <widget class="QSlider" name="plane_rotation_x_slider">
            <property name="maximum">
             <number>360</number>
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="3">
+          <widget class="QLabel" name="label_10">
+           <property name="minimumSize">
+            <size>
+             <width>36</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>36</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>[deg]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QLabel" name="label_11">
+           <property name="minimumSize">
+            <size>
+             <width>36</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>36</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>[deg]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label_7">
+           <property name="minimumSize">
+            <size>
+             <width>36</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>36</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Rx:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_14">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>22</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Plane rotation</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QSpinBox" name="plane_rotation_x_spinbox">
+           <property name="minimumSize">
+            <size>
+             <width>60</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="maximum">
+            <number>360</number>
            </property>
           </widget>
          </item>
@@ -605,96 +699,8 @@
            <property name="maximum">
             <number>360</number>
            </property>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QSpinBox" name="plane_rotation_z_spinbox">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="maximum">
-            <number>360</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSlider" name="plane_rotation_z_slider">
-           <property name="maximum">
-            <number>360</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="minimumSize">
-            <size>
-             <width>36</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>36</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Ry:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QSpinBox" name="plane_rotation_x_spinbox">
-           <property name="minimumSize">
-            <size>
-             <width>60</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="maximum">
-            <number>360</number>
+           <property name="value">
+            <number>90</number>
            </property>
           </widget>
          </item>
@@ -932,5 +938,198 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>relative_plane_position_x_slider</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>relative_plane_position_x_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>214</x>
+     <y>121</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>134</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relative_plane_position_x_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relative_plane_position_x_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>108</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>126</x>
+     <y>122</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relative_plane_position_y_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relative_plane_position_y_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>173</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>173</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relative_plane_position_y_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relative_plane_position_y_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>189</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>176</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relative_plane_position_z_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relative_plane_position_z_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>220</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>221</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relative_plane_position_z_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relative_plane_position_z_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>234</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>124</x>
+     <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_x_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_x_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>325</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>316</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_x_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_x_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>334</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>214</x>
+     <y>331</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_y_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_y_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>374</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>371</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_y_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_y_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>388</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>152</x>
+     <y>374</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_z_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_z_spinbox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>235</x>
+     <y>430</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>309</x>
+     <y>422</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>plane_rotation_z_spinbox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>plane_rotation_z_slider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>309</x>
+     <y>441</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>128</x>
+     <y>430</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>346</width>
-    <height>607</height>
+    <height>576</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -213,7 +213,7 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEdit_nodeID">
+          <widget class="QLineEdit" name="lineEdit_node_id">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -485,10 +485,11 @@
            <property name="font">
             <font>
              <family>MS Shell Dlg 2</family>
-             <pointsize>11</pointsize>
+             <pointsize>10</pointsize>
              <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
+             <kerning>false</kerning>
             </font>
            </property>
            <property name="toolTip">
@@ -534,7 +535,7 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QTabWidget" name="tabWidget_reactions">
+       <widget class="QTabWidget" name="tabWidget_main">
         <property name="maximumSize">
          <size>
           <width>400</width>
@@ -563,7 +564,7 @@
             <property name="minimumSize">
              <size>
               <width>282</width>
-              <height>170</height>
+              <height>0</height>
              </size>
             </property>
             <property name="maximumSize">
@@ -641,7 +642,7 @@
             <property name="currentIndex">
              <number>0</number>
             </property>
-            <widget class="QWidget" name="tab_nodes_with_springs">
+            <widget class="QWidget" name="tab_reactions_at_springs">
              <attribute name="title">
               <string>Reactions at springs</string>
              </attribute>
@@ -712,7 +713,7 @@
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="tab_nodes_with_dampers">
+            <widget class="QWidget" name="tab_reactions_at_dampers">
              <attribute name="title">
               <string>Reactions at dampers</string>
              </attribute>
@@ -951,7 +952,7 @@
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>90</height>
+             <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
@@ -1345,13 +1346,13 @@
           <widget class="QPushButton" name="pushButton_plot_data">
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>100</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>90</width>
+             <width>100</width>
              <height>30</height>
             </size>
            </property>
@@ -1376,13 +1377,13 @@
           <widget class="QPushButton" name="pushButton_export_data">
            <property name="minimumSize">
             <size>
-             <width>90</width>
+             <width>100</width>
              <height>30</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>90</width>
+             <width>100</width>
              <height>30</height>
             </size>
            </property>

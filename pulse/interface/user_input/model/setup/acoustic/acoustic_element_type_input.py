@@ -58,33 +58,34 @@ class AcousticElementTypeInput(QDialog):
     def _define_qt_variables(self):
 
         # QCheckBox
-        self.checkBox_flow_effects : QCheckBox
+        self.checkBox_flow_effects: QCheckBox
 
         # QComboBox
-        self.comboBox_element_type : QComboBox
-        self.comboBox_selection : QComboBox
+        self.comboBox_element_type: QComboBox
+        self.comboBox_selection: QComboBox
 
         # QLabel
-        self.label_proportional_damping : QLabel
-        self.label_vol_flow : QLabel
-        self.label_volume_rate_unit : QLabel
-        self.label_selected_id : QLabel
+        self.label_proportional_damping: QLabel
+        self.label_vol_flow: QLabel
+        self.label_volume_rate_unit: QLabel
+        self.label_selected_id: QLabel
 
         # QLineEdit
-        self.lineEdit_vol_flow : QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-        self.lineEdit_proportional_damping : QLineEdit
+        self.lineEdit_vol_flow: QLineEdit
+        self.lineEdit_selected_id: QLineEdit
+        self.lineEdit_proportional_damping: QLineEdit
 
         # QPushButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
 
         # QTabWidget
-        self.tabWidget_main : QTabWidget
+        self.tabWidget_main: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_element_type : QTreeWidget
+        self.treeWidget_element_type: QTreeWidget
 
     def _create_connections(self):
         #
@@ -93,7 +94,8 @@ class AcousticElementTypeInput(QDialog):
         self.comboBox_element_type.currentIndexChanged.connect(self.element_type_change_callback)
         self.comboBox_selection.currentIndexChanged.connect(self.attribution_type_callback)
         #
-        self.pushButton_confirm.clicked.connect(self.element_type_attribution_callback)
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -246,7 +248,7 @@ class AcousticElementTypeInput(QDialog):
             return True
         return False
 
-    def element_type_attribution_callback(self):
+    def attribute_callback(self):
 
         flow_effects = self.checkBox_flow_effects.isChecked()
         element_type_index = self.comboBox_element_type.currentIndex()
@@ -268,7 +270,7 @@ class AcousticElementTypeInput(QDialog):
 
         index_selection = self.comboBox_selection.currentIndex()
         if index_selection == 0:
-            line_ids = list(self.model.mesh.lines_from_model.keys())
+            line_ids = app().project.model.mesh.lines_from_model
             print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
 
         elif index_selection == 1:
@@ -455,7 +457,7 @@ class AcousticElementTypeInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.element_type_attribution_callback()
+            self.attribute_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

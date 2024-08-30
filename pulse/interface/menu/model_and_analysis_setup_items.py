@@ -47,7 +47,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_beam_xaxis_rotation = self.add_item('Set Beam X-axis Rotation')
         self.item_child_set_rotation_decoupling_dofs = self.add_item('Set B2P Rotation Decoupling')
         self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening')
-        self.item_child_add_valves = self.add_item('Add Valves')
+        self.item_child_add_valve = self.add_item('Add Valve')
         self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
         self.item_child_set_inertial_loads = self.add_item('Set Inertial Loads')
         #
@@ -85,7 +85,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_elastic_nodal_links.clicked.connect(self.item_child_add_elastic_nodal_links_callback)
         self.item_child_set_inertial_loads.clicked.connect(self.item_child_set_inertial_loads_callback)
         self.item_child_set_stress_stiffening.clicked.connect(self.item_child_set_stress_stiffening_callback)
-        self.item_child_add_valves.clicked.connect(self.item_child_add_valves_callback)
+        self.item_child_add_valve.clicked.connect(self.item_child_add_valve_callback)
         self.item_child_add_expansion_joint.clicked.connect(self.item_child_add_expansion_joint_callback)
         self.item_child_set_beam_xaxis_rotation.clicked.connect(self.item_child_set_beam_x_axis_rotation_callback)
         self.item_child_set_rotation_decoupling_dofs.clicked.connect(self.item_child_set_rotation_decoupling_callback)
@@ -170,10 +170,8 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.main_window.input_ui.set_stress_stress_stiffening()
         app().main_window.set_input_widget(None)
 
-    def item_child_add_valves_callback(self):
-        obj = self.main_window.input_ui.add_valve()
-        if obj.complete:
-            self.main_window.plot_mesh()
+    def item_child_add_valve_callback(self):
+        self.main_window.input_ui.add_valve()
         app().main_window.set_input_widget(None)
 
     def item_child_add_expansion_joint_callback(self):
@@ -271,7 +269,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_inertial_loads.setDisabled(bool_key)
         self.item_child_add_elastic_nodal_links.setDisabled(bool_key)
         self.item_child_set_stress_stiffening.setDisabled(bool_key)
-        self.item_child_add_valves.setDisabled(bool_key)
+        self.item_child_add_valve.setDisabled(bool_key)
         self.item_child_add_expansion_joint.setDisabled(bool_key)  
         self.item_child_set_beam_xaxis_rotation.setDisabled(bool_key)
         self.item_child_set_rotation_decoupling_dofs.setDisabled(bool_key)

@@ -372,13 +372,13 @@ class SetCrossSectionInput(QDialog):
                                         section_parameters,
                                         variable_section=False)    
 
-    def check_if_lines_belongs_to_psd(self, lines):
+    def check_if_lines_belongs_to_psd(self, line_ids: list):
 
-        device_related_lines =app().loader.get_device_related_lines()
+        device_related_lines =app().loader.get_psd_related_lines()
 
         for psd_lines in device_related_lines.values():
-            for line in lines:
-                if line in psd_lines:
+            for line_id in line_ids:
+                if line_id in psd_lines:
                     self.lineEdit_selected_id.setText("")
                     title = "PSD cross-section edition not allowed"
                     message = "The PSD line sections could not be edited in the cross-section setup interface. "
@@ -428,7 +428,7 @@ class SetCrossSectionInput(QDialog):
     def pipe_section_attribution_callback(self):
 
         if self.comboBox_attribution_type.currentIndex() == 0:
-            line_ids = list(app().project.model.mesh.lines_from_model.keys())
+            line_ids = app().project.model.mesh.lines_from_model
 
         else:
 
@@ -452,8 +452,9 @@ class SetCrossSectionInput(QDialog):
         self.properties._remove_line_property("wall_formulation", line_ids)
         self.properties._remove_line_property("force_offset", line_ids)
         self.properties._remove_line_property("capped_end", line_ids)
-        self.properties._remove_line_property("expansion_joint", line_ids=line_ids)
-        self.properties._remove_line_property("valve", line_ids=line_ids)
+        self.properties._remove_line_property("expansion_joint_info", line_ids=line_ids)
+        self.properties._remove_line_property("valve_name", line_ids=line_ids)
+        self.properties._remove_line_property("valve_info", line_ids=line_ids)
 
         self.remove_table_files_from_expansion_joints(line_ids)
 
@@ -467,7 +468,7 @@ class SetCrossSectionInput(QDialog):
         section_info = self.input_widget.pipe_section_info
         cross_section = CrossSection(pipe_section_info=section_info)
 
-        self.properties._set_line_cross_section_property(section_info, line_ids)
+        self.properties._set_multiple_line_properties(section_info, line_ids)
         self.properties._set_line_property("cross_section", cross_section, line_ids)
 
         if self.tabWidget_pipe_section.currentIndex() == 0:
@@ -481,7 +482,7 @@ class SetCrossSectionInput(QDialog):
     def beam_section_attribution_callback(self):
         
         if self.comboBox_attribution_type.currentIndex() == 0:
-            line_ids = list(app().project.model.mesh.lines_from_model.keys())
+            line_ids = app().project.model.mesh.lines_from_model
 
         else:
             lineEdit = self.lineEdit_selected_id.text()
@@ -510,12 +511,13 @@ class SetCrossSectionInput(QDialog):
             self.preprocessor.add_valve_by_lines(line_ids, None)
             self.preprocessor.add_expansion_joint_by_lines(line_ids, None)
 
-            self.properties._set_line_cross_section_property(section_info, line_ids)
+            self.properties._set_multiple_line_properties(section_info, line_ids)
             self.properties._remove_line_property("wall_formulation", line_ids)
             self.properties._remove_line_property("force_offset", line_ids)
             self.properties._remove_line_property("capped_end", line_ids)
-            self.properties._remove_line_property("expansion_joint", line_ids=line_ids)
-            self.properties._remove_line_property("valve", line_ids=line_ids)
+            self.properties._remove_line_property("expansion_joint_info", line_ids=line_ids)
+            self.properties._remove_line_property("valve_name", line_ids=line_ids)
+            self.properties._remove_line_property("valve_info", line_ids=line_ids)
 
             self.remove_acoustic_related_data_from_lines(line_ids)
             self.remove_table_files_from_expansion_joints(line_ids)
@@ -578,19 +580,21 @@ class SetCrossSectionInput(QDialog):
             self.process_table_file_removal(table_names)
 
     def process_table_file_removal(self, table_names : list):
+
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("acoustic", table_name)
             app().pulse_file.write_imported_table_data_in_file()
 
     def remove_table_files_from_expansion_joints(self, line_ids: list):
+
         table_names = list()
         for line_id, data in self.properties.line_properties.items():
             data: dict
-            if "expansion_joint" in data.keys():
-                ej_data = data["expansion_joint"]
-                if line_id in line_ids and "table_names" in ej_data.keys():
-                    table_names.append(ej_data["table_names"])
+            if "expansion_joint_info" in data.keys():
+                ej_info = data["expansion_joint_info"]
+                if line_id in line_ids and "table_names" in ej_info.keys():
+                    table_names.append(ej_info["table_names"])
 
         if table_names:
             for table_name in table_names:

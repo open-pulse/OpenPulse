@@ -1,17 +1,14 @@
 from PyQt5.QtWidgets import QDialog, QPushButton
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.analysis.structural.structural_harmonic_analysis import StructuralHarmonicAnalysisInput
 from pulse.interface.user_input.analysis.coupled.coupled_harmonic_analysis import CoupledHarmonicAnalysisInput
 from pulse.interface.user_input.analysis.structural.structural_modal_analysis import StructuralModalAnalysisInput
 from pulse.interface.user_input.analysis.acoustic.acoustic_modal_analysis import AcousticModalAnalysisInput
 from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
-
-from pathlib import Path
 
 
 """
@@ -148,6 +145,7 @@ class AnalysisTypeInput(QDialog):
         self.project.set_analysis_type(self.analysis_id, 
                                        self.analysis_type_label, 
                                        self.analysis_method_label)
+
         self.project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
         self.complete = modal.complete
 
@@ -164,6 +162,7 @@ class AnalysisTypeInput(QDialog):
         self.project.set_analysis_type(self.analysis_id, 
                                        self.analysis_type_label, 
                                        self.analysis_method_label)
+
         self.project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
         self.complete = modal.complete
 

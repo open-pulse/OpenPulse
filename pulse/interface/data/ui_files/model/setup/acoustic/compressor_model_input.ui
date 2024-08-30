@@ -106,7 +106,7 @@
          <enum>QFrame::NoFrame</enum>
         </property>
         <property name="text">
-         <string>Reciprocating compressor model</string>
+         <string>Reciprocating compressor model setup</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>

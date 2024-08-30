@@ -7,12 +7,13 @@ from pulse import app, UI_DIR
 from pulse.editor.single_volume_psd import SingleVolumePSD
 from pulse.editor.dual_volume_psd import DualVolumePSD
 
+from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.utils import check_inputs
 
 import numpy as np
-from configparser import ConfigParser
+
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -26,7 +27,8 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.project = app().project
-        self.model = app().project.model
+
+        self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
 
         self._config_window()
@@ -49,7 +51,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
     def _initialize(self):
         self.keep_window_open = True
-        self.preprocessor = self.project.preprocessor
+        self.nodes_from_removed_lines = list()
 
     def _define_qt_variables(self):
 
@@ -106,7 +108,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         # QPushButton
         self.pushButton_cancel : QPushButton
-        self.pushButton_confirm : QPushButton
+        self.pushButton_create_psd : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
 
@@ -134,9 +136,9 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
         #
         self.pushButton_cancel.clicked.connect(self.close)
-        self.pushButton_confirm.clicked.connect(self.confirm_button_pressed)
-        self.pushButton_remove.clicked.connect(self.remove_button_pressed)
-        self.pushButton_reset.clicked.connect(self.reset_button_pressed)
+        self.pushButton_create_psd.clicked.connect(self.create_psd_callback)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
@@ -217,7 +219,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.lineEdit_volume2_wall_thickness.setDisabled(bool(index))
 
         if index:
-            self.spinBox_volumes_spacing.setValue(0.025)
+            # self.spinBox_volumes_spacing.setValue(0.025)
             self.comboBox_volumes_connection.setCurrentIndex(3)
         else:
             self.spinBox_volumes_spacing.setFocus()
@@ -293,23 +295,16 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 0:
             self.pushButton_cancel.setDisabled(False)
-            self.pushButton_confirm.setDisabled(False)
+            self.pushButton_create_psd.setDisabled(False)
         else:
             self.pushButton_cancel.setDisabled(True)
-            self.pushButton_confirm.setDisabled(True)       
-
-    def update_tabs_visibility(self):
-        if self.model.psd_data:
-            self.tabWidget_main.setTabVisible(1, True)
-        else:
-            self.tabWidget_main.setCurrentIndex(0)
-            self.tabWidget_main.setTabVisible(1, False)
+            self.pushButton_create_psd.setDisabled(True)
 
     def on_click_item(self, item):
         self.lineEdit_selection.setText(item.text(0))
         self.pushButton_remove.setDisabled(False)
-        if item.text(0) in self.psd_data.psd_lines.keys():
-            device_lines = self.psd_data.psd_lines[item.text(0)]
+        if item.text(0) in self.psds_lines.keys():
+            device_lines = self.psds_lines[item.text(0)]
             app().main_window.set_selection(lines = device_lines)
 
     def on_double_click_item(self, item):
@@ -325,24 +320,26 @@ class PulsationSuppressionDeviceInput(QDialog):
         elif index == 2:
             self.lineEdit_rotation_plane.setText("XY-plane")
 
-    def check_input_label(self):
+    def check_psd_label(self):
 
-        self.filter_label = self.lineEdit_device_label.text()
-        if self.filter_label == "":
+        psd_label = self.lineEdit_device_label.text()
+        if psd_label == "":
             self.lineEdit_device_label.setFocus()
             title = "Empty field detected"
             message = "Enter a device label to proceed."
             PrintMessageInput([window_title_2, title, message])
-            return True
+            return True, None
         
-        elif self.filter_label in self.model.psd_data.keys():
+        elif psd_label in self.psds_data.keys():
             self.lineEdit_device_label.setFocus()
             
             title = "Invalid input"
-            message = "The typed 'Device label' has already been applied to other PSD. "
+            message = "The typed 'device label' has already been applied to other PSD. "
             message += "You should enter a different label to proceed with the PSD configuration."
             PrintMessageInput([window_title_2, title, message])
-            return True
+            return True, None
+        
+        return False, psd_label
 
     def check_connecting_coords(self):
 
@@ -361,7 +358,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.lineEdit_connecting_coord_z.setFocus()
             return True
         
-        self.suppression_device_data["connecting coords"] = [round(coord_x, 6), round(coord_y, 6), round(coord_z, 6)]
+        self._psd_data["connecting coords"] = [round(coord_x, 6), round(coord_y, 6), round(coord_z, 6)]
 
     def check_volume1_info(self):
 
@@ -380,7 +377,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.lineEdit_volume1_wall_thickness.setFocus()
             return True
 
-        self.suppression_device_data["volume #1 parameters"] = [diameter, wall_thickness, length]
+        self._psd_data["volume #1 parameters"] = [diameter, wall_thickness, length]
 
     def check_volume2_info(self):
 
@@ -399,7 +396,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.lineEdit_volume2_wall_thickness.setFocus()
             return True
 
-        self.suppression_device_data["volume #2 parameters"] = [diameter, wall_thickness, length]
+        self._psd_data["volume #2 parameters"] = [diameter, wall_thickness, length]
 
     def check_pipe1_info(self):
 
@@ -431,7 +428,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         else:
             values = [diameter, wall_thickness, length]
 
-        self.suppression_device_data["pipe #1 parameters"] = values
+        self._psd_data["pipe #1 parameters"] = values
 
     def check_pipe2_info(self):
 
@@ -463,7 +460,7 @@ class PulsationSuppressionDeviceInput(QDialog):
         else:
             values = [diameter, wall_thickness, length]
 
-        self.suppression_device_data["pipe #2 parameters"] = values
+        self._psd_data["pipe #2 parameters"] = values
 
     def check_pipe3_info(self):
         
@@ -479,7 +476,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             
         index = self.comboBox_volumes_connection.currentIndex()
         if index in [1, 2]:
-            vol_diameter, *args = self.suppression_device_data["volume #1 parameters"]           
+            vol_diameter, *args = self._psd_data["volume #1 parameters"]           
 
         if index in [0 ,1]:
 
@@ -495,29 +492,26 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         if index in [0, 1]:
             parameters = [diameter, wall_thickness, length, distance]
-            self.suppression_device_data["pipe #3 parameters"] = parameters  
+            self._psd_data["pipe #3 parameters"] = parameters  
 
         if index in [1, 2]:
-            _length = self.suppression_device_data["volumes spacing"]
+            _length = self._psd_data["volumes spacing"]
             _wall_thickness = round((vol_diameter - diameter) / 2 + wall_thickness, 6)
             _parameters = [vol_diameter, _wall_thickness, _length]
 
-            self.suppression_device_data["pipe #4 parameters"] = _parameters
+            self._psd_data["pipe #4 parameters"] = _parameters
 
     def check_psd_inputs(self):
 
-        self.suppression_device_data = dict()
-
-        if self.check_input_label():
-            return True
+        self._psd_data = dict()
 
         main_axis = self.comboBox_main_axis.currentText()[1:]
-        self.suppression_device_data["main axis"] = main_axis
+        self._psd_data["main axis"] = main_axis
 
         if self.comboBox_connection_pipe.currentIndex() == 0:
-            self.suppression_device_data["connection pipe"] = "pipe #1"
+            self._psd_data["connection pipe"] = "pipe #1"
         else:
-            self.suppression_device_data["connection pipe"] = "pipe #2"
+            self._psd_data["connection pipe"] = "pipe #2"
 
         if self.check_connecting_coords():
             return True
@@ -536,7 +530,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             if self.check_pipe2_info():
                 return True
 
-            self.suppression_device_data["volumes spacing"] = self.spinBox_volumes_spacing.value()
+            self._psd_data["volumes spacing"] = self.spinBox_volumes_spacing.value()
 
             if self.check_pipe3_info():
                 return True
@@ -547,13 +541,13 @@ class PulsationSuppressionDeviceInput(QDialog):
             index_vol_connect = self.comboBox_volumes_connection.currentIndex()
 
             if index_vol_connect == 0:
-                self.suppression_device_data["volumes connection"] = "pipe"
+                self._psd_data["volumes connection"] = "pipe"
 
             elif index_vol_connect == 1:
-                self.suppression_device_data["volumes connection"] = "pipe-plate"
+                self._psd_data["volumes connection"] = "pipe-plate"
 
             elif index_vol_connect == 2:
-                self.suppression_device_data["volumes connection"] = "perf. plate"
+                self._psd_data["volumes connection"] = "perf. plate"
 
         else:
 
@@ -568,12 +562,12 @@ class PulsationSuppressionDeviceInput(QDialog):
 
     def check_geometric_criteria_for_single_volume_psd(self):
 
-        volume1_length = self.suppression_device_data["volume #1 parameters"][2]
+        volume1_length = self._psd_data["volume #1 parameters"][2]
 
-        if len(self.suppression_device_data["pipe #1 parameters"]) == 5:
+        if len(self._psd_data["pipe #1 parameters"]) == 5:
 
-            pipe1_diameter = self.suppression_device_data["pipe #1 parameters"][0]
-            pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
+            pipe1_diameter = self._psd_data["pipe #1 parameters"][0]
+            pipe1_distance = self._psd_data["pipe #1 parameters"][3]
 
             if pipe1_distance <= pipe1_diameter / 2:
                 title = "Invalid pipe #1 distance"
@@ -581,7 +575,7 @@ class PulsationSuppressionDeviceInput(QDialog):
                 PrintMessageInput([window_title_2, title, message])
                 return True
 
-            if len(self.suppression_device_data["pipe #2 parameters"]) == 3: # i.e. pipe #2 is axial
+            if len(self._psd_data["pipe #2 parameters"]) == 3: # i.e. pipe #2 is axial
                 if pipe1_distance >= volume1_length - pipe1_diameter / 2:
                     title = "Invalid pipe #1 distance"
                     message = "For the radial-axial psd configuration, the 'pipe #1 distance' should be less "
@@ -589,10 +583,10 @@ class PulsationSuppressionDeviceInput(QDialog):
                     PrintMessageInput([window_title_2, title, message])
                     return True
                 
-        if len(self.suppression_device_data["pipe #2 parameters"]) == 5:
+        if len(self._psd_data["pipe #2 parameters"]) == 5:
 
-            pipe2_diameter = self.suppression_device_data["pipe #2 parameters"][1]
-            pipe2_distance = self.suppression_device_data["pipe #2 parameters"][3]
+            pipe2_diameter = self._psd_data["pipe #2 parameters"][1]
+            pipe2_distance = self._psd_data["pipe #2 parameters"][3]
 
             if pipe2_distance >= volume1_length - pipe2_diameter / 2:
                 title = "Invalid pipe #2 distance"
@@ -601,9 +595,9 @@ class PulsationSuppressionDeviceInput(QDialog):
                 PrintMessageInput([window_title_2, title, message])
                 return True
 
-            if len(self.suppression_device_data["pipe #1 parameters"]) == 5:
+            if len(self._psd_data["pipe #1 parameters"]) == 5:
 
-                pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
+                pipe1_distance = self._psd_data["pipe #1 parameters"][3]
 
                 if pipe1_distance >= pipe2_distance:
                     title = "Invalid pipe #1 distance"
@@ -611,7 +605,7 @@ class PulsationSuppressionDeviceInput(QDialog):
                     PrintMessageInput([window_title_2, title, message])
                     return True
             
-            if len(self.suppression_device_data["pipe #1 parameters"]) == 3:
+            if len(self._psd_data["pipe #1 parameters"]) == 3:
                 if pipe2_distance <= pipe2_diameter:
                     title = "Invalid pipe #2 length"
                     message = "For the axial-radial configuration, the 'pipe #2 distance' must be greater than half of the 'pipe #2 diameter'"
@@ -620,16 +614,16 @@ class PulsationSuppressionDeviceInput(QDialog):
                 
     def check_geometric_criteria_for_double_volume_psd(self):
         
-        volumes_spacing = self.suppression_device_data["volumes spacing"]
-        volume1_length = self.suppression_device_data["volume #1 parameters"][2]
-        volume2_length = self.suppression_device_data["volume #2 parameters"][2]
-        pipe3_length = self.suppression_device_data["pipe #3 parameters"][2]
-        pipe3_distance = self.suppression_device_data["pipe #3 parameters"][3]
+        volumes_spacing = self._psd_data["volumes spacing"]
+        volume1_length = self._psd_data["volume #1 parameters"][2]
+        volume2_length = self._psd_data["volume #2 parameters"][2]
+        pipe3_length = self._psd_data["pipe #3 parameters"][2]
+        pipe3_distance = self._psd_data["pipe #3 parameters"][3]
         
 
-        if len(self.suppression_device_data["pipe #1 parameters"]) == 5: # i.e. pipe #1 is radial
-            pipe1_distance = self.suppression_device_data["pipe #1 parameters"][3]
-            pipe1_diameter = self.suppression_device_data["pipe #1 parameters"][0]
+        if len(self._psd_data["pipe #1 parameters"]) == 5: # i.e. pipe #1 is radial
+            pipe1_distance = self._psd_data["pipe #1 parameters"][3]
+            pipe1_diameter = self._psd_data["pipe #1 parameters"][0]
 
             if pipe1_distance >= volume1_length - pipe1_diameter / 2: # i.e. pipe #1 distance must be 
                 title = "Invalid pipe #1 distance"
@@ -645,9 +639,9 @@ class PulsationSuppressionDeviceInput(QDialog):
                 return True
 
         
-        if len(self.suppression_device_data["pipe #2 parameters"]) == 5: # i.e. pipe #2 is radial
-            pipe2_distance = self.suppression_device_data["pipe #2 parameters"][3]
-            pipe2_diameter = self.suppression_device_data["pipe #2 parameters"][0]
+        if len(self._psd_data["pipe #2 parameters"]) == 5: # i.e. pipe #2 is radial
+            pipe2_distance = self._psd_data["pipe #2 parameters"][3]
+            pipe2_diameter = self._psd_data["pipe #2 parameters"][0]
 
             if pipe2_distance >= volume1_length + volumes_spacing + volume2_length - pipe2_diameter / 2 : # i.e. pipe #2 distance must be less than "volume #2 distance + length"
                 title = "Invalid pipe #2 distance"
@@ -683,32 +677,49 @@ class PulsationSuppressionDeviceInput(QDialog):
             message += "than the volume #1 length plus the volumes spacing"
             PrintMessageInput([window_title_2, title, message])
             return True
-    def add_pulsation_suppression_device(self, device_label, suppression_device_data):
 
-        aux = app().project.model.psd_data.copy()
+    def get_values(self, values: np.ndarray):
+        return list(np.array(np.round(values, 6), dtype=float))
+
+    def create_psd_callback(self):
+
+        stop, psd_label = self.check_psd_label()
+        if stop:
+            return
+
+        if self.check_psd_inputs():
+            self._psd_data.clear()
+            return
+
+        aux = self.psds_data.copy()
         for key, data in aux.items():
-            if data == suppression_device_data:
-                app().project.model.psd_data.pop(key)
+            if data == self._psd_data:
+                self.psds_data.pop(key)
                 break
+        
+        self.psds_data[psd_label] = self._psd_data
 
-        if "volume #2 parameters" in suppression_device_data.keys():
-            device = DualVolumePSD(suppression_device_data)
+        if "volume #2 parameters" in self._psd_data.keys():
+            device = DualVolumePSD(self._psd_data)
         else:
-            device = SingleVolumePSD(suppression_device_data)
+            device = SingleVolumePSD(self._psd_data)
 
-        app().project.model.psd_data[device_label] = suppression_device_data
+        self.close()
+        self.build_device(psd_label, device)
+        self.actions_to_finalize()
 
-        self.build_device(device_label, device)
-        self.write_psd_data_in_file()
-        self.write_psd_length_correction_in_file(device_label, device)
-        self.load_project()
-        self.set_element_length_corrections(device_label, device.branch_data)
+        # remember, you should to generate the mesh
+        self.write_psd_nodal_properties_in_file()
+        self.set_element_length_corrections(psd_label, device)
 
-    def build_device(self, device_label, device : (SingleVolumePSD | DualVolumePSD)):
+        app().main_window.update_plots()
+        # self.close()
 
-        lines_data = app().pulse_file.read_line_properties_from_file()
+    def build_device(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
 
-        line_tags = list(lines_data.keys())
+        lines_properties = self.properties.line_properties
+        line_tags = list(lines_properties.keys())
+
         if line_tags:
             shifted_line = max(line_tags) + 1
         else:
@@ -724,146 +735,150 @@ class PulsationSuppressionDeviceInput(QDialog):
             if isinstance(section_data, list):
 
                 aux = { 
-                        "start coords" : self.get_values(start_coords),
-                        "end coords" : self.get_values(end_coords),
-                        "section type" : "Pipe",
-                        "section parameters" : section_data,
-                        "structural element type" : "pipe_1",
-                        "psd label" : device_label,
-                        "psd segment" : segment_label
-                        }
+                        "structure_name" : "pipe",
+                        "start_coords" : self.get_values(start_coords),
+                        "end_coords" : self.get_values(end_coords),
+                        "section_type_label" : "Pipe",
+                        "section_parameters" : section_data,
+                        "structural_element_type" : "pipe_1",
+                        "psd_name" : psd_label,
+                        "psd_segment" : segment_label
+                       }
 
                 tag = int(shifted_line + i)
 
-                for property, values in aux.items():
-                    self.properties._set_line_property(property, values, tag)
+                self.properties._set_multiple_line_properties(aux, tag)
 
             else:
 
+                coords = list()
+                coords.extend(self.get_values(start_coords))
+                coords.extend(self.get_values(end_coords))
+
                 link = { 
-                        "start coords" : self.get_values(start_coords),
-                        "end coords" : self.get_values(end_coords),
-                        "link type" : section_data
+                        "psd_name" : psd_label,
+                        "coords" : coords,
+                        "link_type" : section_data
                         }
 
                 counter += 1
-                app().project.model.psd_data[device_label][f"Link-{counter}"] = link
+                self.psds_data[psd_label][f"Link-{counter}"] = link
 
         app().pulse_file.write_line_properties_in_file()
+        self.write_psd_element_properties_in_file(psd_label, device)
 
-    def get_values(self, values: np.ndarray):
-        return list(np.array(np.round(values, 6), dtype=float))
+    def write_psd_nodal_properties_in_file(self):
+            
+        for psd_label, psd_data in self.psds_data.items():
+            for key, data in psd_data.items():
 
-    def write_psd_length_correction_in_file(self, device_label, device : (SingleVolumePSD | DualVolumePSD)):
+                if "Link-" in key:
+                    link_type = data["link_type"]
 
-        psd_data = app().pulse_file.read_psd_data_from_file()
-        if psd_data is None:
+                    coords = data["coords"]
+                    node_id1 = self.preprocessor.get_node_id_by_coordinates(coords[:3])
+                    node_id2 = self.preprocessor.get_node_id_by_coordinates(coords[3:])
+                    node_ids = [node_id1, node_id2]
+
+                    if link_type == "acoustic_link":
+                        self.properties._set_nodal_property("psd_acoustic_link", data, node_ids)
+
+                    if link_type == "structural_link":
+                        self.properties._set_nodal_property("psd_structural_links", data, node_ids)
+
+        app().pulse_file.write_nodal_properties_in_file()
+
+    def write_psd_element_properties_in_file(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
+
+        if self.psds_data is None:
             return
 
         index = 0
-        if device_label in psd_data.keys():    
-            for (coords, connection_type) in device.branch_data:
+        if psd_label in self.psds_data.keys():
+            for (_coords, _connection_type) in device.branch_data:
                 index += 1
-                key = f"element length correction - {index}"
-                psd_data[device_label][key] = { "connection_coords" : list(np.round(coords, 6)),
-                                                "connection_type" : connection_type }
+                coords = self.get_values(_coords)
+                key = f"element_length_correction - {index}"
+                self.psds_data[psd_label][key] = {   
+                                                    "connection_coords" : coords,
+                                                    "connection_type" : _connection_type 
+                                                  }
 
-        app().pulse_file.write_psd_data_in_file(psd_data)
+        app().pulse_file.write_psd_data_in_file(self.psds_data)
 
-    def write_psd_data_in_file(self):
-        psd_data = app().project.model.psd_data
-        app().pulse_file.write_psd_data_in_file(psd_data)
+    def remove_psd_related_line_properties(self, psd_labels: str | list):
 
-    def remove_psd_lines_from_pipeline_file(self, device_labels):
+        if isinstance(psd_labels, str):
+            psd_labels = [psd_labels]
 
-        if isinstance(device_labels, str):
-            device_labels = [device_labels]
+        lines_data = app().pulse_file.read_line_properties_from_file()
+        if lines_data is None:
+            return
+
+        self.nodes_from_removed_lines.clear()
 
         remove_gaps = False
-        lines_data = app().pulse_file.read_line_properties_from_file()
         for line_id, data in lines_data.items():
-            if "psd label" in data.keys():
-                if data["psd_label"] in device_labels:
-                    self.properties.line_properties.pop(line_id)
+            if "psd_name" in data.keys():
+
+                if data["psd_name"] in psd_labels:
+                    self.properties._remove_line(line_id)
+                    line_nodes = self.preprocessor.line_to_nodes[int(line_id)]
+                    self.nodes_from_removed_lines.extend(list(line_nodes))
                     remove_gaps = True
 
         app().pulse_file.write_line_properties_in_file()
 
         if remove_gaps:
-            self.remove_line_gaps_from_file()
+            app().pulse_file.remove_line_gaps_from_line_properties_file()
 
-    def remove_line_gaps_from_file(self):
-        
-        line_data = app().pulse_file.read_line_properties_from_file()
+    def remove_psd_related_nodal_properties(self, psd_labels: str | list):
 
-        tag = 0
-        aux = dict()
-        cache_lines = list()
-        for line_id, data in line_data.items():
+        if isinstance(psd_labels, str):
+            psd_labels = [psd_labels]
 
-            if line_id not in cache_lines:
-                tag += 1
-                cache_lines.append(line_id)
+        aux = self.properties.nodal_properties.copy()
+        for (property, *args), data in aux.items():
+            if "psd_name" in data.keys():
 
-            aux[tag] = data
-        
-        if aux:
-            for line_id, _data in aux.items():
-                _data: dict
-                for property, values in _data.items():
-                    self.properties._set_line_property(property, values, line_id)
+                if data["psd_name"] in psd_labels:
+                    self.properties._remove_nodal_property(property, args)
 
-            app().pulse_file.write_line_properties_in_file()
+            else:
 
-    def remove_selected_psd(self, device_label):
+                for node_id in args:
+                    if node_id in self.nodes_from_removed_lines:
+                        self.properties._remove_nodal_property(property, node_id)
 
-        if device_label in app().project.model.psd_data.keys():
-            app().project.model.psd_data.pop(device_label)
+        self.nodes_from_removed_lines.clear()
 
-        self.write_psd_data_in_file()
-        self.remove_psd_lines_from_pipeline_file(device_label)
-        self.remove_psd_related_element_length_correction("_remove_all_")
-        self.load_project()
-        self.update_length_correction_after_psd_removal()
+        app().pulse_file.write_nodal_properties_in_file()
 
-    def remove_all_psd(self):
+    # def update_length_correction_after_psd_removal(self):
 
-        device_labels = list(app().project.model.psd_data.keys())
-        app().project.model.psd_data.clear()
+    #     psds_data = app().pulse_file.read_psd_data_from_file()
+    #     if psds_data is None:
+    #         return
 
-        self.write_psd_data_in_file()
-        self.remove_psd_lines_from_pipeline_file(device_labels)
-        self.remove_psd_related_element_length_correction("_remove_all_")
-        self.load_project()
+    #     for device_label, psd_data in psds_data.items():
 
-    def update_length_correction_after_psd_removal(self):
+    #         elc_data = list()
+    #         for key, data in psd_data.items():
+    #             if "element_length_correction -" in key:
+    #                 elc_coords = data["connection_coords"]
+    #                 elc_type = data["connection_type"]
+    #                 elc_data.append((elc_coords, elc_type))
 
-        read_data = app().pulse_file.read_psd_data_from_file()
+    #         if elc_data:
+    #             self.set_element_length_corrections(device_label, elc_data)
 
-        if read_data is None:
-            return
+    def set_element_length_corrections(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
 
-        for device_label, psd_data in read_data.items():
+        for (coords, connection_type) in device.branch_data:
 
-            elc_data = list()
-            for key, value in psd_data.items():
-                if "element length correction -" in key:
-                    elc_coords = value["connection_coords"]
-                    elc_type = value["connection_type"]
-                    elc_data.append((elc_coords, elc_type))
-
-            if elc_data:
-                self.set_element_length_corrections(device_label, elc_data)
-
-    def set_element_length_corrections(self, device_label, elc_data):
-
-        prefix = "ACOUSTIC ELEMENT LENGTH CORRECTION || {}"
-
-        for (coords, connection_type) in elc_data:
-
-            node_id = app().project.model.preprocessor.get_node_id_by_coordinates(coords)
-            elements = app().project.model.preprocessor.neighboor_elements_of_node(node_id)
-            list_elements = [element.index for element in elements]
+            node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+            elements = self.preprocessor.neighboor_elements_of_node(node_id)
+            element_ids = [element.index for element in elements]
 
             if connection_type == "radial":
                 _type = 1
@@ -871,66 +886,55 @@ class PulsationSuppressionDeviceInput(QDialog):
             else:
                 _type = 0
 
-            section = prefix.format("Selection-1")
-            #TODO: reimplement this
-            # keys = app().project.model.preprocessor.group_elements_with_length_correction.keys()
+            data = {
+                    "correction_type" : _type,
+                    "psd_name" : psd_label
+                    }
 
-            # if section in keys:
-            #     index = 1
-            #     while section in keys:
-            #         index += 1
-            #         section = prefix.format(f"Selection-{index}")
+            self.preprocessor.set_element_length_correction_by_element(element_ids, data)
+            self.properties._set_element_property("element_length_correction", data, element_ids)
+            app().pulse_file.write_element_properties_in_file()
 
-            # app().project.set_element_length_correction_by_elements(
-            #                                                         list_elements, 
-            #                                                         _type, 
-            #                                                         section,
-            #                                                         psd_label = device_label
-            #                                                         )
-
-    def remove_psd_related_element_length_correction(self, device_label):
+    def remove_psd_related_element_properties(self, psd_label: str):
 
         element_ids = list()
-        for (property, element_id), data in self.properties.element_properties.items():
-            if property == "element length correction":
-                if "psd label" in data.keys():
-                    if device_label == "_remove_all_":
+        for (_property, element_id), data in self.properties.element_properties.items():
+            if _property == "element_length_correction":
+                data: dict
+                if "psd_name" in data.keys():
+                    if psd_label == "_remove_all_":
                         element_ids.append(element_id)
-                    elif device_label == data["psd label"]:
+                    elif psd_label == data["psd_name"]:
                         element_ids.append(element_id)
-
-        self.properties._remove_element_property("element length correction", element_ids) 
+        
+        self.preprocessor.set_element_length_correction_by_element(element_ids, None)
+        self.properties._remove_element_property("element_length_correction", element_ids) 
         app().pulse_file.write_element_properties_in_file()
+        # self.update_length_correction_after_psd_removal()
 
-    def confirm_button_pressed(self):
+    def remove_callback(self):
 
-        if self.check_psd_inputs():
-            self.suppression_device_data = dict()
-            return
-
-        self.add_pulsation_suppression_device(  self.filter_label, 
-                                                self.suppression_device_data  )
-
-        # app().loader.get_device_related_lines()
-        app().loader.load_psd_data_from_file()
-
-        app().main_window.update_plots()
-        self.close()
-
-    def remove_button_pressed(self):
         if self.lineEdit_selection.text() != "":
 
-            device_label = self.lineEdit_selection.text()
-            self.remove_selected_psd(device_label)
-            self.load_psd_info()
+            psd_name = self.lineEdit_selection.text()
+
+            if psd_name in self.psds_data.keys():
+                self.psds_data.pop(psd_name)
+
+            self.remove_psd_related_line_properties(psd_name)
+            self.remove_psd_related_nodal_properties(psd_name)
+            self.remove_psd_related_element_properties(psd_name)
+
+            self.actions_to_finalize()
 
             app().main_window.update_plots()
+            self.load_psd_info()
 
-    def reset_button_pressed(self):
+    def reset_callback(self):
 
         self.hide()
 
-        title = "Resetting of the Pulsation Suppression Devices"
+        title = "PSDs resetting requested"
         message = "Would you to remove the all Pulsation Suppression Devices from model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
@@ -939,51 +943,74 @@ class PulsationSuppressionDeviceInput(QDialog):
         if read._cancel:
             return
 
-        if read._continue:    
-            self.remove_all_psd()
-            self.load_psd_info()
-            app().main_window.update_plots()          
+        if read._continue:
+
+            psds_labels = list(self.psds_data.keys())
+            self.psds_data.clear()
+
+            self.remove_psd_related_line_properties(psds_labels)
+            self.remove_psd_related_nodal_properties(psds_labels)
+            self.remove_psd_related_element_properties("_remove_all_")
+
+            self.actions_to_finalize()
+            app().main_window.update_plots()
 
     def load_psd_info(self):
 
         self.treeWidget_psd_info.clear()
-        self.pushButton_remove.setDisabled(True)
-        psd_lines = app().loader.get_device_related_lines()
-        app().loader.load_psd_data_from_file()
+        self.psds_lines = app().loader.get_psd_related_lines()
 
-        for key, data in self.model.psd_data.items():
-            coords = data["connecting coords"]
-            connection = data["connection pipe"]
+        self.psds_data = app().pulse_file.read_psd_data_from_file()
+        if self.psds_data is None:
+            self.psds_data = dict()
+
+        for key, psd_data in self.psds_data.items():
+            coords = psd_data["connecting coords"]
+            connection = psd_data["connection pipe"]
+            psd_lines = self.psds_lines[key]
             new = QTreeWidgetItem([key, connection, str(coords), str(psd_lines)])
             for col in range(4):
                 new.setTextAlignment(col, Qt.AlignCenter)
             self.treeWidget_psd_info.addTopLevelItem(new)
 
-        self.update_tabs_visibility()
+        if self.psds_data:
+            self.tabWidget_main.setTabVisible(1, True)
+        else:
+            self.tabWidget_main.setCurrentIndex(0)
+            self.tabWidget_main.setTabVisible(1, False)
 
     def get_device_tag(self):
         index = 1
         _run = True
         while _run:
-            if index in self.model.psd_data.keys():
+            if index in self.psds_data.keys():
                 index += 1
             else:
                 _run = False
         return index
 
-    def load_project(self):
-        app().project.initial_load_project_actions()
-        # app().project.load_project_files()
+    def actions_to_finalize(self):
+
+        app().main_window.set_selection()
+        app().pulse_file.write_psd_data_in_file(self.psds_data)
         app().loader.load_project_data()
-        app().main_window.input_ui.initial_project_action(True)
-        app().main_window.update_plots()
+        app().project.initial_load_project_actions()
+
+        if app().pulse_file.check_pipeline_data():
+            app().loader.load_mesh_dependent_properties()
+            app().main_window.initial_project_action(True)
+            app().project.enhance_pipe_sections_appearance()
+        else:
+            self.preprocessor.mesh._create_gmsh_geometry()
+
+        self.load_psd_info()
         # app().main_window.use_structural_setup_workspace()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close()
         elif event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.confirm_button_pressed()
+            self.create_psd_callback()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False

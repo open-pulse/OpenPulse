@@ -46,36 +46,37 @@ class RadiationImpedanceInput(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_radiation_impedance_type : QComboBox
+        self.comboBox_radiation_impedance_type: QComboBox
 
         # QLineEdit
-        self.lineEdit_selection_id : QLineEdit
+        self.lineEdit_selection_id: QLineEdit
 
         # QPushButton
-        self.pushButton_attribution : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_search : QPushButton
-        self.pushButton_table_values : QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
+        self.pushButton_search: QPushButton
 
         # QTabWidget
-        self.tabWidget_radiation_impedance : QTabWidget
+        self.tabWidget_main: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_radiation_impedance : QTreeWidget
-        self.treeWidget_radiation_impedance.setColumnWidth(1, 20)
-        self.treeWidget_radiation_impedance.setColumnWidth(2, 80)
+        self.treeWidget_nodal_info: QTreeWidget
+        self.treeWidget_nodal_info.setColumnWidth(1, 20)
+        self.treeWidget_nodal_info.setColumnWidth(2, 80)
 
     def _create_connections(self):
         #
-        self.pushButton_attribution.clicked.connect(self.radiation_impedance_type_attibution_callback)
-        self.pushButton_remove.clicked.connect(self.remove_bc_from_node)
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
-        self.tabWidget_radiation_impedance.currentChanged.connect(self.tab_event_callback)
+        self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
-        self.treeWidget_radiation_impedance.itemClicked.connect(self.on_click_item)
-        self.treeWidget_radiation_impedance.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.treeWidget_nodal_info.itemClicked.connect(self.on_click_item)
+        self.treeWidget_nodal_info.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
@@ -88,8 +89,8 @@ class RadiationImpedanceInput(QDialog):
             self.lineEdit_selection_id.setText(text)
 
             if len(selected_nodes) == 1:
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "radiation_impedance" and selected_nodes[0] == node_id:
+                for (_property, *args), data in self.properties.nodal_properties.items():
+                    if _property == "radiation_impedance" and selected_nodes == args:
 
                         impedance_type = data["impedance_type"]
                         self.comboBox_radiation_impedance_type.setCurrentIndex(impedance_type)
@@ -97,40 +98,37 @@ class RadiationImpedanceInput(QDialog):
     def tab_event_callback(self):
         self.lineEdit_selection_id.setText("")
         self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_radiation_impedance.currentIndex() == 2:
+        if self.tabWidget_main.currentIndex() == 2:
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
         else:
             self.selection_callback()
             self.lineEdit_selection_id.setDisabled(False)
 
-    def update_tabs_visibility(self):
-        self.tabWidget_radiation_impedance.setTabVisible(1, False)
-        for (property, _) in self.properties.nodal_properties.keys():
-            if property == "radiation_impedance":
-                self.tabWidget_radiation_impedance.setCurrentIndex(0)
-                self.tabWidget_radiation_impedance.setTabVisible(1, True)
-                return
-
     def load_nodes_info(self):
 
-        self.treeWidget_radiation_impedance.clear()
+        self.treeWidget_nodal_info.clear()
         radiation_impedances = ["Anechoic", "Unflanged", "Flanged"]
 
-        for (property, node_id), data in self.properties.nodal_properties.items():
+        for (property, *args), data in self.properties.nodal_properties.items():
 
             if property == "radiation_impedance":
                 index = data["impedance_type"]
                 text = radiation_impedances[index]
 
-                new = QTreeWidgetItem([str(node_id), text])
+                new = QTreeWidgetItem([str(args[0]), text])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_radiation_impedance.addTopLevelItem(new)
+                self.treeWidget_nodal_info.addTopLevelItem(new)
 
-        self.update_tabs_visibility()
+        self.tabWidget_main.setTabVisible(1, False)
+        for (property, *args) in self.properties.nodal_properties.keys():
+            if property == "radiation_impedance":
+                self.tabWidget_main.setCurrentIndex(0)
+                self.tabWidget_main.setTabVisible(1, True)
+                return
 
-    def radiation_impedance_type_attibution_callback(self):
+    def attribute_callback(self):
 
         lineEdit = self.lineEdit_selection_id.text()
         stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
@@ -174,7 +172,6 @@ class RadiationImpedanceInput(QDialog):
 
     def on_doubleclick_item(self, item):
         self.lineEdit_selection_id.setText(item.text(0))
-        # self.remove_bc_from_node()
 
     def remove_conflicting_excitations(self, node_ids: int | list | tuple):
 
@@ -190,7 +187,7 @@ class RadiationImpedanceInput(QDialog):
 
         app().pulse_file.write_nodal_properties_in_file()
 
-    def remove_bc_from_node(self):
+    def remove_callback(self):
 
         if  self.lineEdit_selection_id.text() != "":
 
@@ -223,9 +220,9 @@ class RadiationImpedanceInput(QDialog):
             if read._continue:
 
                 node_ids = list()
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "radiation_impedance":
-                        node_ids.append(node_id)
+                for (_property, *args) in self.properties.nodal_properties.keys():
+                    if _property == "radiation_impedance":
+                        node_ids.append(args[0])
 
                 self.properties._reset_nodal_property("radiation_impedance")
                 app().pulse_file.write_nodal_properties_in_file()
@@ -240,11 +237,9 @@ class RadiationImpedanceInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_radiation_impedance.currentIndex()==0:
-                self.check_radiation_impedance_type()
+            self.attribute_callback()
         elif event.key() == Qt.Key_Delete:
-            if self.tabWidget_radiation_impedance.currentIndex()==1:
-                self.remove_bc_from_node()
+            self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

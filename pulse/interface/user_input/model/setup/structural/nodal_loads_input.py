@@ -86,46 +86,48 @@ class NodalLoadsInput(QDialog):
 
     def _define_qt_variables(self):
 
-        # QLineEdit        
-        self.lineEdit_selection_id : QLineEdit
-        self.lineEdit_real_fx : QLineEdit
-        self.lineEdit_real_fy : QLineEdit
-        self.lineEdit_real_fz : QLineEdit
-        self.lineEdit_real_mx : QLineEdit
-        self.lineEdit_real_my : QLineEdit
-        self.lineEdit_real_mz : QLineEdit
-        self.lineEdit_imag_fx : QLineEdit
-        self.lineEdit_imag_fy : QLineEdit
-        self.lineEdit_imag_fz : QLineEdit
-        self.lineEdit_imag_mx : QLineEdit
-        self.lineEdit_imag_my : QLineEdit
-        self.lineEdit_imag_mz : QLineEdit
+        # QLineEdit   
+        self.lineEdit_selection_id: QLineEdit
+        self.lineEdit_real_fx: QLineEdit
+        self.lineEdit_real_fy: QLineEdit
+        self.lineEdit_real_fz: QLineEdit
+        self.lineEdit_real_mx: QLineEdit
+        self.lineEdit_real_my: QLineEdit
+        self.lineEdit_real_mz: QLineEdit
+        self.lineEdit_imag_fx: QLineEdit
+        self.lineEdit_imag_fy: QLineEdit
+        self.lineEdit_imag_fz: QLineEdit
+        self.lineEdit_imag_mx: QLineEdit
+        self.lineEdit_imag_my: QLineEdit
+        self.lineEdit_imag_mz: QLineEdit
         #
-        self.lineEdit_path_table_fx : QLineEdit
-        self.lineEdit_path_table_fy : QLineEdit
-        self.lineEdit_path_table_fz : QLineEdit
-        self.lineEdit_path_table_mx : QLineEdit
-        self.lineEdit_path_table_my : QLineEdit
-        self.lineEdit_path_table_mz : QLineEdit
+        self.lineEdit_path_table_fx: QLineEdit
+        self.lineEdit_path_table_fy: QLineEdit
+        self.lineEdit_path_table_fz: QLineEdit
+        self.lineEdit_path_table_mx: QLineEdit
+        self.lineEdit_path_table_my: QLineEdit
+        self.lineEdit_path_table_mz: QLineEdit
         self._create_list_lineEdits()
 
         # QPushButton
-        self.pushButton_load_fx_table : QPushButton
-        self.pushButton_load_fy_table : QPushButton
-        self.pushButton_load_fz_table : QPushButton
-        self.pushButton_load_mx_table : QPushButton
-        self.pushButton_load_my_table : QPushButton
-        self.pushButton_load_mz_table : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_constant_value_confirm : QPushButton
-        self.pushButton_table_values_confirm : QPushButton
+        self.pushButton_cancel_tab0: QPushButton
+        self.pushButton_cancel_tab1: QPushButton
+        self.pushButton_load_fx_table: QPushButton
+        self.pushButton_load_fy_table: QPushButton
+        self.pushButton_load_fz_table: QPushButton
+        self.pushButton_load_mx_table: QPushButton
+        self.pushButton_load_my_table: QPushButton
+        self.pushButton_load_mz_table: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
+        self.pushButton_constant_value_confirm: QPushButton
+        self.pushButton_table_values_confirm: QPushButton
 
         # QTabWidget
-        self.tabWidget_nodal_loads : QTabWidget
+        self.tabWidget_nodal_loads: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_nodal_loads : QTreeWidget
+        self.treeWidget_nodal_loads: QTreeWidget
 
     def _create_list_lineEdits(self):
 
@@ -145,16 +147,18 @@ class NodalLoadsInput(QDialog):
 
     def _create_connections(self):
         #
+        self.pushButton_cancel_tab0.clicked.connect(self.close)
+        self.pushButton_cancel_tab1.clicked.connect(self.close)
+        self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
         self.pushButton_load_fx_table.clicked.connect(self.load_fx_table)
         self.pushButton_load_fy_table.clicked.connect(self.load_fy_table)
         self.pushButton_load_fz_table.clicked.connect(self.load_fz_table)
         self.pushButton_load_mx_table.clicked.connect(self.load_mx_table)
         self.pushButton_load_my_table.clicked.connect(self.load_my_table)
         self.pushButton_load_mz_table.clicked.connect(self.load_mz_table)
-        self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
-        self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
         #
         self.tabWidget_nodal_loads.currentChanged.connect(self.tab_event_callback)
         #
@@ -173,8 +177,8 @@ class NodalLoadsInput(QDialog):
             self.lineEdit_selection_id.setText(text)
 
             if len(selected_nodes) == 1:
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "nodal_loads" and selected_nodes[0] == node_id:
+                for (property, *args), data in self.properties.nodal_properties.items():
+                    if property == "nodal_loads" and selected_nodes == args:
 
                         values = data["values"]
         
@@ -526,21 +530,18 @@ class NodalLoadsInput(QDialog):
     def load_nodes_info(self):
 
         self.treeWidget_nodal_loads.clear()
-        for (property, node_id), data in self.properties.nodal_properties.items():
+        for (property, *args), data in self.properties.nodal_properties.items():
 
             if property == "nodal_loads":
                 values = data["values"]
                 constrained_dofs_mask = [False if value is None else True for value in values]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(constrained_dofs_mask))])
+                new = QTreeWidgetItem([str(args[0]), str(self.text_label(constrained_dofs_mask))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_nodal_loads.addTopLevelItem(new)
 
-        self.update_tabs_visibility()
-
-    def update_tabs_visibility(self):
         self.tabWidget_nodal_loads.setTabVisible(2, False)
-        for (property, _) in self.properties.nodal_properties.keys():
+        for (property, *_) in self.properties.nodal_properties.keys():
             if property == "nodal_loads":
                 self.tabWidget_nodal_loads.setCurrentIndex(0)
                 self.tabWidget_nodal_loads.setTabVisible(2, True)
@@ -571,8 +572,8 @@ class NodalLoadsInput(QDialog):
             loads_info = dict()
             selected_node = int(item.text(0))
 
-            for (property, node_id), data in self.properties.nodal_properties.items():
-                if property == "nodal_loads" and selected_node == node_id:
+            for (property, *args), data in self.properties.nodal_properties.items():
+                if property == "nodal_loads" and selected_node == args[0]:
 
                     values = data["values"]
                     nodal_loads_mask = [False if bc is None else True for bc in values]
@@ -647,9 +648,9 @@ class NodalLoadsInput(QDialog):
         if read._continue:
             
             node_ids = list()
-            for (property, node_id), data in self.properties.nodal_properties.items():
+            for (property, *args) in self.properties.nodal_properties.keys():
                 if property == "nodal_loads":
-                    node_ids.append(node_id)
+                    node_ids.append(args[0])
 
             for node_id in node_ids:
                 self.remove_table_files_from_nodes(node_id)

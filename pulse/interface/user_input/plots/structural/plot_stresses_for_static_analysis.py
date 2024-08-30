@@ -87,7 +87,7 @@ class PlotStressesForStaticAnalysis(QWidget):
 
     def _update_lineEdit(self, selected_element : int):
 
-        self.stress_data = self.solve.stress_calculate(pressure_external = 0, damping_flag = False)
+        self.stress_data = self.solve.stress_calculate(pressure_external = 0, damping = False)
         stresses = np.real(np.array(self.stress_data[selected_element][:,0]))
 
         self.lineEdit_axial_stress.setText("{:.6e}".format(stresses[0]))

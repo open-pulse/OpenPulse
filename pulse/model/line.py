@@ -13,9 +13,6 @@ class Line:
         self.tag = tag
         self.nodes = []
         self.elements = []
-        self.compressor_info = {}
-
-        self.valve_parameters = None
 
     def insert_node(self, node):
         """

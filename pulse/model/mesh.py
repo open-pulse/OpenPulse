@@ -8,6 +8,8 @@ import os
 import gmsh 
 import numpy as np
 
+from collections import defaultdict
+
 window_title_1 = "Error"
 
 class Mesh:
@@ -24,11 +26,13 @@ class Mesh:
         This method reset the class default values.
         """
 
-        self.lines_from_model = dict()
+        self.lines_from_model = list()
         self.geometry_points = list()
 
         self.elements_to_line = dict()
         self.line_to_elements = dict()
+
+        self.line_elements = defaultdict(list)
 
     def set_element_size(self, element_size):
         self.element_size = element_size
@@ -66,11 +70,9 @@ class Mesh:
             The length unit in use.
             
         """
-
         self.reset_variables()
 
         if self.import_type == 0:
-
             if os.path.exists(self.geometry_path):
                 self._load_cad_geometry_on_gmsh()
             else:
@@ -80,10 +82,9 @@ class Mesh:
         self._set_gmsh_options()
         self._process_mesh()
         self._map_lines_to_elements()
-
         self._save_geometry_points()
         self._finalize_gmsh()
-
+    
     def _load_cad_geometry_on_gmsh(self):
         """
         This method initializes mesher algorithm gmsh.
@@ -129,15 +130,18 @@ class Mesh:
         else:
             length = self.element_size
 
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', length)
+        gmsh.option.setNumber('Geometry.Tolerance', self.tolerance)
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', 0.5*length)
         gmsh.option.setNumber('Mesh.CharacteristicLengthMax', length)
+        gmsh.option.setNumber('Mesh.CharacteristicLengthExtendFromBoundary', 1)
+        gmsh.option.setNumber('Mesh.MeshSizeFromPoints', 1)
         gmsh.option.setNumber('Mesh.Optimize', 1)
         gmsh.option.setNumber('Mesh.OptimizeNetgen', 0)
         gmsh.option.setNumber('Mesh.HighOrderOptimize', 0)
         gmsh.option.setNumber('Mesh.ElementOrder', 1)
         gmsh.option.setNumber('Mesh.Algorithm', 2)
         gmsh.option.setNumber('Mesh.Algorithm3D', 1)
-        gmsh.option.setNumber('Geometry.Tolerance', self.tolerance)
+        # gmsh.option.setNumber('Mesh.RecombineAll', 1)
 
     def _process_mesh(self):
         """
@@ -148,41 +152,6 @@ class Mesh:
         try:
 
             gmsh.model.mesh.generate(3)
-
-            lines_data = dict()
-
-            for dim, line_tag in gmsh.model.getEntities(1):
-        
-                new_line = Line(line_tag)
-
-                # Element
-                _, line_element_indexes, line_connectivity = gmsh.model.mesh.getElements(dim, line_tag) 
-                if line_element_indexes:
-                    line_connect_data = np.zeros((len(line_element_indexes[0]), 3))
-                    line_connect_data[:,0] = line_element_indexes[0]
-                    line_connect_data[:,1:] = line_connectivity[0].reshape(-1, 2)
-                    new_line.insert_edge(list(line_connect_data))
-
-                # line_connectivity = split_sequence(line_connectivity[0], 2)
-                # for index, (start, end) in zip(line_element_indexes[0], line_connectivity):
-                #     edges = index, start, end
-                #     new_line.insert_edge(edges)
-
-                # Nodes
-                line_node_indexes, line_node_coordinates, _ = gmsh.model.mesh.getNodes(dim, line_tag, True)
-                line_node_coordinates = mm_to_m(line_node_coordinates).reshape(-1, 3)
-                line_node_data = np.zeros((len(line_node_indexes), 4))
-                line_node_data[:, 0] = line_node_indexes
-                line_node_data[:,1:] = line_node_coordinates
-                new_line.insert_node(list(line_node_data))
-
-                # line_node_coordinates = split_sequence(line_node_coordinates, 3)
-                # for index, (x, y, z) in zip(line_node_indexes, line_node_coordinates):
-                #     node = index, mm_to_m(x), mm_to_m(y), mm_to_m(z)
-                #     new_line.insert_node(node)
-
-                self.lines_from_model[line_tag] = new_line
-
             gmsh.model.mesh.removeDuplicateNodes()
 
             node_indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
@@ -197,6 +166,7 @@ class Mesh:
             self.preprocessor.update_number_divisions()
 
         except Exception as log_error:
+
             print(str(log_error))
 
     def _map_lines_to_elements(self):
@@ -205,19 +175,53 @@ class Mesh:
 
         """
         # t0 = time()
-        mapping = self.map_elements
+
         self.line_to_elements.clear()
         self.elements_to_line.clear()
-        for dim, tag in gmsh.model.getEntities(1):
-            elements_of_entity = gmsh.model.mesh.getElements(dim, tag)
+        for dim, line_tag in gmsh.model.getEntities(1):
+
+            elements_of_entity = gmsh.model.mesh.getElements(dim, line_tag)
+
             if elements_of_entity and elements_of_entity[1]:
+
                 elements_of_entity = elements_of_entity[1][0]
-                list_elements = np.array([mapping[element] for element in elements_of_entity], dtype=int)
-                self.line_to_elements[tag] = list_elements
+                list_elements = np.array([self.map_elements[element] for element in elements_of_entity], dtype=int)
+                self.line_to_elements[line_tag] = list_elements
+
                 for element_id in list_elements:
-                    self.elements_to_line[element_id] = tag
-            # dt = time() - t0
-            # print(f"Time to process : {dt}")
+                    self.elements_to_line[element_id] = line_tag
+
+                # Element
+                # _, line_element_indexes, line_connectivity = gmsh.model.mesh.getElements(dim, line_tag) 
+                # if line_element_indexes:
+                #     line_connect_data = np.zeros((len(line_element_indexes[0]), 3))
+                #     line_connect_data[:,0] = line_element_indexes[0]
+                #     line_connect_data[:,1:] = line_connectivity[0].reshape(-1, 2)
+                #     new_line.insert_edge(list(line_connect_data))
+                #     self.line_elements[line_tag].extend(list(line_connect_data))
+
+                # Nodes
+                # line_node_indexes, line_node_coordinates, _ = gmsh.model.mesh.getNodes(dim, line_tag, True)
+                # line_node_coordinates = mm_to_m(line_node_coordinates).reshape(-1, 3)
+                # line_node_data = np.zeros((len(line_node_indexes), 4))
+                # line_node_data[:, 0] = line_node_indexes
+                # line_node_data[:,1:] = line_node_coordinates
+                # new_line.insert_node(list(line_node_data))
+
+                # line_node_coordinates = split_sequence(line_node_coordinates, 3)
+                # for index, (x, y, z) in zip(line_node_indexes, line_node_coordinates):
+                #     node = index, mm_to_m(x), mm_to_m(y), mm_to_m(z)
+                #     new_line.insert_node(node)
+
+                # self.lines_from_model[line_tag] = new_line
+
+        self.lines_from_model = list(self.line_to_elements.keys())
+
+        # for line_id, elements in self.line_to_elements.items():
+        #     print(line_id, len(elements))
+
+        # dt = time() - t0
+        # print(f"Time to process : {dt}")
 
     def _save_geometry_points(self):
         self.geometry_points.clear()

@@ -87,52 +87,54 @@ class PrescribedDofsInput(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_linear_data_type : QComboBox
-        self.comboBox_angular_data_type : QComboBox
+        self.comboBox_linear_data_type: QComboBox
+        self.comboBox_angular_data_type: QComboBox
 
         # QLineEdit
-        self.lineEdit_selection_id : QLineEdit
-        self.lineEdit_real_ux : QLineEdit
-        self.lineEdit_real_uy : QLineEdit
-        self.lineEdit_real_uz : QLineEdit
-        self.lineEdit_real_rx : QLineEdit
-        self.lineEdit_real_ry : QLineEdit
-        self.lineEdit_real_rz : QLineEdit
-        self.lineEdit_real_alldofs : QLineEdit
+        self.lineEdit_selection_id: QLineEdit
+        self.lineEdit_real_ux: QLineEdit
+        self.lineEdit_real_uy: QLineEdit
+        self.lineEdit_real_uz: QLineEdit
+        self.lineEdit_real_rx: QLineEdit
+        self.lineEdit_real_ry: QLineEdit
+        self.lineEdit_real_rz: QLineEdit
+        self.lineEdit_real_alldofs: QLineEdit
         #
-        self.lineEdit_imag_ux : QLineEdit
-        self.lineEdit_imag_uy : QLineEdit
-        self.lineEdit_imag_uz : QLineEdit
-        self.lineEdit_imag_rx : QLineEdit
-        self.lineEdit_imag_ry : QLineEdit
-        self.lineEdit_imag_rz : QLineEdit
+        self.lineEdit_imag_ux: QLineEdit
+        self.lineEdit_imag_uy: QLineEdit
+        self.lineEdit_imag_uz: QLineEdit
+        self.lineEdit_imag_rx: QLineEdit
+        self.lineEdit_imag_ry: QLineEdit
+        self.lineEdit_imag_rz: QLineEdit
         #
-        self.lineEdit_imag_alldofs : QLineEdit
-        self.lineEdit_path_table_ux : QLineEdit
-        self.lineEdit_path_table_uy : QLineEdit
-        self.lineEdit_path_table_uz : QLineEdit
-        self.lineEdit_path_table_rx : QLineEdit
-        self.lineEdit_path_table_ry : QLineEdit
-        self.lineEdit_path_table_rz : QLineEdit
+        self.lineEdit_imag_alldofs: QLineEdit
+        self.lineEdit_path_table_ux: QLineEdit
+        self.lineEdit_path_table_uy: QLineEdit
+        self.lineEdit_path_table_uz: QLineEdit
+        self.lineEdit_path_table_rx: QLineEdit
+        self.lineEdit_path_table_ry: QLineEdit
+        self.lineEdit_path_table_rz: QLineEdit
         self._create_list_lineEdits()
 
         # QPushButton
-        self.pushButton_load_ux_table : QPushButton
-        self.pushButton_load_uy_table : QPushButton
-        self.pushButton_load_uz_table : QPushButton
-        self.pushButton_load_rx_table : QPushButton
-        self.pushButton_load_ry_table : QPushButton
-        self.pushButton_load_rz_table : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_constant_value_confirm : QPushButton
-        self.pushButton_table_values_confirm : QPushButton
+        self.pushButton_cancel_tab0: QPushButton
+        self.pushButton_cancel_tab1: QPushButton
+        self.pushButton_load_ux_table: QPushButton
+        self.pushButton_load_uy_table: QPushButton
+        self.pushButton_load_uz_table: QPushButton
+        self.pushButton_load_rx_table: QPushButton
+        self.pushButton_load_ry_table: QPushButton
+        self.pushButton_load_rz_table: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
+        self.pushButton_constant_value_confirm: QPushButton
+        self.pushButton_table_values_confirm: QPushButton
 
         # QTabWidget
-        self.tabWidget_prescribed_dofs : QTabWidget
+        self.tabWidget_prescribed_dofs: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_prescribed_dofs : QTreeWidget
+        self.treeWidget_prescribed_dofs: QTreeWidget
 
     def _create_list_lineEdits(self):
         self.list_lineEdit_constant_values = [  [self.lineEdit_real_ux, self.lineEdit_imag_ux],
@@ -158,6 +160,8 @@ class PrescribedDofsInput(QDialog):
 
     def _create_connections(self):
         #
+        self.pushButton_cancel_tab0.clicked.connect(self.close)
+        self.pushButton_cancel_tab1.clicked.connect(self.close)
         self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
         self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
@@ -186,8 +190,8 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_selection_id.setText(text)
 
             if len(selected_nodes) == 1:
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "prescribed_dofs" and selected_nodes[0] == node_id:
+                for (property, *args), data in self.properties.nodal_properties.items():
+                    if property == "prescribed_dofs" and selected_nodes == args:
 
                         values = data["values"]
         
@@ -585,21 +589,18 @@ class PrescribedDofsInput(QDialog):
     def load_nodes_info(self):
 
         self.treeWidget_prescribed_dofs.clear()
-        for (property, node_id), data in self.properties.nodal_properties.items():
+        for (property, *args), data in self.properties.nodal_properties.items():
 
             if property == "prescribed_dofs":
                 values = data["values"]
                 constrained_dofs_mask = [False if value is None else True for value in values]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(constrained_dofs_mask))])
+                new = QTreeWidgetItem([str(args[0]), str(self.text_label(constrained_dofs_mask))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_prescribed_dofs.addTopLevelItem(new)
 
-        self.update_tabs_visibility()
-
-    def update_tabs_visibility(self):
         self.tabWidget_prescribed_dofs.setTabVisible(2, False)
-        for (property, _) in self.properties.nodal_properties.keys():
+        for (property, *_) in self.properties.nodal_properties.keys():
             if property == "prescribed_dofs":
                 self.tabWidget_prescribed_dofs.setCurrentIndex(0)
                 self.tabWidget_prescribed_dofs.setTabVisible(2, True)
@@ -630,8 +631,8 @@ class PrescribedDofsInput(QDialog):
             loads_info = dict()
             selected_node = int(item.text(0))
 
-            for (property, node_id), data in self.properties.nodal_properties.items():
-                if property == "prescribed_dofs" and selected_node == node_id:
+            for (property, *args), data in self.properties.nodal_properties.items():
+                if property == "prescribed_dofs" and selected_node == args[0]:
 
                     values = data["values"]
                     nodal_loads_mask = [False if bc is None else True for bc in values]
@@ -708,9 +709,9 @@ class PrescribedDofsInput(QDialog):
         if read._continue:
             
             node_ids = list()
-            for (property, node_id), data in self.properties.nodal_properties.items():
+            for (property, *args) in self.properties.nodal_properties.items():
                 if property == "prescribed_dofs":
-                    node_ids.append(node_id)
+                    node_ids.append(args[0])
 
             for node_id in node_ids:
                 self.remove_table_files_from_nodes(node_id)

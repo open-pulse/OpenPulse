@@ -122,12 +122,7 @@ class AssemblyAcoustic:
                 global_prescribed.extend(dofs)
 
         return global_prescribed
-        
-        # for node in self.preprocessor.nodes.values():
-        #     starting_position = node.global_index * DOF_PER_NODE_ACOUSTIC
-        #     dofs = np.array(node.get_acoustic_boundary_condition_indexes()) + starting_position
-        #     global_prescribed.extend(dofs)
-        # return global_prescribed
+
 
     def get_prescribed_values(self):
         """
@@ -152,12 +147,6 @@ class AssemblyAcoustic:
                 values = data["values"]
                 global_prescribed.extend([value for value in values if value is not None])   
         return global_prescribed
-
-        # global_prescribed = []
-        # for node in self.preprocessor.nodes.values():
-        #     if node.acoustic_pressure is not None:
-        #         global_prescribed.extend([node.acoustic_pressure])
-        # return global_prescribed
 
     def get_unprescribed_indexes(self):
         """
@@ -195,11 +184,14 @@ class AssemblyAcoustic:
         """
         all_indexes = np.arange(self.total_dof)
         indexes_to_remove = self.prescribed_indexes.copy()
+
         for dof in list(self.beam_gdofs):
             indexes_to_remove.append(dof)
+
         indexes_to_remove = list(np.sort(indexes_to_remove))
         unprescribed_pipe_indexes = np.delete(all_indexes, indexes_to_remove)
         self.preprocessor.set_unprescribed_pipe_indexes(unprescribed_pipe_indexes)
+
         return unprescribed_pipe_indexes
     
     def get_length_corretion(self, element):
@@ -217,7 +209,10 @@ class AssemblyAcoustic:
             Length correction.
         """
         length_correction = 0
-        if element.acoustic_length_correction is not None:
+        if element.length_correction_data is not None:
+
+            correction_type = element.length_correction_data["correction_type"]
+
             first = element.first_node.global_index
             last = element.last_node.global_index
 
@@ -231,28 +226,34 @@ class AssemblyAcoustic:
 
             for _, _, di in diameters_first:
                 if di_actual < di:
-                    if element.acoustic_length_correction in [0, 2]:
+
+                    if correction_type in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
-                    elif element.acoustic_length_correction == 1:
+                    elif correction_type == 1:
                         correction = length_correction_branch(di_actual, di)
                         if len(diameters_first) == 2:
                             print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
                     else:
                         print("Datatype not understood")
+
                     corrections_first.append(correction)
 
             for _, _, di in diameters_last:
                 if di_actual < di:
-                    if element.acoustic_length_correction in [0, 2]:
+
+                    if correction_type in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
-                    elif element.acoustic_length_correction == 1:
+                    elif correction_type == 1:
                         correction = length_correction_branch(di_actual, di)
                         if len(diameters_last) == 2:
                             print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
                     else:
                         print("Datatype not understood")
+
                     corrections_last.append(correction)
+
             length_correction = max(corrections_first) + max(corrections_last)
+
         return length_correction
 
     def get_length_correction_for_acoustic_link(self, diameters):
@@ -282,7 +283,7 @@ class AssemblyAcoustic:
             
             index = element.index
 
-            start = (index-1) * ENTRIES_PER_ELEMENT
+            start = (index - 1) * ENTRIES_PER_ELEMENT
             end = start + ENTRIES_PER_ELEMENT
 
             if element.acoustic_link_diameters:
@@ -319,21 +320,17 @@ class AssemblyAcoustic:
         cols = list()
         data_Klink = list()
 
-        for (_property, *args), data in self.model.properties.nodal_properties.items():
+        for (_property, *args) in self.model.properties.nodal_properties.keys():
 
             if _property == "psd_acoustic_link":
 
-                if "link_data" in data.keys():
-                    rows.extend(data["link_data"]["indexes_i"])
-                    cols.extend(data["link_data"]["indexes_j"])
+                psd_link_data = self.preprocessor.get_psd_acoustic_link_data(args)
+                rows.extend(psd_link_data["indexes_i"])
+                cols.extend(psd_link_data["indexes_j"])
 
-                #TODO: check how implement this
-                element = data["element"]
+                element = psd_link_data["element_pipe"]
 
-                # print(key, element.index)
                 data_Ke = element.fetm_link_matrix(self.frequencies)
-
-                data_Klink.extend(list(data_Ke))
 
                 if len(data_Klink):
                     data_Klink = np.c_[data_Klink, data_Ke]
@@ -504,8 +501,7 @@ class AssemblyAcoustic:
                     rows.extend(data["link_data"]["indexes_i"])
                     cols.extend(data["link_data"]["indexes_j"])
 
-                    #TODO: check how implement this
-                    element = data["element"]
+                    element = data["element_pipe"]
 
                     data_Ke, data_Me = element.fem_1d_link_matrix()
 

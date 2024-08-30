@@ -44,17 +44,22 @@ class SetInertialLoad(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QCheckBox
-        self.checkBox_stiffening_effect : QCheckBox
+        self.checkBox_stiffening_effect: QCheckBox
+
         # QLineEdit
-        self.lineEdit_acceleration_x_axis : QLineEdit
-        self.lineEdit_acceleration_y_axis : QLineEdit
-        self.lineEdit_acceleration_z_axis : QLineEdit
+        self.lineEdit_acceleration_x_axis: QLineEdit
+        self.lineEdit_acceleration_y_axis: QLineEdit
+        self.lineEdit_acceleration_z_axis: QLineEdit
+
         # QPushButton
-        self.pushButton_confirm : QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
 
     def _create_connections(self):
-        self.pushButton_confirm.clicked.connect(self.confirm)
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
 
     def _config_widgets(self):
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")  
@@ -141,7 +146,7 @@ class SetInertialLoad(QDialog):
 
         return value
 
-    def confirm(self):
+    def attribute_callback(self):
 
         if self.check_gravity_values():
             return

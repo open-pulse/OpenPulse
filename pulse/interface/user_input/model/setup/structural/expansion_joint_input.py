@@ -14,16 +14,19 @@ from pulse.model.cross_section import CrossSection
 import numpy as np
 from pathlib import Path
 from os.path import basename
+from pprint import pprint
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class ExpansionJointInput(QDialog):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args)
 
         ui_path = UI_DIR / "model/setup/structural/expansion_joint_input.ui"
         uic.loadUi(ui_path, self)
+
+        self.render_type = kwargs.get("render_type", "model")
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
@@ -34,9 +37,14 @@ class ExpansionJointInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self._config_widgets()
-        self.load_treeWidgets_info()
-        self.selection_callback()
+
+        if self.render_type == "model":
+
+            self._config_widgets()
+            self.load_expansion_joints_info()
+            self.selection_callback()
+
+        self._configure_appearance()
 
         while self.keep_window_open:
             self.exec()
@@ -77,10 +85,10 @@ class ExpansionJointInput(QDialog):
 
         # QLineEdit 
         self.lineEdit_selected_id: QLineEdit
+        self.lineEdit_expansion_joint_name: QLineEdit
         #
         self.lineEdit_effective_diameter: QLineEdit
         self.lineEdit_joint_mass: QLineEdit
-        self.lineEdit_joint_length: QLineEdit
         self.lineEdit_axial_locking_criteria: QLineEdit
         #
         self.lineEdit_axial_stiffness: QLineEdit
@@ -109,7 +117,7 @@ class ExpansionJointInput(QDialog):
         self.tabWidget_inputs: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_expansion_joint_by_lines: QTreeWidget
+        self.treeWidget_expansion_joints_info: QTreeWidget
 
     def _create_connections(self):
         #
@@ -127,14 +135,16 @@ class ExpansionJointInput(QDialog):
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
-        self.treeWidget_expansion_joint_by_lines.itemClicked.connect(self.on_click_item_lines)
-        self.treeWidget_expansion_joint_by_lines.itemDoubleClicked.connect(self.on_doubleclick_item_lines)
+        self.treeWidget_expansion_joints_info.itemClicked.connect(self.on_click_item)
+        self.treeWidget_expansion_joints_info.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
 
         try:
+
+            print("passando aqui...")
 
             selected_lines = app().main_window.list_selected_lines()
 
@@ -154,16 +164,28 @@ class ExpansionJointInput(QDialog):
             message = str(log_error) 
             PrintMessageInput([window_title_1, title, message])
 
+    def _configure_appearance(self):
+
+        if self.render_type == "model":
+            self.selection_frame.setVisible(True)
+
+        else:
+            self.selection_frame.setVisible(False)
+            self.tabWidget_main.setTabVisible(1, False)
+            self.tabWidget_inputs.setTabVisible(1, False)
+
+        self.setMinimumHeight(520)
+
     def _config_widgets(self):
         #
-        self.treeWidget_expansion_joint_by_lines.setColumnWidth(0, 70)
-        self.treeWidget_expansion_joint_by_lines.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_expansion_joint_by_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        for i, w in enumerate([70, 120]):
+            self.treeWidget_expansion_joints_info.setColumnWidth(i, w)
+            self.treeWidget_expansion_joints_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _create_lists_of_lineEdits(self):
-        self.list_lineEdits = [ self.lineEdit_effective_diameter,
+        self.list_lineEdits = [ self.lineEdit_expansion_joint_name,
+                                self.lineEdit_effective_diameter,
                                 self.lineEdit_joint_mass,
-                                self.lineEdit_joint_length,
                                 self.lineEdit_axial_locking_criteria,
                                 self.lineEdit_axial_stiffness,
                                 self.lineEdit_transversal_stiffness,
@@ -201,19 +223,9 @@ class ExpansionJointInput(QDialog):
             element_type = self.properties._get_property("structural_element_type", line_id=line_id)
             if element_type in ["beam_1"]:
                 stop = True
-                break
-
-        if len(line_ids) == 1:
-            joint_length, _ = self.preprocessor.get_line_length(line_ids[0]) 
-            self.lineEdit_joint_length.setText(str(round(joint_length, 6)))
-        else:
-            self.lineEdit_joint_length.setText("multiple lenghts")
-
-        if stop:
-            self.lineEdit_selected_id.setText("")
-            self.lineEdit_joint_length.setText("")
-            self.lineEdit_selected_id.setFocus()
-            return True
+                self.lineEdit_selected_id.setText("")
+                self.lineEdit_selected_id.setFocus()
+                return True
 
         return False
 
@@ -223,14 +235,13 @@ class ExpansionJointInput(QDialog):
 
     def load_input_fields(self, line_id: int):
 
-        joint_data = self.properties._get_property("expansion_joint", line_id=line_id)
+        joint_data = self.properties._get_property("expansion_joint_info", line_id=line_id)
         if joint_data is None:
             return
 
         try:
 
             self.reset_all_lineEdits()
-            self.lineEdit_joint_length.setText(str(round(joint_data["joint_length"], 6)))
             self.lineEdit_effective_diameter.setText(str(joint_data["effective_diameter"]))
             self.lineEdit_joint_mass.setText(str(joint_data["joint_mass"]))
             self.lineEdit_axial_locking_criteria.setText(str(joint_data["axial_locking_criteria"]))
@@ -245,7 +256,7 @@ class ExpansionJointInput(QDialog):
 
             else:
                 self.tabWidget_inputs.setCurrentIndex(0)
-                Kx, Kyz, Krx, Kryz = joint_data['stiffness values']
+                Kx, Kyz, Krx, Kryz = joint_data['stiffness_values']
                 self.lineEdit_axial_stiffness.setText(f"{Kx : .3e}")
                 self.lineEdit_transversal_stiffness.setText(f"{Kyz : .3e}")
                 self.lineEdit_torsional_stiffness.setText(f"{Krx : .3e}")
@@ -291,30 +302,37 @@ class ExpansionJointInput(QDialog):
 
     def check_initial_inputs(self):
 
-        self.joint_parameters = dict()
+        self.expansion_joint_info = dict()
 
-        if self.check_selection_type():
+        if self.lineEdit_expansion_joint_name.text() == "":
+            self.lineEdit_expansion_joint_name.setFocus()
             return True
+
+        self.expansion_joint_info["expansion_joint_name"] = self.lineEdit_expansion_joint_name.text()
+
+        if self.render_type == "model":
+            if self.check_selection_type():
+                return True
 
         stop, value = self.check_input_parameters(self.lineEdit_effective_diameter, 'Effective diameter')
         if stop:
             self.lineEdit_effective_diameter.setFocus()
             return True
-        self.joint_parameters["effective_diameter"] = value
+        self.expansion_joint_info["effective_diameter"] = value
 
         stop, value = self.check_input_parameters(self.lineEdit_joint_mass, 'Joint mass')
         if stop:    
             self.lineEdit_joint_mass.setFocus()
             return True
-        self.joint_parameters["joint_mass"] = value
+        self.expansion_joint_info["joint_mass"] = value
 
         stop, value = self.check_input_parameters(self.lineEdit_axial_locking_criteria, 'Axial locking criteria')
         if stop:
             self.lineEdit_axial_locking_criteria.setFocus()
             return True
-        self.joint_parameters["axial_locking_criteria"] = value
+        self.expansion_joint_info["axial_locking_criteria"] = value
 
-        self.joint_parameters["rods"] = int(self.comboBox_axial_stop_rod.currentIndex())
+        self.expansion_joint_info["rods"] = int(self.comboBox_axial_stop_rod.currentIndex())
 
     def check_constant_values_to_stiffness(self):
         
@@ -344,31 +362,31 @@ class ExpansionJointInput(QDialog):
             return True
         _stiffness.append(value)
 
-        self.joint_parameters["stiffness_values"] = _stiffness
-    
-    def get_pipe_cross_section_from_neighbors(self, line_id, list_elements):
+        self.expansion_joint_info["stiffness_values"] = _stiffness
 
-        line_elements = self.preprocessor.line_to_elements[line_id]
-        lower_id = list_elements[0] - 1
-        upper_id = list_elements[-1] + 1
+    # def get_pipe_cross_section_from_neighbors(self, line_id, list_elements):
 
-        cross = None
-        structural_element_type = None
+    #     line_elements = self.preprocessor.line_to_elements[line_id]
+    #     lower_id = list_elements[0] - 1
+    #     upper_id = list_elements[-1] + 1
 
-        try:
-            if lower_id in line_elements:
-                element = self.preprocessor.structural_elements[lower_id]
-                cross = element.cross_section
-                structural_element_type = element.element_type
+    #     cross = None
+    #     structural_element_type = None
 
-            elif upper_id in line_elements:
-                element = self.preprocessor.structural_elements[upper_id]
-                cross = element.cross_section
-                structural_element_type = element.element_type
-        except:
-            pass
+    #     try:
+    #         if lower_id in line_elements:
+    #             element = self.preprocessor.structural_elements[lower_id]
+    #             cross = element.cross_section
+    #             structural_element_type = element.element_type
 
-        return cross, structural_element_type
+    #         elif upper_id in line_elements:
+    #             element = self.preprocessor.structural_elements[upper_id]
+    #             cross = element.cross_section
+    #             structural_element_type = element.element_type
+    #     except:
+    #         pass
+
+    #     return cross, structural_element_type
 
     def load_table(self, lineEdit: QLineEdit, label: str, direct_load=False):
 
@@ -566,9 +584,9 @@ class ExpansionJointInput(QDialog):
                         self.Kryz_values,
                         ]
 
-            self.joint_parameters["stiffness_values"] = values
-            self.joint_parameters["table_names"] = table_names
-            self.joint_parameters["table_paths"] = table_paths
+            self.expansion_joint_info["stiffness_values"] = values
+            self.expansion_joint_info["table_names"] = table_names
+            self.expansion_joint_info["table_paths"] = table_paths
 
             return False
 
@@ -578,18 +596,18 @@ class ExpansionJointInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             return True
 
-    def get_expansion_joint_length(self, line_id: int):
+    def process_line_length(self, line_id: int):
         self.joint_elements = self.preprocessor.mesh.line_to_elements[line_id]
-        joint_length, _ = self.preprocessor.get_line_length(line_id) 
-        self.lineEdit_joint_length.setText(str(round(joint_length, 6)))
+        joint_length = self.properties.get_line_length(line_id)
         return round(joint_length, 6)
 
     def attribute_callback(self):
         
-        lineEdit = self.lineEdit_selected_id.text()
-        stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
-        if stop:
-            return
+        if self.render_type == "model":
+            lineEdit = self.lineEdit_selected_id.text()
+            stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
+            if stop:
+                return
 
         if self.check_initial_inputs():
             return
@@ -598,83 +616,80 @@ class ExpansionJointInput(QDialog):
             if self.check_constant_values_to_stiffness():
                 return
 
-        for line_id in line_ids:
-        
-            if self.tabWidget_inputs.currentIndex() == 1:
-                if self.check_table_of_values(line_id):
-                    return
+        if self.render_type == "model":
 
-            self.joint_parameters["joint_length"] = self.get_expansion_joint_length(line_id)
-
-            self.preprocessor.set_cross_section_by_lines(line_id, None)
-            self.preprocessor.add_valve_by_lines(line_id, None)
-
-            cross_sections = get_cross_sections_to_plot_expansion_joint(
-                                                                        self.joint_elements, 
-                                                                        self.joint_parameters["effective_diameter"]   
-                                                                        )
-
-            self.preprocessor.set_cross_section_by_elements(self.joint_elements, cross_sections)
-            self.preprocessor.add_expansion_joint_by_lines(line_id, self.joint_parameters)
+            for line_id in line_ids:
             
-            self.properties._remove_line_property("valve", line_id)
-            self.properties._remove_line_property("section_parameters", line_id)
-            self.properties._remove_line_property("section_properties", line_id)
-            self.properties._set_line_property("section_type_label", "Expansion joint", line_id)
-            self.properties._set_line_property("structural_element_type", "expansion_joint", line_id)
-            self.properties._set_line_property("expansion_joint", self.joint_parameters, line_id)
+                if self.tabWidget_inputs.currentIndex() == 1:
+                    if self.check_table_of_values(line_id):
+                        return
 
-        self.actions_to_finalize()
+                self.expansion_joint_info["joint_length"] = self.process_line_length(line_id)
+
+                self.preprocessor.set_cross_section_by_lines(line_id, None)
+                self.preprocessor.add_valve_by_lines(line_id, None)
+
+                cross_sections = get_cross_sections_to_plot_expansion_joint(
+                                                                            self.joint_elements, 
+                                                                            self.expansion_joint_info["effective_diameter"]   
+                                                                            )
+
+                self.preprocessor.set_cross_section_by_elements(self.joint_elements, cross_sections)
+                self.preprocessor.add_expansion_joint_by_lines(line_id, self.expansion_joint_info)
+                self.preprocessor.set_structural_element_type_by_lines(line_id, "expansion_joint")
+
+                self.properties._remove_line_property("valve_name", line_id)
+                self.properties._remove_line_property("valve_info", line_id)
+                self.properties._remove_line_property("section_parameters", line_id)
+                self.properties._remove_line_property("section_properties", line_id)
+                self.properties._set_line_property("section_type_label", "Expansion joint", line_id)
+                self.properties._set_line_property("structural_element_type", "expansion_joint", line_id)
+                self.properties._set_line_property("expansion_joint_info", self.expansion_joint_info, line_id)
+
+            self.actions_to_finalize()
+        
+        self.complete = True
         self.close()
-
-    def get_list_tables_names_from_selected_elements(self, list_element_ids):
-
-        if isinstance(list_element_ids, int):
-            list_element_ids = [list_element_ids]
-
-        table_names_from_elements = list()
-        for element_id in list_element_ids:
-            element = self.preprocessor.structural_elements[element_id]
-            for table_name in element.joint_stiffness_table_names:
-                if table_name not in table_names_from_elements:
-                    table_names_from_elements.append(table_name)
-
-        return table_names_from_elements
     
-    def load_treeWidgets_info(self):
-        self.treeWidget_expansion_joint_by_lines.clear()
+    def load_expansion_joints_info(self):
+        self.treeWidget_expansion_joints_info.clear()
         for line_id, data in self.properties.line_properties.items():
-            if "expansion_joint" in data.keys():
+            if "expansion_joint_info" in data.keys():
 
-                ej_data = data["expansion_joint"]
-                L = ej_data["joint_length"]
-                d_eff = ej_data["effective_diameter"]
-                mass = ej_data["joint_mass"]
-                rods = ej_data["rods"]
+                ej_info = data["expansion_joint_info"]
+                L = ej_info["joint_length"]
+                d_eff = ej_info["effective_diameter"]
+                mass = ej_info["joint_mass"]
+                rods = ej_info["rods"]
 
-                if "table_names" in ej_data.keys():
+                if "table_names" in ej_info.keys():
                     pass
                 else:
                     pass
 
-                str_joint_data = "{}, {}, {}, {}, ".format(L, d_eff, mass, rods)
-                if "table_names" in ej_data.keys():
-                    str_joint_data += "Table, Table, Table, Table"
+                str_joint_info = f"{L}, {d_eff}, {mass}, {rods}, "
+                if "table_names" in ej_info.keys():
+                    str_joint_info += "Table, Table, Table, Table"
                 else:
-                    values = ej_data["stiffness_values"]
-                    str_joint_data += f"{values[0] : .2e}, {values[1] : .2e}, {values[2] : .2e}, {values[3] : .2e}"
+                    values = ej_info["stiffness_values"]
+                    str_joint_info += f"{values[0] : .2e}, {values[1] : .2e}, {values[2] : .2e}, {values[3] : .2e}"
 
-                item = QTreeWidgetItem([str(line_id), str_joint_data[:-2]])
+                item = QTreeWidgetItem([str(line_id), str_joint_info[:-2]])
                 item.setTextAlignment(0, Qt.AlignCenter)
                 item.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_expansion_joint_by_lines.addTopLevelItem(item)
+                self.treeWidget_expansion_joints_info.addTopLevelItem(item)
 
-    def on_click_item_lines(self, item):
+    def on_click_item(self, item):
         self.lineEdit_selected_id.setText(item.text(0))
-        self.pushButton_remove.setDisabled(False)
+        self.pushButton_remove.setEnabled(True)
+        if item.text(0) != "":
+            line_id = int(item.text(0))
+            data = self.properties._get_property("expansion_joint_info", line_id=line_id)
+            if isinstance(data, dict):
+                app().main_window.set_selection(lines = [line_id])
 
-    def on_doubleclick_item_lines(self, item):
-        self.on_click_item_lines(item)
+    def on_doubleclick_item(self, item):
+        self.on_click_item(item)
 
     def restore_the_cross_section(self, line_ids: list):
 
@@ -705,20 +720,23 @@ class ExpansionJointInput(QDialog):
             if element_type == 'pipe_1' and isinstance(cross, CrossSection):
 
                 self.preprocessor.set_cross_section_by_lines(line_id, cross)
+                self.preprocessor.set_structural_element_type_by_lines(line_id, "pipe_1")
+
                 pipe_info = {   "section_type_label" : "Pipe",
                                 "section_parameters" : cross.section_parameters   }
 
                 self.properties._set_line_property("structural_element_type", element_type, line_id)
-                self.properties._set_line_cross_section_property(pipe_info, line_id)
+                self.properties._set_multiple_line_properties(pipe_info, line_id)
 
     def remove_table_files_from_expansion_joints(self, line_ids: list):
+
         table_names = list()
         for line_id, data in self.properties.line_properties.items():
             data: dict
-            if "expansion_joint" in data.keys():
-                ej_data = data["expansion_joint"]
-                if line_id in line_ids and "table_names" in ej_data.keys():
-                    table_names.append(ej_data["table_names"])
+            if "expansion_joint_info" in data.keys():
+                ej_info = data["expansion_joint_info"]
+                if line_id in line_ids and "table_names" in ej_info.keys():
+                    table_names.append(ej_info["table_names"])
 
         if table_names:
             self.process_table_file_removal(table_names)
@@ -732,23 +750,18 @@ class ExpansionJointInput(QDialog):
     def remove_callback(self):
 
         if self.lineEdit_selected_id.text() == "":
-            title = "Empty selection in expansion joint"
-            message = "Please, select an expansion joint in the list "
-            message += "before confirm the joint removal."
-            PrintMessageInput([window_title_2, title, message])
-            return
 
-        line_id = int(self.lineEdit_selected_id.text())
-        self.reset_all_lineEdits()
+            line_id = int(self.lineEdit_selected_id.text())
+            self.reset_all_lineEdits()
 
-        self.remove_table_files_from_expansion_joints([line_id])
-        self.properties._remove_line_property("expansion_joint", line_id)
+            self.remove_table_files_from_expansion_joints([line_id])
+            self.properties._remove_line_property("expansion_joint_info", line_id)
 
-        self.restore_the_cross_section([line_id])
-        self.preprocessor.add_expansion_joint_by_lines(line_id, None)
+            self.restore_the_cross_section([line_id])
+            self.preprocessor.add_expansion_joint_by_lines(line_id, None)
 
-        self.load_treeWidgets_info()
-        self.actions_to_finalize()
+            self.load_expansion_joints_info()
+            self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -765,33 +778,36 @@ class ExpansionJointInput(QDialog):
         
         line_ids = list()
         for line_id, data in self.properties.line_properties.items():
-            if "expansion_joint" in data.keys():
+            if "expansion_joint_info" in data.keys():
                 line_ids.append(line_id)
 
         self.remove_table_files_from_expansion_joints(line_ids)
 
-        self.properties._remove_line_property("expansion_joint", line_ids)
+        self.properties._remove_line_property("expansion_joint_info", line_ids)
         self.preprocessor.add_expansion_joint_by_lines(line_ids, None)
         self.restore_the_cross_section(line_ids)
 
         self.actions_to_finalize()
+        self.load_expansion_joints_info()
         self.close()
 
     def actions_to_finalize(self):
+
+        app().pulse_file.write_line_properties_in_file()
+
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
-        app().pulse_file.write_line_properties_in_file()
-        app().main_window.update_plots()
-
-    def update_plots(self):
+        
+        app().project.enhance_pipe_sections_appearance()
         app().main_window.update_plots()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()
         elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
+            if self.render_type == "model":
+                self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 
@@ -822,9 +838,10 @@ def get_cross_sections_to_plot_expansion_joint(joint_elements: list, effective_d
             else:
                 plot_key = "major"
 
-        expansion_joint_info = [    "Expansion joint", 
-                                    plot_key,
-                                    effective_diameter 
+        expansion_joint_info = [
+                                "Expansion joint", 
+                                plot_key,
+                                effective_diameter 
                                 ]
 
         cross = CrossSection(expansion_joint_info = expansion_joint_info)

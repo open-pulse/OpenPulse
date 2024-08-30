@@ -29,7 +29,7 @@ class SetMaterialInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
 
-        self.attribution_type_callback()
+        self.selection_callback()
 
         while self.keep_window_open:
             self.exec()
@@ -114,6 +114,8 @@ class SetMaterialInput(QDialog):
 
             self.lineEdit_selected_id.setEnabled(True)
             self.comboBox_attribution_type.setCurrentIndex(1)
+        else:
+            self.lineEdit_selected_id.setText("")
 
         self.comboBox_attribution_type.blockSignals(False)
 
@@ -162,7 +164,7 @@ class SetMaterialInput(QDialog):
 
             else:
 
-                line_ids = list(app().project.model.mesh.lines_from_model.keys())
+                line_ids = app().project.model.mesh.lines_from_model
                 print("[Set Material] - {} defined in all entities".format(selected_material.name))
 
             app().project.model.preprocessor.set_material_by_lines(line_ids, selected_material)

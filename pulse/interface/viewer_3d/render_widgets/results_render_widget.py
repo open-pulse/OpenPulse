@@ -73,11 +73,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self._animation_current_frequency = None
         self._animation_cached_data = dict()
 
-        self.section_plane_active = False
         self.transparency = 0
-        self.plane_origin = (0, 0, 0)
-        self.plane_normal = (1, 0, 0)
-        self.config_tube_args = (0, 0, 0, 0, 0, 0)
         self.mouse_click = (0, 0)
 
         self.analysis_mode = AnalysisMode.EMPTY
@@ -99,6 +95,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.visualization_changed_callback
         )
         app().main_window.selection_changed.connect(self.update_selection)
+        app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
 
     def update_plot(self, reset_camera=False):
         self.remove_actors()
@@ -118,6 +115,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 )
 
             elif self.analysis_mode == AnalysisMode.STRESS:
+                deformed = True
                 color_table = self._compute_stress_field(
                     self.current_frequency_index, self.current_phase_step
                 )
@@ -134,13 +132,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         except Exception as e:
             return
+
         acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
 
         self.lines_actor = ElementLinesActor(show_deformed=deformed)
         self.nodes_actor = NodesActor(show_deformed=deformed)
         self.points_actor = PointsActor(show_deformed=deformed)
         self.tubes_actor = TubeActorResults(show_deformed=deformed, acoustic_plot=acoustic_plot)
-        self.plane_actor = SectionPlaneActor(size=self._get_plane_size())
+        self.plane_actor = SectionPlaneActor(self.tubes_actor.GetBounds())
         self.plane_actor.VisibilityOff()
 
         self.add_actors(
@@ -155,9 +154,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.tubes_actor.set_color_table(color_table)
 
         self.visualization_changed_callback(update=False)
-        if self.section_plane_active:
-            self.configure_section_plane(*self.config_tube_args)
-            self.apply_section_plane()
+        self.update_section_plane()
 
         if reset_camera:
             self.renderer.ResetCamera()
@@ -284,51 +281,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.transparency = transparency
         opacity = 1 - transparency
         self.tubes_actor.GetProperty().SetOpacity(opacity)
-        self.update()
-
-    def configure_section_plane(self, x, y, z, rx, ry, rz):
-        self.tubes_actor.disable_cut()
-        self.config_tube_args = x, y, z, rx, ry, rz
-
-        self.plane_origin = self._calculate_relative_position([x, y, z])
-        self.plane_normal = self._calculate_normal_vector([rx, ry, rz])
-        self.plane_actor.SetPosition(self.plane_origin)
-        self.plane_actor.SetOrientation(rx, ry, rz)
-        self.plane_actor.GetProperty().SetOpacity(0.9)
-        self.plane_actor.VisibilityOn()
-        self.update()
-
-    def apply_section_plane(self, reverse_cut=False):
-        if self.plane_origin is None:
-            return
-
-        if self.plane_normal is None:
-            return
-
-        self.section_plane_active = True
-        normal = self.plane_normal
-
-        if reverse_cut:
-            normal = -normal
-            
-        self.tubes_actor.apply_cut(self.plane_origin, normal)
-        self.plane_actor.GetProperty().SetOpacity(0.2)
-        self.plane_actor.VisibilityOn()
-        self.update()
-    
-    def hide_section_plane(self):
-        if not self._actor_exists():
-            return
-        self.plane_actor.VisibilityOff()
-        self.update()
-
-    def dismiss_section_plane(self):
-        if not self._actor_exists():
-            return
-
-        self.section_plane_active = False
-        self.tubes_actor.disable_cut()
-        self.plane_actor.VisibilityOff()
         self.update()
 
     def set_theme(self, theme):
@@ -548,27 +500,47 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.min_max_pressures_values_current = None
         self.plot_state = [False, False, False]
 
-    def _get_plane_size(self):
-        x0, x1, y0, y1, z0, z1 = self.tubes_actor.GetBounds()
-        size = np.max(np.abs([x1 - x0, y1 - y0, z1 - z0]))
-        return size
 
-    def _calculate_relative_position(self, position):
-        def lerp(a, b, t):
-            return a + (b - a) * t
-
+    def update_section_plane(self):
         if not self._actor_exists():
             return
 
-        bounds = self.tubes_actor.GetBounds()
-        x = lerp(bounds[0], bounds[1], position[0] / 100)
-        y = lerp(bounds[2], bounds[3], position[1] / 100)
-        z = lerp(bounds[4], bounds[5], position[2] / 100)
-        return np.array([x, y, z])
+        section_plane = app().main_window.section_plane
 
-    def _calculate_normal_vector(self, orientation):
-        orientation = np.array(orientation) * np.pi / 180
-        rx, ry, rz = rotation_matrices(*orientation)
+        if not section_plane.cutting:
+            self._disable_section_plane()
+            return
 
-        normal = rz @ rx @ ry @ np.array([1, 0, 0, 1])
-        return -normal[:3]
+        position = section_plane.get_position()
+        rotation = section_plane.get_rotation()
+        inverted = section_plane.get_inverted()
+
+        if section_plane.editing:
+            self.plane_actor.configure_section_plane(position, rotation)
+            self.plane_actor.VisibilityOn()
+            self.plane_actor.GetProperty().SetColor(0, 0.333, 0.867)
+            self.plane_actor.GetProperty().SetOpacity(0.8)
+            self.update()
+        else:
+            # not a very reliable condition, but it works
+            show_plane = not section_plane.keep_section_plane
+            self._apply_section_plane(position, rotation, inverted, show_plane)
+
+    def _disable_section_plane(self):
+        self.plane_actor.VisibilityOff()
+        self.tubes_actor.disable_cut()
+        self.update()
+
+    def _apply_section_plane(self, position, rotation, inverted, show_plane=True):
+        self.plane_actor.configure_section_plane(position, rotation)
+        xyz = self.plane_actor.calculate_xyz_position(position)
+        normal = self.plane_actor.calculate_normal_vector(rotation)
+        if inverted:
+            normal = -normal
+
+        self.tubes_actor.apply_cut(xyz, normal)
+
+        self.plane_actor.SetVisibility(show_plane)
+        self.plane_actor.GetProperty().SetColor(0.5, 0.5, 0.5)
+        self.plane_actor.GetProperty().SetOpacity(0.2)
+        self.update()

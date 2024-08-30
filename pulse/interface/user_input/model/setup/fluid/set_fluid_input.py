@@ -30,7 +30,7 @@ class SetFluidInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
     
-        self.attribution_type_callback()
+        self.selection_callback()
 
         if self.compressor_thermodynamic_state:
             if self.fluid_widget.call_refprop_interface():
@@ -114,8 +114,11 @@ class SetFluidInput(QDialog):
         if selected_lines:
             text = ", ".join([str(i) for i in selected_lines])
             self.lineEdit_selected_id.setText(text)
+
             self.lineEdit_selected_id.setEnabled(True)
             self.comboBox_attribution_type.setCurrentIndex(1)
+        else:
+            self.lineEdit_selected_id.setText("")
 
         self.comboBox_attribution_type.blockSignals(False)
 
@@ -170,7 +173,7 @@ class SetFluidInput(QDialog):
 
             else:
 
-                line_ids = list(app().project.model.mesh.lines_from_model.keys())
+                line_ids = app().project.model.mesh.lines_from_model
                 print("[Set fluid] - {} defined in all entities".format(selected_fluid.name))
     
             app().project.model.preprocessor.set_fluid_by_lines(line_ids, selected_fluid)

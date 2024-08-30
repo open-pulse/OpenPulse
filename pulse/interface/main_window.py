@@ -1,26 +1,17 @@
-from time import time
-import os
-import sys
-import qdarktheme
-from functools import partial
-from pathlib import Path
-import logging
-from shutil import copy, rmtree
-from time import time
+# fmt: off
 
-from PyQt5.QtWidgets import QAbstractButton, QAction, QComboBox, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
+from PyQt5.QtWidgets import QAbstractButton, QAction, QComboBox, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCloseEvent, QCursor
 from PyQt5 import uic
 
-from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
+# from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
 from opps.io.pcf.pcf_exporter import PCFExporter
 from opps.io.pcf.pcf_handler import PCFHandler
 
 from molde.render_widgets import CommonRenderWidget
 
-from pulse import USER_PATH, TEMP_PROJECT_DIR, TEMP_PROJECT_FILE
-from pulse import app, UI_DIR, QSS_DIR
+from pulse import *
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
@@ -41,6 +32,17 @@ from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseIn
 from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
+import logging
+import qdarktheme
+import os
+
+from time import time
+from sys import exit
+from functools import partial
+from pathlib import Path
+from shutil import copy, rmtree
+from time import time
+
 
 class MainWindow(QMainWindow):
     theme_changed = pyqtSignal(str)
@@ -56,7 +58,7 @@ class MainWindow(QMainWindow):
         self.selected_nodes = set()
         self.selected_lines = set()
         self.selected_elements = set()
-        
+
         self.visualization_filter = VisualizationFilter.all_true()
         self.selection_filter = SelectionFilter.all_false()
 
@@ -84,7 +86,7 @@ class MainWindow(QMainWindow):
         self.cache_indexes = list()
 
     def _load_stylesheets(self):
-        stylesheets = []
+        stylesheets = list()
         common_dir = QSS_DIR / "common_theme"
         
         if self.interface_theme == "light":
@@ -465,6 +467,9 @@ class MainWindow(QMainWindow):
 
         self.selection_changed.emit()
     
+    def clear_selection(self):
+        self.set_selection()
+    
     def list_selected_nodes(self) -> list[int]:
         return list(self.selected_nodes)
 
@@ -567,10 +572,10 @@ class MainWindow(QMainWindow):
         for action in actions:
             self.menu_recent.removeAction(action)
 
-        self.menu_actions = []
+        self.menu_actions = list()
         for name, path in reversed(self.config.recent_projects.items()):
             path = Path(path)
-            if not path.exists():
+            if not os.path.exists():
                 continue
             import_action = QAction(str(name) + "\t" + str(path))
             import_action.setStatusTip(str(path))
@@ -634,6 +639,7 @@ class MainWindow(QMainWindow):
         self.export_geometry()
 
     def action_geometry_workspace_callback(self):
+        self.clear_selection()
         self._configure_visualization(
             points=True, tubes=True,
             acoustic_symbols=self.visualization_filter.acoustic_symbols,
@@ -667,15 +673,14 @@ class MainWindow(QMainWindow):
 
     def action_results_workspace_callback(self):
         self.results_widget.update_selection()
-        self.results_viewer_wigdet.animation_widget.setVisible(False)
         self.results_viewer_wigdet.update_visibility_items()
 
         if self.project.is_the_solution_finished():
-            self.results_viewer_wigdet.animation_widget.setVisible(False)
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
             self.render_widgets_stack.setCurrentWidget(self.results_widget)
             self.results_viewer_wigdet.update_visibility_items()
             self._configure_visualization(tubes=True)
+
         else:
             if self.cache_indexes:
                 self.combo_box_workspaces.setCurrentIndex(self.cache_indexes[-2])
@@ -766,11 +771,6 @@ class MainWindow(QMainWindow):
     def action_section_plane_callback(self, condition):
         if condition:
             self.section_plane.show()
-            self.section_plane.value_changed.connect(self.set_section_plane_configs)
-            self.section_plane.slider_released.connect(self.apply_section_plane)
-            self.section_plane.closed.connect(self.close_section_plane)
-            self.set_section_plane_configs()
-            self.apply_section_plane()
         else:
             self.section_plane.keep_section_plane = False
             self.section_plane.close()
@@ -783,32 +783,8 @@ class MainWindow(QMainWindow):
         self.mesh_widget.update()
         self.results_widget.update()
 
-    def set_section_plane_configs(self):
-        self.results_widget.configure_section_plane(*self.section_plane.get_position(), *self.section_plane.get_rotation()) 
-        self.mesh_widget.configure_section_plane(*self.section_plane.get_position(), *self.section_plane.get_rotation())               
-
-    def apply_section_plane(self):
-        self.results_widget.apply_section_plane(reverse_cut=self.section_plane.invert_value)
-        self.mesh_widget.apply_section_plane(reverse_cut=self.section_plane.invert_value)
-
-    def close_section_plane(self):
-        if self.section_plane.keep_section_plane:
-            self.results_widget.hide_section_plane()
-            self.mesh_widget.hide_section_plane()
-            return
-    
-        self.action_section_plane.blockSignals(True)
-        self.action_section_plane.setChecked(False)
-        self.action_section_plane.blockSignals(False)
-
-        self.results_widget.dismiss_section_plane()
-        self.mesh_widget.dismiss_section_plane()
-
     def action_set_structural_element_type_callback(self):
         self.input_ui.set_structural_element_type()
-
-    def action_add_connecting_flanges_callback(self):
-        self.input_ui.add_flanges()
 
     def action_set_prescribed_dofs_callback(self):
         self.input_ui.set_prescribed_dofs()
@@ -818,9 +794,6 @@ class MainWindow(QMainWindow):
 
     def action_add_mass_spring_damper_callback(self):
         self.input_ui.add_mass_spring_damper()
-
-    def action_set_capped_end_callback(self):
-        self.input_ui.set_capped_end()
 
     def action_set_stress_stiffening_callback(self):
         self.input_ui.set_stress_stress_stiffening()
@@ -931,6 +904,14 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.mesh_toolbar)
         self.insertToolBarBreak(self.mesh_toolbar)
 
+    def _create_status_bar(self):
+        self.status_bar = StatusBar(self)
+        self.setStatusBar(self.status_bar)
+
+    def update_status_bar_info(self):
+        self.status_bar.update_mesh_information()
+        self.status_bar.update_geometry_information()
+
     def _enable_menus_at_start(self):
         pass
 
@@ -1002,9 +983,9 @@ class MainWindow(QMainWindow):
             last_path = str(Path().home())
 
         path, check = self.file_dialog.get_save_file_name(
-                                                            'Save Captured Image', 
-                                                            last_path, 
-                                                            'PNG File (*.png)'
+                                                          'Save Captured Image', 
+                                                          last_path, 
+                                                          'PNG File (*.png)'
                                                           )
 
         if not check:
@@ -1017,23 +998,47 @@ class MainWindow(QMainWindow):
         width, height = widget.width(), widget.height()
         final_pos = widget.mapToGlobal(QPoint(int(width/2), int(height/2)))
         QCursor.setPos(final_pos)
-    
+
+    def save_project_data(self):
+
+        self.close_dialogs()
+
+        close = QMessageBox.question(   
+                                        self, 
+                                        "QUIT", 
+                                        "Would you like to save the project data before exit?", 
+                                        QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
+                                    )
+
+        if close == QMessageBox.Cancel:
+            return True
+
+        elif close == QMessageBox.Save:
+            if not self.save_project_dialog():
+                return True
+
+        return False
+
     def new_project(self):
-        # self.pulse_file = ProjectFileIO(TEMP_PROJECT_FILE)
+
+        condition_1 = self.project.save_path is None
+        condition_2 = os.path.exists(TEMP_PROJECT_FILE)
+        condition_3 = self.project_data_modified
+        condition = (condition_1 and condition_2) or condition_3
+
+        if condition:
+            if self.save_project_data():
+                return
+
+            self.reset_temporary_folder()
+            self.project.reset(reset_all=True)
+            self.project.model.properties._reset_variables()
+
         self.reset_geometry_render()
         obj = NewProjectInput()
         self.initial_project_action(obj.complete)
+
         return obj.complete
-
-    # def new_project(self):
-    #     # TODO: remove repeated
-    #     if not self.input_ui.new_project():
-    #         return 
-    #     self._update_recent_projects()
-    #     self.set_window_title(self.file._project_name)
-    #     self.use_structural_setup_workspace()
-    #     self.update_plots()
-
 
     def open_project(self, project_path: str | Path | None = None):
         def tmp():
@@ -1045,6 +1050,7 @@ class MainWindow(QMainWindow):
                 copy(project_path, TEMP_PROJECT_FILE)
                 self.update_window_title(project_path)
 
+            logging.info("Loading project [1/3]")
             self.project.load_project()
             self.mesh_toolbar.update_mesh_attributes()
 
@@ -1054,29 +1060,15 @@ class MainWindow(QMainWindow):
                 self.project.save_path = path
 
             self.initial_project_action(True)
+
+            logging.info("Update recent projects [2/3]")
             self._update_recent_projects()
+
+            logging.info("Configuring visualization [3/3]")
             self.update_plots()
             self.action_front_view_callback()
         
         LoadingWindow(tmp).run()
-
-    # def open_project(self, path=None):
-    #     # TODO: remove repeated
-    #     def tmp():
-    #         logging.info("Loading project [1/3]")
-    #         if not self.input_ui.load_project(path):
-    #             return False
-
-    #         logging.info("Update recent projects [2/3]")
-    #         self._update_recent_projects()
-
-    #         logging.info("Configuring visualization [3/3]")
-    #         self.set_window_title(self.file._project_name)
-    #         self.update_plots()
-    #         self.action_front_view_callback()
-    #         return True
-
-    #     LoadingWindow(tmp).run()
 
     def open_project_dialog(self):
 
@@ -1158,25 +1150,8 @@ class MainWindow(QMainWindow):
             self.dialog.close()
             self.set_input_widget(None)
 
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.ShortcutOverride:
-            if event.key() == Qt.Key_E:
-                self.combo_box_workspaces.setCurrentIndex(0)
-            elif event.key() == Qt.Key_S:
-                self.combo_box_workspaces.setCurrentIndex(1)
-            elif event.key() == Qt.Key_A:
-                self.combo_box_workspaces.setCurrentIndex(2)
-            elif event.key() == Qt.Key_R:
-                self.combo_box_workspaces.setCurrentIndex(3)
-            elif event.key() == Qt.Key_F5:
-                self.update_plots()
-        return super(MainWindow, self).eventFilter(obj, event)
-
-    def closeEvent(self, event: QCloseEvent | None) -> None:
-        self.close_app()
-        event.ignore()
-
     def close_app(self):
+
         self.close_dialogs()
 
         condition_1 = self.project.save_path is None
@@ -1185,19 +1160,8 @@ class MainWindow(QMainWindow):
         condition = (condition_1 and condition_2) or condition_3
 
         if condition:
-            close = QMessageBox.question(   
-                                            self, 
-                                            "QUIT", 
-                                            "Would you like to save the project data before exit?", 
-                                            QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
-                                        )
-
-            if close == QMessageBox.Cancel:
+            if self.save_project_data():
                 return
-
-            elif close == QMessageBox.Save:
-                if not self.save_project_dialog():
-                    return
 
         else:
             close = QMessageBox.question(
@@ -1214,18 +1178,30 @@ class MainWindow(QMainWindow):
         self.reset_temporary_folder()
         self.mesh_widget.render_interactor.Finalize()
         self.results_widget.render_interactor.Finalize()
-        sys.exit()
+        exit()
 
-    def _create_status_bar(self):
-        self.status_bar = StatusBar(self)
-        self.setStatusBar(self.status_bar)
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.ShortcutOverride:
+            if event.key() == Qt.Key_E:
+                self.set_selection()
+                self.combo_box_workspaces.setCurrentIndex(0)
+            elif event.key() == Qt.Key_S:
+                self.combo_box_workspaces.setCurrentIndex(1)
+            elif event.key() == Qt.Key_A:
+                self.combo_box_workspaces.setCurrentIndex(2)
+            elif event.key() == Qt.Key_R:
+                self.combo_box_workspaces.setCurrentIndex(3)
+            elif event.key() == Qt.Key_F5:
+                self.update_plots()
+        return super(MainWindow, self).eventFilter(obj, event)
 
-    def update_status_bar_info(self):
-        self.status_bar.update_mesh_information()
-        self.status_bar.update_geometry_information()
+    def closeEvent(self, event: QCloseEvent | None) -> None:
+        self.close_app()
+        event.ignore()
 
 def create_new_folder(path : Path, folder_name : str) -> Path:
     folder_path = path / folder_name
-    if not os.path.exists(folder_path):
-        os.mkdir(folder_path)
+    folder_path.mkdir(exist_ok=True)
     return folder_path
+
+# fmt: on

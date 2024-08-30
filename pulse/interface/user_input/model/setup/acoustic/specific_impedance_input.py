@@ -55,41 +55,42 @@ class SpecificImpedanceInput(QDialog):
     def _define_qt_variables(self):
 
         # QLineEdit
-        self.lineEdit_imag_value : QLineEdit
-        self.lineEdit_real_value : QLineEdit
-        self.lineEdit_selection_id : QLineEdit
-        self.lineEdit_table_path : QLineEdit
+        self.lineEdit_imag_value: QLineEdit
+        self.lineEdit_real_value: QLineEdit
+        self.lineEdit_selection_id: QLineEdit
+        self.lineEdit_table_path: QLineEdit
 
         # QPushButton
-        self.pushButton_constant_values : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_search : QPushButton
-        self.pushButton_table_values : QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
+        self.pushButton_search: QPushButton
 
         # QSpinBox
-        self.spinBox_skip_wors : QSpinBox
+        self.spinBox_skip_wors: QSpinBox
 
         # QTabWidget
-        self.tabWidget_specific_impedance : QTabWidget
+        self.tabWidget_inputs: QTabWidget
+        self.tabWidget_main: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_specific_impedance : QTreeWidget
-        self.treeWidget_specific_impedance.setColumnWidth(1, 20)
-        self.treeWidget_specific_impedance.setColumnWidth(2, 80)
+        self.treeWidget_nodal_info: QTreeWidget
+        self.treeWidget_nodal_info.setColumnWidth(1, 20)
+        self.treeWidget_nodal_info.setColumnWidth(2, 80)
 
     def _create_connections(self):
         #
-        self.pushButton_constant_values.clicked.connect(self.constant_values_attribution_callback)
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
-        self.pushButton_table_values.clicked.connect(self.table_values_attribution_callback)
         self.pushButton_search.clicked.connect(self.load_specific_impedance_table)
         #
-        self.tabWidget_specific_impedance.currentChanged.connect(self.tab_event_callback)
+        self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
-        self.treeWidget_specific_impedance.itemClicked.connect(self.on_click_item)
-        self.treeWidget_specific_impedance.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.treeWidget_nodal_info.itemClicked.connect(self.on_click_item)
+        self.treeWidget_nodal_info.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
@@ -103,52 +104,55 @@ class SpecificImpedanceInput(QDialog):
             self.lineEdit_selection_id.setText(text)
 
             if len(selected_nodes) == 1:
-                for (property, node_id), data in self.properties.nodal_properties.items():
-                    if property == "specific_impedance" and selected_nodes[0] == node_id:
+                for (property, *args), data in self.properties.nodal_properties.items():
+                    if property == "specific_impedance" and selected_nodes == args:
 
                         values = data["values"]
         
                         if "table_paths" in data.keys():
                             table_paths = data["table_paths"]
-                            self.tabWidget_specific_impedance.setCurrentIndex(1)
+                            self.tabWidget_main.setCurrentIndex(1)
                             self.lineEdit_table_path.setText(table_paths[0])
 
                         else:
-                            self.tabWidget_specific_impedance.setCurrentIndex(0)
+                            self.tabWidget_main.setCurrentIndex(0)
                             self.lineEdit_real_value.setText(str(np.real(values)))
                             self.lineEdit_imag_value.setText(str(np.imag(values)))
 
     def tab_event_callback(self):
         self.lineEdit_selection_id.setText("")
         self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_specific_impedance.currentIndex() == 2:
+        if self.tabWidget_main.currentIndex() == 1:
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
         else:
             self.selection_callback()
             self.lineEdit_selection_id.setDisabled(False)
 
-    def update_tabs_visibility(self):
-        self.tabWidget_specific_impedance.setTabVisible(2, False)
-        for (property, _) in self.properties.nodal_properties.keys():
-            if property == "specific_impedance":
-                self.tabWidget_specific_impedance.setCurrentIndex(0)
-                self.tabWidget_specific_impedance.setTabVisible(2, True)
-                return
-
     def load_nodes_info(self):
 
-        self.treeWidget_specific_impedance.clear()
-        for (property, node_id), data in self.properties.nodal_properties.items():
+        self.treeWidget_nodal_info.clear()
+        for (property, *args), data in self.properties.nodal_properties.items():
 
             if property == "specific_impedance":
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values[0]))])
+                new = QTreeWidgetItem([str(args[0]), str(self.text_label(values[0]))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_specific_impedance.addTopLevelItem(new)
+                self.treeWidget_nodal_info.addTopLevelItem(new)
 
-        self.update_tabs_visibility()
+        self.tabWidget_main.setTabVisible(2, False)
+        for (_property, *_) in self.properties.nodal_properties.keys():
+            if _property == "specific_impedance":
+                self.tabWidget_main.setCurrentIndex(0)
+                self.tabWidget_main.setTabVisible(2, True)
+                return
+
+    def attribute_callback(self):
+        if self.tabWidget_inputs.currentIndex() == 0:
+            self.constant_values_attribution_callback()
+        else:
+            self.table_values_attribution_callback()
 
     def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):
 
@@ -196,7 +200,7 @@ class SpecificImpedanceInput(QDialog):
 
         if stop:
             return
-        
+
         if specific_impedance is None:
             title = "Additional inputs required"
             message = "You must inform at least one specific impedance " 
@@ -441,9 +445,9 @@ class SpecificImpedanceInput(QDialog):
             if read._continue:
 
                 node_ids = list()
-                for (property, node_id), data in self.properties.nodal_properties.items():
+                for (property, *args) in self.properties.nodal_properties.keys():
                     if property == "specific_impedance":
-                        node_ids.append(node_id)
+                        node_ids.append(args[0])
 
                 for node_id in node_ids:
                     self.remove_table_files_from_nodes(node_id)
@@ -470,13 +474,9 @@ class SpecificImpedanceInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_specific_impedance.currentIndex()==0:
-                self.check_constant_values()
-            if self.tabWidget_specific_impedance.currentIndex()==1:
-                self.check_table_values()
+            self.attribute_callback()
         elif event.key() == Qt.Key_Delete:
-            if self.tabWidget_specific_impedance.currentIndex()==2:
-                self.remove_callback()
+            self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

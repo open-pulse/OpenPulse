@@ -12,6 +12,7 @@ def nodes_info_text() -> str:
     nodes = app().main_window.list_selected_nodes()
     preprocessor = app().project.preprocessor
     properties = app().project.model.properties
+
     info_text = ""
 
     if len(nodes) > 1:
@@ -109,15 +110,15 @@ def nodes_info_text() -> str:
 
 
 def elements_info_text() -> str:
+
     elements = app().main_window.list_selected_elements()
     info_text = ""
     project = app().project
 
     if len(elements) > 1:
-        info_text += (
-            f"{len(elements)} ELEMENTS IN SELECTION\n"
-            f"{format_long_sequence(elements)}\n\n"
-        )
+        info_text += ( f"{len(elements)} ELEMENTS IN SELECTION\n"
+                        f"{format_long_sequence(elements)}\n\n" )
+
     elif len(elements) == 1:
         _id, *_ = elements
         structural_element = project.get_structural_element(_id)
@@ -127,16 +128,14 @@ def elements_info_text() -> str:
         last_node = structural_element.last_node
 
         tree = TreeInfo(f"ELEMENT {_id}")
-        tree.add_item(
-            f"First Node - {first_node.external_index:>5}",
-            "[{:.3f}, {:.3f}, {:.3f}]".format(*first_node.coordinates),
-            "m",
-        )
-        tree.add_item(
-            f"Last Node  - {last_node.external_index:>5}",
-            "[{:.3f}, {:.3f}, {:.3f}]".format(*last_node.coordinates),
-            "m",
-        )
+        tree.add_item( f"First Node - {first_node.external_index:>5}",
+                        "[{:.3f}, {:.3f}, {:.3f}]".format(*first_node.coordinates),
+                        "m" )
+
+        tree.add_item( f"Last Node  - {last_node.external_index:>5}",
+                        "[{:.3f}, {:.3f}, {:.3f}]".format(*last_node.coordinates),
+                        "m" )
+
         info_text += str(tree)
 
         if structural_element.material:
@@ -145,9 +144,14 @@ def elements_info_text() -> str:
         if acoustic_element.fluid:
             info_text += fluid_info_text(acoustic_element.fluid)
 
+        valve_name = structural_element.valve_data.get("valve_name", "")
+
         info_text += cross_section_info_text(
-            structural_element.cross_section, structural_element.element_type
-        )
+                                             structural_element.cross_section, 
+                                             structural_element.element_type,
+                                             structural_element.beam_xaxis_rotation,
+                                             valve_name
+                                             )
 
     return info_text
 
@@ -179,10 +183,18 @@ def lines_info_text() -> str:
         if fluid is not None:
             info_text += fluid_info_text(fluid)
 
+        properties = app().project.model.properties
         cross_section = properties._get_property("cross_section", line_id=line_id)
         structural_element_type = properties._get_property("structural_element_type", line_id=line_id)
+        beam_xaxis_rotation = properties._get_property("beam_xaxis_rotation", line_id=line_id)
+        valve_name = properties._get_property("valve_name", line_id=line_id)
 
-        info_text += cross_section_info_text(cross_section, structural_element_type)
+        info_text += cross_section_info_text(
+                                             cross_section, 
+                                             structural_element_type, 
+                                             beam_xaxis_rotation, 
+                                             valve_name
+                                             )
 
     return info_text
 
@@ -212,7 +224,8 @@ def fluid_info_text(fluid) -> str:
     return str(tree)
 
 
-def cross_section_info_text(cross_section, element_type) -> str:
+def cross_section_info_text(cross_section, structural_element_type, beam_xaxis_rotation, valve_name) -> str:
+
     info_text = ""
 
     if cross_section is None:
@@ -220,29 +233,45 @@ def cross_section_info_text(cross_section, element_type) -> str:
         tree.add_item("Info", "Undefined")
         info_text += str(tree)
 
-    elif element_type == "beam_1":
+    elif structural_element_type == "beam_1":
         tree = TreeInfo("cross section")
+
+        area = cross_section.area
+        I_yy = cross_section.second_moment_area_y
+        I_zz = cross_section.second_moment_area_z
+        I_yz = cross_section.second_moment_area_yz
+
         tree.add_item("Section type", cross_section.section_type_label, "")
-        tree.add_item("Area", round(cross_section.area, 2), "m²")
-        tree.add_item("Iyy", round(cross_section.second_moment_area_y, 4), "m⁴")
-        tree.add_item("Izz", round(cross_section.second_moment_area_z, 4), "m⁴")
-        tree.add_item("Iyz", round(cross_section.second_moment_area_yz, 4), "m⁴")
-        tree.add_item("x-axis rotation", round(cross_section.second_moment_area_yz, 4), "m⁴")
+        tree.add_item("Area", f"{area : .6e}", "m²")
+        tree.add_item("Iyy", f"{I_yy : .6e}", "m⁴")
+        tree.add_item("Izz", f"{I_zz : .6e}", "m⁴")
+        tree.add_item("Iyz", f"{I_yz : .6e}", "m⁴")
+
+        if isinstance(beam_xaxis_rotation, float):
+            tree.add_item("x-axis rotation", round(beam_xaxis_rotation, 4), "deg")
+
         info_text += str(tree)
 
-    elif element_type in ["pipe_1", "valve"]:
+    elif structural_element_type in ["pipe_1", "valve"]:
+
         tree = TreeInfo("cross section")
         tree.add_item("Section type", cross_section.section_type_label, "")
+        if structural_element_type == "valve":
+            tree.add_item("Valve name", valve_name, "")
+
         tree.add_item("Outer diameter", round(cross_section.outer_diameter, 4), "m")
         tree.add_item("Thickness", round(cross_section.thickness, 4), "m")
         tree.add_separator()
+
         if cross_section.offset_y or cross_section.offset_z:
             tree.add_item("Offset y", round(cross_section.offset_y, 4), "m")
             tree.add_item("Offset z", round(cross_section.offset_z, 4), "m")
             tree.add_separator()
+
         if cross_section.insulation_thickness or cross_section.insulation_density:
             tree.add_item("Insulation thickness", round(cross_section.insulation_thickness, 4),"m")
             tree.add_item("Insulation density", round(cross_section.insulation_density, 4), "kg/m³")
+
         info_text += str(tree)
 
     return info_text

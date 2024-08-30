@@ -736,8 +736,8 @@
              <property name="spacing">
               <number>0</number>
              </property>
-             <item row="0" column="0">
-              <widget class="QPushButton" name="pushButton_confirm">
+             <item row="0" column="1">
+              <widget class="QPushButton" name="pushButton_attribute">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -763,7 +763,38 @@
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Confirm</string>
+                <string>Attribute</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0">
+              <widget class="QPushButton" name="pushButton_cancel">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>28</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>MS Shell Dlg 2</family>
+                 <pointsize>10</pointsize>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="text">
+                <string>Cancel</string>
                </property>
               </widget>
              </item>

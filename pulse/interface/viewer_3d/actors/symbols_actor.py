@@ -45,8 +45,8 @@ class SymbolsActorBase(ActorBase):
         self.preprocessor = project.preprocessor
         self.deformed = deformed
         if self.process_scaleFactor():
-            self.scaleFactor = 1
-        # print(f"scaleFactor: {self.scaleFactor}")
+            self.scale_factor = 1
+        # print(f"scaleFactor: {self.scale_factor}")
 
         self._connections = self._createConnections()
         # self._sequence = self._createSequence()
@@ -88,28 +88,28 @@ class SymbolsActorBase(ActorBase):
         else:
             diagonal = self.project.preprocessor.structure_principal_diagonal
             if diagonal <= 0.01:
-                self.scaleFactor = 0.01
+                self.scale_factor = 0.01
             elif diagonal <= 0.1:
-                self.scaleFactor = 0.05
+                self.scale_factor = 0.05
             elif diagonal <= 1:
-                self.scaleFactor = 0.2
+                self.scale_factor = 0.2
             elif diagonal <= 2:
-                self.scaleFactor = 0.3
+                self.scale_factor = 0.3
             elif diagonal <= 10:
-                self.scaleFactor = 0.4
+                self.scale_factor = 0.4
             elif diagonal <= 20:
-                self.scaleFactor = 0.6
+                self.scale_factor = 0.6
             elif diagonal <= 30:
-                self.scaleFactor = 0.8
+                self.scale_factor = 0.8
             elif diagonal <= 40:
-                self.scaleFactor = 1
+                self.scale_factor = 1
             elif diagonal <= 50:
-                self.scaleFactor = 1.2
+                self.scale_factor = 1.2
             else:
-                self.scaleFactor = 2.5
+                self.scale_factor = 2.5
 
             # print(f"Structure diagonal: {diagonal}")
-            # print(f"Symbols scale factor: {self.scaleFactor}")
+            # print(f"Symbols scale factor: {self.scale_factor}")
 
     def source(self):
 
@@ -128,7 +128,7 @@ class SymbolsActorBase(ActorBase):
         self._mapper.SetSourceIndexArray("sources")
         self._mapper.SetOrientationArray("rotations")
         self._mapper.SetScaleArray("scales")
-        self._mapper.SetScaleFactor(self.scaleFactor)
+        self._mapper.SetScaleFactor(self.scale_factor)
 
         self._mapper.SourceIndexingOn()
         self._mapper.SetOrientationModeToRotation()

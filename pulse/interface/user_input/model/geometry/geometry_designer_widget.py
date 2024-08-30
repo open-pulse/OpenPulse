@@ -45,42 +45,53 @@ class GeometryDesignerWidget(QWidget):
         self._initialize()
 
     def _define_qt_variables(self):
+
+        # QAction
+        self.select_all_action: QAction
+        self.addAction(self.select_all_action)
+
+        # QComboBox
         self.unit_combobox: QComboBox
         self.structure_combobox: QComboBox
+        self.division_combobox: QComboBox
 
-        self.set_material_button: QPushButton
+        #QPushButton
+        self.add_button: QPushButton
+        self.apply_division_button: QPushButton
+        self.attach_button: QPushButton
+        self.cancel_button: QPushButton
+        self.cancel_division_button: QPushButton
+        self.delete_button: QPushButton
+        self.finalize_button: QPushButton
         self.set_fluid_button: QPushButton
+        self.set_material_button: QPushButton
 
+        # QLineEdit
         self.x_line_edit: QLineEdit
         self.y_line_edit: QLineEdit
         self.z_line_edit: QLineEdit
 
-        self.sizes_coords_label: QLabel
+        # QLabel
         self.dx_label: QLabel
         self.dy_label: QLabel
         self.dz_label: QLabel
-
-        self.division_combobox: QComboBox
-        self.division_slider: QSlider
-        self.cancel_division_button: QPushButton
-        self.apply_division_button: QPushButton
-        self.division_amount_spinbox: QSpinBox
         self.division_slider_label: QLabel
+        self.sizes_coords_label: QLabel
 
+        # QSlider
+        self.division_slider: QSlider
+
+        # QSpinBox
+        self.division_amount_spinbox: QSpinBox
+
+        # QStackedWidget
         self.options_stack_widget: QStackedWidget
+
+        # QWidget
         self.empty_widget: QWidget
-
-        self.add_button: QPushButton
-        self.attach_button: QPushButton
-        self.delete_button: QPushButton
-
-        self.cancel_button: QPushButton
-        self.finalize_button: QPushButton
-
-        self.select_all_action: QAction
-        self.addAction(self.select_all_action)
     
     def _create_layout(self):
+
         self.cross_section_widget = CrossSectionWidget()
 
         self.pipe_options_widget = PipeOptionsWidget(self)
@@ -396,11 +407,11 @@ class GeometryDesignerWidget(QWidget):
         geometry_handler.export_model_data_file()
 
         app().pulse_file.modify_project_attributes(
-                                                                length_unit = self.length_unit,
-                                                                element_size = 0.01, 
-                                                                geometry_tolerance = 1e-6,
-                                                                import_type = 1,
-                                                              )
+                                                    length_unit = self.length_unit,
+                                                    element_size = 0.01, 
+                                                    geometry_tolerance = 1e-6,
+                                                    import_type = 1,
+                                                    )
 
         self._load_project()
 
@@ -429,6 +440,8 @@ class GeometryDesignerWidget(QWidget):
 
         if not expression:
             return None
+
+        expression = expression.replace(",", ".")
 
         try:
             result = eval(expression, global_context, local_context)
@@ -532,7 +545,8 @@ class GeometryDesignerWidget(QWidget):
         kwargs = current_widget.get_parameters()
         if kwargs is None:
             return
-        kwargs["extra_info"]["material_info"] = self.current_material_info
+        if self.current_material_info is not None:
+            kwargs["extra_info"]["material_info"] = self.current_material_info
         return kwargs
 
     def _update_section_of_selected_structures(self):
@@ -558,13 +572,13 @@ class GeometryDesignerWidget(QWidget):
 
     def _unit_abreviation(self, unit):
         if self.length_unit == "meter":
-            return "[m]"
+            return "m"
 
         elif self.length_unit == "milimeter":
-            return "[mm]"
+            return "mm"
 
         elif self.length_unit == "inch":
-            return "[in]"
+            return "in"
 
         else:
             return
@@ -628,9 +642,9 @@ class GeometryDesignerWidget(QWidget):
             unit = self._unit_abreviation(self.length_unit)
             tree = TreeInfo("Distance:")
             tree.add_item("Total", distance, unit)
-            tree.add_item("ΔX", dx, unit)
-            tree.add_item("ΔY", dy, unit)
-            tree.add_item("ΔZ", dz, unit)
+            tree.add_item("dx", dx, unit)
+            tree.add_item("dy", dy, unit)
+            tree.add_item("dz", dz, unit)
             message += str(tree) + "\n\n"
 
         self.render_widget.set_info_text(message)
@@ -638,11 +652,17 @@ class GeometryDesignerWidget(QWidget):
     def _update_permissions(self):
         current_widget = self.options_stack_widget.currentWidget()
         cross_section_info = getattr(current_widget, "cross_section_info", None)
+        expansion_joint_info = getattr(current_widget, "expansion_joint_info", None)
+        valve_info = getattr(current_widget, "valve_info", None)
 
         # usefull variables
         have_selection = bool(self.pipeline.selected_points or self.pipeline.selected_structures)
         have_staged = bool(self.pipeline.staged_points or self.pipeline.staged_structures)
-        have_cross_section = cross_section_info is not None
+        widget_configured = (
+            (cross_section_info is not None) 
+            or (expansion_joint_info is not None) 
+            or (valve_info is not None)
+        )
         multiple_points_selected = len(self.pipeline.selected_points) >= 1
         is_point = issubclass(self.current_structure_type, Point)
         is_beam = issubclass(self.current_structure_type, Beam)
@@ -654,18 +674,18 @@ class GeometryDesignerWidget(QWidget):
         self.delete_button.setDisabled(not (have_selection or have_staged))
         self.attach_button.setDisabled(
             is_point
-            or not have_cross_section
+            or not widget_configured
             or not multiple_points_selected
         )
 
-        disable_xyz = (not is_point and not have_cross_section)
+        disable_xyz = (not is_point and not widget_configured)
         self.x_line_edit.setDisabled(disable_xyz)
         self.y_line_edit.setDisabled(disable_xyz)
         self.z_line_edit.setDisabled(disable_xyz)
 
     def _load_project(self):
-        self.project.initial_load_project_actions()
-        # self.project.load_project_files()
         app().loader.load_project_data()
+        self.project.initial_load_project_actions()
+        app().loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         self.complete = True
