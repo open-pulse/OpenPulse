@@ -176,7 +176,6 @@ class ValvesInput(QDialog):
         self.setMinimumHeight(620)
 
     def _config_widgets(self):
-        # self.cache_tab = self.tabWidget_main.currentIndex()
         for i, w in enumerate([100, 120, 160]):
             self.treeWidget_valves_info.setColumnWidth(i, w)
             self.treeWidget_valves_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
@@ -201,13 +200,10 @@ class ValvesInput(QDialog):
     def tab_event_callback(self):
         self.lineEdit_selected_id.setText("")
         self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_main.currentIndex() == 2:
+        if self.tabWidget_main.currentIndex() == 1:
             self.selection_frame.setDisabled(True)
         else:
-            # if self.cache_tab == 2:
-            #     self.lineEdit_selected_id.setText("")
             self.selection_frame.setDisabled(False)
-        # self.cache_tab = self.tabWidget_main.currentIndex()
 
     def valve_setup_callback(self):
 

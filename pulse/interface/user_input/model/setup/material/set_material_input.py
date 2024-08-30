@@ -114,8 +114,13 @@ class SetMaterialInput(QDialog):
 
             self.lineEdit_selected_id.setEnabled(True)
             self.comboBox_attribution_type.setCurrentIndex(1)
+
         else:
-            self.lineEdit_selected_id.setText("")
+
+            if self.comboBox_attribution_type.currentIndex() == 0:
+                self.attribution_type_callback()
+            else:
+                self.lineEdit_selected_id.setText("")
 
         self.comboBox_attribution_type.blockSignals(False)
 

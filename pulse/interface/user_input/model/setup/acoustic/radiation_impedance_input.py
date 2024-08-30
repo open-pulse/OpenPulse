@@ -98,7 +98,7 @@ class RadiationImpedanceInput(QDialog):
     def tab_event_callback(self):
         self.lineEdit_selection_id.setText("")
         self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_main.currentIndex() == 2:
+        if self.tabWidget_main.currentIndex() == 1:
             self.lineEdit_selection_id.setText("")
             self.lineEdit_selection_id.setDisabled(True)
         else:

@@ -107,17 +107,16 @@ class SpecificImpedanceInput(QDialog):
                 for (property, *args), data in self.properties.nodal_properties.items():
                     if property == "specific_impedance" and selected_nodes == args:
 
-                        values = data["values"]
-        
                         if "table_paths" in data.keys():
                             table_paths = data["table_paths"]
                             self.tabWidget_main.setCurrentIndex(1)
                             self.lineEdit_table_path.setText(table_paths[0])
-
                         else:
                             self.tabWidget_main.setCurrentIndex(0)
-                            self.lineEdit_real_value.setText(str(np.real(values)))
-                            self.lineEdit_imag_value.setText(str(np.imag(values)))
+                            real_value = float(data["real_values"][0])
+                            imag_value = float(data["imag_values"][0])
+                            self.lineEdit_real_value.setText(str(real_value))
+                            self.lineEdit_imag_value.setText(str(imag_value))
 
     def tab_event_callback(self):
         self.lineEdit_selection_id.setText("")
@@ -468,6 +467,7 @@ class SpecificImpedanceInput(QDialog):
             app().pulse_file.write_imported_table_data_in_file()
 
     def reset_input_fields(self):
+        self.lineEdit_selection_id.setText("")
         self.lineEdit_real_value.setText("")
         self.lineEdit_imag_value.setText("")
         self.lineEdit_table_path.setText("")

@@ -115,13 +115,10 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def item_child_create_geometry_callback(self):
         app().main_window.input_ui.call_geometry_editor()
 
-    def item_child_edit_geometry_callback(self):
-        obj = app().main_window.input_ui.edit_an_imported_geometry()
-
     def item_child_set_material_callback(self):
         previous_color_mode = app().main_window.get_color_mode()
         if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+            app().main_window.plot_lines_with_cross_sections()
         app().main_window.action_plot_material_callback()
         app().main_window.input_ui.set_material()
         app().main_window.set_input_widget(None)
@@ -131,11 +128,11 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         previous_color_mode = app().main_window.get_color_mode()
         app().main_window.action_plot_fluid_callback()
         if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+            app().main_window.plot_lines_with_cross_sections()
         app().main_window.input_ui.set_fluid()
         app().main_window.set_input_widget(None)
         app().main_window.set_color_mode(previous_color_mode)
-    
+
     def item_child_set_cross_section_callback(self):
         if app().main_window.action_show_mesh_data.isChecked():
             app().main_window.plot_lines_with_cross_sections()

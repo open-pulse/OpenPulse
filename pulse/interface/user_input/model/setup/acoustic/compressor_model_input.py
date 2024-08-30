@@ -756,7 +756,7 @@ class CompressorModelInput(QDialog):
                                 "connection_type" : "suction" }
 
             self.hide()
-            read = SetFluidInput(compressor_thermodynamic_state = compressor_info)
+            read = SetFluidInput(compressor_info = compressor_info)
             if not read.complete:
                 return
 
@@ -807,7 +807,7 @@ class CompressorModelInput(QDialog):
                                 "connection_type" : "discharge" }
 
             self.hide()
-            read = SetFluidInput(compressor_thermodynamic_state = compressor_info)
+            read = SetFluidInput(compressor_info = compressor_info)
             if not read.complete:
                 return
 

@@ -20,10 +20,12 @@ class SetFluidInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
-        self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", dict())
+        self.compressor_info = kwargs.get("compressor_info", dict())
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
+
+        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
         self._initialize()
@@ -32,7 +34,7 @@ class SetFluidInput(QDialog):
     
         self.selection_callback()
 
-        if self.compressor_thermodynamic_state:
+        if self.compressor_info:
             if self.fluid_widget.call_refprop_interface():
                 return
 
@@ -49,7 +51,6 @@ class SetFluidInput(QDialog):
 
     def _initialize(self):
 
-        self.before_run = app().project.get_pre_solution_model_checks()
 
         self.keep_window_open = True
 
@@ -87,7 +88,7 @@ class SetFluidInput(QDialog):
         self.tableWidget_fluid_data = self.findChild(QTableWidget, 'tableWidget_fluid_data')
 
     def _add_fluid_input_widget(self):
-        self.fluid_widget = FluidWidget(parent_widget=self, compressor_thermodynamic_state=self.compressor_thermodynamic_state)
+        self.fluid_widget = FluidWidget(parent_widget=self, compressor_info=self.compressor_info)
         self.grid_layout.addWidget(self.fluid_widget)
 
     def load_compressor_info(self):
@@ -117,8 +118,13 @@ class SetFluidInput(QDialog):
 
             self.lineEdit_selected_id.setEnabled(True)
             self.comboBox_attribution_type.setCurrentIndex(1)
+
         else:
-            self.lineEdit_selected_id.setText("")
+
+            if self.comboBox_attribution_type.currentIndex() == 0:
+                self.attribution_type_callback()
+            else:
+                self.lineEdit_selected_id.setText("")
 
         self.comboBox_attribution_type.blockSignals(False)
 

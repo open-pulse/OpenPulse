@@ -163,15 +163,13 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_pressure.setDisabled(True)
         self.lineEdit_pressure_disch.setDisabled(True)
 
-        self.connection_type_comp = self.compressor_info['connection type']
-        self.connection_label = "discharge" if self.connection_type_comp else "suction"
-        
+        self.connection_type = self.compressor_info['connection_type']
         self.T_suction = self.compressor_info[f'temperature_suction']
         self.P_suction = self.compressor_info[f'pressure_suction']
         self.p_ratio =  self.compressor_info['pressure_ratio']
-        self.P_discharge = self.p_ratio*self.P_suction
+        self.P_discharge = self.p_ratio * self.P_suction
 
-        if self.connection_label == "suction":
+        if self.connection_type == "suction":
             self.lineEdit_pressure_disch.setVisible(False)
             self.lineEdit_temperature_disch.setVisible(False)
             self.label_discharge.setVisible(False)
@@ -179,8 +177,12 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_temperature.setText(str(round(self.T_suction, 4)))
         self.lineEdit_pressure.setText(str(round(self.P_suction, 2)))
         self.lineEdit_pressure_disch.setText(str(round(self.P_discharge, 2)))
+
+        tool_tip = "The temperature at discharge will be "
+        tool_tip += "calculated after the fluid definition."
+
         self.lineEdit_temperature_disch.setText("---")
-        self.lineEdit_temperature_disch.setToolTip("The temperature at discharge will be calculated after the fluid definition.")
+        self.lineEdit_temperature_disch.setToolTip(tool_tip)
 
     def update_selected_fluid(self):
 
@@ -508,7 +510,7 @@ class SetFluidCompositionInput(QDialog):
                     temperature_K = self.T_discharge
                     pressure_Pa = self.P_discharge
 
-                    if self.connection_label == "discharge":
+                    if self.connection_type == "discharge":
                         count = 0
                         criteria = 100
                         cache_temperatures = [temperature_K]

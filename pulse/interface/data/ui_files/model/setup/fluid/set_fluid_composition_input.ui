@@ -186,6 +186,7 @@
               </property>
               <property name="font">
                <font>
+                <pointsize>10</pointsize>
                 <kerning>false</kerning>
                </font>
               </property>
@@ -267,6 +268,7 @@
               </property>
               <property name="font">
                <font>
+                <pointsize>10</pointsize>
                 <kerning>false</kerning>
                </font>
               </property>
@@ -1120,6 +1122,11 @@
                     <height>42</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Remaining molar 
 fraction [%]</string>
@@ -1195,6 +1202,11 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                     <width>120</width>
                     <height>26</height>
                    </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
                   </property>
                   <property name="text">
                    <string>Molar fraction [%]</string>
