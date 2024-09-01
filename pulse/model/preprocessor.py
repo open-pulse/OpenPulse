@@ -2107,7 +2107,7 @@ class Preprocessor:
 
             elif el_type == 'valve':
                 valve_section_info = {  
-                                      "section_type_label" : "Valve section",
+                                      "section_type_label" : "Valve",
                                       "section_parameters" : section_parameters,  
                                       "diameters_to_plot" : [None, None]
                                       }
