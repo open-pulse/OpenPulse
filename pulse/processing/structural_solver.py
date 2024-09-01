@@ -1,12 +1,16 @@
-from time import time
-import logging
-import numpy as np
-from math import pi
-from scipy.sparse.linalg import eigs, spsolve
 
 from pulse.model.model import Model
 from pulse.processing.assembly_structural import AssemblyStructural
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from time import time
+import logging
+import numpy as np
+from math import pi
+
+from scipy.sparse import triu
+from scipy.sparse.linalg import eigs, spsolve
+
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -308,7 +312,7 @@ class StructuralSolver:
             F_Clump = 1j*omega*self.C_lump[i]
             
             A = F_K + F_M + F_C + F_Clump
-            solution[:,i] = spsolve(A, F[:,i])
+            solution[:, i] = spsolve(A, F[:, i])
 
             if self.stop_processing():
                 return None

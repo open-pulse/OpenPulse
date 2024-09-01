@@ -1083,9 +1083,9 @@ class MainWindow(QMainWindow):
             last_path = str(Path().home())
 
         project_path, check = self.file_dialog.get_open_file_name(
-                                                                    "Open Project", 
-                                                                    last_path, 
-                                                                    filter = "Pulse File (*.pulse)"
+                                                                  "Open Project", 
+                                                                  last_path, 
+                                                                  filter = "Pulse File (*.pulse)"
                                                                   )
 
         if not check:
@@ -1110,10 +1110,10 @@ class MainWindow(QMainWindow):
                 last_path = str(Path.home())
 
             file_path, check = self.file_dialog.get_save_file_name(
-                                                                    "Save As",
-                                                                    last_path,
-                                                                    filter = "Pulse File (*.pulse)",
-                                                                  )
+                                                                   "Save As",
+                                                                   last_path,
+                                                                   filter = "Pulse File (*.pulse)",
+                                                                   )
 
             if not check:
                 return

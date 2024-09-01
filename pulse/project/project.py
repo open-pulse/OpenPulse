@@ -140,6 +140,7 @@ class Project:
         self.preprocessor.generate()
         app().main_window.update_status_bar_info()
         self.update_node_ids_after_mesh_changed()
+        self.update_element_ids_after_mesh_changed()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
@@ -256,7 +257,7 @@ class Project:
 
     def update_node_ids_after_mesh_changed(self):
 
-        aux = dict()
+        aux_nodal = dict()
         non_mapped_nodes = list()
 
         for key, data in self.model.properties.nodal_properties.items():
@@ -293,31 +294,78 @@ class Project:
                     new_node_id = self.preprocessor.get_node_id_by_coordinates(coords)
                     new_key = (property, new_node_id)
 
+                    print(property, node_id, new_key, coords)
+
                     if new_node_id is None:
                         if new_node_id not in non_mapped_nodes:
                             non_mapped_nodes.append((node_id, coords))
                         continue
 
-                aux[key] = [new_key, data]
-                
-                if non_mapped_nodes:
-                    print(f"List of non-mapped nodes: {non_mapped_nodes}")
-                    return non_mapped_nodes
+                aux_nodal[new_key] = data
+        
+        if aux_nodal != self.model.properties.nodal_properties:
 
-        self.model.properties.nodal_properties.clear()
+            self.model.properties.nodal_properties.clear()
 
-        for [new_key, data] in aux.values():
-            (property, *args) = new_key
-            if len(new_key) == 2:
-                property = new_key[0]
-                node_ids = new_key[1]
-            elif len(new_key) == 3:
-                property = new_key[0]
-                node_ids = (new_key[1], new_key[2])
-            else:
-                return
+            for new_key, data in aux_nodal.items():
+                (property, *args) = new_key
+                self.model.properties._set_nodal_property(property, data, args)
 
-            self.model.properties._set_nodal_property(property, data, node_ids)
+            if aux_nodal:
+                app().pulse_file.write_nodal_properties_in_file()
+
+            if non_mapped_nodes:
+                print(f"List of non-mapped nodes: {non_mapped_nodes}")
+
+                # if len(new_key) == 2:
+                #     property = new_key[0]
+                #     node_ids = new_key[1]
+                # elif len(new_key) == 3:
+                #     property = new_key[0]
+                #     node_ids = (new_key[1], new_key[2])
+                # else:
+                #     return
+
+                # self.model.properties._set_nodal_property(property, data, node_ids)
+
+            # app().pulse_file.write_nodal_properties_in_file()
+
+    def update_element_ids_after_mesh_changed(self):
+
+        aux_elements = dict()
+        non_mapped_elements = list()
+
+        for (property, element_id), data in self.model.properties.element_properties.items():
+            if property in ["element_length_correction", "B2P_rotation_decoupling"]:
+
+                if "coords" in data.keys():
+                    coords = np.array(data["coords"], dtype=float)
+                    node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+
+                    if isinstance(node_id, int):
+                        neigh_elements = self.preprocessor.neighboor_elements_of_node(node_id)
+                        for element in neigh_elements:
+                            new_key = (property, element.index)
+                            aux_elements[new_key] = data
+                    else:
+                        non_mapped_elements.append((element_id, node_id))
+
+            elif property == "perforated_plate":
+                #TODO: implement this
+                pass
+
+        if aux_elements != self.model.properties.element_properties:
+
+            self.model.properties.element_properties.clear()
+
+            for (_property, _element_id), data in aux_elements.items():
+                self.model.properties._set_element_property(_property, data, int(_element_id))
+
+            if aux_elements:
+                app().pulse_file.write_element_properties_in_file()
+
+            if non_mapped_elements:
+                print(f"List of non-mapped elements: {non_mapped_elements}")
 
     def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
         if parameters is None:

@@ -187,8 +187,7 @@
             <enum>Qt::ClickFocus</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
-QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string/>
@@ -258,7 +257,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QTabWidget" name="tabWidget_element_length_correction">
+       <widget class="QTabWidget" name="tabWidget_main">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -486,7 +485,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                 </font>
                </property>
                <property name="text">
-                <string>Element correction type:</string>
+                <string>Correction type:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -542,7 +541,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            <number>6</number>
           </property>
           <item row="0" column="0">
-           <widget class="QTreeWidget" name="treeWidget_length_correction_groups">
+           <widget class="QTreeWidget" name="treeWidget_elements_info">
             <property name="minimumSize">
              <size>
               <width>280</width>
@@ -567,6 +566,14 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <property name="indentation">
              <number>0</number>
             </property>
+            <column>
+             <property name="text">
+              <string>Group</string>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
             <column>
              <property name="text">
               <string>Correction type</string>
@@ -622,7 +629,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               <number>0</number>
              </property>
              <item row="0" column="1">
-              <widget class="QPushButton" name="pushButton_remove_by_group_confirm">
+              <widget class="QPushButton" name="pushButton_remove">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -652,7 +659,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QPushButton" name="pushButton_reset_confirm">
+              <widget class="QPushButton" name="pushButton_reset">
                <property name="minimumSize">
                 <size>
                  <width>100</width>

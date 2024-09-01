@@ -120,7 +120,7 @@ class MeshUpdater:
         app().loader.load_mesh_setup_from_file()
         app().project.initial_load_project_actions()
         app().loader.load_project_data()
-
+        app().loader.load_mesh_dependent_properties()
         app().main_window.update_plots()
 
     def process_final_actions(self):
@@ -130,7 +130,10 @@ class MeshUpdater:
                                                                                 self.dict_non_mapped_subgroups_info_file,
                                                                                 self.dict_list_elements_to_subgroups )
 
+        app().project.initial_load_project_actions()
         app().loader.load_project_data()
+        app().loader.load_mesh_dependent_properties()
+        app().main_window.initial_project_action(True)
         app().main_window.update_plots()  
         self.complete = True
 

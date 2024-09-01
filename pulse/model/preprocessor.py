@@ -583,7 +583,7 @@ class Preprocessor:
 
         self.connectivity_matrix = connectivity.astype(int) 
 
-    def get_node_id_by_coordinates(self, coords, radius=None):
+    def get_node_id_by_coordinates(self, coords: np.ndarray, radius=None):
         """
             This method returns the external node ids inside a influence sphere centered in 'coords' point.
 
@@ -1263,11 +1263,14 @@ class Preprocessor:
         N = DOF_PER_NODE_STRUCTURAL
         mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
 
-        node_id = data["T-joint_node"]
+        coords = np.array(data["coords"], dtype=float)
+        node_id = self.get_node_id_by_coordinates(coords)
+        if node_id is None:
+            return
+
         decoupled_rotations = data["decoupled_rotations"]
-
-
         neighboor_elements = self.neighboor_elements_of_node(node_id)
+
         if len(neighboor_elements) < 3:
             return mat_ones
         
