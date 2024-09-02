@@ -10,6 +10,8 @@ from pulse.interface.application import Application
 def custom_exception_hooks(exc_type, exc_value, exc_traceback):
     # Logs unhandled errors for future checks 
     logging.error("Unhandled error", exc_info=(exc_type, exc_value, exc_traceback))
+    return sys.__excepthook__(exc_type, exc_value, exc_traceback)
+
 sys.excepthook = custom_exception_hooks
 
 
