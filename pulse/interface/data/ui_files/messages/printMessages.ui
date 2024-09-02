@@ -233,6 +233,9 @@
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>pushButton_close</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

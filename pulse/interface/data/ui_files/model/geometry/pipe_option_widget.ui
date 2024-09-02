@@ -97,6 +97,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>set_section_button</tabstop>
+  <tabstop>bending_options_combobox</tabstop>
+  <tabstop>bending_radius_line_edit</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

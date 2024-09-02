@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>630</width>
-    <height>651</height>
+    <height>886</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -145,10 +145,10 @@
          <string>Create PSD</string>
         </property>
         <property name="autoDefault">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="default">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -181,7 +181,7 @@
          <string>Cancel</string>
         </property>
         <property name="autoDefault">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="default">
          <bool>false</bool>
@@ -246,8 +246,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>573</width>
-               <height>688</height>
+               <width>590</width>
+               <height>719</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout_8">
@@ -2391,7 +2391,7 @@
                 <string>Reset</string>
                </property>
                <property name="autoDefault">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <property name="default">
                 <bool>false</bool>
@@ -2427,13 +2427,16 @@
                 <string>Remove</string>
                </property>
                <property name="autoDefault">
-                <bool>true</bool>
+                <bool>false</bool>
                </property>
                <property name="default">
                 <bool>false</bool>
                </property>
                <property name="flat">
                 <bool>false</bool>
+               </property>
+               <property name="status" stdset="0">
+                <string>danger</string>
                </property>
               </widget>
              </item>
@@ -2597,6 +2600,51 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>lineEdit_device_label</tabstop>
+  <tabstop>lineEdit_connecting_coord_x</tabstop>
+  <tabstop>lineEdit_connecting_coord_y</tabstop>
+  <tabstop>lineEdit_connecting_coord_z</tabstop>
+  <tabstop>comboBox_connection_pipe</tabstop>
+  <tabstop>comboBox_main_axis</tabstop>
+  <tabstop>comboBox_number_volumes</tabstop>
+  <tabstop>spinBox_volumes_spacing</tabstop>
+  <tabstop>comboBox_volumes_connection</tabstop>
+  <tabstop>comboBox_pipe1_connection</tabstop>
+  <tabstop>comboBox_pipe2_connection</tabstop>
+  <tabstop>comboBox_tuned_filter</tabstop>
+  <tabstop>lineEdit_rotation_plane</tabstop>
+  <tabstop>spinBox_pipe1_rotation_angle</tabstop>
+  <tabstop>spinBox_pipe2_rotation_angle</tabstop>
+  <tabstop>lineEdit_volume1_diameter</tabstop>
+  <tabstop>lineEdit_volume1_wall_thickness</tabstop>
+  <tabstop>lineEdit_volume1_length</tabstop>
+  <tabstop>lineEdit_volume1_distance</tabstop>
+  <tabstop>lineEdit_volume2_diameter</tabstop>
+  <tabstop>lineEdit_volume2_wall_thickness</tabstop>
+  <tabstop>lineEdit_volume2_length</tabstop>
+  <tabstop>lineEdit_volume1_distance_2</tabstop>
+  <tabstop>lineEdit_pipe1_diameter</tabstop>
+  <tabstop>lineEdit_pipe1_wall_thickness</tabstop>
+  <tabstop>lineEdit_pipe1_length</tabstop>
+  <tabstop>lineEdit_pipe1_distance</tabstop>
+  <tabstop>lineEdit_pipe2_diameter</tabstop>
+  <tabstop>lineEdit_pipe2_wall_thickness</tabstop>
+  <tabstop>lineEdit_pipe2_length</tabstop>
+  <tabstop>lineEdit_pipe2_distance</tabstop>
+  <tabstop>lineEdit_pipe3_diameter</tabstop>
+  <tabstop>lineEdit_pipe3_wall_thickness</tabstop>
+  <tabstop>lineEdit_pipe3_length</tabstop>
+  <tabstop>lineEdit_pipe3_distance</tabstop>
+  <tabstop>lineEdit_selection</tabstop>
+  <tabstop>treeWidget_psd_info</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>pushButton_create_psd</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -361,6 +361,9 @@
         <property name="shortcut">
          <string>Del</string>
         </property>
+        <property name="status" stdset="0">
+         <string>danger</string>
+        </property>
        </widget>
       </item>
       <item>
@@ -471,12 +474,21 @@
  <tabstops>
   <tabstop>unit_combobox</tabstop>
   <tabstop>structure_combobox</tabstop>
+  <tabstop>set_material_button</tabstop>
+  <tabstop>set_fluid_button</tabstop>
+  <tabstop>division_combobox</tabstop>
+  <tabstop>division_slider</tabstop>
+  <tabstop>division_amount_spinbox</tabstop>
+  <tabstop>cancel_division_button</tabstop>
+  <tabstop>apply_division_button</tabstop>
   <tabstop>x_line_edit</tabstop>
   <tabstop>y_line_edit</tabstop>
   <tabstop>z_line_edit</tabstop>
   <tabstop>delete_button</tabstop>
   <tabstop>attach_button</tabstop>
   <tabstop>add_button</tabstop>
+  <tabstop>cancel_button</tabstop>
+  <tabstop>finalize_button</tabstop>
  </tabstops>
  <resources/>
  <connections/>

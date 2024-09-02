@@ -248,6 +248,10 @@
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>treeWidget_group_info</tabstop>
+  <tabstop>pushButton_close</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

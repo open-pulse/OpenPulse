@@ -514,6 +514,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
               <property name="text">
                <string>Plot criteria</string>
               </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
               <property name="flat">
                <bool>false</bool>
               </property>
@@ -945,6 +948,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
               <property name="text">
                <string>Plot criteria</string>
               </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>true</bool>
+              </property>
               <property name="flat">
                <bool>false</bool>
               </property>
@@ -981,6 +990,18 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_compressor_node_id</tabstop>
+  <tabstop>lineEdit_pressure_ratio</tabstop>
+  <tabstop>lineEdit_unfiltered_criteria</tabstop>
+  <tabstop>pushButton_plot_unfiltered_criteria</tabstop>
+  <tabstop>lineEdit_nozzle_id</tabstop>
+  <tabstop>comboBox_line_ids</tabstop>
+  <tabstop>lineEdit_speed_of_sound</tabstop>
+  <tabstop>lineEdit_line_pressure</tabstop>
+  <tabstop>lineEdit_internal_diameter</tabstop>
+  <tabstop>pushButton_plot_filtered_criteria</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
