@@ -14,7 +14,6 @@ from pulse.model.cross_section import CrossSection
 import numpy as np
 from pathlib import Path
 from os.path import basename
-from pprint import pprint
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -143,8 +142,6 @@ class ExpansionJointInput(QDialog):
     def selection_callback(self):
 
         try:
-
-            print("passando aqui...")
 
             selected_lines = app().main_window.list_selected_lines()
 
@@ -366,7 +363,7 @@ class ExpansionJointInput(QDialog):
 
     # def get_pipe_cross_section_from_neighbors(self, line_id, list_elements):
 
-    #     line_elements = self.preprocessor.line_to_elements[line_id]
+    #     line_elements = self.preprocessor.elements_from_line[line_id]
     #     lower_id = list_elements[0] - 1
     #     upper_id = list_elements[-1] + 1
 
@@ -597,7 +594,7 @@ class ExpansionJointInput(QDialog):
             return True
 
     def process_line_length(self, line_id: int):
-        self.joint_elements = self.preprocessor.mesh.line_to_elements[line_id]
+        self.joint_elements = self.preprocessor.mesh.elements_from_line[line_id]
         joint_length = self.properties.get_line_length(line_id)
         return round(joint_length, 6)
 
@@ -638,7 +635,6 @@ class ExpansionJointInput(QDialog):
                 self.preprocessor.add_expansion_joint_by_lines(line_id, self.expansion_joint_info)
                 self.preprocessor.set_structural_element_type_by_lines(line_id, "expansion_joint")
 
-                self.properties._remove_line_property("valve_name", line_id)
                 self.properties._remove_line_property("valve_info", line_id)
                 self.properties._remove_line_property("section_parameters", line_id)
                 self.properties._remove_line_property("section_properties", line_id)
@@ -693,7 +689,7 @@ class ExpansionJointInput(QDialog):
 
     def restore_the_cross_section(self, line_ids: list):
 
-        line_to_elements = app().project.model.mesh.line_to_elements
+        line_to_elements = app().project.model.mesh.elements_from_line
         for line_id in line_ids:
 
             line_elements = line_to_elements[line_id]
@@ -799,7 +795,7 @@ class ExpansionJointInput(QDialog):
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
         
-        app().project.enhance_pipe_sections_appearance()
+        # app().project.enhance_pipe_sections_appearance()
         app().main_window.update_plots()
 
     def keyPressEvent(self, event):

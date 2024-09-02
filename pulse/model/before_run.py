@@ -73,7 +73,7 @@ class BeforeRun:
                         for typed_id in typed_ids:
 
                             if selection_type == "lines":
-                                self.model.mesh.line_to_elements[typed_id]
+                                self.model.mesh.elements_from_line[typed_id]
 
                             elif selection_type == "elements":
                                 self.structural_elements[typed_id]
@@ -109,7 +109,7 @@ class BeforeRun:
         self.check_poisson = False
         lines_without_materials = list()
         for element in self.structural_elements.values():
-            line_id = self.model.mesh.elements_to_line[element.index]
+            line_id = self.model.mesh.line_from_element[element.index]
             if element.material is None:
                 self.check_set_material = True
                 if line_id not in lines_without_materials:
@@ -124,7 +124,7 @@ class BeforeRun:
         self.check_poisson = False
         lines_without_poisson = list()
         for element in self.structural_elements.values():
-            line_id = self.model.mesh.elements_to_line[element.index]
+            line_id = self.model.mesh.line_from_element[element.index]
             if element.material.poisson_ratio == 0:
                 self.check_poisson = True
                 if line_id not in lines_without_poisson:
@@ -143,7 +143,7 @@ class BeforeRun:
         lines_without_cross_sections = list()
         elements_without_cross_sections = defaultdict(list)  
         for element in self.structural_elements.values():
-            line_id = self.model.mesh.elements_to_line[element.index]
+            line_id = self.model.mesh.line_from_element[element.index]
             if element.material is None:
                 self.check_set_material = True
                 if line_id not in lines_without_materials:
@@ -194,7 +194,7 @@ class BeforeRun:
 
             structural_element = self.structural_elements[element.index]
 
-            line_id = self.model.mesh.elements_to_line[element.index]
+            line_id = self.model.mesh.line_from_element[element.index]
             if element.fluid is None:
                 if structural_element.element_type in ["pipe_1", "valve", "expansion_joint"]:
                     self.check_set_fluid = True
@@ -238,7 +238,7 @@ class BeforeRun:
         self.check_all_fluid_inputs = False
         lines_without_fluids = list()
         for element in self.acoustic_elements.values():
-            line_id = self.model.mesh.elements_to_line[element.index]
+            line_id = self.model.mesh.line_from_element[element.index]
             if element.element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                 if 'pipe_' in self.structural_elements[element.index].element_type:
                     _list = [   element.fluid.isentropic_exponent, element.fluid.thermal_conductivity, 
@@ -615,7 +615,7 @@ class BeforeRun:
         element_ids = list()
 
         for line_id, _element_ids in data.items():
-            if list(np.sort(element_ids)) == list(np.sort(self.model.mesh.line_to_elements[line_id])):
+            if list(np.sort(element_ids)) == list(np.sort(self.model.mesh.elements_from_line[line_id])):
                 line_ids.append(line_id)
             else:
                 for _element_id in _element_ids:
@@ -752,12 +752,12 @@ class BeforeRun:
             
             # if len(elements_node_1) == 2:
             for element in elements_node_1:
-                line_1 = self.model.mesh.elements_to_line[element.index]
+                line_1 = self.model.mesh.line_from_element[element.index]
                 lines.append(line_1)
 
             # if len(elements_node_2) == 2:
             for element in elements_node_2:
-                line_2 = self.model.mesh.elements_to_line[element.index]
+                line_2 = self.model.mesh.line_from_element[element.index]
                 lines.append(line_2)
         
         return lines

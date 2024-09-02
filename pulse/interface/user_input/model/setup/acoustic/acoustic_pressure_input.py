@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent, QIcon
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -25,6 +25,8 @@ class AcousticPressureInput(QDialog):
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 
+        self.before_run = app().project.get_pre_solution_model_checks()
+
         self._initialize()
         self._config_window()
         self._define_qt_variables()
@@ -44,8 +46,6 @@ class AcousticPressureInput(QDialog):
         self.table_values = None                
 
         self.keep_window_open = True
-
-        self.before_run = app().project.get_pre_solution_model_checks()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -141,11 +141,11 @@ class AcousticPressureInput(QDialog):
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_nodal_info.addTopLevelItem(new)
 
-        self.tabWidget_main.setTabVisible(2, False)
+        self.tabWidget_main.setTabVisible(1, False)
         for (property, *_) in self.properties.nodal_properties.keys():
             if property == "acoustic_pressure":
                 self.tabWidget_main.setCurrentIndex(0)
-                self.tabWidget_main.setTabVisible(2, True)
+                self.tabWidget_main.setTabVisible(1, True)
                 return
 
     def attribute_callback(self):

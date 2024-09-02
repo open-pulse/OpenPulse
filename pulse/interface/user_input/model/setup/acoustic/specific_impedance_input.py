@@ -141,11 +141,11 @@ class SpecificImpedanceInput(QDialog):
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_nodal_info.addTopLevelItem(new)
 
-        self.tabWidget_main.setTabVisible(2, False)
+        self.tabWidget_main.setTabVisible(1, False)
         for (_property, *_) in self.properties.nodal_properties.keys():
             if _property == "specific_impedance":
                 self.tabWidget_main.setCurrentIndex(0)
-                self.tabWidget_main.setTabVisible(2, True)
+                self.tabWidget_main.setTabVisible(1, True)
                 return
 
     def attribute_callback(self):
