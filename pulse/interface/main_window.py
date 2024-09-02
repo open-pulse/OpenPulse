@@ -1187,15 +1187,18 @@ class MainWindow(QMainWindow):
         exit()
 
     def eventFilter(self, obj, event):
+        modifiers = QApplication.keyboardModifiers()
+        alt_pressed = modifiers & Qt.AltModifier
+
         if event.type() == QEvent.ShortcutOverride:
-            if event.key() == Qt.Key_E:
+            if alt_pressed and (event.key() == Qt.Key_E):
                 self.set_selection()
                 self.combo_box_workspaces.setCurrentIndex(0)
-            elif event.key() == Qt.Key_S:
+            elif alt_pressed and (event.key() == Qt.Key_S):
                 self.combo_box_workspaces.setCurrentIndex(1)
-            elif event.key() == Qt.Key_A:
+            elif alt_pressed and (event.key() == Qt.Key_A):
                 self.combo_box_workspaces.setCurrentIndex(2)
-            elif event.key() == Qt.Key_R:
+            elif alt_pressed and (event.key() == Qt.Key_R):
                 self.combo_box_workspaces.setCurrentIndex(3)
             elif event.key() == Qt.Key_F5:
                 self.update_plots()
