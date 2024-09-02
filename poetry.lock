@@ -800,7 +800,7 @@ vtk = "^9.3.0"
 type = "git"
 url = "https://github.com/andrefpf/molde"
 reference = "HEAD"
-resolved_reference = "6fa911bb269a64fbe7b20f9decbd2a568a491661"
+resolved_reference = "1d5a6cf2d80bb54fda5ae53acc229eee4411c794"
 
 [[package]]
 name = "moviepy"
