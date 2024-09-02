@@ -204,6 +204,9 @@
     <property name="text">
      <string>Close</string>
     </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QPushButton" name="pushButton_remove">
     <property name="geometry">
@@ -240,6 +243,9 @@
     </property>
     <property name="text">
      <string>Remove</string>
+    </property>
+    <property name="status" stdset="0">
+     <string>danger</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_id_labels">
@@ -399,6 +405,11 @@
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>treeWidget_group_info</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>pushButton_close</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

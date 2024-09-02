@@ -1090,9 +1090,9 @@ class CompressorModelInput(QDialog):
         return
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter:
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.compressor_excitation_attribution_callback()
-        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_Return:
+        if event.key() == Qt.Key_Escape:
             self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:

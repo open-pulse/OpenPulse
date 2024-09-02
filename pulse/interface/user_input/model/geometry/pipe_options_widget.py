@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QSlider,
 from PyQt5.QtCore import pyqtSignal
 from PyQt5 import uic
 
+from molde.stylesheets import set_qproperty
 from opps.model import Pipe, Bend
 
 from pulse import app, UI_DIR
@@ -90,8 +91,7 @@ class PipeOptionsWidget(QWidget):
 
         self.cross_section_info = self.cross_section_widget.pipe_section_info
         self.cross_section_widget.hide()
-        self.set_section_button.setProperty("warning", False)
-        self.style().polish(self.set_section_button)
+        set_qproperty(self.set_section_button, status="default")
         self.edited.emit()
 
     def get_bending_radius(self, diameter):

@@ -45,9 +45,6 @@ class ValveOptionsWidget(QWidget):
         if self.valve_info is None:
             return
 
-        from pprint import pprint
-        pprint(self.valve_info)
-
         kwargs = dict()
         kwargs["diameter"] = self.valve_info.get("valve_effective_diameter", 0)
         kwargs["thickness"] = 0

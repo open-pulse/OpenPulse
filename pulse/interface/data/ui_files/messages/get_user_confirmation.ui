@@ -351,6 +351,10 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>pushButton_leftButton</tabstop>
+  <tabstop>pushButton_rightButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

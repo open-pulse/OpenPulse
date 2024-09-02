@@ -36,6 +36,9 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>set_section_button</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -271,7 +271,7 @@ class SetCrossSectionInput(QDialog):
             self.tabWidget_general.setCurrentIndex(0)
             self.tabWidget_pipe_section.setCurrentIndex(1)
 
-            element_ids = app().project.model.mesh.line_to_elements[line_id]
+            element_ids = app().project.model.mesh.elements_from_line[line_id]
             self.input_widget.lineEdit_element_id_initial.setText(str(element_ids[0]))
             self.input_widget.lineEdit_element_id_final.setText(str(element_ids[-1]))
 
@@ -361,7 +361,7 @@ class SetCrossSectionInput(QDialog):
                                             variable_section=True)
 
                 if len(line_ids) == 1:
-                    line_elements = app().project.model.mesh.line_to_elements[line_ids[0]]
+                    line_elements = app().project.model.mesh.elements_from_line[line_ids[0]]
                     self.input_widget.lineEdit_element_id_initial.setText(str(line_elements[0]))
                     self.input_widget.lineEdit_element_id_final.setText(str(line_elements[-1]))
 
@@ -453,7 +453,6 @@ class SetCrossSectionInput(QDialog):
         self.properties._remove_line_property("force_offset", line_ids)
         self.properties._remove_line_property("capped_end", line_ids)
         self.properties._remove_line_property("expansion_joint_info", line_ids=line_ids)
-        self.properties._remove_line_property("valve_name", line_ids=line_ids)
         self.properties._remove_line_property("valve_info", line_ids=line_ids)
 
         self.remove_table_files_from_expansion_joints(line_ids)
@@ -516,7 +515,6 @@ class SetCrossSectionInput(QDialog):
             self.properties._remove_line_property("force_offset", line_ids)
             self.properties._remove_line_property("capped_end", line_ids)
             self.properties._remove_line_property("expansion_joint_info", line_ids=line_ids)
-            self.properties._remove_line_property("valve_name", line_ids=line_ids)
             self.properties._remove_line_property("valve_info", line_ids=line_ids)
 
             self.remove_acoustic_related_data_from_lines(line_ids)
@@ -530,7 +528,7 @@ class SetCrossSectionInput(QDialog):
         plt.close()
         self.complete = True
         app().pulse_file.write_line_properties_in_file()
-        app().project.enhance_pipe_sections_appearance()
+        # app().project.enhance_pipe_sections_appearance()
 
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
@@ -555,7 +553,7 @@ class SetCrossSectionInput(QDialog):
         remove_data_from_elements = defaultdict(list)
 
         for line_id in line_ids:
-            line_elements = self.preprocessor.mesh.line_to_elements[line_id]
+            line_elements = self.preprocessor.mesh.elements_from_line[line_id]
             for element_id in line_elements:
                 for key in aux_e.items():
                     for property in ["perforated_plate"]:
@@ -563,7 +561,7 @@ class SetCrossSectionInput(QDialog):
                             self.properties._remove_element_property(property, element_id)
                             remove_data_from_elements[property].append(element_id)
 
-            line_nodes = self.preprocessor.line_to_nodes[line_id]
+            line_nodes = self.preprocessor.mesh.nodes_from_line[line_id]
             for node_id in line_nodes:
                 for key in aux_n.items():
                     for property in ["acoustic_pressure", "volume_velocity", "specific_impedance", "radiation_impedance", "compressor_excitation"]:

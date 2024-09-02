@@ -187,7 +187,11 @@ def lines_info_text() -> str:
         cross_section = properties._get_property("cross_section", line_id=line_id)
         structural_element_type = properties._get_property("structural_element_type", line_id=line_id)
         beam_xaxis_rotation = properties._get_property("beam_xaxis_rotation", line_id=line_id)
-        valve_name = properties._get_property("valve_name", line_id=line_id)
+
+        valve_name = ""
+        valve_info = properties._get_property("valve_info", line_id=line_id)
+        if isinstance(valve_info, dict):
+            valve_name = valve_info.get("valve_name", "")
 
         info_text += cross_section_info_text(
                                              cross_section, 

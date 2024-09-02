@@ -794,6 +794,12 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                 <height>20</height>
                </size>
               </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
            </layout>
@@ -807,6 +813,16 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_import_results_path</tabstop>
+  <tabstop>pushButton_search_file_to_import</tabstop>
+  <tabstop>checkBox_skiprows</tabstop>
+  <tabstop>spinBox_skiprows</tabstop>
+  <tabstop>pushButton_reset_imported_data</tabstop>
+  <tabstop>treeWidget_import_text_files</tabstop>
+  <tabstop>treeWidget_import_sheet_files</tabstop>
+  <tabstop>pushButton_add_imported_data_to_plot</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

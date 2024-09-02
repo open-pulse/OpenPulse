@@ -653,8 +653,8 @@
   <tabstop>lineEdit_fmin</tabstop>
   <tabstop>lineEdit_fmax</tabstop>
   <tabstop>lineEdit_fstep</tabstop>
-  <tabstop>run_analysis_button</tabstop>
   <tabstop>enter_setup_button</tabstop>
+  <tabstop>run_analysis_button</tabstop>
  </tabstops>
  <resources/>
  <connections/>
