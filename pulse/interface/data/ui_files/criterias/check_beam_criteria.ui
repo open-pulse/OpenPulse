@@ -31,6 +31,9 @@
     <height>600</height>
    </size>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
+  </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
@@ -211,7 +214,7 @@
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::StrongFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
@@ -319,7 +322,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::StrongFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
@@ -681,6 +684,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         <property name="text">
          <string>Read me</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="1">
@@ -711,6 +717,12 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
         <property name="text">
          <string>Check criteria</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -719,6 +731,11 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
   </layout>
  </widget>
  <tabstops>
+  <tabstop>lineEdit_beam_criteria</tabstop>
+  <tabstop>lineEdit_section_id</tabstop>
+  <tabstop>treeWidget_sections_parameters_by_lines</tabstop>
+  <tabstop>treeWidget_non_beam_segments</tabstop>
+  <tabstop>pushButton_more_info</tabstop>
   <tabstop>pushButton_check_criteria</tabstop>
  </tabstops>
  <resources/>

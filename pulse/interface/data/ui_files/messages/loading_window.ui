@@ -352,6 +352,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>pushButton_stop_processing</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
