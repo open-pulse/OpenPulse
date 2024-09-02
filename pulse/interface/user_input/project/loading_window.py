@@ -9,7 +9,10 @@ from PyQt5.QtWidgets import QApplication, QLabel, QProgressBar, QWidget
 from pulse import UI_DIR, app
 
 # Catches every message that contains something like [n/N]
-PROGRESS_MESSAGE_REGEX = re.compile(r"\[\d+/\d+\]")
+PROGRESS_FRACTION_REGEX = re.compile(r"\[\d+/\d+\]")
+
+# Catches every message that contains something like n%
+PROGRESS_PERCENTAGE_REGEX = re.compile(r"\d+%")
 
 
 class LoadingWindow(QWidget):
@@ -166,11 +169,17 @@ class ProgressBarLogUpdater(logging.Handler):
         if not isinstance(message, str):
             return
 
-        matches = PROGRESS_MESSAGE_REGEX.findall(message)
-        if not matches:
-            return
+        matches = PROGRESS_FRACTION_REGEX.findall(message)
+        if matches:
+            first_match: str = matches[0]
+            step, max_step = first_match.strip("[]").split("/")
+            percentage = 100 * int(step) // int(max_step)
+            return percentage
 
-        first_match: str = matches[0]
-        step, max_step = first_match.strip("[]").split("/")
-        percentage = 100 * int(step) // int(max_step)
-        return percentage
+        matches = PROGRESS_PERCENTAGE_REGEX.findall(message)
+        if matches:
+            first_match: str = matches[0]
+            percentage = int(first_match.strip("%"))
+            return percentage
+
+        return None
