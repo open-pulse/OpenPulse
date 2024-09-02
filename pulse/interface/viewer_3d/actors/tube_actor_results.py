@@ -45,15 +45,16 @@ class TubeActorResults(TubeActor):
         pipe_section = element.element_type == "pipe_1"
         expansion_joint = element.element_type == "expansion_joint"
         valve = element.element_type == "valve"
+        tube_sides = self._get_tube_sides()
 
         # In acoustic plots we need to show the fluids, not the pipe
         if self.acoustic_plot and (pipe_section or valve):
             d_out, t, *_ = cross_section.section_parameters
             d_inner = d_out - 2 * t
-            return cross_section_sources.closed_pipe_data(element.length, d_inner, sides=30)
+            return cross_section_sources.closed_pipe_data(element.length, d_inner, sides=tube_sides)
 
         elif self.acoustic_plot and expansion_joint:
             _, d_eff, *_ = element.section_parameters_render
-            return cross_section_sources.closed_pipe_data(element.length, d_eff, sides=30)
+            return cross_section_sources.closed_pipe_data(element.length, d_eff, sides=tube_sides)
 
         return super().create_element_data(element)
