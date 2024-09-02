@@ -49,7 +49,8 @@ class Preprocessor:
         self.nodal_coordinates_matrix = list()
 
         self.neighbors = defaultdict(list)
-        self.elements_connected_to_node = defaultdict(list)
+        self.structural_elements_connected_to_node = defaultdict(list)
+        self.acoustic_elements_connected_to_node = defaultdict(list)
 
         if isinstance(self.mesh, Mesh):
             self.mesh.reset_variables()
@@ -206,25 +207,6 @@ class Preprocessor:
             self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node, map_elements[i])
             self.number_acoustic_elements = len(self.acoustic_elements)
 
-    # def _map_lines_to_nodes(self):
-    #     """
-    #     This method maps entities to nodes.
-    #     """
-    #     # t0 = time()
-    #     self.nodes_from_line = dict()
-    #     for line_ID, list_elements in self.mesh.elements_from_line.items():
-    #         list_nodes = np.zeros(len(list_elements)+1, dtype=int)
-    #         for i, _id in enumerate(list_elements):
-    #             element = self.structural_elements[_id]
-    #             first_node_id = element.first_node.external_index
-    #             last_node_id = element.last_node.external_index
-    #             if i==0:
-    #                 list_nodes[i] = first_node_id
-    #             list_nodes[i+1] = last_node_id
-    #         self.nodes_from_line[line_ID] = np.sort(list_nodes)          
-    #     # dt = time() - t0
-    #     # print(f"Time to process : {dt}")
-
     def get_model_statistics(self):
         return len(self.nodes), len(self.acoustic_elements), len(self.structural_elements)
 
@@ -288,12 +270,19 @@ class Preprocessor:
         This method updates the structural elements neighbors dictionary. The dictionary's keys and values are nodes objects.
         """
         self.neighbors.clear()
-        self.elements_connected_to_node.clear()
-        for element in self.structural_elements.values():
+        self.acoustic_elements_connected_to_node.clear()
+        self.structural_elements_connected_to_node.clear()
+        for index, element in self.structural_elements.items():
+            #
             self.neighbors[element.first_node].append(element.last_node)
             self.neighbors[element.last_node].append(element.first_node)
-            self.elements_connected_to_node[element.first_node].append(element)
-            self.elements_connected_to_node[element.last_node].append(element)
+            #
+            self.structural_elements_connected_to_node[element.first_node.external_index].append(element)
+            self.structural_elements_connected_to_node[element.last_node.external_index].append(element)
+            #
+            acoustic_element = self.acoustic_elements[index]
+            self.acoustic_elements_connected_to_node[element.first_node.external_index].append(acoustic_element)
+            self.acoustic_elements_connected_to_node[element.last_node.external_index].append(acoustic_element)
 
     def update_number_divisions(self):
         """
@@ -1846,36 +1835,36 @@ class Preprocessor:
             last_node = node_1
         return reord_gdofs, first_node, last_node
 
-    def get_nodes_and_elements_with_expansion(self, ratio=10):
-        title = "Incomplete model setup"
-        message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' elements to proceed."
-        self.nodes_with_cross_section_transition = dict()
-        for node, neigh_elements in self.elements_connected_to_node.items():
-            check_complete = False
-            if len(neigh_elements) == 2:
+    # def get_nodes_and_elements_with_expansion(self, ratio=10):
+    #     title = "Incomplete model setup"
+    #     message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' elements to proceed."
+    #     self.nodes_with_cross_section_transition = dict()
+    #     for node, neigh_elements in self.structural_elements_connected_to_node.items():
+    #         check_complete = False
+    #         if len(neigh_elements) == 2:
 
-                if neigh_elements[0].element_type == "pipe_1":
-                    if neigh_elements[0].cross_section is None:
-                        PrintMessageInput([window_title_1, title, message])
-                        return
-                    else:
-                        check_complete = True
-                        diameter_first = neigh_elements[0].cross_section.outer_diameter
+    #             if neigh_elements[0].element_type == "pipe_1":
+    #                 if neigh_elements[0].cross_section is None:
+    #                     PrintMessageInput([window_title_1, title, message])
+    #                     return
+    #                 else:
+    #                     check_complete = True
+    #                     diameter_first = neigh_elements[0].cross_section.outer_diameter
                         
-                if neigh_elements[1].element_type == "pipe_1":
-                    if neigh_elements[1].cross_section is None:
-                        PrintMessageInput([window_title_1, title, message])
-                        return
-                    else:
-                        check_complete = True
-                        diameter_last = neigh_elements[1].cross_section.outer_diameter
+    #             if neigh_elements[1].element_type == "pipe_1":
+    #                 if neigh_elements[1].cross_section is None:
+    #                     PrintMessageInput([window_title_1, title, message])
+    #                     return
+    #                 else:
+    #                     check_complete = True
+    #                     diameter_last = neigh_elements[1].cross_section.outer_diameter
                 
-                if check_complete:
-                    diameters = [diameter_first, diameter_last]
-                    diameters_ratio = max(diameters)/min(diameters)
-                    if diameters_ratio > 2:
-                        self.nodes_with_cross_section_transition[node] = neigh_elements
-                        # print(node.external_index, diameters_ratio)
+    #             if check_complete:
+    #                 diameters = [diameter_first, diameter_last]
+    #                 diameters_ratio = max(diameters)/min(diameters)
+    #                 if diameters_ratio > 2:
+    #                     self.nodes_with_cross_section_transition[node] = neigh_elements
+    #                     # print(node.external_index, diameters_ratio)
 
 
     def get_structural_links_data(self, node_ids: list, data: dict):
@@ -2110,7 +2099,7 @@ class Preprocessor:
 
             elif el_type == 'valve':
                 valve_section_info = {  
-                                      "section_type_label" : "Valve section",
+                                      "section_type_label" : "Valve",
                                       "section_parameters" : section_parameters,  
                                       "diameters_to_plot" : [None, None]
                                       }

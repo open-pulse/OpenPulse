@@ -299,6 +299,8 @@ class LoadProject:
         """ This methods send properties to elements.
         """
         self.send_lines_properties_to_elements()
+        self.update_node_ids_after_mesh_changed()
+        self.update_element_ids_after_mesh_changed()
         self.send_element_properties_to_elements()
 
 
@@ -575,5 +577,124 @@ class LoadProject:
             return dict()
 
         return section_info_lines
+
+    def update_node_ids_after_mesh_changed(self):
+
+        aux_nodal = dict()
+        non_mapped_nodes = list()
+
+        for key, data in self.properties.nodal_properties.items():
+
+            (property, *args) = key
+
+            if "coords" in data.keys():
+                coords = np.array(data["coords"], dtype=float)
+                if len(coords) == 6:
+
+                    node_id1, node_id2 = args
+
+                    coords_1 = coords[:3]
+                    coords_2 = coords[3:]
+                    new_node_id1 = self.preprocessor.get_node_id_by_coordinates(coords_1)
+                    new_node_id2 = self.preprocessor.get_node_id_by_coordinates(coords_2)
+                    sorted_indexes = np.sort([new_node_id1, new_node_id2])
+
+                    new_key = (property, sorted_indexes[0], sorted_indexes[1])
+
+                    if new_node_id1 is None:
+                        if new_node_id1 not in non_mapped_nodes:
+                            non_mapped_nodes.append((node_id1, coords))
+                        continue
+
+                    if new_node_id2 is None:
+                        if new_node_id2 not in non_mapped_nodes:
+                            non_mapped_nodes.append((node_id2, coords))
+                        continue
+
+                elif len(coords) == 3:
+
+                    node_id = args
+                    new_node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+                    new_key = (property, new_node_id)
+
+                    if new_node_id is None:
+                        if new_node_id not in non_mapped_nodes:
+                            non_mapped_nodes.append((node_id, coords))
+                        continue
+
+                aux_nodal[new_key] = data
+        
+        if aux_nodal != self.properties.nodal_properties:
+
+            self.properties.nodal_properties.clear()
+
+            for new_key, data in aux_nodal.items():
+                (property, *args) = new_key
+                self.properties._set_nodal_property(property, data, args)
+
+            if aux_nodal:
+                app().pulse_file.write_nodal_properties_in_file()
+
+            if non_mapped_nodes:
+                title = "Nodal-related model attributions failed"
+                message = "Some nodal-related model attributions could not be mapped "
+                message += f"after the meshing processing. \n\nDetails:"
+                for (node_id, coords) in non_mapped_nodes:
+                    message += f"\n{node_id} - {coords}"
+                PrintMessageInput([window_title_2, title, message])
+                # print(f"List of non-mapped nodes: {non_mapped_nodes}")
+
+    def update_element_ids_after_mesh_changed(self):
+
+        aux_elements = dict()
+        non_mapped_elements = list()
+
+        for (property, element_id), data in self.properties.element_properties.items():
+            if property in ["element_length_correction", "B2P_rotation_decoupling"]:
+
+                if "coords" in data.keys():
+                    coords = np.array(data["coords"], dtype=float)
+                    node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+
+                    if isinstance(node_id, int):
+                        if property == "B2P_rotation_decoupling":
+                            neigh_elements = self.preprocessor.structural_elements_connected_to_node[node_id]
+                        else:
+                            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
+
+                        for element in neigh_elements:
+                            if property == "B2P_rotation_decoupling":
+                                if element.element_type != "beam_1":
+                                    continue
+
+                            new_key = (property, element.index)
+                            aux_elements[new_key] = data
+
+                    else:
+                        non_mapped_elements.append((element_id, node_id))
+
+            elif property == "perforated_plate":
+                #TODO: implement this
+                pass
+
+        if aux_elements != self.properties.element_properties:
+
+            self.properties.element_properties.clear()
+
+            for (_property, _element_id), data in aux_elements.items():
+                self.properties._set_element_property(_property, data, int(_element_id))
+
+            if aux_elements:
+                app().pulse_file.write_element_properties_in_file()
+
+            if non_mapped_elements:
+                title = "Element-related model attributions failed"
+                message = "Some element-related model attributions could not be mapped "
+                message += f"after the meshing processing. \n\nDetails:"
+                for (node_id, coords) in non_mapped_elements:
+                    message += f"\n{node_id} - {coords}"
+                PrintMessageInput([window_title_2, title, message])
+                # print(f"List of non-mapped nodes: {non_mapped_nodes}")
+                print(f"List of non-mapped elements: {non_mapped_elements}")
 
 # fmt: on

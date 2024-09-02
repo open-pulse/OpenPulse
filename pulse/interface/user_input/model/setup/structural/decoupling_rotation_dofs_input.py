@@ -1,13 +1,12 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QComboBox, QDialog, QCheckBox, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse.model.structural_element import decoupling_matrix
@@ -22,7 +21,7 @@ class DecouplingRotationDOFsInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/structural/decoupling_rotation_dofs_input.ui"
+        ui_path = UI_DIR / "model/setup/structural/b2p_decoupling_rotation_dofs_input.ui"
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
@@ -61,8 +60,7 @@ class DecouplingRotationDOFsInput(QDialog):
         self.checkBox_rotation_z: QCheckBox
 
         # QLineEdit
-        self.lineEdit_decoupled_dofs: QLineEdit
-        self.lineEdit_selected_group: QLineEdit
+        self.lineEdit_selected_id_to_remove: QLineEdit
         self.lineEdit_element_id: QLineEdit
         self.lineEdit_tjoint_node_id: QLineEdit
 
@@ -76,19 +74,19 @@ class DecouplingRotationDOFsInput(QDialog):
         self.tabWidget_main: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_B2P_rotation_decoupling: QTreeWidget
+        self.treeWidget_elements_info: QTreeWidget
 
     def _create_connections(self):
         #
-        self.pushButton_attribute.clicked.connect(self.attribution_callback)
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
-        self.treeWidget_B2P_rotation_decoupling.itemClicked.connect(self.on_click_item)
-        self.treeWidget_B2P_rotation_decoupling.itemDoubleClicked.connect(self.on_double_click_item)
+        self.treeWidget_elements_info.itemClicked.connect(self.on_click_item)
+        self.treeWidget_elements_info.itemDoubleClicked.connect(self.on_double_click_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
@@ -119,18 +117,7 @@ class DecouplingRotationDOFsInput(QDialog):
                 self.lineEdit_element_id.setText(str(element_id))
                 element = self.preprocessor.structural_elements[element_id]
 
-                if element.element_type != "beam_1":
-
-                    self.hide()
-                    title = "Invalid selection"
-                    message = "Select a beam structural element type connected to a pipe to proceed."
-                    PrintMessageInput([window_title_1, title, message])
-                    self.lineEdit_element_id.setText("")
-                    self.lineEdit_tjoint_node_id.setText("")
-                    app().main_window.set_selection()
-
-                else:
-
+                if element.element_type == "beam_1":
                     node_ids = [element.first_node.external_index, element.last_node.external_index]
                     for node_id in node_ids:
                         neighboor_elements = self.preprocessor.neighboor_elements_of_node(node_id)
@@ -139,34 +126,38 @@ class DecouplingRotationDOFsInput(QDialog):
                             return
                         self.lineEdit_tjoint_node_id.setText("")
 
+                else:
+                    self.lineEdit_element_id.setText("")
+                    self.lineEdit_tjoint_node_id.setText("")
+
     def _config_widgets(self):
-        for i, width in enumerate([60, 120, 100, 100]):
-            self.treeWidget_B2P_rotation_decoupling.setColumnWidth(i, width)
-            self.treeWidget_B2P_rotation_decoupling.headerItem().setTextAlignment(i, Qt.AlignCenter)
+        for i, width in enumerate([100, 100, 100]):
+            self.treeWidget_elements_info.setColumnWidth(i, width)
+            self.treeWidget_elements_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def tab_event_callback(self):
-        self.lineEdit_selected_group.setText("")
+        self.lineEdit_selected_id_to_remove.setText("")
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 1:
-            self.pushButton_remove.setDisabled(True)  
-
-    def update_tabs_visibility(self):
-        self.lineEdit_selected_group.setText("")
-        self.tabWidget_main.setTabVisible(1, False)
-        for (property, _) in self.properties.element_properties.keys():
-            if property == "B2P_rotation_decoupling":
-                self.tabWidget_main.setTabVisible(1, True)
-                return
+            self.pushButton_remove.setDisabled(True)
 
     def on_click_item(self, item):
-        self.lineEdit_selected_group.setText(item.text(0))
+        element_id = int(item.text(0))
+        self.lineEdit_selected_id_to_remove.setText(str(element_id))
+        app().main_window.set_selection(elements = [element_id])
         self.pushButton_remove.setDisabled(False)
 
     def on_double_click_item(self, item):
         self.on_click_item(item)
-        self.get_information(item)
 
-    def attribution_callback(self):
+    def attribute_callback(self):
+
+        if self.lineEdit_element_id.text() == "" and app().main_window.list_selected_elements():
+            self.hide()
+            title = "Invalid element selected"
+            message = f"To proceed, selecting a beam element connected to the pipe is necessary."
+            PrintMessageInput([window_title_1, title, message])
+            return
 
         lineEdit = self.lineEdit_element_id.text()
         stop, element_id = self.before_run.check_selected_ids(lineEdit, "elements", single_id = True)
@@ -174,64 +165,56 @@ class DecouplingRotationDOFsInput(QDialog):
             return
 
         element = self.preprocessor.structural_elements[element_id]
-
+        
+        tjoint_node_id = None
         node_ids = [element.first_node.external_index, element.last_node.external_index]
         for node_id in node_ids:
             neighboor_elements = self.preprocessor.neighboor_elements_of_node(node_id)
             if len(neighboor_elements) == 3:
+                tjoint_node_id = node_id
+                break
 
-        # if len(neighboor_elements) < 3:
-        #     self.hide()
-        #     title = "Incorrect Node ID selection"
-        #     message = "The decoupling of rotation dofs can only be applied to the T connections." 
-        #     PrintMessageInput([window_title_1, title, message])
-        #     return
-        
-                element_type = element.element_type
-                rotations_mask = self.get_rotation_mask()
+        if tjoint_node_id is None:
+            self.hide()
+            title = "Invalid element selected"
+            message = "The beam-to-pipe decoupling of rotation dofs can only " 
+            message += "be applied to the T connections."
+            PrintMessageInput([window_title_1, title, message])
+            return
 
-                if len(rotations_mask):
-                    if element_type == 'beam_1':
+        element_type = element.element_type
+        rotations_mask = self.get_rotation_mask()
 
-                        node = app().project.model.preprocessor.nodes[node_id]
-                        coords = list(np.round(node.coordinates, 5))
+        if len(rotations_mask):
+            if element_type == 'beam_1':
 
-                        data = {
-                                "coords" : coords,
-                                "decoupled_rotations" : rotations_mask
-                                }
+                node = app().project.model.preprocessor.nodes[node_id]
+                coords = list(np.round(node.coordinates, 5))
 
-                        self.preprocessor.set_B2P_rotation_decoupling(element_id, data)
-                        self.properties._set_element_property("B2P_rotation_decoupling", data, element_ids=element_id)
+                data = {
+                        "coords" : coords,
+                        "decoupled_rotations" : rotations_mask
+                        }
 
-                        app().pulse_file.write_element_properties_in_file()
-                        self.load_decoupling_info()
-                        app().main_window.set_selection()
-                        self.lineEdit_element_id.setText("")
-                        self.lineEdit_tjoint_node_id.setText("")
+                self.preprocessor.set_B2P_rotation_decoupling(element_id, data)
+                self.properties._set_element_property("B2P_rotation_decoupling", data, element_ids=element_id)
 
-                        print("[Set B2P Rotation Decoupling] - defined at element {} and at node {}".format(element_id, node_id))
-                        self.complete = True
-                        # self.close()
+                app().pulse_file.write_element_properties_in_file()
+                self.load_decoupling_info()
+                app().main_window.set_selection()
+                self.lineEdit_element_id.setText("")
+                self.lineEdit_tjoint_node_id.setText("")
 
-                    else:
-
-                        title = "Invalid decoupling setup"
-                        message = f"The selected element have a '{element_type}' formulation, you should "
-                        message += "have a 'beam_1' element type in selection to decouple the rotation dofs. "
-                        message += " Try to choose another element or change the element type formulation."
-                        PrintMessageInput([window_title_1, title, message])
-                        return
+                print("[Set B2P Rotation Decoupling] - defined at element {} and at node {}".format(element_id, node_id))
+                self.complete = True
+                return
 
     def remove_callback(self):
 
-        if self.lineEdit_selected_group.text() != "":
+        if self.lineEdit_selected_id_to_remove.text() != "":
 
-            group_id = int(self.lineEdit_selected_group.text())
-            [element_id, data] = self.decoupling_data[group_id]
-
+            element_id = int(self.lineEdit_selected_id_to_remove.text())
             element = self.preprocessor.structural_elements[element_id]
-
             element.decoupling_matrix = decoupling_matrix
             element.decoupling_info = None
 
@@ -256,7 +239,8 @@ class DecouplingRotationDOFsInput(QDialog):
         if read._continue:
             
             element_ids = list()
-            for (property, element_id) in self.properties.element_properties.items():
+            for (property, element_id) in self.properties.element_properties.keys():
+                print(property, property == "B2P_rotation_decoupling")
                 if property == "B2P_rotation_decoupling":
                     element_ids.append(element_id)
 
@@ -277,6 +261,7 @@ class DecouplingRotationDOFsInput(QDialog):
                             self.checkBox_rotation_z.isChecked()  ]
 
         if np.sum(rotations_mask) == 0:
+            self.hide()
             title = "Invalid decoupling setup"
             message = "There are no rotation DOFs decoupling in the current setup. "
             message += "You should tick at least one rotation DOF before continue."
@@ -285,44 +270,6 @@ class DecouplingRotationDOFsInput(QDialog):
 
         else:
             return rotations_mask
-
-    def get_information(self, item):
-        try:
-            if self.lineEdit_decoupled_dofs.text() != "":
-
-                group_id = int(item.text(0))
-                [element_id, data] = self.decoupling_data[group_id]
-
-                coords = np.array(data["coords"], dtype=float)
-                node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-                if isinstance(node_id, int):
-
-                    decoupled_dofs = data["decoupled_rotations"]
-                    decoupled_dofs_labels = self.text_label(decoupled_dofs)  
-
-                    aux = dict()
-                    aux[(element_id, node_id)] = decoupled_dofs_labels
-                    
-                    if aux:
-                        self.close()
-                        header_labels = ["Element ID", "Node ID", "Decoupled DOFs"]
-                        GetInformationOfGroup(  group_label = "Decoupling rotation DOFs",
-                                                selection_label = "Element ID:",
-                                                header_labels = header_labels,
-                                                column_widths = [100, 100, 150],
-                                                data = data  )
-
-            else:
-                title = "Invalid selection"
-                message = "Please, select a group in the list to get the information."
-                PrintMessageInput([window_title_2, title, message])
-                
-        except Exception as error_log:
-            title = "Error while getting information of selected group"
-            message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
-        self.show()
-
 
     def text_label(self, mask):
         text = ""
@@ -338,15 +285,9 @@ class DecouplingRotationDOFsInput(QDialog):
 
     def load_decoupling_info(self):
 
-        group_id = 0
-        self.decoupling_data = dict()
-        self.treeWidget_B2P_rotation_decoupling.clear()
-
+        self.treeWidget_elements_info.clear()
         for (property, element_id), data in self.properties.element_properties.items():
             if property == "B2P_rotation_decoupling":
-
-                group_id += 1
-                self.decoupling_data[group_id] = [element_id, data]
 
                 coords = np.array(data["coords"], dtype=float)
                 node_id = self.preprocessor.get_node_id_by_coordinates(coords)
@@ -355,17 +296,24 @@ class DecouplingRotationDOFsInput(QDialog):
                     decoupled_dofs = data["decoupled_rotations"]
                     decoupled_dofs_labels = self.text_label(decoupled_dofs)
 
-                    item = QTreeWidgetItem([ str(group_id), 
-                                            decoupled_dofs_labels, 
-                                            str(element_id), 
-                                            str(node_id) ])
+                    item = QTreeWidgetItem([str(element_id),
+                                            str(node_id), 
+                                            decoupled_dofs_labels])
 
                     for i in range(4):
                         item.setTextAlignment(i, Qt.AlignCenter)
                     
-                    self.treeWidget_B2P_rotation_decoupling.addTopLevelItem(item)
+                    self.treeWidget_elements_info.addTopLevelItem(item)
 
         self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
+        self.lineEdit_selected_id_to_remove.setText("")
+        self.tabWidget_main.setTabVisible(1, False)
+        for (property, _) in self.properties.element_properties.keys():
+            if property == "B2P_rotation_decoupling":
+                self.tabWidget_main.setTabVisible(1, True)
+                return
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -378,5 +326,5 @@ class DecouplingRotationDOFsInput(QDialog):
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
         return super().closeEvent(a0)
-    
+
 # fmt: on

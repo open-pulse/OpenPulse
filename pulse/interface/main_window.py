@@ -36,11 +36,10 @@ import logging
 import qdarktheme
 import os
 
-from time import time
-from sys import exit
 from functools import partial
 from pathlib import Path
 from shutil import copy, rmtree
+from sys import exit
 from time import time
 
 
@@ -1047,9 +1046,10 @@ class MainWindow(QMainWindow):
         return obj.complete
 
     def open_project(self, project_path: str | Path | None = None):
-        def tmp():
-            self.reset_geometry_render()
 
+        def tmp():
+
+            self.reset_geometry_render()
             if project_path is not None:
                 app().config.add_recent_file(project_path)
                 app().config.write_last_folder_path_in_file("project folder", project_path)
@@ -1073,7 +1073,7 @@ class MainWindow(QMainWindow):
             logging.info("Configuring visualization [3/3]")
             self.update_plots()
             self.action_front_view_callback()
-        
+
         LoadingWindow(tmp).run()
 
     def open_project_dialog(self):

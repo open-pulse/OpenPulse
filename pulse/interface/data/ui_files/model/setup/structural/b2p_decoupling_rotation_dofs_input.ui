@@ -178,6 +178,11 @@
                  <height>26</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Element ID:</string>
                </property>
@@ -215,6 +220,11 @@
                  <width>16777215</width>
                  <height>26</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="text">
                 <string>T-joint node ID:</string>
@@ -677,6 +687,11 @@
                  <height>30</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::Box</enum>
                </property>
@@ -738,6 +753,11 @@
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Rotation x</string>
                   </property>
@@ -754,6 +774,11 @@
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Rotation y</string>
                   </property>
@@ -769,6 +794,11 @@
                     <width>104</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
                   </property>
                   <property name="text">
                    <string>Rotation z</string>
@@ -905,8 +935,13 @@
                  <height>26</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
-                <string>Selected group:</string>
+                <string>Element ID:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -914,7 +949,7 @@
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QLineEdit" name="lineEdit_selected_group">
+              <widget class="QLineEdit" name="lineEdit_selected_id_to_remove">
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -1000,7 +1035,7 @@
               <number>4</number>
              </property>
              <item row="0" column="0">
-              <widget class="QTreeWidget" name="treeWidget_B2P_rotation_decoupling">
+              <widget class="QTreeWidget" name="treeWidget_elements_info">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -1030,22 +1065,6 @@
                </property>
                <column>
                 <property name="text">
-                 <string>Group</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>Decoupled DOFs</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-               <column>
-                <property name="text">
                  <string>Element ID</string>
                 </property>
                 <property name="textAlignment">
@@ -1055,6 +1074,14 @@
                <column>
                 <property name="text">
                  <string>Node ID</string>
+                </property>
+                <property name="textAlignment">
+                 <set>AlignCenter</set>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Decoupled DOFs</string>
                 </property>
                 <property name="textAlignment">
                  <set>AlignCenter</set>

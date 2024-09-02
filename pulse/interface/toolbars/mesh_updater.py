@@ -19,7 +19,6 @@ class MeshUpdater:
         self.element_size = 0.01
         self.geometry_tolerance = 1e-6
         self.non_mapped_bcs = list()
-        self.dict_group_elements_to_update_element_info_file = dict()
         self.dict_non_mapped_subgroups_entity_file = dict()
         self.dict_non_mapped_subgroups_info_file = dict()
         self.dict_list_elements_to_subgroups = dict()
@@ -97,14 +96,6 @@ class MeshUpdater:
         app().loader.load_mesh_setup_from_file()
         app().project.initial_load_project_actions()
 
-        if self.preprocessor.structural_elements:
-            #TODO: reimplmente elements mapping
-            #
-            data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
-            data_3 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
-            #
-            [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
-
     def undo_mesh_actions(self):
 
         self.t0 = time()
@@ -124,12 +115,6 @@ class MeshUpdater:
         app().main_window.update_plots()
 
     def process_final_actions(self):
-
-        if self.dict_group_elements_to_update_element_info_file:
-            app().project.update_element_ids_in_element_info_file_after_remesh( self.dict_group_elements_to_update_element_info_file,
-                                                                                self.dict_non_mapped_subgroups_info_file,
-                                                                                self.dict_list_elements_to_subgroups )
-
         app().project.initial_load_project_actions()
         app().loader.load_project_data()
         app().loader.load_mesh_dependent_properties()

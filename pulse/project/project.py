@@ -1,25 +1,19 @@
-from pulse.tools.utils import *
+
+from pulse import app
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
+from pulse.interface.user_input.project.loading_window import LoadingWindow
+# from pulse.interface.user_input.project.loading_screen import LoadingScreen
 #
-# from pulse.project.load_project import LoadProject
-# from pulse.model.line import Line
-# from pulse.model.preprocessor import Preprocessor
-from pulse.model.cross_section import CrossSection
-from pulse.model.properties.fluid import Fluid
-from pulse.model.properties.material import Material
+from opps.model import Pipeline
+from pulse.model.model import Model
 from pulse.model.after_run import AfterRun
 from pulse.model.before_run import BeforeRun
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.processing.acoustic_solver import AcousticSolver
+from pulse.tools.utils import *
 #
-from pulse import app
-from pulse.model.model import Model
-from pulse.interface.user_input.project.loading_screen import LoadingScreen
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
-
-#
-from opps.model import Pipeline
-#
+import logging
 import numpy as np
 from collections import defaultdict
 
@@ -116,10 +110,16 @@ class Project:
         #                     target = load_callback
         #                   )
 
+        logging.info("Loading project data [1/3]")
         app().loader.load_project_data()
+
+        logging.info("Processing geometry and mesh [1/3]")
         self.initial_load_project_actions()
+
+        logging.info("Loading mesh dependent properties [1/3]")
         app().loader.load_mesh_dependent_properties()
 
+        logging.info("Finalizing model data loading [1/3]")
         # self.enhance_pipe_sections_appearance()
         self.preprocessor.process_all_rotation_matrices()
         self.preprocessor.check_disconnected_lines()
@@ -139,8 +139,6 @@ class Project:
         # t0 = time()
         self.preprocessor.generate()
         app().main_window.update_status_bar_info()
-        self.update_node_ids_after_mesh_changed()
-        self.update_element_ids_after_mesh_changed()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
@@ -148,7 +146,7 @@ class Project:
         """ 
         This method adds lids to cross-section variations and terminations.
         """
-        for elements in self.preprocessor.elements_connected_to_node.values():
+        for elements in self.preprocessor.structural_elements_connected_to_node.values():
 
             element = None
             if len(elements) == 2:
@@ -247,125 +245,6 @@ class Project:
 
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
-
-    def update_element_ids_in_element_info_file_after_remesh(self, dict_group_elements_to_update,
-                                                                   dict_non_mapped_subgroups,
-                                                                   dict_list_elements_to_subgroups ):
-        self.modify_element_ids_in_element_info_file(  dict_group_elements_to_update,
-                                                            dict_non_mapped_subgroups,
-                                                            dict_list_elements_to_subgroups  )
-
-    def update_node_ids_after_mesh_changed(self):
-
-        aux_nodal = dict()
-        non_mapped_nodes = list()
-
-        for key, data in self.model.properties.nodal_properties.items():
-
-            (property, *args) = key
-
-            if "coords" in data.keys():
-                coords = np.array(data["coords"], dtype=float)
-                if len(coords) == 6:
-
-                    node_id1, node_id2 = args
-
-                    coords_1 = coords[:3]
-                    coords_2 = coords[3:]
-                    new_node_id1 = self.preprocessor.get_node_id_by_coordinates(coords_1)
-                    new_node_id2 = self.preprocessor.get_node_id_by_coordinates(coords_2)
-                    sorted_indexes = np.sort([new_node_id1, new_node_id2])
-
-                    new_key = (property, sorted_indexes[0], sorted_indexes[1])
-
-                    if new_node_id1 is None:
-                        if new_node_id1 not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id1, coords))
-                        continue
-
-                    if new_node_id2 is None:
-                        if new_node_id2 not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id2, coords))
-                        continue
-
-                elif len(coords) == 3:
-
-                    node_id = args
-                    new_node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-                    new_key = (property, new_node_id)
-
-                    print(property, node_id, new_key, coords)
-
-                    if new_node_id is None:
-                        if new_node_id not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id, coords))
-                        continue
-
-                aux_nodal[new_key] = data
-        
-        if aux_nodal != self.model.properties.nodal_properties:
-
-            self.model.properties.nodal_properties.clear()
-
-            for new_key, data in aux_nodal.items():
-                (property, *args) = new_key
-                self.model.properties._set_nodal_property(property, data, args)
-
-            if aux_nodal:
-                app().pulse_file.write_nodal_properties_in_file()
-
-            if non_mapped_nodes:
-                print(f"List of non-mapped nodes: {non_mapped_nodes}")
-
-                # if len(new_key) == 2:
-                #     property = new_key[0]
-                #     node_ids = new_key[1]
-                # elif len(new_key) == 3:
-                #     property = new_key[0]
-                #     node_ids = (new_key[1], new_key[2])
-                # else:
-                #     return
-
-                # self.model.properties._set_nodal_property(property, data, node_ids)
-
-            # app().pulse_file.write_nodal_properties_in_file()
-
-    def update_element_ids_after_mesh_changed(self):
-
-        aux_elements = dict()
-        non_mapped_elements = list()
-
-        for (property, element_id), data in self.model.properties.element_properties.items():
-            if property in ["element_length_correction", "B2P_rotation_decoupling"]:
-
-                if "coords" in data.keys():
-                    coords = np.array(data["coords"], dtype=float)
-                    node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-
-                    if isinstance(node_id, int):
-                        neigh_elements = self.preprocessor.neighboor_elements_of_node(node_id)
-                        for element in neigh_elements:
-                            new_key = (property, element.index)
-                            aux_elements[new_key] = data
-                    else:
-                        non_mapped_elements.append((element_id, node_id))
-
-            elif property == "perforated_plate":
-                #TODO: implement this
-                pass
-
-        if aux_elements != self.model.properties.element_properties:
-
-            self.model.properties.element_properties.clear()
-
-            for (_property, _element_id), data in aux_elements.items():
-                self.model.properties._set_element_property(_property, data, int(_element_id))
-
-            if aux_elements:
-                app().pulse_file.write_element_properties_in_file()
-
-            if non_mapped_elements:
-                print(f"List of non-mapped elements: {non_mapped_elements}")
 
     def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
         if parameters is None:
