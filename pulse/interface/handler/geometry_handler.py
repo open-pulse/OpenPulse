@@ -191,9 +191,10 @@ class GeometryHandler:
 
         A = start_coords
         B = end_coords
+        AB = B - A
 
-        L = B - A
-        n = L / np.linalg.norm(L)
+        L = np.linalg.norm(AB)
+        n = AB / L
 
         valve_points["external_points"] = (A, B)
 

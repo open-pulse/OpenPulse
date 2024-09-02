@@ -242,8 +242,8 @@ class ValvesInput(QDialog):
         for line_id, data in self.properties.line_properties.items():
             if "valve_info" in data.keys():
 
-                valve_name = data["valve_name"]
                 valve_info = data["valve_info"]
+                valve_name = valve_info["valve_name"]
                 mass = valve_info["valve_mass"]
                 stiffening_factor = valve_info["stiffening_factor"]
                 acoustic_effects = valve_info["acoustic_effects"]
@@ -640,7 +640,7 @@ class ValvesInput(QDialog):
                 # self.close()
 
     def remove_valve_acoustic_effects_function(self, valve_names: list):
-        
+
         element_ids = list()
         for valve_name in valve_names:
             for (property, element_id), data in self.properties.element_properties.items():
@@ -649,7 +649,7 @@ class ValvesInput(QDialog):
                         if valve_name == data["valve_info"]["valve_name"]:
                             element_ids.append(element_id)                        
                             break
-        
+
         if element_ids:
             self.properties._remove_element_property("perforated_plate", element_ids)
             #TODO: remove existing imported tables
