@@ -987,6 +987,17 @@ Project</string>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>project_button_1</tabstop>
+  <tabstop>project_button_2</tabstop>
+  <tabstop>project_button_3</tabstop>
+  <tabstop>project_button_4</tabstop>
+  <tabstop>project_button_5</tabstop>
+  <tabstop>create_button</tabstop>
+  <tabstop>load_button</tabstop>
+  <tabstop>reset_list_projects_button</tabstop>
+  <tabstop>about_button</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

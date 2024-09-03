@@ -448,6 +448,9 @@
         <property name="autoDefault">
          <bool>false</bool>
         </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -456,6 +459,7 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>lineEdit_required_memory</tabstop>
   <tabstop>checkBox_mesh_data</tabstop>
   <tabstop>checkBox_solution_data</tabstop>
   <tabstop>pushButton_proceed</tabstop>

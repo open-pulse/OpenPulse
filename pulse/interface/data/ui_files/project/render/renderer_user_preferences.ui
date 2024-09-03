@@ -1091,6 +1091,12 @@
         <property name="text">
          <string>Update settings</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -1121,6 +1127,9 @@
         <property name="text">
          <string>Reset to default</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -1128,6 +1137,25 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>checkBox_OpenPulse_logo</tabstop>
+  <tabstop>checkBox_reference_scale</tabstop>
+  <tabstop>comboBox_background_theme</tabstop>
+  <tabstop>lineEdit_background_color</tabstop>
+  <tabstop>pushButton_background_color</tabstop>
+  <tabstop>lineEdit_font_color</tabstop>
+  <tabstop>pushButton_font_color</tabstop>
+  <tabstop>lineEdit_nodes_color</tabstop>
+  <tabstop>pushButton_nodes_color</tabstop>
+  <tabstop>lineEdit_lines_color</tabstop>
+  <tabstop>pushButton_lines_color</tabstop>
+  <tabstop>lineEdit_surfaces_color</tabstop>
+  <tabstop>pushButton_surfaces_color</tabstop>
+  <tabstop>lineEdit_elements_transparency</tabstop>
+  <tabstop>slider_transparency</tabstop>
+  <tabstop>pushButton_reset_to_default</tabstop>
+  <tabstop>pushButton_update_settings</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
