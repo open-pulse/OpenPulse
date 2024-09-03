@@ -79,13 +79,8 @@ class AssemblyAcoustic:
         self.preprocessor = model.preprocessor
         self.frequencies = model.frequencies
 
-        if self.preprocessor.beam_gdofs is None:
-            self.beam_gdofs, _ = self.preprocessor.get_beam_and_non_beam_elements_global_dofs()
-        else:
-            self.beam_gdofs, _ = self.preprocessor.beam_gdofs, self.preprocessor.pipe_gdofs
-
         self.total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
-        self.acoustic_elements = self.preprocessor.get_acoustic_elements()
+
         self.neighbor_diameters = self.preprocessor.neighbor_elements_diameter_global()
         self.prescribed_indexes = self.get_prescribed_indexes()
         self.unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()
@@ -184,8 +179,9 @@ class AssemblyAcoustic:
         """
         all_indexes = np.arange(self.total_dof)
         indexes_to_remove = self.prescribed_indexes.copy()
+        beam_gdofs, _ = self.preprocessor.get_beam_and_non_beam_elements_global_dofs()
 
-        for dof in list(self.beam_gdofs):
+        for dof in list(beam_gdofs):
             indexes_to_remove.append(dof)
 
         indexes_to_remove = list(np.sort(indexes_to_remove))
@@ -193,7 +189,7 @@ class AssemblyAcoustic:
         self.preprocessor.set_unprescribed_pipe_indexes(unprescribed_pipe_indexes)
 
         return unprescribed_pipe_indexes
-    
+
     def get_length_corretion(self, element):
         """
         This method evaluate the acoustic length correction for an element. The necessary conditions and the type of correction are checked.
@@ -229,10 +225,14 @@ class AssemblyAcoustic:
 
                     if correction_type in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
+
                     elif correction_type == 1:
                         correction = length_correction_branch(di_actual, di)
                         if len(diameters_first) == 2:
-                            print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
+                            message = "Warning: Expansion identified in acoustic "
+                            message += "domain is being corrected as side branch."
+                            print(message)
+
                     else:
                         print("Datatype not understood")
 
@@ -243,10 +243,14 @@ class AssemblyAcoustic:
 
                     if correction_type in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
+
                     elif correction_type == 1:
                         correction = length_correction_branch(di_actual, di)
                         if len(diameters_last) == 2:
-                            print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
+                            message = "Warning: Expansion identified in acoustic "
+                            message += "domain is being corrected as side branch."
+                            print(message)
+
                     else:
                         print("Datatype not understood")
 
@@ -278,11 +282,10 @@ class AssemblyAcoustic:
 
         rows, cols = self.preprocessor.get_global_acoustic_indexes()
         data_k = np.zeros([len(self.frequencies), total_entries], dtype = complex)
-        
-        for element in self.acoustic_elements:
-            
-            index = element.index
 
+        for element in self.preprocessor.get_acoustic_elements():
+
+            index = element.index
             start = (index - 1) * ENTRIES_PER_ELEMENT
             end = start + ENTRIES_PER_ELEMENT
 
@@ -366,7 +369,7 @@ class AssemblyAcoustic:
         ind_Klump = []
         area_fluid = None
 
-        elements = self.acoustic_elements
+        elements = self.preprocessor.get_acoustic_elements()
 
         # processing external elements by node
         for (property, *args), data in self.model.properties.nodal_properties.items():
@@ -451,7 +454,7 @@ class AssemblyAcoustic:
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
         # for index, element in enumerate(self.preprocessor.acoustic_elements.values()):
-        for element in self.acoustic_elements:
+        for element in self.preprocessor.get_acoustic_elements():
 
             index = element.index - 1
             if element.acoustic_link_diameters:

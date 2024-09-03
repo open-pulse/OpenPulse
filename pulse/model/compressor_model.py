@@ -115,7 +115,7 @@ class CompressorModel:
     Assumptions:
 
     1) Stead flow;
-    2) Ideal gas behaviour;
+    2) Ideal gas behavior;
     3) Compression and expansion cycles are isentropic processes;
     4) The suction and discharge pressures remains constant during suction and discharge cycles, respectively;
     5) No heat exchange in suction and discharge cycles; 

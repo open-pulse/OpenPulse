@@ -35,7 +35,8 @@ class GeometryHandler:
         self.points_coords = dict()
         self.points_coords_cache = dict()
         self.lines_mapping = dict()
-        self.valve_points_to_ignore = dict()
+        self.valve_internal_lines = dict()
+        # self.valve_points_to_ignore = dict()
         self.pipeline = self.project.pipeline
 
     def set_pipeline(self, pipeline):
@@ -107,8 +108,8 @@ class GeometryHandler:
                     point_C = gmsh.model.occ.addPoint(*coords_C, meshSize=lc)
                     point_D = gmsh.model.occ.addPoint(*coords_D, meshSize=lc)
 
-                if "orifice_plate_points" in valve_points.keys():
-                    (coords_E, coords_F) = valve_points["orifice_plate_points"]
+                if "internal_points" in valve_points.keys():
+                    (coords_E, coords_F) = valve_points["internal_points"]
                     point_E = gmsh.model.occ.addPoint(*coords_E, meshSize=lc)
                     point_F = gmsh.model.occ.addPoint(*coords_F, meshSize=lc)
 
@@ -117,26 +118,31 @@ class GeometryHandler:
 
                 lines = list()
                 if "flange_points" in valve_points.keys():
-                    if "orifice_plate_points" in valve_points.keys():
+                    if "internal_points" in valve_points.keys():
                         lines.append(gmsh.model.occ.addLine(point_A, point_C))
                         lines.append(gmsh.model.occ.addLine(point_C, point_E))
                         lines.append(gmsh.model.occ.addLine(point_E, point_F))
                         lines.append(gmsh.model.occ.addLine(point_F, point_D))
                         lines.append(gmsh.model.occ.addLine(point_D, point_B))
 
-                        self.valve_points_to_ignore[structure.tag] = (point_C, point_D, point_E, point_F)
+                        if "blocking_length" in valve_info.keys():
+                            self.valve_internal_lines[lines[2]] = structure.tag
+                        # self.valve_points_to_ignore[structure.tag] = (point_C, point_D, point_E, point_F)
 
                     else:
                         lines.append(gmsh.model.occ.addLine(point_A, point_C))
                         lines.append(gmsh.model.occ.addLine(point_C, point_D))
                         lines.append(gmsh.model.occ.addLine(point_D, point_B))
-                        self.valve_points_to_ignore[structure.tag] = (point_C, point_D)
+                        # self.valve_points_to_ignore[structure.tag] = (point_C, point_D)
 
-                elif "orifice_plate_points" in valve_points.keys():
+                elif "internal_points" in valve_points.keys():
                     lines.append(gmsh.model.occ.addLine(point_A, point_E))
                     lines.append(gmsh.model.occ.addLine(point_E, point_F))
                     lines.append(gmsh.model.occ.addLine(point_F, point_B))
-                    self.valve_points_to_ignore[structure.tag] = (point_E, point_F)
+
+                    if "blocking_length" in valve_info.keys():
+                        self.valve_internal_lines[lines[1]] = structure.tag
+                    # self.valve_points_to_ignore[structure.tag] = (point_E, point_F)
 
                 else:
                     lines.append(gmsh.model.occ.addLine(point_A, point_B))
@@ -202,15 +208,19 @@ class GeometryHandler:
             flange_length = 1e3 * valve_info["flange_length"]
             C = A + n * flange_length
             D = A + n * (L - flange_length)
-
             valve_points["flange_points"] = (C, D)
 
         if "orifice_plate_thickness" in valve_info.keys():
-            op_thickness = 1e3 * valve_info["orifice_plate_thickness"]
-            E = A + n * (L - op_thickness) / 2
-            F = A + n * (L + op_thickness) / 2
+            internal_length = 1e3 * valve_info["orifice_plate_thickness"]
+            E = A + n * (L - internal_length) / 2
+            F = A + n * (L + internal_length) / 2
+            valve_points["internal_points"] = (E, F)
 
-            valve_points["orifice_plate_points"] = (E, F)
+        elif "blocking_length" in valve_info.keys():
+            internal_length = 1e3 * valve_info["blocking_length"]
+            E = A + n * (L - internal_length) / 2
+            F = A + n * (L + internal_length) / 2
+            valve_points["internal_points"] = (E, F)
 
         return valve_points
 

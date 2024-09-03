@@ -44,6 +44,7 @@ class Preprocessor:
 
         self.structural_elements = dict()
         self.acoustic_elements = dict()
+        self.structural_to_acoustic_element = dict()
 
         self.connectivity_matrix = list()
         self.nodal_coordinates_matrix = list()
@@ -68,7 +69,6 @@ class Preprocessor:
         self.structure_principal_diagonal = None
         self.nodal_coordinates_matrix_external = None
 
-        self.beam_gdofs = None
         self.pipe_gdofs = None
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
@@ -686,10 +686,11 @@ class Preprocessor:
         return I.flatten(), J.flatten()
 
     def map_structural_to_acoustic_elements(self):
-        self.dict_structural_to_acoustic_elements = {}
+        """
+        """
+        self.structural_to_acoustic_element.clear()
         for key, element in self.structural_elements.items():
-            self.dict_structural_to_acoustic_elements[element] = self.acoustic_elements[key]
-        return self.dict_structural_to_acoustic_elements 
+            self.structural_to_acoustic_element[element] = self.acoustic_elements[key]
 
     def get_neighbor_nodes_and_elements_by_node(self, node_id, length, tolerance=1e-6):
         """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
@@ -1675,7 +1676,8 @@ class Preprocessor:
     #             self.radius[last] = radius
     #     return self.radius
 
-    def get_pipe_and_expansion_joint_elements_global_dofs(self):
+
+    def get_acoustic_elements_global_dofs(self):
         """
         This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements. 
         This method helps to exclude those degrees of freedom from acoustic analysis.
@@ -1687,11 +1689,16 @@ class Preprocessor:
         """ 
         pipe_gdofs = dict()
         for element in self.structural_elements.values():
+
+            if element.index in self.mesh.elements_to_ignore_on_acoustic_analysis:
+                continue
+
             if element.element_type in ['pipe_1', 'expansion_joint', 'valve']:
                 gdofs_node_first = element.first_node.global_index
                 gdofs_node_last = element.last_node.global_index
                 pipe_gdofs[gdofs_node_first] = gdofs_node_first 
-                pipe_gdofs[gdofs_node_last] = gdofs_node_last 
+                pipe_gdofs[gdofs_node_last] = gdofs_node_last
+
         return list(pipe_gdofs.keys())
 
 
@@ -1704,11 +1711,11 @@ class Preprocessor:
         list
             Acoustic global degrees of freedom associated to pipe element.
         """
-        self.pipe_and_expansion_joint_gdofs = self.get_pipe_and_expansion_joint_elements_global_dofs()
+        acoustic_elements_global_dofs = self.get_acoustic_elements_global_dofs()
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.nodes)
         all_indexes = np.arange(total_dof)
-        self.beam_gdofs = np.delete(all_indexes, self.pipe_and_expansion_joint_gdofs)
-        return self.beam_gdofs, self.pipe_and_expansion_joint_gdofs
+        beam_gdofs = np.delete(all_indexes, acoustic_elements_global_dofs)
+        return beam_gdofs, acoustic_elements_global_dofs
 
     
     def _process_beam_nodes_and_indexes(self):
@@ -1720,12 +1727,12 @@ class Preprocessor:
         bool
             ?????
         """
-        self.beam_gdofs, self.pipe_gdofs = self.get_beam_and_non_beam_elements_global_dofs()
-        if len(self.beam_gdofs) == self.number_nodes:
+        beam_gdofs, self.pipe_gdofs = self.get_beam_and_non_beam_elements_global_dofs()
+        if len(beam_gdofs) == self.number_nodes:
             return True
         else:
             return False
-    
+
     def get_acoustic_elements(self):
         """
         This method returns a list of acoustic elements.
@@ -1735,14 +1742,21 @@ class Preprocessor:
         list
             Acoustic elements list.
         """
-        acoustic_elements = []
+        acoustic_elements = list()
         self.map_structural_to_acoustic_elements()
         for element in self.structural_elements.values():
-            if element.element_type not in ['beam_1']:
-                acoustic_element = self.dict_structural_to_acoustic_elements[element]
-                acoustic_elements.append(acoustic_element)
-                # if element.element_type == "valve":
-                #     print(element.element_type, element.index)
+
+            if element.element_type == 'beam_1':
+                continue
+
+            if element.index in self.mesh.elements_to_ignore_on_acoustic_analysis:
+                continue
+
+            acoustic_element = self.structural_to_acoustic_element[element]
+            acoustic_elements.append(acoustic_element)
+            # if element.element_type == "valve":
+            #     print(element.element_type, element.index)
+
         return acoustic_elements   
 
     def get_nodes_relative_to_acoustic_elements(self):

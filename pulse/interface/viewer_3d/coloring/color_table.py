@@ -1,36 +1,21 @@
+# fmt: off
+
 import numpy as np
 from vtkmodules.vtkCommonCore import vtkLookupTable
 from vtkmodules.vtkRenderingCore import vtkColorTransferFunction
 
-from pulse.interface.viewer_3d.coloring.color_palettes import (
-    BrBG_colors,
-    PiYG_colors,
-    PRGn_colors,
-    PuOR_colors,
-    bwr_colors,
-    grey_colors,
-    inferno_colors,
-    jet_colors,
-    magma_colors,
-    plasma_colors,
-    viridis_colors,
-)
+from pulse import app
+from pulse.interface.viewer_3d.coloring.color_palettes import *
 
 
 class ColorTable(vtkLookupTable):
-    def __init__(
-        self,
-        project,
-        data,
-        min_max_values,
-        colormap,
-        stress_field_plot=False,
-        pressure_field_plot=False,
-    ):
+    def __init__(self, data, min_max_values, colormap, **kwargs):
         super().__init__()
 
-        self.project = project
+        self.stress_field_plot = kwargs.get("stress_field_plot", False)
+        self.pressure_field_plot = kwargs.get("pressure_field_plot", False)
 
+        (self.min_value, self.max_value) = min_max_values
         self.colormap = colormap
 
         if isinstance(data, dict):
@@ -39,15 +24,10 @@ class ColorTable(vtkLookupTable):
         else:
             self.valueVector = data
 
-        [self.min_value, self.max_value] = min_max_values
-
-        self.stress_field_plot = stress_field_plot
-        self.pressure_field_plot = pressure_field_plot
-
-        self.structural_elements = project.preprocessor.structural_elements
-
         self.SetTableRange(self.min_value, self.max_value)
         self.set_colormap(self.colormap)
+
+        self.project = app().project
 
     def set_colormap(self, colormap: str):
         # just to make sure it has no uppercases or extra spaces
@@ -116,6 +96,8 @@ class ColorTable(vtkLookupTable):
         return
 
     def get_element_color(self, element):
+
+        index = element.index
         key1 = element.first_node.global_index
         key2 = element.last_node.global_index
 
@@ -124,21 +106,26 @@ class ColorTable(vtkLookupTable):
 
         color_temp = [0, 0, 0]
 
-        if self.stress_field_plot and element.element_type in [
-            "beam_1",
-            "expansion_joint",
-            "valve",
-        ]:
-            return [255, 255, 255]
-        elif self.pressure_field_plot and element.element_type == "beam_1":
-            return [255, 255, 255]
+        if self.stress_field_plot:
+            if element.element_type in ["beam_1", "expansion_joint", "valve"]:
+                return [255, 255, 255]
+            else:
+                value = np.real(self.dictData[element.index])
+
         elif self.pressure_field_plot:
-            value = (self.valueVector[key1] + self.valueVector[key2]) / 2
-        elif self.stress_field_plot:
-            value = np.real(self.dictData[element.index])
+            if element.element_type == "beam_1":
+                return [255, 255, 255]
+            elif index in self.project.model.mesh.elements_to_ignore_on_acoustic_analysis:
+                return [255, 255, 255]
+            else:
+                value = (self.valueVector[key1] + self.valueVector[key2]) / 2
+
         else:
             value = (self.valueVector[key1] + self.valueVector[key2]) / 2
 
         self.GetColor(value, color_temp)
         color_temp = [int(i * 255) for i in color_temp]
+
         return color_temp
+
+# fmt: on

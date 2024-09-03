@@ -65,7 +65,7 @@ class ValvesInput(QDialog):
         self.checkBox_remove_valve_acoustic_effects: QCheckBox
 
         # QComboBox
-        self.comboBox_acoustic_effects: QComboBox
+        self.comboBox_acoustic_behavior: QComboBox
         self.comboBox_flange_setup: QComboBox
 
         # QFrame
@@ -78,8 +78,8 @@ class ValvesInput(QDialog):
         self.label_flange_diameter_unit: QLabel
         self.label_flange_length: QLabel
         self.label_flange_length_unit: QLabel
-        self.label_orifice_plate_thickness: QLabel
-        self.label_orifice_plate_thickness_unit: QLabel
+        self.label_valve_internal_length: QLabel
+        self.label_valve_internal_length_unit: QLabel
 
         # QLineEdit
         self.lineEdit_selected_id: QLineEdit
@@ -88,7 +88,7 @@ class ValvesInput(QDialog):
         self.lineEdit_valve_mass: QLineEdit
         self.lineEdit_effective_diameter: QLineEdit
         self.lineEdit_wall_thickness: QLineEdit
-        self.lineEdit_orifice_plate_thickness: QLineEdit
+        self.lineEdit_internal_valve_length: QLineEdit
         self.lineEdit_flange_length: QLineEdit
         self.lineEdit_flange_diameter: QLineEdit
 
@@ -106,7 +106,7 @@ class ValvesInput(QDialog):
 
     def _create_connections(self):
         #
-        self.comboBox_acoustic_effects.currentIndexChanged.connect(self.valve_setup_callback)
+        self.comboBox_acoustic_behavior.currentIndexChanged.connect(self.valve_setup_callback)
         self.comboBox_flange_setup.currentIndexChanged.connect(self.valve_setup_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
@@ -159,12 +159,12 @@ class ValvesInput(QDialog):
                 else:
                     self.comboBox_flange_setup.setCurrentIndex(0)
 
-                if "acoustic_effects" in valve_info.keys():
-                    acoustic_effects = valve_info["acoustic_effects"]
+                if "acoustic_behavior" in valve_info.keys():
+                    acoustic_effects = valve_info["acoustic_behavior"]
                     if acoustic_effects:
-                        self.comboBox_acoustic_effects.setCurrentIndex(1)
+                        self.comboBox_acoustic_behavior.setCurrentIndex(1)
                     else:
-                        self.comboBox_acoustic_effects.setCurrentIndex(0)
+                        self.comboBox_acoustic_behavior.setCurrentIndex(0)
 
     def _configure_appearance(self):
         if self.render_type == "model":
@@ -187,7 +187,7 @@ class ValvesInput(QDialog):
                                 self.lineEdit_selected_id,
                                 self.lineEdit_stiffening_factor,
                                 self.lineEdit_valve_mass,
-                                self.lineEdit_orifice_plate_thickness,
+                                self.lineEdit_internal_valve_length,
                                 self.lineEdit_flange_length,
                                 self.lineEdit_flange_diameter,
                                 self.lineEdit_valve_name
@@ -207,20 +207,25 @@ class ValvesInput(QDialog):
 
     def valve_setup_callback(self):
 
-        index_A = self.comboBox_acoustic_effects.currentIndex()
+        index_A = self.comboBox_acoustic_behavior.currentIndex()
         index_B = self.comboBox_flange_setup.currentIndex()
 
-        self.acoustic_effects_callback(bool(index_A))
+        self.acoustic_effects_callback(index_A)
         self.flanged_valves_callback(bool(index_B))
 
-    def acoustic_effects_callback(self, enabled: bool):
+    def acoustic_effects_callback(self, index: int):
 
-        self.label_orifice_plate_thickness.setEnabled(enabled)
-        self.label_orifice_plate_thickness_unit.setEnabled(enabled)
-        self.lineEdit_orifice_plate_thickness.setEnabled(enabled)
+        if index == 1:
+            self.label_valve_internal_length.setText("Orifice plate thickness:")
+        elif index == 2:
+            self.label_valve_internal_length.setText("Valve blocking length:")
 
-        if not enabled:
-            self.lineEdit_orifice_plate_thickness.setText("")
+        self.label_valve_internal_length.setEnabled(bool(index))
+        self.label_valve_internal_length_unit.setEnabled(bool(index))
+        self.lineEdit_internal_valve_length.setEnabled(bool(index))
+
+        if not bool(index):
+            self.lineEdit_internal_valve_length.setText("")
 
     def flanged_valves_callback(self, enabled: bool):
         self.label_flange_diameter.setEnabled(enabled)
@@ -246,7 +251,7 @@ class ValvesInput(QDialog):
                 valve_name = valve_info["valve_name"]
                 mass = valve_info["valve_mass"]
                 stiffening_factor = valve_info["stiffening_factor"]
-                acoustic_effects = valve_info["acoustic_effects"]
+                acoustic_effects = valve_info["acoustic_behavior"]
                 effective_diameter = valve_info["valve_effective_diameter"]
 
                 parameters = str([effective_diameter, stiffening_factor, mass, acoustic_effects])
@@ -373,14 +378,18 @@ class ValvesInput(QDialog):
 
         return False
 
-    def check_orifice_plate_parameters(self):
+    def check_internal_valve_parameters(self):
 
-        stop, value = self.check_input_parameters(self.lineEdit_orifice_plate_thickness, 'Orifice plate thickness')
+        stop, value = self.check_input_parameters(self.lineEdit_internal_valve_length, 'Internal valve length')
         if stop:
-            self.lineEdit_orifice_plate_thickness.setFocus()
+            self.lineEdit_internal_valve_length.setFocus()
             return True
 
-        self.valve_info["orifice_plate_thickness"] = value
+        if self.comboBox_acoustic_behavior.currentIndex() == 1:
+            self.valve_info["orifice_plate_thickness"] = value
+
+        elif self.comboBox_acoustic_behavior.currentIndex() == 2:
+            self.valve_info["blocking_length"] = value
 
     def attribute_callback(self):
 
@@ -399,12 +408,12 @@ class ValvesInput(QDialog):
         if self.check_valve_parameters():
             return
 
-        acoustic_effects = bool(self.comboBox_acoustic_effects.currentIndex())
-        if acoustic_effects:
-            if self.check_orifice_plate_parameters():
+        acoustic_behavior = self.comboBox_acoustic_behavior.currentIndex()
+        if acoustic_behavior in [1, 2]:
+            if self.check_internal_valve_parameters():
                 return
 
-        self.valve_info["acoustic_effects"] = acoustic_effects
+        self.valve_info["acoustic_behavior"] = acoustic_behavior
 
         if self.comboBox_flange_setup.currentIndex() == 1:
             if self.check_flange_parameters():
@@ -429,7 +438,7 @@ class ValvesInput(QDialog):
 
                 self.actions_to_finalize()
 
-                if self.valve_info["acoustic_effects"]:
+                if acoustic_behavior == 1:
                     self.configure_orifice_plate(line_ids)
 
         self.complete = True

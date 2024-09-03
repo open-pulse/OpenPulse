@@ -94,6 +94,8 @@ class RunAnalysisInput(QDialog):
             self.post_process_results()
             self.check_warnings()
 
+        app().main_window.results_widget.current_frequency_index = 0
+
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)

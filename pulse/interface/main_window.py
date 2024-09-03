@@ -677,6 +677,7 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.setCurrentWidget(self.results_widget)
 
     def action_results_workspace_callback(self):
+
         self.results_widget.update_selection()
         self.results_viewer_wigdet.update_visibility_items()
 

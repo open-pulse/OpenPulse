@@ -22,7 +22,7 @@ class MeshInputCommon(QDialog):
     A lot of input interfaces have in common the funcionality
     of attribute things to nodes, lines and/or elements.
 
-    This class implements all these behaviours in a common place
+    This class implements all these behaviors in a common place
     """
 
     def __init__(self, parent=None) -> None:
