@@ -1128,6 +1128,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>tabWidget_inputs</tabstop>
+  <tabstop>lineEdit_real_value</tabstop>
+  <tabstop>lineEdit_imag_value</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+  <tabstop>treeWidget_nodal_info</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>lineEdit_table_path</tabstop>
+  <tabstop>pushButton_search</tabstop>
+  <tabstop>spinBox_skip_wors</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

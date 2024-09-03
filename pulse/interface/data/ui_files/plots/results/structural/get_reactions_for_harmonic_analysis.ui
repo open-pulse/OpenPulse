@@ -1371,6 +1371,9 @@
            <property name="text">
             <string>Plot data</string>
            </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="0" column="1">
@@ -1428,6 +1431,22 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_node_id</tabstop>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>treeWidget_reactions_at_constrained_dofs</tabstop>
+  <tabstop>tabWidget_springs_dampers</tabstop>
+  <tabstop>treeWidget_reactions_at_springs</tabstop>
+  <tabstop>treeWidget_reactions_at_dampers</tabstop>
+  <tabstop>radioButton_Fx</tabstop>
+  <tabstop>radioButton_Mx</tabstop>
+  <tabstop>radioButton_Fy</tabstop>
+  <tabstop>radioButton_My</tabstop>
+  <tabstop>radioButton_Fz</tabstop>
+  <tabstop>radioButton_Mz</tabstop>
+  <tabstop>pushButton_export_data</tabstop>
+  <tabstop>pushButton_plot_data</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

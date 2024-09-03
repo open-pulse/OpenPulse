@@ -323,7 +323,7 @@
             </font>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab_setup">
             <attribute name="title">
@@ -4303,10 +4303,10 @@
                    <string>Attribute</string>
                   </property>
                   <property name="autoDefault">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="default">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="flat">
                    <bool>false</bool>
@@ -4339,7 +4339,7 @@
                    <string>Cancel</string>
                   </property>
                   <property name="autoDefault">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="default">
                    <bool>false</bool>
@@ -4743,6 +4743,9 @@
                   <property name="text">
                    <string>Reset</string>
                   </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
                   <property name="flat">
                    <bool>false</bool>
                   </property>
@@ -4774,6 +4777,12 @@
                   <property name="text">
                    <string>Remove</string>
                   </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                  <property name="status" stdset="0">
+                   <string>danger</string>
+                  </property>
                  </widget>
                 </item>
                </layout>
@@ -4791,6 +4800,77 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>tabWidget_inputs</tabstop>
+  <tabstop>tabWidget_constant_values</tabstop>
+  <tabstop>lineEdit_Mx</tabstop>
+  <tabstop>lineEdit_My</tabstop>
+  <tabstop>lineEdit_Mz</tabstop>
+  <tabstop>lineEdit_Jx</tabstop>
+  <tabstop>lineEdit_Jy</tabstop>
+  <tabstop>lineEdit_Jz</tabstop>
+  <tabstop>lineEdit_Kx</tabstop>
+  <tabstop>lineEdit_Ky</tabstop>
+  <tabstop>lineEdit_Kz</tabstop>
+  <tabstop>lineEdit_Krx</tabstop>
+  <tabstop>lineEdit_Kry</tabstop>
+  <tabstop>lineEdit_Krz</tabstop>
+  <tabstop>lineEdit_Cx</tabstop>
+  <tabstop>lineEdit_Cy</tabstop>
+  <tabstop>lineEdit_Cz</tabstop>
+  <tabstop>lineEdit_Crx</tabstop>
+  <tabstop>lineEdit_Cry</tabstop>
+  <tabstop>lineEdit_Crz</tabstop>
+  <tabstop>tabWidget_table_values</tabstop>
+  <tabstop>lineEdit_path_table_Mx</tabstop>
+  <tabstop>pushButton_load_Mx_table</tabstop>
+  <tabstop>lineEdit_path_table_My</tabstop>
+  <tabstop>pushButton_load_My_table</tabstop>
+  <tabstop>lineEdit_path_table_Mz</tabstop>
+  <tabstop>pushButton_load_Mz_table</tabstop>
+  <tabstop>lineEdit_path_table_Jx</tabstop>
+  <tabstop>pushButton_load_Jx_table</tabstop>
+  <tabstop>lineEdit_path_table_Jy</tabstop>
+  <tabstop>pushButton_load_Jy_table</tabstop>
+  <tabstop>lineEdit_path_table_Jz</tabstop>
+  <tabstop>pushButton_load_Jz_table</tabstop>
+  <tabstop>lineEdit_path_table_Kx</tabstop>
+  <tabstop>pushButton_load_Kx_table</tabstop>
+  <tabstop>lineEdit_path_table_Ky</tabstop>
+  <tabstop>pushButton_load_Ky_table</tabstop>
+  <tabstop>lineEdit_path_table_Kz</tabstop>
+  <tabstop>pushButton_load_Kz_table</tabstop>
+  <tabstop>lineEdit_path_table_Krx</tabstop>
+  <tabstop>pushButton_load_Krx_table</tabstop>
+  <tabstop>lineEdit_path_table_Kry</tabstop>
+  <tabstop>pushButton_load_Kry_table</tabstop>
+  <tabstop>lineEdit_path_table_Krz</tabstop>
+  <tabstop>pushButton_load_Krz_table</tabstop>
+  <tabstop>lineEdit_path_table_Cx</tabstop>
+  <tabstop>pushButton_load_Cx_table</tabstop>
+  <tabstop>lineEdit_path_table_Cy</tabstop>
+  <tabstop>pushButton_load_Cy_table</tabstop>
+  <tabstop>lineEdit_path_table_Cz</tabstop>
+  <tabstop>pushButton_load_Cz_table</tabstop>
+  <tabstop>lineEdit_path_table_Crx</tabstop>
+  <tabstop>pushButton_load_Crx_table</tabstop>
+  <tabstop>lineEdit_path_table_Cry</tabstop>
+  <tabstop>pushButton_load_Cry_table</tabstop>
+  <tabstop>lineEdit_path_table_Crz</tabstop>
+  <tabstop>pushButton_load_Crz_table</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+  <tabstop>tabWidget_remove</tabstop>
+  <tabstop>checkBox_remove_mass</tabstop>
+  <tabstop>checkBox_remove_spring</tabstop>
+  <tabstop>checkBox_remove_damper</tabstop>
+  <tabstop>treeWidget_masses</tabstop>
+  <tabstop>treeWidget_springs</tabstop>
+  <tabstop>treeWidget_dampers</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

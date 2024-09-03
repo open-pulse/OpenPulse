@@ -1023,6 +1023,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_element_id</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>lineEdit_axial_stress</tabstop>
+  <tabstop>lineEdit_bending_stress_y</tabstop>
+  <tabstop>lineEdit_bending_stress_z</tabstop>
+  <tabstop>lineEdit_hoop_stress</tabstop>
+  <tabstop>lineEdit_torsional_stress</tabstop>
+  <tabstop>lineEdit_shear_stress_xy</tabstop>
+  <tabstop>lineEdit_shear_stress_yz</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

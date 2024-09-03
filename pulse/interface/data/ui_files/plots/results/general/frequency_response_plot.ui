@@ -198,6 +198,9 @@
               <property name="text">
                <string>  Import data  </string>
               </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
              </widget>
             </item>
            </layout>
@@ -1842,6 +1845,12 @@
               <property name="text">
                <string>  Export data  </string>
               </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
            </layout>
@@ -1909,6 +1918,23 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_plot_type</tabstop>
+  <tabstop>checkBox_legends</tabstop>
+  <tabstop>checkBox_grid</tabstop>
+  <tabstop>comboBox_differentiate_data</tabstop>
+  <tabstop>radioButton_absolute</tabstop>
+  <tabstop>radioButton_real</tabstop>
+  <tabstop>radioButton_imaginary</tabstop>
+  <tabstop>radioButton_decibel_scale</tabstop>
+  <tabstop>checkBox_cursor_legends</tabstop>
+  <tabstop>radioButton_disable_cursors</tabstop>
+  <tabstop>radioButton_cross_cursor</tabstop>
+  <tabstop>radioButton_harmonic_cursor</tabstop>
+  <tabstop>spinBox_vertical_lines</tabstop>
+  <tabstop>pushButton_export_data</tabstop>
+  <tabstop>pushButton_import_data</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
  <buttongroups>

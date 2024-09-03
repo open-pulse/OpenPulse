@@ -357,6 +357,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_file_path</tabstop>
+  <tabstop>pushButton_search</tabstop>
+  <tabstop>comboBox_sheet_names</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_confirm</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

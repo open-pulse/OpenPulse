@@ -112,6 +112,12 @@
         <property name="text">
          <string>Load section</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -410,6 +416,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>radioButton_carbon_steel</tabstop>
+  <tabstop>radioButton_stainless_steel</tabstop>
+  <tabstop>comboBox_units</tabstop>
+  <tabstop>treeWidget_section_data</tabstop>
+  <tabstop>pushButton_confirm_selection</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -218,6 +218,9 @@
            <property name="text">
             <string>Plot the mode shape</string>
            </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
         </layout>
@@ -885,6 +888,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_natural_frequency</tabstop>
+  <tabstop>treeWidget_frequencies</tabstop>
+  <tabstop>comboBox_colormaps</tabstop>
+  <tabstop>slider_transparency</tabstop>
+  <tabstop>comboBox_color_scale</tabstop>
+  <tabstop>pushButton_plot</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

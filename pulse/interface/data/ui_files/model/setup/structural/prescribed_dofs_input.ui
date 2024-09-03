@@ -1110,6 +1110,12 @@
                <property name="text">
                 <string>Attribute</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -1136,6 +1142,9 @@
                </property>
                <property name="text">
                 <string>Cancel</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1225,6 +1234,12 @@
                <property name="text">
                 <string>Attribute</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -1251,6 +1266,9 @@
                </property>
                <property name="text">
                 <string>Cancel</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -2146,6 +2164,9 @@
                <property name="text">
                 <string>Reset</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="1">
@@ -2179,6 +2200,12 @@
                </property>
                <property name="text">
                 <string>Remove</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -2395,7 +2422,41 @@
  </widget>
  <tabstops>
   <tabstop>tabWidget_prescribed_dofs</tabstop>
+  <tabstop>lineEdit_real_alldofs</tabstop>
+  <tabstop>lineEdit_imag_alldofs</tabstop>
+  <tabstop>lineEdit_real_ux</tabstop>
+  <tabstop>lineEdit_imag_ux</tabstop>
+  <tabstop>lineEdit_real_uy</tabstop>
+  <tabstop>lineEdit_imag_uy</tabstop>
+  <tabstop>lineEdit_real_uz</tabstop>
+  <tabstop>lineEdit_imag_uz</tabstop>
+  <tabstop>lineEdit_real_rx</tabstop>
+  <tabstop>lineEdit_imag_rx</tabstop>
+  <tabstop>lineEdit_real_ry</tabstop>
+  <tabstop>lineEdit_imag_ry</tabstop>
+  <tabstop>lineEdit_real_rz</tabstop>
+  <tabstop>lineEdit_imag_rz</tabstop>
+  <tabstop>pushButton_cancel_tab0</tabstop>
   <tabstop>pushButton_constant_value_confirm</tabstop>
+  <tabstop>comboBox_linear_data_type</tabstop>
+  <tabstop>comboBox_angular_data_type</tabstop>
+  <tabstop>lineEdit_path_table_ux</tabstop>
+  <tabstop>pushButton_load_ux_table</tabstop>
+  <tabstop>lineEdit_path_table_uy</tabstop>
+  <tabstop>pushButton_load_uy_table</tabstop>
+  <tabstop>lineEdit_path_table_uz</tabstop>
+  <tabstop>pushButton_load_uz_table</tabstop>
+  <tabstop>lineEdit_path_table_rx</tabstop>
+  <tabstop>pushButton_load_rx_table</tabstop>
+  <tabstop>lineEdit_path_table_ry</tabstop>
+  <tabstop>pushButton_load_ry_table</tabstop>
+  <tabstop>lineEdit_path_table_rz</tabstop>
+  <tabstop>pushButton_load_rz_table</tabstop>
+  <tabstop>pushButton_cancel_tab1</tabstop>
+  <tabstop>pushButton_table_values_confirm</tabstop>
+  <tabstop>treeWidget_prescribed_dofs</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
  </tabstops>
  <resources/>
  <connections/>

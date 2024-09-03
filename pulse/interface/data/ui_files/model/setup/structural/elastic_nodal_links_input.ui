@@ -3089,10 +3089,10 @@
                    <string>Attribute</string>
                   </property>
                   <property name="autoDefault">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="default">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="flat">
                    <bool>false</bool>
@@ -3125,7 +3125,7 @@
                    <string>Cancel</string>
                   </property>
                   <property name="autoDefault">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="default">
                    <bool>false</bool>
@@ -3434,6 +3434,9 @@
                   <property name="text">
                    <string>Reset</string>
                   </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
                   <property name="flat">
                    <bool>false</bool>
                   </property>
@@ -3458,6 +3461,12 @@
                   </property>
                   <property name="text">
                    <string>Remove</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                  <property name="status" stdset="0">
+                   <string>danger</string>
                   </property>
                  </widget>
                 </item>
@@ -3517,10 +3526,15 @@
   <tabstop>pushButton_load_Cry_table</tabstop>
   <tabstop>lineEdit_path_table_Crz</tabstop>
   <tabstop>pushButton_load_Crz_table</tabstop>
+  <tabstop>tabWidget_remove</tabstop>
+  <tabstop>checkBox_link_stiffness</tabstop>
+  <tabstop>checkBox_link_dampings</tabstop>
+  <tabstop>treeWidget_structural_stiffness_links</tabstop>
+  <tabstop>treeWidget_structural_damping_links</tabstop>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>pushButton_remove</tabstop>
-  <tabstop>pushButton_cancel</tabstop>
   <tabstop>pushButton_attribute</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -322,7 +322,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
          </font>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab_model">
          <attribute name="title">
@@ -788,7 +788,15 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
   </layout>
  </widget>
  <tabstops>
+  <tabstop>comboBox_selection</tabstop>
   <tabstop>tabWidget_main</tabstop>
+  <tabstop>comboBox_capped_end</tabstop>
+  <tabstop>pushButton_confirm</tabstop>
+  <tabstop>tabWidget_groups</tabstop>
+  <tabstop>treeWidget_capped_end_elements</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>treeWidget_capped_end_lines</tabstop>
  </tabstops>
  <resources/>
  <connections/>

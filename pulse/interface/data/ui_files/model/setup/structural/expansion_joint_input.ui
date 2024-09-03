@@ -1956,6 +1956,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
                    </font>
                   </property>
@@ -1964,6 +1965,9 @@
                   </property>
                   <property name="text">
                    <string>Reset</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
                   </property>
                   <property name="flat">
                    <bool>false</bool>
@@ -1986,6 +1990,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
                    </font>
                   </property>
@@ -1994,6 +1999,12 @@
                   </property>
                   <property name="text">
                    <string>Remove</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                  <property name="status" stdset="0">
+                   <string>danger</string>
                   </property>
                  </widget>
                 </item>
@@ -2072,10 +2083,10 @@
          <string>Attribute</string>
         </property>
         <property name="autoDefault">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="default">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -2108,7 +2119,7 @@
          <string>Cancel</string>
         </property>
         <property name="autoDefault">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="default">
          <bool>false</bool>
@@ -2125,6 +2136,22 @@
  </widget>
  <tabstops>
   <tabstop>tabWidget_main</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>comboBox_axial_stop_rod</tabstop>
+  <tabstop>tabWidget_inputs</tabstop>
+  <tabstop>lineEdit_axial_stiffness</tabstop>
+  <tabstop>lineEdit_transversal_stiffness</tabstop>
+  <tabstop>lineEdit_torsional_stiffness</tabstop>
+  <tabstop>lineEdit_angular_stiffness</tabstop>
+  <tabstop>lineEdit_path_table_axial_stiffness</tabstop>
+  <tabstop>pushButton_load_table_axial_stiffness</tabstop>
+  <tabstop>lineEdit_path_table_transversal_stiffness</tabstop>
+  <tabstop>pushButton_load_table_transversal_stiffness</tabstop>
+  <tabstop>lineEdit_path_table_torsional_stiffness</tabstop>
+  <tabstop>pushButton_load_table_torsional_stiffness</tabstop>
+  <tabstop>lineEdit_path_table_angular_stiffness</tabstop>
+  <tabstop>pushButton_load_table_angular_stiffness</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>treeWidget_expansion_joints_info</tabstop>
   <tabstop>pushButton_reset</tabstop>

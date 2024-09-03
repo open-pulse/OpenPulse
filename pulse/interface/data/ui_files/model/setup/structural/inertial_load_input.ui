@@ -731,6 +731,12 @@
            <property name="text">
             <string>Attribute</string>
            </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="0" column="0">
@@ -761,6 +767,9 @@
            </property>
            <property name="text">
             <string>Cancel</string>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -853,6 +862,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>checkBox_stiffening_effect</tabstop>
+  <tabstop>lineEdit_acceleration_x_axis</tabstop>
+  <tabstop>lineEdit_acceleration_y_axis</tabstop>
+  <tabstop>lineEdit_acceleration_z_axis</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

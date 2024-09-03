@@ -1038,6 +1038,12 @@
                   <property name="text">
                    <string>Add gas</string>
                   </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                  <property name="default">
+                   <bool>true</bool>
+                  </property>
                  </widget>
                 </item>
                 <item row="1" column="0">
@@ -1065,6 +1071,15 @@
                   <property name="text">
                    <string>Remove gas</string>
                   </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                  <property name="default">
+                   <bool>false</bool>
+                  </property>
+                  <property name="status" stdset="0">
+                   <string>danger</string>
+                  </property>
                  </widget>
                 </item>
                 <item row="2" column="0">
@@ -1091,6 +1106,12 @@
                   </property>
                   <property name="text">
                    <string>Load composition</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                  <property name="default">
+                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -1316,6 +1337,12 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
         <property name="text">
          <string>Reset fluid</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="1">
@@ -1343,6 +1370,12 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
         <property name="text">
          <string>Get fluid properties</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -1352,21 +1385,21 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
  </widget>
  <tabstops>
   <tabstop>lineEdit_fluid_name</tabstop>
-  <tabstop>lineEdit_temperature</tabstop>
-  <tabstop>lineEdit_temperature_disch</tabstop>
-  <tabstop>lineEdit_pressure</tabstop>
-  <tabstop>lineEdit_pressure_disch</tabstop>
-  <tabstop>comboBox_temperature_units</tabstop>
-  <tabstop>comboBox_pressure_units</tabstop>
-  <tabstop>pushButton_confirm</tabstop>
-  <tabstop>pushButton_reset_fluid</tabstop>
   <tabstop>scrollArea</tabstop>
   <tabstop>treeWidget_reference_gases</tabstop>
+  <tabstop>lineEdit_temperature</tabstop>
+  <tabstop>lineEdit_temperature_disch</tabstop>
+  <tabstop>comboBox_temperature_units</tabstop>
+  <tabstop>lineEdit_pressure</tabstop>
+  <tabstop>lineEdit_pressure_disch</tabstop>
+  <tabstop>comboBox_pressure_units</tabstop>
   <tabstop>tableWidget_new_fluid</tabstop>
+  <tabstop>lineEdit_composition</tabstop>
   <tabstop>pushButton_add_gas</tabstop>
   <tabstop>pushButton_remove_gas</tabstop>
   <tabstop>pushButton_load_composition</tabstop>
-  <tabstop>lineEdit_composition</tabstop>
+  <tabstop>pushButton_reset_fluid</tabstop>
+  <tabstop>pushButton_confirm</tabstop>
  </tabstops>
  <resources/>
  <connections/>

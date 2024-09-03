@@ -1007,6 +1007,12 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                <property name="text">
                 <string>Attribute</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -1033,6 +1039,9 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                </property>
                <property name="text">
                 <string>Cancel</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1122,6 +1131,12 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                <property name="text">
                 <string>Atribute</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -1148,6 +1163,9 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                </property>
                <property name="text">
                 <string>Cancel</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1902,6 +1920,9 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                <property name="text">
                 <string>Reset</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="1">
@@ -1935,6 +1956,15 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                </property>
                <property name="text">
                 <string>Remove</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>false</bool>
+               </property>
+               <property name="status" stdset="0">
+                <string>danger</string>
                </property>
               </widget>
              </item>
@@ -2152,7 +2182,37 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
  </widget>
  <tabstops>
   <tabstop>tabWidget_nodal_loads</tabstop>
+  <tabstop>lineEdit_real_fx</tabstop>
+  <tabstop>lineEdit_imag_fx</tabstop>
+  <tabstop>lineEdit_real_fy</tabstop>
+  <tabstop>lineEdit_imag_fy</tabstop>
+  <tabstop>lineEdit_real_fz</tabstop>
+  <tabstop>lineEdit_imag_fz</tabstop>
+  <tabstop>lineEdit_real_mx</tabstop>
+  <tabstop>lineEdit_imag_mx</tabstop>
+  <tabstop>lineEdit_real_my</tabstop>
+  <tabstop>lineEdit_imag_my</tabstop>
+  <tabstop>lineEdit_real_mz</tabstop>
+  <tabstop>lineEdit_imag_mz</tabstop>
+  <tabstop>pushButton_cancel_tab0</tabstop>
   <tabstop>pushButton_constant_value_confirm</tabstop>
+  <tabstop>lineEdit_path_table_fx</tabstop>
+  <tabstop>pushButton_load_fx_table</tabstop>
+  <tabstop>lineEdit_path_table_fy</tabstop>
+  <tabstop>pushButton_load_fy_table</tabstop>
+  <tabstop>lineEdit_path_table_fz</tabstop>
+  <tabstop>pushButton_load_fz_table</tabstop>
+  <tabstop>lineEdit_path_table_mx</tabstop>
+  <tabstop>pushButton_load_mx_table</tabstop>
+  <tabstop>lineEdit_path_table_my</tabstop>
+  <tabstop>pushButton_load_my_table</tabstop>
+  <tabstop>lineEdit_path_table_mz</tabstop>
+  <tabstop>pushButton_load_mz_table</tabstop>
+  <tabstop>pushButton_cancel_tab1</tabstop>
+  <tabstop>pushButton_table_values_confirm</tabstop>
+  <tabstop>treeWidget_nodal_loads</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
  </tabstops>
  <resources/>
  <connections/>

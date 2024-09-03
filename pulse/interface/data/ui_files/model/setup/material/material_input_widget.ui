@@ -390,6 +390,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>pushButton_reset_library</tabstop>
+  <tabstop>pushButton_add_column</tabstop>
+  <tabstop>pushButton_remove_column</tabstop>
+  <tabstop>tableWidget_material_data</tabstop>
+  <tabstop>pushButton_attribute_material</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

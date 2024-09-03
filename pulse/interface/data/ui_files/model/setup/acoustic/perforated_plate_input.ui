@@ -1671,8 +1671,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>428</width>
-                   <height>284</height>
+                   <width>422</width>
+                   <height>262</height>
                   </rect>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_3">
@@ -2598,7 +2598,7 @@
                      </font>
                     </property>
                     <property name="currentIndex">
-                     <number>1</number>
+                     <number>0</number>
                     </property>
                     <widget class="QWidget" name="tab_single_value">
                      <attribute name="title">
@@ -4033,12 +4033,15 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
  <tabstops>
   <tabstop>tabWidget_perforated_plate</tabstop>
   <tabstop>tabWidget_setup</tabstop>
+  <tabstop>comboBox_perforated_plate_model</tabstop>
   <tabstop>checkBox_single_hole</tabstop>
   <tabstop>lineEdit_hole_diameter</tabstop>
   <tabstop>lineEdit_plate_thickness</tabstop>
   <tabstop>lineEdit_area_porosity</tabstop>
   <tabstop>lineEdit_discharge_coefficient</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
   <tabstop>pushButton_attribute</tabstop>
+  <tabstop>scrollArea</tabstop>
   <tabstop>lineEdit_nonlin_discharge</tabstop>
   <tabstop>checkBox_nonlinear_discharge_coefficient</tabstop>
   <tabstop>lineEdit_correction_factor</tabstop>
@@ -4048,8 +4051,8 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
   <tabstop>tabWidget_dimensionless</tabstop>
   <tabstop>lineEdit_impedance_real</tabstop>
   <tabstop>lineEdit_impedance_imag</tabstop>
-  <tabstop>pushButton_load_table</tabstop>
   <tabstop>lineEdit_load_table_path</tabstop>
+  <tabstop>pushButton_load_table</tabstop>
   <tabstop>spinBox_skip_rows</tabstop>
   <tabstop>treeWidget_perforated_plate_preview</tabstop>
   <tabstop>lineEdit_element_id_plot</tabstop>
@@ -4061,7 +4064,6 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
   <tabstop>treeWidget_perforated_plate_remove</tabstop>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>pushButton_remove</tabstop>
-  <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -512,6 +512,9 @@
            <property name="checkable">
             <bool>true</bool>
            </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="0" column="0">
@@ -559,6 +562,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>spinBox_frames</tabstop>
+  <tabstop>spinBox_cycles</tabstop>
+  <tabstop>phase_slider</tabstop>
+  <tabstop>pushButton_export</tabstop>
+  <tabstop>pushButton_animate</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

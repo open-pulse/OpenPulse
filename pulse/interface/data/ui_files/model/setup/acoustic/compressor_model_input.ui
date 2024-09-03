@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>540</width>
-    <height>500</height>
+    <height>900</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -351,8 +351,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>485</width>
-                  <height>714</height>
+                  <width>496</width>
+                  <height>717</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_11">
@@ -3644,7 +3644,57 @@ at suction</string>
   </layout>
  </widget>
  <tabstops>
+  <tabstop>tabWidget_compressor</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>comboBox_connection_setup</tabstop>
+  <tabstop>pushButton_reset_entries</tabstop>
+  <tabstop>pushButton_invert_selection</tabstop>
+  <tabstop>comboBox_stage</tabstop>
+  <tabstop>comboBox_cylinder_acting</tabstop>
+  <tabstop>spinBox_number_of_cylinders</tabstop>
+  <tabstop>lineEdit_bore_diameter</tabstop>
+  <tabstop>lineEdit_stroke</tabstop>
+  <tabstop>lineEdit_connecting_rod_length</tabstop>
+  <tabstop>lineEdit_rod_diameter</tabstop>
+  <tabstop>lineEdit_pressure_ratio</tabstop>
+  <tabstop>lineEdit_clearance_head_end</tabstop>
+  <tabstop>lineEdit_clearance_crank_end</tabstop>
+  <tabstop>spinBox_tdc1_crank_angle</tabstop>
+  <tabstop>spinBox_tdc2_crank_angle</tabstop>
+  <tabstop>lineEdit_rotational_speed</tabstop>
+  <tabstop>spinBox_capacity</tabstop>
+  <tabstop>lineEdit_isentropic_exponent</tabstop>
+  <tabstop>lineEdit_molar_mass</tabstop>
+  <tabstop>lineEdit_pressure_at_suction</tabstop>
+  <tabstop>comboBox_suction_pressure_units</tabstop>
+  <tabstop>lineEdit_temperature_at_suction</tabstop>
+  <tabstop>comboBox_suction_temperature_units</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
   <tabstop>pushButton_confirm</tabstop>
+  <tabstop>spinBox_number_of_points</tabstop>
+  <tabstop>spinBox_max_frequency</tabstop>
+  <tabstop>comboBox_frequency_resolution</tabstop>
+  <tabstop>lineEdit_frequency_resolution</tabstop>
+  <tabstop>lineEdit_number_of_revolutions</tabstop>
+  <tabstop>pushButton_process_aquisition_parameters</tabstop>
+  <tabstop>tabWidget_plots_2</tabstop>
+  <tabstop>pushButton_plot_piston_position_and_velocity_time</tabstop>
+  <tabstop>pushButton_plot_rod_pressure_load_time</tabstop>
+  <tabstop>pushButton_plot_volumetric_flow_rate_at_suction_time</tabstop>
+  <tabstop>pushButton_plot_volumetric_flow_rate_at_discharge_time</tabstop>
+  <tabstop>pushButton_plot_pressure_head_end_angle</tabstop>
+  <tabstop>pushButton_plot_volume_head_end_angle</tabstop>
+  <tabstop>pushButton_plot_pressure_crank_end_angle</tabstop>
+  <tabstop>pushButton_plot_volume_crank_end_angle</tabstop>
+  <tabstop>pushButton_plot_volumetric_flow_rate_at_suction_frequency</tabstop>
+  <tabstop>pushButton_plot_volumetric_flow_rate_at_discharge_frequency</tabstop>
+  <tabstop>pushButton_plot_rod_pressure_load_frequency</tabstop>
+  <tabstop>pushButton_plot_PV_diagram_crank_end</tabstop>
+  <tabstop>pushButton_plot_PV_diagram_head_end</tabstop>
+  <tabstop>pushButton_plot_PV_diagram_both_ends</tabstop>
+  <tabstop>treeWidget_compressor_excitation</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
  </tabstops>
  <resources/>
  <connections/>

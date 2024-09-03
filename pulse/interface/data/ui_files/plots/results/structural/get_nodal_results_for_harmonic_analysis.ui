@@ -370,6 +370,9 @@
            <property name="text">
             <string>Plot data</string>
            </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="0" column="1">
@@ -752,6 +755,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_node_id</tabstop>
+  <tabstop>radioButton_ux</tabstop>
+  <tabstop>radioButton_rx</tabstop>
+  <tabstop>radioButton_uy</tabstop>
+  <tabstop>radioButton_ry</tabstop>
+  <tabstop>radioButton_uz</tabstop>
+  <tabstop>radioButton_rz</tabstop>
+  <tabstop>pushButton_export_data</tabstop>
+  <tabstop>pushButton_plot_data</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

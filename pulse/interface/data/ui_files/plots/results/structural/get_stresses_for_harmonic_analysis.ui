@@ -647,6 +647,9 @@
            <property name="text">
             <string>Plot data</string>
            </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="0" column="1">
@@ -967,6 +970,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_element_id</tabstop>
+  <tabstop>checkBox_damping_effect</tabstop>
+  <tabstop>comboBox_stress_type</tabstop>
+  <tabstop>pushButton_export_data</tabstop>
+  <tabstop>pushButton_plot_data</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -372,6 +372,10 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_attribution_type</tabstop>
+  <tabstop>scrollArea_table_of_fluids</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

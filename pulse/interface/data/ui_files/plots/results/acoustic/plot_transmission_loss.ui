@@ -744,6 +744,9 @@
            <property name="text">
             <string>Plot data</string>
            </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
          <item row="0" column="2">
@@ -780,6 +783,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_processing_selector</tabstop>
+  <tabstop>pushButton_help</tabstop>
+  <tabstop>lineEdit_input_node_id</tabstop>
+  <tabstop>pushButton_flip_nodes</tabstop>
+  <tabstop>lineEdit_output_node_id</tabstop>
+  <tabstop>pushButton_export_data</tabstop>
+  <tabstop>pushButton_plot_data</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -374,6 +374,9 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
            <property name="text">
             <string>Plot cross-section</string>
            </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
         </layout>

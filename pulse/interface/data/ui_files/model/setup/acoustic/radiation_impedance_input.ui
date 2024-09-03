@@ -787,6 +787,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>comboBox_radiation_impedance_type</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+  <tabstop>treeWidget_nodal_info</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
