@@ -2422,8 +2422,6 @@
  </widget>
  <tabstops>
   <tabstop>tabWidget_prescribed_dofs</tabstop>
-  <tabstop>lineEdit_real_alldofs</tabstop>
-  <tabstop>lineEdit_imag_alldofs</tabstop>
   <tabstop>lineEdit_real_ux</tabstop>
   <tabstop>lineEdit_imag_ux</tabstop>
   <tabstop>lineEdit_real_uy</tabstop>
@@ -2436,8 +2434,10 @@
   <tabstop>lineEdit_imag_ry</tabstop>
   <tabstop>lineEdit_real_rz</tabstop>
   <tabstop>lineEdit_imag_rz</tabstop>
-  <tabstop>pushButton_cancel_tab0</tabstop>
+  <tabstop>lineEdit_real_alldofs</tabstop>
+  <tabstop>lineEdit_imag_alldofs</tabstop>
   <tabstop>pushButton_constant_value_confirm</tabstop>
+  <tabstop>pushButton_cancel_tab0</tabstop>
   <tabstop>comboBox_linear_data_type</tabstop>
   <tabstop>comboBox_angular_data_type</tabstop>
   <tabstop>lineEdit_path_table_ux</tabstop>
@@ -2452,8 +2452,8 @@
   <tabstop>pushButton_load_ry_table</tabstop>
   <tabstop>lineEdit_path_table_rz</tabstop>
   <tabstop>pushButton_load_rz_table</tabstop>
-  <tabstop>pushButton_cancel_tab1</tabstop>
   <tabstop>pushButton_table_values_confirm</tabstop>
+  <tabstop>pushButton_cancel_tab1</tabstop>
   <tabstop>treeWidget_prescribed_dofs</tabstop>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>pushButton_remove</tabstop>

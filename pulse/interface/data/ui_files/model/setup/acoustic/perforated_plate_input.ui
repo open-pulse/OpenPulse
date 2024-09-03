@@ -82,7 +82,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_14">
       <item row="0" column="0">
-       <widget class="QFrame" name="frame_9">
+       <widget class="QFrame" name="frame_selection">
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
@@ -1102,6 +1102,7 @@
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1138,6 +1139,7 @@
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1174,6 +1176,7 @@
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1444,6 +1447,7 @@
                    <property name="font">
                     <font>
                      <family>MS Shell Dlg 2</family>
+                     <pointsize>10</pointsize>
                      <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
@@ -1565,6 +1569,11 @@
                      <width>120</width>
                      <height>26</height>
                     </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
                    </property>
                    <item>
                     <property name="text">

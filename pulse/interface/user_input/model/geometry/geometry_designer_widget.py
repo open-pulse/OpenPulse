@@ -162,6 +162,9 @@ class GeometryDesignerWidget(QWidget):
         self.finalize_button.clicked.connect(self.finalize_callback)
 
     def _initialize(self):
+
+        self.tags = list()
+
         self.current_structure_type = None
         self.current_material_info = None
         self._cached_sections = dict()
@@ -390,6 +393,16 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
 
     def add_structure_callback(self):
+
+        # if self.tags == list():
+        #     if list(app().project.model.properties.keys()):
+        #         self.tags = list(app().project.model.properties.keys())
+            
+        # next_tag = max(self.tags) + 1
+        # self.tags.append(next_tag)
+
+        # self.current_structure_type.tag = next_tag
+
         self.pipeline.commit()
         self.render_widget.update_plot(reset_camera=False)
         self._reset_xyz()

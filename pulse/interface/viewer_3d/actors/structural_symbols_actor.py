@@ -448,9 +448,7 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
             start_coords = data["start_coords"]
             end_coords = data["end_coords"]
 
-            if "valve_name" in data.keys():
-
-                # valve_name = data["valve_name"]
+            if "valve_info" in data.keys():
 
                 A = np.array(start_coords, dtype=float)
                 B = np.array(end_coords, dtype=float) 
@@ -458,9 +456,9 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
                 valve_length = np.linalg.norm(B - A)
                 center_coordinates = (B + A) / 2
 
-                try:
-                    valve_elements = app().project.model.mesh.line_to_elements[line_id]
-                except:
+                if line_id in app().project.model.mesh.elements_from_line.keys():
+                    valve_elements = app().project.model.mesh.elements_from_line[line_id]
+                else:
                     return list()
 
                 diameter, *_ = data["valve_info"]["body_section_parameters"]

@@ -61,12 +61,9 @@ class LoadingWindow(QWidget):
         self._config_window()
 
     def _config_window(self):
-        self.setWindowFlags(
-            Qt.Window
-            | Qt.CustomizeWindowHint
-            | Qt.WindowTitleHint
-            | Qt.WindowStaysOnTopHint
-        )
+        self.setWindowIcon(app().main_window.pulse_icon)
+        # self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowStaysOnTopHint | Qt.WindowMinimizeButtonHint)
         self.setWindowModality(Qt.ApplicationModal)
         self.update_position()
         self.progress_bar.setValue(0)

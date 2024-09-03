@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 from opps.interface.viewer_3d.utils import cross_section_sources
 from vtkmodules.vtkCommonCore import (
     vtkDoubleArray,
@@ -112,8 +113,7 @@ class TubeActor(vtkActor):
         if cross_section is None:
             return vtkPolyData()
         
-        # TODO: change the number of sides according to mesh size
-        tube_sides = 30
+        tube_sides = self._get_tube_sides()
         length = element.length
 
         if cross_section.section_type_label in ["Pipe", "Reducer"]:
@@ -162,8 +162,19 @@ class TubeActor(vtkActor):
         elif cross_section.section_type_label == "Valve":
             d_out, t, *_ = element.section_parameters_render
             return cross_section_sources.pipe_data(length, d_out, t, sides=tube_sides)
+        
+        else:
+            logging.warn(f"Representation not found for section {cross_section.section_type_label}")
 
         return None
+    
+    def _get_tube_sides(self):
+        if len(self.elements) > 100_000:
+            return 10
+        elif len(self.elements) > 10_000:
+            return 20
+        else:
+            return 30
 
     def clear_colors(self):
         color_mode = app().main_window.visualization_filter.color_mode
@@ -196,7 +207,7 @@ class TubeActor(vtkActor):
             elements = set(elements)
 
         # Get the elements inside every entity to paint them
-        line_to_elements = self.model.mesh.line_to_elements
+        line_to_elements = self.model.mesh.elements_from_line
         for line in lines:
             line_elements = line_to_elements[line]
             elements |= set(line_elements)
