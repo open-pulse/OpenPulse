@@ -62,10 +62,12 @@ class MeshRenderWidget(CommonRenderWidget):
         app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
 
     def update_plot(self, reset_camera=False):
-
         self.remove_actors()
         self.mesh_picker.update_bounds()
         project = app().project
+
+        if not project.get_structural_elements():
+            return
 
         self.nodes_actor = NodesActor()
         self.lines_actor = ElementLinesActor()

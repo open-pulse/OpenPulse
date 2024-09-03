@@ -102,6 +102,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.mesh_picker.update_bounds()
         project = app().project
 
+        if not project.get_structural_elements():
+            return
+
         try:
             # Default behaviour
             self.colorbar_actor.VisibilityOn()
