@@ -34,7 +34,7 @@ from pulse.interface.user_input.project.save_project_data_selector import SavePr
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
 import logging
-import qdarktheme
+# import qdarktheme
 import os
 
 from time import time
