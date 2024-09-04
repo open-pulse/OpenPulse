@@ -100,16 +100,6 @@ class Project:
 
     def load_project(self):
 
-        # def load_callback():
-        #     app().loader.load_project_data()
-
-        # if self.initial_load_project_actions():
-        #     LoadingScreen(  
-        #                     title = 'Loading Project', 
-        #                     message = "Loading project files",
-        #                     target = load_callback
-        #                   )
-
         logging.info("Loading project data [1/3]")
         app().loader.load_project_data()
 
@@ -217,7 +207,8 @@ class Project:
                     insulation_thickness = cross.insulation_thickness
 
                     thickness = (outer_diameter - inner_diameter) / 2
-                    parameters = [  outer_diameter, 
+                    parameters = [  
+                                    outer_diameter, 
                                     thickness, 
                                     offset_y, 
                                     offset_z, 
@@ -273,21 +264,6 @@ class Project:
         else:
             self.preprocessor.set_cross_section_by_element(valve_elements, valve_cross)
         self.preprocessor.set_structural_element_type_by_lines(line_id, 'valve')
-
-    # def load_valve_by_elements(self, data, cross_sections):
-    #     valve_elements = data["valve_elements"]
-    #     valve_cross, flange_cross = cross_sections
-    #     self.preprocessor.add_valve_by_elements(valve_elements, data)
-    #     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(valve_elements)
-        
-    #     if 'flange_elements' in data.keys():
-    #         flange_elements = data["flange_elements"]
-    #         _valve_elements = [element_id for element_id in valve_elements if element_id not in flange_elements]
-    #         self.preprocessor.set_cross_section_by_elements(_valve_elements, valve_cross)
-    #         self.preprocessor.set_cross_section_by_elements(flange_elements, flange_cross)
-    #     else:
-    #         self.preprocessor.set_cross_section_by_elements(valve_elements, valve_cross)
-    #     self.preprocessor.set_structural_element_type_by_element(valve_elements, "valve")
 
     def get_structural_elements(self):
         return self.preprocessor.structural_elements

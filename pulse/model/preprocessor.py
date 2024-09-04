@@ -867,11 +867,7 @@ class Preprocessor:
             element.proportional_damping = proportional_damping
             element.vol_flow = vol_flow
 
-    def set_cross_section_by_elements(  self, 
-                                        elements, 
-                                        cross_section, 
-                                        update_cross_section = False,
-                                        variable_section = False  ):
+    def set_cross_section_by_elements(self, elements, cross_section, **kwargs):
         """
         This method attributes cross section object to a list of acoustic and structural elements.
 
@@ -883,14 +879,19 @@ class Preprocessor:
         cross_section : Cross section object
             Tube cross section data.
             
-        update_cross_section : bool, optional
-            True if the cross section data have to be evaluated or updated. False otherwise.
+        update_properties : bool, optional
+            True if the cross section properties have to be evaluated or updated. False otherwise.
             Default is False.
         """
+
+        update_properties = kwargs.get("update_properties", False)
+        sections_mapping = kwargs.get("sections_mapping", False)
+        variable_section = kwargs.get("variable_section", False)
+
         if cross_section is None:
             return
 
-        if isinstance(cross_section, CrossSection) and update_cross_section:
+        if isinstance(cross_section, CrossSection) and update_properties:
             cross_section.update_properties()
 
         if isinstance(cross_section, list):
@@ -902,17 +903,19 @@ class Preprocessor:
                 for element in slicer(self.structural_elements, _element):
                     element.cross_section = _cross_section
                     element.variable_section = variable_section
-                    element.section_parameters_render = _cross_section.section_parameters
+                    if not sections_mapping:
+                        element.section_parameters_render = _cross_section.section_parameters
 
                 for element in slicer(self.acoustic_elements, _element):
                     element.cross_section = _cross_section
 
-        else:    
+        else:
 
             for element in slicer(self.structural_elements, elements):
                 element.cross_section = cross_section
                 element.variable_section = variable_section
-                element.section_parameters_render = cross_section.section_parameters
+                if not sections_mapping:
+                    element.section_parameters_render = cross_section.section_parameters
 
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
@@ -977,24 +980,28 @@ class Preprocessor:
                 element = self.structural_elements[element_id]
                 first_node = element.first_node
                 last_node = element.last_node
-                
-                section_parameters_first = [outer_diameter_first[index],
+
+                section_parameters_first = [
+                                            outer_diameter_first[index],
                                             thickness_first[index],
                                             offset_y_first[index],
                                             offset_z_first[index],
                                             insulation_thickness,
-                                            insulation_density]
-                
+                                            insulation_density
+                                            ]
+
                 pipe_section_info_first = { "section_type_label" : "Reducer" ,
                                             "section_parameters" : section_parameters_first }
 
-                section_parameters_last = [outer_diameter_last[index],
+                section_parameters_last = [
+                                            outer_diameter_last[index],
                                             thickness_last[index],
                                             offset_y_last[index],
                                             offset_z_last[index],
                                             insulation_thickness,
-                                            insulation_density]
-                
+                                            insulation_density
+                                           ]
+
                 pipe_section_info_last = { "section_type_label" : "Reducer" ,
                                             "section_parameters" : section_parameters_last }
 
@@ -2114,19 +2121,14 @@ class Preprocessor:
             elif el_type == 'valve':
                 valve_section_info = {  
                                       "section_type_label" : "Valve",
-                                      "section_parameters" : section_parameters,  
-                                      "diameters_to_plot" : [None, None]
+                                      "section_parameters" : section_parameters
                                       }
-                cross_section = CrossSection(valve_section_info = valve_section_info)            
+                cross_section = CrossSection(valve_section_info = valve_section_info)     
 
             if self.stop_processing:
                 return
 
-            self.set_cross_section_by_elements(
-                                                elements, 
-                                                cross_section, 
-                                                update_cross_section = True
-                                               )  
+            self.set_cross_section_by_elements(elements, cross_section, update_properties = True, sections_mapping = True)  
 
     def process_element_cross_sections_orientation_to_plot(self):
         """
