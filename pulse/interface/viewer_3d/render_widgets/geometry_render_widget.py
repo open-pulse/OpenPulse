@@ -39,6 +39,7 @@ class GeometryRenderWidget(CommonRenderWidget):
     def _create_connections(self):
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
+        app().main_window.theme_changed.connect(self.set_theme)
         app().main_window.visualization_changed.connect(
             self.visualization_changed_callback
         )

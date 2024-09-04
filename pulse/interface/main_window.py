@@ -964,14 +964,10 @@ class MainWindow(QMainWindow):
         
         self.action_set_light_theme.setDisabled(theme == "light")
         self.action_set_dark_theme.setDisabled(theme == "dark")
-        self._load_stylesheets()
 
         # paint the icons of every children widget
         widgets = self.findChildren((QAbstractButton, QAction))
         icons.change_icon_color_for_widgets(widgets, icon_color)
-
-        # TODO: Connect this via signaling
-        self.geometry_widget.set_theme(theme)
 
     def update_themes_in_file(self, theme):
         if self.update_theme:
@@ -1187,7 +1183,7 @@ class MainWindow(QMainWindow):
         self.reset_temporary_folder()
         self.mesh_widget.render_interactor.Finalize()
         self.results_widget.render_interactor.Finalize()
-        exit()
+        app().quit()
 
     def eventFilter(self, obj, event):
         if event.type() == QEvent.ShortcutOverride:
