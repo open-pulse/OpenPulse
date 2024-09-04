@@ -1072,8 +1072,8 @@ class MainWindow(QMainWindow):
             self._update_recent_projects()
 
             logging.info("Configuring visualization [3/3]")
-            self.update_plots()
             self.action_front_view_callback()
+            self.update_plots()
 
         LoadingWindow(tmp).run()
 

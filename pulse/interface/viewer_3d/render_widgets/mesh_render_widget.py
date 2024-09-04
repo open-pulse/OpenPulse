@@ -42,7 +42,6 @@ class MeshRenderWidget(CommonRenderWidget):
         self.selected_elements = set()
 
         self.mouse_click = (0, 0)
-        self.transparency = 0
 
         self.create_axes()
         self.create_scale_bar()
@@ -62,10 +61,12 @@ class MeshRenderWidget(CommonRenderWidget):
         app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
 
     def update_plot(self, reset_camera=False):
-
         self.remove_actors()
         self.mesh_picker.update_bounds()
         project = app().project
+
+        if not project.get_structural_elements():
+            return
 
         self.nodes_actor = NodesActor()
         self.lines_actor = ElementLinesActor()
@@ -106,9 +107,10 @@ class MeshRenderWidget(CommonRenderWidget):
             self.plane_actor
         )
 
-        self.visualization_changed_callback()
-        self.update_section_plane()        
-        self.set_tube_actors_transparency(self.transparency)
+        # Prevents uneeded update calls
+        with self.update_lock:
+            self.visualization_changed_callback()
+            self.update_section_plane()        
         
         if reset_camera:
             self.renderer.ResetCamera()
@@ -283,12 +285,6 @@ class MeshRenderWidget(CommonRenderWidget):
         info_text += elements_info_text()
         info_text += lines_info_text()
         self.set_info_text(info_text)
-
-    def set_tube_actors_transparency(self, transparency):
-        self.transparency = transparency
-        opacity = 1 - transparency
-        self.tubes_actor.GetProperty().SetOpacity(opacity)
-        self.update()
 
     def update_section_plane(self):
         if not self._actor_exists():
