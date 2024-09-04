@@ -85,17 +85,10 @@ class InputUi:
         self.analysis_id = None
         self.project.none_project_action = False
 
-    def process_input(self, workingClass, *args, **kwargs):
-        # try:
+    def process_input(self, working_class, *args, **kwargs):
         app().main_window.close_dialogs()
-        read = workingClass(*args, **kwargs)
+        read = working_class(*args, **kwargs)
         return read
-        # except Exception as log_error:
-        #     logging.exception(log_error)
-        #     title = "Error detected in 'process_input' method"
-        #     message = str(log_error)
-        #     PrintMessageInput([window_title_1, title, message])
-        #     return None
 
     def call_geometry_editor(self):
         main_window = self.main_window
@@ -257,8 +250,10 @@ class InputUi:
             self.after_run = self.project.get_post_solution_model_checks()
             self.after_run.check_all_acoustic_criterias()
             self.main_window.use_results_workspace()
+
             app().main_window.results_widget.show_empty()
-        
+            app().main_window.results_viewer_wigdet.remove_widget()
+
     def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = False

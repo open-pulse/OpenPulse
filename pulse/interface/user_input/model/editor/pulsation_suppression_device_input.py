@@ -926,9 +926,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.remove_psd_related_element_properties(psd_name)
 
             self.actions_to_finalize()
-
             app().main_window.update_plots()
-            self.load_psd_info()
 
     def reset_callback(self):
 
@@ -999,7 +997,6 @@ class PulsationSuppressionDeviceInput(QDialog):
         if app().pulse_file.check_pipeline_data():
             app().loader.load_mesh_dependent_properties()
             app().main_window.initial_project_action(True)
-            # app().project.enhance_pipe_sections_appearance()
         else:
             self.preprocessor.mesh._create_gmsh_geometry()
 

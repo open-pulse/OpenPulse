@@ -335,7 +335,7 @@ class Project:
     def set_acoustic_natural_frequencies(self, value):
         self.natural_frequencies_acoustic = value
 
-    def get_acoustic_natural_frequencies(self):
+    def get_acoustic_natural_frequencies(self) -> list | None:
         return self.natural_frequencies_acoustic
     
     def set_structural_natural_frequencies(self, value):
@@ -344,7 +344,7 @@ class Project:
     def set_structural_reactions(self, value: dict):
         self.structural_reactions = value
 
-    def get_structural_natural_frequencies(self):
+    def get_structural_natural_frequencies(self) -> list | None:
         return self.natural_frequencies_structural
 
     def get_structural_reactions(self):

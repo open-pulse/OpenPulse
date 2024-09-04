@@ -281,10 +281,11 @@ def cross_section_info_text(cross_section, structural_element_type, beam_xaxis_r
     return info_text
 
 
-def analysis_info_text(frequency_index):
-    project = app().project
+def analysis_info_text(frequency_index: int):
 
+    project = app().project
     tree = TreeInfo(project.analysis_type_label)
+
     if project.analysis_id in [2, 4]:
         if project.analysis_type_label == "Structural Modal Analysis":
             frequencies = project.get_structural_natural_frequencies()
@@ -293,6 +294,9 @@ def analysis_info_text(frequency_index):
             frequencies = project.get_acoustic_natural_frequencies()
 
         if frequencies is None:
+            return ""
+        
+        if frequency_index >= len(frequencies):
             return ""
 
         mode = frequency_index + 1
@@ -304,6 +308,9 @@ def analysis_info_text(frequency_index):
 
         frequencies = project.model.frequencies
         if frequencies is None:
+            return ""
+
+        if frequency_index >= len(frequencies):
             return ""
 
         if project.analysis_method_label is not None:

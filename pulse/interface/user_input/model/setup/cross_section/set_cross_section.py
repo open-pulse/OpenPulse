@@ -118,7 +118,8 @@ class SetCrossSectionInput(QDialog):
         self.pushButton_flip_element_ids_final.clicked.connect(self.flip_element_ids)
         self.pushButton_load_section_info.clicked.connect(self.load_section_info)
         #
-        self.tabWidget_general.currentChanged.connect(self.tabEvent_cross_section)
+        self.tabWidget_general.currentChanged.connect(self.main_tab_callback)
+        self.tabWidget_pipe_section.currentChanged.connect(self.pipe_section_tab_callback)
         #
         self.treeWidget_sections_parameters_by_lines.itemClicked.connect(self.single_click_item_callback)
         self.treeWidget_sections_parameters_by_lines.itemDoubleClicked.connect(self.double_click_item_callback)
@@ -126,6 +127,15 @@ class SetCrossSectionInput(QDialog):
         app().main_window.selection_changed.connect(self.selection_callback)
         #
         self.attribution_type_callback()
+
+    def pipe_section_tab_callback(self):
+        if self.tabWidget_pipe_section.currentIndex() == 1:
+            selected_lines = app().main_window.list_selected_lines()
+            if len(selected_lines) == 1:
+                self.get_line_elements(selected_lines[0])
+            elif len(selected_lines) > 1:
+                self.input_widget.lineEdit_element_id_initial.setTex("")
+                self.input_widget.lineEdit_element_id_final.setTex("")
 
     def selection_callback(self):
 
@@ -155,34 +165,35 @@ class SetCrossSectionInput(QDialog):
 
                 if element_type == "pipe_1":
                     self.tabWidget_general.setCurrentIndex(0)
-                    if len(section_parameters) == 6:
-                        self.update_section_entries(section_type,
-                                                    section_parameters)
-                    else:
-                        self.update_section_entries(section_type,
-                                                    section_parameters,
-                                                    variable_section=True)
+                    self.update_pipe_section_entries(
+                                                     section_type,
+                                                     section_parameters
+                                                     )
 
                 elif element_type == "beam_1":
                     self.tabWidget_general.setCurrentIndex(1)
-                    self.update_section_entries(section_type,
-                                                section_parameters)
+                    self.update_beam_section_entries(
+                                                     section_type,
+                                                     section_parameters
+                                                     )
+                    
+                if self.tabWidget_general.currentIndex() == 0:
+                    if self.tabWidget_pipe_section.currentIndex() == 1:
+                        self.get_line_elements(line_id)
 
         self.comboBox_attribution_type.blockSignals(False)
 
-    def update_section_entries(self, section_type: str, section_parameters: list, variable_section=False):
+    def get_line_elements(self, line_id: int):
+        self.tabWidget_pipe_section.setCurrentIndex(1)
+        element_ids = app().project.model.mesh.elements_from_line[line_id]
+        self.input_widget.lineEdit_element_id_initial.setText(str(element_ids[0]))
+        self.input_widget.lineEdit_element_id_final.setText(str(element_ids[-1]))
 
-        if variable_section:
+    def update_pipe_section_entries(self, section_type: str, section_parameters: list):
 
-            self.update_variable_section_element_ids()
-            self.tabWidget_pipe_section.setCurrentIndex(1) 
+        if section_type == "Pipe":
 
-            for index, lineEdit in enumerate(self.input_widget.list_pipe_section_entries[6:-2]):
-                lineEdit.setText(str(section_parameters[index]))
-            
-            return
-
-        if 'Pipe' in section_type:
+            self.tabWidget_pipe_section.setCurrentIndex(0)
 
             outside_diameter = section_parameters[0]
             thickness = section_parameters[1]
@@ -191,23 +202,31 @@ class SetCrossSectionInput(QDialog):
             insulation_thickness = section_parameters[4]
             insulation_density = section_parameters[5]
 
-            self.tabWidget_pipe_section.setCurrentIndex(0)
             self.input_widget.lineEdit_outside_diameter.setText(str(outside_diameter))
             self.input_widget.lineEdit_wall_thickness.setText(str(thickness))
 
-            if offset_y != 0:
+            if offset_y:
                 self.input_widget.lineEdit_offset_y.setText(str(offset_y))
 
-            if offset_z != 0:
+            if offset_z:
                 self.input_widget.lineEdit_offset_z.setText(str(offset_z))
 
-            if insulation_density != 0:
+            if insulation_density:
                 self.input_widget.lineEdit_insulation_density.setText(str(insulation_density))
 
-            if insulation_thickness != 0:
+            if insulation_thickness:
                 self.input_widget.lineEdit_insulation_thickness.setText(str(insulation_thickness))
 
-        elif section_type == 'Rectangular section':
+        elif section_type == "Reducer":
+
+            self.tabWidget_pipe_section.setCurrentIndex(1)
+
+            for index, lineEdit in enumerate(self.input_widget.list_pipe_section_entries[6:-2]):
+                lineEdit.setText(str(section_parameters[index]))
+
+    def update_beam_section_entries(self, section_type: str, section_parameters: list):
+
+        if section_type == 'Rectangular section':
             [base, height, base_in, height_in, offset_y, offset_z] = section_parameters
             self.tabWidget_beam_section.setCurrentIndex(0)
             self.input_widget.lineEdit_base_rectangular_section.setText(str(base))
@@ -262,18 +281,6 @@ class SetCrossSectionInput(QDialog):
 
         else:
             self.tabWidget_beam_section.setCurrentIndex(5)
-
-    def update_variable_section_element_ids(self):
-        lines_id = app().main_window.list_selected_lines()
-        if len(lines_id) == 1:
-
-            line_id = lines_id[0]
-            self.tabWidget_general.setCurrentIndex(0)
-            self.tabWidget_pipe_section.setCurrentIndex(1)
-
-            element_ids = app().project.model.mesh.elements_from_line[line_id]
-            self.input_widget.lineEdit_element_id_initial.setText(str(element_ids[0]))
-            self.input_widget.lineEdit_element_id_final.setText(str(element_ids[-1]))
 
     def load_existing_sections(self):
 
@@ -419,7 +426,7 @@ class SetCrossSectionInput(QDialog):
 
         self.lineEdit_selected_id.setEnabled(bool(index))
 
-    def tabEvent_cross_section(self):
+    def main_tab_callback(self):
         if self.tabWidget_general.currentIndex() == 2:
             self.comboBox_attribution_type.setDisabled(True)
         else:
@@ -457,15 +464,17 @@ class SetCrossSectionInput(QDialog):
 
         self.remove_table_files_from_expansion_joints(line_ids)
 
-        if self.tabWidget_pipe_section.currentIndex() == 0:
-            if self.input_widget.get_constant_section_pipe_parameters():
-                return
-        else:
-            if self.input_widget.get_beam_section_parameters():
-                return
+        if self.tabWidget_general.currentIndex() == 0:
+            if self.tabWidget_pipe_section.currentIndex() == 0:    
+                if self.input_widget.get_constant_section_pipe_parameters():
+                    return               
+
+            elif self.tabWidget_pipe_section.currentIndex() == 1:
+                if self.input_widget.get_variable_section_pipe_parameters():
+                    return
 
         section_info = self.input_widget.pipe_section_info
-        cross_section = CrossSection(pipe_section_info=section_info)
+        cross_section = CrossSection(pipe_section_info=section_info) 
 
         self.properties._set_multiple_line_properties(section_info, line_ids)
         self.properties._set_line_property("cross_section", cross_section, line_ids)
@@ -528,7 +537,6 @@ class SetCrossSectionInput(QDialog):
         plt.close()
         self.complete = True
         app().pulse_file.write_line_properties_in_file()
-        # app().project.enhance_pipe_sections_appearance()
 
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)

@@ -775,9 +775,14 @@ class GeometryHandler:
 
         PrintMessageInput([window_title_2, title, message])
 
-    def export_model_data_file(self):
+    def get_structures_tags(self):
+        tags = list()
+        for structure in self.pipeline.structures:
+            if structure.tag != -1:
+                tags.append(structure.tag)
+        return tags
 
-        tag = 1
+    def export_model_data_file(self):
 
         structures_data = dict()
         section_info = dict()
@@ -789,6 +794,8 @@ class GeometryHandler:
         valve_info = dict()
         expansion_joint_info = dict()
 
+        tags = self.get_structures_tags()
+
         for structure in self.pipeline.structures:
 
             if isinstance(structure, Bend) and structure.is_colapsed():               
@@ -798,6 +805,15 @@ class GeometryHandler:
 
             if not pipeline_data:
                 continue
+
+            tag = structure.tag
+            if tag == -1:
+                tag = 1
+                while tag in tags:
+                    tag += 1
+
+            if tag not in tags: 
+                tags.append(tag)
 
             structures_data[tag] = pipeline_data
 
@@ -826,6 +842,7 @@ class GeometryHandler:
 
         if structures_data:
 
+            # self.remove_lines(structures_data)
             for line_id, structure_data in structures_data.items():
                 structure_data: dict
                 for key, values in structure_data.items():
@@ -889,5 +906,17 @@ class GeometryHandler:
             return "valve"
         else:
             return "undefined"
+
+    # def remove_lines(self, structures_data: dict):
+    #     """ This method removes the lines properties associated with the
+    #         removed structures.
+    #     """
+    #     lines_to_remove = list()
+    #     for line_id in app().project.model.properties.line_properties.keys():
+    #         if line_id not in structures_data.keys():
+    #             lines_to_remove.append(line_id)
+        
+    #     for line_id in lines_to_remove:
+    #         app().project.model.properties._remove_line(line_id)
 
 # fmt: on

@@ -794,8 +794,7 @@ class ExpansionJointInput(QDialog):
         geometry_handler = GeometryHandler()
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
-        
-        # app().project.enhance_pipe_sections_appearance()
+
         app().main_window.update_plots()
 
     def keyPressEvent(self, event):

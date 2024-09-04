@@ -369,8 +369,16 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=False)
 
     def delete_selection_callback(self):
+
+        for structure in self.pipeline.selected_structures:
+            if not isinstance(structure, Point):
+                tag = structure.tag
+                if tag != -1:
+                    app().project.model.properties._remove_line(tag)
+
         self.pipeline.dismiss()
         self.pipeline.delete_selection()
+
         self._reset_xyz()
         self._update_permissions()
         self.render_widget.update_plot(reset_camera=False)
@@ -393,16 +401,6 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
 
     def add_structure_callback(self):
-
-        # if self.tags == list():
-        #     if list(app().project.model.properties.keys()):
-        #         self.tags = list(app().project.model.properties.keys())
-            
-        # next_tag = max(self.tags) + 1
-        # self.tags.append(next_tag)
-
-        # self.current_structure_type.tag = next_tag
-
         self.pipeline.commit()
         self.render_widget.update_plot(reset_camera=False)
         self._reset_xyz()

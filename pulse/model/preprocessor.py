@@ -935,88 +935,98 @@ class Preprocessor:
         for elements in slicer(self.mesh.elements_from_line, lines):
             self.set_cross_section_by_elements(elements, cross_section)
 
-    def set_variable_cross_section_by_line(self, line_id, section_data: dict):
+    def set_variable_cross_section_by_line(self, line_ids: int | list, section_data: dict):
         """
         This method sets the variable section info by line selection.
         """
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
+
         if isinstance(section_data, dict):
 
-            [   outer_diameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
-                outer_diameter_final, thickness_final, offset_y_final, offset_z_final,
-                insulation_thickness, insulation_density  ] = section_data["section_parameters"]
+            [   outer_diameter_initial, 
+                thickness_initial, 
+                offset_y_initial, 
+                offset_z_initial,
+                outer_diameter_final, 
+                thickness_final, 
+                offset_y_final, 
+                offset_z_final,
+                insulation_thickness, 
+                insulation_density   ] = section_data["section_parameters"]
 
-            elements_from_line = self.mesh.elements_from_line[line_id]
-            self.add_expansion_joint_by_lines(line_id, None, remove=True)
+            for line_id in line_ids:
+                elements_from_line = self.mesh.elements_from_line[line_id]
 
-            first_element = self.structural_elements[elements_from_line[0]]
-            last_element = self.structural_elements[elements_from_line[-1]]
-            
-            coord_first_1 = first_element.first_node.coordinates
-            coord_last_1 = last_element.last_node.coordinates
-            
-            coord_first_2 = last_element.first_node.coordinates
-            coord_last_2 = first_element.last_node.coordinates
-            
-            lines_vertex_coords = self.get_lines_vertex_coordinates(_array=False)
-            vertex_coords = lines_vertex_coords[line_id]
-
-            N = len(elements_from_line)
-            if list(coord_first_1) in vertex_coords and list(coord_last_1) in vertex_coords:
-                outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_initial, outer_diameter_final, N)
-                thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_initial, thickness_final, N)
-                offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_initial, offset_y_final, N)
-                offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_initial, offset_z_final, N)
-
-            elif list(coord_first_2) in vertex_coords and list(coord_last_2) in vertex_coords:
-                outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_final, outer_diameter_initial, N)
-                thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_final, thickness_initial, N)
-                offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
-                offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
-            
-            cross_sections_first = list()
-            cross_sections_last = list()
-            for index, element_id in enumerate(elements_from_line):
+                first_element = self.structural_elements[elements_from_line[0]]
+                last_element = self.structural_elements[elements_from_line[-1]]
                 
-                element = self.structural_elements[element_id]
-                first_node = element.first_node
-                last_node = element.last_node
+                coord_first_1 = first_element.first_node.coordinates
+                coord_last_1 = last_element.last_node.coordinates
+                
+                coord_first_2 = last_element.first_node.coordinates
+                coord_last_2 = first_element.last_node.coordinates
+                
+                lines_vertex_coords = self.get_lines_vertex_coordinates(_array=False)
+                vertex_coords = lines_vertex_coords[line_id]
 
-                section_parameters_first = [
-                                            outer_diameter_first[index],
-                                            thickness_first[index],
-                                            offset_y_first[index],
-                                            offset_z_first[index],
-                                            insulation_thickness,
-                                            insulation_density
+                N = len(elements_from_line)
+                if list(coord_first_1) in vertex_coords and list(coord_last_1) in vertex_coords:
+                    outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_initial, outer_diameter_final, N)
+                    thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_initial, thickness_final, N)
+                    offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_initial, offset_y_final, N)
+                    offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_initial, offset_z_final, N)
+
+                elif list(coord_first_2) in vertex_coords and list(coord_last_2) in vertex_coords:
+                    outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_final, outer_diameter_initial, N)
+                    thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_final, thickness_initial, N)
+                    offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
+                    offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
+                
+                cross_sections_first = list()
+                cross_sections_last = list()
+                for index, element_id in enumerate(elements_from_line):
+                    
+                    element = self.structural_elements[element_id]
+                    first_node = element.first_node
+                    last_node = element.last_node
+
+                    section_parameters_first = [
+                                                outer_diameter_first[index],
+                                                thickness_first[index],
+                                                offset_y_first[index],
+                                                offset_z_first[index],
+                                                insulation_thickness,
+                                                insulation_density
+                                                ]
+
+                    pipe_section_info_first = { "section_type_label" : "Reducer" ,
+                                                "section_parameters" : section_parameters_first }
+
+                    section_parameters_last = [
+                                                outer_diameter_last[index],
+                                                thickness_last[index],
+                                                offset_y_last[index],
+                                                offset_z_last[index],
+                                                insulation_thickness,
+                                                insulation_density
                                             ]
 
-                pipe_section_info_first = { "section_type_label" : "Reducer" ,
-                                            "section_parameters" : section_parameters_first }
+                    pipe_section_info_last = { "section_type_label" : "Reducer" ,
+                                                "section_parameters" : section_parameters_last }
 
-                section_parameters_last = [
-                                            outer_diameter_last[index],
-                                            thickness_last[index],
-                                            offset_y_last[index],
-                                            offset_z_last[index],
-                                            insulation_thickness,
-                                            insulation_density
-                                           ]
+                    cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
+                    cross_section_last = CrossSection(pipe_section_info = pipe_section_info_last)
 
-                pipe_section_info_last = { "section_type_label" : "Reducer" ,
-                                            "section_parameters" : section_parameters_last }
+                    cross_sections_first.append(cross_section_first)
+                    # cross_sections_last.append(cross_section_last)
 
-                cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
-                cross_section_last = CrossSection(pipe_section_info = pipe_section_info_last)
+                    first_node.cross_section = cross_section_first
+                    last_node.cross_section = cross_section_last
 
-                cross_sections_first.append(cross_section_first)
-                # cross_sections_last.append(cross_section_last)
-
-                first_node.cross_section = cross_section_first
-                last_node.cross_section = cross_section_last
-
-            self.set_cross_section_by_elements( elements_from_line,
-                                                cross_sections_first,
-                                                variable_section = True )
+                self.set_cross_section_by_elements( elements_from_line,
+                                                    cross_sections_first,
+                                                    variable_section = True )
 
     def set_cross_sections_to_valve_elements(self, line_id: int, data: dict):
 
@@ -2096,10 +2106,20 @@ class Preprocessor:
             offset_z = element.cross_section.offset_z
             insulation_thickness = element.cross_section.insulation_thickness
             insulation_density = element.cross_section.insulation_density
-           
-            map_cross_section_to_elements[str([ outer_diameter, thickness, offset_y, offset_z, poisson,
-                                                index_etype, insulation_thickness, insulation_density ])].append(index)
-            
+
+            section_parameters = [  
+                                  outer_diameter, 
+                                  thickness, 
+                                  offset_y, 
+                                  offset_z, 
+                                  poisson,
+                                  index_etype, 
+                                  insulation_thickness, 
+                                  insulation_density
+                                  ]
+
+            map_cross_section_to_elements[str(section_parameters)].append(index)
+
             if self.stop_processing:
                 return
 
@@ -2128,7 +2148,12 @@ class Preprocessor:
             if self.stop_processing:
                 return
 
-            self.set_cross_section_by_elements(elements, cross_section, update_properties = True, sections_mapping = True)  
+            self.set_cross_section_by_elements(
+                                               elements, 
+                                               cross_section, 
+                                               update_properties = True, 
+                                               sections_mapping = True
+                                               )  
 
     def process_element_cross_sections_orientation_to_plot(self):
         """

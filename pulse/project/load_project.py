@@ -349,15 +349,12 @@ class LoadProject:
 
     def load_cross_sections(self, line_id: list, data: dict):
 
-        cross_section = None
         if "cross_section" in data.keys():
-
             cross_section = data["cross_section"]
-            if data["section_type_label"] == "Reducer":
-                self.preprocessor.set_variable_cross_section_by_line(line_id, cross_section)
-                return
-
             self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
+
+        elif data["section_type_label"] == "Reducer":
+            self.preprocessor.set_variable_cross_section_by_line(line_id, data)
 
 
     def load_fluids(self, line_id: int, data: dict):
