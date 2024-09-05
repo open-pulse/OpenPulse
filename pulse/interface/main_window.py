@@ -1142,6 +1142,7 @@ class MainWindow(QMainWindow):
         copy(TEMP_PROJECT_FILE, path)
         self.update_window_title(path)
         self.project_data_modified = False
+        print("The project data has been saved.")
 
     def update_window_title(self, project_path : str | Path):
         if isinstance(project_path, str):

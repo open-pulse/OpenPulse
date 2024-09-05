@@ -1693,6 +1693,15 @@ class Preprocessor:
     #             self.radius[last] = radius
     #     return self.radius
 
+    def set_elements_to_ignore_in_acoustic_analysis(self, element_ids: int | list, turned_off: bool):
+        """
+        """
+        if isinstance(element_ids, int):
+            element_ids = [element_ids]
+        for element in slicer(self.acoustic_elements, element_ids):
+            element.turned_off = turned_off
+        for element in slicer(self.structural_elements, element_ids):
+            element.turned_off = turned_off
 
     def get_acoustic_elements_global_dofs(self):
         """
@@ -1707,7 +1716,7 @@ class Preprocessor:
         pipe_gdofs = dict()
         for element in self.structural_elements.values():
 
-            if element.index in self.mesh.elements_to_ignore_on_acoustic_analysis:
+            if element.turned_off:
                 continue
 
             if element.element_type in ['pipe_1', 'expansion_joint', 'valve']:
@@ -1766,7 +1775,7 @@ class Preprocessor:
             if element.element_type == 'beam_1':
                 continue
 
-            if element.index in self.mesh.elements_to_ignore_on_acoustic_analysis:
+            if element.turned_off:
                 continue
 
             acoustic_element = self.structural_to_acoustic_element[element]

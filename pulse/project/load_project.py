@@ -633,13 +633,17 @@ class LoadProject:
                 app().pulse_file.write_nodal_properties_in_file()
 
             if non_mapped_nodes:
+
                 title = "Nodal-related model attributions failed"
                 message = "Some nodal-related model attributions could not be mapped "
-                message += f"after the meshing processing. \n\nDetails:"
+                message += "after the meshing processing. The non-mapped nodes will be"
+                message += f"removed from nodal properties file. \n\nDetails:"
+
                 for (node_id, coords) in non_mapped_nodes:
-                    message += f"\n{node_id} - {coords}"
+                    x, y, z = coords
+                    message += f"\nNode #{node_id} -> coordinates: ({x}, {y}, {z}) [m]"
+
                 PrintMessageInput([window_title_2, title, message])
-                # print(f"List of non-mapped nodes: {non_mapped_nodes}")
 
     def update_element_ids_after_mesh_changed(self):
 
@@ -685,13 +689,14 @@ class LoadProject:
                 app().pulse_file.write_element_properties_in_file()
 
             if non_mapped_elements:
+
                 title = "Element-related model attributions failed"
                 message = "Some element-related model attributions could not be mapped "
                 message += f"after the meshing processing. \n\nDetails:"
+
                 for (node_id, coords) in non_mapped_elements:
                     message += f"\n{node_id} - {coords}"
+
                 PrintMessageInput([window_title_2, title, message])
-                # print(f"List of non-mapped nodes: {non_mapped_nodes}")
-                print(f"List of non-mapped elements: {non_mapped_elements}")
 
 # fmt: on

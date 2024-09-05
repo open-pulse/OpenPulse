@@ -38,7 +38,6 @@ class Mesh:
 
         self.lines_mapping = dict()
         self.valve_internal_lines = dict()
-        self.elements_to_ignore_on_acoustic_analysis = list()
 
     def set_element_size(self, element_size):
         self.element_size = element_size
@@ -211,12 +210,12 @@ class Mesh:
         """
         """
         self.elements_from_line.clear()
-        self.elements_to_ignore_on_acoustic_analysis.clear()   
+        elements_to_ignore_on_acoustic_analysis = list()
         for tag, line_elements in self.elements_from_gmsh_lines.items():
             line_id = self.lines_mapping[tag]
             self.elements_from_line[line_id].extend(line_elements)
             if tag in self.valve_internal_lines.keys():
-                self.elements_to_ignore_on_acoustic_analysis.extend(line_elements)
+                elements_to_ignore_on_acoustic_analysis.extend(line_elements)
 
         self.line_from_element.clear()
         for _line_id, element_ids in self.elements_from_line.items():
@@ -224,6 +223,7 @@ class Mesh:
                 self.line_from_element[element_id] = _line_id
 
         self.lines_from_model = list(self.elements_from_line.keys())
+        self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(elements_to_ignore_on_acoustic_analysis, True)
 
     def _concatenate_line_nodes(self):
         """

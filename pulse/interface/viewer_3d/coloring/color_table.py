@@ -115,7 +115,7 @@ class ColorTable(vtkLookupTable):
         elif self.pressure_field_plot:
             if element.element_type == "beam_1":
                 return [255, 255, 255]
-            elif index in self.project.model.mesh.elements_to_ignore_on_acoustic_analysis:
+            elif element.turned_off:
                 return [255, 255, 255]
             else:
                 value = (self.valueVector[key1] + self.valueVector[key2]) / 2

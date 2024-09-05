@@ -24,6 +24,7 @@ from pulse.interface.user_input.model.setup.acoustic.volume_velocity_input impor
 from pulse.interface.user_input.model.setup.acoustic.specific_impedance_input import SpecificImpedanceInput
 from pulse.interface.user_input.model.setup.acoustic.radiation_impedance_input import RadiationImpedanceInput
 from pulse.interface.user_input.model.setup.acoustic.element_length_correction_input import AcousticElementLengthCorrectionInput
+from pulse.interface.user_input.model.setup.acoustic.turn_off_acoustic_elements_input import TurnOffAcousticElementsInput
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.interface.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
 from pulse.interface.user_input.model.editor.pulsation_suppression_device_input import PulsationSuppressionDeviceInput
@@ -174,6 +175,9 @@ class InputUi:
 
     def set_acoustic_element_length_correction(self):
         self.process_input(AcousticElementLengthCorrectionInput)
+
+    def turn_off_acoustic_elements(self):
+        self.process_input(TurnOffAcousticElementsInput)
 
     def add_compressor_excitation(self):
         self.process_input(CompressorModelInput)

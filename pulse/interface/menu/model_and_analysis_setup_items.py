@@ -58,6 +58,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_radiation_impedance = self.add_item('Set Radiation Impedance')
         self.item_child_add_perforated_plate = self.add_item('Add Perforated Plate')
         self.item_child_set_acoustic_element_length_correction = self.add_item('Set Element Length Correction')
+        self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
         self.item_child_add_compressor_excitation = self.add_item('Add Compressor Excitation')
         #
         self.item_top_analysis = self.add_top_item('Analysis')
@@ -99,6 +100,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_radiation_impedance.clicked.connect(self.item_child_set_radiation_impedance_callback)
         self.item_child_add_perforated_plate.clicked.connect(self.item_child_add_perforated_plate_callback)
         self.item_child_set_acoustic_element_length_correction.clicked.connect(self.item_child_set_acoustic_element_length_correction_callback)
+        self.item_child_turn_off_acoustic_elements.clicked.connect(self.item_child_turn_off_acoustic_elements_callback)
         self.item_child_add_compressor_excitation.clicked.connect(self.item_child_add_compressor_excitation_callback)
         #
         # Analysis Setup
@@ -247,6 +249,12 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         app().main_window.input_ui.set_acoustic_element_length_correction()
         app().main_window.set_input_widget(None)
 
+    def item_child_turn_off_acoustic_elements_callback(self):
+        if app().main_window.action_show_geometry_data.isChecked():
+            app().main_window.plot_mesh()
+        app().main_window.input_ui.turn_off_acoustic_elements()
+        app().main_window.set_input_widget(None)
+
     def item_child_add_compressor_excitation_callback(self):
         if app().main_window.action_show_geometry_data.isChecked():
             app().main_window.plot_mesh()
@@ -306,6 +314,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_radiation_impedance.setDisabled(bool_key)
         self.item_child_add_perforated_plate.setDisabled(bool_key)
         self.item_child_set_acoustic_element_length_correction.setDisabled(bool_key)
+        self.item_child_turn_off_acoustic_elements.setDisabled(bool_key)
         self.item_child_add_compressor_excitation.setDisabled(bool_key)
         #
         self.item_child_select_analysis_type.setDisabled(bool_key)
