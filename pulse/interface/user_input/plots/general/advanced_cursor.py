@@ -52,12 +52,13 @@ class AdvancedCursor(object):
             
             x = self.x[indx]
             y = self.y[indx]
+
             for i in range(self.number_vertLines):
                 if x*(i+1) > np.max(self.x):
                     self.vertical_lines[i].set_visible(False)
                     self.x_data_labels[i].set_visible(False)
                 else:
-                    self.vertical_lines[i].set_xdata(x*(i + 1))
+                    self.vertical_lines[i].set_xdata([x*(i + 1)])
                     if self.number_vertLines != 1:
                         self.x_data_labels[i].set_text(f'{i+1}x')
                         self.x_data_labels[i].set_position((x*(i+1), y_pos))
@@ -65,7 +66,7 @@ class AdvancedCursor(object):
                         self.vertical_lines[i].set_visible(True)
             
             # self.vl.set_xdata(x)
-            self.hl.set_ydata(y)
+            self.hl.set_ydata([y])
             self.marker.set_data([x],[y])
             self.marker.set_label("x: %1.2f // y: %1.2e" % (x, y))
 

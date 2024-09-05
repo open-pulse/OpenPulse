@@ -4,14 +4,11 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import get_new_path
 
 import numpy as np
-from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -26,19 +23,17 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         ui_path = UI_DIR / "criterias/pulsation_criteria_widget.ui"
         uic.loadUi(ui_path, self)
 
-        main_window = app().main_window
+        app().main_window.set_input_widget(self)
+        self.project = app().project
+        self.model = app().project.model
+        self.preprocessor = app().project.model.preprocessor
+        self.properties = app().project.model.properties
 
-        self.opv = main_window.opv_widget
-        self.opv.setInputObject(self)
-        self.project = main_window.project
-        self.preprocessor = main_window.project.preprocessor
-
-        self._load_icons()
         self._config_window()
         self._initialize()        
         self._define_qt_variables()
         self._create_connections()
-        self.update()
+        self.selection_callback()
 
     def _initialize(self):
         self.table_name = ""
@@ -53,22 +48,17 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.nodes = self.preprocessor.nodes
 
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
 
-        self.project_folder_path = self.project.file._project_path
-        self.node_acoustic_path = self.project.file._node_acoustic_path   
-        self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
-        self.node_id = self.opv.getListPickedPoints()
+        self.node_id = app().main_window.list_selected_nodes()
 
         self.solution = self.project.get_acoustic_solution()
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 
@@ -90,32 +80,37 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.pushButton_plot_filtered_criteria : QPushButton
 
     def _create_connections(self):
+        #
         self.pushButton_plot_unfiltered_criteria.clicked.connect(self.plot_unfiltered_criteria)
         self.pushButton_plot_filtered_criteria.clicked.connect(self.plot_filtered_criteria)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
 
-    def update(self):
+    def selection_callback(self):
 
         self.reset_unfiltered_fields()
         self.reset_filtered_fields()
 
-        self.node_id = self.opv.getListPickedPoints()
-        self.line_ids = self.preprocessor.get_line_from_node_id(self.node_id)
+        selected_nodes = app().main_window.list_selected_nodes()
+        self.line_ids = self.preprocessor.get_line_from_node_id(selected_nodes)
+
         self.pushButton_plot_unfiltered_criteria.setDisabled(True)
         self.pushButton_plot_filtered_criteria.setDisabled(True)
 
-        if len(self.node_id) == 1:
-            node = self.nodes[self.node_id[0]]
+        if len(selected_nodes) == 1:
+            node = self.nodes[selected_nodes[0]]
             if node.compressor_excitation_table_names != []:
                 self.pushButton_plot_unfiltered_criteria.setDisabled(False)
-                self.lineEdit_compressor_node_id.setText(str(self.node_id[0]))
+                self.lineEdit_compressor_node_id.setText(str(selected_nodes[0]))
                 self.get_existing_compressor_info()
                 return
 
-        if len(self.node_id) == 1:
+        if len(selected_nodes) == 1:
             self.pushButton_plot_filtered_criteria.setDisabled(False)
-            self.lineEdit_nozzle_id.setText(str(self.node_id[0]))        
+            self.lineEdit_nozzle_id.setText(str(selected_nodes[0]))        
         
         if len(self.line_ids) > 0:
+
             self.comboBox_line_ids.clear()
             for line_id in self.line_ids:
                 self.comboBox_line_ids.addItem(f"      {line_id}")
@@ -139,33 +134,10 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
 
     def get_existing_compressor_info(self):
         node = self.preprocessor.nodes[self.node_id[0]]
-        if len(node.compressor_excitation_table_names) > 0:
-            try:
-                self.table_name = node.compressor_excitation_table_names[0]
-                folder_table_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")
-                load_path_table = get_new_path(folder_table_path, self.table_name)
-                
-                if self.table_name != "":
-                    table_file = open(load_path_table, "r")
-                    lines = table_file.readlines()                
-                    stage_data = {}
-                    for str_line in lines[2:21]:
-                        if str_line[2:-1] != "":
-                            key_value = str_line[2:-1].split(" = ")
-                            try:
-                                stage_data[key_value[0]] = float(key_value[1])
-                            except:
-                                stage_data[key_value[0]] = key_value[1]
+        comp_data = self.properties._get_property("compressor_excitation", node_ids=self.node_id[0])
 
-                    data = np.loadtxt(load_path_table, delimiter=",")
-                    stage_data["frequencies"] = data[:,0]
-                    table_file.close()
-                    self.update_compressor_data(stage_data)
-
-            except Exception as log_error:
-                title = f"Error while loading compressor parameters"
-                message = str(log_error) 
-                PrintMessageInput([window_title_1, title, message])
+        if isinstance(comp_data, dict):
+            self.update_compressor_data(comp_data)
 
     def update_compressor_data(self, stage_data):
         self.suction_pressure = stage_data["pressure at suction"]
@@ -263,18 +235,27 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.plotter._multiple_data_to_plot(self.model_results)
 
     def get_line_properties(self):
+
         line_id = int(self.comboBox_line_ids.currentText().replace(" ", ""))
-        entity = self.preprocessor.dict_tag_to_entity[line_id]
-        fluid = entity.fluid
+        fluid = self.model.properties._get_property("fluid", line_id=line_id)
+        if fluid is None:
+            return None, None, None
+        
+        cross_section = self.model.properties._get_property("cross_section", line_id=line_id)
+        if cross_section is None:
+            return None, None, None
+
         speed_of_sound = fluid.speed_of_sound
         line_pressure = fluid.pressure
-        inner_diameter = entity.cross_section.inner_diameter
+        inner_diameter = cross_section.inner_diameter
+
         return speed_of_sound, line_pressure/1e5, 1000*inner_diameter
     
     def get_line_pressure(self):
         if len(self.line_ids) == 1:
-            entity = self.preprocessor.dict_tag_to_entity[self.line_ids[0]]
-            fluid = entity.fluid
+            fluid = self.model.properties._get_property("fluid", line_id=self.line_ids[0])
+            if fluid is None:
+                return None
             return fluid.pressure
         else:
             return None

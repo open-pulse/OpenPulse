@@ -1,20 +1,18 @@
+#fmt: off
 
-from PyQt5.QtWidgets import QComboBox, QDialog, QFileDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
-from pulse.tools.utils import remove_bc_from_file, get_new_path
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import os
 import numpy as np
-from math import pi
+from pathlib import Path
 
 window_title = "Error"
 
@@ -25,120 +23,119 @@ class PrescribedDofsInput(QDialog):
         ui_path = UI_DIR / "model/setup/structural/prescribed_dofs_input.ui"
         uic.loadUi(ui_path, self)
 
-        self.project = app().project
-        self.opv = app().main_window.opv_widget
-        self.opv.setInputObject(self)
+        app().main_window.set_input_widget(self)
+        self.properties = app().project.model.properties
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self._config_widgets()
-        self.update()
-        self.load_nodes_info()
-        self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
+        self._config_widgets()
+        self.selection_callback()
+        self.load_nodes_info()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
 
-        self.preprocessor = self.project.preprocessor
-        self.file = self.project.file
-        self.before_run = self.project.get_pre_solution_model_checks()
+        self.keep_window_open = True
 
-        self.userPath = os.path.expanduser('~')
-        self.new_load_path_table = ""
-        self.imported_filename = ""
-        self.structural_bc_info_path = self.file._node_structural_path
-        self.structural_folder_path = self.file._structural_imported_data_folder_path
-        self.prescribed_dofs_files_folder_path = get_new_path(self.structural_folder_path, "prescribed_dofs_files")
-
-        self.nodes = self.preprocessor.nodes
-        self.prescribed_dofs = None
-        self.inputs_from_node = False
-        self.copy_path = False
-        self.stop = False
         self.list_Nones = [None, None, None, None, None, None]
         self.dofs_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
 
-        self.nodes_typed = list()
-        self.basenames = list()
-        self.list_frequencies = list()
+        self.reset_table_variables()
+        self.before_run = app().project.get_pre_solution_model_checks()
 
-        self.ux_table = None
-        self.uy_table = None
-        self.uz_table = None
-        self.rx_table = None
-        self.ry_table = None
-        self.rz_table = None
+    def reset_table_variables(self):
 
-        self.ux_filename = None
-        self.uy_filename = None
-        self.uz_filename = None
-        self.rx_filename = None
-        self.ry_filename = None
-        self.rz_filename = None
+        self.ux_table_values = None
+        self.uy_table_values = None
+        self.uz_table_values = None
+        self.rx_table_values = None
+        self.ry_table_values = None
+        self.rz_table_values = None
 
-        self.ux_basename = None
-        self.uy_basename = None
-        self.uz_basename = None
-        self.rx_basename = None
-        self.ry_basename = None
-        self.rz_basename = None
+        self.ux_array = None
+        self.uy_array = None
+        self.uz_array = None
+        self.rx_array = None
+        self.ry_array = None
+        self.rz_array = None
+
+        self.ux_table_path = None
+        self.uy_table_path = None
+        self.uz_table_path = None
+        self.rx_table_path = None
+        self.ry_table_path = None
+        self.rz_table_path = None
+
+        self.ux_table_name = None
+        self.uy_table_name = None
+        self.uz_table_name = None
+        self.rx_table_name = None
+        self.ry_table_name = None
+        self.rz_table_name = None
 
     def _define_qt_variables(self):
+
         # QComboBox
-        self.comboBox_linear_data_type : QComboBox
-        self.comboBox_angular_data_type : QComboBox
+        self.comboBox_linear_data_type: QComboBox
+        self.comboBox_angular_data_type: QComboBox
+
         # QLineEdit
-        self.lineEdit_nodeID : QLineEdit
-        self.lineEdit_real_ux : QLineEdit
-        self.lineEdit_real_uy : QLineEdit
-        self.lineEdit_real_uz : QLineEdit
-        self.lineEdit_real_rx : QLineEdit
-        self.lineEdit_real_ry : QLineEdit
-        self.lineEdit_real_rz : QLineEdit
-        self.lineEdit_real_alldofs : QLineEdit
+        self.lineEdit_selection_id: QLineEdit
+        self.lineEdit_real_ux: QLineEdit
+        self.lineEdit_real_uy: QLineEdit
+        self.lineEdit_real_uz: QLineEdit
+        self.lineEdit_real_rx: QLineEdit
+        self.lineEdit_real_ry: QLineEdit
+        self.lineEdit_real_rz: QLineEdit
+        self.lineEdit_real_alldofs: QLineEdit
         #
-        self.lineEdit_imag_ux : QLineEdit
-        self.lineEdit_imag_uy : QLineEdit
-        self.lineEdit_imag_uz : QLineEdit
-        self.lineEdit_imag_rx : QLineEdit
-        self.lineEdit_imag_ry : QLineEdit
-        self.lineEdit_imag_rz : QLineEdit
+        self.lineEdit_imag_ux: QLineEdit
+        self.lineEdit_imag_uy: QLineEdit
+        self.lineEdit_imag_uz: QLineEdit
+        self.lineEdit_imag_rx: QLineEdit
+        self.lineEdit_imag_ry: QLineEdit
+        self.lineEdit_imag_rz: QLineEdit
         #
-        self.lineEdit_imag_alldofs : QLineEdit
-        self.lineEdit_path_table_ux : QLineEdit
-        self.lineEdit_path_table_uy : QLineEdit
-        self.lineEdit_path_table_uz : QLineEdit
-        self.lineEdit_path_table_rx : QLineEdit
-        self.lineEdit_path_table_ry : QLineEdit
-        self.lineEdit_path_table_rz : QLineEdit
+        self.lineEdit_imag_alldofs: QLineEdit
+        self.lineEdit_path_table_ux: QLineEdit
+        self.lineEdit_path_table_uy: QLineEdit
+        self.lineEdit_path_table_uz: QLineEdit
+        self.lineEdit_path_table_rx: QLineEdit
+        self.lineEdit_path_table_ry: QLineEdit
+        self.lineEdit_path_table_rz: QLineEdit
         self._create_list_lineEdits()
+
         # QPushButton
-        self.pushButton_load_ux_table : QPushButton
-        self.pushButton_load_uy_table : QPushButton
-        self.pushButton_load_uz_table : QPushButton
-        self.pushButton_load_rx_table : QPushButton
-        self.pushButton_load_ry_table : QPushButton
-        self.pushButton_load_rz_table : QPushButton
-        self.pushButton_constant_value_confirm : QPushButton
-        self.pushButton_remove_bc_confirm : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_table_values_confirm : QPushButton
+        self.pushButton_cancel_tab0: QPushButton
+        self.pushButton_cancel_tab1: QPushButton
+        self.pushButton_load_ux_table: QPushButton
+        self.pushButton_load_uy_table: QPushButton
+        self.pushButton_load_uz_table: QPushButton
+        self.pushButton_load_rx_table: QPushButton
+        self.pushButton_load_ry_table: QPushButton
+        self.pushButton_load_rz_table: QPushButton
+        self.pushButton_remove: QPushButton
+        self.pushButton_reset: QPushButton
+        self.pushButton_constant_value_confirm: QPushButton
+        self.pushButton_table_values_confirm: QPushButton
+
         # QTabWidget
-        self.tabWidget_prescribed_dofs : QTabWidget
+        self.tabWidget_prescribed_dofs: QTabWidget
+
         # QTreeWidget
-        self.treeWidget_prescribed_dofs : QTreeWidget
-        
+        self.treeWidget_prescribed_dofs: QTreeWidget
+
     def _create_list_lineEdits(self):
         self.list_lineEdit_constant_values = [  [self.lineEdit_real_ux, self.lineEdit_imag_ux],
                                                 [self.lineEdit_real_uy, self.lineEdit_imag_uy],
@@ -155,30 +152,66 @@ class PrescribedDofsInput(QDialog):
                                             self.lineEdit_path_table_rz ]
 
     def _config_widgets(self):
-        self.treeWidget_prescribed_dofs.setColumnWidth(0, 80)
-        # self.treeWidget_prescribed_dofs.setColumnWidth(1, 60)
+        for i, w in enumerate([80, 60]):
+            self.treeWidget_prescribed_dofs.setColumnWidth(i, w)
+            self.treeWidget_prescribed_dofs.headerItem().setTextAlignment(i, Qt.AlignCenter)
         #
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")   
+        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _create_connections(self):
         #
-        self.pushButton_constant_value_confirm.clicked.connect(self.check_constant_values)
-        self.pushButton_table_values_confirm.clicked.connect(self.check_table_values)
-        self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
+        self.pushButton_cancel_tab0.clicked.connect(self.close)
+        self.pushButton_cancel_tab1.clicked.connect(self.close)
+        self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
+        self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
+        self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_load_ux_table.clicked.connect(self.load_ux_table)
         self.pushButton_load_uy_table.clicked.connect(self.load_uy_table)
         self.pushButton_load_uz_table.clicked.connect(self.load_uz_table)
         self.pushButton_load_rx_table.clicked.connect(self.load_rx_table)
         self.pushButton_load_ry_table.clicked.connect(self.load_ry_table)
         self.pushButton_load_rz_table.clicked.connect(self.load_rz_table)
-        self.pushButton_reset.clicked.connect(self.reset_all)
+        self.pushButton_reset.clicked.connect(self.reset_callback)
+        #
+        self.tabWidget_prescribed_dofs.currentChanged.connect(self.tabWidget_selection_event)
         #
         self.treeWidget_prescribed_dofs.itemClicked.connect(self.on_click_item)
         self.treeWidget_prescribed_dofs.itemDoubleClicked.connect(self.on_double_click_item)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        self.reset_input_fields()
+        selected_nodes = app().main_window.list_selected_nodes()
+
+        if selected_nodes:
+            text = ", ".join([str(i) for i in selected_nodes])
+            self.lineEdit_selection_id.setText(text)
+
+            if len(selected_nodes) == 1:
+                for (property, *args), data in self.properties.nodal_properties.items():
+                    if property == "prescribed_dofs" and selected_nodes == args:
+
+                        values = data["values"]
+        
+                        if "table_paths" in data.keys():
+                            table_paths = data["table_paths"]
+                            self.tabWidget_prescribed_dofs.setCurrentIndex(1)
+                            for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
+                                table_path = table_paths[index]
+                                if table_path is not None:                   
+                                    lineEdit_table.setText(table_path)
+
+                        else:
+                            for index, [lineEdit_real, lineEdit_imag] in enumerate(self.list_lineEdit_constant_values):
+                                if values[index] is not None:
+                                    lineEdit_real.setText(str(np.real(values[index])))
+                                    lineEdit_imag.setText(str(np.imag(values[index])))
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
-        self.stop = False
+        stop = False
         if lineEdit_real.text() != "":
             try:
                 _real = float(lineEdit_real.text())
@@ -187,8 +220,8 @@ class PrescribedDofsInput(QDialog):
                 message = f"Wrong input for real part of {label}."
                 PrintMessageInput([window_title, title, message])
                 lineEdit_real.setFocus()
-                self.stop = True
-                return
+                stop = True
+                return stop, None
         else:
             _real = None
 
@@ -200,8 +233,8 @@ class PrescribedDofsInput(QDialog):
                 message = f"Wrong input for imaginary part of {label}."
                 PrintMessageInput([window_title, title, message])
                 lineEdit_imag.setFocus()
-                self.stop = True
-                return
+                stop = True
+                return stop, None
         else:
             _imag = None
         
@@ -228,74 +261,107 @@ class PrescribedDofsInput(QDialog):
             else:             
                 output = _real + 1j*_imag
 
-        return output
+        return stop, output
 
-    def check_constant_values(self):
+    def constant_values_attribution_callback(self):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
-        if self.stop:
-            self.lineEdit_nodeID.setFocus()
+        str_nodes = self.lineEdit_selection_id.text()
+        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
+            self.lineEdit_selection_id.setFocus()
             return
 
         if self.lineEdit_real_alldofs.text() != "" or self.lineEdit_imag_alldofs.text() != "":
-            prescribed_dofs = self.check_complex_entries(self.lineEdit_real_alldofs, self.lineEdit_imag_alldofs, "all dofs")
-            if self.stop:
+            stop, prescribed_dofs = self.check_complex_entries(self.lineEdit_real_alldofs, self.lineEdit_imag_alldofs, "all dofs")
+            if stop:
                 return 
         else:    
 
-            ux = self.check_complex_entries(self.lineEdit_real_ux, self.lineEdit_imag_ux, "ux")
-            if self.stop:
+            stop, ux = self.check_complex_entries(self.lineEdit_real_ux, self.lineEdit_imag_ux, "Ux")
+            if stop:
                 return
-            uy = self.check_complex_entries(self.lineEdit_real_uy, self.lineEdit_imag_uy, "uy")
-            if self.stop:
+            stop, uy = self.check_complex_entries(self.lineEdit_real_uy, self.lineEdit_imag_uy, "Uy")
+            if stop:
                 return        
-            uz = self.check_complex_entries(self.lineEdit_real_uz, self.lineEdit_imag_uz, "uz")
-            if self.stop:
+            stop, uz = self.check_complex_entries(self.lineEdit_real_uz, self.lineEdit_imag_uz, "Uz")
+            if stop:
                 return        
                 
-            rx = self.check_complex_entries(self.lineEdit_real_rx, self.lineEdit_imag_rx, "rx")
-            if self.stop:
+            stop, rx = self.check_complex_entries(self.lineEdit_real_rx, self.lineEdit_imag_rx, "Rx")
+            if stop:
                 return        
-            ry = self.check_complex_entries(self.lineEdit_real_ry, self.lineEdit_imag_ry, "ry")
-            if self.stop:
+            stop, ry = self.check_complex_entries(self.lineEdit_real_ry, self.lineEdit_imag_ry, "Ry")
+            if stop:
                 return        
-            rz = self.check_complex_entries(self.lineEdit_real_rz, self.lineEdit_imag_rz, "rz")
-            if self.stop:
+            stop, rz = self.check_complex_entries(self.lineEdit_real_rz, self.lineEdit_imag_rz, "Rz")
+            if stop:
                 return
 
             prescribed_dofs = [ux, uy, uz, rx, ry, rz]
 
-        if prescribed_dofs != self.list_Nones:
-            self.prescribed_dofs = prescribed_dofs
-            table_names = self.list_Nones
-            data = [self.prescribed_dofs, table_names]
-            self.remove_all_table_files_from_nodes(self.nodes_typed)
-            self.project.set_prescribed_dofs_bc_by_node(self.nodes_typed, data, False)   
-            print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}")    
-            self.opv.updateRendererMesh()
+        if prescribed_dofs.count(None) != 6:
+
+            self.remove_conflicting_excitations(node_ids)
+
+            real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
+            imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
+
+            for node_id in node_ids:
+
+                node = app().project.model.preprocessor.nodes[node_id]
+                coords = np.round(node.coordinates, 5)
+
+                data = {
+                        "coords" : list(coords),
+                        "values" : prescribed_dofs,
+                        "real_values" : real_values,
+                        "imag_values" : imag_values
+                        }
+
+                self.properties._set_nodal_property("prescribed_dofs", data, node_id)
+
+            app().pulse_file.write_nodal_properties_in_file()
+            app().main_window.update_plots()
             self.close()
+
+            print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")  
+
         else:
             title = "Additional inputs required"
             message = "You must inform at least one prescribed dof\n"
             message += "before confirming the input!"
             PrintMessageInput([window_title, title, message]) 
 
-    def load_table(self, lineEdit, dof_label, direct_load=False):
-        title = "Error reached while loading table"
+    def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
+
+        title = "Error while loading table"
+
         try:
             if direct_load:
-                self.path_imported_table = lineEdit.text()
-            else:
-                window_label = 'Choose a table to import the {} nodal load'.format(dof_label)
-                self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
+                path_imported_table = lineEdit.text()
 
-            if self.path_imported_table == "":
+            else:
+
+                last_path = app().main_window.config.get_last_folder_for("imported table folder")
+                if last_path is None:
+                    last_path = str(Path().home())
+
+                caption = f"Choose a table to import the {dof_label} nodal load"
+                path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
+                                                                                                caption, 
+                                                                                                last_path, 
+                                                                                                'Table File (*.csv; *.dat; *.txt)'
+                                                                                              )
+
+                if not check:
+                    return None, None
+
+            if path_imported_table == "":
                 return None, None
-            
-            self.imported_filename = os.path.basename(self.path_imported_table)
-            lineEdit.setText(self.path_imported_table)         
-            imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
+
+            imported_filename = os.path.basename(path_imported_table)
+            lineEdit.setText(path_imported_table)         
+            imported_file = np.loadtxt(path_imported_table, delimiter=",")
         
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
@@ -304,22 +370,36 @@ class PrescribedDofsInput(QDialog):
                 lineEdit.setFocus()
                 return None, None
 
-            self.imported_values = imported_file[:,1] + 1j*imported_file[:,2]
+            imported_values = imported_file[:,1] + 1j*imported_file[:,2]
 
-            if imported_file.shape[1] >= 3:
-                self.frequencies = imported_file[:,0]
-                self.f_min = self.frequencies[0]
-                self.f_max = self.frequencies[-1]
-                self.f_step = self.frequencies[1] - self.frequencies[0]
-
-                if self.project.change_project_frequency_setup(self.imported_filename, list(self.frequencies)):
-                    self.stop = True
-                    return None, None
-                else:
-                    self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
-                    self.stop = False
+            self.frequencies = imported_file[:,0]
+            f_min = self.frequencies[0]
+            f_max = self.frequencies[-1]
+            f_step = self.frequencies[1] - self.frequencies[0] 
             
-            return self.imported_values, self.imported_filename
+            app().main_window.config.write_last_folder_path_in_file("imported table folder", path_imported_table)
+
+            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
+
+                self.lineEdit_reset(lineEdit)
+
+                title = "Project frequency setup cannot be modified"
+                message = f"The following imported table of values has a frequency setup\n"
+                message += "different from the others already imported ones. The current\n"
+                message += "project frequency setup is not going to be modified."
+                message += f"\n\n{imported_filename}"
+                PrintMessageInput([window_title, title, message])
+                return None, None
+
+            else:
+
+                frequency_setup = { "f_min" : f_min,
+                                    "f_max" : f_max,
+                                    "f_step" : f_step }
+
+                app().project.model.set_frequency_setup(frequency_setup)
+
+            return imported_values, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
@@ -327,266 +407,246 @@ class PrescribedDofsInput(QDialog):
             lineEdit.setFocus()
             return None, None
 
-    def process_integration_and_save_table_files(self, node_id, values, filename, dof_label, linear=False, angular=False):
-        if self.frequencies[0]==0:
-            self.frequencies[0] = float(1e-6)
-        
-        if linear:
-            index_lin = self.comboBox_linear_data_type.currentIndex() 
-            if index_lin == 0:
-                values = values
-                header = "OpenPulse - imported table for prescribed displacement {} @ node {} \n"
-                header += f"\nSource filename: {filename}\n"
-                header += "\nFrequency [Hz], real[m], imaginary[m], absolute[m]"
-            elif index_lin == 1:
-                values = values/(1j*2*pi*self.frequencies)
-                header = "OpenPulse - imported table for prescribed velocity {} @ node {} \n"
-                header += f"\nSource filename: {filename}\n"
-                header += "\nFrequency [Hz], real[m/s], imaginary[m/s], absolute[m/s]"
-            elif index_lin == 2:
-                values = values/((1j*2*pi*self.frequencies)**2)
-                header = "OpenPulse - imported table for prescribed acceleration {} @ node {} \n"
-                header += f"\nSource filename: {filename}\n"
-                header += "\nFrequency [Hz], real[m/s²], imaginary[m/s²], absolute[m/s²]"
-        
-        if angular:
-            index_ang = self.comboBox_angular_data_type.currentIndex() 
-            if index_ang == 0:
-                values = values
-                header = "OpenPulse - imported table for prescribed angular displacement {} @ node {} \n"
-                header += f"\nSource filename: {filename}\n"
-                header += "\nFrequency [Hz], real[rad], imaginary[rad], absolute[rad]"
-            elif index_ang == 1:
-                values = values/(1j*2*pi*self.frequencies)
-                header = "OpenPulse - imported table for prescribed angular velocity {} @ node {} \n"
-                header += f"\nSource filename: {filename}\n"
-                header += "\nFrequency [Hz], real[rad/s], imaginary[rad/s], absolute[rad/s]"
-            elif index_ang == 2:              
-                values = values/((1j*2*pi*self.frequencies)**2)
-                header = "OpenPulse - imported table for prescribed angular acceleration {} @ node {} \n"
-                header += f"\nSource filename: {filename}\n"
-                header += "\nFrequency [Hz], real[rad/s²], imaginary[rad/s²], absolute[rad/s²]"
-        
-        if self.frequencies[0] == float(1e-6):
-            self.frequencies[0] = 0
-        
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        abs_values = np.abs(values)
-        data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
-        self.project.create_folders_structural("prescribed_dofs_files")
-        
-        basename = f"prescribed_dof_{dof_label}_node_{node_id}.dat"
-
-        header = header.format(dof_label.capitalize(), node_id)
-        new_path_table = get_new_path(self.prescribed_dofs_files_folder_path, basename)
-        np.savetxt(new_path_table, data, delimiter=",", header=header)
-
-        return values, basename
-
     def load_ux_table(self):
-        self.ux_table, self.ux_filename = self.load_table(self.lineEdit_path_table_ux, "ux")
-        if self.stop:
-            self.stop = False
-            self.ux_table, self.ux_filename = None, None
+        self.ux_table_values, self.ux_table_path = self.load_table(self.lineEdit_path_table_ux, "Ux")
+        if  self.ux_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_ux)
 
     def load_uy_table(self):
-        self.uy_table, self.uy_filename = self.load_table(self.lineEdit_path_table_uy, "uy")
-        if self.stop:
-            self.stop = False
-            self.uy_table, self.uy_filename = None, None
+        self.uy_table_values, self.uy_table_path = self.load_table(self.lineEdit_path_table_uy, "Uy")
+        if self.uy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_uy)
             
     def load_uz_table(self):
-        self.uz_table, self.uz_filename = self.load_table(self.lineEdit_path_table_uz, "uz")
-        if self.stop:
-            self.stop = False
-            self.uz_table, self.uz_filename = None, None
+        self.uz_table_values, self.uz_table_path = self.load_table(self.lineEdit_path_table_uz, "Uz")
+        if self.uz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_uz)
             
     def load_rx_table(self):
-        self.rx_table, self.rx_filename = self.load_table(self.lineEdit_path_table_rx, "rx")
-        if self.stop:
-            self.stop = False
-            self.rx_table, self.rx_filename = None, None
+        self.rx_table_values, self.rx_table_path = self.load_table(self.lineEdit_path_table_rx, "Rx")
+        if self.rx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_rx)
             
     def load_ry_table(self):
-        self.ry_table, self.ry_filename = self.load_table(self.lineEdit_path_table_ry, "ry")
-        if self.stop:
-            self.stop = False
-            self.ry_table, self.ry_filename = None, None
+        self.ry_table_values, self.ry_table_path = self.load_table(self.lineEdit_path_table_ry, "Ry")
+        if self.ry_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_ry)
             
     def load_rz_table(self):
-        self.rz_table, self.rz_filename = self.load_table(self.lineEdit_path_table_rz, "rz")
-        if self.stop:
-            self.stop = False
-            self.rz_table, self.rz_filename = None, None
+        self.rz_table_values, self.rz_table_path = self.load_table(self.lineEdit_path_table_rz, "Rz")
+        if self.rz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_rz)
 
-    def lineEdit_reset(self, lineEdit):
+    def lineEdit_reset(self, lineEdit : QLineEdit):
         lineEdit.setText("")
-        lineEdit.setFocus()      
+        lineEdit.setFocus()
 
-    def check_table_values(self):
+    def integrate_and_save_table_files(self, dof_label: str, node_id: int, values: np.ndarray, linear=False, angular=False):
 
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
-        if self.stop:
-            self.lineEdit_nodeID.setFocus()
+        if self.frequencies[0]==0:
+            self.frequencies[0] = float(1e-6)
+
+        if linear:
+
+            index_lin = self.comboBox_linear_data_type.currentIndex() 
+            if index_lin == 0:
+                values = values
+
+            elif index_lin == 1:
+                values = values/(1j*2*np.pi*self.frequencies)
+
+            elif index_lin == 2:
+                values = values/((1j*2*np.pi*self.frequencies)**2)
+
+        if angular:
+
+            index_ang = self.comboBox_angular_data_type.currentIndex()
+            if index_ang == 0:
+                values = values
+
+            elif index_ang == 1:
+                values = values/(1j*2*np.pi*self.frequencies)
+
+            elif index_ang == 2:              
+                values = values/((1j*2*np.pi*self.frequencies)**2)
+
+        if self.frequencies[0] == float(1e-6):
+            self.frequencies[0] = 0
+
+        table_name = f"prescribed_dof_{dof_label}_node_{node_id}"
+
+        real_values = np.real(values)
+        imag_values = np.imag(values)
+        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
+
+        self.properties.add_imported_tables("structural", table_name, data)
+
+        return table_name, data
+
+    def table_values_attribution_callback(self):
+
+        str_nodes = self.lineEdit_selection_id.text()
+        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
+            self.lineEdit_selection_id.setFocus()
             return
-        list_table_names = self.get_list_tables_names_from_selected_nodes(self.nodes_typed)
 
-        for node_id in self.nodes_typed:
-            ux = uy = uz = None
-            if self.ux_table is None:
-                if self.ux_filename is None:
-                    self.ux_table, self.ux_filename = self.load_table(self.lineEdit_path_table_ux, "ux", direct_load=True)
+        self.remove_conflicting_excitations(node_ids)
 
-            if self.ux_table is not None:
-                ux, self.ux_basename = self.process_integration_and_save_table_files(   node_id, 
-                                                                                        self.ux_table, 
-                                                                                        self.ux_filename, 
-                                                                                        "ux", 
-                                                                                        linear=True   )
+        if self.ux_table_path is None:
+            self.ux_table_values, self.ux_table_path = self.load_table(self.lineEdit_path_table_ux, "Ux", direct_load = True)
 
-            if self.uy_table is None:
-                if self.uy_filename is None:
-                    self.uy_table, self.uy_filename = self.load_table(self.lineEdit_path_table_uy, "uy", direct_load=True)
-            if self.uy_table is not None:
-                uy, self.uy_basename = self.process_integration_and_save_table_files(   node_id, 
-                                                                                        self.uy_table, 
-                                                                                        self.uy_filename, 
-                                                                                        "uy", 
-                                                                                        linear=True   )
- 
-            if self.uz_table is None:
-                if self.uz_filename is None:
-                    self.uz_table, self.uz_filename = self.load_table(self.lineEdit_path_table_uz, "uz", direct_load=True)
-            if self.uz_table is not None:
-                uz, self.uz_basename = self.process_integration_and_save_table_files(   node_id, 
-                                                                                        self.uz_table, 
-                                                                                        self.uz_filename, 
-                                                                                        "uz", 
-                                                                                        linear=True   )
-            rx = ry = rz = None
-            if self.rx_table is None:
-                if self.rx_filename is None:
-                    self.rx_table, self.rx_filename = self.load_table(self.lineEdit_path_table_rx, "rx", direct_load=True)
-            if self.rx_table is not None:
-                rx, self.rx_basename = self.process_integration_and_save_table_files(   node_id, 
-                                                                                        self.rx_table, 
-                                                                                        self.rx_filename, 
-                                                                                        "rx", 
-                                                                                        angular=True   )
+        if self.uy_table_path is None:
+            self.uy_table_values, self.uy_table_path = self.load_table(self.lineEdit_path_table_uy, "Uy", direct_load = True)
 
-            if self.ry_table is None:
-                if self.ry_filename is None:
-                    self.ry_table, self.ry_filename = self.load_table(self.lineEdit_path_table_ry, "ry", direct_load=True)
-            if self.ry_table is not None:
-                ry, self.ry_basename = self.process_integration_and_save_table_files(   node_id, 
-                                                                                        self.ry_table, 
-                                                                                        self.ry_filename, 
-                                                                                        "ry", 
-                                                                                        angular=True   )
+        if self.uz_table_path is None:
+            self.uz_table_values, self.uz_table_path = self.load_table(self.lineEdit_path_table_uz, "Uz", direct_load = True)
 
-            if self.rz_table is None:
-                if self.rz_filename is None:
-                    self.rz_table, self.rz_filename = self.load_table(self.lineEdit_path_table_rz, "rz", direct_load=True)
-            if self.rz_table is not None:
-                rz, self.rz_basename = self.process_integration_and_save_table_files(   node_id, 
-                                                                                        self.rz_table, 
-                                                                                        self.rz_filename, 
-                                                                                        "rz", 
-                                                                                        angular=True   )
- 
+        if self.rx_table_path is None:
+            self.rx_table_values, self.rx_table_path = self.load_table(self.lineEdit_path_table_rx, "Rx", direct_load = True)
 
-            self.basenames = [  self.ux_basename, self.uy_basename, self.uz_basename, 
-                                self.rx_basename, self.ry_basename, self.rz_basename  ]
-            self.prescribed_dofs = [ux, uy, uz, rx, ry, rz]
-            data = [self.prescribed_dofs, self.basenames]
-       
-            if self.basenames == self.list_Nones:
+        if self.ry_table_path is None:
+            self.ry_table_values, self.ry_table_path = self.load_table(self.lineEdit_path_table_ry, "Ry", direct_load = True)
+
+        if self.rz_table_path is None:
+            self.rz_table_values, self.rz_table_path = self.load_table(self.lineEdit_path_table_rz, "Rz", direct_load = True)
+
+        for node_id in node_ids:
+            
+            if self.ux_table_values is not None:
+                self.ux_table_name, self.ux_array = self.integrate_and_save_table_files("Ux", node_id, self.ux_table_values, self.ux_table_path, linear = True)
+
+            if self.uy_table_values is not None:
+                self.uy_table_name, self.uy_array = self.integrate_and_save_table_files("Uy", node_id, self.uy_table_values, self.uy_table_path, linear = True)
+
+            if self.uz_table_values is not None:
+                self.uz_table_name, self.uz_array = self.integrate_and_save_table_files("Uz", node_id, self.uz_table_values, self.uz_table_path, linear = True)
+
+            if self.rx_table_values is not None:
+                self.rx_table_name, self.rx_array = self.integrate_and_save_table_files("Rx", node_id, self.rx_table_values, self.rx_table_path, linear = True)
+
+            if self.ry_table_values is not None:
+                self.ry_table_name, self.rx_array = self.integrate_and_save_table_files("Ry", node_id, self.ry_table_values, self.ry_table_path, linear = True)
+
+            if self.rz_table_values is not None:
+                self.rz_table_name, self.rx_array = self.integrate_and_save_table_files("Rz", node_id, self.rz_table_values, self.rz_table_path, linear = True)
+
+            basenames = [   self.ux_table_name, self.uy_table_name, self.uz_table_name, 
+                            self.rx_table_name, self.ry_table_name, self.rz_table_name   ]
+
+            table_paths = [ self.ux_table_path, self.uy_table_path, self.uz_table_path, 
+                            self.rx_table_path, self.ry_table_path, self.rz_table_path ]
+
+            prescribed_dofs = [ self.ux_table_values, self.uy_table_values, self.uz_table_values, 
+                                self.rx_table_values, self.ry_table_values, self.rz_table_values ]
+
+            if basenames == self.list_Nones:
                 title = "Additional inputs required"
                 message = "You must inform at least one prescribed dof "
                 message += "table path before confirming the input!"
                 PrintMessageInput([window_title, title, message]) 
                 return 
 
-            for basename in self.basenames:
-                if basename in list_table_names:
-                    list_table_names.remove(basename)
+            node = app().project.model.preprocessor.nodes[node_id]
+            coords = np.round(node.coordinates, 5)
 
-            self.project.set_prescribed_dofs_bc_by_node([node_id], data, True)
+            data = {
+                    "coords" : list(coords),
+                    "table_names" : basenames,
+                    "table_paths" : table_paths,
+                    "values" : prescribed_dofs
+                    }
 
-        self.process_table_file_removal(list_table_names)
-        print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}") 
-        self.opv.updateRendererMesh()
+            self.properties._set_nodal_property("prescribed_dofs", data, node_id)
+
+        app().pulse_file.write_nodal_properties_in_file()
+        app().pulse_file.write_imported_table_data_in_file()
+        app().main_window.update_plots()
         self.close()
 
+        print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")
+
     def text_label(self, mask):
-        
+
         text = ""
-        temp = self.dofs_labels[mask]
+        labels = self.dofs_labels[mask]
 
         if list(mask).count(True) == 6:
-            text = "[{}, {}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
+            text = "[{}, {}, {}, {}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 5:
-            text = "[{}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4])
+            text = "[{}, {}, {}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 4:
-            text = "[{}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3])
+            text = "[{}, {}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 3:
-            text = "[{}, {}, {}]".format(temp[0], temp[1], temp[2])
+            text = "[{}, {}, {}]".format(*labels)
         elif list(mask).count(True) == 2:
-            text = "[{}, {}]".format(temp[0], temp[1])
+            text = "[{}, {}]".format(*labels)
         elif list(mask).count(True) == 1:
-            text = "[{}]".format(temp[0])
+            text = "[{}]".format(*labels)
+
         return text
 
     def load_nodes_info(self):
-        self.treeWidget_prescribed_dofs.clear()
-        for node in self.project.preprocessor.nodes_with_prescribed_dofs:
-            constrained_dofs_mask = [False if bc is None else True for bc in node.prescribed_dofs]
-            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask))])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
-            self.treeWidget_prescribed_dofs.addTopLevelItem(new)
-        self.update_tabs_visibility()
 
-    def update_tabs_visibility(self):
-        if len(self.preprocessor.nodes_with_prescribed_dofs) == 0:
-            self.tabWidget_prescribed_dofs.setCurrentIndex(0)
-            self.tabWidget_prescribed_dofs.setTabVisible(2, False)
+        self.treeWidget_prescribed_dofs.clear()
+        for (property, *args), data in self.properties.nodal_properties.items():
+
+            if property == "prescribed_dofs":
+                values = data["values"]
+                constrained_dofs_mask = [False if value is None else True for value in values]
+                new = QTreeWidgetItem([str(args[0]), str(self.text_label(constrained_dofs_mask))])
+                new.setTextAlignment(0, Qt.AlignCenter)
+                new.setTextAlignment(1, Qt.AlignCenter)
+                self.treeWidget_prescribed_dofs.addTopLevelItem(new)
+
+        self.tabWidget_prescribed_dofs.setTabVisible(2, False)
+        for (property, *_) in self.properties.nodal_properties.keys():
+            if property == "prescribed_dofs":
+                self.tabWidget_prescribed_dofs.setCurrentIndex(0)
+                self.tabWidget_prescribed_dofs.setTabVisible(2, True)
+                return
+
+    def tabWidget_selection_event(self):
+        self.lineEdit_selection_id.setText("")
+        self.pushButton_remove.setDisabled(True)
+        if self.tabWidget_prescribed_dofs.currentIndex() == 2:
+            self.lineEdit_selection_id.setText("")
+            self.lineEdit_selection_id.setDisabled(True)
         else:
-            self.tabWidget_prescribed_dofs.setTabVisible(2, True)
+            self.lineEdit_selection_id.setDisabled(False)
+            self.selection_callback()
 
     def on_click_item(self, item):
-        self.lineEdit_nodeID.setText(item.text(0))
+        self.pushButton_remove.setDisabled(False)
+        self.lineEdit_selection_id.setText(item.text(0))
 
     def on_double_click_item(self, item):
-        self.lineEdit_nodeID.setText(item.text(0))
-        self.get_nodal_loads_info(item)
+        # self.on_click_item(item)
+        self.lineEdit_selection_id.setText(item.text(0))
+        self.get_nodal_info(item)
 
-    def get_nodal_loads_info(self, item):
+    def get_nodal_info(self, item):
         try:
 
-            data = dict()
-            node = int(item.text(0))
-            for node in self.preprocessor.nodes_with_prescribed_dofs:
-                index = node.external_index
-                if str(index) == item.text(0):
-                    nodal_loads_mask = [False if bc is None else True for bc in node.prescribed_dofs]
+            loads_info = dict()
+            selected_node = int(item.text(0))
+
+            for (property, *args), data in self.properties.nodal_properties.items():
+                if property == "prescribed_dofs" and selected_node == args[0]:
+
+                    values = data["values"]
+                    nodal_loads_mask = [False if bc is None else True for bc in values]
+
                     for i, _bool in enumerate(nodal_loads_mask):
                         if _bool:
                             dof_label = self.dofs_labels[i]
-                            data[index, dof_label] = node.prescribed_dofs[i]
+                            loads_info[selected_node, dof_label] = values[i]
 
-            if len(data):
-                self.close()
-                header_labels = ["Node ID", "Dof label", "Value"]
-                GetInformationOfGroup(  group_label = "Prescribed dof",
+            if len(loads_info):
+
+                self.hide()
+                header_labels = ["Node ID", "DOF label", "Value"]
+                GetInformationOfGroup(  group_label = "Prescribed dofs",
                                         selection_label = "Node ID:",
                                         header_labels = header_labels,
                                         column_widths = [70, 140, 150],
@@ -597,126 +657,95 @@ class PrescribedDofsInput(QDialog):
             message = str(error_log)
             PrintMessageInput([window_title, title, message])
             return
-        
-        self.show()
 
-    def check_remove_bc_from_node(self):
-        
-        self.basenames = []
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
-        if self.stop:
+    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
+
+        if isinstance(node_ids, int):
+            node_ids = [node_ids]
+
+        for node_id in node_ids:
+            for label in ["nodal_loads"]:
+                table_names = self.properties.get_nodal_related_table_names(label, node_id)
+                self.properties._remove_nodal_property(label, node_id)
+
+                self.process_table_file_removal(table_names)
+
+        app().pulse_file.write_nodal_properties_in_file()
+
+    def remove_callback(self):
+
+        if  self.lineEdit_selection_id.text() != "":
+
+            str_nodes = self.lineEdit_selection_id.text()
+            stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
+            if stop:
+                return
+
+            self.remove_table_files_from_nodes(node_ids[0])
+            self.properties._remove_nodal_property("prescribed_dofs", node_ids[0])
+
+            app().pulse_file.write_nodal_properties_in_file()
+            self.load_nodes_info()
+            app().main_window.update_plots()
+            # self.close()
+
+    def remove_table_files_from_nodes(self, node_id: int):
+        table_names = self.properties.get_nodal_related_table_names("prescribed_dofs", node_id)
+        self.process_table_file_removal(table_names)
+
+    def reset_callback(self):
+
+        self.hide()
+
+        title = "Resetting of prescribed dofs"
+        message = "Would you like to remove all prescribed dofs from the structural model?"
+
+        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._cancel:
             return
 
-        key_strings = ["displacements", "rotations"]
-        message = f"The prescribed dof(s) value(s) attributed to the {self.nodes_typed} node(s) have been removed."
-
-        remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-        self.remove_all_table_files_from_nodes(self.nodes_typed)
-        data = [self.list_Nones, self.list_Nones]
-        self.preprocessor.set_prescribed_dofs_bc_by_node(self.nodes_typed, data)
-        self.opv.updateRendererMesh()
-        self.load_nodes_info()
-        self.close()
-    
-    def get_list_tables_names_from_selected_nodes(self, list_node_ids):
-        table_names_from_nodes = []
-        for node_id in list_node_ids:
-            node = self.preprocessor.nodes[node_id]
-            if node.loaded_table_for_prescribed_dofs:
-                for table_name in node.prescribed_dofs_table_names:
-                    if table_name is not None:
-                        if table_name not in table_names_from_nodes:
-                            table_names_from_nodes.append(table_name)
-        return table_names_from_nodes
-    
-    def remove_all_table_files_from_nodes(self, list_node_ids):
-        list_table_names = self.get_list_tables_names_from_selected_nodes(list_node_ids)
-        self.process_table_file_removal(list_table_names)
-
-    def reset_all(self):
-
-        title = "Remove all prescribed dofs from structural model"
-        message = "Would you like to remove all prescribed dofs from the structural model?\n\n\n"
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
-
         if read._continue:
-            self.basenames = []
-            temp_list_nodes = self.preprocessor.nodes_with_prescribed_dofs.copy()
-            self.nodes_typed = [node.external_index for node in temp_list_nodes]
+            
+            node_ids = list()
+            for (property, *args) in self.properties.nodal_properties.items():
+                if property == "prescribed_dofs":
+                    node_ids.append(args[0])
 
-            key_strings = ["displacements", "rotations"]
-            message = None
-            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-            self.remove_all_table_files_from_nodes(self.nodes_typed)
-            data = [self.list_Nones, self.list_Nones]
-            self.preprocessor.set_prescribed_dofs_bc_by_node(self.nodes_typed, data)
+            for node_id in node_ids:
+                self.remove_table_files_from_nodes(node_id)
 
-            self.opv.updateRendererMesh()
-            self.load_nodes_info()
+            self.properties._reset_nodal_property("prescribed_dofs")
+            app().pulse_file.write_nodal_properties_in_file()
+            app().main_window.update_plots()
             self.close()
 
-    def process_table_file_removal(self, list_table_names):
-        for table_name in list_table_names:
-            self.project.remove_structural_table_files_from_folder(table_name, folder_name="prescribed_dofs_files")
+    def process_table_file_removal(self, table_names : list):
+        if table_names:
+            for table_name in table_names:
+                self.properties.remove_imported_tables("structural", table_name)
+            app().pulse_file.write_imported_table_data_in_file()
 
-    def reset_input_fields(self, force_reset=False):
-        if self.inputs_from_node or force_reset:
-            for [lineEdit_real, lineEdit_imag] in self.list_lineEdit_constant_values:
-                lineEdit_real.setText("")
-                lineEdit_imag.setText("")
-            for lineEdit_table in self.list_lineEdit_table_values:
-                lineEdit_table.setText("")
-            self.inputs_from_node = False
-
-    def update(self):
-        list_picked_nodes = self.opv.getListPickedPoints()
-        if list_picked_nodes != []:
-            picked_node = list_picked_nodes[0]
-            node = self.preprocessor.nodes[picked_node]
-            if node.there_are_prescribed_dofs:
-                self.reset_input_fields(force_reset=True)
-                if node.loaded_table_for_prescribed_dofs:
-                    table_names = node.prescribed_dofs_table_names
-                    self.tabWidget_prescribed_dofs.setCurrentIndex(1)
-                    for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
-                        if table_names[index] is not None:
-                            table_name = get_new_path(self.prescribed_dofs_files_folder_path, table_names[index])
-                            lineEdit_table.setText(table_name)
-                else:
-                    prescribed_dofs = node.prescribed_dofs
-                    self.tabWidget_prescribed_dofs.setCurrentIndex(0)
-                    for index, [lineEdit_real, lineEdit_imag] in enumerate(self.list_lineEdit_constant_values):
-                        if prescribed_dofs[index] is not None:
-                            lineEdit_real.setText(str(np.real(prescribed_dofs[index])))
-                            lineEdit_imag.setText(str(np.imag(prescribed_dofs[index])))
-                self.inputs_from_node = True
-            else:
-                self.reset_input_fields()
-            self.writeNodes(self.opv.getListPickedPoints())
-
-    def writeNodes(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += f"{node}, "
-        self.lineEdit_nodeID.setText(text[:-2])
-
-    # def tables_frequency_setup_message(self, lineEdit, label):
-    #     title = f"Invalid frequency setup of the '{label}' imported table"
-    #     message = f"The frequency setup from '{label}' selected table mismatches\n"
-    #     message += f"the frequency setup from previously imported tables.\n"
-    #     message += f"All imported tables must have the same frequency\n"
-    #     message += f"setup to avoid errors in the model processing."
-    #     PrintMessageInput([window_title, title, message])
-    #     lineEdit.setText("")
-    #     lineEdit.setFocus()
+    def reset_input_fields(self):
+        self.lineEdit_selection_id.setText("")
+        for [lineEdit_real, lineEdit_imag] in self.list_lineEdit_constant_values:
+            lineEdit_real.setText("")
+            lineEdit_imag.setText("")
+        for lineEdit_table in self.list_lineEdit_table_values:
+            lineEdit_table.setText("")
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             if self.tabWidget_prescribed_dofs.currentIndex()==0:
-                self.check_constant_values()
+                self.constant_values_attribution_callback()
             elif self.tabWidget_prescribed_dofs.currentIndex()==1:
-                self.check_table_values()
+                self.table_values_attribution_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)
+
+#fmt: on

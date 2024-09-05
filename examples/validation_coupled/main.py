@@ -3,13 +3,13 @@ from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.material import Material
-from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.preprocessor import  Preprocessor
+from pulse.model.cross_section import CrossSection
+from pulse.properties.material import Material
+from pulse.properties.fluid import Fluid
+from pulse.model.preprocessor import  Preprocessor
 from pulse.processing.assembly_structural import AssemblyStructural 
-from pulse.processing.solution_structural import SolutionStructural
-from pulse.processing.solution_acoustic import SolutionAcoustic
+from pulse.processing.structural_solver import StructuralSolver
+from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_structural_data import get_structural_frf, get_structural_response
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf, get_acoustic_response
 from examples.animation.plot_function import plot_results
@@ -23,7 +23,7 @@ from examples.animation.plot_function import plot_results
 speed_of_sound = 350.337
 density = 24.85
 hydrogen = Fluid('hydrogen', density, speed_of_sound)
-steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 cross_section = CrossSection(0.05, 0.008, offset_y = 0.005, offset_z = 0.005)
 # Mesh init
@@ -54,7 +54,7 @@ f_max = 250
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 
-solution_acoustic = SolutionAcoustic(preprocessor, frequencies)
+solution_acoustic = AcousticSolver(preprocessor, frequencies)
 
 direct = solution_acoustic.direct_method()
 #%% Acoustic validation
@@ -156,13 +156,13 @@ column = 3
 
 #%%
 ## Structural Coupled ##
-preprocessor.set_prescribed_DOFs_BC_by_node([1136, 1236, 1086], np.zeros(6))
+preprocessor.set_prescribed_dofs([1136, 1236, 1086], np.zeros(6))
 
 preprocessor.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
 preprocessor.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))
 preprocessor.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
 
-solution_structural = SolutionStructural(mesh, acoustic_solution = direct)
+solution_structural = StructuralSolver(mesh, acoustic_solution = direct)
 modes = 200
 natural_frequencies, mode_shapes = solution_structural.modal_analysis(modes=modes, harmonic_analysis=True)
 
@@ -174,7 +174,7 @@ column = 3
 
 ms_results = np.real(modal)
 
-load_reactions = solution_structural.get_reactions_at_fixed_nodes(frequencies, direct)
+load_reactions = solution_structural.get_reactions_at_constrained_dofs(frequencies, direct)
 load_reactions = np.real(load_reactions)
 _, coord_def, _, _ = get_structural_response(mesh, modal, column, Normalize=False)
 

@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -12,12 +11,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-def getColorRGB(color):
-    color = color.replace(" ", "")
-    if ("[" or "(") in color:
-        color = color[1:-1]
-    tokens = color.split(',')
-    return list(map(int, tokens))
 
 class SetFluidInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -27,45 +20,37 @@ class SetFluidInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
-        self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", dict())
+        self.compressor_info = kwargs.get("compressor_info", dict())
 
-        self.main_window = app().main_window
-        self.opv = app().main_window.opv_widget
-        self.opv.setInputObject(self)
-        self.project = app().project
-        self.file = self.project.file
+        app().main_window.set_input_widget(self)
+        self.properties = app().project.model.properties
 
-        self._load_icons()
+        self.before_run = app().project.get_pre_solution_model_checks()
+
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self._config_widgets()
-        self._loading_info_at_start()
+    
+        self.selection_callback()
 
-        if self.compressor_thermodynamic_state:
+        if self.compressor_info:
             if self.fluid_widget.call_refprop_interface():
                 return
+
             self.load_compressor_info()
 
         while self.keep_window_open:
             self.exec()
 
-    def _load_icons(self):
-        self.icon = app().main_window.pulse_icon
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
-        self.setWindowTitle("Set fluid")
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
 
-        self.preprocessor = self.project.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-        self.fluid_path = self.project.get_fluid_list_path()
-        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
 
         self.keep_window_open = True
 
@@ -103,23 +88,55 @@ class SetFluidInput(QDialog):
         self.tableWidget_fluid_data = self.findChild(QTableWidget, 'tableWidget_fluid_data')
 
     def _add_fluid_input_widget(self):
-        self.fluid_widget = FluidWidget(parent_widget=self, compressor_thermodynamic_state=self.compressor_thermodynamic_state)
+        self.fluid_widget = FluidWidget(parent_widget=self, compressor_info=self.compressor_info)
         self.grid_layout.addWidget(self.fluid_widget)
-
 
     def load_compressor_info(self):
         self.fluid_widget.load_compressor_info()
 
-    def _config_widgets(self):
-        ConfigWidgetAppearance(self, tool_tip=True)
-
     def _create_connections(self):
-        self.comboBox_attribution_type.currentIndexChanged.connect(self.update_attribution_type)
-        self.pushButton_attribute_fluid.clicked.connect(self.confirm_fluid_attribution)
+        #
+        self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
+        #
+        self.pushButton_attribute_fluid.clicked.connect(self.fluid_attribution_callback)
+        #
         # self.tableWidget_fluid_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_fluid_data.currentCellChanged.connect(self.current_cell_changed)
+        #
         # self.tableWidget_fluid_data.cellDoubleClicked.connect(self.on_cell_double_clicked)
-        self.update_attribution_type()
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+
+        self.comboBox_attribution_type.blockSignals(True)
+        selected_lines = app().main_window.list_selected_lines()
+
+        if selected_lines:
+            text = ", ".join([str(i) for i in selected_lines])
+            self.lineEdit_selected_id.setText(text)
+
+            self.lineEdit_selected_id.setEnabled(True)
+            self.comboBox_attribution_type.setCurrentIndex(1)
+
+        else:
+
+            if self.comboBox_attribution_type.currentIndex() == 0:
+                self.attribution_type_callback()
+            else:
+                self.lineEdit_selected_id.setText("")
+
+        self.comboBox_attribution_type.blockSignals(False)
+
+    def attribution_type_callback(self):
+
+        index = self.comboBox_attribution_type.currentIndex()
+        if index == 0:
+            self.lineEdit_selected_id.setText("All lines")
+        elif index == 1:
+            self.selection_callback()
+
+        self.lineEdit_selected_id.setEnabled(bool(index))
 
     def current_cell_changed(self, current_row, current_col, previous_row, previous_col):
         self.selected_column = current_col
@@ -139,51 +156,7 @@ class SetFluidInput(QDialog):
         if fluid_name != "":
             self.lineEdit_selected_fluid_name.setText(fluid_name)
 
-    def update_attribution_type(self):
-
-        index = self.comboBox_attribution_type.currentIndex()
-        if index == 0:
-            self.lineEdit_selected_id.setText("All lines")
-        elif index == 1:
-            line_ids = self.opv.getListPickedLines()
-            self.write_ids(line_ids)
-
-        self.lineEdit_selected_id.setEnabled(bool(index))
-        self.comboBox_attribution_type.setCurrentIndex(index)
-
-    def write_ids(self, list_ids):
-
-        if isinstance(list_ids, int):
-            list_ids = [list_ids]
-
-        text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
-
-        self.lineEdit_selected_id.setText(text)
-
-    def _loading_info_at_start(self):
-
-        line_ids = list()
-        if self.cache_selected_lines:
-            line_ids = self.cache_selected_lines
-
-        elif self.opv.getListPickedLines():
-            line_ids = self.opv.getListPickedLines()
-
-        if line_ids:
-            self.write_ids(line_ids)
-            self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)      
-
-    def update(self):
-        line_ids = self.opv.getListPickedLines()
-        if line_ids:
-            self.write_ids(line_ids)
-            self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)
-
-    def confirm_fluid_attribution(self):
+    def fluid_attribution_callback(self):
 
         selected_fluid = self.fluid_widget.get_selected_fluid()
 
@@ -198,18 +171,28 @@ class SetFluidInput(QDialog):
             if self.comboBox_attribution_type.currentIndex():
 
                 lineEdit = self.lineEdit_selected_id.text()
-                self.stop, lines_typed = self.before_run.check_input_LineID(lineEdit)
+                self.stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
                 if self.stop:
                     return True 
 
-                self.project.set_fluid_by_lines(lines_typed, selected_fluid)
-                print("[Set fluid] - {} defined in the entities {}".format(selected_fluid.name, lines_typed))
+                print("[Set fluid] - {} defined in the entities {}".format(selected_fluid.name, line_ids))
 
             else:
-                self.project.set_fluid_to_all_lines(selected_fluid)       
-                print("[Set fluid] - {} defined in all entities".format(selected_fluid.name))
 
-            self.actions_to_finalize()
+                line_ids = app().project.model.mesh.lines_from_model
+                print("[Set fluid] - {} defined in all entities".format(selected_fluid.name))
+    
+            app().project.model.preprocessor.set_fluid_by_lines(line_ids, selected_fluid)
+            self.properties._set_line_property("fluid_id", selected_fluid.identifier, line_ids)
+            self.properties._set_line_property("fluid", selected_fluid, line_ids)
+            app().pulse_file.write_line_properties_in_file()
+
+            # geometry_handler = GeometryHandler()
+            # geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
+            # geometry_handler.process_pipeline()
+
+            self.complete = True
+            self.close()
 
         except Exception as error_log:
             title = "Error detected on fluid list data"
@@ -217,19 +200,13 @@ class SetFluidInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             return
 
-    def actions_to_finalize(self):
-        # build_data = self.file.get_segment_build_data_from_file()
-        # geometry_handler = GeometryHandler()
-        # geometry_handler.set_length_unit(self.file.length_unit)
-        # geometry_handler.process_pipeline(build_data)
-        self.complete = True
-        self.close()
-
-    # def load_project(self):
-    #     self.project.initial_load_project_actions(self.file.project_ini_file_path)
-    #     self.project.load_project_files()
-    #     app().main_window.input_widget.initial_project_action(True)
-    #     self.complete = True
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.material_attribution_callback()
+        elif event.key() == Qt.Key_Delete:
+            self.material_widget.remove_selected_column()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False

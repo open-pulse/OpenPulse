@@ -16,12 +16,8 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         ui_path = UI_DIR / "plots/results/structural/plot_stresses_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        main_window = app().main_window
-        self.opv = main_window.opv_widget
-        self.opv.setInputObject(self)
-        self.project = main_window.project
-        
-        self._load_icons()
+        self.model = app().project.model
+
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -46,9 +42,9 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
                                 "Transversal shear xy", 
                                 "Transversal shear xz"])
 
-        self.solve = self.project.structural_solve
-        self.preprocessor = self.project.preprocessor
-        self.frequencies = self.project.frequencies
+        self.solve = app().project.structural_solve
+        self.frequencies = app().project.model.frequencies
+
         self.dict_frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
 
         self.colormaps = ["jet",
@@ -58,13 +54,11 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
                           "plasma",
                           "grayscale"]
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 
@@ -134,16 +128,12 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        self.opv.opvAnalysisRenderer.set_colormap(colormap)
+        app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
-        
-        if self.opv.opvAnalysisRenderer.getInUse():
-            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
-        else:
-            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
+        app().main_window.results_widget.set_tube_actors_transparency(transparency)
 
     def update_plot(self):
         self.update_animation_widget_visibility()
@@ -183,24 +173,27 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
     def get_stress_data(self):
 
         index = self.comboBox_stress_type.currentIndex()
-        self.stress_label = self.labels[index]
-        self.stress_key = self.keys[index]
+        stress_label = self.labels[index]
+        stress_key = self.keys[index]
         self.flag_damping_effect = self.checkBox_damping_effect.isChecked()
 
         if self.stress_data == [] or self.update_damping:
-            self.stress_data = self.solve.stress_calculate( pressure_external = 0, 
-                                                            damping_flag = self.flag_damping_effect )
+            self.stress_data = self.solve.stress_calculate( pressure_external = 0,
+                                                            damping = self.flag_damping_effect )
             self.update_damping = False
+
+        stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }
+
+        stress_list = list(stress_field.values())
+        min_stress = np.min(stress_list)
+        max_stress = np.max(stress_list)
             
-        self.stress_field = { key:array[self.stress_key, self.selected_index] for key, array in self.stress_data.items() }
-        self.project.set_stresses_values_for_color_table(self.stress_field)
-        self.project.set_min_max_type_stresses( np.min(list(self.stress_field.values())), 
-                                                np.max(list(self.stress_field.values())), 
-                                                self.stress_label )
-        
+        app().project.set_stresses_values_for_color_table(stress_field)
+        app().project.set_min_max_type_stresses(min_stress, max_stress, stress_label)
+
         color_scale_setup = self.get_user_color_scale_setup()
-        self.project.set_color_scale_setup(color_scale_setup)
-        self.opv.plot_stress_field(self.selected_index)
+        app().project.set_color_scale_setup(color_scale_setup)
+        app().main_window.results_widget.show_stress_field(self.selected_index)
 
     def on_click_item(self, item):
         self.lineEdit_selected_frequency.setText(item.text(0))

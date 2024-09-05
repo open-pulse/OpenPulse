@@ -2,11 +2,11 @@ from PyQt5.QtWidgets import QFileDialog, QPushButton, QSlider, QSpinBox, QWidget
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5 import uic
+from pathlib import Path
 
 from pulse import app, UI_DIR
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-import os
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -43,7 +43,7 @@ class AnimationWidget(QWidget):
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
 
     def frames_value_changed(self):
-        self.main_window.opv_widget.opvAnalysisRenderer._numberFramesHasChanged(True)
+        # self.main_window.opv_widget.opvAnalysisRenderer._numberFramesHasChanged(True)
         self.frames = self.spinBox_frames.value()
         
     def cycles_value_changed(self):
@@ -51,35 +51,49 @@ class AnimationWidget(QWidget):
 
     def slider_callback(self):
         value = self.phase_slider.value()
-        self.main_window.opv_widget.opvAnalysisRenderer.slider_callback(value)
+        # self.main_window.opv_widget.opvAnalysisRenderer.slider_callback(value)
+        self.main_window.results_widget.slider_callback(value)
 
-    def process_animation(self):
+    def process_animation(self, state):
         self.update_animation_settings()
-        self.main_window.opv_widget.opvAnalysisRenderer._setNumberFrames(self.frames)
-        self.main_window.opv_widget.opvAnalysisRenderer._setNumberCycles(self.cycles)
-        # self.main_window.opv_widget.opvAnalysisRenderer.playAnimation()
-        self.main_window.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation()
+        if state:
+            self.main_window.results_widget.start_animation(frames=self.frames)
+        else:
+            self.main_window.results_widget.stop_animation()
 
     def update_animation_settings(self):
         self.frames = self.spinBox_frames.value()
         self.cycles = self.spinBox_cycles.value()
 
     def export_animation_to_file(self):
+        file_path, extension = QFileDialog.getSaveFileName(
+            self, "Save As",
+            filter = "Video (*.mp4);;WEBP (*.webp);;GIF (*.gif);; All Files ();;",
+        )
 
-        init_path = os.path.expanduser("~")
-        path, ok = QFileDialog.getSaveFileName(self, 
-                                               'Export geometry file', 
-                                               init_path, 
-                                               'MP4 (*.mp4);; MPEG (*.mpeg);; OGV (*.ogv)')
-        if not ok:
+        if not extension:
             return
 
+        # Add default suffix if it does not have one
+        file_path = Path(file_path)
+        if extension == "Video (*.mp4)":
+            suffix = ".mp4"
+        elif extension == "WEBP (*.webp)":
+            suffix = ".webp"
+        elif extension == "GIF (*.gif)":
+            suffix = ".gif"
+        else:
+            suffix = ".mp4"
+
+        if not file_path.suffix:
+            file_path = file_path.parent / (file_path.name + suffix)
+
         try:
-
-            self.update_animation_settings()
-            self.main_window.opv_widget.opvAnalysisRenderer.start_export_animation_to_file(path, self.frames)
-            self.process_animation()
-
+            if file_path.suffix.lower() in [".gif", ".webp"]:
+                LoadingWindow(self.main_window.results_widget.save_animation).run(file_path)
+            else:
+                LoadingWindow(self.main_window.results_widget.save_video).run(file_path)
+            
         except Exception as error_log:
             title = "Error while exporting animation"
             message = "An error has occured while exporting the animation file.\n"

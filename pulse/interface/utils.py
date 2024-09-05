@@ -1,11 +1,89 @@
 
-import os
-from pathlib import Path
+import numpy as np
+from enum import IntEnum
 from pulse import ICON_DIR
+from dataclasses import dataclass
+from PyQt5.QtWidgets import QWidget
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
+
 window_title = "Error"
+
+
+class Workspace(IntEnum):
+    GEOMETRY = 0 
+    STRUCTURAL_SETUP = 1
+    ACOUSTIC_SETUP = 2
+    RESULTS = 3
+
+
+class ColorMode(IntEnum):
+    EMPTY = 0
+    MATERIAL = 1
+    FLUID = 2
+
+@dataclass
+class VisualizationFilter:
+    points: bool = False
+    nodes: bool = False
+    lines: bool = False
+    tubes: bool = False
+    transparent: bool = False
+    acoustic_symbols: bool = False
+    structural_symbols: bool = False
+    color_mode: int = ColorMode.EMPTY
+
+    @classmethod
+    def all_false(cls):
+        # It is dumb, but it works
+        args = [False] * 7
+        return cls(*args)
+    
+    @classmethod
+    def all_true(cls):
+        # It is dumb, but it works
+        args = [True] * 7
+        return cls(*args)
+
+@dataclass
+class SelectionFilter:
+    nodes: bool = False
+    lines: bool = False
+    elements: bool = False
+
+    @classmethod
+    def all_false(cls):
+        # It is dumb, but it works
+        args = [False] * 3
+        return cls(*args)
+    
+    @classmethod
+    def all_true(cls):
+        # It is dumb, but it works
+        args = [True] * 3
+        return cls(*args)
+
+
+# Abandon this
+@dataclass
+class PlotFilter:
+    nodes: bool = False
+    lines: bool = False
+    tubes: bool = False
+    transparent: bool = False
+    acoustic_symbols: bool = False
+    structural_symbols: bool = False
+    raw_lines: bool = False
+
+def lerp(a, b, t):
+    return a + (b - a) * t
+
+def set_qt_property(widget: QWidget, **kwargs):
+    for key, val in kwargs.items():
+        widget.setProperty(key, val)
+    widget.style().polish(widget)
+
 
 def check_inputs(lineEdit, label, only_positive=True, zero_included=False, title=None):
 
@@ -57,3 +135,36 @@ def get_icons_path(filename):
     path = ICON_DIR / filename
     if path.exists():
         return str(path)
+    
+def rotation_matrices(ax, ay, az):
+    sin = np.sin([ax, ay, az])
+    cos = np.cos([ax, ay, az])
+
+    rx = np.array(
+        [
+            [1, 0, 0, 0],
+            [0, cos[0], -sin[0], 0],
+            [0, sin[0], cos[0], 0],
+            [0, 0, 0, 1],
+        ]
+    )
+
+    ry = np.array(
+        [
+            [cos[1], 0, sin[1], 0],
+            [0, 1, 0, 0],
+            [-sin[1], 0, cos[1], 0],
+            [0, 0, 0, 1],
+        ]
+    )
+
+    rz = np.array(
+        [
+            [cos[2], -sin[2], 0, 0],
+            [sin[2], cos[2], 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+        ]
+    )
+
+    return rx, ry, rz

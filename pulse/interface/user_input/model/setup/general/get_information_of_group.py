@@ -27,10 +27,8 @@ class GetInformationOfGroup(QDialog):
         self.values = kwargs.get("values", "")
 
         self.project = app().main_window.project
-        self.opv = app().main_window.opv_widget
 
         self._initialize()
-        self._load_icons()
         self._config_windows()
         self._define_qt_variables()
         self._create_connections()
@@ -41,29 +39,32 @@ class GetInformationOfGroup(QDialog):
     def _initialize(self):
         self.lines_removed = False
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_windows(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QLabel
         self.label_selected_id : QLabel
+
         # QLineEdit
         self.lineEdit_selected_id : QLineEdit
+
         # QPushButton
         self.pushButton_close : QPushButton
         self.pushButton_remove : QPushButton
+
         # QTreeWidget
         self.treeWidget_group_info : QTreeWidget
 
     def _create_connections(self):
+        #
         self.pushButton_remove.clicked.connect(self.check_remove)
         self.pushButton_close.clicked.connect(self.close)
+        #
         self.treeWidget_group_info.itemClicked.connect(self.on_click_item)
         self.treeWidget_group_info.itemDoubleClicked.connect(self.on_double_click_item)
 
@@ -143,6 +144,7 @@ class GetInformationOfGroup(QDialog):
                 new.setTextAlignment(col, Qt.AlignCenter)
 
             self.treeWidget_group_info.addTopLevelItem(new)
+
         self.process_highlights()
         self.adjustSize()
 
@@ -159,13 +161,13 @@ class GetInformationOfGroup(QDialog):
 
         if isinstance(selection, list):
             if "Line" in self.selection_label:
-                self.opv.opvRenderer.highlight_lines(selection)
+                app().main_window.set_selection(lines = selection)
 
             elif "Element" in self.selection_label:
-                self.opv.opvRenderer.highlight_elements(selection)
+                app().main_window.set_selection(elements = selection)
 
             elif "Node" in self.selection_label:
-                self.opv.opvRenderer.highlight_nodes(selection)
+                app().main_window.set_selection(nodes = selection)
 
             else:
                 return

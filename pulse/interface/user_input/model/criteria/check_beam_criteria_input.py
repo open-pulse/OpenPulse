@@ -5,7 +5,7 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
-from pulse.preprocessing.before_run import BeforeRun
+from pulse.model.before_run import BeforeRun
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
@@ -18,10 +18,8 @@ class CheckBeamCriteriaInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        self.opv.setInputObject(self)
+        app().main_window.set_input_widget(self)
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self.define_qt_variables()
@@ -29,13 +27,10 @@ class CheckBeamCriteriaInput(QDialog):
         self.load_existing_sections()
         self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
 
     def _initialize(self):
         self.before_run = BeforeRun()
@@ -73,7 +68,7 @@ class CheckBeamCriteriaInput(QDialog):
         self.section_id_data_lines = dict()
         self.section_id_data_elements = dict()
         self.treeWidget_sections_parameters_by_lines.clear()
-        self.section_data_lines, self.section_data_elements = self.project.file.get_cross_sections_from_file()
+        self.section_data_lines = app().loader.get_cross_sections_from_file()
 
         for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_lines.items():
             if section_parameters:
@@ -129,7 +124,7 @@ class CheckBeamCriteriaInput(QDialog):
                             self.non_beam_segments.append(data)
 
             if len(lines_to_highlight)>0:
-                self.opv.opvRenderer.highlight_lines(lines_to_highlight)
+                app().main_window.set_selection(lines = lines_to_highlight)
         
             for index, data in self.non_beam_data.items():
 
@@ -156,7 +151,7 @@ class CheckBeamCriteriaInput(QDialog):
             self.lineEdit_segment_id.setText(section_id)
             if int(section_id) in self.non_beam_data.keys():
                 data = self.non_beam_data[int(section_id)]
-                self.opv.opvRenderer.highlight_lines(data[4])
+                app().main_window.set_selection(lines = data[4])
 
     def on_click_treeWidget_section_parameters_by_line(self, item):
         self.lineEdit_section_id.setText("")
@@ -172,7 +167,7 @@ class CheckBeamCriteriaInput(QDialog):
             if int(key) in self.section_data_lines.keys():
                 self.lineEdit_section_id.setText(key)
                 [_element_type, _section_parameters, _, section_lines] = self.section_data_lines[int(key)]
-                self.opv.opvRenderer.highlight_lines(section_lines)
+                app().main_window.set_selection(lines = section_lines)
 
     def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False):
 

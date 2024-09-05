@@ -15,16 +15,9 @@ class PlotStructuralModeShape(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        main_window = app().main_window
-
         ui_path = UI_DIR / "plots/results/structural/plot_structural_mode_shape.ui"
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.opv_widget
-        self.opv.setInputObject(self)
-        self.project = main_window.project
-
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -42,13 +35,11 @@ class PlotStructuralModeShape(QWidget):
                           "plasma",
                           "grayscale"]
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 
@@ -122,7 +113,7 @@ class PlotStructuralModeShape(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        self.opv.opvAnalysisRenderer.set_colormap(colormap)
+        app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
 
     def update_plot(self):
@@ -130,20 +121,16 @@ class PlotStructuralModeShape(QWidget):
         if self.lineEdit_natural_frequency.text() == "":
             return
         else:
-            self.project.analysis_type_label = "Structural Modal Analysis"
+            app().project.analysis_type_label = "Structural Modal Analysis"
             frequency = self.selected_natural_frequency
             self.mode_index = self.natural_frequencies.index(frequency)
             color_scale_setup = self.get_user_color_scale_setup()
-            self.project.set_color_scale_setup(color_scale_setup)
-            self.opv.plot_displacement_field(self.mode_index)
+            app().project.set_color_scale_setup(color_scale_setup)
+            app().main_window.results_widget.show_displacement_field(self.mode_index)
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
-        
-        if self.opv.opvAnalysisRenderer.getInUse():
-            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
-        else:
-            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
+        app().main_window.results_widget.set_tube_actors_transparency(transparency)
 
     def get_user_color_scale_setup(self):
 
@@ -212,7 +199,7 @@ class PlotStructuralModeShape(QWidget):
 
     def load_natural_frequencies(self):
         
-        self.natural_frequencies = self.project.natural_frequencies_structural
+        self.natural_frequencies = app().project.natural_frequencies_structural
         modes = np.arange(1, len(self.natural_frequencies)+1, 1)
         self.dict_modes_frequencies = dict(zip(modes, self.natural_frequencies))
 

@@ -1,358 +1,410 @@
-import vtk
-
-from pulse import SYMBOLS_DIR
+from pulse import app, SYMBOLS_DIR
 from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
 
 import numpy as np
 from scipy.spatial.transform import Rotation
+from vtkmodules.vtkFiltersCore import vtkAppendPolyData
+from vtkmodules.vtkFiltersSources import vtkLineSource, vtkSphereSource
+
+from pulse import SYMBOLS_DIR
+from pulse.interface.viewer_3d.actors.symbols_actor import (
+    SymbolsActorBase,
+    SymbolTransform,
+    loadSymbol,
+)
+
 
 class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _createConnections(self):
-        return [(self._get_prescribed_displacement_symbol() , loadSymbol(SYMBOLS_DIR / 'structural/prescribed_displacement.obj')),
-                (self._get_prescribed_rotation_symbol()     , loadSymbol(SYMBOLS_DIR / 'structural/prescribed_rotation.obj')),
-                (self._get_nodal_force_symbol()             , loadSymbol(SYMBOLS_DIR / 'structural/nodal_force.obj')), 
-                (self._get_nodal_moment_symbol()            , loadSymbol(SYMBOLS_DIR / 'structural/nodal_moment.obj')),
-                (self._get_lumped_mass_symbol()             , loadSymbol(SYMBOLS_DIR / 'structural/lumped_mass.obj')),
-                (self._get_lumped_spring_symbol()           , loadSymbol(SYMBOLS_DIR / 'structural/lumped_spring.obj')),
-                (self._get_lumped_damper_symbol()           , loadSymbol(SYMBOLS_DIR / 'structural/lumped_damper.obj')),
-                ]
+        return [
+            (
+                self._get_prescribed_displacement_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/prescribed_displacement.obj"),
+            ),
+            (
+                self._get_prescribed_rotation_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/prescribed_rotation.obj"),
+            ),
+            (
+                self._get_nodal_force_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/nodal_force.obj"),
+            ),
+            (
+                self._get_nodal_moment_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/nodal_moment.obj"),
+            ),
+            (
+                self._get_lumped_mass_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/lumped_mass.obj"),
+            ),
+            (
+                self._get_lumped_spring_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/lumped_spring.obj"),
+            ),
+            (
+                self._get_lumped_damper_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/lumped_damper.obj"),
+            ),
+        ]
 
     # def _createSequence(self):
     #     return self.project.get_nodes().values()
 
     def source(self):
         super().source()
-        self._createNodalLinks()
+        self._create_psd_structural_links()
         self._create_structural_links()
 
-    def _createNodalLinks(self):
-        linkedNodes = set()
-        linkedSymbols = vtk.vtkAppendPolyData()
+    def _create_psd_structural_links(self):
 
-        allnodes = self.project.get_nodes()
+        linked_nodes = set()
+        self.linked_symbols = vtkAppendPolyData()
 
-        # extract from string values that shoud be avaliable
-        # create a set without useless repetitions 
-        for node in allnodes.values():
-            stif = tuple(node.elastic_nodal_link_stiffness.keys())
-            damp = tuple(node.elastic_nodal_link_dampings.keys())
-            if stif:
-                nodes = sorted(int(i) for i in stif[0].split('-'))
-            elif damp:
-                nodes = sorted(int(i) for i in damp[0].split('-'))
-            else:
-                continue 
-            linkedNodes.add(tuple(nodes))
+        for (_property, *args), data in app().project.model.properties.nodal_properties.items():
 
-        for a, b in linkedNodes:
-            # divide the value of the coordinates by the scale factor
-            source = vtk.vtkLineSource()
-            source.SetPoint1(allnodes[a].coordinates / self.scaleFactor) 
-            source.SetPoint2(allnodes[b].coordinates / self.scaleFactor)
-            source.Update()
-            linkedSymbols.AddInputData(source.GetOutput())
-        
-        s = vtk.vtkSphereSource()
+            if _property == "psd_structural_links":
+
+                node_a, node_b = args
+                linked_nodes.add((node_a, node_b))
+
+                coords_a = np.array(data["coords"][:3], dtype=float)
+                coords_b = np.array(data["coords"][3:], dtype=float)
+
+                # divide the value of the coordinates by the scale factor
+                source = vtkLineSource()
+                source.SetPoint1(coords_a / self.scale_factor) 
+                source.SetPoint2(coords_b / self.scale_factor)
+                source.Update()
+                self.linked_symbols.AddInputData(source.GetOutput())
+
+        s = vtkSphereSource()
         s.SetRadius(0)
 
-        linkedSymbols.AddInputData(s.GetOutput())
-        linkedSymbols.Update()
+        self.linked_symbols.AddInputData(s.GetOutput())
+        self.linked_symbols.Update()
 
         index = len(self._connections)
-        self._mapper.SetSourceData(index, linkedSymbols.GetOutput())
+        self._mapper.SetSourceData(index, self.linked_symbols.GetOutput())
         self._sources.InsertNextTuple1(index)
-        self._positions.InsertNextPoint(0,0,0)
-        self._rotations.InsertNextTuple3(0,0,0)
-        self._scales.InsertNextTuple3(1,1,1)
-        self._colors.InsertNextTuple3(16,222,129)
+        self._positions.InsertNextPoint(0, 0, 0)
+        self._rotations.InsertNextTuple3(0, 0, 0)
+        self._scales.InsertNextTuple3(1, 1, 1)
+        self._colors.InsertNextTuple3(16, 222, 129)
 
     def _create_structural_links(self):
 
-        nodes = self.preprocessor.nodes
-        linkedSymbols = vtk.vtkAppendPolyData()
+        for (_property, *args), data in app().project.model.properties.nodal_properties.items():
 
-        for (a, b) in self.preprocessor.nodes_with_structural_links.keys():
-            # divide the value of the coordinates by the scale factor
-            source = vtk.vtkLineSource()
-            source.SetPoint1(nodes[a].coordinates / self.scaleFactor) 
-            source.SetPoint2(nodes[b].coordinates / self.scaleFactor)
-            source.Update()
-            linkedSymbols.AddInputData(source.GetOutput())
+            if _property in ["structural_stiffness_links", "structural_damping_links"]:
 
-        s = vtk.vtkSphereSource()
+                coords = data["coords"]
+                coords_a = np.array(coords[:3], dtype=float)
+                coords_b = np.array(coords[3:], dtype=float)
+
+                # divide the value of the coordinates by the scale factor
+                source = vtkLineSource()
+                source.SetPoint1(coords_a / self.scale_factor) 
+                source.SetPoint2(coords_b / self.scale_factor)
+                source.Update()
+                self.linked_symbols.AddInputData(source.GetOutput())
+
+        s = vtkSphereSource()
         s.SetRadius(0)
 
-        linkedSymbols.AddInputData(s.GetOutput())
-        linkedSymbols.Update()
+        self.linked_symbols.AddInputData(s.GetOutput())
+        self.linked_symbols.Update()
 
         index = len(self._connections)
-        self._mapper.SetSourceData(index, linkedSymbols.GetOutput())
+        self._mapper.SetSourceData(index, self.linked_symbols.GetOutput())
         self._sources.InsertNextTuple1(index)
-        self._positions.InsertNextPoint(0,0,0)
-        self._rotations.InsertNextTuple3(0,0,0)
-        self._scales.InsertNextTuple3(1,1,1)
-        self._colors.InsertNextTuple3(10,0,10)
+        self._positions.InsertNextPoint(0, 0, 0)
+        self._rotations.InsertNextTuple3(0, 0, 0)
+        self._scales.InsertNextTuple3(1, 1, 1)
+        self._colors.InsertNextTuple3(10, 0, 10)
 
     def _get_prescribed_displacement_symbol(self):
-        
+
         src = 1
-        scl = (1,1,1)
-        col = (0,255,0)
-        offset = 0 * self.scaleFactor
+        scl = (1, 1, 1)
+        col = (0, 255, 0)
+        offset = 0 * self.scale_factor
 
         symbols = list()
-        for node in self.preprocessor.nodes_with_prescribed_dofs:
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            x,y,z = self._getCoords(node)
-            mask = [(i is not None) for i in node.getStructuralBondaryCondition()[:3]]
-            values = list(node.getStructuralBondaryCondition()[:3])
+            if property == "prescribed_dofs":
 
-            if mask[0]:
-                pos = (x-offset, y, z)
-                rot = (0,0,90)
-                if self.is_value_negative(values[0]):
+                x, y, z = data["coords"]
+                values = data["values"]
+                mask = [(i is not None) for i in values]
+
+                if mask[0]:
                     pos = (x-offset, y, z)
-                    rot = (0,0,-90)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                    rot = (0,0,90)
+                    if self.is_value_negative(values[0]):
+                        pos = (x-offset, y, z)
+                        rot = (0,0,-90)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
-            if mask[1]:
-                pos = (x, y-offset, z)
-                rot = (180,90,0)
-                if self.is_value_negative(values[1]):
-                    pos = (x, y+offset, z)
-                    rot = (180,90,180)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                if mask[1]:
+                    pos = (x, y-offset, z)
+                    rot = (180,90,0)
+                    if self.is_value_negative(values[1]):
+                        pos = (x, y+offset, z)
+                        rot = (180,90,180)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
-            if mask[2]:
-                pos = (x, y, z-offset)
-                rot = (-90,0,0)
-                if self.is_value_negative(values[2]):
-                    pos = (x, y, z+offset)
-                    rot = (90,0,0)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                if mask[2]:
+                    pos = (x, y, z-offset)
+                    rot = (-90,0,0)
+                    if self.is_value_negative(values[2]):
+                        pos = (x, y, z+offset)
+                        rot = (90,0,0)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
 
     def _get_prescribed_rotation_symbol(self):
-        
+
         src = 2
-        scl = (1,1,1)
-        col = (0,200,200)
-        offset = 0 * self.scaleFactor
+        scl = (1, 1, 1)
+        col = (0, 200, 200)
+        offset = 0 * self.scale_factor
 
         symbols = list()
-        for node in self.preprocessor.nodes_with_prescribed_dofs:
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            x,y,z = self._getCoords(node)
-            mask = [(i is not None) for i in node.getStructuralBondaryCondition()[3:]]
-            values = list(node.getStructuralBondaryCondition()[3:])
-            
-            if mask[0]:
-                pos = (x-offset, y, z)
-                rot = (0,0,90)
-                if self.is_value_negative(values[0]):
-                    pos = (x+offset, y, z)
-                    rot = (0,0,-90)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            if property == "prescribed_dofs":
 
-            if mask[1]:
-                pos = (x, y-offset, z)
-                rot = (180,90,0)
-                if self.is_value_negative(values[1]):
-                    pos = (x, y+offset, z)
-                    rot = (180,90,180)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                x, y, z = data["coords"]
+                values = data["values"]
+                mask = [(i is not None) for i in values]
 
-            if mask[2]:
-                pos = (x, y, z-offset)
-                rot = (-90,0,0)
-                if self.is_value_negative(values[2]):
-                    pos = (x, y, z+offset)
-                    rot = (90,0,0)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        
+                if mask[3]:
+                    pos = (x-offset, y, z)
+                    rot = (0,0,90)
+                    if self.is_value_negative(values[3]):
+                        pos = (x+offset, y, z)
+                        rot = (0,0,-90)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+                if mask[4]:
+                    pos = (x, y-offset, z)
+                    rot = (180,90,0)
+                    if self.is_value_negative(values[4]):
+                        pos = (x, y+offset, z)
+                        rot = (180,90,180)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+                if mask[5]:
+                    pos = (x, y, z-offset)
+                    rot = (-90,0,0)
+                    if self.is_value_negative(values[5]):
+                        pos = (x, y, z+offset)
+                        rot = (90,0,0)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
         return symbols
 
     def _get_nodal_force_symbol(self):
-        
+
         src = 3
-        scl = (1,1,1)
-        col = (255,0,0)
-        offset = 0.05 * self.scaleFactor
+        scl = (1, 1, 1)
+        col = (255, 0, 0)
+        offset = 0.05 * self.scale_factor
 
         symbols = list()
-        for node in self.preprocessor.nodes_with_nodal_loads:
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            x,y,z = self._getCoords(node)
-            mask = [(i is not None) for i in node.get_prescribed_loads()[:3]]
-            values = list(node.get_prescribed_loads()[:3])
-            
-            if mask[0]:
-                pos = (x-offset, y, z)
-                rot = (0,0,90)
-                if self.is_value_negative(values[0]):
-                    pos = (x+offset, y, z)
-                    rot = (0,0,-90)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            if property == "nodal_loads":
 
-            if mask[1]:
-                pos = (x, y-offset, z)
-                rot = (180,90,0)
-                if self.is_value_negative(values[1]):
-                    pos = (x, y+offset, z)
-                    rot = (180,90,180)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                x, y, z = data["coords"]
+                values = data["values"]
+                mask = [(i is not None) for i in values]
 
-            if mask[2]:
-                pos = (x, y, z-offset)
-                rot = (-90,0,0)
-                if self.is_value_negative(values[2]):
-                    pos = (x, y, z+offset)
-                    rot = (90,90,0)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        
+                if mask[0]:
+                    pos = (x-offset, y, z)
+                    rot = (0,0,90)
+                    if self.is_value_negative(values[0]):
+                        pos = (x+offset, y, z)
+                        rot = (0,0,-90)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+                if mask[1]:
+                    pos = (x, y-offset, z)
+                    rot = (180,90,0)
+                    if self.is_value_negative(values[1]):
+                        pos = (x, y+offset, z)
+                        rot = (180,90,180)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+                if mask[2]:
+                    pos = (x, y, z-offset)
+                    rot = (-90,0,0)
+                    if self.is_value_negative(values[2]):
+                        pos = (x, y, z+offset)
+                        rot = (90,90,0)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
         return symbols
 
     def _get_nodal_moment_symbol(self):
-        
+
         src = 4
-        scl = (1,1,1)
-        col = (0,0,255)
-        offset = 0.05 * self.scaleFactor
+        scl = (1, 1, 1)
+        col = (0, 0, 255)
+        offset = 0.05 * self.scale_factor
 
         symbols = list()
-        for node in self.preprocessor.nodes_with_nodal_loads:
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            x,y,z = self._getCoords(node)
-            values = list(node.get_prescribed_loads()[:3])
-            mask = [(i is not None) for i in node.get_prescribed_loads()[3:]]
-            
-            if mask[0]:
-                pos = (x-offset, y, z)
-                rot = (0,0,90)
-                if self.is_value_negative(values[0]):
-                    pos = (x+offset, y, z)
-                    rot = (0,0,-90)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            if property == "nodal_loads":
 
-            if mask[1]:
-                pos = (x, y-offset, z)
-                rot = (180,90,0)
-                if self.is_value_negative(values[1]):
-                    pos = (x, y+offset, z)
-                    rot = (180,90,180)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                x, y, z = data["coords"]
+                values = data["values"]
+                mask = [(i is not None) for i in values]
 
-            if mask[2]:
-                pos = (x, y, z-offset)
-                rot = (-90,0,0)
-                if self.is_value_negative(values[2]):
-                    pos = (x, y, z+offset)
-                    rot = (90,0,0)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        
+                if mask[3]:
+                    pos = (x-offset, y, z)
+                    rot = (0,0,90)
+                    if self.is_value_negative(values[3]):
+                        pos = (x+offset, y, z)
+                        rot = (0,0,-90)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+                if mask[4]:
+                    pos = (x, y-offset, z)
+                    rot = (180,90,0)
+                    if self.is_value_negative(values[4]):
+                        pos = (x, y+offset, z)
+                        rot = (180,90,180)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+                if mask[5]:
+                    pos = (x, y, z-offset)
+                    rot = (-90,0,0)
+                    if self.is_value_negative(values[5]):
+                        pos = (x, y, z+offset)
+                        rot = (90,0,0)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
         return symbols
 
     def _get_lumped_mass_symbol(self):
 
         src = 5
-        rot = (0,0,0)
-        scl = (1,1,1)
-        col = (7,156,231)
+        rot = (0, 0, 0)
+        scl = (1, 1, 1)
+        col = (7, 156, 231)
 
         symbols = list()
-        for node in self.preprocessor.nodes_with_masses:
-            pos = node.coordinates
-            if any(node.lumped_masses):
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
+
+            if property == "lumped_masses":
+
+                pos = data["coords"]
+                values = data["values"]
+                mask = [(i is not None) for i in values]
+
+                if sum(mask):
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
         return symbols
 
     def _get_lumped_spring_symbol(self):
 
-        e_size = self.project.file._element_size
-        length = self.scaleFactor/2
+        e_size = app().project.preprocessor.mesh.element_size
+        length = self.scale_factor/2
 
-        if self.scaleFactor/2 > 4*e_size:
+        if self.scale_factor / 2 > 4 * e_size:
             f = 2
-        elif self.scaleFactor/2 > 2*e_size:
+        elif self.scale_factor / 2 > 2 * e_size:
             f = 1
-        elif self.scaleFactor/2 > e_size/2:
+        elif self.scale_factor / 2 > e_size / 2:
             f = 0.5
         else:
             f = 0.25
 
-        delta_x = 0.14 + f*e_size*1.19/length
-        offset = delta_x*length/1.19
-        
+        delta_x = 0.14 + f * e_size * 1.19 / length
+        offset = delta_x * length / 1.19
+
         src = 6
-        scale_x = (length/1.19)/self.scaleFactor
+        scale_x = (length / 1.19) / self.scale_factor
         scl = (scale_x, scale_x, scale_x)
-        col = (242,121,0)
+        col = (242, 121, 0)
 
         symbols = list()
-        for node in self.preprocessor.nodes_connected_to_springs:
-            x,y,z = self._getCoords(node)
-            mask = [(i is not None) for i in node.get_lumped_stiffness()[:3]]
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if mask[0]:
-                pos = (x-offset, y, z)
-                rot = (0,0,0)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            if property == "lumped_stiffness":
 
-            if mask[1]:
-                pos = (x, y-offset, z)
-                rot = (0,0,90)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                x, y, z = data["coords"]
+                values = data["values"]
+                mask = [(i is not None) for i in values]
 
-            if mask[2]:
-                pos = (x, y, z-offset)
-                rot = (0,-90,0)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        
+                if mask[0] or mask[3]:
+                    pos = (x-offset, y, z)
+                    rot = (0,0,0)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+                if mask[1] or mask[4]:
+                    pos = (x, y-offset, z)
+                    rot = (0,0,90)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+                if mask[2] or mask[5]:
+                    pos = (x, y, z-offset)
+                    rot = (0,-90,0)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
         return symbols
 
     def _get_lumped_damper_symbol(self):
 
-        e_size = self.project.file._element_size
-        length = self.scaleFactor/2
+        e_size = app().project.preprocessor.mesh.element_size
+        length = self.scale_factor/2
 
-        if self.scaleFactor/2 > 4*e_size:
+        if self.scale_factor / 2 > 4 * e_size:
             f = 2
-        elif self.scaleFactor/2 > 2*e_size:
+        elif self.scale_factor / 2 > 2 * e_size:
             f = 1
-        elif self.scaleFactor/2 > e_size/2:
+        elif self.scale_factor / 2 > e_size / 2:
             f = 0.5
         else:
             f = 0.25
 
-        delta_x = 0.14 + f*e_size*1.19/length
-        offset = delta_x*length/1.19
+        delta_x = 0.14 + f * e_size * 1.19 / length
+        offset = delta_x * length / 1.19
 
         src = 7
-        scale_x = (length/1.19)/self.scaleFactor
+        scale_x = (length / 1.19) / self.scale_factor
         scl = (scale_x, scale_x, scale_x)
-        col = (255,0,100)
+        col = (255, 0, 100)
 
         symbols = list()
-        for node in self.preprocessor.nodes_connected_to_dampers:
-            x,y,z = self._getCoords(node)
-            mask = [(i is not None) for i in node.get_lumped_dampings()[:3]]
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if mask[0]:
-                pos = (x-offset, y, z)
-                rot = (0,0,0)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            if property == "lumped_dampings":
 
-            if mask[1]:
-                pos = (x, y-offset, z)
-                rot = (0,0,90)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                x, y, z = data["coords"]
+                values = data["values"]
+                mask = [(i is not None) for i in values]
 
-            if mask[2]:
-                pos = (x, y, z-offset)
-                rot = (0,-90,0)
-                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        
+                if mask[0] or mask[3]:
+                    pos = (x-offset, y, z)
+                    rot = (0,0,0)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+                if mask[1] or mask[4]:
+                    pos = (x, y-offset, z)
+                    rot = (0,0,90)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+                if mask[2] or mask[5]:
+                    pos = (x, y, z-offset)
+                    rot = (0,-90,0)
+                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
         return symbols
 
     def is_value_negative(self, value):
@@ -373,47 +425,67 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 class StructuralElementsSymbolsActor(SymbolsActorBase):
 
     def _createConnections(self):
-        return [(self._get_valve_symbol(), loadSymbol(SYMBOLS_DIR / 'structural/valve_symbol.obj'))]
-    
+        return [
+            (
+                self._get_valve_symbol(),
+                loadSymbol(SYMBOLS_DIR / "structural/valve_symbol.obj"),
+            )
+        ]
+
     # def _createSequence(self):
     #     return self.preprocessor.elements_with_valve
-        # return self.project.get_structural_elements().values()
-    
+    # return self.project.get_structural_elements().values()
+
     def _get_valve_symbol(self):
 
         src = 8
-        col = (0,10,255)
+        col = (0, 10, 255)
 
         symbols = list()
-        for element in self.preprocessor.elements_with_valve:
-            if element.valve_parameters:
 
-                center_coordinates = element.valve_parameters["valve_center_coordinates"]
-                valve_elements = element.valve_parameters["valve_elements"]
+        for line_id, data in app().project.model.properties.line_properties.items():
+
+            start_coords = data["start_coords"]
+            end_coords = data["end_coords"]
+
+            if "valve_info" in data.keys():
+
+                A = np.array(start_coords, dtype=float)
+                B = np.array(end_coords, dtype=float) 
+
+                valve_length = np.linalg.norm(B - A)
+                center_coordinates = (B + A) / 2
+
+                if line_id in app().project.model.mesh.elements_from_line.keys():
+                    valve_elements = app().project.model.mesh.elements_from_line[line_id]
+                else:
+                    return list()
+
+                diameter, *_ = data["valve_info"]["body_section_parameters"]
 
                 if np.remainder(len(valve_elements), 2) == 0:
-                    index = int(len(valve_elements)/2)
-                    center_element = valve_elements[index]
+                    index = int(len(valve_elements) / 2)
+                    element_id = valve_elements[index]
                 else:
-                    index = int((len(valve_elements)-1)/2) + 1
-                    center_element = valve_elements[index]
-                
-                if center_element == element.index:
+                    index = int((len(valve_elements) - 1) / 2) + 1
+                    element_id = valve_elements[index]
 
-                    rot = element.section_rotation_xyz_undeformed
-                    rotation = Rotation.from_euler('xyz', rot, degrees=True)
-                    rot_matrix = rotation.as_matrix()
-                    
-                    vector = [round(value, 5) for value in rot_matrix[:, 1]]
-                    if vector[1] < 0:
-                        rot[0] += 180
-                    
-                    factor_x = (element.valve_parameters["valve_length"]/0.247)/self.scaleFactor
-                    factor_yz = (element.valve_parameters["valve_section_parameters"][0]/0.130)/self.scaleFactor
-                    
-                    # factor_yz = 1
-                    pos = center_coordinates
-                    scl = (factor_x, factor_yz, factor_yz)
-                    symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                element = app().project.preprocessor.structural_elements[element_id]
+
+                rot = element.section_rotation_xyz_undeformed
+                rotation = Rotation.from_euler("xyz", rot, degrees=True)
+                rot_matrix = rotation.as_matrix()
+
+                vector = [round(value, 5) for value in rot_matrix[:, 1]]
+                if vector[1] < 0:
+                    rot[0] += 180
+
+                factor_x = (valve_length / 0.247) / self.scale_factor
+                factor_yz = (diameter / 0.130) / self.scale_factor
+
+                # factor_yz = 1
+                pos = center_coordinates
+                scl = (factor_x, factor_yz, factor_yz)
+                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         return symbols

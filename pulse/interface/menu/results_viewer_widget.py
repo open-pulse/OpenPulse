@@ -14,7 +14,6 @@ class ResultsViewerWidget(QWidget):
         super().__init__()
 
         self.main_window = app().main_window
-        self.opv = app().main_window.opv_widget
 
         self.reset()
         self._define_qt_variables()
@@ -72,6 +71,8 @@ class ResultsViewerWidget(QWidget):
         
         self.results_viewer_items.item_child_check_pulsation_criteria.clicked.connect(
             self.add_pulsation_criteria_widget)
+        
+        self.results_viewer_items.item_child_shaking_forces_criteria.clicked.connect(self.add_shaking_forces_criteria_widget)
 
     def _config_widget(self):
         self.grid_layout = QGridLayout()
@@ -84,90 +85,97 @@ class ResultsViewerWidget(QWidget):
         self.adjustSize()
         self.animation_widget.setVisible(False)
 
-    def udate_visibility_items(self):
+    def update_visibility_items(self):
         self.results_viewer_items._update_items()
         self.results_viewer_items.update_tree_visibility_after_solution()
 
     def add_structural_mode_shape_widget(self):
-        widget = self.main_window.input_widget.plot_structural_mode_shapes()
+        widget = self.main_window.input_ui.plot_structural_mode_shapes()
         self.add_widget(widget, animation_widget=True)
 
     def add_displacement_field_widget(self):
-        widget = self.main_window.input_widget.plot_displacement_field()
+        widget = self.main_window.input_ui.plot_displacement_field()
         self.add_widget(widget, animation_widget=True)
         
     def add_structural_frequency_response_widget(self):
-        widget = self.main_window.input_widget.plot_structural_frequency_response()
+        widget = self.main_window.input_ui.plot_structural_frequency_response()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.opv.plot_mesh()
+        self.main_window.plot_mesh()
 
     def add_stress_field_widget(self):
-        widget = self.main_window.input_widget.plot_stress_field()
+        widget = self.main_window.input_ui.plot_stress_field()
         self.add_widget(widget, animation_widget=True)
 
     def add_stress_frequency_response_widget(self):
-        widget = self.main_window.input_widget.plot_stress_frequency_response()
+        widget = self.main_window.input_ui.plot_stress_frequency_response()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.opv.plot_mesh()
+        self.main_window.plot_mesh()
 
     def add_reaction_frequency_response_widget(self):
-        widget = self.main_window.input_widget.plot_reaction_frequency_response()
+        widget = self.main_window.input_ui.plot_reaction_frequency_response()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.opv.plot_mesh()
+        self.main_window.plot_mesh()
 
     def add_acoustic_mode_shape_widget(self):
-        widget = self.main_window.input_widget.plot_acoustic_mode_shapes()
+        widget = self.main_window.input_ui.plot_acoustic_mode_shapes()
         self.add_widget(widget, animation_widget=True)
 
     def add_acoustic_pressure_field_widget(self):
-        widget = self.main_window.input_widget.plot_acoustic_pressure_field()
+        widget = self.main_window.input_ui.plot_acoustic_pressure_field()
         self.add_widget(widget, animation_widget=True)
 
     def add_acoustic_frequency_response_widget(self):
-        widget = self.main_window.input_widget.plot_acoustic_frequency_response()
+        widget = self.main_window.input_ui.plot_acoustic_frequency_response()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.opv.plot_mesh()
+        self.main_window.plot_mesh()
 
     def add_acoustic_frequency_response_function_widget(self):
-        widget = self.main_window.input_widget.plot_acoustic_frequency_response_function()
+        widget = self.main_window.input_ui.plot_acoustic_frequency_response_function()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.opv.plot_mesh()
+        self.main_window.plot_mesh()
 
     def add_acoustic_delta_pressures_widget(self):
-        widget = self.main_window.input_widget.plot_acoustic_delta_pressures()
+        widget = self.main_window.input_ui.plot_acoustic_delta_pressures()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.opv.plot_mesh()
+        self.main_window.plot_mesh()
 
     def add_transmission_loss_widget(self):
-        widget = self.main_window.input_widget.plot_transmission_loss()
+        widget = self.main_window.input_ui.plot_transmission_loss()
         self.add_widget(widget)
-        if not self.opv.change_plot_to_mesh:
-            self.opv.plot_mesh()
+        self.main_window.plot_mesh()
 
     def add_perforated_plate_convergence_widget(self):
-        widget = self.main_window.input_widget.plot_perforated_plate_convergence_data()
+        widget = self.main_window.input_ui.plot_perforated_plate_convergence_data()
         self.add_widget(widget)
 
     def add_pulsation_criteria_widget(self):
-        widget = self.main_window.input_widget.check_api618_pulsation_criteria()
+        widget = self.main_window.input_ui.check_api618_pulsation_criteria()
         self.add_widget(widget)
-        self.main_window.update_plot_mesh()
+        self.main_window.plot_mesh()
 
-    def add_widget(self, widget, animation_widget=False):
+    def add_shaking_forces_criteria_widget(self):
+        widget = self.main_window.input_ui.shaking_forces_criteria()
+        self.add_widget(widget)
+        self.main_window.plot_lines()
+
+    def add_widget(self, widget: QWidget, animation_widget=False):
+
         self.remove_widget()
         self.current_widget = widget
+
         if self.current_widget is None:
             return
+
         if self.grid_layout.indexOf(self.current_widget) == -1:
             self.grid_layout.addWidget(self.current_widget, 1, 0)
+
         self.animation_widget.setVisible(animation_widget)
 
     def remove_widget(self):
+
         if self.grid_layout.indexOf(self.current_widget) != -1:
+            self.current_widget.hide()
+            # TODO: check if the widget removal is working properly
             self.grid_layout.removeWidget(self.current_widget)
+
+        self.animation_widget.hide()

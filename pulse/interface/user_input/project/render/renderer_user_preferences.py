@@ -8,6 +8,8 @@ from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 
 
+# TODO - update this class for new renders
+
 class RendererUserPreferencesInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -15,39 +17,38 @@ class RendererUserPreferencesInput(QDialog):
         ui_path = UI_DIR / "project/render/renderer_user_preferences.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
+
         self.main_window = app().main_window
         self.config = app().config
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        self.opv.setInputObject(self)
 
-        self._load_icons()
+        # self.opv = app().main_window.opv_widget
+
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self._load_logo_state()
-        self._load_reference_scale_state()
-        self._load_color_state()
+        # self._load_logo_state()
+        # self._load_reference_scale_state()
+        # self._load_color_state()
         self.exec()
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
 
     def _initialize(self):
-        self.cache_setup = [self.opv.opvRenderer.background_color,
-                            self.opv.bottom_font_color,
-                            self.opv.opvRenderer.nodes_color,
-                            self.opv.opvRenderer.lines_color,
-                            self.opv.opvRenderer.surfaces_color,
-                            self.opv.opvRenderer.elements_transparency,
-                            self.opv.opvRenderer.add_OpenPulse_logo,
-                            self.opv.opvRenderer.show_reference_scale]
+        self.cache_setup = list()
+        # self.cache_setup = [self.opv.opvRenderer.background_color,
+        #                     self.opv.bottom_font_color,
+        #                     self.opv.opvRenderer.nodes_color,
+        #                     self.opv.opvRenderer.lines_color,
+        #                     self.opv.opvRenderer.surfaces_color,
+        #                     self.opv.opvRenderer.elements_transparency,
+        #                     self.opv.opvRenderer.add_OpenPulse_logo,
+        #                     self.opv.opvRenderer.show_reference_scale]
 
     def _define_qt_variables(self):
 
@@ -81,11 +82,10 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_reset_to_default : QPushButton
         self.pushButton_update_settings : QPushButton
 
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
-
     def _create_connections(self):
+        #
         self.comboBox_background_theme.currentIndexChanged.connect(self.update_background_color_controls_visibility)
+        #
         self.pushButton_background_color.clicked.connect(self.update_background_color)
         self.pushButton_font_color.clicked.connect(self.update_font_color)
         self.pushButton_nodes_color.clicked.connect(self.update_nodes_color)
@@ -93,8 +93,10 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_surfaces_color.clicked.connect(self.update_surfaces_color)
         self.pushButton_reset_to_default.clicked.connect(self.reset_to_default)
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
+        #
         self.slider_transparency.valueChanged.connect(self.update_transparency_value)
-        self.update_slider_transparency()
+        #
+        # self.update_slider_transparency()
 
     def update_background_color_controls_visibility(self):
         index = self.comboBox_background_theme.currentIndex()
@@ -106,10 +108,11 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_background_color.setDisabled(_bool)
 
     def _load_reference_scale_state(self):
+        return
         self.checkBox_reference_scale.setChecked(self.opv.opvRenderer.show_reference_scale)
 
     def _load_color_state(self):
-
+        return
         self.background_color = self.opv.opvRenderer.background_color
         self.bottom_font_color = self.opv.bottom_font_color
         self.top_font_color = self.opv.top_font_color
@@ -145,6 +148,7 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_surfaces_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
     
     def _load_logo_state(self):
+        return
         self.checkBox_OpenPulse_logo.setChecked(self.opv.opvRenderer.add_OpenPulse_logo)
 
     def update_background_color_state(self):
@@ -158,21 +162,25 @@ class RendererUserPreferencesInput(QDialog):
                 if self.update_background_color():
                     return
 
+        return
         # self.opv.background_color = self.background_color
         self.opv.opvRenderer.set_background_color(self.background_color)
         self.opv.opvAnalysisRenderer.set_background_color(self.background_color)
 
     def update_font_color_state(self):
+        return
         self.opv.bottom_font_color = self.bottom_font_color
         self.opv.opvRenderer.change_font_color(self.bottom_font_color)
         self.opv.opvAnalysisRenderer.change_font_color(self.bottom_font_color)
     
     def update_reference_scale_state(self):
+        return
         self.opv.opvRenderer.show_reference_scale = self.checkBox_reference_scale.isChecked()
         self.opv.opvRenderer._createScaleBar()
         self.opv.opvAnalysisRenderer._createScaleBar()
             
     def update_logo_state(self):     
+        return
         self.opv.opvRenderer.add_OpenPulse_logo = self.checkBox_OpenPulse_logo.isChecked()
         self.opv.opvRenderer.add_openpulse_logo()
         self.opv.opvAnalysisRenderer.add_openpulse_logo()
@@ -182,6 +190,7 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_elements_transparency.setText(str(self.elements_transparency))
 
     def update_slider_transparency(self):
+        return
         value = self.opv.opvRenderer.elements_transparency
         self.slider_transparency.setValue(int(100*value))
         self.lineEdit_elements_transparency.setText(str(value))
@@ -232,6 +241,7 @@ class RendererUserPreferencesInput(QDialog):
             return        
 
     def update_nodes_lines_elements_settings(self):
+        return
         self.opv.opvRenderer.changeNodesColor(self.nodes_color)
         self.opv.opvRenderer.changeLinesColor(self.lines_color)
         self.opv.opvRenderer.changeSurfacesColor(self.surfaces_color)
@@ -245,6 +255,9 @@ class RendererUserPreferencesInput(QDialog):
         self.update_reference_scale_state()
         self.update_nodes_lines_elements_settings()
         self.update_transparency_value()
+
+        return
+
 
         preferences = { 'interface theme' : self.main_window.interface_theme,
                         'background color' : str(self.opv.opvRenderer.background_color),
@@ -263,6 +276,7 @@ class RendererUserPreferencesInput(QDialog):
         # self.close()
 
     def update_renders(self):
+        return
 
         final_setup = [ self.opv.opvRenderer.background_color,
                         self.opv.bottom_font_color,
@@ -275,7 +289,7 @@ class RendererUserPreferencesInput(QDialog):
 
         if final_setup != self.cache_setup:
             self.opv.updateRendererMesh()
-            self.main_window.update_plot_mesh()
+            self.main_window.plot_mesh()
 
     def reset_to_default(self):
         self.reset_logo_state()
@@ -284,6 +298,7 @@ class RendererUserPreferencesInput(QDialog):
         self.reset_reference_scale_state()
         self.reset_nodes_lines_elements_settings()
         self.reset_transparency_value()
+        return
 
         preferences = { 'interface theme' : self.main_window.interface_theme,
                         'background color' : str(self.opv.opvRenderer.background_color),

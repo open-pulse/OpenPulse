@@ -16,23 +16,18 @@ class ResetProjectInput(QDialog):
         ui_path = UI_DIR / "project/reset_project.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
         self.project = app().main_window.project
-        self.opv = app().main_window.opv_widget
-        self.opv.setInputObject(self)
 
-        self._load_icons()
         self._config_windows()
         self._create_connections()
         self._define_qt_variables()
         self.exec()
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_windows(self):    
-        self.setWindowIcon(self.icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
@@ -64,8 +59,7 @@ class ResetProjectInput(QDialog):
         self.close()
         reset_config = self.get_reset_config()
         self.project.reset_project(**reset_config)
-        self.opv.opvRenderer.plot()
-        self.opv.plot_mesh()
+        app().main_window.update_plots()
         self.print_final_message()
     
     def print_final_message(self):

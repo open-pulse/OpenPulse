@@ -4,13 +4,14 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
+from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import LoadFluidCompositionInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.call_double_confirmation import CallDoubleConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.tools.utils import get_new_path
 
 import os
+from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -26,10 +27,8 @@ class SetFluidCompositionInput(QDialog):
         self.compressor_info = kwargs.get("compressor_info", dict())
         
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        self.opv.setInputObject(self)
+        app().main_window.set_input_widget(self)
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -49,13 +48,10 @@ class SetFluidCompositionInput(QDialog):
         while self.keep_window_open:
             self.exec()
 
-    def _load_icons(self):
-        self.icon = app().main_window.pulse_icon
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
@@ -63,27 +59,22 @@ class SetFluidCompositionInput(QDialog):
         self.selected_row = None
 
         self.keep_window_open = True
-        self.composition_file_path = ""
-
-        self.save_path = ""
-        self.export_file_path = ""
-        self.user_path = os.path.expanduser('~')
-        self.fluid_path = self.project.get_fluid_list_path()
+        self.temp_file_path = ""
 
         # self.isentropic_label = "ISENK"   # isentropic exponent (real gas)
         self.isentropic_label = "CP/CV"     # isentropic expansion coefficient (ideal gas)
 
-        self.map_properties = { "D" : "fluid density",
-                                "CP" : "specific heat Cp",
-                                "CV" : "specific heat Cv",
-                                self.isentropic_label : "isentropic exponent",
-                                "W" : "speed of sound",
-                                "VIS" : "dynamic viscosity",
-                                "TCX" : "thermal conductivity",
-                                "PRANDTL" : "Prandtl number",
-                                "TD" : "thermal diffusivity",
-                                "KV" : "kinematic viscosity",
-                                "M" : "molar mass" }
+        self.map_properties = { "D" : "density",
+                                "CP" : "specific_heat_Cp",
+                                "CV" : "specific_heat_Cv",
+                                self.isentropic_label : "isentropic_exponent",
+                                "W" : "speed_of_sound",
+                                "VIS" : "dynamic_viscosity",
+                                "TCX" : "thermal_conductivity",
+                                "PRANDTL" : "Prandtl_number",
+                                "TD" : "thermal_diffusivity",
+                                "KV" : "kinematic_viscosity",
+                                "M" : "molar_mass" }
 
         self.selected_fluid = ""
         self.unit_temperature = "K"
@@ -128,9 +119,6 @@ class SetFluidCompositionInput(QDialog):
         self.pushButton_remove_gas : QPushButton
         self.pushButton_reset_fluid : QPushButton
 
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
-
         # QTableWidget
         self.tableWidget_new_fluid : QTableWidget
 
@@ -153,8 +141,6 @@ class SetFluidCompositionInput(QDialog):
 
     def _config_widgets(self):
 
-        ConfigWidgetAppearance(self, tool_tip=True)
-
         self.label_discharge.setVisible(False)
         self.label_suction.setVisible(False)
         self.label_spacing.setVisible(False)
@@ -176,17 +162,14 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_temperature_disch.setDisabled(True)
         self.lineEdit_pressure.setDisabled(True)
         self.lineEdit_pressure_disch.setDisabled(True)
-        self.tabWidget_main.setTabVisible(1, False)
-    
-        self.connection_type_comp = self.compressor_info['connection type']
-        self.connection_label = "discharge" if self.connection_type_comp else "suction"
-        
-        self.T_suction = self.compressor_info[f'temperature (suction)']
-        self.P_suction = self.compressor_info[f'pressure (suction)']
-        self.p_ratio =  self.compressor_info['pressure ratio']
-        self.P_discharge = self.p_ratio*self.P_suction
 
-        if self.connection_label == "suction":
+        self.connection_type = self.compressor_info['connection_type']
+        self.T_suction = self.compressor_info[f'temperature_suction']
+        self.P_suction = self.compressor_info[f'pressure_suction']
+        self.p_ratio =  self.compressor_info['pressure_ratio']
+        self.P_discharge = self.p_ratio * self.P_suction
+
+        if self.connection_type == "suction":
             self.lineEdit_pressure_disch.setVisible(False)
             self.lineEdit_temperature_disch.setVisible(False)
             self.label_discharge.setVisible(False)
@@ -194,8 +177,12 @@ class SetFluidCompositionInput(QDialog):
         self.lineEdit_temperature.setText(str(round(self.T_suction, 4)))
         self.lineEdit_pressure.setText(str(round(self.P_suction, 2)))
         self.lineEdit_pressure_disch.setText(str(round(self.P_discharge, 2)))
+
+        tool_tip = "The temperature at discharge will be "
+        tool_tip += "calculated after the fluid definition."
+
         self.lineEdit_temperature_disch.setText("---")
-        self.lineEdit_temperature_disch.setToolTip("The temperature at discharge will be calculated after the fluid definition.")
+        self.lineEdit_temperature_disch.setToolTip(tool_tip)
 
     def update_selected_fluid(self):
 
@@ -320,13 +307,15 @@ class SetFluidCompositionInput(QDialog):
 
     def reset_fluid(self):
 
+        self.hide()
+
         title = f"Resetting of the fluid composition"
-        message = "Would you like to reset the current fluid composition?\n\n"
+        message = "Would you like to reset the current fluid composition?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
-        read = CallDoubleConfirmationInput(title, message, buttons_config=buttons_config)
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-        if read._stop:
+        if read._cancel:
             return
 
         self.fluid_to_composition.clear()
@@ -521,7 +510,7 @@ class SetFluidCompositionInput(QDialog):
                     temperature_K = self.T_discharge
                     pressure_Pa = self.P_discharge
 
-                    if self.connection_label == "discharge":
+                    if self.connection_type == "discharge":
                         count = 0
                         criteria = 100
                         cache_temperatures = [temperature_K]
@@ -566,7 +555,7 @@ class SetFluidCompositionInput(QDialog):
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
-                self.fluid_properties["impedance"] = round(self.fluid_properties["fluid density"]*self.fluid_properties["speed of sound"],6)
+                self.fluid_properties["impedance"] = round(self.fluid_properties["density"]*self.fluid_properties["speed_of_sound"],6)
                 self.fluid_setup = [fluids_string, molar_fractions]
                 
                 self.process_errors()
@@ -603,16 +592,16 @@ class SetFluidCompositionInput(QDialog):
 
     def actions_to_finalize(self):
         if self.compressor_info:
-            if self.compressor_info["connection type"] == 1:
+            if self.compressor_info["connection_type"] == 1:
                 title = "Fluid properties convergence"
                 message = "The following fluid properties were obtained after completing the iterative updating process:"
                 message += f"\n\nTemperature (discharge) = {round(self.fluid_properties['temperature'],4)} [K]"
-                message += f"\nIsentropic exponent = {round(self.fluid_properties['isentropic exponent'],6)} [-]"
+                message += f"\nIsentropic exponent = {round(self.fluid_properties['isentropic_exponent'],6)} [-]"
                 message += "\n\nReference fluid properties:"
-                message += f"\n\nTemperature (suction) = {self.compressor_info['temperature (suction)']} [K]"
-                message += f"\nPressure (suction) = {self.compressor_info['pressure (suction)']} [Pa]"
-                message += f"\nPressure (discharge) = {round(self.compressor_info['pressure (discharge)'],4)} [Pa]"
-                message += f"\nMolar mass = {round(self.fluid_properties['molar mass'],6)} [kg/mol]"   
+                message += f"\n\nTemperature (suction) = {self.compressor_info['temperature_suction']} [K]"
+                message += f"\nPressure (suction) = {self.compressor_info['pressure_suction']} [Pa]"
+                message += f"\nPressure (discharge) = {round(self.compressor_info['pressure_discharge'],4)} [Pa]"
+                message += f"\nMolar mass = {round(self.fluid_properties['molar_mass'],6)} [kg/mol]"   
                 PrintMessageInput([window_title_2, title, message])
 
     def check_temperature_value(self, lineEdit_temperature):
@@ -861,8 +850,10 @@ class SetFluidCompositionInput(QDialog):
 
         if refProp_path is None:
 
-            title = 'Choose the REFPROP folder'
-            folder_path = QFileDialog.getExistingDirectory(None, title, self.user_path)
+            caption = 'Search for the REFPROP folder'
+            initial_path = str(Path().home())
+
+            folder_path = app().main_window.file_dialog.get_existing_directory(caption, initial_path)
             
             if folder_path == "":
                 return None
@@ -967,11 +958,11 @@ class SetFluidCompositionInput(QDialog):
 
         self.fluid_data = dict()
         self.fluid_to_composition = dict()
-        read = LoadFluidCompositionInput(file_path = self.composition_file_path)
+        read = LoadFluidCompositionInput(file_path = self.temp_file_path)
 
         if read.complete:
 
-            self.composition_file_path = read.file_path
+            self.temp_file_path = read.file_path
             composition_data = read.fluid_composition_data
 
             comp = 0
@@ -991,11 +982,7 @@ class SetFluidCompositionInput(QDialog):
 
             self.load_fluid_composition_info()
             self.update_remainig_composition()
-        self.opv.setInputObject(self)
-
-    def closeEvent(self, event):
-        super().closeEvent(event)
-        self.keep_window_open = False
+        app().main_window.set_input_widget(self)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -1004,3 +991,7 @@ class SetFluidCompositionInput(QDialog):
             self.remove_selected_gas()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, event):
+        super().closeEvent(event)
+        self.keep_window_open = False

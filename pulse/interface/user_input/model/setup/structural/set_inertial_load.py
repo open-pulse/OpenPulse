@@ -5,8 +5,7 @@ from PyQt5 import uic
 import numpy as np
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
-from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
@@ -19,12 +18,12 @@ class SetInertialLoad(QDialog):
         ui_path = UI_DIR / "model/setup/structural/inertial_load_input.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
         self.project = app().project
-        self.opv = app().main_window.opv_widget
-        self.opv.setInputObject(self)
+        self.model = app().project.model
+        self.preprocessor = app().project.preprocessor
         
         self._initialize()
-        self._load_icons()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
@@ -35,30 +34,32 @@ class SetInertialLoad(QDialog):
     def _initialize(self):
         self.complete = False
         self.global_damping = [0, 0, 0, 0]
-        self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
-        self.gravity_vector = self.project.preprocessor.gravity_vector
-
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
+        # self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
+        self.gravity_vector = self.model.gravity_vector
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
+
         # QCheckBox
-        self.checkBox_stiffening_effect : QCheckBox
+        self.checkBox_stiffening_effect: QCheckBox
+
         # QLineEdit
-        self.lineEdit_acceleration_x_axis : QLineEdit
-        self.lineEdit_acceleration_y_axis : QLineEdit
-        self.lineEdit_acceleration_z_axis : QLineEdit
+        self.lineEdit_acceleration_x_axis: QLineEdit
+        self.lineEdit_acceleration_y_axis: QLineEdit
+        self.lineEdit_acceleration_z_axis: QLineEdit
+
         # QPushButton
-        self.pushButton_confirm : QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
 
     def _create_connections(self):
-        self.pushButton_confirm.clicked.connect(self.confirm)
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
 
     def _config_widgets(self):
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")  
@@ -145,14 +146,21 @@ class SetInertialLoad(QDialog):
 
         return value
 
-    def confirm(self):
+    def attribute_callback(self):
 
         if self.check_gravity_values():
             return
 
         stiffening_effect = self.checkBox_stiffening_effect.isChecked()
-        self.project.set_inertia_load_setup(self.gravity,
-                                            stiffening_effect=stiffening_effect)
+
+        inertia_load = {
+                        "gravity" : list(self.gravity),
+                        "stiffening_effect" : stiffening_effect
+                        }
+
+        self.model.set_gravity_vector(self.gravity)
+        self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
+        app().pulse_file.write_inertia_load_in_file(inertia_load)
 
         self.complete = True
         self.close()

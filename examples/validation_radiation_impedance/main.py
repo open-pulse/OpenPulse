@@ -2,19 +2,19 @@ from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.material import Material
-from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.preprocessor import Preprocessor
+from pulse.model.cross_section import CrossSection
+from pulse.properties.material import Material
+from pulse.properties.fluid import Fluid
+from pulse.model.preprocessor import Preprocessor
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
-from pulse.processing.solution_acoustic import SolutionAcoustic
+from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 # Fluid setup
 speed_of_sound = 343.21
 density = 1.2041
 air = Fluid('air', density, speed_of_sound)
-steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 cross_section = CrossSection(0.05, 0.008, offset_y=0, offset_z=0)
 cross_section.update_properties()
@@ -43,7 +43,7 @@ f_max = 2500
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 
-solution = SolutionAcoustic(preprocessor, frequencies)
+solution = AcousticSolver(preprocessor, frequencies)
 
 direct = solution.direct_method()
 

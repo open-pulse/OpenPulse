@@ -1,152 +1,163 @@
-import vtk
-from dataclasses import dataclass
-from vtkat.render_widgets import CommonRenderWidget
-from vtkat.interactor_styles import BoxSelectionInteractorStyle
-from vtkat.pickers import CellAreaPicker, CellPropertyAreaPicker
-from pathlib import Path
+# fmt: off
+
+import numpy as np
+from pulse.interface.utils import rotation_matrices
+
+from molde.interactor_styles import BoxSelectionInteractorStyle
+from molde.render_widgets import CommonRenderWidget
+from molde.colors import Color
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
-from pulse.interface.viewer_3d.actors import NodesActor, ElementLinesActor, TubeActor
-from pulse.interface.viewer_3d.text_templates import TreeInfo, format_long_sequence
-from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
-from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
-from pulse import app
-from pulse import ICON_DIR
+from pulse import ICON_DIR, app
+from pulse.interface.viewer_3d.actors import SectionPlaneActor, ElementAxesActor, ElementLinesActor, NodesActor, PointsActor, TubeActor
+from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticElementsSymbolsActor, AcousticNodesSymbolsActor
+from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralElementsSymbolsActor, StructuralNodesSymbolsActor
 
-@dataclass
-class PlotFilter:
-    nodes: bool = False
-    lines: bool = False
-    tubes: bool = False
-    transparent: bool = False
-    acoustic_symbols: bool = False
-    structural_symbols: bool = False
-    raw_lines: bool = False
-
-
-@dataclass
-class SelectionFilter:
-    nodes: bool    = False
-    entities: bool = False
-    elements: bool = False
+from ._mesh_picker import MeshPicker
+from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text
 
 
 class MeshRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-
-        self.mouse_click = (0, 0)
-        self.left_clicked.connect(self.click_callback)
-        self.left_released.connect(self.selection_callback)
-        app().main_window.theme_changed.connect(self.set_theme)
-        
-        self.interactor_style = BoxSelectionInteractorStyle()
-        self.render_interactor.SetInteractorStyle(self.interactor_style)
+        self.set_interactor_style(BoxSelectionInteractorStyle())
+        self.mesh_picker = MeshPicker(self)
 
         self.open_pulse_logo = None
-        self.mopt_logo = None
-
         self.nodes_actor = None
+        self.points_actor = None
         self.lines_actor = None
         self.tubes_actor = None
+        self.element_axes_actor = None
         self.acoustic_nodes_symbols_actor = None
         self.acoustic_elements_symbols_actor = None
         self.structural_nodes_symbols_actor = None
         self.structural_elements_symbols_actor = None
+        self.plane_actor = None
 
-        self.plot_filter = PlotFilter(True, True, True, True, True, True)
-        self.selection_filter = SelectionFilter(True, True, True)
+        self.selected_nodes = set()
+        self.selected_lines = set()
+        self.selected_elements = set()
+
+        self.mouse_click = (0, 0)
 
         self.create_axes()
         self.create_scale_bar()
-        self.create_logos()
         self.set_theme("light")
+        self.create_camera_light(0.1, 0.1)
+        self._create_connections()
 
-    def update_plot(self, reset_camera=True):
+    def _create_connections(self):
+        self.left_clicked.connect(self.click_callback)
+        self.left_released.connect(self.selection_callback)
+
+        app().main_window.theme_changed.connect(self.set_theme)
+        app().main_window.visualization_changed.connect(
+            self.visualization_changed_callback
+        )
+        app().main_window.selection_changed.connect(self.update_selection)
+        app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
+
+    def update_plot(self, reset_camera=False):
         self.remove_actors()
-        self.create_logos()
-
+        self.mesh_picker.update_bounds()
         project = app().project
 
-        self.nodes_actor = NodesActor(project)
-        self.lines_actor = ElementLinesActor(project)
-        self.tubes_actor = TubeActor(project)
+        if not project.get_structural_elements():
+            return
+
+        self.nodes_actor = NodesActor()
+        self.lines_actor = ElementLinesActor()
+        self.tubes_actor = TubeActor()
+        self.points_actor = PointsActor()
+        self.element_axes_actor = ElementAxesActor()
+        self.element_axes_actor.VisibilityOff()
+        self.plane_actor = SectionPlaneActor(self.tubes_actor.GetBounds())
+        self.plane_actor.VisibilityOff()
 
         # TODO: Replace these actors for newer ones that
         # are lighter and easier to update
         self._acoustic_nodes_symbols = AcousticNodesSymbolsActor(project)
-        self._acoustic_elements_symbols = AcousticElementsSymbolsActor(project)
-        self._structural_nodes_symbols = StructuralNodesSymbolsActor(project)
+        self._acoustic_elements_symbols = AcousticElementsSymbolsActor(project)        
+        self._structural_nodes_symbols = StructuralNodesSymbolsActor(project)        
         self._structural_elements_symbols = StructuralElementsSymbolsActor(project)
+
         self._acoustic_nodes_symbols.build()
         self._acoustic_elements_symbols.build()
         self._structural_nodes_symbols.build()
         self._structural_elements_symbols.build()
+
         self.acoustic_nodes_symbols_actor = self._acoustic_nodes_symbols.getActor()
         self.acoustic_elements_symbols_actor = self._acoustic_elements_symbols.getActor()
         self.structural_nodes_symbols_actor = self._structural_nodes_symbols.getActor()
         self.structural_elements_symbols_actor = self._structural_elements_symbols.getActor()
 
-        self.renderer.AddActor(self.lines_actor)
-        self.renderer.AddActor(self.nodes_actor)
-        self.renderer.AddActor(self.tubes_actor)
-        self.renderer.AddActor(self.acoustic_nodes_symbols_actor)
-        self.renderer.AddActor(self.acoustic_elements_symbols_actor)
-        self.renderer.AddActor(self.structural_nodes_symbols_actor)
-        self.renderer.AddActor(self.structural_elements_symbols_actor)
+        self.add_actors(
+            self.lines_actor,
+            self.points_actor,
+            self.nodes_actor,
+            self.tubes_actor,
+            self.element_axes_actor,
+            self.acoustic_nodes_symbols_actor,
+            self.acoustic_elements_symbols_actor,
+            self.structural_nodes_symbols_actor,
+            self.structural_elements_symbols_actor,
+            self.plane_actor
+        )
 
+        # Prevents uneeded update calls
+        with self.update_lock:
+            self.visualization_changed_callback()
+            self.update_section_plane()        
+        
         if reset_camera:
             self.renderer.ResetCamera()
-        # self.update()
+
+        self.update_info_text()
 
     def remove_actors(self):
         self.renderer.RemoveActor(self.lines_actor)
         self.renderer.RemoveActor(self.nodes_actor)
+        self.renderer.RemoveActor(self.points_actor)
         self.renderer.RemoveActor(self.tubes_actor)
+        self.renderer.RemoveActor(self.element_axes_actor)
         self.renderer.RemoveActor(self.acoustic_nodes_symbols_actor)
         self.renderer.RemoveActor(self.acoustic_elements_symbols_actor)
         self.renderer.RemoveActor(self.structural_nodes_symbols_actor)
         self.renderer.RemoveActor(self.structural_elements_symbols_actor)
 
         self.nodes_actor = None
+        self.points_actor = None
         self.lines_actor = None
         self.tubes_actor = None
+        self.element_axes_actor = None
         self.acoustic_nodes_symbols_actor = None
         self.acoustic_elements_symbols_actor = None
         self.structural_nodes_symbols_actor = None
         self.structural_elements_symbols_actor = None
 
-    def update_visualization(self, nodes, lines, tubes, symbols):
-        transparent = nodes or lines or symbols
-        self.plot_filter = PlotFilter(
-            nodes=nodes,
-            lines=lines,
-            tubes=tubes,
-            acoustic_symbols=symbols,
-            structural_symbols=symbols,
-            transparent=transparent,
-        )
-        
-        elements = (lines or tubes) and nodes
-        entities = (lines or tubes) and (not nodes) 
-        self.selection_filter = SelectionFilter(
-            nodes=nodes,
-            elements=elements,
-            entities=entities,
-        )
-
+    def visualization_changed_callback(self):
         if not self._actor_exists():
-            return 
+            return
 
-        self.nodes_actor.SetVisibility(self.plot_filter.nodes)
-        self.lines_actor.SetVisibility(self.plot_filter.lines)
-        self.tubes_actor.SetVisibility(self.plot_filter.tubes)
-        self.acoustic_nodes_symbols_actor.SetVisibility(self.plot_filter.acoustic_symbols)
-        self.acoustic_elements_symbols_actor.SetVisibility(self.plot_filter.acoustic_symbols)
-        self.structural_nodes_symbols_actor.SetVisibility(self.plot_filter.structural_symbols)
-        self.structural_elements_symbols_actor.SetVisibility(self.plot_filter.structural_symbols)
+        visualization = app().main_window.visualization_filter
+        self.points_actor.SetVisibility(visualization.points)
+        self.nodes_actor.SetVisibility(visualization.nodes)
+        self.lines_actor.SetVisibility(visualization.lines)
+        self.tubes_actor.SetVisibility(visualization.tubes)
+        opacity = 0.9 if visualization.transparent else 1
+        self.tubes_actor.GetProperty().SetOpacity(opacity)
+
+        self.acoustic_nodes_symbols_actor.SetVisibility(visualization.acoustic_symbols)
+        self.acoustic_elements_symbols_actor.SetVisibility(visualization.acoustic_symbols)
+        self.structural_nodes_symbols_actor.SetVisibility(visualization.structural_symbols)
+        self.structural_elements_symbols_actor.SetVisibility(visualization.structural_symbols)
+
+        # To update default, material or fluid visualization
+        self.tubes_actor.clear_colors()
+
         self.update()
 
     def _actor_exists(self):
@@ -163,63 +174,67 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def set_theme(self, theme):
         super().set_theme(theme)
-        try:
-            self.create_logos(theme=theme)
-        except:
-            return
+        self.create_logos(theme)
 
     def create_logos(self, theme="light"):
-        self.renderer.RemoveViewProp(self.open_pulse_logo)
-        self.renderer.RemoveViewProp(self.mopt_logo)
-        self.renderer.AddViewProp(self.open_pulse_logo)
-        self.renderer.AddViewProp(self.mopt_logo)
-
         if theme == "light":
-            open_pulse_path = str(ICON_DIR/ 'logos/OpenPulse_logo_black.png')
-            mopt_path = str(ICON_DIR / 'logos/mopt_logo_black.png')     
-        elif theme == "dark":
-            open_pulse_path = str(ICON_DIR / 'logos/OpenPulse_logo_white.png')
-            mopt_path =  str(ICON_DIR / 'logos/mopt_logo_white.png')
+            path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
         else:
-            raise NotImplementedError()
+            path = ICON_DIR / "logos/OpenPulse_logo_white.png"
 
-        self.open_pulse_logo = self._load_vtk_logo(open_pulse_path)
+        if hasattr(self, "open_pulse_logo"):
+            self.renderer.RemoveViewProp(self.open_pulse_logo)
+
+        self.open_pulse_logo = self.create_logo(path)
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
-        self.renderer.AddViewProp(self.open_pulse_logo)
-        self.open_pulse_logo.SetRenderer(self.renderer)
-
-        self.mopt_logo = self._load_vtk_logo(mopt_path)
-        self.mopt_logo.SetPosition(0.01, -0.015)
-        self.mopt_logo.SetPosition2(0.07, 0.1)
-        self.renderer.AddViewProp(self.mopt_logo)
-        self.mopt_logo.SetRenderer(self.renderer)
-
-    def _load_vtk_logo(self, path):
-        image_reader = vtk.vtkPNGReader()
-        image_reader.SetFileName(path)
-        image_reader.Update()
-
-        logo = vtk.vtkLogoRepresentation()
-        logo.SetImage(image_reader.GetOutput())
-        logo.ProportionalResizeOn()
-        logo.GetImageProperty().SetOpacity(0.9)
-        logo.GetImageProperty().SetDisplayLocationToBackground()
-        return logo
 
     def click_callback(self, x, y):
         self.mouse_click = x, y
 
-    def selection_callback(self, x, y):
-        picked_nodes = self._pick_nodes(x, y)
-        picked_entities = self._pick_property(x, y, "entity_index", self.lines_actor)
-        picked_elements = self._pick_property(x, y, "element_index", self.tubes_actor)
+    def selection_callback(self, x1, y1):
+        if not self._actor_exists():
+            return
 
-        # selection priority is: nodes > entities > elements
-        if len(picked_nodes) == 1 and len(picked_entities) <= 1 and len(picked_elements) <= 1:
-            picked_entities.clear()
-            picked_elements.clear()
-        elif len(picked_entities) == 1 and len(picked_elements) <= 1:
+        x0, y0 = self.mouse_click
+        mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
+        selection_filter = app().main_window.selection_filter
+        visualization_filter = app().main_window.visualization_filter
+
+        picked_nodes = set()
+        picked_elements = set()
+        picked_lines = set()
+
+        if mouse_moved:
+            if selection_filter.nodes:
+                picked_nodes = self.mesh_picker.area_pick_nodes(x0, y0, x1, y1)
+
+            if selection_filter.elements:
+                picked_elements = self.mesh_picker.area_pick_elements(x0, y0, x1, y1)
+
+            if selection_filter.lines:
+                picked_lines = self.mesh_picker.area_pick_lines(x0, y0, x1, y1)
+
+        else:
+            if selection_filter.nodes:
+                picked_nodes = set([self.mesh_picker.pick_node(x1, y1)])
+                picked_nodes.difference_update([-1])  # remove -1 index
+
+            if selection_filter.elements:
+                picked_elements = set([self.mesh_picker.pick_element(x1, y1)])
+                picked_elements.difference_update([-1])  # remove -1 index
+
+            if selection_filter.lines:
+                picked_lines = set([self.mesh_picker.pick_entity(x1, y1)])
+                picked_lines.difference_update([-1])  # remove -1 index
+
+        if visualization_filter.points:
+            points_indexes = set(app().project.get_geometry_points().keys())
+            picked_nodes.intersection_update(points_indexes)
+
+        # give priority to node selection
+        if picked_nodes and not mouse_moved:
+            picked_lines.clear()
             picked_elements.clear()
 
         modifiers = QApplication.keyboardModifiers()
@@ -227,171 +242,92 @@ class MeshRenderWidget(CommonRenderWidget):
         shift_pressed = bool(modifiers & Qt.ShiftModifier)
         alt_pressed = bool(modifiers & Qt.AltModifier)
 
-        self.update_selection_info(picked_nodes, picked_elements, picked_entities)
-        
+        app().main_window.set_selection(
+            nodes=picked_nodes,
+            lines=picked_lines,
+            elements=picked_elements,
+            join=ctrl_pressed | shift_pressed,
+            remove=alt_pressed,
+        )
+
+    def update_selection(self):
+        if not self._actor_exists():
+            return
+
+        self.points_actor.clear_colors()
         self.nodes_actor.clear_colors()
         self.lines_actor.clear_colors()
         self.tubes_actor.clear_colors()
 
-        selection_color = (255, 0, 0)
-        self.nodes_actor.set_color(selection_color, picked_nodes)
-        self.lines_actor.set_color(selection_color, entities=picked_entities)
-        self.tubes_actor.set_color(selection_color, elements=picked_elements)
+        nodes = app().main_window.selected_nodes
+        lines = app().main_window.selected_lines
+        elements = app().main_window.selected_elements
 
-    def _pick_nodes(self, x, y):
-        picked = self._pick_actor(x, y, self.nodes_actor)
-        if not self.nodes_actor in picked:
-            return set()
+        self.nodes_actor.set_color((255, 50, 50), nodes)
+        self.points_actor.set_color((255, 50, 50), nodes)
+        self.lines_actor.set_color((200, 0, 0), elements, lines)
+        self.tubes_actor.set_color((255, 0, 50), elements, lines)
 
-        cells = picked[self.nodes_actor]
-        return set(cells)
+        # show element actor
+        self.element_axes_actor.VisibilityOff()
+        if len(elements) == 1:
+            self.element_axes_actor.VisibilityOn()
+            element_id, *_ = elements
+            element = app().project.get_structural_element(element_id)
+            self.element_axes_actor.position_from_element(element)
 
-    def _pick_entities(self, x, y):
-        picked = self._pick_actor(x, y, self.lines_actor)
-        if not self.lines_actor in picked:
-            return set()
-        cells = picked[self.lines_actor]
-        entities = {self.lines_actor.get_cell_entity(i) for i in cells}
-        return entities
+        self.update_info_text()
+        self.update()
 
-    def _pick_elements(self, x, y):
-        picked = self._pick_actor(x, y, self.tubes_actor)
-        if not self.tubes_actor in picked:
-            return set()
-
-        cells = picked[self.tubes_actor]
-        elements = {self.tubes_actor.get_cell_element(i) for i in cells}
-        return elements
-    
-    def _pick_actor(self, x, y, actor_to_select):
-        selection_picker = CellAreaPicker()
-        selection_picker._cell_picker.SetTolerance(0.0015)
-        pickability = dict()
-
-        for actor in self.renderer.GetActors():
-            pickability[actor] = actor.GetPickable()
-            if actor == actor_to_select:
-                actor.PickableOn()
-            else:
-                actor.PickableOff()
-
-        x0, y0 = self.mouse_click
-        mouse_moved = (abs(x0 - x) > 10) or (abs(y0 - y) > 10)
-        if mouse_moved:
-            selection_picker.area_pick(x0, y0, x, y, self.renderer)
-        else:
-            selection_picker.pick(x, y, 0, self.renderer)
-
-        for actor in self.renderer.GetActors():
-            actor.SetPickable(pickability[actor])
-
-        return selection_picker.get_picked()
-
-    def _pick_property(self, x, y, property_name, desired_actor):
-        selection_picker = CellPropertyAreaPicker(property_name, desired_actor)
-        selection_picker._cell_picker.SetTolerance(0.0015)
-        pickability = dict()
-
-        for actor in self.renderer.GetActors():
-            pickability[actor] = actor.GetPickable()
-            if actor == desired_actor:
-                actor.PickableOn()
-            else:
-                actor.PickableOff()
-
-        x0, y0 = self.mouse_click
-        mouse_moved = (abs(x0 - x) > 10) or (abs(y0 - y) > 10)
-        if mouse_moved:
-            selection_picker.area_pick(x0, y0, x, y, self.renderer)
-        else:
-            selection_picker.pick(x, y, 0, self.renderer)
-
-        for actor in self.renderer.GetActors():
-            actor.SetPickable(pickability[actor])
-
-        return selection_picker.get_picked()
-
-    def update_selection_info(self, nodes, elements, entities):
+    def update_info_text(self):
         info_text = ""
-        info_text += self._nodes_info_text(nodes)
-        info_text += self._elements_info_text(elements)
-        info_text += self._entity_info_text(entities)
+        info_text += nodes_info_text()
+        info_text += elements_info_text()
+        info_text += lines_info_text()
         self.set_info_text(info_text)
 
-    def _nodes_info_text(self, nodes):
-        info_text = ""
-        if len(nodes) > 1:
-            info_text += (
-                f"{len(nodes)} NODES IN SELECTION\n"
-                f"{format_long_sequence(nodes)}\n\n"
-            )
-        return info_text
+    def update_section_plane(self):
+        if not self._actor_exists():
+            return
 
-    def _elements_info_text(self, elements):
-        info_text = ""
-        if len(elements) > 1:
-            info_text += (
-                f"{len(elements)} ELEMENTS IN SELECTION\n"
-                f"{format_long_sequence(elements)}\n\n"
-            )
-        return info_text
+        section_plane = app().main_window.section_plane
 
-    def _entity_info_text(self, entities):
-        info_text = ""
-        project = app().project
+        if not section_plane.cutting:
+            self._disable_section_plane()
+            return
 
-        if len(entities) == 1:
-            _id, *_ = entities
-            entity = project.get_entity(_id)
+        position = section_plane.get_position()
+        rotation = section_plane.get_rotation()
+        inverted = section_plane.get_inverted()
 
-            info_text += f"LINE {_id}\n\n"
+        if section_plane.editing:
+            self.plane_actor.configure_section_plane(position, rotation)
+            self.plane_actor.VisibilityOn()
+            self.plane_actor.GetProperty().SetColor(0, 0.333, 0.867)
+            self.plane_actor.GetProperty().SetOpacity(0.8)
+            self.update()
+        else:
+            # not a very reliable condition, but it works
+            show_plane = not section_plane.keep_section_plane
+            self._apply_section_plane(position, rotation, inverted, show_plane)
 
-            if entity.material:
-                tree = TreeInfo("Material")
-                tree.add_item("Name", entity.material.name)
-                info_text += str(tree)
+    def _disable_section_plane(self):
+        self.plane_actor.VisibilityOff()
+        self.tubes_actor.disable_cut()
+        self.update()
 
-            if entity.fluid:
-                tree = TreeInfo("fluid")
-                tree.add_item("Name", entity.fluid.name)
-                if entity.fluid.temperature:
-                    tree.add_item("Temperature", round(entity.fluid.temperature, 4), "[K]")
-                if entity.fluid.pressure:
-                    tree.add_item("Pressure", round(entity.fluid.pressure, 4), "[Pa]")
-                info_text += str(tree)
+    def _apply_section_plane(self, position, rotation, inverted, show_plane=True):
+        self.plane_actor.configure_section_plane(position, rotation)
+        xyz = self.plane_actor.calculate_xyz_position(position)
+        normal = self.plane_actor.calculate_normal_vector(rotation)
+        if inverted:
+            normal = -normal
 
-            if entity.cross_section is None:
-                tree = TreeInfo("cross section")
-                tree.add_item("Info", "Undefined")
-                info_text += str(tree)
+        self.tubes_actor.apply_cut(xyz, normal)
 
-            elif entity.structural_element_type == 'beam_1':
-                tree = TreeInfo("cross section")
-                tree.add_item("Area", round(entity.cross_section.area, 2), "[m²]")
-                tree.add_item("Iyy", round(entity.cross_section.second_moment_area_y, 4), "[m⁴]")
-                tree.add_item("Izz", round(entity.cross_section.second_moment_area_z, 4), "[m⁴]")
-                tree.add_item("Iyz", round(entity.cross_section.second_moment_area_yz, 4), "[m⁴]")
-                tree.add_item("x-axis rotation", round(entity.cross_section.second_moment_area_yz, 4), "[m⁴]")
-                info_text += str(tree)
+        self.plane_actor.SetVisibility(show_plane)
+        self.plane_actor.GetProperty().SetColor(0.5, 0.5, 0.5)
+        self.plane_actor.GetProperty().SetOpacity(0.2)
+        self.update()
 
-            elif entity.structural_element_type in ['pipe_1', 'valve']:
-                tree = TreeInfo("cross section")
-                tree.add_item("Outer Diameter", round(entity.cross_section.outer_diameter, 4), "[m]")
-                tree.add_item("Thickness", round(entity.cross_section.thickness, 4), "[m]")
-                tree.add_separator()
-                if entity.cross_section.offset_y or entity.cross_section.offset_z:
-                    tree.add_item("Offset Y", round(entity.cross_section.offset_y, 4), "[m]")
-                    tree.add_item("Offset Z", round(entity.cross_section.offset_z, 4), "[m]")
-                    tree.add_separator()
-                if entity.cross_section.insulation_thickness or entity.cross_section.insulation_density:
-                    tree.add_item("Insulation Thickness", round(entity.cross_section.insulation_thickness, 4), "[m]")
-                    tree.add_item("Insulation Density", round(entity.cross_section.insulation_density, 4), "[kg/m³]")
-                info_text += str(tree)
-
-        elif len(entities) > 1:
-            info_text += (
-                f"{len(entities)} LINES IN SELECTION\n"
-                f"{format_long_sequence(entities)}\n\n"
-            )
-
-        return info_text
+# fmt: on

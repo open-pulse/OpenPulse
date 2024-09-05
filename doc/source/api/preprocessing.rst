@@ -4,40 +4,40 @@ Preprocessing
 
 Acoustic Element
 ----------------
-    .. automodule:: pulse.preprocessing.acoustic_element
+    .. automodule:: pulse.model.acoustic_element
         :members:
 
 Structural Element
 ------------------
-    .. automodule:: pulse.preprocessing.structural_element
+    .. automodule:: pulse.model.structural_element
         :members:
 
 Cross Section
 -------------
-    .. automodule:: pulse.preprocessing.cross_section
+    .. automodule:: pulse.model.cross_section
         :members:
 
 Entity
 ------
-    .. automodule:: pulse.preprocessing.entity
+    .. automodule:: pulse.model.entity
         :members:
 
 Fluid
 -----
-    .. automodule:: pulse.preprocessing.fluid
+    .. automodule:: pulse.model.fluid
         :members:
 
 Material
 --------
-    .. automodule:: pulse.preprocessing.material
+    .. automodule:: pulse.model.material
         :members:
 
 Mesh
 ----
-    .. automodule:: pulse.preprocessing.mesh
+    .. automodule:: pulse.model.mesh
         :members:
 
 Node
 ----
-    .. automodule:: pulse.preprocessing.node
+    .. automodule:: pulse.model.node
         :members: 

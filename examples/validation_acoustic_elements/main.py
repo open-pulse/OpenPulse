@@ -3,12 +3,12 @@ from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.material import Material
-from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.preprocessor import  Preprocessor
+from pulse.model.cross_section import CrossSection
+from pulse.model.properties.material import Material
+from pulse.model.properties.fluid import Fluid
+from pulse.model.preprocessor import  Preprocessor
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
-from pulse.processing.solution_acoustic import SolutionAcoustic
+from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 # Fluid setup
@@ -20,7 +20,7 @@ air.thermal_conductivity = 0.0263
 air.specific_heat_Cp = 1007
 air.dynamic_viscosity = 184.6e-7    
 
-steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 cross_section = CrossSection(0.05, 0.008, offset_y=0, offset_z=0)
 cross_section.update_properties()
@@ -40,19 +40,19 @@ element_type = 'LRF full'
 preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=None)
 
 preprocessor.set_fluid_by_element('all', air)
-preprocessor.set_cross_section_by_element('all', cross_section)
+preprocessor.set_cross_section_by_elements('all', cross_section)
 preprocessor.set_cross_section_by_lines(40, cross_section_expansion)
 preprocessor.set_cross_section_by_lines([37, 38, 39], cross_section_branch)
 preprocessor.set_cross_section_by_lines([21, 22, 23, 24, 25, 27, 28], cross_section_branch)
 
-preprocessor.set_length_correction_by_element([9, 10, 11, 12, 13, 659, 660, 661, 662, 663, 711, 712, 885, 886, 1197, 1198, 1225, 1226, 1227, 1228, 1235, 1236], 0, "section") # Expansion correction
-preprocessor.set_length_correction_by_element([608, 609, 610, 967, 968, 984, 985, 986, 987, 988, 1004, 1005, 1006, 1007, 1008, 1009, 1047, 1048, 1097, 1098, 1147, 1148, 1149], 1, "section") # Side branch correction
+preprocessor.set_element_length_correction_by_element([9, 10, 11, 12, 13, 659, 660, 661, 662, 663, 711, 712, 885, 886, 1197, 1198, 1225, 1226, 1227, 1228, 1235, 1236], 0, "section") # Expansion correction
+preprocessor.set_element_length_correction_by_element([608, 609, 610, 967, 968, 984, 985, 986, 987, 988, 1004, 1005, 1006, 1007, 1008, 1009, 1047, 1048, 1097, 1098, 1147, 1148, 1149], 1, "section") # Side branch correction
 # Analisys Frequencies
 f_max = 250
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 
-solution = SolutionAcoustic(mesh, frequencies)
+solution = AcousticSolver(mesh, frequencies)
 
 direct = solution.direct_method()
 #%% Validation

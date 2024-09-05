@@ -1,5 +1,5 @@
 from pulse import app
-from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
+from pulse.model.node import DOF_PER_NODE_ACOUSTIC
 
 import numpy as np
 from math import pi

@@ -3,13 +3,13 @@ from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.material import Material
-from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.preprocessor import Preprocessor
-from pulse.preprocessing.perforated_plate import PerforatedPlate
+from pulse.model.cross_section import CrossSection
+from pulse.properties.material import Material
+from pulse.properties.fluid import Fluid
+from pulse.model.preprocessor import Preprocessor
+from pulse.model.perforated_plate import PerforatedPlate
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
-from pulse.processing.solution_acoustic import SolutionAcoustic
+from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 # Fluid setup
@@ -21,18 +21,18 @@ air.thermal_conductivity = 0.0263
 air.specific_heat_Cp = 1007
 air.dynamic_viscosity = 1.846e-05
 
-steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 
 section_parameters = [0.04859, 0.003, 0, 0, 0, 0]
-pipe_section_info = {  "section_type_label" : "Pipe section" ,
+pipe_section_info = {  "section_type_label" : "Pipe" ,
                         "section_parameters" : section_parameters  }
 
 cross_section1 = CrossSection(pipe_section_info=pipe_section_info)
 cross_section1.update_properties()
 
 section_parameters = [0.04044, 0.003, 0, 0, 0, 0]
-pipe_section_info = {  "section_type_label" : "Pipe section" ,
+pipe_section_info = {  "section_type_label" : "Pipe" ,
                         "section_parameters" : section_parameters  }
 
 cross_section2 = CrossSection(pipe_section_info=pipe_section_info)
@@ -64,7 +64,7 @@ preprocessor.set_mean_velocity_by_element('all', mean_velocity)
 f_max = 1000
 df = 1
 frequencies = np.arange(df, f_max+df, df)
-solution = SolutionAcoustic(preprocessor, frequencies)
+solution = AcousticSolver(preprocessor, frequencies)
 
 direct = solution.direct_method()
 

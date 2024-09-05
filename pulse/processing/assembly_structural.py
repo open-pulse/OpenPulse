@@ -1,9 +1,13 @@
-from time import time
+# fmt: off
+
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
+from pulse.model.model import Model
+from pulse.model.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
+
 import numpy as np
 from scipy.sparse import csr_matrix
+from time import time
 
-from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
-from pulse.preprocessing.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 class AssemblyStructural:
     """ This class creates a structural assembly object from input data.
@@ -21,11 +25,14 @@ class AssemblyStructural:
         Default is None.
     """
 
-    def __init__(self, preprocessor, frequencies, **kwargs):
-        self.preprocessor = preprocessor
-        self.frequencies = frequencies
+    def __init__(self, model: Model, **kwargs):
+
+        self.model = model
+        self.preprocessor = model.preprocessor
+        self.frequencies = model.frequencies
         self.acoustic_solution = kwargs.get('acoustic_solution', None)
         self.no_table = True
+
         self.prescribed_indexes = self.get_prescribed_indexes()
         self.unprescribed_indexes = self.get_unprescribed_indexes()
 
@@ -45,12 +52,21 @@ class AssemblyStructural:
 
         get_unprescribed_indexes : Indexes of the structural free degrees of freedom.
         """
-        global_prescribed = []
-        for node in self.preprocessor.nodes.values():
-            if node.there_are_prescribed_dofs:
+
+        global_prescribed = list()
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property == "prescribed_dofs":
+
+                node_id = args[0]
+                node = self.preprocessor.nodes[node_id]
+                values = data["values"]
+
                 starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
-                dofs = np.array(node.get_prescribed_dofs_bc_indexes()) + starting_position
+                internal_dofs = [i for i, value in enumerate(values) if value is not None]
+
+                dofs = starting_position + np.array(internal_dofs)
                 global_prescribed.extend(dofs)
+
         return global_prescribed
 
 
@@ -70,31 +86,34 @@ class AssemblyStructural:
         get_unprescribed_indexes : Indexes of the structural free degrees of freedom.
         """
     
-        global_prescribed = []
-        list_prescribed_dofs = []
+        global_prescribed = list()
+        list_of_arrays = list()
         if self.frequencies is None:
             number_frequencies = 1
         else:
             number_frequencies = len(self.frequencies)
         
-        for node in self.preprocessor.nodes.values():
-            if node.there_are_prescribed_dofs:
-                global_prescribed.extend(node.get_prescribed_dofs_bc_values())      
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property == "prescribed_dofs":
+                # node_id = args
+                values = data["values"]
+                global_prescribed.extend([value for value in values if value is not None])   
 
-        try:    
-            
+        try:
+
             aux_ones = np.ones(number_frequencies, dtype=complex)
             for value in global_prescribed:
                 if isinstance(value, complex):
-                    list_prescribed_dofs.append(aux_ones*value)
+                    list_of_arrays.append(aux_ones*value)
                 elif isinstance(value, np.ndarray):
-                    list_prescribed_dofs.append(value[0:number_frequencies])
-            array_prescribed_values = np.array(list_prescribed_dofs)
+                    list_of_arrays.append(value[0:number_frequencies])
+
+            array_of_values = np.array(list_of_arrays)
 
         except Exception as _error_log:
             print(str(_error_log))
 
-        return global_prescribed, array_prescribed_values
+        return global_prescribed, array_of_values
 
 
     def get_unprescribed_indexes(self):
@@ -137,7 +156,7 @@ class AssemblyStructural:
         """
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         number_elements = len(self.preprocessor.structural_elements)
-        self.expansion_joint_data = {}
+        self.expansion_joint_data = dict()
 
         rows, cols = self.preprocessor.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
@@ -177,8 +196,9 @@ class AssemblyStructural:
 
         else: 
 
-            rows = []
-            cols = []  
+            rows = list()
+            cols = list()
+
             mat_Ke = np.zeros((number_frequencies, number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
             mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
@@ -238,77 +258,89 @@ class AssemblyStructural:
         else:
             cols = len(self.frequencies)
         
-        list_Kdata = []
-        list_Mdata = []
-        list_Cdata = []
+        K_data = list()
+        M_data = list()
+        C_data = list()
 
-        i_indexes_M, j_indexes_M = [], []
-        i_indexes_K, j_indexes_K = [], []
-        i_indexes_C, j_indexes_C = [], []
-        
-        self.nodes_with_lumped_masses = []
-        self.nodes_connected_to_springs = []
-        self.nodes_connected_to_dampers = []
+        i_indexes_M, j_indexes_M = list(), list()
+        i_indexes_K, j_indexes_K = list(), list()
+        i_indexes_C, j_indexes_C = list(), list()
 
         flag_Clump = False
 
-        # processing external elements by node
-        for node in self.preprocessor.nodes.values():
+        _properties = [  
+                        "lumped_masses",
+                        "lumped_stiffness",
+                        "lumped_dampings",
+                        "psd_structural_links",
+                        "structural_stiffness_links",
+                        "structural_damping_links"
+                       ]
 
-            # processing mass added
-            if node.there_are_lumped_stiffness:
-                position = node.global_dof
-                self.nodes_connected_to_springs.append(node)
-                list_Kdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_stiffness, node.lumped_stiffness))
-                i_indexes_K.append(position)
-                j_indexes_K.append(position)
+        for (_property, *args), data in self.model.properties.nodal_properties.items():
 
-            # processing mass added
-            if node.there_are_lumped_masses:
-                position = node.global_dof
-                self.nodes_with_lumped_masses.append(node)
-                list_Mdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_masses, node.lumped_masses))
+            if _property not in _properties:
+                continue
+
+            if len(args) == 1:
+                node_id = args[0]
+                position = self.preprocessor.nodes[node_id].global_dof
+
+            elif len(args) == 2:
+                node_ids = args
+
+            loaded_table = "table_names" in data.keys()
+
+            # processing lumped masses
+            if _property == "lumped_masses":
                 i_indexes_M.append(position)
                 j_indexes_M.append(position)
+                values = data["values"]
+                M_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
-            # processing damper added
-            if node.there_are_lumped_dampings:
-                position = node.global_dof
-                self.nodes_connected_to_dampers.append(node)
-                list_Cdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_dampings, node.lumped_dampings))
+            # processing lumped stiffness
+            if _property == "lumped_stiffness":
+                i_indexes_K.append(position)
+                j_indexes_K.append(position)
+                values = data["values"]
+                K_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+
+            # processing lumped dampers
+            if _property == "lumped_dampings":
                 i_indexes_C.append(position)
                 j_indexes_C.append(position)
                 flag_Clump = True
- 
-        # structural elastic link in PSDs
-        for key, cluster_data in self.preprocessor.nodes_with_structural_links.items():
-            indexes_i, indexes_j, data = cluster_data
-            i_indexes_K.append(indexes_i)
-            j_indexes_K.append(indexes_j)
-            list_Kdata.append(self.get_bc_array_for_all_frequencies(None, data))
+                values = data["values"]
+                C_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
-        # structural nodal link for stiffness
-        for key, cluster_data in self.preprocessor.nodes_with_elastic_link_stiffness.items():
-            node = self.preprocessor.nodes[int(key.split("-")[0])]
-            for indexes_i, indexes_j, data, in cluster_data:
-                for i in range(2):
-                    i_indexes_K.append(indexes_i[i])
-                    j_indexes_K.append(indexes_j[i])
-                    list_Kdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_stiffness, data[i]))
+            # structural elastic link in PSDs
+            if _property == "psd_structural_links":
+                psd_link_data = self.preprocessor.get_psd_structural_link_data(node_ids)
+                i_indexes_K.extend(psd_link_data["indexes_i"])
+                j_indexes_K.extend(psd_link_data["indexes_j"])
+                values = psd_link_data["data"]
+                K_data.append(self.get_bc_array_for_all_frequencies(False, values))
 
-        # structural nodal link for damping
-        for key, cluster_data in self.preprocessor.nodes_with_elastic_link_dampings.items():
-            node = self.preprocessor.nodes[int(key.split("-")[0])]
-            for indexes_i, indexes_j, data, in cluster_data:
-                for i in range(2):
-                    i_indexes_C.append(indexes_i[i])
-                    j_indexes_C.append(indexes_j[i])
-                    list_Cdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_dampings, data[i]))
+            # structural nodal link for stiffness
+            if _property == "structural_stiffness_links":
+                link_data_K = self.preprocessor.get_structural_links_data(node_ids, data)
+                i_indexes_K.extend(link_data_K["indexes_i"])
+                j_indexes_K.extend(link_data_K["indexes_j"])
+                values = link_data_K["data"]
+                K_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
-        data_Klump = np.array(list_Kdata).reshape(-1, cols)
-        data_Mlump = np.array(list_Mdata).reshape(-1, cols)
-        data_Clump = np.array(list_Cdata).reshape(-1, cols)
-       
+            # structural nodal link for damping
+            if _property == "structural_damping_links":
+                link_data_C = self.preprocessor.get_structural_links_data(node_ids, data)
+                i_indexes_C.extend(link_data_C["indexes_i"])
+                j_indexes_C.extend(link_data_C["indexes_j"])
+                values = link_data_C["data"]
+                C_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+
+        data_Klump = np.array(K_data).reshape(-1, cols)
+        data_Mlump = np.array(M_data).reshape(-1, cols)
+        data_Clump = np.array(C_data).reshape(-1, cols)
+
         i_indexes_K = np.array(i_indexes_K).flatten()
         i_indexes_M = np.array(i_indexes_M).flatten()
         i_indexes_C = np.array(i_indexes_C).flatten()
@@ -330,7 +362,7 @@ class AssemblyStructural:
         Cr_lump = [sparse_matrix[:, self.prescribed_indexes] for sparse_matrix in full_C]
 
         return K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
-        
+
 
     def get_global_loads_for_stress_stiffening(self):
         """
@@ -395,24 +427,29 @@ class AssemblyStructural:
             for element in self.preprocessor.structural_elements.values():
                 position = element.global_dof
                 # self-weight loads
-                if self.preprocessor.project.weight_load:
-                    loads[position] += element.get_self_weighted_load(self.preprocessor.gravity_vector)
+                if self.model.weight_load:
+                    loads[position] += element.get_self_weighted_load(self.model.gravity_vector)
                 # stress stiffening loads
-                if self.preprocessor.project.internal_pressure_load:
+                if self.model.internal_pressure_load:
                     loads[position] += element.force_vector_stress_stiffening()
                 # distributed loads
-                if self.preprocessor.project.element_distributed_load:
+                if self.model.element_distributed_load:
                     loads[position] += element.get_distributed_load()
-            
-            if self.preprocessor.project.external_nodal_loads:
+
+            if self.model.external_nodal_loads:
                 # nodal loads
-                for node in self.preprocessor.nodes.values():
-                    if node.there_are_nodal_loads:
+                for (property, *args), data in self.model.properties.nodal_properties.items():
+                    if property == "nodal_loads":
+
+                        node_id = args
+                        node = self.preprocessor.nodes[node_id]
                         position = node.global_dof
-                        if node.loaded_table_for_nodal_loads:
-                            temp_loads = [_frequencies if bc is None else bc for bc in node.nodal_loads]
+                        values = data["values"]
+
+                        if "table_names" in data.keys():
+                            temp_loads = [_frequencies if bc is None else bc for bc in values]
                         else:
-                            temp_loads = [_frequencies if bc is None else np.ones_like(_frequencies)*bc for bc in node.nodal_loads]
+                            temp_loads = [_frequencies if bc is None else np.ones_like(_frequencies)*bc for bc in values]
                         loads[position, :] += temp_loads
 
         except Exception as _error_log:
@@ -447,30 +484,45 @@ class AssemblyStructural:
             _frequencies = np.array([0.], dtype=float)
         else:
             _frequencies = self.frequencies
-        cols = len(_frequencies)
 
+        cols = len(_frequencies)
         loads = np.zeros((total_dof, cols), dtype=complex)
         pressure_loads = np.zeros((total_dof, cols), dtype=complex)
-        
+
         if static_analysis:
             return self.get_global_loads_for_static_analysis()
-        
+
         # distributed loads
         for element in self.preprocessor.structural_elements.values():
             position = element.global_dof 
             loads[position] += element.get_distributed_load()
   
         # nodal loads
-        for node in self.preprocessor.nodes.values():
-            if node.there_are_nodal_loads:
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property == "nodal_loads":
+
+                node_id = args[0]
+                node = self.preprocessor.nodes[node_id]
                 position = node.global_dof
-                if node.loaded_table_for_nodal_loads:
-                    temp_loads = [np.zeros_like(_frequencies) if bc is None else bc for bc in node.nodal_loads]
+                values = data["values"]
+
+                if "table_names" in data.keys():
+                    temp_loads = [np.zeros_like(_frequencies) if bc is None else bc for bc in values]
                 else:
-                    temp_loads = [np.zeros_like(_frequencies) if bc is None else np.ones_like(_frequencies)*bc for bc in node.nodal_loads]
+                    temp_loads = [np.zeros_like(_frequencies) if bc is None else np.ones_like(_frequencies)*bc for bc in values]
+
                 loads[position, :] += temp_loads
-           
-        loads = loads[self.unprescribed_indexes,:]
+
+        # for node in self.preprocessor.nodes.values():
+        #     if node.there_are_nodal_loads:
+        #         position = node.global_dof
+        #         if node.loaded_table_for_nodal_loads:
+        #             temp_loads = [np.zeros_like(_frequencies) if bc is None else bc for bc in values]
+        #         else:
+        #             temp_loads = [np.zeros_like(_frequencies) if bc is None else np.ones_like(_frequencies)*bc for bc in values]
+        #         loads[position, :] += temp_loads
+
+        loads = loads[self.unprescribed_indexes, :]
         
         # acoustic-structural loads
         if self.acoustic_solution is not None:
@@ -479,8 +531,12 @@ class AssemblyStructural:
                 pressure_last = self.acoustic_solution[element.last_node.global_index, :]
                 pressure = np.c_[pressure_first, pressure_last].T
                 position = element.global_dof
-                pressure_loads[position, :] += element.force_vector_acoustic_gcs(_frequencies, pressure, pressure_external)
-        
+                pressure_loads[position, :] += element.force_vector_acoustic_gcs(   
+                                                                                    _frequencies, 
+                                                                                    pressure, 
+                                                                                    pressure_external
+                                                                                 )
+
         pressure_loads = pressure_loads[self.unprescribed_indexes,:]
 
         if loads_matrix3D:

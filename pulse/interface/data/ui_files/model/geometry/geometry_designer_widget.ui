@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>445</width>
+    <height>812</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <widget class="QFrame" name="general_options">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="general_options_label">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>General Options</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="1">
+         <widget class="QComboBox" name="unit_combobox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <item>
+           <property name="text">
+            <string>Meter</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Milimeter</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Inch</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="structure_type_label">
+          <property name="text">
+           <string>Type</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="unit_label">
+          <property name="text">
+           <string>Unit</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="structure_combobox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <item>
+           <property name="text">
+            <string>Pipe</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Point</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Flange</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Valve</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Expansion Joint</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Reducer</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Circular Beam</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Rectangular Beam</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>I-Beam</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>T-Beam</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>C-Beam</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="set_material_button">
+          <property name="text">
+           <string>Set Material</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="set_fluid_button">
+          <property name="text">
+           <string>Set Fluid</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame_2">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QLabel" name="general_options_label_2">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Division Options</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout_3">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <item row="2" column="0">
+         <widget class="QLabel" name="division_slider_label">
+          <property name="text">
+           <string>Position</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QPushButton" name="cancel_division_button">
+          <property name="text">
+           <string>Cancel</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="division_combobox">
+          <item>
+           <property name="text">
+            <string>Single Division</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Multiple Division</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Division Type</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="apply_division_button">
+          <property name="text">
+           <string>Apply Division</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QSpinBox" name="division_amount_spinbox">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSlider" name="division_slider">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>10</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="sizes_widget">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QLabel" name="sizes_coords_label">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Bounding Box Sizes</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="0">
+         <widget class="QLabel" name="dx_label">
+          <property name="text">
+           <string>ΔX</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="3">
+         <widget class="QLabel" name="unity_z_label">
+          <property name="text">
+           <string>[m]</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="dy_label">
+          <property name="text">
+           <string>ΔY</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLineEdit" name="y_line_edit"/>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLabel" name="unity_x_label">
+          <property name="text">
+           <string>[m]</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QLineEdit" name="z_line_edit"/>
+        </item>
+        <item row="3" column="3">
+         <widget class="QLabel" name="unity_y_label">
+          <property name="text">
+           <string>[m]</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="dz_label">
+          <property name="text">
+           <string>ΔZ</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLineEdit" name="x_line_edit"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="remove_attach_add_frame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="delete_button">
+        <property name="text">
+         <string>Delete</string>
+        </property>
+        <property name="shortcut">
+         <string>Del</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="attach_button">
+        <property name="text">
+         <string>Attach</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="add_button">
+        <property name="text">
+         <string>Add</string>
+        </property>
+        <property name="shortcut">
+         <string>Return</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QStackedWidget" name="options_stack_widget">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="empty_widget">
+      <layout class="QVBoxLayout" name="verticalLayout_5"/>
+     </widget>
+     <widget class="QWidget" name="page_2"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QPushButton" name="cancel_button">
+        <property name="text">
+         <string>Cancel</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="finalize_button">
+        <property name="text">
+         <string>Finalize</string>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+Return</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+  <action name="select_all_action">
+   <property name="text">
+    <string>Select All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>unit_combobox</tabstop>
+  <tabstop>structure_combobox</tabstop>
+  <tabstop>x_line_edit</tabstop>
+  <tabstop>y_line_edit</tabstop>
+  <tabstop>z_line_edit</tabstop>
+  <tabstop>delete_button</tabstop>
+  <tabstop>attach_button</tabstop>
+  <tabstop>add_button</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

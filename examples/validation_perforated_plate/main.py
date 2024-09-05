@@ -3,13 +3,13 @@ from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.material import Material
-from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.preprocessor import Preprocessor
-from pulse.preprocessing.perforated_plate import PerforatedPlate
+from pulse.model.cross_section import CrossSection
+from pulse.properties.material import Material
+from pulse.properties.fluid import Fluid
+from pulse.model.preprocessor import Preprocessor
+from pulse.model.perforated_plate import PerforatedPlate
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
-from pulse.processing.solution_acoustic import SolutionAcoustic
+from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 # Fluid setup
@@ -21,7 +21,7 @@ air.thermal_conductivity = 0.0263
 air.specific_heat_Cp = 1007
 air.dynamic_viscosity = 1.846e-05
 
-steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 cross_section = CrossSection(0.273, 0.00927, offset_y=0, offset_z=0)
 cross_section.update_properties()
@@ -46,7 +46,7 @@ preprocessor.set_cross_section_by_lines([1, 2, 3, 4], cross_section_expansion)
 f_max = 400
 df = 1
 frequencies = np.arange(df, f_max+df, df)
-solution = SolutionAcoustic(preprocessor, frequencies)
+solution = AcousticSolver(preprocessor, frequencies)
 
 direct = solution.direct_method()
 
@@ -57,7 +57,7 @@ porosity = 0.01
 pp = PerforatedPlate(hole_diameter, thickness, porosity)
 preprocessor.set_perforated_plate(86, pp)
 
-solution = SolutionAcoustic(preprocessor, frequencies)
+solution = AcousticSolver(preprocessor, frequencies)
 direct_pp = solution.direct_method()
 
 f_fem=np.loadtxt("examples/validation_perforated_plate/FEM.txt", delimiter=',')[:,0] 

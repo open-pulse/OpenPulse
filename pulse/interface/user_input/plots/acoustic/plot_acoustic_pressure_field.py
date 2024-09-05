@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+# from pulse.interface.formatters.icons import *
 
 import numpy as np
 
@@ -12,17 +12,10 @@ import numpy as np
 class PlotAcousticPressureField(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        main_window = app().main_window
         
         ui_path = UI_DIR / "plots/results/acoustic/plot_acoustic_pressure_field_for_harmonic_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.opv_widget
-        self.opv.setInputObject(self)
-        self.project = main_window.project
-
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -31,7 +24,7 @@ class PlotAcousticPressureField(QWidget):
         self.load_user_preference_colormap()
 
     def _initialize(self):
-        self.frequencies = self.project.frequencies
+        self.frequencies = app().project.model.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
         self.colormaps = ["jet",
@@ -41,11 +34,8 @@ class PlotAcousticPressureField(QWidget):
                           "plasma",
                           "grayscale"]
 
-    def _load_icons(self):
-        self.icon = get_openpulse_icon()
-
     def _config_window(self):
-        self.setWindowIcon(self.icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
@@ -113,16 +103,12 @@ class PlotAcousticPressureField(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        self.opv.opvAnalysisRenderer.set_colormap(colormap)
+        app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
-        
-        if self.opv.opvAnalysisRenderer.getInUse():
-            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
-        else:
-            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
+        app().main_window.results_widget.set_tube_actors_transparency(transparency)
 
     def update_plot(self):
 
@@ -134,8 +120,8 @@ class PlotAcousticPressureField(QWidget):
         self.frequency = self.frequency_to_index[frequency_selected]
 
         color_scale_setup = self.get_user_color_scale_setup()
-        self.project.set_color_scale_setup(color_scale_setup)
-        self.opv.plot_pressure_field(self.frequency)
+        app().project.set_color_scale_setup(color_scale_setup)
+        app().main_window.results_widget.show_pressure_field(self.frequency)
 
     def get_user_color_scale_setup(self):
 

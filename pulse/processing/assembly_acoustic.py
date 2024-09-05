@@ -4,8 +4,9 @@ from math import pi
 from numpy.linalg import norm
 from scipy.sparse import csr_matrix, csc_matrix
 
-from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
-from pulse.preprocessing.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
+from pulse.model.model import Model
+from pulse.model.node import DOF_PER_NODE_ACOUSTIC
+from pulse.model.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 def length_correction_expansion(smaller_diameter, larger_diameter):
     """ This function returns the acoustic length correction due to expansion in the acoustic domain. This discontinuity is characterized by two elements in line with different diameters.
@@ -72,15 +73,14 @@ class AssemblyAcoustic:
     frequencies : array
         Frequencies of analysis.
     """
-    def __init__(self, preprocessor, frequencies):
-        self.preprocessor = preprocessor
-        self.frequencies = frequencies
-        if self.preprocessor.beam_gdofs is None:
-            self.beam_gdofs, _ = self.preprocessor.get_beam_and_non_beam_elements_global_dofs()
-        else:
-            self.beam_gdofs, _ = self.preprocessor.beam_gdofs, self.preprocessor.pipe_gdofs
-        self.acoustic_elements = self.preprocessor.get_acoustic_elements()
+    def __init__(self, model: Model):
+
+        self.model = model
+        self.preprocessor = model.preprocessor
+        self.frequencies = model.frequencies
+
         self.total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
+
         self.neighbor_diameters = self.preprocessor.neighbor_elements_diameter_global()
         self.prescribed_indexes = self.get_prescribed_indexes()
         self.unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()
@@ -100,12 +100,24 @@ class AssemblyAcoustic:
 
         get_unprescribed_indexes : Indexes of the free acoustic degrees of freedom.
         """
-        global_prescribed = []
-        for node in self.preprocessor.nodes.values():
-            starting_position = node.global_index * DOF_PER_NODE_ACOUSTIC
-            dofs = np.array(node.get_acoustic_boundary_condition_indexes()) + starting_position
-            global_prescribed.extend(dofs)
+
+        global_prescribed = list()
+
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property == "acoustic_pressure":
+
+                node_id = args[0]
+                node = self.preprocessor.nodes[node_id]
+                values = data["values"]
+
+                starting_position = node.global_index * DOF_PER_NODE_ACOUSTIC
+                internal_dofs = [i for i, value in enumerate(values) if value is not None]
+
+                dofs = starting_position + np.array(internal_dofs)
+                global_prescribed.extend(dofs)
+
         return global_prescribed
+
 
     def get_prescribed_values(self):
         """
@@ -122,10 +134,13 @@ class AssemblyAcoustic:
 
         get_unprescribed_indexes : Indexes of the free acoustic degrees of freedom.
         """
-        global_prescribed = []
-        for node in self.preprocessor.nodes.values():
-            if node.acoustic_pressure is not None:
-                global_prescribed.extend([node.acoustic_pressure])
+
+        global_prescribed = list()
+
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property == "acoustic_pressure":
+                values = data["values"]
+                global_prescribed.extend([value for value in values if value is not None])   
         return global_prescribed
 
     def get_unprescribed_indexes(self):
@@ -164,13 +179,17 @@ class AssemblyAcoustic:
         """
         all_indexes = np.arange(self.total_dof)
         indexes_to_remove = self.prescribed_indexes.copy()
-        for dof in list(self.beam_gdofs):
+        beam_gdofs, _ = self.preprocessor.get_beam_and_non_beam_elements_global_dofs()
+
+        for dof in list(beam_gdofs):
             indexes_to_remove.append(dof)
+
         indexes_to_remove = list(np.sort(indexes_to_remove))
         unprescribed_pipe_indexes = np.delete(all_indexes, indexes_to_remove)
         self.preprocessor.set_unprescribed_pipe_indexes(unprescribed_pipe_indexes)
+
         return unprescribed_pipe_indexes
-    
+
     def get_length_corretion(self, element):
         """
         This method evaluate the acoustic length correction for an element. The necessary conditions and the type of correction are checked.
@@ -186,7 +205,10 @@ class AssemblyAcoustic:
             Length correction.
         """
         length_correction = 0
-        if element.acoustic_length_correction is not None:
+        if element.length_correction_data is not None:
+
+            correction_type = element.length_correction_data["correction_type"]
+
             first = element.first_node.global_index
             last = element.last_node.global_index
 
@@ -200,28 +222,42 @@ class AssemblyAcoustic:
 
             for _, _, di in diameters_first:
                 if di_actual < di:
-                    if element.acoustic_length_correction in [0, 2]:
+
+                    if correction_type in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
-                    elif element.acoustic_length_correction == 1:
+
+                    elif correction_type == 1:
                         correction = length_correction_branch(di_actual, di)
                         if len(diameters_first) == 2:
-                            print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
+                            message = "Warning: Expansion identified in acoustic "
+                            message += "domain is being corrected as side branch."
+                            print(message)
+
                     else:
                         print("Datatype not understood")
+
                     corrections_first.append(correction)
 
             for _, _, di in diameters_last:
                 if di_actual < di:
-                    if element.acoustic_length_correction in [0, 2]:
+
+                    if correction_type in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
-                    elif element.acoustic_length_correction == 1:
+
+                    elif correction_type == 1:
                         correction = length_correction_branch(di_actual, di)
                         if len(diameters_last) == 2:
-                            print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
+                            message = "Warning: Expansion identified in acoustic "
+                            message += "domain is being corrected as side branch."
+                            print(message)
+
                     else:
                         print("Datatype not understood")
+
                     corrections_last.append(correction)
+
             length_correction = max(corrections_first) + max(corrections_last)
+
         return length_correction
 
     def get_length_correction_for_acoustic_link(self, diameters):
@@ -246,12 +282,11 @@ class AssemblyAcoustic:
 
         rows, cols = self.preprocessor.get_global_acoustic_indexes()
         data_k = np.zeros([len(self.frequencies), total_entries], dtype = complex)
-        
-        for element in self.acoustic_elements:
-            
-            index = element.index
 
-            start = (index-1) * ENTRIES_PER_ELEMENT
+        for element in self.preprocessor.get_acoustic_elements():
+
+            index = element.index
+            start = (index - 1) * ENTRIES_PER_ELEMENT
             end = start + ENTRIES_PER_ELEMENT
 
             if element.acoustic_link_diameters:
@@ -288,19 +323,22 @@ class AssemblyAcoustic:
         cols = list()
         data_Klink = list()
 
-        for key, (row_ind, col_ind, element) in self.preprocessor.nodes_with_acoustic_links.items():
+        for (_property, *args) in self.model.properties.nodal_properties.keys():
 
-            # print(key, element.index)
-            data_Ke = element.fetm_link_matrix(self.frequencies)
+            if _property == "psd_acoustic_link":
 
-            for i in range(len(row_ind)):
-                rows.append(row_ind[i])
-                cols.append(col_ind[i])
+                psd_link_data = self.preprocessor.get_psd_acoustic_link_data(args)
+                rows.extend(psd_link_data["indexes_i"])
+                cols.extend(psd_link_data["indexes_j"])
 
-            if len(data_Klink):
-                data_Klink = np.c_[data_Klink, data_Ke]
-            else:
-                data_Klink = data_Ke
+                element = psd_link_data["element_pipe"]
+
+                data_Ke = element.fetm_link_matrix(self.frequencies)
+
+                if len(data_Klink):
+                    data_Klink = np.c_[data_Klink, data_Ke]
+                else:
+                    data_Klink = data_Ke
 
         if len(data_Klink):
             full_K_link = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof]) for data in data_Klink]
@@ -331,33 +369,42 @@ class AssemblyAcoustic:
         ind_Klump = []
         area_fluid = None
 
-        elements = self.acoustic_elements
+        elements = self.preprocessor.get_acoustic_elements()
 
         # processing external elements by node
-        for node in self.preprocessor.nodes.values():
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property in ["specific_impedance", "radiation_impedance"]:
 
-            if node.specific_impedance is None:
-                node_specific_impedance = 0
-            else:
-                node_specific_impedance = node.specific_impedance
-
-            if node.radiation_impedance is None:
-                node_radiation_impedance = 0
-            else:
-                node_radiation_impedance = node.radiation_impedance
-
-            if np.sum(node_specific_impedance + node_radiation_impedance) != 0:
+                node_id = args[0]
+                node = self.preprocessor.nodes[node_id]
                 position = node.global_index
 
-                for element in elements:
-                    if element.first_node.global_index == position or element.last_node.global_index == position:
+                if property == "specific_impedance":
+    
+                    impedance = data["values"]
+
+                    for element in elements:
+                        if element.first_node.global_index == position or element.last_node.global_index == position:
+                            area_fluid = element.cross_section.area_fluid
+
+                elif property == "radiation_impedance":
+
+                    impedance_type = data["impedance_type"]
+
+                    elements = self.preprocessor.neighboor_elements_of_node(node_id)
+
+                    if len(elements) == 1:
+                        element = elements[0]
                         area_fluid = element.cross_section.area_fluid
+                        impedance = element.get_radiation_impedance(impedance_type, self.frequencies)
 
                 ind_Klump.append(position)
+                admittance = self.get_nodal_admittance(impedance, area_fluid, self.frequencies)
+
                 if data_Klump == []:
-                    data_Klump = node.admittance(area_fluid, self.frequencies)
+                    data_Klump = admittance
                 else:
-                    data_Klump = np.c_[data_Klump, node.admittance(area_fluid, self.frequencies)]
+                    data_Klump = np.c_[data_Klump, admittance]
 
         if area_fluid is None:
             full_K = [csr_matrix((total_dof, total_dof)) for _ in self.frequencies]
@@ -368,6 +415,23 @@ class AssemblyAcoustic:
         Kr_lump = [full[:, self.prescribed_indexes] for full in full_K]
 
         return K_lump, Kr_lump  
+
+    def get_nodal_admittance(self, impedance: (None | complex | np.ndarray), area_fluid: float, frequencies: np.ndarray) -> np.ndarray:
+        
+        admittance = np.zeros(len(frequencies), dtype=complex)
+
+        if impedance is not None:
+            Z = impedance / area_fluid
+            
+            if isinstance(impedance, complex):
+                admittance = (1 / Z) * np.ones_like(frequencies)
+
+            elif isinstance(impedance, np.ndarray):
+                if len(impedance) != len(frequencies):
+                    raise TypeError("The Specific Impedance array and frequencies array must have \nthe same length.")
+                admittance = np.divide(1, Z)
+        
+        return admittance.reshape(-1, 1)#([len(frequencies),1])
 
     def get_global_matrices_modal(self):
         """
@@ -390,7 +454,7 @@ class AssemblyAcoustic:
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
         # for index, element in enumerate(self.preprocessor.acoustic_elements.values()):
-        for element in self.acoustic_elements:
+        for element in self.preprocessor.get_acoustic_elements():
 
             index = element.index - 1
             if element.acoustic_link_diameters:
@@ -431,17 +495,21 @@ class AssemblyAcoustic:
         K_link = 0.
         M_link = 0.
 
-        for key, (row_ind, col_ind, element) in self.preprocessor.nodes_with_acoustic_links.items():
+        for (_property, *args), data in self.model.properties.nodal_properties.items():
 
-            data_Ke, data_Me = element.fem_1d_link_matrix()
+            data: dict
+            if _property == "psd_acoustic_link":
 
-            for i in range(len(row_ind)):
+                if "link_data" in data.keys():
+                    rows.extend(data["link_data"]["indexes_i"])
+                    cols.extend(data["link_data"]["indexes_j"])
 
-                rows.append(row_ind[i])
-                cols.append(col_ind[i])
+                    element = data["element_pipe"]
 
-                data_Klink.append(data_Ke[i])
-                data_Mlink.append(data_Me[i])
+                    data_Ke, data_Me = element.fem_1d_link_matrix()
+
+                    data_Klink.extend(list(data_Ke))
+                    data_Mlink.extend(list(data_Me))
 
         if len(data_Klink):
             full_K_link = csr_matrix((data_Klink, (rows, cols)), shape=[total_dof, total_dof])
@@ -465,11 +533,19 @@ class AssemblyAcoustic:
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
         volume_velocity = np.zeros([len(self.frequencies), total_dof], dtype=complex)
 
-        for node in self.preprocessor.nodes.values():
-            if node.volume_velocity is not None:
+        for (property, *args), data in self.model.properties.nodal_properties.items():
+            if property in ["volume_velocity", "compressor_excitation"]:
+
+                node_id = args[0]
+                node = self.preprocessor.nodes[node_id]
                 position = node.global_index
-                volume_velocity[:, position] += node.get_volume_velocity(self.frequencies)
-        
+                values = data["values"][0]
+
+                if isinstance(values, complex):
+                    volume_velocity[:, position] = values*np.ones_like(self.frequencies)
+                elif isinstance(values, np.ndarray):
+                    volume_velocity[:, position] = values
+
         volume_velocity = volume_velocity[:, self.unprescribed_indexes]
 
         return volume_velocity

@@ -45,6 +45,7 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_transmission_loss = self.add_item("Plot transmission loss")
         self.item_child_plot_perforated_plate_convergence_data = self.add_item("Plot perforated plate convergence data")
         self.item_child_check_pulsation_criteria = self.add_item("Check pulsation criteria")
+        self.item_child_shaking_forces_criteria = self.add_item("Shaking forces criteria")
 
         self.top_level_items = [self.item_top_results_viewer_acoustic,
                                 self.item_top_results_viewer_structural]
@@ -67,41 +68,49 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_acoustic_pressure_field.setDisabled(True)
         self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
         self.item_child_check_pulsation_criteria.setDisabled(True)
+        self.item_child_shaking_forces_criteria.setDisabled(True)
         self.item_child_plot_transmission_loss.setDisabled(True)
         self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
         self.item_child_plot_perforated_plate_convergence_data.setHidden(True)
                             
         if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
 
-            if self.project.analysis_ID in [0, 1, 2, 7]:
+            if self.project.analysis_id in [0, 1, 2, 7]:
                 self.item_top_results_viewer_structural.setHidden(False)
             
-            elif self.project.analysis_ID in [3, 4]:
+            elif self.project.analysis_id in [3, 4]:
                 self.item_top_results_viewer_acoustic.setHidden(False)
             
-            elif self.project.analysis_ID in [5, 6]:    
+            elif self.project.analysis_id in [5, 6]:    
                 self.item_top_results_viewer_acoustic.setHidden(False)
                 self.item_top_results_viewer_structural.setHidden(False)
 
-            if self.project.analysis_ID in [0, 1]:
+            if self.project.analysis_id in [0, 1]:
                 self.item_child_plot_structural_frequency_response.setDisabled(False)
                 self.item_child_plot_displacement_field.setDisabled(False)
                 self.item_child_plot_reaction_frequency_response.setDisabled(False)
                 self.item_child_plot_stress_field.setDisabled(False)
                 self.item_child_plot_stress_frequency_response.setDisabled(False)
             
-            elif self.project.analysis_ID == 2:
+            elif self.project.analysis_id == 2:
                 self.item_child_plot_structural_mode_shapes.setDisabled(False)
                 # self.item_child_plot_structural_mode_shapes.set_warning(True)
                 if self.project.get_acoustic_solution() is not None:
                     self.item_child_plot_acoustic_mode_shapes.setDisabled(False)    
             
-            elif self.project.analysis_ID == 4:
+            elif self.project.analysis_id == 4:
                 self.item_child_plot_acoustic_mode_shapes.setDisabled(False)
                 if self.project.get_structural_solution() is not None:
                     self.item_child_plot_structural_mode_shapes.setDisabled(False)  
             
-            elif self.project.analysis_ID == 3:
+            elif self.project.analysis_id in [3, 5, 6]:
+
+                if self.project.analysis_id != 3:
+                    self.item_child_plot_displacement_field.setDisabled(False)
+                    self.item_child_plot_structural_frequency_response.setDisabled(False)
+                    self.item_child_plot_stress_field.setDisabled(False)
+                    self.item_child_plot_stress_frequency_response.setDisabled(False)
+                    self.item_child_plot_reaction_frequency_response.setDisabled(False)
 
                 if self.project.perforated_plate_data_log:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
@@ -112,31 +121,13 @@ class ResultsViewerItems(CommonMenuItems):
                 self.item_child_plot_acoustic_pressure_field.setDisabled(False)
                 self.item_child_plot_acoustic_delta_pressures.setDisabled(False)
                 self.item_child_plot_transmission_loss.setDisabled(False)
-                if self.project.preprocessor.nodes_with_compressor_excitation != []:
-                    self.item_child_check_pulsation_criteria.setDisabled(False)
-            
-            elif self.project.analysis_ID in [5, 6]:
+                self.item_child_shaking_forces_criteria.setDisabled(False)
 
-                if self.project.perforated_plate_data_log:
-                    self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
-                    self.item_child_plot_perforated_plate_convergence_data.setHidden(False)
-
-                self.item_child_plot_displacement_field.setDisabled(False)
-                self.item_child_plot_structural_frequency_response.setDisabled(False)
-                self.item_child_plot_stress_field.setDisabled(False)
-                self.item_child_plot_stress_frequency_response.setDisabled(False)
-                self.item_child_plot_reaction_frequency_response.setDisabled(False)  
-
-                self.item_child_plot_acoustic_frequency_response.setDisabled(False)
-                self.item_child_plot_acoustic_frequency_response_function.setDisabled(False)
-                self.item_child_plot_acoustic_pressure_field.setDisabled(False)
-                self.item_child_plot_acoustic_delta_pressures.setDisabled(False)
-                self.item_child_plot_transmission_loss.setDisabled(False)
-
-                if self.project.preprocessor.nodes_with_compressor_excitation != []:
-                    self.item_child_check_pulsation_criteria.setDisabled(False)
-            
-            elif self.project.analysis_ID == 7:
+                for (property, *args) in app().project.model.properties.nodal_properties.keys():
+                    if property == "compressor_excitation":
+                        self.item_child_check_pulsation_criteria.setDisabled(False)
+        
+            elif self.project.analysis_id == 7:
                 self.item_child_plot_displacement_field.setDisabled(False)
                 self.item_child_plot_stress_field.setDisabled(False)
                 self.item_child_plot_structural_frequency_response.setDisabled(False)
@@ -153,22 +144,22 @@ class ResultsViewerItems(CommonMenuItems):
             the menu after the solution is done.
         """
 
-        if self.project.analysis_ID in [0, 1, 2, 7]:
+        if self.project.analysis_id in [0, 1, 2, 7]:
             self.item_top_results_viewer_structural.setHidden(False)
             self.expandItem(self.item_top_results_viewer_structural)            
         
-        elif self.project.analysis_ID in [3, 4]:
+        elif self.project.analysis_id in [3, 4]:
             self.item_top_results_viewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_results_viewer_acoustic)
         
-        elif self.project.analysis_ID in [5, 6]:
+        elif self.project.analysis_id in [5, 6]:
             self.item_top_results_viewer_structural.setHidden(False)
             self.item_top_results_viewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_results_viewer_structural)
             self.expandItem(self.item_top_results_viewer_acoustic)
 
     def modify_item_names_according_to_analysis(self):
-        if self.project.analysis_ID == 7:
+        if self.project.analysis_id == 7:
             self.item_child_plot_structural_frequency_response.setText(0, "Plot nodal response")
             self.item_child_plot_reaction_frequency_response.setText(0, "Plot reactions")
             self.item_child_plot_stress_frequency_response.setText(0, "Plot stresses")

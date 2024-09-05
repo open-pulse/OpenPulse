@@ -14,14 +14,8 @@ class PlotAcousticModeShape(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        main_window = app().main_window
-
         ui_path = UI_DIR / "plots/results/acoustic/acoustic_mode_shape.ui"
         uic.loadUi(ui_path, self)
-
-        self.opv = main_window.opv_widget
-        self.opv.setInputObject(self)
-        self.project = main_window.project
 
         self._initialize()
         self._define_qt_variables()
@@ -37,7 +31,13 @@ class PlotAcousticModeShape(QWidget):
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
+                          ]
 
     def _define_qt_variables(self):
 
@@ -111,11 +111,11 @@ class PlotAcousticModeShape(QWidget):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
         app().config.write_colormap_in_file(colormap)
-        self.opv.opvAnalysisRenderer.set_colormap(colormap)
+        app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
         
     def get_dict_modes_frequencies(self):
-        self.natural_frequencies = self.project.natural_frequencies_acoustic
+        self.natural_frequencies = app().project.natural_frequencies_acoustic
         modes = np.arange(1,len(self.natural_frequencies)+1,1)
         self.dict_modes_frequencies = dict(zip(modes, self.natural_frequencies))
 
@@ -125,21 +125,17 @@ class PlotAcousticModeShape(QWidget):
         if self.lineEdit_natural_frequency.text() == "":
             return
         
-        self.project.analysis_type_label = "Acoustic Modal Analysis"
+        app().project.analysis_type_label = "Acoustic Modal Analysis"
         frequency = self.selected_natural_frequency
         self.mode_index = self.natural_frequencies.index(frequency)
             
         color_scale_setup = self.get_user_color_scale_setup()
-        self.project.set_color_scale_setup(color_scale_setup)
-        self.opv.plot_pressure_field(self.mode_index)
+        app().project.set_color_scale_setup(color_scale_setup)
+        app().main_window.results_widget.show_pressure_field(self.mode_index)
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
-        
-        if self.opv.opvAnalysisRenderer.getInUse():
-            self.opv.opvAnalysisRenderer.set_tube_actors_transparency(transparency)
-        else:
-            self.opv.opvRenderer.set_tube_actors_transparency(transparency)
+        app().main_window.results_widget.set_tube_actors_transparency(transparency)
 
     def get_user_color_scale_setup(self):
 

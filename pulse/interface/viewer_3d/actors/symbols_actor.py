@@ -1,22 +1,33 @@
-import vtk
-import numpy as np 
-from time import time
-from collections import namedtuple
-# from itertools import chain
-
 from abc import ABC, abstractmethod
+from collections import namedtuple
+
+from vtkmodules.vtkCommonCore import (
+    vtkDoubleArray,
+    vtkIntArray,
+    vtkPoints,
+    vtkUnsignedCharArray,
+)
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkIOGeometry import vtkOBJReader
+from vtkmodules.vtkRenderingCore import vtkGlyph3DMapper
+
 from pulse.interface.viewer_3d.actors.actor_base import ActorBase
 
+
 def loadSymbol(path):
-    reader = vtk.vtkOBJReader()
+    reader = vtkOBJReader()
     reader.SetFileName(path)
     reader.Update()
     return reader.GetOutput()
 
-SymbolTransform = namedtuple('SymbolTransform', ['source', 'position', 'rotation', 'scale', 'color'])
+
+SymbolTransform = namedtuple(
+    "SymbolTransform", ["source", "position", "rotation", "scale", "color"]
+)
+
 
 class SymbolsActorBase(ActorBase):
-    '''
+    """
     Abstract class that defines how to create a new set of Symbols.
 
     Note
@@ -25,27 +36,27 @@ class SymbolsActorBase(ActorBase):
         _createConnections()
         _createSequence()
     Check out their definitions to understand how they are meant to be defined
-    '''
+    """
 
     def __init__(self, project, deformed=False):
         super().__init__()
-        
-        self.project = project 
+
+        self.project = project
         self.preprocessor = project.preprocessor
         self.deformed = deformed
         if self.process_scaleFactor():
-            self.scaleFactor = 1
-        # print(f"scaleFactor: {self.scaleFactor}")
+            self.scale_factor = 1
+        # print(f"scaleFactor: {self.scale_factor}")
 
         self._connections = self._createConnections()
         # self._sequence = self._createSequence()
 
-        self._data = vtk.vtkPolyData()
-        self._mapper = vtk.vtkGlyph3DMapper()
+        self._data = vtkPolyData()
+        self._mapper = vtkGlyph3DMapper()
 
     @abstractmethod
     def _createConnections(self):
-        '''
+        """
         This method is meant to return a list of pairs of function and symbols.
             [Function] is a set of rules of how and when to display your symbol.
             [Symbol] is a vtkPolyData object of whatever you want to display.
@@ -54,18 +65,18 @@ class SymbolsActorBase(ActorBase):
         --------
         def _createConnections(self):
             return [(functionA, symbolA), (functionB, symbolB)]
-        
+
         def _createConnection(self):
             return [(functionTest, loadSymbol("path/to/my/symbol.obj"))]
-        '''
+        """
 
         return []
-    
+
     # @abstractmethod
     # def _createSequence(self):
     #     '''
     #     Every function of how to display a symbol will be applied to some sequence
-    #     like nodes, elements, or whatever our creative minds come up with. Here you define the 
+    #     like nodes, elements, or whatever our creative minds come up with. Here you define the
     #     sequence of things you want those functions to map.
     #     '''
 
@@ -77,28 +88,28 @@ class SymbolsActorBase(ActorBase):
         else:
             diagonal = self.project.preprocessor.structure_principal_diagonal
             if diagonal <= 0.01:
-                self.scaleFactor = 0.01
+                self.scale_factor = 0.01
             elif diagonal <= 0.1:
-                self.scaleFactor = 0.05
+                self.scale_factor = 0.05
             elif diagonal <= 1:
-                self.scaleFactor = 0.2
+                self.scale_factor = 0.2
             elif diagonal <= 2:
-                self.scaleFactor = 0.3
+                self.scale_factor = 0.3
             elif diagonal <= 10:
-                self.scaleFactor = 0.4
+                self.scale_factor = 0.4
             elif diagonal <= 20:
-                self.scaleFactor = 0.6
+                self.scale_factor = 0.6
             elif diagonal <= 30:
-                self.scaleFactor = 0.8
+                self.scale_factor = 0.8
             elif diagonal <= 40:
-                self.scaleFactor = 1
+                self.scale_factor = 1
             elif diagonal <= 50:
-                self.scaleFactor = 1.2
+                self.scale_factor = 1.2
             else:
-                self.scaleFactor = 2.5
+                self.scale_factor = 2.5
 
             # print(f"Structure diagonal: {diagonal}")
-            # print(f"Symbols scale factor: {self.scaleFactor}")
+            # print(f"Symbols scale factor: {self.scale_factor}")
 
     def source(self):
 
@@ -111,22 +122,22 @@ class SymbolsActorBase(ActorBase):
                 self._createSymbol(i, transform)
 
         self._populateData()
-    
+
     def map(self):
         self._mapper.SetInputData(self._data)
-        self._mapper.SetSourceIndexArray('sources')
-        self._mapper.SetOrientationArray('rotations')
-        self._mapper.SetScaleArray('scales')
-        self._mapper.SetScaleFactor(self.scaleFactor)
-        
+        self._mapper.SetSourceIndexArray("sources")
+        self._mapper.SetOrientationArray("rotations")
+        self._mapper.SetScaleArray("scales")
+        self._mapper.SetScaleFactor(self.scale_factor)
+
         self._mapper.SourceIndexingOn()
         self._mapper.SetOrientationModeToRotation()
         self._mapper.SetScaleModeToScaleByVectorComponents()
         self._mapper.Update()
-    
+
     def filter(self):
-        pass 
-    
+        pass
+
     def actor(self):
         self._actor.SetMapper(self._mapper)
         self._actor.GetProperty().SetOpacity(0.9)
@@ -134,15 +145,15 @@ class SymbolsActorBase(ActorBase):
         self._actor.SetUseBounds(False)
 
     def _createArrays(self):
-        self._sources = vtk.vtkIntArray()
-        self._positions = vtk.vtkPoints()
-        self._rotations = vtk.vtkDoubleArray()
-        self._scales = vtk.vtkDoubleArray()
-        self._colors = vtk.vtkUnsignedCharArray()
+        self._sources = vtkIntArray()
+        self._positions = vtkPoints()
+        self._rotations = vtkDoubleArray()
+        self._scales = vtkDoubleArray()
+        self._colors = vtkUnsignedCharArray()
 
-        self._sources.SetName('sources')
-        self._rotations.SetName('rotations')
-        self._scales.SetName('scales')
+        self._sources.SetName("sources")
+        self._rotations.SetName("rotations")
+        self._scales.SetName("scales")
         self._rotations.SetNumberOfComponents(3)
         self._scales.SetNumberOfComponents(3)
         self._colors.SetNumberOfComponents(3)

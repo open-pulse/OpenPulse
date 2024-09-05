@@ -7,8 +7,6 @@ from plotly.offline import plot
 import ccp
 from ccp import Q_
 from scipy.optimize import root_scalar, newton, toms748, ridder, bisect
-import plotly.express as px
-import pandas as pd
 
 def offset_to_tdc(array,tdc):
     

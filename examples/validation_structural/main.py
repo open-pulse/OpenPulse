@@ -3,11 +3,11 @@ from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
 
-from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.material import Material
-from pulse.preprocessing.preprocessor import Preprocessor
+from pulse.model.cross_section import CrossSection
+from pulse.properties.material import Material
+from pulse.model.preprocessor import Preprocessor
 from pulse.processing.assembly_structural import AssemblyStructural 
-from pulse.processing.solution_structural import SolutionStructural
+from pulse.processing.structural_solver import StructuralSolver
 from pulse.postprocessing.plot_structural_data import get_structural_frf, get_structural_response
 from pulse.animation.plot_function import plot_results
 
@@ -21,20 +21,20 @@ from pulse.animation.plot_function import plot_results
 t0 = time()
 # PREPARING MESH
 element_type = 'beam_1'
-steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
+steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 preprocessor = Preprocessor()
 
 load_file = 1
 if load_file==1:
     preprocessor.generate('examples/iges_files/tube_1.iges', 0.01)
-    preprocessor.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6, dtype=complex))
-    preprocessor.set_structural_load_bc_by_node([359], np.array([1,0,0,0,0,0], dtype=complex))
+    preprocessor.set_prescribed_dofs([40, 1424, 1324], np.zeros(6, dtype=complex))
+    preprocessor.set_structural_loads([359], np.array([1,0,0,0,0,0], dtype=complex))
 if load_file==2:
     preprocessor.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
-    preprocessor.set_prescribed_dofs_bc_by_node([1, 1200, 1325], np.zeros(6, dtype=complex))
-    preprocessor.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0], dtype=complex))
+    preprocessor.set_prescribed_dofs([1, 1200, 1325], np.zeros(6, dtype=complex))
+    preprocessor.set_structural_loads([361], np.array([1,0,0,0,0,0], dtype=complex))
 
-mat_out = preprocessor.set_B2PX_rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
+mat_out = preprocessor.set_B2P_rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
 
 preprocessor.set_structural_element_type_by_element('all', element_type)
 preprocessor.set_material_by_element('all', steel)
@@ -60,7 +60,7 @@ f_max = 200
 df = 2
 frequencies = np.arange(0, f_max+df, df)
 
-solution = SolutionStructural(preprocessor, frequencies)
+solution = StructuralSolver(preprocessor, frequencies)
 
 modes = 200
 global_damping = [0, 0, 0, 0]

@@ -4,11 +4,10 @@ from PyQt5.QtCore import pyqtSignal, QEvent, QObject, Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 import numpy as np
 
@@ -22,21 +21,21 @@ class PlotTransmissionLoss(QWidget):
         ui_path = UI_DIR / "plots/results/acoustic/plot_transmission_loss.ui"
         uic.loadUi(ui_path, self)
 
-        self.opv = main_window.opv_widget
-        self.opv.setInputObject(self)
-        self.project = main_window.project
+        app().main_window.set_input_widget(self)
+        self.project = app().project
+        self.model = app().project.model
 
-        self._load_icons()
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self.update()
+        self.selection_callback()
+        self.update_flip_buttons()
 
     def _initialize(self):
         self.unit_label = "dB"
         self.analysis_method = self.project.analysis_method_label
-        self.frequencies = self.project.frequencies
+        self.frequencies = self.model.frequencies
         self.solution = self.project.get_acoustic_solution()
         self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
@@ -44,13 +43,11 @@ class PlotTransmissionLoss(QWidget):
         self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
         self.neighboor_elements = self.preprocessor.neighboor_elements_of_node
 
-    def _load_icons(self):
-        self.pulse_icon = get_openpulse_icon()
-
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(self.pulse_icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 
@@ -69,15 +66,23 @@ class PlotTransmissionLoss(QWidget):
         self.pushButton_flip_nodes : QPushButton
 
     def _create_connections(self):
+        #
         self.comboBox_processing_selector.currentIndexChanged.connect(self.update_flip_buttons)
+        #
         self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_help.clicked.connect(self.call_help)
         self.pushButton_flip_nodes.clicked.connect(self.flip_nodes)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
-        self.update_flip_buttons()
         #
         self.clickable(self.lineEdit_input_node_id).connect(self.lineEdit_1_clicked)
         self.clickable(self.lineEdit_output_node_id).connect(self.lineEdit_2_clicked)
+        #
+        app().main_window.selection_changed.connect(self.selection_callback)
+
+    def selection_callback(self):
+        selected_nodes = app().main_window.list_selected_nodes()
+        if len(selected_nodes) == 1:
+            self.current_lineEdit.setText(str(selected_nodes[0]))
 
     def clickable(self, widget):
         class Filter(QObject):
@@ -100,17 +105,6 @@ class PlotTransmissionLoss(QWidget):
     def lineEdit_2_clicked(self):
         self.current_lineEdit = self.lineEdit_output_node_id
 
-    def writeNodes(self, list_node_ids):
-        node_id = list_node_ids[0]
-        self.current_lineEdit.setText(str(node_id))
-
-    def update(self):
-        self.list_node_ids = self.opv.getListPickedPoints()
-        if self.list_node_ids != []:
-            self.writeNodes(self.list_node_ids)
-        else:
-            self.current_lineEdit.setFocus()
-
     def flip_nodes(self):
         temp_text_input = self.lineEdit_input_node_id.text()
         temp_text_output = self.lineEdit_output_node_id.text()
@@ -130,7 +124,7 @@ class PlotTransmissionLoss(QWidget):
             title = "Required data to process the Transmission Loss"
             message = "Dear user, to determine the Transmission Loss (TL) of a filter or duct it is necessary to "
             message += "select the input node ID where the indicent wave is applied (usually by a volume velocity "
-            message += "source) and the output node ID with a anechoic termination. An anechoic termination also "
+            message += "source) and the output node ID with an anechoic termination. An anechoic termination also "
             message += "should be applied at the input node ID to avoid wave reflections caused by the source itself."
             message += "\n\nInput node ID: incident plane wave (volume velocity + anechoic impedance)"
             message += "\nOutput node ID: outlet of filter or duct with an anechoic impedance\n"
@@ -145,7 +139,7 @@ class PlotTransmissionLoss(QWidget):
     def check_nodes_information(self, picked_nodes=None):
         
         if picked_nodes is None:
-            selected_ids = []
+            selected_ids = list()
             if self.lineEdit_input_node_id.text() != "":
                 input_node_id = self.lineEdit_input_node_id.text()
                 selected_ids.append(int(input_node_id))
@@ -153,7 +147,7 @@ class PlotTransmissionLoss(QWidget):
                 output_node_id = self.lineEdit_output_node_id.text()
                 selected_ids.append(int(output_node_id))
         else:
-            selected_ids = self.opv.getListPickedPoints()
+            selected_ids = app().main_window.list_selected_nodes()
         
         self.input_node_ID = None
         self.output_node_ID = None
@@ -165,13 +159,12 @@ class PlotTransmissionLoss(QWidget):
 
                 neigh_elements = self.neighboor_elements(node_id)
                 if len(neigh_elements) == 1:
-                    node = self.preprocessor.nodes[node_id]
-                    if node in self.preprocessor.nodes_with_volume_velocity:
-                        self.input_volume_velocity = np.real(node.volume_velocity)
-                        self.input_node_ID = node_id
-
-                    elif node in self.preprocessor.nodes_with_radiation_impedance:
-                        if node not in self.preprocessor.nodes_with_volume_velocity:
+                    for (property, *args), data in app().project.model.properties.nodal_properties.items():
+                        if property == "volume_velocity" and args[0] == node_id:
+                            self.input_volume_velocity = np.real(data["values"])
+                            self.input_node_ID = node_id
+                        
+                        elif property == "radiation_impedance" and args[0] == node_id:
                             self.output_node_ID = node_id
 
                 else:
@@ -190,14 +183,14 @@ class PlotTransmissionLoss(QWidget):
 
     def check_inputs(self):
 
-        lineEdit_input = self.lineEdit_input_node_id.text()
-        stop, self.input_node_ID = self.before_run.check_input_NodeID(lineEdit_input, single_ID=True)
+        input_node = self.lineEdit_input_node_id.text()
+        stop, self.input_node_ID = self.before_run.check_selected_ids(input_node, "nodes", single_id=True)
         if stop:
             self.lineEdit_input_node_id.setFocus()
             return True
 
-        lineEdit_output = self.lineEdit_output_node_id.text()
-        stop, self.output_node_ID = self.before_run.check_input_NodeID(lineEdit_output, single_ID=True)
+        output_node = self.lineEdit_output_node_id.text()
+        stop, self.output_node_ID = self.before_run.check_selected_ids(output_node, "nodes", single_id=True)
         if stop:
             self.lineEdit_output_node_id.setFocus()
             return True
@@ -289,7 +282,7 @@ class PlotTransmissionLoss(QWidget):
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
         self.plotter.imported_dB_data()
-        self.plotter._set_data_to_plot(self.model_results)
+        self.plotter._set_model_results_data_to_plot(self.model_results)
 
     def call_data_exporter(self):
         if self.check_inputs():
