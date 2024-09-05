@@ -117,8 +117,8 @@ class TubeActor(vtkActor):
         length = element.length
 
         if cross_section.section_type_label in ["Pipe", "Reducer"]:
-            d_out, t, *_ = element.section_parameters_render
-            return cross_section_sources.pipe_data(length, d_out, t, sides=tube_sides)
+            d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
+            return cross_section_sources.pipe_data(length, d_out, t, offset_y, offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "Rectangular section":
             b, h, t, *_ = element.section_parameters_render

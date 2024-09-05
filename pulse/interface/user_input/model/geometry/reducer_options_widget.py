@@ -62,9 +62,9 @@ class ReducerOptionsWidget(QWidget):
         kwargs["initial_diameter"] = parameters[0]
         kwargs["final_diameter"] = parameters[4]
         kwargs["thickness"] = parameters[1]
-        kwargs["initial_offset_y"] = -parameters[2]
+        kwargs["initial_offset_y"] = parameters[2]
         kwargs["initial_offset_z"] = parameters[3]
-        kwargs["final_offset_y"] = -parameters[6]
+        kwargs["final_offset_y"] = parameters[6]
         kwargs["final_offset_z"] = parameters[7]
         kwargs["extra_info"] = dict(
             structural_element_type = "pipe_1",
