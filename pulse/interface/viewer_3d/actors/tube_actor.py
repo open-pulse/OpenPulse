@@ -121,24 +121,24 @@ class TubeActor(vtkActor):
             return cross_section_sources.pipe_data(length, d_out, t, offset_y, offset_z, sides=tube_sides)
 
         elif cross_section.section_type_label == "Rectangular section":
-            b, h, t, *_ = element.section_parameters_render
-            return cross_section_sources.rectangular_beam_data(length, b, h, t)
+            b, h, t, offset_y, offset_z, *_ = element.section_parameters_render
+            return cross_section_sources.rectangular_beam_data(length, b, h, t, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "Circular section":
-            d_out, t, *_ = element.section_parameters_render
-            return cross_section_sources.circular_beam_data(length, d_out, t)
+            d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
+            return cross_section_sources.circular_beam_data(length, d_out, t, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "C-section":
-            h, w1, t1, w2, t2, tw, *_ = element.section_parameters_render
-            return cross_section_sources.c_beam_data(length, h, w1, w2, t1, t2, tw)
+            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.section_parameters_render
+            return cross_section_sources.c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "I-section":
-            h, w1, t1, w2, t2, tw, *_ = element.section_parameters_render
-            return cross_section_sources.i_beam_data(length, h, w1, w2, t1, t2, tw)
+            h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.section_parameters_render
+            return cross_section_sources.i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "T-section":
-            h, w1, t1, tw, *_ = element.section_parameters_render
-            return cross_section_sources.t_beam_data(length, h, w1, t1, tw)
+            h, w1, t1, tw, offset_y, offset_z, *_ = element.section_parameters_render
+            return cross_section_sources.t_beam_data(length, h, w1, t1, tw, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "Expansion joint":
 
