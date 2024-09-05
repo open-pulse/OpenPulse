@@ -140,6 +140,8 @@ def get_acoustic_response(preprocessor, solution, column, **kwargs):
 
 
 def get_acoustic_absortion(element, frequencies):
+    """
+    """
     if isinstance(element.pp_impedance, np.ndarray):
         zpp = -element.pp_impedance
     else:
@@ -151,15 +153,23 @@ def get_acoustic_absortion(element, frequencies):
     return np.real(alpha)
 
 
-def get_perforated_plate_impedance(element, frequencies, real_part):
+def get_perforated_plate_impedance(element, frequencies, **kwargs):
+    """
+    """
+    real_values = kwargs.get("real_values", False)
+    imag_values = kwargs.get("imag_values", False)
+
     if isinstance(element.pp_impedance, np.ndarray):
         zpp = -element.pp_impedance
     else:
         element.update_pp_impedance(frequencies, False)
         zpp = -element.pp_impedance
+
     z0 = element.fluid.impedance
-    if real_part:
-        data = np.real(zpp)/z0
+
+    if real_values:
+        return np.real(zpp)/z0
+    elif imag_values:
+        return np.imag(zpp)/z0
     else:
-        data = np.imag(zpp)/z0
-    return data
+        return zpp/z0

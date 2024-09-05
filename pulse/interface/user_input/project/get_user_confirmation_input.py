@@ -39,9 +39,11 @@ class GetUserConfirmationInput(QDialog):
         self._cancel = True
 
     def _define_qt_variables(self):
+
         # QLabel
         self.label_message : QLabel
         self.label_title : QLabel
+
         # QPushButton
         self.pushButton_rightButton : QPushButton
         self.pushButton_leftButton : QPushButton
