@@ -362,7 +362,8 @@ class GeometryHandler:
                                         end,
                                         width = section_parameters[0],
                                         height = section_parameters[1],
-                                        thickness = (section_parameters[0] - section_parameters[2]) / 2,
+                                        thickness_width = (section_parameters[0] - section_parameters[2]) / 2,
+                                        thickness_height = (section_parameters[0] - section_parameters[3]) / 2,
                                         )
         
         elif section_type_label == "Circular section":

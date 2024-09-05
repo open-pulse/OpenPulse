@@ -928,7 +928,7 @@ vtk = "^9.2.6"
 type = "git"
 url = "https://github.com/open-pulse/opps"
 reference = "add_new_structures"
-resolved_reference = "56f90ae8e153bc8c23040ebdb8ca8b1050fa4ea1"
+resolved_reference = "4c81f2c4daf6d68d9dfa694bdc4a12aeefed2327"
 
 [[package]]
 name = "ordered-set"
