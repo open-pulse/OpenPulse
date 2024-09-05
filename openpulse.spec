@@ -5,14 +5,18 @@ a = Analysis(
     ['pulse/launch.py'],
     pathex=[],
     binaries=[],
-    # I have no idea why, but we need 
-    # to add data in pairs
+
+    # we need to add the paths in pairs
     datas=[
         ('pulse/interface/data/', 'pulse/interface/data/'),
-        ('pulse/interface/ui_files/', 'pulse/interface/ui_files/'),
         ('pulse/libraries/', 'pulse/libraries/'),
     ],
-    hiddenimports=[],
+    hiddenimports=[
+        "vtk",
+        "vtkLogger",
+        "vtkObject",
+        "vtkModules",
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -20,23 +24,12 @@ a = Analysis(
     noarchive=False,
 )
 pyz = PYZ(a.pure)
-splash = Splash(
-    'pulse/interface/data/icons/logos/OpenPulse_logo_black.png',
-    binaries=a.binaries,
-    datas=a.datas,
-    text_pos=None,
-    text_size=12,
-    minify_script=True,
-    always_on_top=True,
-)
 
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
     a.datas,
-    splash,
-    splash.binaries,
     [],
     name='OpenPulse',
     debug=False,
