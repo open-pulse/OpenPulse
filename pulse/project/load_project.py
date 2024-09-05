@@ -727,10 +727,8 @@ class LoadProject:
 
                 if property == "perforated_plate":
                     if len(elements_inside_bounds) != 1:
-                        print(element_id, elements_inside_bounds)
                         pp_removed.append(element_id) 
                         continue
-                    print("passou aqui também")
  
                 for _elem_id, node_label in elements_inside_bounds.items():
                     if len(node_label) == 2:
