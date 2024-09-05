@@ -270,10 +270,9 @@ class RunAnalysisInput():
             text += "Time to solve the model: {} [s]\n".format(round(self.project.time_to_solve_model, 4))
         text += "Time elapsed in post-processing: {} [s]\n\n".format(round(self.project.time_to_postprocess, 4))
         text += "Total time elapsed: {} [s]".format(round(self.project.total_time, 4))
-
+        
+        print(text)
         # text += "Press ESC to continue..."
-        self.label_message.setText(text)
-        self.adjustSize()
 
     def check_warnings(self):
         # WARNINGS REACHED DURING SOLUTION

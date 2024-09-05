@@ -1,3 +1,4 @@
+# fmt: off
 
 from PyQt5.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QCloseEvent
@@ -667,9 +668,15 @@ class PerforatedPlateInput(QDialog):
                     else:
                         perforated_plate.dimensionless_impedance_table_name = self.table_path
                         # self.perforated_plate.dimensionless_impedance = self.imported_values
+                
+                coords = list()
+                element = self.preprocessor.acoustic_elements[element_id]
+                coords.extend(list(np.round(element.first_node.coordinates, 5)))
+                coords.extend(list(np.round(element.last_node.coordinates, 5)))
+
+                self.perforated_plate_inputs["coords"] = coords
 
                 self.preprocessor.set_perforated_plate_by_elements(element_ids, perforated_plate)
-                # self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(element_ids)
 
                 self.properties._set_element_property(  
                                                       "perforated_plate", 
@@ -1047,3 +1054,5 @@ class GetInformationOfGroup(QDialog):
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
         return super().closeEvent(a0)
+    
+# fmt: on

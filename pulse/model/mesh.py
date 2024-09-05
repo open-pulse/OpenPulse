@@ -31,6 +31,7 @@ class Mesh:
 
         self.line_from_element = dict()
         self.elements_from_line = defaultdict(list)
+        self.lines_from_node = defaultdict(list)
         self.nodes_from_line = defaultdict(list)
 
         self.elements_from_gmsh_lines = dict()
@@ -228,10 +229,13 @@ class Mesh:
     def _concatenate_line_nodes(self):
         """
         """
+        self.lines_from_node.clear()
         self.nodes_from_line.clear()
         for tag, line_nodes in self.nodes_from_gmsh_lines.items():
             line_id = self.lines_mapping[tag]
             self.nodes_from_line[line_id].extend(line_nodes)
+            for node_id in line_nodes:
+                self.lines_from_node[node_id].append(line_id)
 
     def _save_geometry_points(self):
         """

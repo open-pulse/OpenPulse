@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QToolBar
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QIcon
+from PyQt5.QtGui import QColor, QIcon, QKeyEvent
 
 from pulse import app
 from pulse.interface.toolbars.mesh_updater import MeshUpdater
@@ -150,3 +150,8 @@ class MeshToolbar(QToolBar):
             self.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
 
         self.change_button_visibility()
+
+    # def keyPressEvent(self, event: QKeyEvent | None) -> None:
+    #     if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+    #         self.mesh_updater.process_mesh_and_load_project()
+    #     return super().keyPressEvent(event)

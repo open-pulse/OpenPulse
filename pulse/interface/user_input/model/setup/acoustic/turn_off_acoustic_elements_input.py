@@ -128,11 +128,21 @@ class TurnOffAcousticElementsInput(QDialog):
             return
 
         index = self.comboBox_action_selector.currentIndex()
-
         self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, True)
 
-        data = {"turned_off" : not bool(index)}
-        self.properties._set_element_property("turn_off_acoustic_element", data, element_ids=element_ids)
+        for element_id in element_ids:
+
+            coords = list()
+            element = self.preprocessor.acoustic_elements[element_id]
+            coords.extend(list(np.round(element.first_node.coordinates, 5)))
+            coords.extend(list(np.round(element.last_node.coordinates, 5)))
+
+            data = {
+                    "coords" : coords,
+                    "turned_off" : not bool(index)
+                    }
+
+            self.properties._set_element_property("acoustic_element_turned_off", data, element_ids=element_id)
 
         app().pulse_file.write_element_properties_in_file()
         self.load_elements_info()
@@ -148,7 +158,7 @@ class TurnOffAcousticElementsInput(QDialog):
                 return
 
             for element_id in element_ids:
-                self.properties._remove_element_property("turn_off_acoustic_element", element_id)
+                self.properties._remove_element_property("acoustic_element_turned_off", element_id)
             
             self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
             self.lineEdit_element_id.setText("")
@@ -175,12 +185,12 @@ class TurnOffAcousticElementsInput(QDialog):
 
                 element_ids = list()
                 for (property, element_id) in self.properties.element_properties.keys():
-                    if property == "turn_off_acoustic_element":
+                    if property == "acoustic_element_turned_off":
                         element_ids.append(element_id)
 
                 if element_ids:
                     for element_id in element_ids:
-                        self.properties._remove_element_property("turn_off_acoustic_element", element_id)
+                        self.properties._remove_element_property("acoustic_element_turned_off", element_id)
 
                     self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
 
@@ -193,7 +203,7 @@ class TurnOffAcousticElementsInput(QDialog):
 
         self.treeWidget_elements_info.clear()
         for (property, element_id), data in self.properties.element_properties.items():
-            if property == "turn_off_acoustic_element":
+            if property == "acoustic_element_turned_off":
 
                 if data["turned_off"]:
                     action_label = "Turned-off"
@@ -212,7 +222,7 @@ class TurnOffAcousticElementsInput(QDialog):
 
         self.pushButton_remove.setDisabled(True)
         for (property, _) in self.properties.element_properties.keys():
-            if property == "turn_off_acoustic_element":
+            if property == "acoustic_element_turned_off":
                 # self.tabWidget_main.setCurrentIndex(0)
                 self.tabWidget_main.setTabVisible(1, True)
                 return

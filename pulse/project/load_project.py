@@ -286,13 +286,19 @@ class LoadProject:
 
     def send_element_properties_to_elements(self):
         for (property, element_id), prop_data in self.properties.element_properties.items():
+
             if property == "B2P_rotation_decoupling":
                 self.preprocessor.set_B2P_rotation_decoupling(element_id, prop_data)
-            if property == "element_length_correction":
+
+            elif property == "element_length_correction":
                 self.preprocessor.set_element_length_correction_by_element(element_id, prop_data)
-            if property == "perforated_plate":
+
+            elif property == "perforated_plate":
                 perforated_plate = PerforatedPlate(prop_data)
                 self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
+
+            elif property == "acoustic_element_turned_off":
+                self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_id, True)
 
 
     def load_mesh_dependent_properties(self):
@@ -674,9 +680,64 @@ class LoadProject:
                     else:
                         non_mapped_elements.append((element_id, node_id))
 
-            elif property == "perforated_plate":
-                #TODO: implement this
-                pass
+        pp_removed = list()
+        for (property, element_id), data in self.properties.element_properties.items():
+            if property in ["perforated_plate", "acoustic_element_turned_off"]:
+
+                coords = np.array(data["coords"], dtype=float)
+
+                coords_1 = coords[:3]
+                coords_2 = coords[3:]
+
+                node_id1 = self.preprocessor.get_node_id_by_coordinates(coords_1)
+                node_id2 = self.preprocessor.get_node_id_by_coordinates(coords_2)
+
+                line_ids = list()
+                for node_id in [node_id1, node_id2]:
+                    for line_id in self.preprocessor.mesh.lines_from_node[node_id]:
+                        if line_id not in line_ids:
+                            line_ids.append(line_id)
+
+                elements_from_lines = list()
+                for line_id in line_ids:
+                    elements = self.preprocessor.mesh.elements_from_line[line_id]
+                    elements_from_lines.extend(elements)
+
+                elements_inside_bounds = defaultdict(list)
+                length = np.linalg.norm(coords_1 - coords_2)
+
+                for _element_id in elements_from_lines:
+                    element = self.preprocessor.structural_elements[_element_id]
+                    ecc = element.center_coordinates
+
+                    if np.linalg.norm(coords_1 - ecc) < length:
+                        elements_inside_bounds[_element_id].append("first_node")
+
+                    if np.linalg.norm(coords_2 - ecc) < length:
+                        elements_inside_bounds[_element_id].append("last_node")
+
+                external_elements = list()
+                for _elem_id, node_label in elements_inside_bounds.items():
+                    if len(node_label) == 1:
+                        external_elements.append(_elem_id)
+
+                # remove the external elements
+                for external_element in external_elements:
+                    elements_inside_bounds.pop(external_element)
+
+                if property == "perforated_plate":
+                    if len(elements_inside_bounds) != 1:
+                        print(element_id, elements_inside_bounds)
+                        pp_removed.append(element_id) 
+                        continue
+                    print("passou aqui também")
+ 
+                for _elem_id, node_label in elements_inside_bounds.items():
+                    if len(node_label) == 2:
+                        new_key = (property, _elem_id)
+                        aux_elements[new_key] = data
+
+                    # print(_elem_id, _element_node, data)
 
         if aux_elements != self.properties.element_properties:
 
@@ -698,5 +759,12 @@ class LoadProject:
                     message += f"\n{node_id} - {coords}"
 
                 PrintMessageInput([window_title_2, title, message])
+
+        if pp_removed:
+            title = "Perforated plates removed"
+            message = "Some perforated plates could not be mapped after the "
+            message += "meshing processing, therefore, they were removed "
+            message += "from both the project files and model setup."
+            PrintMessageInput([window_title_2, title, message])
 
 # fmt: on
