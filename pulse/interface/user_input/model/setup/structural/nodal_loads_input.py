@@ -690,7 +690,7 @@ class NodalLoadsInput(QDialog):
             lineEdit_imag.setText("")
         for lineEdit_table in self.list_lineEdit_table_values:
             lineEdit_table.setText("")
-        
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             if self.tabWidget_nodal_loads.currentIndex() == 0:
