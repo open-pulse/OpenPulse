@@ -293,7 +293,7 @@ class NodalLoadsInput(QDialog):
             app().pulse_file.write_nodal_properties_in_file()
             self.load_nodes_info()
             app().main_window.update_plots()
-            self.close()
+            # self.close()
 
             print(f"[Set Nodal loads] - defined at node(s) {node_ids}")
 
