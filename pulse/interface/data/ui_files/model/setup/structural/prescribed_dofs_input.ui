@@ -2014,7 +2014,7 @@
             </property>
             <layout class="QGridLayout" name="gridLayout_11">
              <item row="0" column="0">
-              <widget class="QTreeWidget" name="treeWidget_prescribed_dofs">
+              <widget class="QTreeWidget" name="treeWidget_nodal_info">
                <property name="minimumSize">
                 <size>
                  <width>280</width>
@@ -2236,7 +2236,7 @@
           </spacer>
          </item>
          <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEdit_selection_id">
+          <widget class="QLineEdit" name="lineEdit_node_id">
            <property name="minimumSize">
             <size>
              <width>160</width>
@@ -2427,7 +2427,7 @@
   <tabstop>pushButton_load_rz_table</tabstop>
   <tabstop>pushButton_table_values_confirm</tabstop>
   <tabstop>pushButton_cancel_tab1</tabstop>
-  <tabstop>treeWidget_prescribed_dofs</tabstop>
+  <tabstop>treeWidget_nodal_info</tabstop>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>pushButton_remove</tabstop>
  </tabstops>

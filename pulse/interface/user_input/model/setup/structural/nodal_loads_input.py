@@ -87,7 +87,7 @@ class NodalLoadsInput(QDialog):
     def _define_qt_variables(self):
 
         # QLineEdit   
-        self.lineEdit_selection_id: QLineEdit
+        self.lineEdit_node_id: QLineEdit
         self.lineEdit_real_fx: QLineEdit
         self.lineEdit_real_fy: QLineEdit
         self.lineEdit_real_fz: QLineEdit
@@ -127,7 +127,7 @@ class NodalLoadsInput(QDialog):
         self.tabWidget_nodal_loads: QTabWidget
 
         # QTreeWidget
-        self.treeWidget_nodal_loads: QTreeWidget
+        self.treeWidget_nodal_info: QTreeWidget
 
     def _create_list_lineEdits(self):
 
@@ -162,8 +162,8 @@ class NodalLoadsInput(QDialog):
         #
         self.tabWidget_nodal_loads.currentChanged.connect(self.tab_event_callback)
         #
-        self.treeWidget_nodal_loads.itemClicked.connect(self.on_click_item)
-        self.treeWidget_nodal_loads.itemDoubleClicked.connect(self.on_double_click_item)
+        self.treeWidget_nodal_info.itemClicked.connect(self.on_click_item)
+        self.treeWidget_nodal_info.itemDoubleClicked.connect(self.on_double_click_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
@@ -174,7 +174,7 @@ class NodalLoadsInput(QDialog):
 
         if selected_nodes:
             text = ", ".join([str(i) for i in selected_nodes])
-            self.lineEdit_selection_id.setText(text)
+            self.lineEdit_node_id.setText(text)
 
             if len(selected_nodes) == 1:
                 for (property, *args), data in self.properties.nodal_properties.items():
@@ -198,8 +198,8 @@ class NodalLoadsInput(QDialog):
 
     def _config_widgets(self):
         for i, w in enumerate([80, 60]):
-            self.treeWidget_nodal_loads.setColumnWidth(i, w)
-            self.treeWidget_nodal_loads.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_nodal_info.setColumnWidth(i, w)
+            self.treeWidget_nodal_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
         #
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
@@ -237,10 +237,10 @@ class NodalLoadsInput(QDialog):
 
     def constant_values_attribution_callback(self):
 
-        str_nodes = self.lineEdit_selection_id.text()
+        str_nodes = self.lineEdit_node_id.text()
         stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
         if stop:
-            self.lineEdit_selection_id.setFocus()
+            self.lineEdit_node_id.setFocus()
             return
 
         stop, Fx = self.check_complex_entries(self.lineEdit_real_fx, self.lineEdit_imag_fx, "Fx")
@@ -291,6 +291,7 @@ class NodalLoadsInput(QDialog):
                 self.properties._set_nodal_property("nodal_loads", data, node_id)
 
             app().pulse_file.write_nodal_properties_in_file()
+            self.load_nodes_info()
             app().main_window.update_plots()
             self.close()
 
@@ -426,10 +427,10 @@ class NodalLoadsInput(QDialog):
 
     def table_values_attribution_callback(self):
 
-        str_nodes = self.lineEdit_selection_id.text()
+        str_nodes = self.lineEdit_node_id.text()
         stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
         if stop:
-            self.lineEdit_selection_id.setFocus()
+            self.lineEdit_node_id.setFocus()
             return
 
         self.remove_conflicting_excitations(node_ids)
@@ -502,8 +503,9 @@ class NodalLoadsInput(QDialog):
 
         app().pulse_file.write_nodal_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
+        self.load_nodes_info()
         app().main_window.update_plots()
-        self.close()
+        # self.close()
 
         print(f"[Set Nodal loads] - defined at node(s) {node_ids}")
 
@@ -529,7 +531,7 @@ class NodalLoadsInput(QDialog):
 
     def load_nodes_info(self):
 
-        self.treeWidget_nodal_loads.clear()
+        self.treeWidget_nodal_info.clear()
         for (property, *args), data in self.properties.nodal_properties.items():
 
             if property == "nodal_loads":
@@ -538,7 +540,7 @@ class NodalLoadsInput(QDialog):
                 new = QTreeWidgetItem([str(args[0]), str(self.text_label(constrained_dofs_mask))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_nodal_loads.addTopLevelItem(new)
+                self.treeWidget_nodal_info.addTopLevelItem(new)
 
         self.tabWidget_nodal_loads.setTabVisible(2, False)
         for (property, *_) in self.properties.nodal_properties.keys():
@@ -548,22 +550,32 @@ class NodalLoadsInput(QDialog):
                 return
 
     def tab_event_callback(self):
-        self.lineEdit_selection_id.setText("")
+
+        self.lineEdit_node_id.setText("")
         self.pushButton_remove.setDisabled(True)
+
         if self.tabWidget_nodal_loads.currentIndex() == 2:
-            self.lineEdit_selection_id.setText("")
-            self.lineEdit_selection_id.setDisabled(True)
+            self.lineEdit_node_id.setDisabled(True)
+            items = self.treeWidget_nodal_info.selectedItems()
+            if items == list():
+                self.lineEdit_node_id.setText("")
+            else:
+                self.on_click_item(items[0])
+
         else:
-            self.lineEdit_selection_id.setDisabled(False)
+            self.lineEdit_node_id.setEnabled(True)
             self.selection_callback()
 
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
-        self.lineEdit_selection_id.setText(item.text(0))
+        if item.text(0) != "":
+            self.lineEdit_node_id.setText(item.text(0))
+            node_id = int(item.text(0))
+            app().main_window.set_selection(nodes=[node_id])
 
     def on_double_click_item(self, item):
         # self.on_click_item(item)
-        self.lineEdit_selection_id.setText(item.text(0))
+        self.lineEdit_node_id.setText(item.text(0))
         self.get_nodal_info(item)
 
     def get_nodal_info(self, item):
@@ -617,9 +629,9 @@ class NodalLoadsInput(QDialog):
 
     def remove_callback(self):
 
-        if  self.lineEdit_selection_id.text() != "":
+        if  self.lineEdit_node_id.text() != "":
 
-            str_nodes = self.lineEdit_selection_id.text()
+            str_nodes = self.lineEdit_node_id.text()
             stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
             if stop:
                 return
@@ -657,13 +669,12 @@ class NodalLoadsInput(QDialog):
 
             self.properties._reset_nodal_property("nodal_loads")
             app().pulse_file.write_nodal_properties_in_file()
+            self.load_nodes_info()
             app().main_window.update_plots()
-            self.close()
+            # self.close()
 
     def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("nodal_loads", 
-                                                                    node_ids, 
-                                                                    only_equals = True)
+        table_names = self.properties.get_nodal_related_table_names("nodal_loads", node_ids)
         self.process_table_file_removal(table_names)
 
     def process_table_file_removal(self, table_names : list):
@@ -673,7 +684,7 @@ class NodalLoadsInput(QDialog):
             app().pulse_file.write_imported_table_data_in_file()
 
     def reset_input_fields(self):
-        self.lineEdit_selection_id.setText("")
+        self.lineEdit_node_id.setText("")
         for [lineEdit_real, lineEdit_imag] in self.list_lineEdit_constant_values:
             lineEdit_real.setText("")
             lineEdit_imag.setText("")
@@ -682,10 +693,11 @@ class NodalLoadsInput(QDialog):
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_nodal_loads.currentIndex()==0:
+            if self.tabWidget_nodal_loads.currentIndex() == 0:
                 self.constant_values_attribution_callback()
-            elif self.tabWidget_nodal_loads.currentIndex()==1:
+            elif self.tabWidget_nodal_loads.currentIndex() == 1:
                 self.table_values_attribution_callback()
+
         elif event.key() == Qt.Key_Escape:
             self.close()
 

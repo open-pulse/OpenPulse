@@ -291,6 +291,8 @@ class CrossSectionWidget(QWidget):
 
     def get_constant_section_pipe_parameters(self):
 
+        print("passei -> get_constant_section_pipe_parameters")
+
         self.section_type_label = None
         self.section_parameters = list()
         self.pipe_section_info = dict()
