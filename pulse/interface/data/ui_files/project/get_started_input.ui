@@ -784,7 +784,7 @@ Project</string>
             <string notr="true"/>
            </property>
            <property name="text">
-            <string>Create a new Project</string>
+            <string>New Project</string>
            </property>
            <property name="icon">
             <iconset>
@@ -827,7 +827,7 @@ Project</string>
             <string notr="true"/>
            </property>
            <property name="text">
-            <string>Open a local Project</string>
+            <string>Open Project</string>
            </property>
            <property name="icon">
             <iconset>
