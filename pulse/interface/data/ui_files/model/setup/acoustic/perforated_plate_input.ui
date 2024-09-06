@@ -120,7 +120,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Element IDs: </string>
+            <string>Element IDs:</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1681,7 +1681,7 @@
                    <x>0</x>
                    <y>0</y>
                    <width>422</width>
-                   <height>262</height>
+                   <height>252</height>
                   </rect>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_3">
