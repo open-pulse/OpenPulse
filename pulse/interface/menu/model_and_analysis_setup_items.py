@@ -58,8 +58,8 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_radiation_impedance = self.add_item('Set Radiation Impedance')
         self.item_child_add_perforated_plate = self.add_item('Add Perforated Plate')
         self.item_child_set_acoustic_element_length_correction = self.add_item('Set Element Length Correction')
-        self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
         self.item_child_add_compressor_excitation = self.add_item('Add Compressor Excitation')
+        self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
         #
         self.item_top_analysis = self.add_top_item('Analysis')
         self.item_child_select_analysis_type = self.add_item('Select Analysis Type')
@@ -100,8 +100,8 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_radiation_impedance.clicked.connect(self.item_child_set_radiation_impedance_callback)
         self.item_child_add_perforated_plate.clicked.connect(self.item_child_add_perforated_plate_callback)
         self.item_child_set_acoustic_element_length_correction.clicked.connect(self.item_child_set_acoustic_element_length_correction_callback)
-        self.item_child_turn_off_acoustic_elements.clicked.connect(self.item_child_turn_off_acoustic_elements_callback)
         self.item_child_add_compressor_excitation.clicked.connect(self.item_child_add_compressor_excitation_callback)
+        self.item_child_turn_off_acoustic_elements.clicked.connect(self.item_child_turn_off_acoustic_elements_callback)
         #
         # Analysis Setup
         self.item_child_select_analysis_type.clicked.connect(self.item_child_select_analysis_type_callback)
@@ -314,8 +314,8 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_radiation_impedance.setDisabled(bool_key)
         self.item_child_add_perforated_plate.setDisabled(bool_key)
         self.item_child_set_acoustic_element_length_correction.setDisabled(bool_key)
-        self.item_child_turn_off_acoustic_elements.setDisabled(bool_key)
         self.item_child_add_compressor_excitation.setDisabled(bool_key)
+        self.item_child_turn_off_acoustic_elements.setDisabled(bool_key)
         #
         self.item_child_select_analysis_type.setDisabled(bool_key)
         if bool_key:

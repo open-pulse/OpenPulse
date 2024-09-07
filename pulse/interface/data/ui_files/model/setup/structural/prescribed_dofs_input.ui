@@ -2236,7 +2236,7 @@
           </spacer>
          </item>
          <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEdit_node_id">
+          <widget class="QLineEdit" name="lineEdit_node_ids">
            <property name="minimumSize">
             <size>
              <width>160</width>
