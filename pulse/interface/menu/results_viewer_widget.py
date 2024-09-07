@@ -165,19 +165,14 @@ class ResultsViewerWidget(QWidget):
 
     def add_widget(self, widget: QWidget, animation_widget=False):
 
-        # TODO: please, remove the hide and show after all they shouldn't be needed
-
         app().main_window.animation_toolbar.setEnabled(False)
-        if isinstance(self.current_widget, QWidget):
-            self.bottom_widget.hide()
 
-        self.current_widget = widget
-        if self.current_widget is None:
-            return
+        # TODO: please, remove the hide after all it shouldn't be needed
+        if isinstance(self.bottom_widget, QWidget):
+            self.bottom_widget.hide()
 
         self.layout().replaceWidget(self.bottom_widget, widget)
         self.bottom_widget = widget
-        self.current_widget.show()
 
         app().main_window.animation_toolbar.setEnabled(animation_widget)
 
