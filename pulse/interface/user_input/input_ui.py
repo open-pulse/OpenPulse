@@ -285,7 +285,9 @@ class InputUi:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return None
-            elif self.analysis_id == 7:
+            
+            self.main_window.results_widget.show_empty()
+            if self.analysis_id == 7:
                 return self.process_input(PlotNodalResultsForStaticAnalysis)
             else:
                 return self.process_input(PlotNodalResultsForHarmonicAnalysis)
