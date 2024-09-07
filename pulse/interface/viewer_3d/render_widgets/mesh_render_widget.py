@@ -112,10 +112,12 @@ class MeshRenderWidget(CommonRenderWidget):
             self.visualization_changed_callback()
             self.update_section_plane()        
         
-        if reset_camera:
-            self.renderer.ResetCamera()
+            if reset_camera:
+                self.renderer.ResetCamera()
 
-        self.update_info_text()
+            self.update_info_text()
+
+        self.update()
 
     def remove_actors(self):
         self.renderer.RemoveActor(self.lines_actor)
