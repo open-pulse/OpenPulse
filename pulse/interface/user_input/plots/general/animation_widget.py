@@ -43,7 +43,6 @@ class AnimationWidget(QWidget):
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
 
     def frames_value_changed(self):
-        # self.main_window.opv_widget.opvAnalysisRenderer._numberFramesHasChanged(True)
         self.frames = self.spinBox_frames.value()
         
     def cycles_value_changed(self):
@@ -51,7 +50,6 @@ class AnimationWidget(QWidget):
 
     def slider_callback(self):
         value = self.phase_slider.value()
-        # self.main_window.opv_widget.opvAnalysisRenderer.slider_callback(value)
         self.main_window.results_widget.slider_callback(value)
 
     def process_animation(self, state):

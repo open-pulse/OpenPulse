@@ -15,6 +15,7 @@ from pulse import *
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
+from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
 from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
@@ -271,6 +272,7 @@ class MainWindow(QMainWindow):
         self._create_status_bar()
         self._update_recent_projects()
         self._add_mesh_toolbar()
+        self._add_animation_toolbar()
         app().splash.update_progress(70)
         dt = time() - t1
         print(f"Time to process B: {dt} [s]")
@@ -644,6 +646,7 @@ class MainWindow(QMainWindow):
         self.export_geometry()
 
     def action_geometry_workspace_callback(self):
+
         self.clear_selection()
         self._configure_visualization(
             points=True, tubes=True,
@@ -652,20 +655,26 @@ class MainWindow(QMainWindow):
         )
         self.close_dialogs()
         self.mesh_toolbar.setDisabled(True)
+        self.animation_toolbar.setEnabled(False)
 
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
     def action_structural_setup_workspace_callback(self):
+
         self.mesh_toolbar.setDisabled(False)
+        self.animation_toolbar.setEnabled(False)
         self.model_and_analysis_setup_widget.update_visibility_for_structural_analysis()
 
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
 
     def action_acoustic_setup_workspace_callback(self):
+
         self.mesh_widget.update_selection()
         self.mesh_toolbar.setDisabled(False)
+        self.animation_toolbar.setEnabled(False)
+
         self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
 
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
@@ -680,6 +689,7 @@ class MainWindow(QMainWindow):
 
         self.results_widget.update_selection()
         self.results_viewer_wigdet.update_visibility_items()
+        self.animation_toolbar.setEnabled(False)
 
         if self.project.is_the_solution_finished():
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
@@ -910,6 +920,11 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.mesh_toolbar)
         self.insertToolBarBreak(self.mesh_toolbar)
 
+    def _add_animation_toolbar(self):
+        self.animation_toolbar = AnimationToolbar()
+        self.addToolBar(self.animation_toolbar)
+        self.insertToolBarBreak(self.animation_toolbar)
+
     def _create_status_bar(self):
         self.status_bar = StatusBar(self)
         self.setStatusBar(self.status_bar)
@@ -950,10 +965,10 @@ class MainWindow(QMainWindow):
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
-            icon_color = QColor("#5f9af4")
+            self.icon_color = QColor("#5f9af4")
 
         elif theme == "light":
-            icon_color = QColor("#1a73e8")
+            self.icon_color = QColor("#1a73e8")
     
         self.interface_theme = theme
         qdarktheme.setup_theme(theme, custom_colors=self.custom_colors)
@@ -965,7 +980,7 @@ class MainWindow(QMainWindow):
 
         # paint the icons of every children widget
         widgets = self.findChildren((QAbstractButton, QAction))
-        icons.change_icon_color_for_widgets(widgets, icon_color)
+        icons.change_icon_color_for_widgets(widgets, self.icon_color)
 
         # TODO: Connect this via signaling
         self.geometry_widget.set_theme(theme)
@@ -980,7 +995,7 @@ class MainWindow(QMainWindow):
             else:
                 self.user_preferences["bottom font color"] = (0, 0, 0)
             self.config.write_user_preferences_in_file(self.user_preferences)
-            # self.opv_widget.set_user_interface_preferences(self.user_preferences)
+            # self.blah.set_user_interface_preferences(self.user_preferences)
 
     def savePNG_call(self):
 
@@ -998,7 +1013,7 @@ class MainWindow(QMainWindow):
             return
 
         # TODO: reimplement this
-        # self.opv_widget().savePNG(path)
+        # self.blah.savePNG(path)
 
     def positioning_cursor_on_widget(self, widget):
         width, height = widget.width(), widget.height()
@@ -1011,7 +1026,7 @@ class MainWindow(QMainWindow):
 
         close = QMessageBox.question(   
                                         self, 
-                                        "Quit", 
+                                        "Quit_", 
                                         "Would you like to save the project data before exit?", 
                                         QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
                                     )

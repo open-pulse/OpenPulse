@@ -80,6 +80,10 @@ class Project:
         self.max_stress = ""
         self.stress_label = ""
 
+        # default animation settings
+        self.frames = 40
+        self.cycles = 3
+
     def initial_load_project_actions(self):
 
         try:

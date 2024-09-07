@@ -18,7 +18,7 @@ class ShakingForcesCriteriaInput(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        ui_path = UI_DIR / "criterias/shaking_forces_criteria_widget.ui"
+        ui_path = UI_DIR / "plots/results/acoustic/plot_shaking_forces.ui"
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
@@ -36,6 +36,7 @@ class ShakingForcesCriteriaInput(QWidget):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+
         self.keep_window_open = True
         self.complete = False
         self.unit_label = "N"

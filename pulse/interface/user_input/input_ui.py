@@ -256,7 +256,7 @@ class InputUi:
             self.main_window.use_results_workspace()
 
             app().main_window.results_widget.show_empty()
-            app().main_window.results_viewer_wigdet.remove_widget()
+            # app().main_window.results_viewer_wigdet.remove_widget()
 
     def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")
