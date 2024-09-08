@@ -244,6 +244,7 @@ class GeometryHandler:
         self.pipeline.reset()
 
         lines_data = app().pulse_file.read_line_properties_from_file()
+        # print("-> process_pipeline")
 
         if isinstance(lines_data, dict):
             for _line_id, data in lines_data.items():
@@ -285,6 +286,11 @@ class GeometryHandler:
             section_parameters = data["section_parameters"]
         else:
             section_parameters = [0.01, 0.001, 0, 0, 0 ,0]
+
+        if "section_type_label" in data.keys():
+            section_type_label = data["section_type_label"]
+        else:
+            section_type_label = "Pipe"
 
         if len(section_parameters) == 6:
 
@@ -344,7 +350,7 @@ class GeometryHandler:
         structure.tag = line_id
 
         section_info = {
-                        "section_type_label" : data["section_type_label"],
+                        "section_type_label" : section_type_label,
                         "section_parameters" : section_parameters
                        }
 
@@ -498,7 +504,7 @@ class GeometryHandler:
         gmsh.write(str(path))
         gmsh.finalize()
 
-    def open_cad_file(self, path):
+    def open_cad_file(self, path: str):
 
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
