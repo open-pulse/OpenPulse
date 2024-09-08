@@ -13,12 +13,11 @@ class ResultsViewerWidget(QWidget):
         ui_path = UI_DIR / "menus/left_menu_widget.ui"
         uic.loadUi(ui_path, self)
 
-        self.reset()
+        self._reset()
         self._define_qt_variables()
         self._create_connections()
-        # self._config_widget()
 
-    def reset(self):
+    def _reset(self):
         self.current_widget = None
 
     def _define_qt_variables(self):
@@ -30,7 +29,8 @@ class ResultsViewerWidget(QWidget):
         self.bottom_widget: QWidget
 
         self.results_viewer_items = ResultsViewerItems()
-        item = self.layout().replaceWidget(self.top_widget, self.results_viewer_items)
+        self.layout().replaceWidget(self.top_widget, self.results_viewer_items)
+        self.adjustSize()
 
     def _create_connections(self):
 
@@ -77,18 +77,6 @@ class ResultsViewerWidget(QWidget):
             self.add_pulsation_criteria_widget)
         
         self.results_viewer_items.item_child_shaking_forces_criteria.clicked.connect(self.add_shaking_forces_criteria_widget)
-
-    # def _config_widget(self):
-
-    #     self.grid_layout = QGridLayout()
-    #     self.grid_layout.setContentsMargins(0, 0, 0, 0)
-    #     self.main_frame.setLayout(self.grid_layout)
-    #     self.grid_layout.addWidget(self.results_viewer_items, 0, 0, 1, 1)
-
-    #     # self.grid_layout.addWidget(QWidget(), 2, 0, 1, 1)
-    #     self.grid_layout.setAlignment(Qt.AlignCenter)
-    #     self.setLayout(self.grid_layout)
-    #     self.adjustSize()       
 
     def update_visibility_items(self):
         self.results_viewer_items._update_items()
@@ -175,27 +163,4 @@ class ResultsViewerWidget(QWidget):
         self.bottom_widget = widget
 
         app().main_window.animation_toolbar.setEnabled(animation_widget)
-
-    # def add_widget(self, widget: QWidget, animation_widget=False):
-
-    #     self.remove_widget()
-    #     app().main_window.animation_toolbar.setEnabled(False)
-
-    #     self.current_widget = widget
-
-    #     if self.current_widget is None:
-    #         return
-
-    #     if self.grid_layout.indexOf(self.current_widget) == -1:
-    #         self.grid_layout.addWidget(self.current_widget, 1, 0, 1, 1)
-
-    #     app().main_window.animation_toolbar.setEnabled(animation_widget)
-
-    # def remove_widget(self):
-
-    #     if self.grid_layout.indexOf(self.current_widget) != -1:
-    #         self.current_widget.hide()
-    #         # TODO: check if the widget removal is working properly
-    #         self.grid_layout.removeWidget(self.current_widget)
-
-    #     app().main_window.animation_toolbar.setEnabled(False)
+        self.adjustSize()

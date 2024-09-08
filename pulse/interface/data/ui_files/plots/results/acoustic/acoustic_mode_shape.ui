@@ -98,7 +98,7 @@
          <enum>QFrame::Raised</enum>
         </property>
         <property name="text">
-         <string>Select the mode shape to be plotted</string>
+         <string>Plot the acoustic mode shape</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
