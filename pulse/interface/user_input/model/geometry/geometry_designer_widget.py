@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox
 from PyQt5 import uic
 import re
 from numbers import Number
@@ -31,7 +31,7 @@ class GeometryDesignerWidget(QWidget):
     def __init__(self, render_widget: EditorRenderWidget, parent=None):
         super().__init__(parent)
 
-        ui_path = UI_DIR / "model/geometry/geometry_designer_widget.ui"
+        ui_path = UI_DIR / "model/geometry/geometry_designer_widget2.ui"
         uic.loadUi(ui_path, self)
 
         self.render_widget = render_widget
@@ -55,6 +55,9 @@ class GeometryDesignerWidget(QWidget):
         self.structure_combobox: QComboBox
         self.division_combobox: QComboBox
 
+        # QFrame
+        self.frame_bending_options: QFrame
+
         #QPushButton
         self.add_button: QPushButton
         self.apply_division_button: QPushButton
@@ -63,7 +66,7 @@ class GeometryDesignerWidget(QWidget):
         self.cancel_division_button: QPushButton
         self.delete_button: QPushButton
         self.finalize_button: QPushButton
-        self.set_fluid_button: QPushButton
+        self.configure_button: QPushButton
         self.set_material_button: QPushButton
 
         # QLineEdit
@@ -126,7 +129,7 @@ class GeometryDesignerWidget(QWidget):
         self.unit_combobox.currentTextChanged.connect(self.unity_changed_callback)
         self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         self.set_material_button.clicked.connect(self.show_material_widget_callback)
-        self.set_fluid_button.clicked.connect(self.show_fluid_widget_callback)
+        self.configure_button.clicked.connect(self.configure_structure_callback)
         self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material_callback)
 
         self.x_line_edit.textEdited.connect(self.xyz_changed_callback)
@@ -199,7 +202,7 @@ class GeometryDesignerWidget(QWidget):
         unit_pattern = re.compile(r"\[(m|mm|in)\]")
         for label in self.findChildren(QLabel):
             if unit_pattern.match(label.text()) is not None:
-                label.setText(unit_label_text)
+                label.setText(f"[{unit_label_text}]")
 
     def structure_type_changed_callback(self, structure_name: str):
         # the previous value before this change
@@ -211,8 +214,10 @@ class GeometryDesignerWidget(QWidget):
 
         self.options_stack_widget.setCurrentWidget(self.empty_widget)
         self._show_deltas_mode(True)
+        self.frame_bending_options.setEnabled(False)
 
         if issubclass(self.current_structure_type, Pipe):
+            self.frame_bending_options.setEnabled(True)
             self.options_stack_widget.setCurrentWidget(self.pipe_options_widget)
 
         elif issubclass(self.current_structure_type, Reducer):
@@ -262,9 +267,6 @@ class GeometryDesignerWidget(QWidget):
         self.material_widget.load_data_from_materials_library()
         self.material_widget.setVisible(True)
 
-    def show_fluid_widget_callback(self):
-        pass 
-
     def options_changed_callback(self):
         self._update_permissions()
         self.xyz_changed_callback()
@@ -277,6 +279,9 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
         self._update_information_text()
         self.render_widget.update_plot(reset_camera=False)
+
+    def configure_structure_callback(self):
+        pass
 
     def xyz_changed_callback(self):
         try:
@@ -502,17 +507,17 @@ class GeometryDesignerWidget(QWidget):
         self._set_xyz(x, y, z)
 
     def _show_deltas_mode(self, boolean):
-        x_text = self.dx_label.text().removeprefix("Δ")
-        y_text = self.dy_label.text().removeprefix("Δ")
-        z_text = self.dz_label.text().removeprefix("Δ")
 
         if boolean:
-            x_text = "Δ" + x_text
-            y_text = "Δ" + y_text
-            z_text = "Δ" + z_text
+            x_text = "Length Δx:"
+            y_text = "Length Δy:"
+            z_text = "Length Δz:"
             self.sizes_coords_label.setText("Bounding Box Sizes")
         
         else:
+            x_text = "Coordinate x:"
+            y_text = "Coordinate y:"
+            z_text = "Coordinate z:"
             self.sizes_coords_label.setText("Coordinates")
         
         self.dx_label.setText(x_text)
@@ -679,7 +684,6 @@ class GeometryDesignerWidget(QWidget):
         is_beam = issubclass(self.current_structure_type, Beam)
 
         self.set_material_button.setDisabled(is_point)
-        self.set_fluid_button.setDisabled(is_beam or is_point)
 
         self.add_button.setDisabled(not have_staged)
         self.delete_button.setDisabled(not (have_selection or have_staged))
