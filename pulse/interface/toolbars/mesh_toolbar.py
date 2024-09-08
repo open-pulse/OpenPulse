@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QToolBar
+from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QToolBar, QWidget
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QIcon, QKeyEvent
 
@@ -16,7 +16,7 @@ class MeshToolbar(QToolBar):
         self.mesh_updater = MeshUpdater()
 
         self._define_qt_variables()
-        self._configure_widgets()
+        self._config_widgets()
         self._create_connections()
 
         self._configure_layout()
@@ -27,8 +27,8 @@ class MeshToolbar(QToolBar):
     def _define_qt_variables(self):
 
         # QLabel
-        self.label_element_size = QLabel(" Element size [m]:")
-        self.label_geometry_tolerance = QLabel(" Geometry tolerance [m]:")
+        self.label_element_size = QLabel("Element size [m]:")
+        self.label_geometry_tolerance = QLabel("Geometry tolerance [m]:")
 
         # QLineEdit
         self.lineEdit_element_size = QLineEdit()
@@ -39,10 +39,7 @@ class MeshToolbar(QToolBar):
         # QPushButton
         self.pushButton_generate_mesh = QPushButton(" Generate mesh ")
 
-    def _configure_widgets(self):
-
-        # self.label_element_size.setFixedWidth(80)
-        # self.label_geometry_tolerance.setFixedWidth(120)
+    def _config_widgets(self):
 
         self.label_element_size.setAlignment(Qt.AlignRight)
         self.label_geometry_tolerance.setAlignment(Qt.AlignRight)
@@ -79,17 +76,23 @@ class MeshToolbar(QToolBar):
         #
         self.pushButton_generate_mesh.clicked.connect(self.generate_mesh_callback)
 
+    def get_spacer(self):
+        spacer = QWidget()
+        spacer.setFixedWidth(8)
+        return spacer
+
     def _configure_layout(self):
         #
         self.addWidget(self.label_element_size)
         self.addWidget(self.lineEdit_element_size)
+        self.addWidget(self.get_spacer())
+        #
         self.addWidget(self.label_geometry_tolerance)
         self.addWidget(self.lineEdit_geometry_tolerance)
-        self.addSeparator()
+        self.addWidget(self.get_spacer())
+        #
         self.addWidget(self.pushButton_generate_mesh)
         #
-        self.layout().setContentsMargins(0,0,6,0)
-        self.layout().setSpacing(4)
         self.adjustSize()
 
     def _configure_appearance(self):

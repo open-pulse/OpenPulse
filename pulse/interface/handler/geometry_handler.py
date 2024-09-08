@@ -244,7 +244,7 @@ class GeometryHandler:
         self.pipeline.reset()
 
         lines_data = app().pulse_file.read_line_properties_from_file()
-        print("-> process_pipeline")
+        # print("-> process_pipeline")
 
         if isinstance(lines_data, dict):
             for _line_id, data in lines_data.items():

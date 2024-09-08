@@ -36,8 +36,9 @@ class AnimationToolbar(QToolBar):
     def _define_qt_variables(self):
 
         # QLabel
-        self.label_cycles = QLabel("Cycles:")
-        self.label_frames = QLabel("Frames/cycle:")
+        self.label_cycles = QLabel("Animation cycles:")
+        self.label_frames = QLabel("Frames per cycle:")
+        self.label_phase = QLabel("Animation phase:")
 
         # QPushButton
         self.pushButton_animate = QPushButton(self)
@@ -71,6 +72,7 @@ class AnimationToolbar(QToolBar):
         # QSlider
         self.phase_slider.setOrientation(Qt.Orientation.Horizontal)
         self.phase_slider.setMaximumWidth(300)
+        self.phase_slider.setCursor(Qt.PointingHandCursor)
 
         # QSpinBox
         self.spinBox_cycles.setMinimum(1)
@@ -79,6 +81,7 @@ class AnimationToolbar(QToolBar):
         self.spinBox_cycles.setValue(app().project.cycles)
         self.spinBox_cycles.setMinimumWidth(60)
         self.spinBox_cycles.setAlignment(Qt.AlignHCenter)
+        self.spinBox_cycles.setCursor(Qt.PointingHandCursor)
 
         self.spinBox_frames.setMinimum(20)
         self.spinBox_frames.setMaximum(60)
@@ -86,6 +89,7 @@ class AnimationToolbar(QToolBar):
         self.spinBox_frames.setValue(app().project.frames)
         self.spinBox_frames.setMinimumWidth(60)
         self.spinBox_frames.setAlignment(Qt.AlignHCenter)
+        self.spinBox_frames.setCursor(Qt.PointingHandCursor)
 
     def _create_connections(self):
         #
@@ -97,21 +101,30 @@ class AnimationToolbar(QToolBar):
         self.spinBox_frames.valueChanged.connect(self.frames_value_changed)
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
 
+    def get_spacer(self):
+        spacer = QWidget()
+        spacer.setFixedWidth(8)
+        return spacer
+
     def _configure_layout(self):
         #
         self.addWidget(self.label_frames)
         self.addWidget(self.spinBox_frames)
+        self.addWidget(self.get_spacer())
+        #
         self.addWidget(self.label_cycles)
         self.addWidget(self.spinBox_cycles)
-        self.addSeparator()
+        self.addWidget(self.get_spacer())
+        #
+        self.addWidget(self.label_phase)
         self.addWidget(self.phase_slider)
-        self.addSeparator()
+        self.addWidget(self.get_spacer())
+        #
         self.addWidget(self.pushButton_animate)
-        # self.addSeparator()
+        self.addWidget(self.get_spacer())
+        #
         self.addWidget(self.pushButton_export)
         #
-        self.layout().setContentsMargins(0,0,6,0)
-        self.layout().setSpacing(4)
         self.adjustSize()
 
     def _configure_appearance(self):
