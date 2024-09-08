@@ -54,7 +54,7 @@ class GeometryHandler:
 
         for structure in self.pipeline.structures:
 
-            if isinstance(structure, (Pipe, Beam, Reducer, ExpansionJoint)):
+            if isinstance(structure, (Pipe, Beam, Reducer, Flange, ExpansionJoint)):
 
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
@@ -288,7 +288,17 @@ class GeometryHandler:
 
         if len(section_parameters) == 6:
 
-            if data["structure_name"] == "bend":
+            if data["structure_name"] == "pipe":
+                start = Point(*data['start_coords'])
+                end = Point(*data['end_coords'])
+                structure = Pipe(
+                                 start, 
+                                 end, 
+                                 diameter = section_parameters[0],
+                                 thickness = section_parameters[1],
+                                )
+
+            elif data["structure_name"] == "bend":
                 start = Point(*data['start_coords'])
                 end = Point(*data['end_coords'])
                 corner = Point(*data['corner_coords'])
@@ -302,15 +312,15 @@ class GeometryHandler:
                                  thickness = section_parameters[1]
                                 )
 
-            else:
+            elif data["structure_name"] == "flange":
                 start = Point(*data['start_coords'])
                 end = Point(*data['end_coords'])
-                structure = Pipe(
-                                 start, 
-                                 end, 
-                                 diameter = section_parameters[0],
-                                 thickness = section_parameters[1],
-                                )
+                structure = Flange(
+                                   start, 
+                                   end, 
+                                   diameter = section_parameters[0],
+                                   thickness = section_parameters[1],
+                                   )
 
         elif len(section_parameters) == 10:
 
@@ -882,7 +892,7 @@ class GeometryHandler:
             data["corner_coords"] = get_data(structure.corner.coords())
             data["curvature_radius"] = np.round(structure.curvature, 8)
 
-        elif isinstance(structure, Pipe | Beam | Reducer | Valve | ExpansionJoint):
+        elif isinstance(structure, Pipe | Beam | Reducer | Flange | Valve | ExpansionJoint):
             data["structure_name"] = self.get_structure_name(structure)
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
