@@ -186,6 +186,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
             self._animation_cached_data[frame] = cached
 
+    def stop_animation(self):
+        # Do the things defined in the mother class 
+        super().stop_animation()
+        # Change the animation button to paused
+        app().main_window.animation_toolbar.pause_animation()
+
     def update_animation(self, frame: int):
         conditions_to_clear_cache = [
             self._animation_current_frequency != self.current_frequency_index,

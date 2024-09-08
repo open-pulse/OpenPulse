@@ -130,17 +130,18 @@ class AnimationToolbar(QToolBar):
     def slider_callback(self):
         value = self.phase_slider.value()
         app().main_window.results_widget.slider_callback(value)
-
-        # Pause animation when the slider is used
+        self.pause_animation()
+    
+    def pause_animation(self):
         self.pushButton_animate.setChecked(False)
-        self.process_animation(False)
+        self.update_animate_button_icons(False)
 
     def process_animation(self, state: bool):
         self.update_animation_settings()
         self.update_animate_button_icons(state)
 
         if state:
-            app().main_window.results_widget.start_animation(frames=self.frames)
+            app().main_window.results_widget.start_animation(frames=self.frames, cycles=self.cycles)
         else:
             app().main_window.results_widget.stop_animation()
 
