@@ -107,7 +107,7 @@ class AnimationToolbar(QToolBar):
         self.addWidget(self.phase_slider)
         self.addSeparator()
         self.addWidget(self.pushButton_animate)
-        self.addSeparator()
+        # self.addSeparator()
         self.addWidget(self.pushButton_export)
         #
         self.layout().setContentsMargins(0,0,6,0)
