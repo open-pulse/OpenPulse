@@ -497,7 +497,7 @@
             <string notr="true"/>
            </property>
            <property name="text">
-            <string> Animate</string>
+            <string>Animate</string>
            </property>
            <property name="icon">
             <iconset>
