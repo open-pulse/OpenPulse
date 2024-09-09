@@ -11,6 +11,7 @@ from opps.io.pcf.pcf_handler import PCFHandler
 
 from molde.render_widgets import CommonRenderWidget
 from molde import stylesheets
+from molde.colors import color_names
 
 from pulse import *
 from pulse.interface.formatters import icons
@@ -952,10 +953,10 @@ class MainWindow(QMainWindow):
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
-            icon_color = QColor("#5f9af4")
+            icon_color = QColor(color_names.BLUE_6.to_hex())
 
         elif theme == "light":
-            icon_color = QColor("#1a73e8")
+            icon_color = QColor(color_names.BLUE_4.to_hex())
     
         self.interface_theme = theme
         stylesheets.set_theme(theme)
