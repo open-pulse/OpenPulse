@@ -175,16 +175,18 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self._animation_current_frequency = self.current_frequency_index
         self._animation_color_map = self.colormap
 
-        for frame in range(self._animation_total_frames):
-            logging.info(f"Caching animation frames [{frame}/{self._animation_total_frames}]")
-            d_theta = 2 * np.pi / self._animation_total_frames
-            phase_step = frame * d_theta
-            self.current_phase_step = phase_step
+        with self.update_lock:
+            for frame in range(self._animation_total_frames):
+                logging.info(f"Caching animation frames [{frame}/{self._animation_total_frames}]")
+                d_theta = 2 * np.pi / self._animation_total_frames
+                phase_step = frame * d_theta
+                self.current_phase_step = phase_step
 
-            self.update_plot()
-            cached = vtkPolyData()
-            cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
-            self._animation_cached_data[frame] = cached
+                self.update_plot()
+                cached = vtkPolyData()
+                cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
+                self._animation_cached_data[frame] = cached
+        self._animation_current_cycle = 0
 
     def stop_animation(self):
         # Do the things defined in the mother class 
