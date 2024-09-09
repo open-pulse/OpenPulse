@@ -465,22 +465,27 @@ class MainWindow(QMainWindow):
         return obj.complete
 
     def initial_project_action(self, finalized):
+
         # t0 = time()
         self.update_export_geometry_file_access()
         self.model_and_analysis_items.modify_model_setup_items_access(True)
+
         if finalized:
             self.disable_workspace_selector_and_geometry_editor(False)
             if app().pulse_file.check_pipeline_data():
+                self.analysis_toolbar.setEnabled(True)
                 self.project.none_project_action = False
                 self.model_and_analysis_items.modify_model_setup_items_access(False)
                 # dt = time() - t0
                 # print(f"initial_project_action: {dt} s")
                 return True
             else:
+                self.analysis_toolbar.setEnabled(False)
                 self.model_and_analysis_items.modify_geometry_item_access(False)
                 return True
         else:
             self.project.none_project_action = True
+            self.analysis_toolbar.setEnabled(False)
             return False
 
     def reset_geometry_render(self):
@@ -857,6 +862,7 @@ class MainWindow(QMainWindow):
         self.analysis_toolbar = AnalysisToolbar()
         self.addToolBar(self.analysis_toolbar)
         # self.insertToolBarBreak(self.analysis_toolbar)
+        self.analysis_toolbar.setDisabled(True)
 
     def _add_animation_toolbar(self):
         self.animation_toolbar = AnimationToolbar()

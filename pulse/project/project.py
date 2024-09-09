@@ -57,7 +57,7 @@ class Project:
         self.plot_pressure_field = False
         self.plot_stress_field = False
         self.is_file_loaded = False
-        self.setup_analysis_complete = False
+        self.analysis_setup_complete = False
         self.none_project_action = False
         self.stress_stiffening_enabled = False
 
@@ -239,7 +239,7 @@ class Project:
         return False
 
     def update_project_analysis_setup_state(self, _bool):
-        self.setup_analysis_complete = _bool
+        self.analysis_setup_complete = _bool
 
     def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
         if parameters is None:

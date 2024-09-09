@@ -7,6 +7,12 @@ from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
+from pulse.interface.user_input.analysis.structural.structural_harmonic_analysis import StructuralHarmonicAnalysisInput
+from pulse.interface.user_input.analysis.coupled.coupled_harmonic_analysis import CoupledHarmonicAnalysisInput
+from pulse.interface.user_input.analysis.structural.structural_modal_analysis import StructuralModalAnalysisInput
+from pulse.interface.user_input.analysis.acoustic.acoustic_modal_analysis import AcousticModalAnalysisInput
+from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
+
 from pathlib import Path
 
 window_title_1 = "Error"
@@ -85,7 +91,7 @@ class AnalysisToolbar(QToolBar):
         self.pushButton_configure_analysis.setIconSize(QSize(20,20))
         self.pushButton_configure_analysis.setCursor(Qt.PointingHandCursor)
         self.pushButton_configure_analysis.setToolTip("Configure the analysis")
-        self.pushButton_configure_analysis.setCheckable(True)
+        # self.pushButton_configure_analysis.setCheckable(True)
 
         self.pushButton_run_analysis.setFixedHeight(28)
         self.pushButton_run_analysis.setFixedWidth(40)
@@ -93,21 +99,8 @@ class AnalysisToolbar(QToolBar):
         self.pushButton_run_analysis.setIconSize(QSize(20,20))
         self.pushButton_run_analysis.setCursor(Qt.PointingHandCursor)
         self.pushButton_run_analysis.setToolTip("Run the analysis")
-        self.pushButton_run_analysis.setCheckable(True)
+        # self.pushButton_run_analysis.setCheckable(True)
         self.pushButton_run_analysis.setDisabled(True)
-
-    def _create_connections(self):
-        #
-        self.combo_box_analysis_type.currentIndexChanged.connect(self.update_domain_callback)
-        #
-        self.pushButton_run_analysis.clicked.connect(self.run_analysis_callback)
-        self.pushButton_configure_analysis.clicked.connect(self.configure_analysis_callback)
-
-    def run_analysis_callback(self):
-        pass
-
-    def configure_analysis_callback(self):
-        pass
 
     def get_spacer(self):
         spacer = QWidget()
@@ -136,3 +129,154 @@ class AnalysisToolbar(QToolBar):
         self.setMinimumHeight(32)
         self.setMovable(True)
         self.setFloatable(True)
+
+    def _create_connections(self):
+        #
+        self.combo_box_analysis_type.currentIndexChanged.connect(self.update_domain_callback)
+        #
+        self.pushButton_run_analysis.clicked.connect(self.run_analysis_callback)
+        self.pushButton_configure_analysis.clicked.connect(self.configure_analysis_callback)
+
+    def run_analysis_callback(self):
+        app().main_window.input_ui.run_analysis()
+
+    def configure_analysis_callback(self):
+
+        self.complete = False
+
+        analysis_type = self.combo_box_analysis_type.currentIndex()
+        domain = self.combo_box_analysis_domain.currentIndex()
+
+        if analysis_type == 0:
+            if domain == 0:
+                self.harmonic_structural()
+            elif domain == 1:
+                self.harmonic_acoustic()
+            else:
+                self.harmonic_coupled()
+
+        elif analysis_type == 1:
+            if domain == 0:
+                self.modal_structural()
+            else:
+                self.modal_acoustic()
+
+        elif analysis_type == 2:
+            if domain == 0:
+                self.static_analysis()
+
+        else:
+            pass
+
+        if self.complete:
+            self.actions_to_finalize()
+
+    def harmonic_structural(self):
+
+        select = StructuralHarmonicAnalysisInput()
+        if select.index == -1:
+            return
+
+        self.method_id = select.index
+        analysis_type = "Structural Harmonic Analysis"
+        if self.method_id == 0:
+            analysis_id = 0
+            analysis_method = "Direct Method"
+        else:
+            analysis_id = 1
+            analysis_method = "Mode Superposition Method"
+
+        app().project.set_analysis_type(analysis_id, analysis_type, analysis_method)
+        self.complete = True
+
+    def harmonic_acoustic(self):
+
+        self.method_id = 0
+        analysis_type = "Acoustic Harmonic Analysis"
+
+        if self.method_id == 0:
+            analysis_id = 3
+            analysis_method = "Direct Method"
+        else:
+            return
+    
+        app().project.set_analysis_type(analysis_id, analysis_type, analysis_method)
+        self.complete = True
+
+    def harmonic_coupled(self):
+
+        coupled = CoupledHarmonicAnalysisInput()
+        if coupled.index == -1:
+            return
+
+        self.method_id = coupled.index
+        analysis_type = "Coupled Harmonic Analysis"
+        if self.method_id == 0:
+            analysis_id = 5
+            analysis_method = "Direct Method"
+        else:
+            analysis_id = 6
+            analysis_method = "Mode Superposition Method"
+
+        app().project.set_analysis_type(analysis_id, analysis_type, analysis_method)
+        self.complete = True
+
+    def modal_structural(self):
+
+        modal = StructuralModalAnalysisInput()
+        if modal.modes is None:
+            return
+
+        analysis_id = 2
+        analysis_type = "Structural Modal Analysis"
+
+        app().project.set_analysis_type(analysis_id, analysis_type, None)
+        app().project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
+        self.complete = modal.complete
+
+    def modal_acoustic(self):
+
+        modal = AcousticModalAnalysisInput()
+        if modal.modes is None:
+            return
+
+        analysis_id = 4
+        analysis_type = "Acoustic Modal Analysis"
+
+        app().project.set_analysis_type(analysis_id, analysis_type, None)
+        app().project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
+        self.complete = modal.complete
+
+    def static_analysis(self):
+
+        static = StaticAnalysisInput()
+        if not static.complete:
+            return
+
+        analysis_id = 7
+        analysis_type = "Static Analysis"
+
+        app().project.set_analysis_type(analysis_id, analysis_type, None)
+        self.complete = static.complete
+    
+    def actions_to_finalize(self):
+
+        analysis_id = app().project.analysis_id
+
+        if analysis_id is None:
+            return
+
+        if analysis_id in [0, 1, 3, 5, 6, 7]:
+            app().project.set_structural_solution(None)
+            app().project.set_acoustic_solution(None)
+
+        if analysis_id in [2, 4, 7]:
+            app().project.model.frequencies = None
+            app().project.update_project_analysis_setup_state(True)
+            app().main_window.input_ui.run_analysis()
+
+        else:
+            app().main_window.input_ui.analysis_setup()
+
+        setup_complete = app().project.analysis_setup_complete
+        self.pushButton_run_analysis.setEnabled(setup_complete)

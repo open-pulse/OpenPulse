@@ -335,7 +335,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         else:
             self.item_child_analysis_setup.setDisabled(False)
         
-        if self.project.analysis_id is not None and self.project.setup_analysis_complete:
+        if self.project.analysis_id is not None and self.project.analysis_setup_complete:
             self.item_child_run_analysis.setDisabled(False)
             
     def update_structural_analysis_visibility_items(self):

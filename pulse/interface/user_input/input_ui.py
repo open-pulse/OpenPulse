@@ -83,7 +83,6 @@ class InputUi:
         self._reset()
 
     def _reset(self):
-        self.analysis_id = None
         self.project.none_project_action = False
 
     def process_input(self, working_class, *args, **kwargs):
@@ -192,28 +191,28 @@ class InputUi:
         if not read.complete:
             return
 
-        if read.method_ID == -1:
+        if read.method_id == -1:
             return
 
-        self.analysis_id = self.project.analysis_id
-        self.analysis_type_label = self.project.analysis_type_label
-        self.analysis_method_label = self.project.analysis_method_label
+        analysis_id = app().project.analysis_id
+        # self.analysis_type_label = self.project.analysis_type_label
+        # self.analysis_method_label = self.project.analysis_method_label
 
-        if self.analysis_id is None:
-            self.analysis_id = None
+        if analysis_id is None:
             return
-        
-        if self.analysis_id in [0, 1, 3, 5, 6, 7]:
+
+        if analysis_id in [0, 1, 3, 5, 6, 7]:
             self.project.set_structural_solution(None)
             self.project.set_acoustic_solution(None)
 
-        if self.analysis_id in [2, 4, 7]:
+        if analysis_id in [2, 4, 7]:
             self.project.model.frequencies = None
             self.project.update_project_analysis_setup_state(True)
             self.run_analysis()
+
         else:
             self.analysis_setup()
-                    
+
     def analysis_setup(self):
 
         if self.project.analysis_id in [None, 2, 4]:
@@ -230,25 +229,27 @@ class InputUi:
        
     def run_analysis(self):
 
-        # t0 = time()
-        if self.analysis_id is None or not self.project.setup_analysis_complete:
+        analysis_id = app().project.analysis_id
+        analysis_setup_complete = app().project.analysis_setup_complete
 
-            title = "INCOMPLETE SETUP ANALYSIS" 
-            message = "Please, it is necessary to choose an analysis type and "
-            message += "setup it before trying to solve the model."
+        # t0 = time()
+        if analysis_id is None or not analysis_setup_complete:
+            title = "Incomplete analysis setup" 
+            message = "Please, it is necessary to choose an analysis type "
+            message += "and setup it before trying to solve the model."
             PrintMessageInput([window_title_1, title, message])
             return
 
         self.before_run = self.project.get_pre_solution_model_checks()
-        if self.before_run.check_is_there_a_problem(self.analysis_id):
+        if self.before_run.check_is_there_a_problem(analysis_id):
             return
         # self.project.time_to_checking_entries = time()-t0
 
         read = self.process_input(RunAnalysisInput)
         if read.complete:
-            if self.analysis_id == 2:
+            if analysis_id == 2:
                 self.before_run.check_modal_analysis_imported_data()
-            elif self.analysis_id in [3, 5, 6]:
+            elif analysis_id in [3, 5, 6]:
                 self.before_run.check_all_acoustic_criteria()
 
             self.after_run = self.project.get_post_solution_model_checks()
@@ -263,7 +264,7 @@ class InputUi:
         self.project.plot_pressure_field = False
         self.project.plot_stress_field = False
         solution = self.project.get_structural_solution()
-        if self.analysis_id in [2, 4]:
+        if app().project.analysis_id in [2, 4]:
             if solution is None:
                 return None
             else:
@@ -274,48 +275,46 @@ class InputUi:
         self.project.plot_pressure_field = False
         self.project.plot_stress_field = False
         solution = self.project.get_structural_solution()
-        if self.analysis_id in [0, 1, 5, 6, 7]:
+        if app().project.analysis_id in [0, 1, 5, 6, 7]:
             if solution is None:
                 return None
             else:
                 return self.process_input(PlotNodalResultsFieldForHarmonicAnalysis)
 
     def plot_structural_frequency_response(self):
-        if self.analysis_id in [0, 1, 5, 6, 7]:
+        if app().project.analysis_id in [0, 1, 5, 6, 7]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return None
-            
-            self.main_window.results_widget.show_empty()
-            if self.analysis_id == 7:
+            elif app().project.analysis_id == 7:
                 return self.process_input(PlotNodalResultsForStaticAnalysis)
             else:
                 return self.process_input(PlotNodalResultsForHarmonicAnalysis)
 
     def plot_reaction_frequency_response(self):
-        if self.analysis_id in [0, 1, 5, 6]:
+        if app().project.analysis_id in [0, 1, 5, 6]:
             return self.process_input(PlotReactionsForHarmonicAnalysis)
-        elif self.analysis_id == 7:
+        elif app().project.analysis_id == 7:
             return self.process_input(PlotReactionsForStaticAnalysis)  
 
     def plot_stress_field(self):
         self.project.plot_pressure_field = False
         self.project.plot_stress_field = True
-        if self.analysis_id in [0, 1, 5, 6, 7]:
+        if app().project.analysis_id in [0, 1, 5, 6, 7]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            elif self.analysis_id == 7:
+            elif app().project.analysis_id == 7:
                 return self.process_input(PlotStressesFieldForStaticAnalysis)
             else:
                 return self.process_input(PlotStressesFieldForHarmonicAnalysis)
 
     def plot_stress_frequency_response(self):
         solution = self.project.get_structural_solution()
-        if self.analysis_id in [0, 1, 5, 6, 7]:
+        if app().project.analysis_id in [0, 1, 5, 6, 7]:
             if solution is None:
                 return
-            elif self.analysis_id == 7:
+            elif app().project.analysis_id == 7:
                 return self.process_input(PlotStressesForStaticAnalysis)
             else:
                 return self.process_input(PlotStressesForHarmonicAnalysis)     
@@ -324,7 +323,7 @@ class InputUi:
         self.project.plot_pressure_field = True
         self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
-        if self.analysis_id in [2, 4]:
+        if app().project.analysis_id in [2, 4]:
             if solution is None:
                 return None
             else:
@@ -335,14 +334,14 @@ class InputUi:
         self.project.plot_pressure_field = True
         self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
-        if self.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [3, 5, 6]:
             if solution is None:
                 return None
             else:
                 return self.process_input(PlotAcousticPressureField)
 
     def plot_acoustic_frequency_response(self):
-        if self.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [3, 5, 6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
@@ -350,7 +349,7 @@ class InputUi:
                 return self.process_input(PlotAcousticFrequencyResponse)
 
     def plot_acoustic_frequency_response_function(self):
-        if self.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [3, 5, 6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
@@ -358,7 +357,7 @@ class InputUi:
                 return self.process_input(PlotAcousticFrequencyResponseFunction)
 
     def plot_acoustic_delta_pressures(self):
-        if self.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [3, 5, 6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
@@ -366,7 +365,7 @@ class InputUi:
                 return self.process_input(PlotAcousticDeltaPressure)
 
     def plot_transmission_loss(self):
-        if self.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [3, 5, 6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
