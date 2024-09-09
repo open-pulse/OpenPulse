@@ -193,6 +193,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         app().main_window.animation_toolbar.pause_animation()
 
     def update_animation(self, frame: int):
+        if self.analysis_mode == AnalysisMode.EMPTY:
+            return
+
         conditions_to_clear_cache = [
             self._animation_current_frequency != self.current_frequency_index,
             self._animation_color_map != self.colormap,
