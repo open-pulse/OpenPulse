@@ -11,6 +11,7 @@ from pulse import *
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
+from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
 from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
 from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
@@ -170,6 +171,7 @@ class MainWindow(QMainWindow):
 
         # QToolBar
         self.tool_bar : QToolBar
+        self.tool_bar.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _connect_actions(self):
         '''
@@ -268,8 +270,7 @@ class MainWindow(QMainWindow):
         self._create_workspaces_toolbar()
         self._create_status_bar()
         self._update_recent_projects()
-        self._add_mesh_toolbar()
-        self._add_animation_toolbar()
+        self._add_toolbars()
         app().splash.update_progress(70)
         dt = time() - t1
         print(f"Time to process B: {dt} [s]")
@@ -852,10 +853,20 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.mesh_toolbar)
         self.insertToolBarBreak(self.mesh_toolbar)
 
+    def _add_analysis_toolbar(self):
+        self.analysis_toolbar = AnalysisToolbar()
+        self.addToolBar(self.analysis_toolbar)
+        # self.insertToolBarBreak(self.analysis_toolbar)
+
     def _add_animation_toolbar(self):
         self.animation_toolbar = AnimationToolbar()
         self.addToolBar(self.animation_toolbar)
         self.insertToolBarBreak(self.animation_toolbar)
+
+    def _add_toolbars(self):
+        self._add_mesh_toolbar()
+        self._add_analysis_toolbar()
+        self._add_animation_toolbar()
 
     def _create_status_bar(self):
         self.status_bar = StatusBar(self)

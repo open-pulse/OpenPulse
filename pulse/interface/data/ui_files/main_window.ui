@@ -210,6 +210,10 @@
    <addaction name="separator"/>
    <addaction name="action_section_plane"/>
    <addaction name="action_show_transparent"/>
+   <addaction name="separator"/>
+   <addaction name="geometry_action"/>
+   <addaction name="model_setup_action"/>
+   <addaction name="results_action"/>
   </widget>
   <action name="action_new_project">
    <property name="icon">
@@ -928,6 +932,51 @@
   <action name="action_plot_default_color">
    <property name="text">
     <string>Plot Default Color</string>
+   </property>
+  </action>
+  <action name="geometry_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/common/engineering.png</normaloff>../icons/common/engineering.png</iconset>
+   </property>
+   <property name="text">
+    <string>geometry_action</string>
+   </property>
+   <property name="toolTip">
+    <string>Geometry editor workspace</string>
+   </property>
+  </action>
+  <action name="model_setup_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/common/model_settings.png</normaloff>../icons/common/model_settings.png</iconset>
+   </property>
+   <property name="text">
+    <string>model_setup_action</string>
+   </property>
+   <property name="toolTip">
+    <string>Model setup workspace</string>
+   </property>
+  </action>
+  <action name="results_action">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/common/calculate.png</normaloff>../icons/common/calculate.png</iconset>
+   </property>
+   <property name="text">
+    <string>results_action</string>
+   </property>
+   <property name="toolTip">
+    <string>Results workspace</string>
    </property>
   </action>
  </widget>
