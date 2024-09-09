@@ -5,10 +5,6 @@ from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCloseEvent, QCursor
 from PyQt5 import uic
 
-# from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
-from opps.io.pcf.pcf_exporter import PCFExporter
-from opps.io.pcf.pcf_handler import PCFHandler
-
 from molde.render_widgets import CommonRenderWidget
 
 from pulse import *
@@ -23,6 +19,7 @@ from pulse.interface.user_input.model.geometry.geometry_designer_widget import G
 from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.handler.pcf_file_io import PCFFileIO
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
 from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 from pulse.interface.user_input.project.get_started import GetStartedInput
@@ -337,77 +334,12 @@ class MainWindow(QMainWindow):
             self.load_recent_project()
 
     def open_pcf(self):
-        '''
-        This function is absolutelly disgusting. I will refactor this next week, 
-        but for now it will be like this just in order to make the bosses happy =)
-        '''
-        from opps.model import Pipe, Bend, Flange
-
-        last_path = app().config.get_last_folder_for("pcf folder")
-        if last_path is None:
-            last_path = str(Path().home())
-
-        file_path, check = self.file_dialog.get_open_file_name(
-                                                                "Open PCF File", 
-                                                                last_path, 
-                                                                filter = "PCF File (*.pcf)"
-                                                               )
-
-        if not check:
-            return
-
-        pipeline = app().project.pipeline
-        pcf_handler = PCFHandler()
-        pcf_handler.load(file_path, pipeline)
-
-        for structure in pipeline.structures:
-            if isinstance(structure, Pipe | Bend):
-                if structure.start_diameter == structure.end_diameter:
-                    section_label = 'Pipe'
-                    start_thickness = structure.start_diameter * 0.05
-                    section_parameters = [structure.start_diameter, start_thickness, 0, 0, 0, 0]
-                else:
-                    section_label = 'Reducer'  
-                    start_thickness = structure.start_diameter * 0.05
-                    end_thickness = structure.end_diameter * 0.05
-                    section_parameters = [structure.start_diameter, start_thickness, 0, 0, 
-                                          structure.end_diameter, end_thickness, 0, 0, 0, 0]
-
-            elif isinstance(structure, Flange):
-                section_label = 'Pipe'
-                thickness = structure.diameter * 0.05
-                section_parameters = [structure.diameter, thickness, 0, 0, 0, 0]
-
-            cross_section_info = {
-                'section_type_label': section_label, 
-                'section_parameters': section_parameters
-            }
-
-            # There are no beams in pcf files, therefore it is pipe_1
-            structure.extra_info["structural_element_type"] = "pipe_1"
-            structure.extra_info["cross_section_info"] = cross_section_info
-
-        self.geometry_input_wigdet.process_geometry_callback()
+        pcf_file = PCFFileIO()
+        pcf_file.open_pcf()
 
     def export_pcf(self):
-
-        last_path = app().config.get_last_folder_for("exported pcf folder")
-        if last_path is None:
-            last_path = str(Path().home())
-
-        path, check = self.file_dialog.get_save_file_name( 
-                                                            'Export PCF file', 
-                                                            last_path, 
-                                                            'PCF File (*.pcf)'
-                                                         )
-
-        if not check:
-            return
-
-        pipeline = app().project.pipeline
-        pcf_exporter = PCFExporter()
-        pcf_exporter.save(path, pipeline)
-        self.update_plots()
+        pcf_file = PCFFileIO()
+        pcf_file.export_pcf()
 
     def export_geometry(self):
 
@@ -561,7 +493,7 @@ class MainWindow(QMainWindow):
         # t0 = time()
         self.mesh_toolbar.pushButton_generate_mesh.setDisabled(True)
 
-        if self.config.open_last_project and self.config.haveRecentProjects():
+        if self.config.open_last_project and self.config.have_recent_projects():
             self.open_project(self.config.getMostRecentProjectDir())
 
         elif self.get_started():
@@ -649,7 +581,7 @@ class MainWindow(QMainWindow):
 
         self.clear_selection()
         self._configure_visualization(
-            points=True, tubes=True,
+            points=True, lines=True, tubes=True,
             acoustic_symbols=self.visualization_filter.acoustic_symbols,
             structural_symbols=self.visualization_filter.structural_symbols,
         )
@@ -1052,7 +984,7 @@ class MainWindow(QMainWindow):
                 return
 
             self.reset_temporary_folder()
-            self.project.reset(reset_all=True)
+            self.project.reset(reset_all = True)
             self.project.model.properties._reset_variables()
 
         self.reset_geometry_render()

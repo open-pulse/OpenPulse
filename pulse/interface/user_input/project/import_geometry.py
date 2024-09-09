@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QDialog, QFrame, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton
+# fmt: off
+
+from PyQt5.QtWidgets import QFileDialog
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
-from PyQt5 import uic
+from PyQt5.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -12,68 +13,61 @@ import os
 from pathlib import Path
 
 
-class ImportGeometry(QFileDialog):
+class ImportGeometry():
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         app().main_window.set_input_widget(self)
 
         self.main_window = app().main_window
-        self.project = app().project
         self.config = app().config
 
-        self.preprocessor = self.project.preprocessor
-
         self._initialize()
-        self._config_window()
         self.import_geometry()
 
     def _initialize(self):
-
         self.complete = False
-        self.folder_path = ""
-        user_path = os.path.expanduser('~')
-        desktop_path = Path(os.path.join(os.path.join(user_path, 'Desktop')))
-        self.desktop_path = str(desktop_path)
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("Import geometry")
 
     def import_geometry(self):
 
-        self.geometry_path, _ = QFileDialog.getOpenFileName(None, 
-                                                            'Open file', 
-                                                            self.desktop_path, 
-                                                            'Files (*.iges *.igs *.step *.stp)')
+        last_path = app().config.get_last_folder_for("geometry folder")
+        if last_path is None:
+            last_path = str(Path().home())
 
-        if self.geometry_path != "":
-            if os.path.exists(self.geometry_path):
-  
-                import_type = 0
-                self.geometry_filename = os.path.basename(self.geometry_path)
-                app().pulse_file.modify_project_attributes(
-                                                            import_type = import_type,
-                                                            geometry_filename = self.geometry_filename
-                                                            )
+        geometry_path, check = app().main_window.file_dialog.get_open_file_name(
+                                                                                'Import geometry file', 
+                                                                                last_path, 
+                                                                                'Files (*.iges *.igs *.step *.stp)'
+                                                                                )
 
-                self.process_initial_actions()
+        if not check:
+            return
+        
+        app().main_window.config.write_last_folder_path_in_file("geometry folder", geometry_path)
 
-    def process_initial_actions(self):
+        filename = os.path.basename(geometry_path)
+        app().pulse_file.modify_project_attributes(import_type = 0, geometry_filename = filename)
+
+        self.save_geometry_and_load_project(geometry_path)
+
+    def save_geometry_and_load_project(self, geometry_path: str):
         #
-        self.project.reset(reset_all=True)
+        project_setup = app().pulse_file.read_project_setup_from_file()
+        mesher_setup = project_setup["mesher_setup"]
+        #
+        app().pulse_file.write_project_setup_in_file(mesher_setup, geometry_path = geometry_path)
+        mesher_setup["geometry_path"] = app().pulse_file.read_geometry_from_file()
+        #
+        app().project.reset(reset_all = True)
         app().loader.load_project_data()
-        self.project.process_geometry_and_mesh()
-        app().loader.load_mesh_dependent_properties()
-        self.project.preprocessor.check_disconnected_lines()
+        app().project.model.mesh.set_mesher_setup(mesher_setup = mesher_setup)
         #
+        app().project.process_geometry_and_mesh()
+        app().loader.load_mesh_dependent_properties()
+        app().project.preprocessor.check_disconnected_lines()
+        #
+        app().main_window.use_structural_setup_workspace()
         app().main_window.update_plots()
         self.complete = True
 
-    def print_user_message(self):
-        window_title = "OpenPulse"
-        title = "Geometry exported"
-        message = "The geometry file has been exported."
-        PrintMessageInput([window_title, title, message], auto_close=True)
+# fmt: on

@@ -570,7 +570,7 @@ class GeometryHandler:
 
     def process_curved_lines(self, lines):
 
-        curved_structures = []
+        curved_structures = list()
 
         for line in lines:
 
@@ -629,7 +629,7 @@ class GeometryHandler:
 
     def process_straight_lines(self, lines):
 
-        straight_structures = []
+        straight_structures = list()
 
         for line in lines:
 
@@ -836,6 +836,8 @@ class GeometryHandler:
 
             if "cross_section_info" in structure.extra_info.keys():
                 section_info[tag] = structure.extra_info["cross_section_info"]
+            else:
+                section_info[tag] = self.get_dummy_pipe_section_info()
 
             if "material_info" in structure.extra_info.keys():
                 material_id = structure.extra_info["material_info"]
@@ -923,6 +925,12 @@ class GeometryHandler:
             return "valve"
         else:
             return "undefined"
+
+    def get_dummy_pipe_section_info(self):
+        section_info = dict()
+        section_info["section_type_label"] = "Pipe"
+        section_info["section_parameters"] = [0.01, 0.001, 0, 0, 0 ,0]
+        return section_info
 
     # def remove_lines(self, structures_data: dict):
     #     """ This method removes the lines properties associated with the

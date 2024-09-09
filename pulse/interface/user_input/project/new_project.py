@@ -157,13 +157,12 @@ class NewProjectInput(QDialog):
 
         try:
 
-            import_type = self.comboBox_start_project.currentIndex()
-            self.create_project_file(import_type)
+            mesher_setup = self.create_project_file()
 
-            self.project.reset(reset_all=True)
-            app().project.model.mesh.set_mesher_setup(mesh_setup=self.setup_data)
+            self.project.reset(reset_all = True)
+            app().project.model.mesh.set_mesher_setup(mesher_setup = mesher_setup)
 
-            if import_type == 1:
+            if self.comboBox_start_project.currentIndex() == 1:
                 app().project.model.mesh._create_gmsh_geometry()
             else:
                 self.project.process_geometry_and_mesh()
@@ -177,16 +176,17 @@ class NewProjectInput(QDialog):
             
             return True
 
-    def create_project_file(self, import_type : int):
+    def create_project_file(self):
 
         self.length_unit = self.comboBox_length_unit.currentText().replace(" ", "")
+        import_type = self.comboBox_start_project.currentIndex()
 
-        self.setup_data = { 
-                            "length unit" : self.length_unit,
-                            "element size" : self.element_size,
-                            "geometry tolerance" : self.geometry_tolerance,
-                            "import type" : import_type,
-                           }
+        setup_data = { 
+                      "length_unit" : self.length_unit,
+                      "element_size" : self.element_size,
+                      "geometry_tolerance" : self.geometry_tolerance,
+                      "import_type" : import_type,
+                      }
 
         geometry_path = ""
         self.geometry_filename = ""
@@ -194,17 +194,14 @@ class NewProjectInput(QDialog):
         if import_type == 0:
             geometry_path = self.lineEdit_geometry_path.text()
             self.geometry_filename = os.path.basename(geometry_path)
-            self.setup_data["geometry filename"] = self.geometry_filename
+            setup_data["geometry_filename"] = self.geometry_filename
 
-        app().pulse_file.write_project_setup_in_file(
-                                                                    self.setup_data,
-                                                                    geometry_path = geometry_path
-                                                                )
-        
-        # self.project.set_project_setup(self.setup_data)
+        app().pulse_file.write_project_setup_in_file(setup_data, geometry_path = geometry_path)
         
         if import_type == 0:
-            self.setup_data["geometry path"] = app().pulse_file.read_geometry_from_file()
+            setup_data["geometry_path"] = app().pulse_file.read_geometry_from_file()
+
+        return setup_data
 
     def start_project(self):
         t0 = time()
@@ -227,7 +224,7 @@ class NewProjectInput(QDialog):
         
         else:
             app().main_window.use_structural_setup_workspace()
-        
+
         app().main_window.update_plots()
 
         self.project.time_to_load_or_create_project = time() - t0

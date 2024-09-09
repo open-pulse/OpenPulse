@@ -48,16 +48,16 @@ class MeshUpdater:
         element_size = None
         geometry_tolerance = None
 
-        if "mesher setup" in project_setup.keys():
+        if "mesher_setup" in project_setup.keys():
 
-            mesh_setup = project_setup["mesher setup"]
+            mesh_setup = project_setup["mesher_setup"]
             keys = mesh_setup.keys()
 
-            if 'element size' in keys:
-                element_size = mesh_setup['element size']
+            if 'element_size' in keys:
+                element_size = mesh_setup['element_size']
 
-            if 'geometry tolerance' in keys:
-                geometry_tolerance = mesh_setup['geometry tolerance']
+            if 'geometry_tolerance' in keys:
+                geometry_tolerance = mesh_setup['geometry_tolerance']
 
         return element_size, geometry_tolerance
 

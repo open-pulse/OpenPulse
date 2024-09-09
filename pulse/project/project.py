@@ -88,7 +88,7 @@ class Project:
 
         try:
 
-            self.reset(reset_all=True)
+            self.reset(reset_all = True)
 
             if app().pulse_file.check_pipeline_data():
                 self.process_geometry_and_mesh()
@@ -120,7 +120,7 @@ class Project:
 
     def reset_project(self, **kwargs):
 
-        self.reset(reset_all=True)
+        self.reset(reset_all = True)
         app().pulse_file.remove_element_properties_from_project_file()
         app().pulse_file.remove_nodal_properties_from_project_file()
 
