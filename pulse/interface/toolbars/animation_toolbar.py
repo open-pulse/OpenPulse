@@ -135,10 +135,12 @@ class AnimationToolbar(QToolBar):
     def frames_value_changed(self):
         self.frames = self.spinBox_frames.value()
         app().project.frames = self.frames
+        app().main_window.results_widget._animation_cached_data.clear()
 
     def cycles_value_changed(self):
         self.cycles = self.spinBox_cycles.value()
         app().project.cycles = self.cycles
+        app().main_window.results_widget._animation_cached_data.clear()
 
     def slider_callback(self):
         value = self.phase_slider.value()

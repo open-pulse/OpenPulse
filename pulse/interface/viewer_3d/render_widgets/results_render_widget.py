@@ -194,6 +194,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def update_animation(self, frame: int):
         if self.analysis_mode == AnalysisMode.EMPTY:
+            self.stop_animation()
             return
 
         conditions_to_clear_cache = [
