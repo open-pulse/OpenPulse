@@ -54,6 +54,7 @@ class GeometryDesignerWidget(QWidget):
         self.unit_combobox: QComboBox
         self.structure_combobox: QComboBox
         self.division_combobox: QComboBox
+        self.bending_options_combobox: QComboBox
 
         # QFrame
         self.frame_bending_options: QFrame
@@ -73,6 +74,7 @@ class GeometryDesignerWidget(QWidget):
         self.x_line_edit: QLineEdit
         self.y_line_edit: QLineEdit
         self.z_line_edit: QLineEdit
+        self.bending_radius_line_edit: QLineEdit
 
         # QLabel
         self.dx_label: QLabel
