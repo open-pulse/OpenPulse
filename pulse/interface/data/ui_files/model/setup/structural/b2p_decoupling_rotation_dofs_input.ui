@@ -13,12 +13,12 @@
   <property name="minimumSize">
    <size>
     <width>420</width>
-    <height>380</height>
+    <height>360</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>420</width>
+    <width>421</width>
     <height>380</height>
    </size>
   </property>
@@ -136,13 +136,13 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>100</height>
+              <height>80</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
               <width>16777215</width>
-              <height>120</height>
+              <height>80</height>
              </size>
             </property>
             <property name="frameShape">
@@ -164,19 +164,6 @@
              <property name="bottomMargin">
               <number>4</number>
              </property>
-             <item row="2" column="3">
-              <spacer name="horizontalSpacer_6">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label_3">
                <property name="minimumSize">
@@ -191,6 +178,11 @@
                  <height>26</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>Element ID:</string>
                </property>
@@ -202,64 +194,7 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="2">
-              <widget class="QLineEdit" name="lineEdit_element_id">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>26</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>26</height>
-                </size>
-               </property>
-               <property name="focusPolicy">
-                <enum>Qt::ClickFocus</enum>
-               </property>
-               <property name="styleSheet">
-                <string notr="true"/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QComboBox" name="comboBox_node_to_uncouple_dofs">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>26</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>26</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Node to uncouple DOFs&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-               </property>
-               <item>
-                <property name="text">
-                 <string> First node</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string> Last node</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item row="2" column="0">
+             <item row="0" column="0">
               <spacer name="horizontalSpacer_5">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -286,6 +221,11 @@
                  <height>26</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
                 <string>T-joint node ID:</string>
                </property>
@@ -297,27 +237,49 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
-              <widget class="QLabel" name="label_10">
+             <item row="0" column="2">
+              <widget class="QLineEdit" name="lineEdit_element_id">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>100</width>
                  <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>16777215</width>
+                 <width>100</width>
                  <height>26</height>
                 </size>
                </property>
+               <property name="focusPolicy">
+                <enum>Qt::ClickFocus</enum>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
                <property name="text">
-                <string>Selected node:</string>
+                <string/>
                </property>
                <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
+             </item>
+             <item row="0" column="3">
+              <spacer name="horizontalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
              </item>
              <item row="1" column="2">
               <widget class="QLineEdit" name="lineEdit_tjoint_node_id">
@@ -728,6 +690,11 @@
                  <height>30</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::Box</enum>
                </property>
@@ -789,6 +756,11 @@
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Rotation x</string>
                   </property>
@@ -805,6 +777,11 @@
                     <height>16777215</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Rotation y</string>
                   </property>
@@ -820,6 +797,11 @@
                     <width>104</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
                   </property>
                   <property name="text">
                    <string>Rotation z</string>
@@ -956,8 +938,13 @@
                  <height>26</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="text">
-                <string>Selected group:</string>
+                <string>Element ID:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -965,7 +952,7 @@
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QLineEdit" name="lineEdit_selected_group">
+              <widget class="QLineEdit" name="lineEdit_selected_id_to_remove">
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -1051,7 +1038,7 @@
               <number>4</number>
              </property>
              <item row="0" column="0">
-              <widget class="QTreeWidget" name="treeWidget_B2P_rotation_decoupling">
+              <widget class="QTreeWidget" name="treeWidget_elements_info">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -1081,22 +1068,6 @@
                </property>
                <column>
                 <property name="text">
-                 <string>Group</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>Decoupled DOFs</string>
-                </property>
-                <property name="textAlignment">
-                 <set>AlignCenter</set>
-                </property>
-               </column>
-               <column>
-                <property name="text">
                  <string>Element ID</string>
                 </property>
                 <property name="textAlignment">
@@ -1106,6 +1077,14 @@
                <column>
                 <property name="text">
                  <string>Node ID</string>
+                </property>
+                <property name="textAlignment">
+                 <set>AlignCenter</set>
+                </property>
+               </column>
+               <column>
+                <property name="text">
+                 <string>Decoupled DOFs</string>
                 </property>
                 <property name="textAlignment">
                  <set>AlignCenter</set>

@@ -44,12 +44,14 @@ class Preprocessor:
 
         self.structural_elements = dict()
         self.acoustic_elements = dict()
+        self.structural_to_acoustic_element = dict()
 
         self.connectivity_matrix = list()
         self.nodal_coordinates_matrix = list()
 
         self.neighbors = defaultdict(list)
-        self.elements_connected_to_node = defaultdict(list)
+        self.structural_elements_connected_to_node = defaultdict(list)
+        self.acoustic_elements_connected_to_node = defaultdict(list)
 
         if isinstance(self.mesh, Mesh):
             self.mesh.reset_variables()
@@ -67,14 +69,9 @@ class Preprocessor:
         self.structure_principal_diagonal = None
         self.nodal_coordinates_matrix_external = None
 
-        self.beam_gdofs = None
         self.pipe_gdofs = None
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
-
-        self.dict_element_info_to_update_indexes_in_entity_file = dict()
-        self.dict_element_info_to_update_indexes_in_element_info_file = dict()
-        self.dict_list_elements_to_subgroups = dict()
 
     def set_mesh(self, mesh: Mesh):
         self.mesh = mesh
@@ -206,25 +203,6 @@ class Preprocessor:
             self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node, map_elements[i])
             self.number_acoustic_elements = len(self.acoustic_elements)
 
-    # def _map_lines_to_nodes(self):
-    #     """
-    #     This method maps entities to nodes.
-    #     """
-    #     # t0 = time()
-    #     self.nodes_from_line = dict()
-    #     for line_ID, list_elements in self.mesh.elements_from_line.items():
-    #         list_nodes = np.zeros(len(list_elements)+1, dtype=int)
-    #         for i, _id in enumerate(list_elements):
-    #             element = self.structural_elements[_id]
-    #             first_node_id = element.first_node.external_index
-    #             last_node_id = element.last_node.external_index
-    #             if i==0:
-    #                 list_nodes[i] = first_node_id
-    #             list_nodes[i+1] = last_node_id
-    #         self.nodes_from_line[line_ID] = np.sort(list_nodes)          
-    #     # dt = time() - t0
-    #     # print(f"Time to process : {dt}")
-
     def get_model_statistics(self):
         return len(self.nodes), len(self.acoustic_elements), len(self.structural_elements)
 
@@ -288,12 +266,19 @@ class Preprocessor:
         This method updates the structural elements neighbors dictionary. The dictionary's keys and values are nodes objects.
         """
         self.neighbors.clear()
-        self.elements_connected_to_node.clear()
-        for element in self.structural_elements.values():
+        self.acoustic_elements_connected_to_node.clear()
+        self.structural_elements_connected_to_node.clear()
+        for index, element in self.structural_elements.items():
+            #
             self.neighbors[element.first_node].append(element.last_node)
             self.neighbors[element.last_node].append(element.first_node)
-            self.elements_connected_to_node[element.first_node].append(element)
-            self.elements_connected_to_node[element.last_node].append(element)
+            #
+            self.structural_elements_connected_to_node[element.first_node.external_index].append(element)
+            self.structural_elements_connected_to_node[element.last_node.external_index].append(element)
+            #
+            acoustic_element = self.acoustic_elements[index]
+            self.acoustic_elements_connected_to_node[element.first_node.external_index].append(acoustic_element)
+            self.acoustic_elements_connected_to_node[element.last_node.external_index].append(acoustic_element)
 
     def update_number_divisions(self):
         """
@@ -328,8 +313,8 @@ class Preprocessor:
         for index, element in self.structural_elements.items():
             first = element.first_node.external_index
             last = element.last_node.external_index
-            neighbor_diameters.setdefault(first, [])
-            neighbor_diameters.setdefault(last, [])
+            neighbor_diameters.setdefault(first, list())
+            neighbor_diameters.setdefault(last, list())
 
             outer_diameter = element.cross_section.outer_diameter
             inner_diameter = element.cross_section.inner_diameter
@@ -352,8 +337,8 @@ class Preprocessor:
         for index, element in self.acoustic_elements.items():
             first = element.first_node.global_index
             last = element.last_node.global_index
-            neighbor_diameters.setdefault(first, [])
-            neighbor_diameters.setdefault(last, [])
+            neighbor_diameters.setdefault(first, list())
+            neighbor_diameters.setdefault(last, list())
             outer_diameter = element.cross_section.outer_diameter
             inner_diameter = element.cross_section.inner_diameter
             neighbor_diameters[first].append((index, outer_diameter, inner_diameter))
@@ -391,7 +376,7 @@ class Preprocessor:
         element_size = self.mesh.element_size
         if self.nodal_coordinates_matrix_external is not None:
             coord_matrix = self.nodal_coordinates_matrix_external
-            list_node_ids = []
+            list_node_ids = list()
             for node, neigh_nodes in self.neighbors.items():
                 if len(neigh_nodes) == 1:
                     coord = node.coordinates
@@ -583,7 +568,7 @@ class Preprocessor:
 
         self.connectivity_matrix = connectivity.astype(int) 
 
-    def get_node_id_by_coordinates(self, coords, radius=None):
+    def get_node_id_by_coordinates(self, coords: np.ndarray, radius=None):
         """
             This method returns the external node ids inside a influence sphere centered in 'coords' point.
 
@@ -697,10 +682,11 @@ class Preprocessor:
         return I.flatten(), J.flatten()
 
     def map_structural_to_acoustic_elements(self):
-        self.dict_structural_to_acoustic_elements = {}
+        """
+        """
+        self.structural_to_acoustic_element.clear()
         for key, element in self.structural_elements.items():
-            self.dict_structural_to_acoustic_elements[element] = self.acoustic_elements[key]
-        return self.dict_structural_to_acoustic_elements 
+            self.structural_to_acoustic_element[element] = self.acoustic_elements[key]
 
     def get_neighbor_nodes_and_elements_by_node(self, node_id, length, tolerance=1e-6):
         """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
@@ -731,7 +717,7 @@ class Preprocessor:
             else:
                 return None, None
 
-        list_elements_ids = []
+        list_elements_ids = list()
         for element in self.structural_elements.values():
             if element.first_node.external_index in list_nodes_ids:
                 if element.last_node.external_index in list_nodes_ids:
@@ -877,11 +863,7 @@ class Preprocessor:
             element.proportional_damping = proportional_damping
             element.vol_flow = vol_flow
 
-    def set_cross_section_by_elements(  self, 
-                                        elements, 
-                                        cross_section, 
-                                        update_cross_section = False,
-                                        variable_section = False  ):
+    def set_cross_section_by_elements(self, elements, cross_section, **kwargs):
         """
         This method attributes cross section object to a list of acoustic and structural elements.
 
@@ -893,14 +875,19 @@ class Preprocessor:
         cross_section : Cross section object
             Tube cross section data.
             
-        update_cross_section : bool, optional
-            True if the cross section data have to be evaluated or updated. False otherwise.
+        update_properties : bool, optional
+            True if the cross section properties have to be evaluated or updated. False otherwise.
             Default is False.
         """
+
+        update_properties = kwargs.get("update_properties", False)
+        sections_mapping = kwargs.get("sections_mapping", False)
+        variable_section = kwargs.get("variable_section", False)
+
         if cross_section is None:
             return
 
-        if isinstance(cross_section, CrossSection) and update_cross_section:
+        if isinstance(cross_section, CrossSection) and update_properties:
             cross_section.update_properties()
 
         if isinstance(cross_section, list):
@@ -912,17 +899,19 @@ class Preprocessor:
                 for element in slicer(self.structural_elements, _element):
                     element.cross_section = _cross_section
                     element.variable_section = variable_section
-                    element.section_parameters_render = _cross_section.section_parameters
+                    if not sections_mapping:
+                        element.section_parameters_render = _cross_section.section_parameters
 
                 for element in slicer(self.acoustic_elements, _element):
                     element.cross_section = _cross_section
 
-        else:    
+        else:
 
             for element in slicer(self.structural_elements, elements):
                 element.cross_section = cross_section
                 element.variable_section = variable_section
-                element.section_parameters_render = cross_section.section_parameters
+                if not sections_mapping:
+                    element.section_parameters_render = cross_section.section_parameters
 
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
@@ -942,84 +931,98 @@ class Preprocessor:
         for elements in slicer(self.mesh.elements_from_line, lines):
             self.set_cross_section_by_elements(elements, cross_section)
 
-    def set_variable_cross_section_by_line(self, line_id, section_data: dict):
+    def set_variable_cross_section_by_line(self, line_ids: int | list, section_data: dict):
         """
         This method sets the variable section info by line selection.
         """
+        if isinstance(line_ids, int):
+            line_ids = [line_ids]
+
         if isinstance(section_data, dict):
 
-            [   outer_diameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
-                outer_diameter_final, thickness_final, offset_y_final, offset_z_final,
-                insulation_thickness, insulation_density  ] = section_data["section_parameters"]
+            [   outer_diameter_initial, 
+                thickness_initial, 
+                offset_y_initial, 
+                offset_z_initial,
+                outer_diameter_final, 
+                thickness_final, 
+                offset_y_final, 
+                offset_z_final,
+                insulation_thickness, 
+                insulation_density   ] = section_data["section_parameters"]
 
-            elements_from_line = self.mesh.elements_from_line[line_id]
-            self.add_expansion_joint_by_lines(line_id, None, remove=True)
+            for line_id in line_ids:
+                elements_from_line = self.mesh.elements_from_line[line_id]
 
-            first_element = self.structural_elements[elements_from_line[0]]
-            last_element = self.structural_elements[elements_from_line[-1]]
-            
-            coord_first_1 = first_element.first_node.coordinates
-            coord_last_1 = last_element.last_node.coordinates
-            
-            coord_first_2 = last_element.first_node.coordinates
-            coord_last_2 = first_element.last_node.coordinates
-            
-            lines_vertex_coords = self.get_lines_vertex_coordinates(_array=False)
-            vertex_coords = lines_vertex_coords[line_id]
-
-            N = len(elements_from_line)
-            if list(coord_first_1) in vertex_coords and list(coord_last_1) in vertex_coords:
-                outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_initial, outer_diameter_final, N)
-                thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_initial, thickness_final, N)
-                offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_initial, offset_y_final, N)
-                offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_initial, offset_z_final, N)
-
-            elif list(coord_first_2) in vertex_coords and list(coord_last_2) in vertex_coords:
-                outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_final, outer_diameter_initial, N)
-                thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_final, thickness_initial, N)
-                offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
-                offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
-            
-            cross_sections_first = list()
-            cross_sections_last = list()
-            for index, element_id in enumerate(elements_from_line):
+                first_element = self.structural_elements[elements_from_line[0]]
+                last_element = self.structural_elements[elements_from_line[-1]]
                 
-                element = self.structural_elements[element_id]
-                first_node = element.first_node
-                last_node = element.last_node
+                coord_first_1 = first_element.first_node.coordinates
+                coord_last_1 = last_element.last_node.coordinates
                 
-                section_parameters_first = [outer_diameter_first[index],
-                                            thickness_first[index],
-                                            offset_y_first[index],
-                                            offset_z_first[index],
-                                            insulation_thickness,
-                                            insulation_density]
+                coord_first_2 = last_element.first_node.coordinates
+                coord_last_2 = first_element.last_node.coordinates
                 
-                pipe_section_info_first = { "section_type_label" : "Reducer" ,
-                                            "section_parameters" : section_parameters_first }
+                lines_vertex_coords = self.get_lines_vertex_coordinates(_array=False)
+                vertex_coords = lines_vertex_coords[line_id]
 
-                section_parameters_last = [outer_diameter_last[index],
-                                            thickness_last[index],
-                                            offset_y_last[index],
-                                            offset_z_last[index],
-                                            insulation_thickness,
-                                            insulation_density]
+                N = len(elements_from_line)
+                if list(coord_first_1) in vertex_coords and list(coord_last_1) in vertex_coords:
+                    outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_initial, outer_diameter_final, N)
+                    thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_initial, thickness_final, N)
+                    offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_initial, offset_y_final, N)
+                    offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_initial, offset_z_final, N)
+
+                elif list(coord_first_2) in vertex_coords and list(coord_last_2) in vertex_coords:
+                    outer_diameter_first, outer_diameter_last = get_linear_distribution_for_variable_section(outer_diameter_final, outer_diameter_initial, N)
+                    thickness_first, thickness_last = get_linear_distribution_for_variable_section(thickness_final, thickness_initial, N)
+                    offset_y_first, offset_y_last = get_linear_distribution_for_variable_section(offset_y_final, offset_y_initial, N)
+                    offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
                 
-                pipe_section_info_last = { "section_type_label" : "Reducer" ,
-                                            "section_parameters" : section_parameters_last }
+                cross_sections_first = list()
+                cross_sections_last = list()
+                for index, element_id in enumerate(elements_from_line):
+                    
+                    element = self.structural_elements[element_id]
+                    first_node = element.first_node
+                    last_node = element.last_node
 
-                cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
-                cross_section_last = CrossSection(pipe_section_info = pipe_section_info_last)
+                    section_parameters_first = [
+                                                outer_diameter_first[index],
+                                                thickness_first[index],
+                                                offset_y_first[index],
+                                                offset_z_first[index],
+                                                insulation_thickness,
+                                                insulation_density
+                                                ]
 
-                cross_sections_first.append(cross_section_first)
-                # cross_sections_last.append(cross_section_last)
+                    pipe_section_info_first = { "section_type_label" : "Reducer" ,
+                                                "section_parameters" : section_parameters_first }
 
-                first_node.cross_section = cross_section_first
-                last_node.cross_section = cross_section_last
+                    section_parameters_last = [
+                                                outer_diameter_last[index],
+                                                thickness_last[index],
+                                                offset_y_last[index],
+                                                offset_z_last[index],
+                                                insulation_thickness,
+                                                insulation_density
+                                            ]
 
-            self.set_cross_section_by_elements( elements_from_line,
-                                                cross_sections_first,
-                                                variable_section = True )
+                    pipe_section_info_last = { "section_type_label" : "Reducer" ,
+                                                "section_parameters" : section_parameters_last }
+
+                    cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
+                    cross_section_last = CrossSection(pipe_section_info = pipe_section_info_last)
+
+                    cross_sections_first.append(cross_section_first)
+                    # cross_sections_last.append(cross_section_last)
+
+                    first_node.cross_section = cross_section_first
+                    last_node.cross_section = cross_section_last
+
+                self.set_cross_section_by_elements( elements_from_line,
+                                                    cross_sections_first,
+                                                    variable_section = True )
 
     def set_cross_sections_to_valve_elements(self, line_id: int, data: dict):
 
@@ -1263,11 +1266,14 @@ class Preprocessor:
         N = DOF_PER_NODE_STRUCTURAL
         mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
 
-        node_id = data["T-joint_node"]
+        coords = np.array(data["coords"], dtype=float)
+        node_id = self.get_node_id_by_coordinates(coords)
+        if node_id is None:
+            return
+
         decoupled_rotations = data["decoupled_rotations"]
-
-
         neighboor_elements = self.neighboor_elements_of_node(node_id)
+
         if len(neighboor_elements) < 3:
             return mat_ones
         
@@ -1683,7 +1689,17 @@ class Preprocessor:
     #             self.radius[last] = radius
     #     return self.radius
 
-    def get_pipe_and_expansion_joint_elements_global_dofs(self):
+    def set_elements_to_ignore_in_acoustic_analysis(self, element_ids: int | list, turned_off: bool):
+        """
+        """
+        if isinstance(element_ids, int):
+            element_ids = [element_ids]
+        for element in slicer(self.acoustic_elements, element_ids):
+            element.turned_off = turned_off
+        for element in slicer(self.structural_elements, element_ids):
+            element.turned_off = turned_off
+
+    def get_acoustic_elements_global_dofs(self):
         """
         This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements. 
         This method helps to exclude those degrees of freedom from acoustic analysis.
@@ -1695,11 +1711,16 @@ class Preprocessor:
         """ 
         pipe_gdofs = dict()
         for element in self.structural_elements.values():
+
+            if element.turned_off:
+                continue
+
             if element.element_type in ['pipe_1', 'expansion_joint', 'valve']:
                 gdofs_node_first = element.first_node.global_index
                 gdofs_node_last = element.last_node.global_index
                 pipe_gdofs[gdofs_node_first] = gdofs_node_first 
-                pipe_gdofs[gdofs_node_last] = gdofs_node_last 
+                pipe_gdofs[gdofs_node_last] = gdofs_node_last
+
         return list(pipe_gdofs.keys())
 
 
@@ -1712,11 +1733,11 @@ class Preprocessor:
         list
             Acoustic global degrees of freedom associated to pipe element.
         """
-        self.pipe_and_expansion_joint_gdofs = self.get_pipe_and_expansion_joint_elements_global_dofs()
+        acoustic_elements_global_dofs = self.get_acoustic_elements_global_dofs()
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.nodes)
         all_indexes = np.arange(total_dof)
-        self.beam_gdofs = np.delete(all_indexes, self.pipe_and_expansion_joint_gdofs)
-        return self.beam_gdofs, self.pipe_and_expansion_joint_gdofs
+        beam_gdofs = np.delete(all_indexes, acoustic_elements_global_dofs)
+        return beam_gdofs, acoustic_elements_global_dofs
 
     
     def _process_beam_nodes_and_indexes(self):
@@ -1728,12 +1749,12 @@ class Preprocessor:
         bool
             ?????
         """
-        self.beam_gdofs, self.pipe_gdofs = self.get_beam_and_non_beam_elements_global_dofs()
-        if len(self.beam_gdofs) == self.number_nodes:
+        beam_gdofs, self.pipe_gdofs = self.get_beam_and_non_beam_elements_global_dofs()
+        if len(beam_gdofs) == self.number_nodes:
             return True
         else:
             return False
-    
+
     def get_acoustic_elements(self):
         """
         This method returns a list of acoustic elements.
@@ -1743,14 +1764,21 @@ class Preprocessor:
         list
             Acoustic elements list.
         """
-        acoustic_elements = []
+        acoustic_elements = list()
         self.map_structural_to_acoustic_elements()
         for element in self.structural_elements.values():
-            if element.element_type not in ['beam_1']:
-                acoustic_element = self.dict_structural_to_acoustic_elements[element]
-                acoustic_elements.append(acoustic_element)
-                # if element.element_type == "valve":
-                #     print(element.element_type, element.index)
+
+            if element.element_type == 'beam_1':
+                continue
+
+            if element.turned_off:
+                continue
+
+            acoustic_element = self.structural_to_acoustic_element[element]
+            acoustic_elements.append(acoustic_element)
+            # if element.element_type == "valve":
+            #     print(element.element_type, element.index)
+
         return acoustic_elements   
 
     def get_nodes_relative_to_acoustic_elements(self):
@@ -1782,7 +1810,7 @@ class Preprocessor:
         list
             Beam elements objects.
         """
-        list_elements = []
+        list_elements = list()
         for element in self.structural_elements.values():
             if element.element_type in ['beam_1']:
                 list_elements.append(element)
@@ -1797,7 +1825,7 @@ class Preprocessor:
         ??????
             ???????
         """
-        list_parameters = []
+        list_parameters = list()
         for key, parameter in parameters.items():
             if key != 'cylinder label':
                 list_parameters.append(parameter)
@@ -1843,36 +1871,36 @@ class Preprocessor:
             last_node = node_1
         return reord_gdofs, first_node, last_node
 
-    def get_nodes_and_elements_with_expansion(self, ratio=10):
-        title = "Incomplete model setup"
-        message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' elements to proceed."
-        self.nodes_with_cross_section_transition = dict()
-        for node, neigh_elements in self.elements_connected_to_node.items():
-            check_complete = False
-            if len(neigh_elements) == 2:
+    # def get_nodes_and_elements_with_expansion(self, ratio=10):
+    #     title = "Incomplete model setup"
+    #     message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' elements to proceed."
+    #     self.nodes_with_cross_section_transition = dict()
+    #     for node, neigh_elements in self.structural_elements_connected_to_node.items():
+    #         check_complete = False
+    #         if len(neigh_elements) == 2:
 
-                if neigh_elements[0].element_type == "pipe_1":
-                    if neigh_elements[0].cross_section is None:
-                        PrintMessageInput([window_title_1, title, message])
-                        return
-                    else:
-                        check_complete = True
-                        diameter_first = neigh_elements[0].cross_section.outer_diameter
+    #             if neigh_elements[0].element_type == "pipe_1":
+    #                 if neigh_elements[0].cross_section is None:
+    #                     PrintMessageInput([window_title_1, title, message])
+    #                     return
+    #                 else:
+    #                     check_complete = True
+    #                     diameter_first = neigh_elements[0].cross_section.outer_diameter
                         
-                if neigh_elements[1].element_type == "pipe_1":
-                    if neigh_elements[1].cross_section is None:
-                        PrintMessageInput([window_title_1, title, message])
-                        return
-                    else:
-                        check_complete = True
-                        diameter_last = neigh_elements[1].cross_section.outer_diameter
+    #             if neigh_elements[1].element_type == "pipe_1":
+    #                 if neigh_elements[1].cross_section is None:
+    #                     PrintMessageInput([window_title_1, title, message])
+    #                     return
+    #                 else:
+    #                     check_complete = True
+    #                     diameter_last = neigh_elements[1].cross_section.outer_diameter
                 
-                if check_complete:
-                    diameters = [diameter_first, diameter_last]
-                    diameters_ratio = max(diameters)/min(diameters)
-                    if diameters_ratio > 2:
-                        self.nodes_with_cross_section_transition[node] = neigh_elements
-                        # print(node.external_index, diameters_ratio)
+    #             if check_complete:
+    #                 diameters = [diameter_first, diameter_last]
+    #                 diameters_ratio = max(diameters)/min(diameters)
+    #                 if diameters_ratio > 2:
+    #                     self.nodes_with_cross_section_transition[node] = neigh_elements
+    #                     # print(node.external_index, diameters_ratio)
 
 
     def get_structural_links_data(self, node_ids: list, data: dict):
@@ -2083,10 +2111,20 @@ class Preprocessor:
             offset_z = element.cross_section.offset_z
             insulation_thickness = element.cross_section.insulation_thickness
             insulation_density = element.cross_section.insulation_density
-           
-            map_cross_section_to_elements[str([ outer_diameter, thickness, offset_y, offset_z, poisson,
-                                                index_etype, insulation_thickness, insulation_density ])].append(index)
-            
+
+            section_parameters = [  
+                                  outer_diameter, 
+                                  thickness, 
+                                  offset_y, 
+                                  offset_z, 
+                                  poisson,
+                                  index_etype, 
+                                  insulation_thickness, 
+                                  insulation_density
+                                  ]
+
+            map_cross_section_to_elements[str(section_parameters)].append(index)
+
             if self.stop_processing:
                 return
 
@@ -2108,18 +2146,18 @@ class Preprocessor:
             elif el_type == 'valve':
                 valve_section_info = {  
                                       "section_type_label" : "Valve",
-                                      "section_parameters" : section_parameters,  
-                                      "diameters_to_plot" : [None, None]
+                                      "section_parameters" : section_parameters
                                       }
-                cross_section = CrossSection(valve_section_info = valve_section_info)            
+                cross_section = CrossSection(valve_section_info = valve_section_info)     
 
             if self.stop_processing:
                 return
 
             self.set_cross_section_by_elements(
-                                                elements, 
-                                                cross_section, 
-                                                update_cross_section = True
+                                               elements, 
+                                               cross_section, 
+                                               update_properties = True, 
+                                               sections_mapping = True
                                                )  
 
     def process_element_cross_sections_orientation_to_plot(self):
@@ -2164,230 +2202,7 @@ class Preprocessor:
             element.sub_transformation_matrix = self.transformation_matrices[index, :, :]
             element.section_directional_vectors = self.transformation_matrices[index, :, :]
             element.section_rotation_xyz_undeformed = self.section_rotations_xyz[index,:]
-
-    def process_elements_to_update_indexes_after_remesh_in_entity_file(self, list_elements, reset_line=False, line_id=None, dict_map_cross={}, dict_map_expansion_joint={}):
-        """
-        This methods ...
-        """
-        list_groups_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-
-        if reset_line:
-            self.reset_list_elements_from_line(line_id, dict_map_cross, dict_map_expansion_joint)
-        else:
-            for subgroup_elements in list_groups_elements:
-                first_element_id = subgroup_elements[0]
-                last_element_id = subgroup_elements[-1]
-                start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
-                first_node_coordinates = self.nodes[start_node_id].coordinates
-                last_node_coordinates = self.nodes[end_node_id].coordinates
-                line_id = self.mesh.line_from_element[first_element_id]
-                key = f"{first_element_id}-{last_element_id}||{line_id}"
-                self.dict_element_info_to_update_indexes_in_entity_file[key] = [list(first_node_coordinates),
-                                                                                list(last_node_coordinates),
-                                                                                subgroup_elements]
-
-
-    def reset_list_elements_from_line(self, line_id, dict_map_cross, dict_map_expansion_joint):
-        
-        if line_id is None:
-            return
-        if len(dict_map_cross) == 0:
-            return
-        if len(dict_map_expansion_joint) == 0:
-            return
-
-        temp_dict = self.dict_element_info_to_update_indexes_in_entity_file.copy()
-        for key in temp_dict.keys():
-            key_line_id = int(key.split("||")[1])
-            if line_id == key_line_id:
-                self.dict_element_info_to_update_indexes_in_entity_file.pop(key)
-        
-        list_group_elements = []
-        for key, list_elements_cross in dict_map_cross.items():
-            list_group_elements.append(list_elements_cross)
-        
-        for (_, list_elements_joint, _) in dict_map_expansion_joint.values():
-            list_group_elements.append(list_elements_joint)
-        
-        for _list_elements in list_group_elements:    
-            list_subgroups_elements = check_is_there_a_group_of_elements_inside_list_elements(_list_elements) 
-            for subgroup_elements in list_subgroups_elements:
-                first_element_id = subgroup_elements[0]
-                last_element_id = subgroup_elements[-1]
-                start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
-                first_node_coordinates = self.nodes[start_node_id].coordinates
-                last_node_coordinates = self.nodes[end_node_id].coordinates
-                line_id = self.mesh.line_from_element[first_element_id]
-                key = f"{first_element_id}-{last_element_id}||{line_id}"
-                self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
-                                                                                    list(last_node_coordinates),
-                                                                                    subgroup_elements   ]
-
-
-    def process_elements_to_update_indexes_after_remesh_in_element_info_file(self, list_elements):
-        """
-        This method ...
-        """
-        input_groups_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-        output_subgroups_elements = []
-        for input_group in input_groups_elements:
-            line_to_elements = defaultdict(list)
-            for element_id in input_group:
-                line = self.mesh.line_from_element[element_id]
-                line_to_elements[line].append(element_id)
-            for line, elements in line_to_elements.items():
-                output_subgroups_elements.append(elements)
-        
-        self.dict_list_elements_to_subgroups[str(list_elements)] = output_subgroups_elements
-
-        for output_subgroup in output_subgroups_elements:
-       
-            first_element_id = output_subgroup[0]
-            last_element_id = output_subgroup[-1]
-            start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
-            first_node_coordinates = self.nodes[start_node_id].coordinates
-            last_node_coordinates = self.nodes[end_node_id].coordinates
-
-            key = f"{first_element_id}-{last_element_id}"
-            
-            self.dict_element_info_to_update_indexes_in_element_info_file[key] = [  list(first_node_coordinates),
-                                                                                    list(last_node_coordinates),
-                                                                                    output_subgroup ]
-
-
-    def update_element_ids_after_remesh(self, dict_cache, tolerance=1e-7):
-        """
-        This method ...
-        """      
-        coord_matrix = self.nodal_coordinates_matrix_external
-        list_coordinates = coord_matrix[:,1:].tolist()
-        new_external_indexes = coord_matrix[:,0]
-        dict_old_to_new_list_of_elements = {}
-        dict_non_mapped_subgroups = {}
-        dict_subgroups_old_to_new_group_nodes = defaultdict(list)
-
-        for key, data in dict_cache.items():
-
-            [first_node_coord, last_node_coord, subgroup_elements] = data
-
-            if first_node_coord in list_coordinates:
-
-                ind = list_coordinates.index(first_node_coord)
-                new_external_index = int(new_external_indexes[ind])
-                dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)          
-            
-            else:
-
-                diff = np.linalg.norm(coord_matrix[:,1:] - np.array(first_node_coord), axis=1)
-                mask = diff < tolerance
-                
-                try:
-                    new_external_index = int(coord_matrix[:,0][mask])
-                    dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
-                except:
-                    dict_non_mapped_subgroups[str(subgroup_elements)] = subgroup_elements
-                           
-            if last_node_coord in list_coordinates:
-
-                ind = list_coordinates.index(last_node_coord)
-                new_external_index = int(new_external_indexes[ind])
-                dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)           
-            
-            else:
-
-                diff = np.linalg.norm(coord_matrix[:,1:] - np.array(last_node_coord), axis=1)
-                mask = diff < tolerance
-                
-                try:
-                    new_external_index = int(coord_matrix[:,0][mask])
-                    dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
-                except:
-                    dict_non_mapped_subgroups[str(subgroup_elements)] = subgroup_elements
-            
-        for str_subgroup_elements, edge_nodes_from_group in dict_subgroups_old_to_new_group_nodes.items():
-            if str_subgroup_elements not in dict_non_mapped_subgroups.keys():
-                start_element_index, end_element_index = self.get_elements_inside_nodes_boundaries(edge_nodes_from_group)
-                new_list_elements = list(np.arange(start_element_index, end_element_index+1, dtype=int))
-                dict_old_to_new_list_of_elements[str_subgroup_elements] = new_list_elements
-
-        return [dict_old_to_new_list_of_elements, dict_non_mapped_subgroups]
-
-
-    def get_distantest_nodes_from_elements(self, list_elements):
-        """"This method returns the more distant nodes from selected elements
-        
-        """
-        if len(list_elements) == 1:
-            element_id = list_elements[0]
-            first_node_id = self.structural_elements[element_id].first_node.external_index
-            last_node_id = self.structural_elements[element_id].last_node.external_index
-
-        if len(list_elements) == 2:
-            [element_id1, element_id2] = list_elements
-            element_1 = self.structural_elements[element_id1]
-            element_2 = self.structural_elements[element_id2]
-            diff_1 = element_1.first_node.coordinates - element_2.last_node.coordinates
-            diff_2 = element_2.first_node.coordinates - element_1.last_node.coordinates
-            
-            if np.linalg.norm(diff_1) > np.linalg.norm(diff_2):
-                first_node_id = element_1.first_node.external_index
-                last_node_id = element_2.last_node.external_index 
-            else:
-                first_node_id = element_1.last_node.external_index
-                last_node_id = element_2.first_node.external_index
-
-        list_nodes = [first_node_id, last_node_id]
-        return min(list_nodes), max(list_nodes)
-
-
-    def get_elements_inside_nodes_boundaries(self, list_nodes):
-        
-        start_node, end_node = list_nodes
-        element_1_start_node = self.dict_first_node_to_element_index[start_node]
-        element_2_start_node = self.dict_last_node_to_element_index[start_node]
-        
-        if len(element_1_start_node) > 1 or len(element_2_start_node) > 1:
-            elements_start_node = element_1_start_node
-            for element_id in element_2_start_node:
-                elements_start_node.append(element_id)
-        elif element_1_start_node == []:
-            elements_start_node = element_2_start_node
-        elif element_2_start_node == []:
-            elements_start_node = element_1_start_node
-        else:
-            elements_start_node = [element_1_start_node[0], element_2_start_node[0]]
-        
-        element_1_end_node = self.dict_first_node_to_element_index[end_node]
-        element_2_end_node = self.dict_last_node_to_element_index[end_node]
-
-        if len(element_1_end_node) > 1 or len(element_2_end_node) > 1:
-            elements_end_node = element_1_end_node
-            for element_id in element_2_end_node:
-                elements_end_node.append(element_id)
-        elif element_1_end_node == []:
-            elements_end_node = element_2_end_node
-        elif element_2_end_node == []:
-            elements_end_node = element_1_end_node
-        else:
-            elements_end_node = [element_1_end_node[0], element_2_end_node[0]]
-                
-        first = True
-        for element_start in elements_start_node:
-            for element_end in elements_end_node:
-                
-                difference = self.structural_elements[element_start].center_coordinates - self.structural_elements[element_end].center_coordinates
-                distance = np.linalg.norm(difference)
-
-                if first:
-                    first = False
-                    previous_distance = distance
-                    output_indexes = [element_start, element_end]
-                
-                if previous_distance > distance:
-                    previous_distance = distance
-                    output_indexes = [element_start, element_end]
-     
-        return min(output_indexes), max(output_indexes)             
+   
 
     def deformed_amplitude_control_in_expansion_joints(self):
         """This method evaluates the deformed amplitudes in expansion joints nodes

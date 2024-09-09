@@ -102,8 +102,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.mesh_picker.update_bounds()
         project = app().project
 
+        if not project.get_structural_elements():
+            return
+
         try:
-            # Default behaviour
+            # Default behavior
             self.colorbar_actor.VisibilityOn()
             deformed = False
 
@@ -127,7 +130,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
             else:
                 # Empty color table
-                color_table = ColorTable(project, [], [0, 0], self.colormap)
+                color_table = ColorTable([], [0, 0], self.colormap)
                 self.colorbar_actor.VisibilityOff()
 
         except Exception as e:
@@ -431,12 +434,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             r_max=self.r_xyz_abs,
         )
 
+        min_max_values = (self.result_disp_min, self.result_disp_max)
         color_table = ColorTable(
-            project,
-            u_def,
-            (self.result_disp_min, self.result_disp_max),
-            self.colormap,
-        )
+                                 u_def,
+                                 min_max_values,
+                                 self.colormap,
+                                 )
 
         return color_table
 
@@ -457,13 +460,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             phase_step=phase_step
         )
 
+        min_max_values = (self.stress_min, self.stress_max)
         color_table = ColorTable(
-            project,
-            stresses_data,
-            (self.stress_min, self.stress_max),
-            self.colormap,
-            stress_field_plot=True,
-        )
+                                 stresses_data,
+                                 min_max_values,
+                                 self.colormap,
+                                 stress_field_plot = True,
+                                 )
+
         return color_table
 
     def _compute_pressure_field(self, frequency_index, phase_step):
@@ -477,13 +481,13 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             )
         )
 
+        min_max_values = (self.pressure_min, self.pressure_max)
         color_table = ColorTable(
-            project,
-            pressure_field_data,
-            (self.pressure_min, self.pressure_max),
-            self.colormap,
-            pressure_field_plot=True,
-        )
+                                 pressure_field_data,
+                                 min_max_values,
+                                 self.colormap,
+                                 pressure_field_plot=True,
+                                )
 
         return color_table
 

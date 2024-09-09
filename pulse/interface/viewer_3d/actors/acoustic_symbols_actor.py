@@ -164,7 +164,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                     pos = data["coords"]
                     node_id = args[0]
                     node = app().project.preprocessor.nodes[node_id]
-                    element = app().project.preprocessor.elements_connected_to_node[node][0]
+                    element = app().project.preprocessor.structural_elements_connected_to_node[node_id]
                     rot = self.get_compressor_symbol_rotation(element, node)
 
                     if element.cross_section is not None:
@@ -191,7 +191,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                     pos = data["coords"]
                     node_id = args[0]
                     node = app().project.preprocessor.nodes[node_id]
-                    element = app().project.preprocessor.elements_connected_to_node[node][0]
+                    element = app().project.preprocessor.structural_elements_connected_to_node[node_id]
                     rot = self.get_compressor_symbol_rotation(element, node)
 
                     if element.cross_section is not None:

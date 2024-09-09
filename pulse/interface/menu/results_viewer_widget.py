@@ -158,7 +158,7 @@ class ResultsViewerWidget(QWidget):
         self.add_widget(widget)
         self.main_window.plot_lines()
 
-    def add_widget(self, widget, animation_widget=False):
+    def add_widget(self, widget: QWidget, animation_widget=False):
 
         self.remove_widget()
         self.current_widget = widget
@@ -172,5 +172,10 @@ class ResultsViewerWidget(QWidget):
         self.animation_widget.setVisible(animation_widget)
 
     def remove_widget(self):
+
         if self.grid_layout.indexOf(self.current_widget) != -1:
+            self.current_widget.hide()
+            # TODO: check if the widget removal is working properly
             self.grid_layout.removeWidget(self.current_widget)
+
+        self.animation_widget.hide()

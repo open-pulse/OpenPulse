@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Element length correction setup</string>
+   <string>Turn-off acoustic elements</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
    <property name="leftMargin">
@@ -103,7 +103,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Element length correction setup</string>
+         <string>Turn-off acoustic elements setup</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -281,9 +281,9 @@
         <property name="currentIndex">
          <number>1</number>
         </property>
-        <widget class="QWidget" name="tab_model">
+        <widget class="QWidget" name="tab_setup">
          <attribute name="title">
-          <string>Model</string>
+          <string>Setup</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_6">
           <property name="leftMargin">
@@ -374,12 +374,6 @@
                <property name="text">
                 <string>Attribute</string>
                </property>
-               <property name="autoDefault">
-                <bool>false</bool>
-               </property>
-               <property name="default">
-                <bool>true</bool>
-               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -411,9 +405,6 @@
                <property name="text">
                 <string>Cancel</string>
                </property>
-               <property name="autoDefault">
-                <bool>false</bool>
-               </property>
               </widget>
              </item>
             </layout>
@@ -441,16 +432,16 @@
             </property>
             <layout class="QGridLayout" name="gridLayout">
              <item row="0" column="2">
-              <widget class="QComboBox" name="comboBox_element_length_correction_type">
+              <widget class="QComboBox" name="comboBox_action_selector">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>100</width>
                  <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>16777215</width>
+                 <width>100</width>
                  <height>26</height>
                 </size>
                </property>
@@ -459,17 +450,12 @@
                </property>
                <item>
                 <property name="text">
-                 <string> Expansion</string>
+                 <string> Turn-off</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string> Side branch</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string> Loop</string>
+                 <string> Turn-on</string>
                 </property>
                </item>
               </widget>
@@ -494,7 +480,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>Correction type:</string>
+                <string>Action:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -577,23 +563,15 @@
             </property>
             <column>
              <property name="text">
-              <string>Group</string>
-             </property>
-             <property name="textAlignment">
-              <set>AlignCenter</set>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Correction type</string>
-             </property>
-             <property name="textAlignment">
-              <set>AlignCenter</set>
-             </property>
-            </column>
-            <column>
-             <property name="text">
               <string>Elements</string>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Configuration</string>
              </property>
              <property name="textAlignment">
               <set>AlignCenter</set>
@@ -698,9 +676,6 @@
                <property name="text">
                 <string>Reset</string>
                </property>
-               <property name="autoDefault">
-                <bool>false</bool>
-               </property>
                <property name="flat">
                 <bool>false</bool>
                </property>
@@ -718,15 +693,6 @@
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>tabWidget_element_length_correction</tabstop>
-  <tabstop>comboBox_element_length_correction_type</tabstop>
-  <tabstop>pushButton_cancel</tabstop>
-  <tabstop>pushButton_attribute</tabstop>
-  <tabstop>treeWidget_length_correction_groups</tabstop>
-  <tabstop>pushButton_reset_confirm</tabstop>
-  <tabstop>pushButton_remove_by_group_confirm</tabstop>
- </tabstops>
  <resources/>
  <connections/>
 </ui>

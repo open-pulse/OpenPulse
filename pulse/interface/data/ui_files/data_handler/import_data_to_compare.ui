@@ -103,7 +103,7 @@
         <property name="font">
          <font>
           <family>MS Shell Dlg 2</family>
-          <pointsize>12</pointsize>
+          <pointsize>11</pointsize>
           <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
@@ -233,13 +233,13 @@
                 <widget class="QPushButton" name="pushButton_reset_imported_data">
                  <property name="minimumSize">
                   <size>
-                   <width>60</width>
+                   <width>72</width>
                    <height>28</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>60</width>
+                   <width>72</width>
                    <height>28</height>
                   </size>
                  </property>
@@ -317,7 +317,7 @@
               <property name="font">
                <font>
                 <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
+                <pointsize>10</pointsize>
                 <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>
@@ -347,7 +347,7 @@
               </property>
               <property name="font">
                <font>
-                <pointsize>11</pointsize>
+                <pointsize>10</pointsize>
                </font>
               </property>
               <property name="alignment">
@@ -618,7 +618,7 @@
               <property name="font">
                <font>
                 <family>MS Shell Dlg 2</family>
-                <pointsize>11</pointsize>
+                <pointsize>10</pointsize>
                 <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>
@@ -706,7 +706,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../../data/icons/common/import.png</normaloff>../../data/icons/common/import.png</iconset>
+                <normaloff>../../icons/common/import.png</normaloff>../../icons/common/import.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -757,13 +757,13 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
              <widget class="QPushButton" name="pushButton_add_imported_data_to_plot">
               <property name="minimumSize">
                <size>
-                <width>160</width>
+                <width>180</width>
                 <height>30</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>160</width>
+                <width>180</width>
                 <height>30</height>
                </size>
               </property>

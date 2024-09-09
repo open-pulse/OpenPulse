@@ -31,12 +31,14 @@ class Mesh:
 
         self.line_from_element = dict()
         self.elements_from_line = defaultdict(list)
+        self.lines_from_node = defaultdict(list)
         self.nodes_from_line = defaultdict(list)
 
         self.elements_from_gmsh_lines = dict()
         self.nodes_from_gmsh_lines = dict()
 
         self.lines_mapping = dict()
+        self.valve_internal_lines = dict()
 
     def set_element_size(self, element_size):
         self.element_size = element_size
@@ -120,6 +122,7 @@ class Mesh:
         geometry_handler.create_geometry()
 
         self.lines_mapping = geometry_handler.lines_mapping
+        self.valve_internal_lines = geometry_handler.valve_internal_lines
 
     def _set_gmsh_options(self):
         """
@@ -182,7 +185,7 @@ class Mesh:
 
     def _process_gmsh_lines_mesh_data(self):
         """
-        This method maps entities to elements.
+        This method maps the elements and nodes for each GMSH line.
 
         """
         # t0 = time()
@@ -205,32 +208,38 @@ class Mesh:
         # print(f"Time to process : {dt}")
 
     def _concatenate_line_elements(self):
-
         """
         """
-        
         self.elements_from_line.clear()
-        self.line_from_element.clear()
-        
+        elements_to_ignore_on_acoustic_analysis = list()
         for tag, line_elements in self.elements_from_gmsh_lines.items():
             line_id = self.lines_mapping[tag]
             self.elements_from_line[line_id].extend(line_elements)
+            if tag in self.valve_internal_lines.keys():
+                elements_to_ignore_on_acoustic_analysis.extend(line_elements)
 
+        self.line_from_element.clear()
         for _line_id, element_ids in self.elements_from_line.items():
             for element_id in element_ids:
                 self.line_from_element[element_id] = _line_id
 
         self.lines_from_model = list(self.elements_from_line.keys())
+        self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(elements_to_ignore_on_acoustic_analysis, True)
 
     def _concatenate_line_nodes(self):
-
+        """
+        """
+        self.lines_from_node.clear()
         self.nodes_from_line.clear()
-
         for tag, line_nodes in self.nodes_from_gmsh_lines.items():
             line_id = self.lines_mapping[tag]
             self.nodes_from_line[line_id].extend(line_nodes)
+            for node_id in line_nodes:
+                self.lines_from_node[node_id].append(line_id)
 
     def _save_geometry_points(self):
+        """
+        """
         self.geometry_points.clear()
         node_ids, *_ = gmsh.model.mesh.getNodes(0, -1)
         for tag in node_ids:

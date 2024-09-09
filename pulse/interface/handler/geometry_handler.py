@@ -35,7 +35,8 @@ class GeometryHandler:
         self.points_coords = dict()
         self.points_coords_cache = dict()
         self.lines_mapping = dict()
-        self.valve_points_to_ignore = dict()
+        self.valve_internal_lines = dict()
+        # self.valve_points_to_ignore = dict()
         self.pipeline = self.project.pipeline
 
     def set_pipeline(self, pipeline):
@@ -107,8 +108,8 @@ class GeometryHandler:
                     point_C = gmsh.model.occ.addPoint(*coords_C, meshSize=lc)
                     point_D = gmsh.model.occ.addPoint(*coords_D, meshSize=lc)
 
-                if "orifice_plate_points" in valve_points.keys():
-                    (coords_E, coords_F) = valve_points["orifice_plate_points"]
+                if "internal_points" in valve_points.keys():
+                    (coords_E, coords_F) = valve_points["internal_points"]
                     point_E = gmsh.model.occ.addPoint(*coords_E, meshSize=lc)
                     point_F = gmsh.model.occ.addPoint(*coords_F, meshSize=lc)
 
@@ -117,26 +118,31 @@ class GeometryHandler:
 
                 lines = list()
                 if "flange_points" in valve_points.keys():
-                    if "orifice_plate_points" in valve_points.keys():
+                    if "internal_points" in valve_points.keys():
                         lines.append(gmsh.model.occ.addLine(point_A, point_C))
                         lines.append(gmsh.model.occ.addLine(point_C, point_E))
                         lines.append(gmsh.model.occ.addLine(point_E, point_F))
                         lines.append(gmsh.model.occ.addLine(point_F, point_D))
                         lines.append(gmsh.model.occ.addLine(point_D, point_B))
 
-                        self.valve_points_to_ignore[structure.tag] = (point_C, point_D, point_E, point_F)
+                        if "blocking_length" in valve_info.keys():
+                            self.valve_internal_lines[lines[2]] = structure.tag
+                        # self.valve_points_to_ignore[structure.tag] = (point_C, point_D, point_E, point_F)
 
                     else:
                         lines.append(gmsh.model.occ.addLine(point_A, point_C))
                         lines.append(gmsh.model.occ.addLine(point_C, point_D))
                         lines.append(gmsh.model.occ.addLine(point_D, point_B))
-                        self.valve_points_to_ignore[structure.tag] = (point_C, point_D)
+                        # self.valve_points_to_ignore[structure.tag] = (point_C, point_D)
 
-                elif "orifice_plate_points" in valve_points.keys():
+                elif "internal_points" in valve_points.keys():
                     lines.append(gmsh.model.occ.addLine(point_A, point_E))
                     lines.append(gmsh.model.occ.addLine(point_E, point_F))
                     lines.append(gmsh.model.occ.addLine(point_F, point_B))
-                    self.valve_points_to_ignore[structure.tag] = (point_E, point_F)
+
+                    if "blocking_length" in valve_info.keys():
+                        self.valve_internal_lines[lines[1]] = structure.tag
+                    # self.valve_points_to_ignore[structure.tag] = (point_E, point_F)
 
                 else:
                     lines.append(gmsh.model.occ.addLine(point_A, point_B))
@@ -191,9 +197,10 @@ class GeometryHandler:
 
         A = start_coords
         B = end_coords
+        AB = B - A
 
-        L = B - A
-        n = L / np.linalg.norm(L)
+        L = np.linalg.norm(AB)
+        n = AB / L
 
         valve_points["external_points"] = (A, B)
 
@@ -201,15 +208,19 @@ class GeometryHandler:
             flange_length = 1e3 * valve_info["flange_length"]
             C = A + n * flange_length
             D = A + n * (L - flange_length)
-
             valve_points["flange_points"] = (C, D)
 
         if "orifice_plate_thickness" in valve_info.keys():
-            op_thickness = 1e3 * valve_info["orifice_plate_thickness"]
-            E = A + n * (L - op_thickness) / 2
-            F = A + n * (L + op_thickness) / 2
+            internal_length = 1e3 * valve_info["orifice_plate_thickness"]
+            E = A + n * (L - internal_length) / 2
+            F = A + n * (L + internal_length) / 2
+            valve_points["internal_points"] = (E, F)
 
-            valve_points["orifice_plate_points"] = (E, F)
+        elif "blocking_length" in valve_info.keys():
+            internal_length = 1e3 * valve_info["blocking_length"]
+            E = A + n * (L - internal_length) / 2
+            F = A + n * (L + internal_length) / 2
+            valve_points["internal_points"] = (E, F)
 
         return valve_points
 
@@ -311,9 +322,9 @@ class GeometryHandler:
                                 initial_diameter = section_parameters[0],
                                 final_diameter = section_parameters[4],
                                 thickness = section_parameters[1],
-                                initial_offset_y = -section_parameters[2],
+                                initial_offset_y = section_parameters[2],
                                 initial_offset_z = section_parameters[3],
-                                final_offset_y = -section_parameters[6],
+                                final_offset_y = section_parameters[6],
                                 final_offset_z = section_parameters[7],
                                 )
 
@@ -351,7 +362,8 @@ class GeometryHandler:
                                         end,
                                         width = section_parameters[0],
                                         height = section_parameters[1],
-                                        thickness = (section_parameters[0] - section_parameters[2]) / 2,
+                                        thickness_width = (section_parameters[0] - section_parameters[2]) / 2,
+                                        thickness_height = (section_parameters[0] - section_parameters[3]) / 2,
                                         )
         
         elif section_type_label == "Circular section":
@@ -764,9 +776,14 @@ class GeometryHandler:
 
         PrintMessageInput([window_title_2, title, message])
 
-    def export_model_data_file(self):
+    def get_structures_tags(self):
+        tags = list()
+        for structure in self.pipeline.structures:
+            if structure.tag != -1:
+                tags.append(structure.tag)
+        return tags
 
-        tag = 1
+    def export_model_data_file(self):
 
         structures_data = dict()
         section_info = dict()
@@ -778,6 +795,8 @@ class GeometryHandler:
         valve_info = dict()
         expansion_joint_info = dict()
 
+        tags = self.get_structures_tags()
+
         for structure in self.pipeline.structures:
 
             if isinstance(structure, Bend) and structure.is_colapsed():               
@@ -787,6 +806,15 @@ class GeometryHandler:
 
             if not pipeline_data:
                 continue
+
+            tag = structure.tag
+            if tag == -1:
+                tag = 1
+                while tag in tags:
+                    tag += 1
+
+            if tag not in tags: 
+                tags.append(tag)
 
             structures_data[tag] = pipeline_data
 
@@ -815,6 +843,7 @@ class GeometryHandler:
 
         if structures_data:
 
+            # self.remove_lines(structures_data)
             for line_id, structure_data in structures_data.items():
                 structure_data: dict
                 for key, values in structure_data.items():
@@ -878,5 +907,17 @@ class GeometryHandler:
             return "valve"
         else:
             return "undefined"
+
+    # def remove_lines(self, structures_data: dict):
+    #     """ This method removes the lines properties associated with the
+    #         removed structures.
+    #     """
+    #     lines_to_remove = list()
+    #     for line_id in app().project.model.properties.line_properties.keys():
+    #         if line_id not in structures_data.keys():
+    #             lines_to_remove.append(line_id)
+        
+    #     for line_id in lines_to_remove:
+    #         app().project.model.properties._remove_line(line_id)
 
 # fmt: on

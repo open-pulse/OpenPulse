@@ -59,6 +59,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_perforated_plate = self.add_item('Add Perforated Plate')
         self.item_child_set_acoustic_element_length_correction = self.add_item('Set Element Length Correction')
         self.item_child_add_compressor_excitation = self.add_item('Add Compressor Excitation')
+        self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
         #
         self.item_top_analysis = self.add_top_item('Analysis')
         self.item_child_select_analysis_type = self.add_item('Select Analysis Type')
@@ -100,6 +101,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_perforated_plate.clicked.connect(self.item_child_add_perforated_plate_callback)
         self.item_child_set_acoustic_element_length_correction.clicked.connect(self.item_child_set_acoustic_element_length_correction_callback)
         self.item_child_add_compressor_excitation.clicked.connect(self.item_child_add_compressor_excitation_callback)
+        self.item_child_turn_off_acoustic_elements.clicked.connect(self.item_child_turn_off_acoustic_elements_callback)
         #
         # Analysis Setup
         self.item_child_select_analysis_type.clicked.connect(self.item_child_select_analysis_type_callback)
@@ -115,13 +117,10 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def item_child_create_geometry_callback(self):
         app().main_window.input_ui.call_geometry_editor()
 
-    def item_child_edit_geometry_callback(self):
-        obj = app().main_window.input_ui.edit_an_imported_geometry()
-
     def item_child_set_material_callback(self):
         previous_color_mode = app().main_window.get_color_mode()
         if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+            app().main_window.plot_lines_with_cross_sections()
         app().main_window.action_plot_material_callback()
         app().main_window.input_ui.set_material()
         app().main_window.set_input_widget(None)
@@ -131,11 +130,11 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         previous_color_mode = app().main_window.get_color_mode()
         app().main_window.action_plot_fluid_callback()
         if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+            app().main_window.plot_lines_with_cross_sections()
         app().main_window.input_ui.set_fluid()
         app().main_window.set_input_widget(None)
         app().main_window.set_color_mode(previous_color_mode)
-    
+
     def item_child_set_cross_section_callback(self):
         if app().main_window.action_show_mesh_data.isChecked():
             app().main_window.plot_lines_with_cross_sections()
@@ -250,6 +249,12 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         app().main_window.input_ui.set_acoustic_element_length_correction()
         app().main_window.set_input_widget(None)
 
+    def item_child_turn_off_acoustic_elements_callback(self):
+        if app().main_window.action_show_geometry_data.isChecked():
+            app().main_window.plot_mesh()
+        app().main_window.input_ui.turn_off_acoustic_elements()
+        app().main_window.set_input_widget(None)
+
     def item_child_add_compressor_excitation_callback(self):
         if app().main_window.action_show_geometry_data.isChecked():
             app().main_window.plot_mesh()
@@ -310,6 +315,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_perforated_plate.setDisabled(bool_key)
         self.item_child_set_acoustic_element_length_correction.setDisabled(bool_key)
         self.item_child_add_compressor_excitation.setDisabled(bool_key)
+        self.item_child_turn_off_acoustic_elements.setDisabled(bool_key)
         #
         self.item_child_select_analysis_type.setDisabled(bool_key)
         if bool_key:

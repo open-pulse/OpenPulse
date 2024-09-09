@@ -1,20 +1,6 @@
 import numpy as np
 from opps.interface.viewer_3d.utils import cross_section_sources
-from vtkmodules.vtkCommonCore import (
-    vtkDoubleArray,
-    vtkIntArray,
-    vtkPoints,
-    vtkUnsignedCharArray,
-)
-from vtkmodules.vtkCommonDataModel import vtkPlane, vtkPolyData
-from vtkmodules.vtkCommonTransforms import vtkTransform
-from vtkmodules.vtkFiltersCore import vtkPolyDataNormals
-from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
-from vtkmodules.vtkRenderingCore import vtkActor, vtkGlyph3DMapper
-
-from pulse import app
-from pulse.interface.utils import ColorMode
-from pulse.interface.viewer_3d.coloring.color_table import ColorTable
+from vtkmodules.vtkCommonDataModel import vtkPolyData
 from pulse.interface.viewer_3d.actors import TubeActor
 
 

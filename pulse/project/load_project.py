@@ -286,19 +286,27 @@ class LoadProject:
 
     def send_element_properties_to_elements(self):
         for (property, element_id), prop_data in self.properties.element_properties.items():
+
             if property == "B2P_rotation_decoupling":
                 self.preprocessor.set_B2P_rotation_decoupling(element_id, prop_data)
-            if property == "element_length_correction":
+
+            elif property == "element_length_correction":
                 self.preprocessor.set_element_length_correction_by_element(element_id, prop_data)
-            if property == "perforated_plate":
+
+            elif property == "perforated_plate":
                 perforated_plate = PerforatedPlate(prop_data)
                 self.preprocessor.set_perforated_plate_by_elements(element_id, perforated_plate)
+
+            elif property == "acoustic_element_turned_off":
+                self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_id, True)
 
 
     def load_mesh_dependent_properties(self):
         """ This methods send properties to elements.
         """
         self.send_lines_properties_to_elements()
+        self.update_node_ids_after_mesh_changed()
+        self.update_element_ids_after_mesh_changed()
         self.send_element_properties_to_elements()
 
 
@@ -347,15 +355,12 @@ class LoadProject:
 
     def load_cross_sections(self, line_id: list, data: dict):
 
-        cross_section = None
         if "cross_section" in data.keys():
-
             cross_section = data["cross_section"]
-            if data["section_type_label"] == "Reducer":
-                self.preprocessor.set_variable_cross_section_by_line(line_id, cross_section)
-                return
-
             self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
+
+        elif data["section_type_label"] == "Reducer":
+            self.preprocessor.set_variable_cross_section_by_line(line_id, data)
 
 
     def load_fluids(self, line_id: int, data: dict):
@@ -575,5 +580,189 @@ class LoadProject:
             return dict()
 
         return section_info_lines
+
+    def update_node_ids_after_mesh_changed(self):
+
+        aux_nodal = dict()
+        non_mapped_nodes = list()
+
+        for key, data in self.properties.nodal_properties.items():
+
+            (property, *args) = key
+
+            if "coords" in data.keys():
+                coords = np.array(data["coords"], dtype=float)
+                if len(coords) == 6:
+
+                    node_id1, node_id2 = args
+
+                    coords_1 = coords[:3]
+                    coords_2 = coords[3:]
+                    new_node_id1 = self.preprocessor.get_node_id_by_coordinates(coords_1)
+                    new_node_id2 = self.preprocessor.get_node_id_by_coordinates(coords_2)
+                    sorted_indexes = np.sort([new_node_id1, new_node_id2])
+
+                    new_key = (property, sorted_indexes[0], sorted_indexes[1])
+
+                    if new_node_id1 is None:
+                        if new_node_id1 not in non_mapped_nodes:
+                            non_mapped_nodes.append((node_id1, coords))
+                        continue
+
+                    if new_node_id2 is None:
+                        if new_node_id2 not in non_mapped_nodes:
+                            non_mapped_nodes.append((node_id2, coords))
+                        continue
+
+                elif len(coords) == 3:
+
+                    node_id = args
+                    new_node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+                    new_key = (property, new_node_id)
+
+                    if new_node_id is None:
+                        if new_node_id not in non_mapped_nodes:
+                            non_mapped_nodes.append((node_id, coords))
+                        continue
+
+                aux_nodal[new_key] = data
+        
+        if aux_nodal != self.properties.nodal_properties:
+
+            self.properties.nodal_properties.clear()
+
+            for new_key, data in aux_nodal.items():
+                (property, *args) = new_key
+                self.properties._set_nodal_property(property, data, args)
+
+            if aux_nodal:
+                app().pulse_file.write_nodal_properties_in_file()
+
+            if non_mapped_nodes:
+
+                title = "Nodal-related model attributions failed"
+                message = "Some nodal-related model attributions could not be mapped "
+                message += "after the meshing processing. The non-mapped nodes will be"
+                message += f"removed from nodal properties file. \n\nDetails:"
+
+                for (node_id, coords) in non_mapped_nodes:
+                    x, y, z = coords
+                    message += f"\nNode #{node_id} -> coordinates: ({x}, {y}, {z}) [m]"
+
+                PrintMessageInput([window_title_2, title, message])
+
+    def update_element_ids_after_mesh_changed(self):
+
+        aux_elements = dict()
+        non_mapped_elements = list()
+
+        for (property, element_id), data in self.properties.element_properties.items():
+            if property in ["element_length_correction", "B2P_rotation_decoupling"]:
+
+                if "coords" in data.keys():
+                    coords = np.array(data["coords"], dtype=float)
+                    node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+
+                    if isinstance(node_id, int):
+                        if property == "B2P_rotation_decoupling":
+                            neigh_elements = self.preprocessor.structural_elements_connected_to_node[node_id]
+                        else:
+                            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
+
+                        for element in neigh_elements:
+                            if property == "B2P_rotation_decoupling":
+                                if element.element_type != "beam_1":
+                                    continue
+
+                            new_key = (property, element.index)
+                            aux_elements[new_key] = data
+
+                    else:
+                        non_mapped_elements.append((element_id, node_id))
+
+        pp_removed = list()
+        for (property, element_id), data in self.properties.element_properties.items():
+            if property in ["perforated_plate", "acoustic_element_turned_off"]:
+
+                coords = np.array(data["coords"], dtype=float)
+
+                coords_1 = coords[:3]
+                coords_2 = coords[3:]
+
+                node_id1 = self.preprocessor.get_node_id_by_coordinates(coords_1)
+                node_id2 = self.preprocessor.get_node_id_by_coordinates(coords_2)
+
+                line_ids = list()
+                for node_id in [node_id1, node_id2]:
+                    for line_id in self.preprocessor.mesh.lines_from_node[node_id]:
+                        if line_id not in line_ids:
+                            line_ids.append(line_id)
+
+                elements_from_lines = list()
+                for line_id in line_ids:
+                    elements = self.preprocessor.mesh.elements_from_line[line_id]
+                    elements_from_lines.extend(elements)
+
+                elements_inside_bounds = defaultdict(list)
+                length = np.linalg.norm(coords_1 - coords_2)
+
+                for _element_id in elements_from_lines:
+                    element = self.preprocessor.structural_elements[_element_id]
+                    ecc = element.center_coordinates
+
+                    if np.linalg.norm(coords_1 - ecc) < length:
+                        elements_inside_bounds[_element_id].append("first_node")
+
+                    if np.linalg.norm(coords_2 - ecc) < length:
+                        elements_inside_bounds[_element_id].append("last_node")
+
+                external_elements = list()
+                for _elem_id, node_label in elements_inside_bounds.items():
+                    if len(node_label) == 1:
+                        external_elements.append(_elem_id)
+
+                # remove the external elements
+                for external_element in external_elements:
+                    elements_inside_bounds.pop(external_element)
+
+                if property == "perforated_plate":
+                    if len(elements_inside_bounds) != 1:
+                        pp_removed.append(element_id) 
+                        continue
+ 
+                for _elem_id, node_label in elements_inside_bounds.items():
+                    if len(node_label) == 2:
+                        new_key = (property, _elem_id)
+                        aux_elements[new_key] = data
+
+                    # print(_elem_id, _element_node, data)
+
+        if aux_elements != self.properties.element_properties:
+
+            self.properties.element_properties.clear()
+
+            for (_property, _element_id), data in aux_elements.items():
+                self.properties._set_element_property(_property, data, int(_element_id))
+
+            if aux_elements:
+                app().pulse_file.write_element_properties_in_file()
+
+            if non_mapped_elements:
+
+                title = "Element-related model attributions failed"
+                message = "Some element-related model attributions could not be mapped "
+                message += f"after the meshing processing. \n\nDetails:"
+
+                for (node_id, coords) in non_mapped_elements:
+                    message += f"\n{node_id} - {coords}"
+
+                PrintMessageInput([window_title_2, title, message])
+
+        if pp_removed:
+            title = "Perforated plates removed"
+            message = "Some perforated plates could not be mapped after the "
+            message += "meshing processing, therefore, they were removed "
+            message += "from both the project files and model setup."
+            PrintMessageInput([window_title_2, title, message])
 
 # fmt: on

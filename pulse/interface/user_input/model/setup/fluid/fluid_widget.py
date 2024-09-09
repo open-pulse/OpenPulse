@@ -37,7 +37,7 @@ class FluidWidget(QWidget):
         uic.loadUi(ui_path, self)
 
         self.parent_widget = kwargs.get("parent_widget", None)
-        self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", dict())
+        self.compressor_info = kwargs.get("compressor_info", dict())
 
         self.main_window = app().main_window
         self.project = app().project
@@ -551,7 +551,7 @@ class FluidWidget(QWidget):
 
             selected_fluid = self.fluid_name_to_refprop_data[fluid_name]
             self.refprop = SetFluidCompositionInput(selected_fluid_to_edit = selected_fluid, 
-                                                    compressor_info = self.compressor_thermodynamic_state)
+                                                    compressor_info = self.compressor_info)
 
             if not self.refprop.complete:
                 app().main_window.set_input_widget(self.parent_widget)
@@ -637,7 +637,7 @@ class FluidWidget(QWidget):
         if isinstance(self.parent_widget, QDialog):
             self.parent_widget.hide()
 
-        self.refprop = SetFluidCompositionInput(compressor_info = self.compressor_thermodynamic_state)
+        self.refprop = SetFluidCompositionInput(compressor_info = self.compressor_info)
         if not self.refprop.complete:
             app().main_window.set_input_widget(self.parent_widget)
             return True
@@ -692,17 +692,17 @@ class FluidWidget(QWidget):
 
     def load_compressor_info(self):
 
-        if self.compressor_thermodynamic_state:
+        if self.compressor_info:
 
             if isinstance(self.parent_widget, QDialog):
 
-                line_id = self.compressor_thermodynamic_state['line_id']
-                self.parent_widget.lineEdit_selected_id.setText(str(line_id))
-                # app().main_window.set_selection(lines=[line_id])
+                line_id = self.compressor_info['line_id']
+                app().main_window.set_selection(lines=[line_id])
 
-                self.parent_widget.comboBox_attribution_type.setCurrentIndex(1)
-                # self.parent_widget.selection_callback()
-                self.parent_widget.lineEdit_selected_id.setDisabled(True)
+                # self.parent_widget.lineEdit_selected_id.setText(str(line_id))
+                # self.parent_widget.comboBox_attribution_type.setCurrentIndex(1)
+                # # self.parent_widget.selection_callback()
+                # self.parent_widget.lineEdit_selected_id.setDisabled(True)
 
                 column = self.tableWidget_fluid_data.columnCount()
                 self.tableWidget_fluid_data.selectColumn(column-1)
@@ -711,10 +711,12 @@ class FluidWidget(QWidget):
                     fluid_name = self.fluid_data_refprop["name"]
                     self.parent_widget.lineEdit_selected_fluid_name.setText(fluid_name)
 
-                connection_type_comp = self.compressor_thermodynamic_state['connection type']
-                connection_label = "discharge" if connection_type_comp else "suction"
-                
-                self.parent_widget.setWindowTitle(f"Set a fluid thermodynamic state at the compressor {connection_label}")
+                print(self.compressor_info['connection_type'])
+
+                connection_type = self.compressor_info['connection_type']
+                title = f"Set a fluid thermodynamic state at the compressor {connection_type}"
+
+                self.parent_widget.setWindowTitle(title)
 
     def update_compressor_fluid_temperature_and_pressure(self):
         return
@@ -731,11 +733,11 @@ class FluidWidget(QWidget):
             pressure_lineEdit.setDisabled(True)
 
     def update_compressor_info(self):
-        if self.compressor_thermodynamic_state:
+        if self.compressor_info:
             if self.refprop is not None:
                 if self.refprop.complete:
-                    self.compressor_thermodynamic_state["temperature (discharge)"] = round(self.fluid_data_refprop["temperature"], 4)
-                    self.compressor_thermodynamic_state["molar_mass"] = self.fluid_data_refprop["molar_mass"]
+                    self.compressor_info["temperature (discharge)"] = round(self.fluid_data_refprop["temperature"], 4)
+                    self.compressor_info["molar_mass"] = self.fluid_data_refprop["molar_mass"]
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

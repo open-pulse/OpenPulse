@@ -137,7 +137,8 @@ class StructuralElement:
 
         self.capped_end = kwargs.get('capped_end', True)
         self.stress_intensification = kwargs.get('stress_intensification', True)
-        
+        self.turned_off = kwargs.get("turned_off", False)
+
         self._initialize()
 
         self.reset_expansion_joint_data()

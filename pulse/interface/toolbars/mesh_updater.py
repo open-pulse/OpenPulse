@@ -16,13 +16,11 @@ class MeshUpdater:
         self._initialize()
 
     def _initialize(self):
+
         self.element_size = 0.01
         self.geometry_tolerance = 1e-6
         self.non_mapped_bcs = list()
-        self.dict_group_elements_to_update_element_info_file = dict()
-        self.dict_non_mapped_subgroups_entity_file = dict()
-        self.dict_non_mapped_subgroups_info_file = dict()
-        self.dict_list_elements_to_subgroups = dict()
+
         self.complete = False
         self.create = False
         self.stop = False
@@ -37,102 +35,6 @@ class MeshUpdater:
                                                     element_size = element_size, 
                                                     geometry_tolerance = geometry_tolerance
                                                     )
-
-    def process_mesh_and_load_project(self):
-
-        self.cache_dict_update_entity_file = self.preprocessor.dict_element_info_to_update_indexes_in_entity_file.copy() 
-        self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
-        self.dict_list_elements_to_subgroups = self.preprocessor.dict_list_elements_to_subgroups.copy()        
-
-        if app().pulse_file.check_pipeline_data():
-
-            self.process_intermediate_actions() 
-
-            if self.non_mapped_bcs:
-
-                title = "Error while mapping boundary conditions"
-                message = "The boundary conditions associated to the following nodal coordinates cannot be mapped directly after remesh:\n\n"
-
-                for _, coord in self.non_mapped_bcs:
-                    message += f"{coord};\n"
-
-                message = message[:-2]
-                message += ".\n\nPress the 'Return' or 'Close' buttons if you want to abort the mesh operation, "
-                message += "otherwise, press the 'Remove data' button to remove unmapped boundary conditions."
-                buttons_config = {"left_button_label" : "Remove data", "right_button_label" : "Abort remesh"}
-                read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
-
-                if read._cancel:
-                    self.undo_mesh_actions()
-
-                elif read._continue:
-
-                    self.process_final_actions()
-                    
-                    title = "Removal of unmapped boundary conditions"
-                    message = "The boundary conditions associated to the following nodal coordinates "
-                    message += "has been removed from the current model setup:\n\n"
-                    for coord in list(self.dict_non_mapped_bcs.keys()):
-                        message += f"{coord};\n"
-                    message = message[:-2] 
-                    message += ".\n\nPlease, take this information into account henceforward."
-                    PrintMessageInput([window_title_2, title, message])
-
-                elif read._continue:
-                    self.undo_mesh_actions()
-                    return
-
-            else:
-                self.process_final_actions()
-
-        app().project.time_to_load_or_create_project = time() - self.t0
-
-    def process_intermediate_actions(self):
-
-        self.current_element_size, self.current_geometry_tolerance = self.get_mesh_attributes_from_project_file()
-
-        self.t0 = time()
-        # app().pulse_file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
-
-        app().loader.load_mesh_setup_from_file()
-        app().project.initial_load_project_actions()
-
-        if self.preprocessor.structural_elements:
-            #TODO: reimplmente elements mapping
-            #
-            data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
-            data_3 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
-            #
-            [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
-
-    def undo_mesh_actions(self):
-
-        self.t0 = time()
-
-        element_size = self.current_element_size
-        geometry_tolerance = self.current_geometry_tolerance
-
-        self.set_project_attributes(element_size, geometry_tolerance)
-
-        app().main_window.mesh_toolbar.lineEdit_element_size.setText(str(element_size))
-        app().main_window.mesh_toolbar.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
-
-        app().loader.load_mesh_setup_from_file()
-        app().project.initial_load_project_actions()
-        app().loader.load_project_data()
-
-        app().main_window.update_plots()
-
-    def process_final_actions(self):
-
-        if self.dict_group_elements_to_update_element_info_file:
-            app().project.update_element_ids_in_element_info_file_after_remesh( self.dict_group_elements_to_update_element_info_file,
-                                                                                self.dict_non_mapped_subgroups_info_file,
-                                                                                self.dict_list_elements_to_subgroups )
-
-        app().loader.load_project_data()
-        app().main_window.update_plots()  
-        self.complete = True
 
     def get_mesh_attributes_from_project_file(self):
 
@@ -158,3 +60,37 @@ class MeshUpdater:
                 geometry_tolerance = mesh_setup['geometry tolerance']
 
         return element_size, geometry_tolerance
+
+    def process_mesh_and_load_project(self):
+
+        self.t0 = time()
+
+        if app().pulse_file.check_pipeline_data():
+            self.current_element_size, self.current_geometry_tolerance = self.get_mesh_attributes_from_project_file()
+            # app().pulse_file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
+            app().loader.load_mesh_setup_from_file()
+            app().project.initial_load_project_actions()
+            app().loader.load_project_data()
+            app().loader.load_mesh_dependent_properties()
+            app().main_window.initial_project_action(True)
+            app().main_window.update_plots()  
+            self.complete = True
+            app().project.time_to_load_or_create_project = time() - self.t0
+
+    def undo_mesh_actions(self):
+
+        self.t0 = time()
+
+        element_size = self.current_element_size
+        geometry_tolerance = self.current_geometry_tolerance
+
+        self.set_project_attributes(element_size, geometry_tolerance)
+
+        app().main_window.mesh_toolbar.lineEdit_element_size.setText(str(element_size))
+        app().main_window.mesh_toolbar.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
+
+        app().loader.load_mesh_setup_from_file()
+        app().project.initial_load_project_actions()
+        app().loader.load_project_data()
+        app().loader.load_mesh_dependent_properties()
+        app().main_window.update_plots()

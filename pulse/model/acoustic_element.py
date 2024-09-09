@@ -120,6 +120,7 @@ class AcousticElement:
         self.perforated_plate = kwargs.get('perforated_plate', None)
         self.vol_flow = kwargs.get('vol_flow', 0)
         self.length_correction_data = kwargs.get('length_correction_data', None)
+        self.turned_off = kwargs.get("turned_off", False)
 
         self.reset()
 

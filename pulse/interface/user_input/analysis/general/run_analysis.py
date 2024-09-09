@@ -1,13 +1,8 @@
-from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QProgressBar
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
 from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.loading_screen import LoadingScreen
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
 from time import time, sleep
@@ -16,60 +11,17 @@ import logging
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class RunAnalysisInput(QDialog):
+class RunAnalysisInput():
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        # ui_path = UI_DIR / "messages/solution_log.ui"
-        # uic.loadUi(ui_path, self)
 
         self.project = app().project
         self.model = app().project.model
 
-        # self._load_icons()
-        # self._config_window()
         self._initialize()
         self._load_analysis_info()
-        # self._define_qt_variables()
-        # self._create_connections()
-        # self._config_widgets()
 
         LoadingWindow(self.run_analysis).run()
-
-        # LoadingScreen(title = 'Solution in progress', 
-        #               message = 'Processing the cross-sections',  
-        #               target = self.process_cross_sections, 
-        #               project = self.project)
-        
-        # if self.project.preprocessor.stop_processing:
-        #     self.project.preprocessor.stop_processing = False
-        #     return
-
-        # LoadingScreen(title = 'Solution in progress', 
-        #               message = 'Preparing the model to solve', 
-        #               target = self.preparing_mathematical_model_to_solve)
-
-        # self.pre_non_linear_convergence_plot()
-
-        # LoadingScreen(title = 'Solution in progress', 
-        #               message = 'Solving the analysis',  
-        #               target = self.process_analysis, 
-        #               project = self.project)
-
-        # self.post_non_linear_convergence_plot()  
-
-        # if self.project.preprocessor.stop_processing:
-        #     self.reset_all_results()
-        #     self.project.preprocessor.stop_processing = False
-        # else:
-
-        #     LoadingScreen(title = 'Solution in progress', 
-        #                   message = 'Post-processing the obtained results', 
-        #                   target = self.post_process_results)
-            
-        #     # self.timer.start(200)
-        #     # self.exec()
-        #     self.check_warnings()
     
     def run_analysis(self):
         logging.info("Processing the cross-sections [1/4]")
@@ -94,58 +46,14 @@ class RunAnalysisInput(QDialog):
             self.post_process_results()
             self.check_warnings()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
-
     def _initialize(self):
         self.solution_acoustic = None
         self.solution_structural = None
         self.convergence_data_log = None
-        self.natural_frequencies_acoustic = []
-        self.natural_frequencies_structural = []
+        self.natural_frequencies_acoustic = list()
+        self.natural_frequencies_structural = list()
         self.complete = False
         self.solve = None
-
-    def _define_qt_variables(self):
-
-        # QFrame
-        self.frame_message : QFrame
-        self.frame_progress_bar : QFrame
-
-        # QLabel
-        self.label_title : QLabel
-        self.label_message : QLabel
-
-        # QProgressBar
-        self.progress_bar_timer : QProgressBar
-
-        # QTimer
-        self.timer = QTimer()
-
-    def _create_connections(self):
-        self.timer.timeout.connect(self.update_progress_bar)
-        pass
-
-    def _config_widgets(self):
-        self.label_message.setWordWrap(True)
-        self.label_message.setMargin(16)
-        # self.label_title.setStyleSheet("color: black; font: 75 12pt 'MS Shell Dlg 2'")
-        # self.label_message.setStyleSheet("color: blue; font: 75 12pt 'MS Shell Dlg 2'")
-
-    def update_progress_bar(self):
-        self.timer.stop()
-        t0 = time()
-        dt = 0
-        duration = 2
-        while dt <= duration:
-            sleep(0.1)
-            dt = time() - t0
-            value = int(100*(dt/duration))
-            self.progress_bar_timer.setValue(value)
-        self.close()
 
     def _load_analysis_info(self):
         self.analysis_id = self.project.analysis_id
@@ -346,7 +254,7 @@ class RunAnalysisInput(QDialog):
         elif self.analysis_id in [0, 1, 5, 6, 7]:
             self.project.set_acoustic_solution(None)
             self.project.set_structural_solution(None)
-            self.project.set_structural_reactions([ {}, {}, {} ])
+            self.project.set_structural_reactions(dict())
 
     def print_final_log(self):
 
@@ -362,10 +270,9 @@ class RunAnalysisInput(QDialog):
             text += "Time to solve the model: {} [s]\n".format(round(self.project.time_to_solve_model, 4))
         text += "Time elapsed in post-processing: {} [s]\n\n".format(round(self.project.time_to_postprocess, 4))
         text += "Total time elapsed: {} [s]".format(round(self.project.total_time, 4))
-
+        
+        print(text)
         # text += "Press ESC to continue..."
-        self.label_message.setText(text)
-        self.adjustSize()
 
     def check_warnings(self):
         # WARNINGS REACHED DURING SOLUTION
@@ -381,8 +288,3 @@ class RunAnalysisInput(QDialog):
                 message = self.solve.warning_Modal_prescribedDOFs[0] 
         if message != "":
             PrintMessageInput([window_title_2, title, message])
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
-            self.timer.stop()
-            self.close()

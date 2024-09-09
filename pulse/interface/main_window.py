@@ -37,11 +37,10 @@ import logging
 # import qdarktheme
 import os
 
-from time import time
-from sys import exit
 from functools import partial
 from pathlib import Path
 from shutil import copy, rmtree
+from sys import exit
 from time import time
 
 
@@ -680,6 +679,7 @@ class MainWindow(QMainWindow):
         self.render_widgets_stack.setCurrentWidget(self.results_widget)
 
     def action_results_workspace_callback(self):
+
         self.results_widget.update_selection()
         self.results_viewer_wigdet.update_visibility_items()
 
@@ -1010,7 +1010,7 @@ class MainWindow(QMainWindow):
 
         close = QMessageBox.question(   
                                         self, 
-                                        "QUIT", 
+                                        "Quit", 
                                         "Would you like to save the project data before exit?", 
                                         QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
                                     )
@@ -1046,9 +1046,10 @@ class MainWindow(QMainWindow):
         return obj.complete
 
     def open_project(self, project_path: str | Path | None = None):
-        def tmp():
-            self.reset_geometry_render()
 
+        def tmp():
+
+            self.reset_geometry_render()
             if project_path is not None:
                 app().config.add_recent_file(project_path)
                 app().config.write_last_folder_path_in_file("project folder", project_path)
@@ -1070,9 +1071,9 @@ class MainWindow(QMainWindow):
             self._update_recent_projects()
 
             logging.info("Configuring visualization [3/3]")
-            self.update_plots()
             self.action_front_view_callback()
-        
+            self.update_plots()
+
         LoadingWindow(tmp).run()
 
     def open_project_dialog(self):
@@ -1082,9 +1083,9 @@ class MainWindow(QMainWindow):
             last_path = str(Path().home())
 
         project_path, check = self.file_dialog.get_open_file_name(
-                                                                    "Open Project", 
-                                                                    last_path, 
-                                                                    filter = "Pulse File (*.pulse)"
+                                                                  "Open Project", 
+                                                                  last_path, 
+                                                                  filter = "Pulse File (*.pulse)"
                                                                   )
 
         if not check:
@@ -1109,10 +1110,10 @@ class MainWindow(QMainWindow):
                 last_path = str(Path.home())
 
             file_path, check = self.file_dialog.get_save_file_name(
-                                                                    "Save As",
-                                                                    last_path,
-                                                                    filter = "Pulse File (*.pulse)",
-                                                                  )
+                                                                   "Save As",
+                                                                   last_path,
+                                                                   filter = "Pulse File (*.pulse)",
+                                                                   )
 
             if not check:
                 return
@@ -1140,6 +1141,7 @@ class MainWindow(QMainWindow):
         copy(TEMP_PROJECT_FILE, path)
         self.update_window_title(path)
         self.project_data_modified = False
+        print("The project data has been saved.")
 
     def update_window_title(self, project_path : str | Path):
         if isinstance(project_path, str):
@@ -1186,15 +1188,18 @@ class MainWindow(QMainWindow):
         app().quit()
 
     def eventFilter(self, obj, event):
+        modifiers = QApplication.keyboardModifiers()
+        alt_pressed = modifiers & Qt.AltModifier
+
         if event.type() == QEvent.ShortcutOverride:
-            if event.key() == Qt.Key_E:
+            if alt_pressed and (event.key() == Qt.Key_E):
                 self.set_selection()
                 self.combo_box_workspaces.setCurrentIndex(0)
-            elif event.key() == Qt.Key_S:
+            elif alt_pressed and (event.key() == Qt.Key_S):
                 self.combo_box_workspaces.setCurrentIndex(1)
-            elif event.key() == Qt.Key_A:
+            elif alt_pressed and (event.key() == Qt.Key_A):
                 self.combo_box_workspaces.setCurrentIndex(2)
-            elif event.key() == Qt.Key_R:
+            elif alt_pressed and (event.key() == Qt.Key_R):
                 self.combo_box_workspaces.setCurrentIndex(3)
             elif event.key() == Qt.Key_F5:
                 self.update_plots()

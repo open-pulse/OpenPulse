@@ -141,6 +141,7 @@ class GetStartedInput(QDialog):
 
     def open_recent_project(self, project_path: str | Path):
         if os.path.exists(project_path):
+            self.hide()
             app().main_window.open_project(project_path)
             self.complete = True
             self.close()

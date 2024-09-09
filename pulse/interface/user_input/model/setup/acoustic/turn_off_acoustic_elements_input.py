@@ -14,11 +14,11 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class AcousticElementLengthCorrectionInput(QDialog):
+class TurnOffAcousticElementsInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/acoustic/element_length_correction_input.ui"
+        ui_path = UI_DIR / "model/setup/acoustic/turn_off_acoustic_elements_input.ui"
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
@@ -55,7 +55,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_element_length_correction_type :  QComboBox
+        self.comboBox_action_selector :  QComboBox
 
         # QLabel
         self.label_selection : QLabel
@@ -101,7 +101,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         #
         self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
         #
-        for i, w in enumerate([80, 120, 140]):
+        for i, w in enumerate([120, 140]):
             self.treeWidget_elements_info.setColumnWidth(i, w)
             self.treeWidget_elements_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
@@ -118,66 +118,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.lineEdit_element_id.setDisabled(bool(index))
         self.pushButton_remove.setDisabled(True)
 
-    def filter_selection(self, correction_type: int, element_ids: list) -> dict:
-
-        node_ids = list()
-        filtered_data = dict()
-
-        for element_id in element_ids:
-
-            element = self.preprocessor.acoustic_elements[element_id]
-
-            first_node = element.first_node.external_index
-            if first_node not in node_ids:
-                node_ids.append(first_node)
-
-            last_node = element.last_node.external_index
-            if last_node not in node_ids:
-                node_ids.append(last_node)
-        
-        for node_id in node_ids:
-            neigh_elements = self.preprocessor.neighboor_elements_of_node(node_id)
-
-            if correction_type in [1, 2]:
-
-                if len(neigh_elements) == 3:
-                    node = app().project.model.preprocessor.nodes[node_id]
-                    coords = list(np.round(node.coordinates, 5))
-                    filtered_data[node_id] = { 
-                                              "correction_type" : correction_type,
-                                              "coords" : coords,
-                                              "element_ids" : [element.index for element in neigh_elements]
-                                              }
-
-            else:
-
-                if len(neigh_elements) == 2:
-                    element_0 = neigh_elements[0]
-                    element_1 = neigh_elements[1]
-
-                    diam_0 = element_0.cross_section.outer_diameter
-                    diam_1 = element_1.cross_section.outer_diameter
-
-                    if diam_0 != diam_1:
-                        node = app().project.model.preprocessor.nodes[node_id]
-                        coords = list(np.round(node.coordinates, 5))
-                        filtered_data[node_id] = { 
-                                                  "correction_type" : correction_type,
-                                                  "coords" : coords,
-                                                  "element_ids" : [element.index for element in neigh_elements]
-                                                  }
-
-        if filtered_data:
-            return filtered_data
-
-        else:
-            self.hide()
-            title = "Invalid selection"
-            message = f"The '{self.correction_labels[correction_type]}' has not been detected in "
-            message += f"the selected group of elements. You should to change the elements "
-            message += "selection and/or modify the correction type to proceed."
-            PrintMessageInput([window_title_2, title, message])
-            return dict()
 
     def attribute_callback(self):
 
@@ -186,41 +126,27 @@ class AcousticElementLengthCorrectionInput(QDialog):
         
         if stop:
             return
-        
-        index = self.comboBox_element_length_correction_type.currentIndex()
 
-        if index == 0:
-            correction_type = 0
-            self.type_label = "'Expansion'"
-   
-        elif index == 1:
-            correction_type = 1
-            self.type_label = "'Side branch'"
+        index = self.comboBox_action_selector.currentIndex()
+        self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, True)
 
-        elif index == 2:
-            correction_type = 2
-            self.type_label = "'Loop'"
+        for element_id in element_ids:
 
-        filtered_data = self.filter_selection(correction_type, element_ids)
-        
-        for selection_data in filtered_data.values():
-
-            element_ids = selection_data["element_ids"]
+            coords = list()
+            element = self.preprocessor.acoustic_elements[element_id]
+            coords.extend(list(np.round(element.first_node.coordinates, 5)))
+            coords.extend(list(np.round(element.last_node.coordinates, 5)))
 
             data = {
-                    "correction_type" : selection_data["correction_type"],
-                    "coords" : selection_data["coords"]
+                    "coords" : coords,
+                    "turned_off" : not bool(index)
                     }
 
-            self.preprocessor.set_element_length_correction_by_element(element_ids, data)
-            self.properties._set_element_property("element_length_correction", data, element_ids=element_ids)
+            self.properties._set_element_property("acoustic_element_turned_off", data, element_ids=element_id)
 
-            app().pulse_file.write_element_properties_in_file()
-
-            print("The acoustic element length correction {} was attributed to elements: {}".format(self.type_label, element_ids))
-
-            self.load_elements_info()
-            # self.close()
+        app().pulse_file.write_element_properties_in_file()
+        self.load_elements_info()
+        # self.close()
 
     def remove_callback(self):
 
@@ -230,14 +156,12 @@ class AcousticElementLengthCorrectionInput(QDialog):
             stop, element_ids = self.before_run.check_selected_ids(str_element, "elements")
             if stop:
                 return
-            
-            self.preprocessor.set_element_length_correction_by_element(element_ids, None)
 
             for element_id in element_ids:
-                self.properties._remove_element_property("element_length_correction", element_id)
-
-            self.lineEdit_element_id.setText("")
+                self.properties._remove_element_property("acoustic_element_turned_off", element_id)
             
+            self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
+            self.lineEdit_element_id.setText("")
 
             app().pulse_file.write_element_properties_in_file()
             app().main_window.update_plots()
@@ -248,8 +172,8 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
             self.hide()
 
-            title = f"Resetting of element length corrections"
-            message = "Would you like to remove all element length corrections from the acoustic model?"
+            title = f"Turn-on all acoustic elements"
+            message = "Would you like to turn-on the all acoustic elements?"
 
             buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
             read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
@@ -261,51 +185,36 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
                 element_ids = list()
                 for (property, element_id) in self.properties.element_properties.keys():
-                    if property == "element_length_correction":
+                    if property == "acoustic_element_turned_off":
                         element_ids.append(element_id)
 
                 if element_ids:
-                    self.preprocessor.set_element_length_correction_by_element(element_ids, None)
-
                     for element_id in element_ids:
-                        self.properties._remove_element_property("element_length_correction", element_id)
+                        self.properties._remove_element_property("acoustic_element_turned_off", element_id)
+
+                    self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
 
                     app().pulse_file.write_element_properties_in_file()
                     app().main_window.update_plots()
                     self.load_elements_info()
                     # self.close()
 
-    def maps_correction_type_to_elements(self):
-
-        keys = [0, 1, 2]
-        labels = ['Expansion', 'Side branch', 'Loop']
-        self.correction_labels = dict(zip(keys, labels))
-
-        aux = defaultdict(list)
-        for (property, element_id), data in self.properties.element_properties.items():
-            if property == "element_length_correction":
-                coords = data["coords"]
-                index = data["correction_type"]
-                elc_label = self.correction_labels[index]
-                aux[elc_label, str(coords)].append(element_id)
-
-        group_id = 1
-        self.elements_correction_data = dict()
-        for key, element_ids in aux.items():
-            self.elements_correction_data[group_id] = (element_ids, key[0])
-            group_id += 1
-
     def load_elements_info(self):
 
-        self.maps_correction_type_to_elements()
         self.treeWidget_elements_info.clear()
+        for (property, element_id), data in self.properties.element_properties.items():
+            if property == "acoustic_element_turned_off":
 
-        for group_id, (element_ids, elc_label) in self.elements_correction_data.items():
-            item = QTreeWidgetItem([str(group_id), elc_label, str(element_ids)])
-            for i in range(3):
-                item.setTextAlignment(i, Qt.AlignCenter)
+                if data["turned_off"]:
+                    action_label = "Turned-off"
+                else:
+                    continue
 
-            self.treeWidget_elements_info.addTopLevelItem(item)
+                item = QTreeWidgetItem([str(element_id), action_label])
+                for i in range(3):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+
+                self.treeWidget_elements_info.addTopLevelItem(item)
 
         self.update_tabs_visibility()         
 
@@ -313,19 +222,19 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
         self.pushButton_remove.setDisabled(True)
         for (property, _) in self.properties.element_properties.keys():
-            if property == "element_length_correction":
+            if property == "acoustic_element_turned_off":
                 # self.tabWidget_main.setCurrentIndex(0)
                 self.tabWidget_main.setTabVisible(1, True)
                 return
-        
+
         self.tabWidget_main.setTabVisible(1, False)
 
     def on_click_item(self, item):
         if item.text(0) != "":
             self.pushButton_remove.setEnabled(True)
-            group_id = int(item.text(0))
-            (element_ids, _) = self.elements_correction_data[group_id]
-            app().main_window.set_selection(elements=element_ids)
+            element_id = int(item.text(0))
+            self.lineEdit_element_id.setText(item.text(0))
+            app().main_window.set_selection(elements=[element_id])
 
     def on_doubleclick_item(self, item):
         self.on_click_item(item)

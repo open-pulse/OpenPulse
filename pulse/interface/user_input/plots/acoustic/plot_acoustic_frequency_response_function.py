@@ -72,7 +72,7 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
-        selected_nodes = list(app().main_window.selected_nodes)
+        selected_nodes = selected_nodes = app().main_window.list_selected_nodes()
         if selected_nodes:
             node_id = selected_nodes[0]
             self.current_lineEdit.setText(str(node_id))

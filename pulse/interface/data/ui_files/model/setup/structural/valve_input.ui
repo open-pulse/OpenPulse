@@ -397,7 +397,7 @@
                   </widget>
                  </item>
                  <item row="10" column="3">
-                  <widget class="QLabel" name="label_orifice_plate_thickness_unit">
+                  <widget class="QLabel" name="label_valve_internal_length_unit">
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
@@ -566,7 +566,7 @@
                     <enum>Qt::StrongFocus</enum>
                    </property>
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string/>
                    </property>
                    <property name="styleSheet">
                     <string notr="true"/>
@@ -697,7 +697,7 @@
                   </widget>
                  </item>
                  <item row="10" column="1">
-                  <widget class="QLabel" name="label_orifice_plate_thickness">
+                  <widget class="QLabel" name="label_valve_internal_length">
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
@@ -805,7 +805,7 @@
                   </widget>
                  </item>
                  <item row="10" column="2">
-                  <widget class="QLineEdit" name="lineEdit_orifice_plate_thickness">
+                  <widget class="QLineEdit" name="lineEdit_internal_valve_length">
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
@@ -836,7 +836,7 @@
                     <enum>Qt::StrongFocus</enum>
                    </property>
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string/>
                    </property>
                    <property name="styleSheet">
                     <string notr="true"/>
@@ -921,7 +921,7 @@
                     <bool>true</bool>
                    </property>
                    <property name="text">
-                    <string>Acoustic effects:</string>
+                    <string>Acoustic behavior:</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -929,7 +929,7 @@
                   </widget>
                  </item>
                  <item row="2" column="2">
-                  <widget class="QComboBox" name="comboBox_acoustic_effects">
+                  <widget class="QComboBox" name="comboBox_acoustic_behavior">
                    <property name="minimumSize">
                     <size>
                      <width>0</width>
@@ -952,12 +952,12 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string> Not included</string>
+                     <string> Valve oppened</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> Included</string>
+                     <string> Partially closed</string>
                     </property>
                    </item>
                    <item>

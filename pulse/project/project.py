@@ -1,25 +1,19 @@
-from pulse.tools.utils import *
+
+from pulse import app
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
+from pulse.interface.user_input.project.loading_window import LoadingWindow
+# from pulse.interface.user_input.project.loading_screen import LoadingScreen
 #
-# from pulse.project.load_project import LoadProject
-# from pulse.model.line import Line
-# from pulse.model.preprocessor import Preprocessor
-from pulse.model.cross_section import CrossSection
-from pulse.model.properties.fluid import Fluid
-from pulse.model.properties.material import Material
+from opps.model import Pipeline
+from pulse.model.model import Model
 from pulse.model.after_run import AfterRun
 from pulse.model.before_run import BeforeRun
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.processing.acoustic_solver import AcousticSolver
+from pulse.tools.utils import *
 #
-from pulse import app
-from pulse.model.model import Model
-from pulse.interface.user_input.project.loading_screen import LoadingScreen
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
-
-#
-from opps.model import Pipeline
-#
+import logging
 import numpy as np
 from collections import defaultdict
 
@@ -106,20 +100,16 @@ class Project:
 
     def load_project(self):
 
-        # def load_callback():
-        #     app().loader.load_project_data()
-
-        # if self.initial_load_project_actions():
-        #     LoadingScreen(  
-        #                     title = 'Loading Project', 
-        #                     message = "Loading project files",
-        #                     target = load_callback
-        #                   )
-
+        logging.info("Loading project data [1/3]")
         app().loader.load_project_data()
+
+        logging.info("Processing geometry and mesh [1/3]")
         self.initial_load_project_actions()
+
+        logging.info("Loading mesh dependent properties [1/3]")
         app().loader.load_mesh_dependent_properties()
 
+        logging.info("Finalizing model data loading [1/3]")
         # self.enhance_pipe_sections_appearance()
         self.preprocessor.process_all_rotation_matrices()
         self.preprocessor.check_disconnected_lines()
@@ -139,7 +129,6 @@ class Project:
         # t0 = time()
         self.preprocessor.generate()
         app().main_window.update_status_bar_info()
-        self.update_node_ids_after_mesh_changed()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
 
@@ -147,7 +136,7 @@ class Project:
         """ 
         This method adds lids to cross-section variations and terminations.
         """
-        for elements in self.preprocessor.elements_connected_to_node.values():
+        for elements in self.preprocessor.structural_elements_connected_to_node.values():
 
             element = None
             if len(elements) == 2:
@@ -218,7 +207,8 @@ class Project:
                     insulation_thickness = cross.insulation_thickness
 
                     thickness = (outer_diameter - inner_diameter) / 2
-                    parameters = [  outer_diameter, 
+                    parameters = [  
+                                    outer_diameter, 
                                     thickness, 
                                     offset_y, 
                                     offset_z, 
@@ -247,78 +237,6 @@ class Project:
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
 
-    def update_element_ids_in_element_info_file_after_remesh(self, dict_group_elements_to_update,
-                                                                   dict_non_mapped_subgroups,
-                                                                   dict_list_elements_to_subgroups ):
-        self.modify_element_ids_in_element_info_file(  dict_group_elements_to_update,
-                                                            dict_non_mapped_subgroups,
-                                                            dict_list_elements_to_subgroups  )
-
-    def update_node_ids_after_mesh_changed(self):
-
-        aux = dict()
-        non_mapped_nodes = list()
-
-        for key, data in self.model.properties.nodal_properties.items():
-
-            (property, *args) = key
-
-            if "coords" in data.keys():
-                coords = np.array(data["coords"], dtype=float)
-                if len(coords) == 6:
-
-                    node_id1, node_id2 = args
-
-                    coords_1 = coords[:3]
-                    coords_2 = coords[3:]
-                    new_node_id1 = self.preprocessor.get_node_id_by_coordinates(coords_1)
-                    new_node_id2 = self.preprocessor.get_node_id_by_coordinates(coords_2)
-                    sorted_indexes = np.sort([new_node_id1, new_node_id2])
-
-                    new_key = (property, sorted_indexes[0], sorted_indexes[1])
-
-                    if new_node_id1 is None:
-                        if new_node_id1 not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id1, coords))
-                        continue
-
-                    if new_node_id2 is None:
-                        if new_node_id2 not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id2, coords))
-                        continue
-
-                elif len(coords) == 3:
-
-                    node_id = args
-                    new_node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-                    new_key = (property, new_node_id)
-
-                    if new_node_id is None:
-                        if new_node_id not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id, coords))
-                        continue
-
-                aux[key] = [new_key, data]
-                
-                if non_mapped_nodes:
-                    print(f"List of non-mapped nodes: {non_mapped_nodes}")
-                    return non_mapped_nodes
-
-        self.model.properties.nodal_properties.clear()
-
-        for [new_key, data] in aux.values():
-            (property, *args) = new_key
-            if len(new_key) == 2:
-                property = new_key[0]
-                node_ids = new_key[1]
-            elif len(new_key) == 3:
-                property = new_key[0]
-                node_ids = (new_key[1], new_key[2])
-            else:
-                return
-
-            self.model.properties._set_nodal_property(property, data, node_ids)
-
     def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
         if parameters is None:
             remove = True
@@ -346,21 +264,6 @@ class Project:
         else:
             self.preprocessor.set_cross_section_by_element(valve_elements, valve_cross)
         self.preprocessor.set_structural_element_type_by_lines(line_id, 'valve')
-
-    # def load_valve_by_elements(self, data, cross_sections):
-    #     valve_elements = data["valve_elements"]
-    #     valve_cross, flange_cross = cross_sections
-    #     self.preprocessor.add_valve_by_elements(valve_elements, data)
-    #     self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(valve_elements)
-        
-    #     if 'flange_elements' in data.keys():
-    #         flange_elements = data["flange_elements"]
-    #         _valve_elements = [element_id for element_id in valve_elements if element_id not in flange_elements]
-    #         self.preprocessor.set_cross_section_by_elements(_valve_elements, valve_cross)
-    #         self.preprocessor.set_cross_section_by_elements(flange_elements, flange_cross)
-    #     else:
-    #         self.preprocessor.set_cross_section_by_elements(valve_elements, valve_cross)
-    #     self.preprocessor.set_structural_element_type_by_element(valve_elements, "valve")
 
     def get_structural_elements(self):
         return self.preprocessor.structural_elements
@@ -432,7 +335,7 @@ class Project:
     def set_acoustic_natural_frequencies(self, value):
         self.natural_frequencies_acoustic = value
 
-    def get_acoustic_natural_frequencies(self):
+    def get_acoustic_natural_frequencies(self) -> list | None:
         return self.natural_frequencies_acoustic
     
     def set_structural_natural_frequencies(self, value):
@@ -441,7 +344,7 @@ class Project:
     def set_structural_reactions(self, value: dict):
         self.structural_reactions = value
 
-    def get_structural_natural_frequencies(self):
+    def get_structural_natural_frequencies(self) -> list | None:
         return self.natural_frequencies_structural
 
     def get_structural_reactions(self):
