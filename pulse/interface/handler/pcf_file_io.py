@@ -64,7 +64,7 @@ class PCFFileIO:
             structure.extra_info["structural_element_type"] = "pipe_1"
             structure.extra_info["cross_section_info"] = cross_section_info
 
-        # the method 'process_geometry_callback' does not exist anymore
+        # TODO: the method 'process_geometry_callback' does not exist anymore
         # app().main_window.geometry_input_wigdet.process_geometry_callback()
 
     def export_pcf(self):
