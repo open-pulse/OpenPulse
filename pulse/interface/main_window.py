@@ -1,6 +1,6 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QAbstractButton, QAction, QComboBox, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
+from PyQt5.QtWidgets import QAbstractButton, QAction, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCloseEvent, QCursor
 from PyQt5 import uic
@@ -83,8 +83,6 @@ class MainWindow(QMainWindow):
 
         self.project_data_modified = False
 
-        self.cache_indexes = list()
-
     def _load_stylesheets(self):
         stylesheets = list()
         common_dir = QSS_DIR / "common_theme"
@@ -110,7 +108,6 @@ class MainWindow(QMainWindow):
         self.installEventFilter(self)
         self.pulse_icon = icons.get_openpulse_icon()
         self.setWindowIcon(self.pulse_icon)
-        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _define_qt_variables(self):
         '''
@@ -124,9 +121,8 @@ class MainWindow(QMainWindow):
         
         # QAction
         self.action_open_project: QAction
-        self.action_geometry_workspace : QAction
-        self.action_structural_setup_workspace : QAction
-        self.action_acoustic_setup_workspace : QAction
+        self.action_geometry_editor_workspace : QAction
+        self.action_model_setup_workspace: QAction
         self.action_analysis_setup_workspace : QAction
         self.action_results_workspace : QAction
         self.action_export_geometry : QAction
@@ -194,32 +190,9 @@ class MainWindow(QMainWindow):
 
         self.selection_changed.connect(self.selection_changed_callback)
 
-    def _create_workspaces_toolbar(self):
-        actions = {
-            Workspace.GEOMETRY: self.action_geometry_workspace,
-            Workspace.STRUCTURAL_SETUP: self.action_structural_setup_workspace,
-            Workspace.ACOUSTIC_SETUP: self.action_acoustic_setup_workspace,
-            Workspace.RESULTS: self.action_results_workspace,
-        }
-
-        self.combo_box_workspaces = QComboBox()
-        self.combo_box_workspaces.setMinimumSize(170, 26)
-
-        # iterating sorted items make the icons appear in the same 
-        # order as defined in the Workspace enumerator
-        for _, action in sorted(actions.items()):
-            self.combo_box_workspaces.addItem(f" {action.text()}")
-
-        self.combo_box_workspaces.currentIndexChanged.connect(self.update_combobox_indexes)
-        self.combo_box_workspaces.currentIndexChanged.connect(lambda x: actions[x].trigger())
-        self.tool_bar.addWidget(self.combo_box_workspaces)
-
-    def update_combobox_indexes(self, index):
-        self.cache_indexes.append(index)
-
     def disable_workspace_selector_and_geometry_editor(self, _bool):
         #TODO: improve as soon as possible
-        self.combo_box_workspaces.setDisabled(_bool)
+        self.action_results_workspace.setDisabled(_bool)
         self.action_plot_geometry_editor.setDisabled(_bool)
         self.action_export_geometry.setDisabled(_bool)
         self.action_export_pcf.setDisabled(_bool)
@@ -267,7 +240,6 @@ class MainWindow(QMainWindow):
 
         t1 = time()
         self._create_layout()
-        self._create_workspaces_toolbar()
         self._create_status_bar()
         self._update_recent_projects()
         self._add_toolbars()
@@ -277,7 +249,7 @@ class MainWindow(QMainWindow):
 
         t2 = time()
         self.plot_lines_with_cross_sections()
-        self.use_structural_setup_workspace()
+        self.use_model_setup_workspace()
         self.load_user_preferences()
         self.create_temporary_folder()
         app().splash.update_progress(98)
@@ -416,20 +388,14 @@ class MainWindow(QMainWindow):
     def list_selected_elements(self) -> list[int]:
         return list(self.selected_elements)
 
-    def get_current_workspace(self):
-        return self.combo_box_workspaces.currentIndex()
-
     def use_geometry_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(Workspace.GEOMETRY)
+        self.action_geometry_editor_workspace.trigger()
 
-    def use_structural_setup_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(Workspace.STRUCTURAL_SETUP)
-
-    def use_acoustic_setup_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(Workspace.ACOUSTIC_SETUP)
+    def use_model_setup_workspace(self):
+        self.action_model_setup_workspace.trigger()
 
     def use_results_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(Workspace.RESULTS)
+        self.action_results_workspace.trigger()
 
     def plot_lines(self):
         self._configure_visualization(points=True, lines=True)
@@ -468,24 +434,25 @@ class MainWindow(QMainWindow):
 
         # t0 = time()
         self.update_export_geometry_file_access()
+        setup_complete = app().project.is_analysis_setup_complete()
         self.model_and_analysis_items.modify_model_setup_items_access(True)
 
         if finalized:
             self.disable_workspace_selector_and_geometry_editor(False)
             if app().pulse_file.check_pipeline_data():
-                self.analysis_toolbar.setEnabled(True)
+                self.analysis_toolbar.setEnabled(setup_complete)
                 self.project.none_project_action = False
                 self.model_and_analysis_items.modify_model_setup_items_access(False)
                 # dt = time() - t0
                 # print(f"initial_project_action: {dt} s")
                 return True
             else:
-                self.analysis_toolbar.setEnabled(False)
+                self.analysis_toolbar.setEnabled(setup_complete)
                 self.model_and_analysis_items.modify_geometry_item_access(False)
                 return True
         else:
             self.project.none_project_action = True
-            self.analysis_toolbar.setEnabled(False)
+            self.analysis_toolbar.setEnabled(setup_complete)
             return False
 
     def reset_geometry_render(self):
@@ -583,7 +550,7 @@ class MainWindow(QMainWindow):
     def action_export_geometry_callback(self):
         self.export_geometry()
 
-    def action_geometry_workspace_callback(self):
+    def action_geometry_editor_workspace_callback(self):
 
         self.clear_selection()
         self._configure_visualization(
@@ -595,49 +562,47 @@ class MainWindow(QMainWindow):
         self.mesh_toolbar.setDisabled(True)
         self.animation_toolbar.setEnabled(False)
 
+        if self.action_model_setup_workspace.isChecked():
+            self.action_model_setup_workspace.toggle()
+        if self.action_results_workspace.isChecked():
+            self.action_results_workspace.toggle()
+
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
-    def action_structural_setup_workspace_callback(self):
+    def action_model_setup_workspace_callback(self):
 
         self.mesh_toolbar.setDisabled(False)
         self.animation_toolbar.setEnabled(False)
-        self.model_and_analysis_setup_widget.update_visibility_for_structural_analysis()
+
+        if self.action_geometry_editor_workspace.isChecked():
+            self.action_geometry_editor_workspace.toggle()
+        if self.action_results_workspace.isChecked():
+            self.action_results_workspace.toggle()
 
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
-
-    def action_acoustic_setup_workspace_callback(self):
-
-        self.mesh_widget.update_selection()
-        self.mesh_toolbar.setDisabled(False)
-        self.animation_toolbar.setEnabled(False)
-
-        self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
-
-        self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
-        self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
-
-    def action_coupled_setup_workspace_callback(self):
-        self.model_and_analysis_setup_widget.update_visibility_for_coupled_analysis()
-        self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
-        self.render_widgets_stack.setCurrentWidget(self.results_widget)
 
     def action_results_workspace_callback(self):
 
-        self.results_widget.update_selection()
-        self.results_viewer_wigdet.update_visibility_items()
-        self.animation_toolbar.setEnabled(False)
-
         if self.project.is_the_solution_finished():
+
+            self.results_widget.update_selection()
+            self.results_viewer_wigdet.update_visibility_items()
+            self.animation_toolbar.setEnabled(False)
+
+            if self.action_geometry_editor_workspace.isChecked():
+                self.action_geometry_editor_workspace.toggle()
+            if self.action_model_setup_workspace.isChecked():
+                self.action_model_setup_workspace.toggle()
+
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
             self.render_widgets_stack.setCurrentWidget(self.results_widget)
             self.results_viewer_wigdet.update_visibility_items()
             self._configure_visualization(tubes=True)
 
         else:
-            if self.cache_indexes:
-                self.combo_box_workspaces.setCurrentIndex(self.cache_indexes[-2])
+            self.action_results_workspace.toggle()
 
     def render_changed_callback(self, new_index):
         if self.last_render_index is None:
@@ -677,18 +642,18 @@ class MainWindow(QMainWindow):
         self.input_ui.pulsation_suppression_device_editor()
 
     def action_plot_lines_callback(self):
-        if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-            self.use_structural_setup_workspace()
+        if not self.action_model_setup_workspace.isChecked():
+            self.action_model_setup_workspace_callback()
         self.plot_lines()
 
     def action_plot_lines_with_cross_section_callback(self):
-        if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-            self.use_structural_setup_workspace()
+        if not self.action_model_setup_workspace.isChecked():
+            self.action_model_setup_workspace_callback()
         self.plot_lines_with_cross_sections()
 
     def action_plot_mesh_callback(self):
-        if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-            self.use_structural_setup_workspace()
+        if not self.action_model_setup_workspace.isChecked():
+            self.action_model_setup_workspace_callback()
         self.plot_mesh()
 
     def action_plot_cross_section_callback(self):
@@ -737,62 +702,14 @@ class MainWindow(QMainWindow):
         self.mesh_widget.update()
         self.results_widget.update()
 
-    def action_set_structural_element_type_callback(self):
-        self.input_ui.set_structural_element_type()
-
-    def action_set_prescribed_dofs_callback(self):
-        self.input_ui.set_prescribed_dofs()
-
-    def action_set_nodal_loads_callback(self):
-        self.input_ui.set_nodal_loads()
-
-    def action_add_mass_spring_damper_callback(self):
-        self.input_ui.add_mass_spring_damper()
-
-    def action_set_stress_stiffening_callback(self):
-        self.input_ui.set_stress_stress_stiffening()
-
-    def action_add_elastic_nodal_links_callback(self):
-        self.input_ui.add_elastic_nodal_links()
-
-    def action_structural_model_info_callback(self):
-        self.input_ui.structural_model_info()
-
-    def action_set_acoustic_element_type_callback(self):
-        self.input_ui.set_acoustic_element_type()
-
-    def action_set_acoustic_pressure_callback(self):
-        self.input_ui.set_acoustic_pressure()
-
-    def action_set_volume_velocity_callback(self):
-        self.input_ui.set_volume_velocity()
-
-    def action_set_specific_impedance_callback(self):
-        self.input_ui.set_specific_impedance()
-
-    def action_add_perforated_plate_callback(self):
-        self.input_ui.add_perforated_plate()
-
-    def action_set_acoustic_element_length_correction_callback(self):
-        self.input_ui.set_acoustic_element_length_correction()
-
-    def action_add_compressor_excitation_callback(self):
-        self.input_ui.add_compressor_excitation()
-
     def action_acoustic_model_info_callback(self):
         self.input_ui.acoustic_model_info()
     
+    def action_structural_model_info_callback(self):
+        self.input_ui.structural_model_info()
+
     def action_check_beam_criteria_callback(self):
         self.input_ui.check_beam_criteria()
-
-    def action_select_analysis_type_callback(self):
-        self.input_ui.analysis_type_input()
-
-    def action_analysis_setup_callback(self):
-        self.input_ui.analysis_setup()
-    
-    def action_run_analysis_callback(self):
-        self.input_ui.run_analysis()
 
     def action_about_openpulse_callback(self):
         AboutOpenPulseInput()
@@ -1106,7 +1023,9 @@ class MainWindow(QMainWindow):
         copy(TEMP_PROJECT_FILE, path)
         self.update_window_title(path)
         self.project_data_modified = False
-        print("The project data has been saved.")
+
+        from datetime import datetime
+        print(f"The project data has been saved @ {datetime.now()}")
 
     def update_window_title(self, project_path : str | Path):
         if isinstance(project_path, str):
@@ -1159,13 +1078,13 @@ class MainWindow(QMainWindow):
         if event.type() == QEvent.ShortcutOverride:
             if alt_pressed and (event.key() == Qt.Key_E):
                 self.set_selection()
-                self.combo_box_workspaces.setCurrentIndex(0)
+                self.use_geometry_workspace()
             elif alt_pressed and (event.key() == Qt.Key_S):
-                self.combo_box_workspaces.setCurrentIndex(1)
+                self.use_model_setup_workspace()
             elif alt_pressed and (event.key() == Qt.Key_A):
-                self.combo_box_workspaces.setCurrentIndex(2)
+                self.use_model_setup_workspace()
             elif alt_pressed and (event.key() == Qt.Key_R):
-                self.combo_box_workspaces.setCurrentIndex(3)
+                self.use_results_workspace()
             elif event.key() == Qt.Key_F5:
                 self.update_plots()
         return super(MainWindow, self).eventFilter(obj, event)

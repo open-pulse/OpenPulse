@@ -272,11 +272,8 @@ class AnalysisToolbar(QToolBar):
 
         if analysis_id in [2, 4, 7]:
             app().project.model.frequencies = None
-            app().project.update_project_analysis_setup_state(True)
+            self.pushButton_run_analysis.setEnabled(True)
             app().main_window.input_ui.run_analysis()
 
         else:
             app().main_window.input_ui.analysis_setup()
-
-        setup_complete = app().project.analysis_setup_complete
-        self.pushButton_run_analysis.setEnabled(setup_complete)

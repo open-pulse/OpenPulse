@@ -66,7 +66,7 @@ class RunAnalysisInput():
         from matplotlib.animation import FuncAnimation
 
         if isinstance(self.solve, AcousticSolver):
-            if self.analysis_id in [3,5,6]:
+            if self.analysis_id in [3, 5, 6]:
                 if self.solve.non_linear:
                     fig = plt.figure(figsize=[8,6])
                     ax  = fig.add_subplot(1,1,1)
@@ -127,6 +127,8 @@ class RunAnalysisInput():
         
         t0 = time()
 
+        print("process_analysis", self.analysis_id)
+
         if self.analysis_id == 0:
             self.solution_structural = self.solve.direct_method() # Structural Harmonic Analysis - Direct Method
 
@@ -170,6 +172,7 @@ class RunAnalysisInput():
 
         elif self.analysis_id == 7: # Static Analysis
             self.solution_structural = self.solve.static_analysis()
+
         else:
             raise NotImplementedError("Not implemented analysis")
 

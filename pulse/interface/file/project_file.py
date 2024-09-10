@@ -168,7 +168,7 @@ class ProjectFile:
         if project_setup is None:
             return   
 
-        project_setup["analysis setup"] = analysis_setup         
+        project_setup["analysis_setup"] = analysis_setup         
         self.filebox.write(self.project_setup_filename, project_setup)
 
         app().main_window.project_data_modified = True
@@ -181,8 +181,8 @@ class ProjectFile:
         if project_setup is None:
             return
 
-        if "analysis setup" in project_setup.keys():
-            analysis_setup = project_setup["analysis setup"]
+        if "analysis_setup" in project_setup.keys():
+            analysis_setup = project_setup["analysis_setup"]
 
         return analysis_setup
 
@@ -192,7 +192,7 @@ class ProjectFile:
         if project_setup is None:
             return   
 
-        project_setup["inertia load"] = inertia_load         
+        project_setup["inertia_load"] = inertia_load         
         self.filebox.write(self.project_setup_filename, project_setup)
 
         app().main_window.project_data_modified = True
@@ -205,8 +205,8 @@ class ProjectFile:
             return
 
         inertia_load = None
-        if "inertia load" in project_setup.keys():
-            inertia_load = project_setup["inertia load"]
+        if "inertia_load" in project_setup.keys():
+            inertia_load = project_setup["inertia_load"]
 
         return inertia_load
 

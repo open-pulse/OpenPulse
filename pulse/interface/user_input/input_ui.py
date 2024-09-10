@@ -184,35 +184,6 @@ class InputUi:
     def pulsation_suppression_device_editor(self):
         self.process_input(PulsationSuppressionDeviceInput)
 
-    def analysis_type_input(self):
-
-        read = self.process_input(AnalysisTypeInput)
-
-        if not read.complete:
-            return
-
-        if read.method_id == -1:
-            return
-
-        analysis_id = app().project.analysis_id
-        # self.analysis_type_label = self.project.analysis_type_label
-        # self.analysis_method_label = self.project.analysis_method_label
-
-        if analysis_id is None:
-            return
-
-        if analysis_id in [0, 1, 3, 5, 6, 7]:
-            self.project.set_structural_solution(None)
-            self.project.set_acoustic_solution(None)
-
-        if analysis_id in [2, 4, 7]:
-            self.project.model.frequencies = None
-            self.project.update_project_analysis_setup_state(True)
-            self.run_analysis()
-
-        else:
-            self.analysis_setup()
-
     def analysis_setup(self):
 
         if self.project.analysis_id in [None, 2, 4]:
@@ -223,23 +194,23 @@ class InputUi:
         if read.complete:
             if read.flag_run:
                 self.run_analysis()
-            return True   
+            return True
         else:
             return False
        
     def run_analysis(self):
 
-        analysis_id = app().project.analysis_id
-        analysis_setup_complete = app().project.analysis_setup_complete
+        setup_complete = app().project.is_analysis_setup_complete()
 
         # t0 = time()
-        if analysis_id is None or not analysis_setup_complete:
+        if not setup_complete:
             title = "Incomplete analysis setup" 
             message = "Please, it is necessary to choose an analysis type "
             message += "and setup it before trying to solve the model."
             PrintMessageInput([window_title_1, title, message])
             return
 
+        analysis_id = app().project.analysis_id
         self.before_run = self.project.get_pre_solution_model_checks()
         if self.before_run.check_is_there_a_problem(analysis_id):
             return

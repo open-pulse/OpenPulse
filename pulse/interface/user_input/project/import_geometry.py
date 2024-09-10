@@ -66,7 +66,7 @@ class ImportGeometry():
         app().loader.load_mesh_dependent_properties()
         app().project.preprocessor.check_disconnected_lines()
         #
-        app().main_window.use_structural_setup_workspace()
+        app().main_window.use_model_setup_workspace()
         app().main_window.update_plots()
         self.complete = True
 
