@@ -158,7 +158,17 @@ class GeometryDesignerWidget(QWidget):
     def _initialize(self):
         self.tags = list()
 
-        self.current_options: StructureOptions = PipeOptions(self)
+        self.pipe_options = PipeOptions(self)
+        self.flange_options = FlangeOptions(self)
+        self.reducer_options = ReducerOptions(self)
+        self.rectangular_beam_options = RectangularBeamOptions(self)
+        self.circular_beam_options = CircularBeamOptions(self)
+        self.t_beam_options = TBeamOptions(self)
+        self.i_beam_options = IBeamOptions(self)
+        self.c_beam_options = CBeamOptions(self)
+        self.expansion_joint_options = ExpansionJointOptions(self)
+        self.valve_options = ValveOptions(self)
+        self.current_options: StructureOptions = self.pipe_options
 
         self.current_structure_type = None
         self.current_material_info = None
@@ -208,34 +218,34 @@ class GeometryDesignerWidget(QWidget):
 
         if issubclass(self.current_structure_type, Pipe):
             self.frame_bending_options.setEnabled(True)
-            self.current_options = PipeOptions(self)
+            self.current_options = self.pipe_options
 
         elif issubclass(self.current_structure_type, Flange):
-            self.current_options = FlangeOptions(self)
+            self.current_options = self.flange_options
 
         elif issubclass(self.current_structure_type, Reducer):
-            self.current_options = ReducerOptions(self)
+            self.current_options = self.reducer_options
 
         elif issubclass(self.current_structure_type, RectangularBeam):
-            self.current_options = RectangularBeamOptions(self)
+            self.current_options = self.rectangular_beam_options
 
         elif issubclass(self.current_structure_type, CircularBeam):
-            self.current_options = CircularBeamOptions(self)
+            self.current_options = self.circular_beam_options
 
         elif issubclass(self.current_structure_type, TBeam):
-            self.current_options = TBeamOptions(self)
+            self.current_options = self.t_beam_options
 
         elif issubclass(self.current_structure_type, IBeam):
-            self.current_options = IBeamOptions(self)
+            self.current_options = self.i_beam_options
 
         elif issubclass(self.current_structure_type, CBeam):
-            self.current_options = CBeamOptions(self)
+            self.current_options = self.c_beam_options
 
         elif issubclass(self.current_structure_type, ExpansionJoint):
-            self.current_options = ExpansionJointOptions(self)
+            self.current_options = self.expansion_joint_options
 
         elif issubclass(self.current_structure_type, Valve):
-            self.current_options = ValveOptions(self)
+            self.current_options = self.valve_options
 
         elif issubclass(self.current_structure_type, Point):
             self._show_deltas_mode(False)

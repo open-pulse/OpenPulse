@@ -26,11 +26,9 @@ class ValveOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        if self.valve_info is None:
-            print("no valve info")
+        if not self.valve_info:
             return
         
-        print(self.valve_info.get("valve_effective_diameter", 0))
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
         self.pipeline.add_valve(

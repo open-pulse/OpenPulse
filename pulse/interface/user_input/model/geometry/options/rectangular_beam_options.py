@@ -21,11 +21,11 @@ class RectangularBeamOptions(StructureOptions):
         self.cross_section_widget = self.geometry_designer_widget.cross_section_widget
 
         self.structure_type = RectangularBeam
-        self.cross_section_info: dict = self.cross_section_widget.beam_section_info
+        self.cross_section_info = dict()
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        if self.cross_section_info is None:
+        if not self.cross_section_info:
             return
 
         parameters = self.cross_section_info.get("section_parameters")

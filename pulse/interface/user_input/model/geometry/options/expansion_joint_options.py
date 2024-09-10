@@ -26,7 +26,7 @@ class ExpansionJointOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        if self.expansion_joint_info is None:
+        if not self.expansion_joint_info:
             return
 
         self.pipeline.dismiss()
