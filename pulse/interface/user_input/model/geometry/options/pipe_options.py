@@ -1,21 +1,28 @@
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
+
+
 from copy import deepcopy
 
 from opps.model import Pipe, Bend
 
+from molde.stylesheets import set_qproperty
+
 from .structure_options import StructureOptions
 from pulse import app
-from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 
 
 class PipeOptions(StructureOptions):
-    def __init__(self, cross_section_widget: CrossSectionWidget) -> None:
+    def __init__(self, geometry_designer_widget: "GeometryDesignerWidget") -> None:
         super().__init__()
-        self.cross_section_widget = cross_section_widget
+
+        self.geometry_designer_widget = geometry_designer_widget
+        self.cross_section_widget = self.geometry_designer_widget.cross_section_widget
 
         self.structure_type = Pipe
-        self.add_function = self.pipeline.add_bent_pipe
-        self.attach_function = self.pipeline.connect_bent_pipes
-        self.cross_section_info: dict|None = None
+        self.cross_section_info: dict = self.cross_section_widget.pipe_section_info
+        self.update_permissions()
     
     def xyz_callback(self, xyz):
         if self.cross_section_info is None:
@@ -66,9 +73,17 @@ class PipeOptions(StructureOptions):
             return
 
         self.cross_section_info = self.cross_section_widget.pipe_section_info
+        self.update_permissions()
 
     def update_permissions(self):
-        pass
+        if self.cross_section_info:
+            set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
+            enable = True
+        else:
+            set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
+            enable = False
+
+        self.geometry_designer_widget.create_structure_frame.setEnabled(enable)
 
     def _get_bending_radius(self, diameter):
         geometry_input_widget = app().main_window.geometry_input_wigdet
@@ -94,4 +109,5 @@ class PipeOptions(StructureOptions):
         return dict(
             structural_element_type = "pipe_1",
             cross_section_info = deepcopy(self.cross_section_info),
+            current_material_info = self.geometry_designer_widget.current_material_info,
         )
