@@ -17,7 +17,15 @@ from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeW
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 
-from pulse.interface.user_input.model.geometry.options import StructureOptions, PipeOptions, TBeamOptions, IBeamOptions
+from pulse.interface.user_input.model.geometry.options import (
+    StructureOptions,
+    PipeOptions,
+    TBeamOptions,
+    IBeamOptions,
+    CBeamOptions,
+    CircularBeamOptions,
+    RectangularBeamOptions,
+)
 
 
 class GeometryDesignerWidget(QWidget):
@@ -186,20 +194,14 @@ class GeometryDesignerWidget(QWidget):
             self.frame_bending_options.setEnabled(True)
             self.current_options = PipeOptions(self)
 
-        elif issubclass(self.current_structure_type, Reducer):
-            pass
-
         elif issubclass(self.current_structure_type, Flange):
             pass
 
-        elif issubclass(self.current_structure_type, Valve):
-            pass
-
-        elif issubclass(self.current_structure_type, ExpansionJoint):
+        elif issubclass(self.current_structure_type, Reducer):
             pass
 
         elif issubclass(self.current_structure_type, RectangularBeam):
-            self.current_options = RectangularBeam(self)
+            self.current_options = RectangularBeamOptions(self)
 
         elif issubclass(self.current_structure_type, CircularBeam):
             self.current_options = CircularBeamOptions(self)
@@ -212,6 +214,12 @@ class GeometryDesignerWidget(QWidget):
 
         elif issubclass(self.current_structure_type, CBeam):
             self.current_options = CBeamOptions(self)
+
+        elif issubclass(self.current_structure_type, Valve):
+            pass
+
+        elif issubclass(self.current_structure_type, ExpansionJoint):
+            pass
 
         elif issubclass(self.current_structure_type, Point):
             self._show_deltas_mode(False)
