@@ -71,7 +71,7 @@ class Model:
             self.frequencies = None
 
     def set_global_damping(self, analysis_setup: dict):
-        self.global_damping = analysis_setup.get("global damping", [0., 0., 0., 0.])
+        self.global_damping = analysis_setup.get("global_damping", [0., 0., 0., 0.])
 
     def set_static_analysis_setup(self, analysis_setup: dict):
         self.static_analysis_setup = analysis_setup

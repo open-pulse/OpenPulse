@@ -93,6 +93,8 @@ class MeshToolbar(QToolBar):
         self.addWidget(self.lineEdit_geometry_tolerance)
         self.addWidget(self.get_spacer())
         #
+        self.addSeparator()
+        self.addWidget(self.get_spacer())
         self.addWidget(self.pushButton_generate_mesh)
         #
         self.adjustSize()

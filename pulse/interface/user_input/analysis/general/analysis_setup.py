@@ -137,7 +137,7 @@ class AnalysisSetupInput(QDialog):
         if analysis_setup is None:
             analysis_setup = dict()
         
-        analysis_setup["analysis id"] = self.analysis_id
+        analysis_setup["analysis_id"] = self.analysis_id
 
         f_min = f_max = f_step = 0.
 
@@ -201,7 +201,7 @@ class AnalysisSetupInput(QDialog):
                 return True
 
         global_damping = [alpha_v, beta_v, alpha_h, beta_h]
-        analysis_setup["global damping"] = global_damping
+        analysis_setup["global_damping"] = global_damping
         self.model.set_global_damping(analysis_setup)
 
         if app().project.model.properties.check_if_there_are_tables_at_the_model():
@@ -214,10 +214,11 @@ class AnalysisSetupInput(QDialog):
             analysis_setup["modes"] = number_of_modes
 
         app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().main_window.analysis_toolbar.pushButton_run_analysis.setEnabled(True)
 
-        self.project.update_project_analysis_setup_state(True)
         self.complete = True
         self.close()
+
         return False
 
     def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False, _float=False):

@@ -57,7 +57,6 @@ class Project:
         self.plot_pressure_field = False
         self.plot_stress_field = False
         self.is_file_loaded = False
-        self.analysis_setup_complete = False
         self.none_project_action = False
         self.stress_stiffening_enabled = False
 
@@ -238,8 +237,13 @@ class Project:
 
         return False
 
-    def update_project_analysis_setup_state(self, _bool):
-        self.analysis_setup_complete = _bool
+    def is_analysis_setup_complete(self):
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        if isinstance(analysis_setup, dict):
+            if "analysis_id" in analysis_setup.keys():
+                self.analysis_id = analysis_setup["analysis_id"]
+                return True
+        return False
 
     def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
         if parameters is None:
