@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget
+from PyQt5.QtWidgets import QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget, QDialog
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -13,7 +13,7 @@ import numpy as np
 window_title = "Error"
 window_title2 = "Warning"
 
-class CrossSectionWidget(QWidget):
+class CrossSectionWidget(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -269,6 +269,7 @@ class CrossSectionWidget(QWidget):
             self.lineEdit_wall_thickness_final.setText(str(thickness))
 
     def set_inputs_to_geometry_creator(self):
+        self.complete = False
         self.tabWidget_general.setTabVisible(2,False)
         self.label_element_id.setVisible(False)
         self.lineEdit_element_id_initial.setVisible(False)
