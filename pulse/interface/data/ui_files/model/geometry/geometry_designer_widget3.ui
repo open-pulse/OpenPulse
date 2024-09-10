@@ -755,7 +755,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>Bounding Options</string>
+                <string>Bending Options</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignCenter</set>

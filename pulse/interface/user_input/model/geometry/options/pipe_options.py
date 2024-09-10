@@ -39,7 +39,7 @@ class PipeOptions(StructureOptions):
             diameter = parameters[0],
             thickness = parameters[1],
             curvature_radius = self._get_bending_radius(parameters[0]),
-            extra_info = self._get_extra_info()
+            extra_info = self._get_extra_info(),
         )
 
     def attach_callback(self):
@@ -54,7 +54,7 @@ class PipeOptions(StructureOptions):
             diameter = parameters[0],
             thickness = parameters[1],
             curvature_radius = self._get_bending_radius(parameters[0]),
-            extra_info = self._get_extra_info()
+            extra_info = self._get_extra_info(),
         )
 
     def configure_structure(self):

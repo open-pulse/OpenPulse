@@ -17,7 +17,7 @@ from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeW
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 
-from pulse.interface.user_input.model.geometry.options import StructureOptions, PipeOptions
+from pulse.interface.user_input.model.geometry.options import StructureOptions, PipeOptions, TBeamOptions
 
 
 class GeometryDesignerWidget(QWidget):
@@ -205,7 +205,7 @@ class GeometryDesignerWidget(QWidget):
             pass
 
         elif issubclass(self.current_structure_type, TBeam):
-            pass
+            self.current_options = TBeamOptions(self)
 
         elif issubclass(self.current_structure_type, IBeam):
             pass
