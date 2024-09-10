@@ -39,6 +39,8 @@ from pulse.interface.user_input.model.geometry.options import (
     CBeamOptions,
     CircularBeamOptions,
     RectangularBeamOptions,
+    ExpansionJointOptions,
+    ValveOptions,
 )
 
 
@@ -229,11 +231,11 @@ class GeometryDesignerWidget(QWidget):
         elif issubclass(self.current_structure_type, CBeam):
             self.current_options = CBeamOptions(self)
 
-        elif issubclass(self.current_structure_type, Valve):
-            pass
-
         elif issubclass(self.current_structure_type, ExpansionJoint):
-            pass
+            self.current_options = ExpansionJointOptions(self)
+
+        elif issubclass(self.current_structure_type, Valve):
+            self.current_options = ValveOptions(self)
 
         elif issubclass(self.current_structure_type, Point):
             self._show_deltas_mode(False)
