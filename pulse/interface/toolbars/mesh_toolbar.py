@@ -53,20 +53,6 @@ class MeshToolbar(QToolBar):
         self.lineEdit_element_size.setFixedWidth(60)
         self.lineEdit_geometry_tolerance.setFixedWidth(60)
 
-        self.lineEdit_element_size.setStyleSheet("""QLineEdit{ color: rgb(0, 0, 0); background-color: rgb(250, 250, 250) }
-                                                    QLineEdit:disabled{ color: rgb(100, 100, 100); background-color: rgb(240, 240, 240) }
-                                                 """)
-
-        self.lineEdit_geometry_tolerance.setStyleSheet("""QLineEdit{ color: rgb(0, 0, 0); background-color: rgb(250, 250, 250) }
-                                                          QLineEdit:disabled{ color: rgb(100, 100, 100); background-color: rgb(240, 240, 240) }
-                                                       """)
-        
-        self.pushButton_generate_mesh.setStyleSheet(""" QPushButton{border-radius: 4px; border-color: rgb(255, 50, 50); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}
-                                                        QPushButton:hover{border-radius: 4px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}
-                                                        QPushButton:pressed{border-radius: 4px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}
-                                                        QPushButton:disabled{border-radius: 4px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgba(220, 220, 220, 50)}
-                                                    """)
-
         self.pushButton_generate_mesh.setToolTip("Press to generate the mesh")
         self.pushButton_generate_mesh.setCursor(Qt.PointingHandCursor)
         self.pushButton_generate_mesh.setDisabled(True)

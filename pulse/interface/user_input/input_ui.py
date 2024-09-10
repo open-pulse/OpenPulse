@@ -31,7 +31,6 @@ from pulse.interface.user_input.model.editor.pulsation_suppression_device_input 
 from pulse.interface.user_input.model.criteria.check_pulsation_criteria import CheckAPI618PulsationCriteriaInput
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
 #
-from pulse.interface.user_input.analysis.general.analysis_type import AnalysisTypeInput
 from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
 from pulse.interface.user_input.analysis.general.run_analysis import RunAnalysisInput
 #

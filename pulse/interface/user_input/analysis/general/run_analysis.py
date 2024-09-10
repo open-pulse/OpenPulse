@@ -127,8 +127,6 @@ class RunAnalysisInput():
         
         t0 = time()
 
-        print("process_analysis", self.analysis_id)
-
         if self.analysis_id == 0:
             self.solution_structural = self.solve.direct_method() # Structural Harmonic Analysis - Direct Method
 

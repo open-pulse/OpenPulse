@@ -20,15 +20,12 @@ class StructuralModalAnalysisInput(QDialog):
         ui_path = UI_DIR / "analysis/structural/modal_analysis.ui"
         uic.loadUi(ui_path, self)
 
-        main_window = app().main_window
-
         app().main_window.set_input_widget(self)
-        self.project = main_window.project
 
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        self._initialize()
+        self._load_analysis_setup()
         self.exec()
 
     def _config_window(self):
@@ -41,7 +38,7 @@ class StructuralModalAnalysisInput(QDialog):
 
         # QLineEdit
         self.lineEdit_number_modes : QLineEdit
-        self.lineEdit_input_sigma_factor : QLineEdit
+        self.lineEdit_sigma_factor : QLineEdit
 
         # QPushButton
         self.pushButton_run_analysis : QPushButton
@@ -49,30 +46,35 @@ class StructuralModalAnalysisInput(QDialog):
     def _create_connections(self):
         self.pushButton_run_analysis.clicked.connect(self.run_analysis)
 
-    def _initialize(self):
-        self.complete = False
-        self.modes = int(self.lineEdit_number_modes.text())
-        self.sigma_factor = float(self.lineEdit_input_sigma_factor.text())
-        self.sigma_factor = (2*pi*self.sigma_factor)**2
+    def _load_analysis_setup(self):
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        if isinstance(analysis_setup, dict):
+            if analysis_setup["analysis_id"] in [2, 4]:
+                modes = analysis_setup["modes"]
+                sigma = analysis_setup["sigma_factor"]
+                self.lineEdit_number_modes.setText(str(modes))
+                self.lineEdit_sigma_factor.setText(str(sigma))
 
-    def check_inputs(self):
+    def check_analysis_inputs(self):
+
         title = "Invalid input value"
+
         if self.lineEdit_number_modes.text() == "":
             message = "Invalid a value to the number of modes."
             self.text_data = [window_title_1, title, message]
             return True
+
         else:
-            
+
             try:
                 self.modes = int(self.lineEdit_number_modes.text())
             except Exception:
                 message = "Invalid input value for number of modes."
                 self.text_data = [window_title_1, title, message]
                 return True
-            
+
             try:
-                sigma = float(self.lineEdit_input_sigma_factor.text())
-                self.sigma_factor = (2*pi*sigma)**2
+                self.sigma_factor = float(self.lineEdit_sigma_factor.text())
             except Exception:
                 message = "Invalid input value for sigma factor."
                 self.text_data = [window_title_1, title, message]
@@ -81,14 +83,14 @@ class StructuralModalAnalysisInput(QDialog):
         return False
     
     def run_analysis(self):
-        if self.check_inputs():
+        if self.check_analysis_inputs():
             PrintMessageInput(self.text_data)
             return
         self.complete = True
         self.close()
 
     def button_clicked(self):
-        self.check_inputs()
+        self.check_analysis_inputs()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

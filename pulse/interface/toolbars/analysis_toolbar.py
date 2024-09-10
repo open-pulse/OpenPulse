@@ -18,6 +18,20 @@ from pathlib import Path
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
+"""
+|--------------------------------------------------------------------|
+|                    Analysis ID codification                        |
+|--------------------------------------------------------------------|
+|    0 - Structural - Harmonic analysis through direct method        |
+|    1 - Structural - Harmonic analysis through mode superposition   |
+|    2 - Structural - Modal analysis                                 |
+|    3 - Acoustic - Harmonic analysis through direct method          |
+|    4 - Acoustic - Modal analysis (convetional FE 1D)               |
+|    5 - Coupled - Harmonic analysis through direct method           |
+|    6 - Coupled - Harmonic analysis through mode superposition      |
+|    7 - Structural - Static analysis (under development)            |
+|--------------------------------------------------------------------|
+"""
 
 class AnalysisToolbar(QToolBar):
     def __init__(self):
@@ -232,6 +246,14 @@ class AnalysisToolbar(QToolBar):
 
         app().project.set_analysis_type(analysis_id, analysis_type, None)
         app().project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
+
+        analysis_setup = {
+                          "analysis_id" : analysis_id,
+                          "modes" : modal.modes,
+                          "sigma_factor" : modal.sigma_factor
+                          }
+
+        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
         self.complete = modal.complete
 
     def modal_acoustic(self):
@@ -245,6 +267,14 @@ class AnalysisToolbar(QToolBar):
 
         app().project.set_analysis_type(analysis_id, analysis_type, None)
         app().project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
+
+        analysis_setup = {
+                          "analysis_id" : analysis_id,
+                          "modes" : modal.modes,
+                          "sigma_factor" : modal.sigma_factor
+                          }
+
+        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
         self.complete = modal.complete
 
     def static_analysis(self):
