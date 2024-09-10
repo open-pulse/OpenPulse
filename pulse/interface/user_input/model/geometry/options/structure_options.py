@@ -9,8 +9,11 @@ class StructureOptions:
         self.add_function = None
         self.attach_function = None
     
-    def get_parameters(self):
-        raise NotImplementedError(f"Method get_parameters not implemented on {self.__class__.__name__}")
+    def xyz_callback(self):
+        pass
+
+    def attach_callback(self):
+        pass
 
     def configure_structure(self):
         raise NotImplementedError(f"Method configure_structure not implemented on {self.__class__.__name__}")

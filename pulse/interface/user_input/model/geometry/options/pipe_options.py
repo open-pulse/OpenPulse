@@ -4,19 +4,38 @@ from opps.model import Pipe, Bend
 
 from .structure_options import StructureOptions
 from pulse import app
+from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 
 
 class PipeOptions(StructureOptions):
-    def __init__(self) -> None:
-        super().__init__(self)
-    
+    def __init__(self, cross_section_widget: CrossSectionWidget) -> None:
+        super().__init__()
+        self.cross_section_widget = cross_section_widget
+
         self.structure_type = Pipe
         self.add_function = self.pipeline.add_bent_pipe
         self.attach_function = self.pipeline.connect_bent_pipes
-        self.cross_section_info = None
-        self.user_defined_bending_radius = 0
+        self.cross_section_info: dict|None = None
+    
+    def xyz_callback(self, xyz):
+        if self.cross_section_info is None:
+            return
 
-    def get_parameters(self):
+        parameters = self.cross_section_info.get("section_parameters")
+        if parameters is None:
+            return
+        
+        self.pipeline.dismiss()
+        self.pipeline.clear_structure_selection()
+        self.pipeline.add_bent_pipe(
+            xyz,
+            diameter = parameters[0],
+            thickness = parameters[1],
+            curvature_radius = self._get_bending_radius(parameters[0]),
+            extra_info = self._get_extra_info()
+        )
+
+    def attach_callback(self):
         if self.cross_section_info is None:
             return
 
@@ -24,20 +43,37 @@ class PipeOptions(StructureOptions):
         if parameters is None:
             return
 
-        kwargs = dict()
-        kwargs["diameter"] = parameters[0]
-        kwargs["thickness"] = parameters[1]
-        kwargs["curvature_radius"] = self.get_bending_radius(parameters[0])
-        kwargs["extra_info"] = dict(
-            structural_element_type = "pipe_1",
-            cross_section_info = deepcopy(self.cross_section_info),
+        self.pipeline.connect_bent_pipes(
+            diameter = parameters[0],
+            thickness = parameters[1],
+            curvature_radius = self._get_bending_radius(parameters[0]),
+            extra_info = self._get_extra_info()
         )
-        return kwargs
 
-    def get_bending_radius(self, diameter):
+    def configure_structure(self):
+        self.cross_section_widget.set_inputs_to_geometry_creator()     
+        self.cross_section_widget.hide_all_tabs()     
+        self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
+        self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
+        self.cross_section_widget.lineEdit_outside_diameter.setFocus()
+        self.cross_section_widget.exec()
+
+        if not self.cross_section_widget.complete:
+            return
+        
+        if self.cross_section_widget.get_constant_section_pipe_parameters():
+            self.configure_structure()  # if it is invalid try again
+            return
+
+        self.cross_section_info = self.cross_section_widget.pipe_section_info
+
+    def update_permissions(self):
+        pass
+
+    def _get_bending_radius(self, diameter):
         geometry_input_widget = app().main_window.geometry_input_wigdet
-        bending_option = geometry_input_widget.bending_options_combobox.currentText()
-        custom_bending_radius = geometry_input_widget.bending_radius_line_edit.text()
+        bending_option = geometry_input_widget.bending_options_combobox.currentText().lower()
+        custom_bending_radius = geometry_input_widget.bending_radius_line_edit.text().lower()
 
         if (bending_option == "long radius"):
             return 1.5 * diameter
@@ -54,5 +90,8 @@ class PipeOptions(StructureOptions):
         else:
             return 0
 
-    def update_permissions(self):
-        pass
+    def _get_extra_info(self):
+        return dict(
+            structural_element_type = "pipe_1",
+            cross_section_info = deepcopy(self.cross_section_info),
+        )
