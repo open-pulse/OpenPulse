@@ -66,7 +66,6 @@ class CBeamOptions(StructureOptions):
     def configure_structure(self):
         self.cross_section_widget.set_inputs_to_geometry_creator()     
         self.cross_section_widget.hide_all_tabs()     
-        self.cross_section_widget.hide_all_tabs()     
         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
         self.cross_section_widget.tabWidget_beam_section.setTabVisible(2, True)
         self.cross_section_widget.lineEdit_height_C_section.setFocus()
