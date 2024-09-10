@@ -7,13 +7,25 @@ from numbers import Number
 import numpy as np
 import math
 from copy import deepcopy
-from opps.model import Point, Pipe, Bend, Flange, ExpansionJoint, Valve, Reducer, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam, Beam
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
+from opps.model import (
+    Point,
+    Pipe,
+    Bend,
+    Flange,
+    ExpansionJoint,
+    Valve,
+    Reducer,
+    IBeam,
+    CBeam,
+    TBeam,
+    CircularBeam,
+    RectangularBeam,
+)
 
 from pulse import app, UI_DIR
 from molde.utils import TreeInfo
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeWidget
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 
@@ -21,6 +33,7 @@ from pulse.interface.user_input.model.geometry.options import (
     StructureOptions,
     PipeOptions,
     FlangeOptions,
+    ReducerOptions,
     TBeamOptions,
     IBeamOptions,
     CBeamOptions,
@@ -199,7 +212,7 @@ class GeometryDesignerWidget(QWidget):
             self.current_options = FlangeOptions(self)
 
         elif issubclass(self.current_structure_type, Reducer):
-            pass
+            self.current_options = ReducerOptions(self)
 
         elif issubclass(self.current_structure_type, RectangularBeam):
             self.current_options = RectangularBeamOptions(self)
