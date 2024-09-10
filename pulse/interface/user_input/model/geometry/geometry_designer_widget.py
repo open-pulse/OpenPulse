@@ -48,7 +48,7 @@ class GeometryDesignerWidget(QWidget):
     def __init__(self, render_widget: EditorRenderWidget, parent=None):
         super().__init__(parent)
 
-        ui_path = UI_DIR / "model/geometry/geometry_designer_widget3.ui"
+        ui_path = UI_DIR / "model/geometry/geometry_designer_widget.ui"
         uic.loadUi(ui_path, self)
 
         self.render_widget = render_widget
