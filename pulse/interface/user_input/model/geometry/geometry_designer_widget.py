@@ -20,6 +20,7 @@ from pulse.interface.user_input.model.setup.material.material_widget import Mate
 from pulse.interface.user_input.model.geometry.options import (
     StructureOptions,
     PipeOptions,
+    FlangeOptions,
     TBeamOptions,
     IBeamOptions,
     CBeamOptions,
@@ -195,7 +196,7 @@ class GeometryDesignerWidget(QWidget):
             self.current_options = PipeOptions(self)
 
         elif issubclass(self.current_structure_type, Flange):
-            pass
+            self.current_options = FlangeOptions(self)
 
         elif issubclass(self.current_structure_type, Reducer):
             pass
