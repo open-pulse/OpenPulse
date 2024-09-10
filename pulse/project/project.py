@@ -297,13 +297,6 @@ class Project:
             points[i] = self.preprocessor.nodes[i]
         return points
 
-    def set_modes_sigma(self, modes, sigma=1e-2):
-        self.modes = modes
-        self.sigma = sigma
-
-    def get_modes(self):
-        return self.modes
-
     def set_analysis_type(self, analysis_id: int, analysis_text: str, method_text = ""):
         self.analysis_id = analysis_id
         self.analysis_type_label = analysis_text

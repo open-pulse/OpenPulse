@@ -193,7 +193,7 @@ class StructuralSolver:
         return F_combined
 
 
-    def modal_analysis(self, K=[], M=[], modes=20, which='LM', sigma=0.01, harmonic_analysis=False):
+    def modal_analysis(self, **kwargs):
         """
         This method evaluates the FEM acoustic modal analysis. The FETM formulation is not suitable to performe modal analysis.
 
@@ -229,7 +229,14 @@ class StructuralSolver:
             Modal shapes
         """
 
-        if K==[] and M==[]:
+        K = kwargs.get("K", list())
+        M = kwargs.get("M", list())
+        modes = kwargs.get("modes", 40)
+        which = kwargs.get("which", "LM")
+        sigma_factor = kwargs.get("sigma_factor", 1e-2)
+        harmonic_analysis = kwargs.get("harmonic_analysis", False)
+
+        if K == list() and M == list():
 
             if self.model.preprocessor.stress_stiffening_enabled:
                 static_solution = self.static_analysis()
@@ -243,7 +250,7 @@ class StructuralSolver:
             Kadd_lump = K
             Madd_lump = M
 
-        eigen_values, eigen_vectors = eigs(Kadd_lump, M=Madd_lump, k=modes, which=which, sigma=sigma)
+        eigen_values, eigen_vectors = eigs(Kadd_lump, M=Madd_lump, k=modes, which=which, sigma=sigma_factor)
 
         positive_real = np.absolute(np.real(eigen_values))
         natural_frequencies = np.sqrt(positive_real)/(2*np.pi)

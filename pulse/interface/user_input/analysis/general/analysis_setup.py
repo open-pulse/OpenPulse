@@ -210,7 +210,6 @@ class AnalysisSetupInput(QDialog):
             self.model.set_frequency_setup(analysis_setup)
 
         if self.analysis_id in [1, 6]:
-            self.project.set_modes_sigma(number_of_modes)
             analysis_setup["modes"] = number_of_modes
 
         app().pulse_file.write_analysis_setup_in_file(analysis_setup)

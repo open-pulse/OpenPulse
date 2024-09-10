@@ -216,6 +216,7 @@ class InputUi:
         # self.project.time_to_checking_entries = time()-t0
 
         read = self.process_input(RunAnalysisInput)
+
         if read.complete:
             if analysis_id == 2:
                 self.before_run.check_modal_analysis_imported_data()

@@ -33,22 +33,21 @@ window_title_2 = "Warning"
 |--------------------------------------------------------------------|
 """
 
+def decode_analysis(analysis_id):
+    if analysis_id == 0:
+        return
+
 class AnalysisToolbar(QToolBar):
     def __init__(self):
         super().__init__()
 
-        self._initialize()
         self._load_icons()
         self._define_qt_variables()
-        self._load_analysis_options()
-        self.update_domain_callback()
+        self._configure_appearance()
+        self._configure_layout()
+        self._load_analysis_types()
         self._config_widgets()
         self._create_connections()
-        self._configure_layout()
-        self._configure_appearance()
-
-    def _initialize(self):
-        self.animating = False
 
     def _load_icons(self):
         self.settings_icon = QIcon(str(ICON_DIR / "common/settings.png"))
@@ -68,12 +67,63 @@ class AnalysisToolbar(QToolBar):
         self.pushButton_run_analysis = QPushButton(self)
         self.pushButton_configure_analysis = QPushButton(self)
 
-    def _load_analysis_options(self):
+    def _configure_appearance(self):
+        self.setMinimumHeight(32)
+        self.setMovable(True)
+        self.setFloatable(True)
+
+    def get_spacer(self):
+        spacer = QWidget()
+        spacer.setFixedWidth(8)
+        return spacer
+
+    def _configure_layout(self):
+        #
+        self.addWidget(self.label_analysis_type)
+        self.addWidget(self.combo_box_analysis_type)
+        self.addWidget(self.get_spacer())
+        #
+        self.addWidget(self.label_analysis_domain)
+        self.addWidget(self.combo_box_analysis_domain)
+        self.addWidget(self.get_spacer())
+        #
+        self.addSeparator()
+        self.addWidget(self.get_spacer())
+        self.addWidget(self.pushButton_configure_analysis)
+        self.addWidget(self.get_spacer())
+        self.addWidget(self.pushButton_run_analysis)
+        #
+        self.adjustSize()
+
+    def _load_analysis_types(self):
         self.combo_box_analysis_type.clear()
         for _type in [" Harmonic", " Modal", " Static"]:
             self.combo_box_analysis_type.addItem(_type)
 
-    def update_domain_callback(self):
+    def load_analysis_settings(self):
+
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+
+        if isinstance(analysis_setup, dict):
+            analysis_id = analysis_setup["analysis_id"]
+            if analysis_id in [0, 1, 3, 5, 6]:
+                self.combo_box_analysis_type.setCurrentIndex(0)
+            elif analysis_id in [2, 4]:
+                self.combo_box_analysis_type.setCurrentIndex(1)
+            elif analysis_id == 7:
+                self.combo_box_analysis_domain.setCurrentIndex(2)
+
+            if analysis_id in [0, 1, 2, 7]:
+                self.combo_box_analysis_domain.setCurrentIndex(0)
+            elif analysis_id in [3, 4]:
+                self.combo_box_analysis_domain.setCurrentIndex(1)
+            elif analysis_id in [5, 6]:
+                self.combo_box_analysis_domain.setCurrentIndex(2)
+
+            setup_complete = app().project.is_analysis_setup_complete()
+            self.pushButton_run_analysis.setEnabled(setup_complete)
+
+    def physical_domains_callback(self):
 
         if self.combo_box_analysis_type.currentIndex() == 0:
             available_domains = [" Structural", " Acoustic", " Coupled"]
@@ -116,40 +166,14 @@ class AnalysisToolbar(QToolBar):
         # self.pushButton_run_analysis.setCheckable(True)
         self.pushButton_run_analysis.setDisabled(True)
 
-    def get_spacer(self):
-        spacer = QWidget()
-        spacer.setFixedWidth(8)
-        return spacer
-
-    def _configure_layout(self):
-        #
-        self.addWidget(self.label_analysis_type)
-        self.addWidget(self.combo_box_analysis_type)
-        self.addWidget(self.get_spacer())
-        #
-        self.addWidget(self.label_analysis_domain)
-        self.addWidget(self.combo_box_analysis_domain)
-        self.addWidget(self.get_spacer())
-        #
-        self.addSeparator()
-        self.addWidget(self.get_spacer())
-        self.addWidget(self.pushButton_configure_analysis)
-        self.addWidget(self.get_spacer())
-        self.addWidget(self.pushButton_run_analysis)
-        #
-        self.adjustSize()
-
-    def _configure_appearance(self):
-        self.setMinimumHeight(32)
-        self.setMovable(True)
-        self.setFloatable(True)
-
     def _create_connections(self):
         #
-        self.combo_box_analysis_type.currentIndexChanged.connect(self.update_domain_callback)
+        self.combo_box_analysis_type.currentIndexChanged.connect(self.physical_domains_callback)
         #
         self.pushButton_run_analysis.clicked.connect(self.run_analysis_callback)
         self.pushButton_configure_analysis.clicked.connect(self.configure_analysis_callback)
+        #
+        self.physical_domains_callback()
 
     def run_analysis_callback(self):
         app().main_window.input_ui.run_analysis()
@@ -245,7 +269,6 @@ class AnalysisToolbar(QToolBar):
         analysis_type = "Structural Modal Analysis"
 
         app().project.set_analysis_type(analysis_id, analysis_type, None)
-        app().project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
 
         analysis_setup = {
                           "analysis_id" : analysis_id,
@@ -266,7 +289,6 @@ class AnalysisToolbar(QToolBar):
         analysis_type = "Acoustic Modal Analysis"
 
         app().project.set_analysis_type(analysis_id, analysis_type, None)
-        app().project.set_modes_sigma(modal.modes, sigma=modal.sigma_factor)
 
         analysis_setup = {
                           "analysis_id" : analysis_id,
