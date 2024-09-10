@@ -1001,7 +1001,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.preprocessor.mesh._create_gmsh_geometry()
 
         self.load_psd_info()
-        # app().main_window.use_structural_setup_workspace()
+        # app().main_window.use_model_setup_workspace()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

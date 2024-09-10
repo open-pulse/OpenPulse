@@ -223,7 +223,7 @@ class NewProjectInput(QDialog):
             app().main_window.action_plot_geometry_editor_callback()
         
         else:
-            app().main_window.use_structural_setup_workspace()
+            app().main_window.use_model_setup_workspace()
 
         app().main_window.update_plots()
 
