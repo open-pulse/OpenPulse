@@ -897,7 +897,7 @@ class MainWindow(QMainWindow):
 
         close = QMessageBox.question(   
                                         self, 
-                                        "Quit_", 
+                                        "Quit", 
                                         "Would you like to save the project data before exit?", 
                                         QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
                                     )
@@ -1062,7 +1062,7 @@ class MainWindow(QMainWindow):
         else:
             close = QMessageBox.question(
                                             self, 
-                                            "QUIT", 
+                                            "Quit", 
                                             "Would you like to close the application?", 
                                             QMessageBox.Yes | QMessageBox.No
                                         )
