@@ -82,5 +82,5 @@ class ValveOptions(StructureOptions):
             structural_element_type = "valve",
             valve_info = deepcopy(self.valve_info),
             cross_section_info = {"section_type_label" : "Valve"},
-            current_material_info = self.geometry_designer_widget.current_material_info,
+            material_info = self.geometry_designer_widget.current_material_info,
         )

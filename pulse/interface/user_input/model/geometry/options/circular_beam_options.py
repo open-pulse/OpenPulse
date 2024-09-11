@@ -86,5 +86,5 @@ class CircularBeamOptions(StructureOptions):
         return dict(
             structural_element_type = "beam_1",
             cross_section_info = deepcopy(self.cross_section_info),
-            current_material_info = self.geometry_designer_widget.current_material_info,
+            material_info = self.geometry_designer_widget.current_material_info,
         )
