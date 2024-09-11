@@ -34,7 +34,7 @@ class ElasticNodalLinksInput(QDialog):
         self._create_connections()
         self._config_widgets()
         self.selection_callback()
-        self.load_treeWidgets_info()
+        self.load_nodes_info()
         
         while self.keep_window_open:
             self.exec()
@@ -794,7 +794,7 @@ class ElasticNodalLinksInput(QDialog):
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
         app().main_window.update_plots()
-        self.load_treeWidgets_info()
+        self.load_nodes_info()
 
     def text_label(self, mask, load_labels):
 
@@ -853,7 +853,7 @@ class ElasticNodalLinksInput(QDialog):
 
                 self.treeWidget_structural_damping_links.addTopLevelItem(item)
 
-    def load_treeWidgets_info(self):
+    def load_nodes_info(self):
 
         self.load_elastic_links_stiffness_info()
         self.load_elastic_links_damping_info()

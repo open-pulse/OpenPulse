@@ -34,7 +34,7 @@ class MassSpringDamperInput(QDialog):
         self._create_connections()
         self._config_widgets()
         self.selection_callback()
-        self.load_treeWidgets_info()
+        self.load_nodes_info()
                
         while self.keep_window_open:
             self.exec()
@@ -125,7 +125,7 @@ class MassSpringDamperInput(QDialog):
         self.checkBox_remove_spring : QCheckBox
         self.checkBox_remove_damper : QCheckBox
 
-        self.lineEdit_selected_ids : QLineEdit
+        self.lineEdit_node_ids : QLineEdit
 
         # QFrame
         self.selection_frame : QFrame
@@ -263,7 +263,7 @@ class MassSpringDamperInput(QDialog):
         selected_nodes = app().main_window.list_selected_nodes()
         if selected_nodes:
             text = ", ".join([str(i) for i in selected_nodes])
-            self.lineEdit_selected_ids.setText(text)
+            self.lineEdit_node_ids.setText(text)
 
             self.reset_input_fields_masses()
             self.reset_input_fields_stiffness()
@@ -394,7 +394,7 @@ class MassSpringDamperInput(QDialog):
 
     def attribute_callback(self):
 
-        str_nodes = self.lineEdit_selected_ids.text()
+        str_nodes = self.lineEdit_node_ids.text()
         stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
         if stop:
             return True
@@ -1021,9 +1021,9 @@ class MassSpringDamperInput(QDialog):
 
     def remove_callback(self):
 
-        if self.lineEdit_selected_ids.text() != "":
+        if self.lineEdit_node_ids.text() != "":
 
-            node_id = int(self.lineEdit_selected_ids.text())
+            node_id = int(self.lineEdit_node_ids.text())
 
             if self.checkBox_remove_mass.isChecked():
                 self.properties._remove_nodal_property("lumped_masses", node_ids=node_id)
@@ -1090,7 +1090,7 @@ class MassSpringDamperInput(QDialog):
 
         else:
             if self.cache_tab == 1:
-                self.lineEdit_selected_ids.setText("")
+                self.lineEdit_node_ids.setText("")
             self.selection_frame.setDisabled(False)
             self.selection_callback()
 
@@ -1099,7 +1099,7 @@ class MassSpringDamperInput(QDialog):
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
         app().main_window.update_plots()
-        self.load_treeWidgets_info()
+        self.load_nodes_info()
 
     def text_label(self, mask, load_labels):
         
@@ -1120,7 +1120,7 @@ class MassSpringDamperInput(QDialog):
             text = "[{}]".format(*labels)
         return text
 
-    def load_treeWidgets_info(self):
+    def load_nodes_info(self):
 
         self.treeWidget_masses.clear()
         self.treeWidget_springs.clear()
@@ -1170,23 +1170,31 @@ class MassSpringDamperInput(QDialog):
         self.update_tabs_visibility()
 
     def on_click_item_masses(self, item):
-        # self.current_selection = "lumped masses"
         self.pushButton_remove.setDisabled(False)
-        self.lineEdit_selected_ids.setText(item.text(0))
+        if item.text(0) != "":
+            self.lineEdit_node_ids.setText(item.text(0))
+            node_id = int(item.text(0))
+            app().main_window.set_selection(nodes=[node_id])
 
     def on_doubleclick_item_masses(self, item):
         self.on_click_item_masses(item)
 
     def on_click_item_springs(self, item):
         self.pushButton_remove.setDisabled(False)
-        self.lineEdit_selected_ids.setText(item.text(0))
+        if item.text(0) != "":
+            self.lineEdit_node_ids.setText(item.text(0))
+            node_id = int(item.text(0))
+            app().main_window.set_selection(nodes=[node_id])
 
     def on_doubleclick_item_springs(self, item):
         self.on_click_item_springs(item)
 
     def on_click_item_dampings(self, item):
         self.pushButton_remove.setDisabled(False)
-        self.lineEdit_selected_ids.setText(item.text(0))
+        if item.text(0) != "":
+            self.lineEdit_node_ids.setText(item.text(0))
+            node_id = int(item.text(0))
+            app().main_window.set_selection(nodes=[node_id])
 
     def on_doubleclick_item_dampings(self, item):
         self.on_click_item_dampings(item)

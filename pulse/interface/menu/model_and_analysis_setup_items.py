@@ -22,12 +22,6 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
         self._create_items()
         self._create_connections()
-        self._update_items()
-
-    def keyPressEvent(self, event):
-        """This deals with key events that are directly linked with the menu."""
-        if event.key() == Qt.Key_F5:
-            self.item_child_run_analysis_callback()
 
     def _create_items(self):
         """Creates all TreeWidgetItems."""
@@ -58,18 +52,14 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_radiation_impedance = self.add_item('Set Radiation Impedance')
         self.item_child_add_perforated_plate = self.add_item('Add Perforated Plate')
         self.item_child_set_acoustic_element_length_correction = self.add_item('Set Element Length Correction')
-        self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
         self.item_child_add_compressor_excitation = self.add_item('Add Compressor Excitation')
+        self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
         #
-        self.item_top_analysis = self.add_top_item('Analysis')
-        self.item_child_select_analysis_type = self.add_item('Select Analysis Type')
-        self.item_child_analysis_setup = self.add_item('Analysis Setup')
-        self.item_child_run_analysis = self.add_item('Run Analysis')
-
-        self.top_level_items = [self.item_top_general_settings,
+        self.top_level_items = [
+                                self.item_top_general_settings,
                                 self.item_top_structural_model_setup,
-                                self.item_top_acoustic_model_setup,
-                                self.item_top_analysis]
+                                self.item_top_acoustic_model_setup
+                                ]
 
     def _create_connections(self):
         #
@@ -100,13 +90,8 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_radiation_impedance.clicked.connect(self.item_child_set_radiation_impedance_callback)
         self.item_child_add_perforated_plate.clicked.connect(self.item_child_add_perforated_plate_callback)
         self.item_child_set_acoustic_element_length_correction.clicked.connect(self.item_child_set_acoustic_element_length_correction_callback)
-        self.item_child_turn_off_acoustic_elements.clicked.connect(self.item_child_turn_off_acoustic_elements_callback)
         self.item_child_add_compressor_excitation.clicked.connect(self.item_child_add_compressor_excitation_callback)
-        #
-        # Analysis Setup
-        self.item_child_select_analysis_type.clicked.connect(self.item_child_select_analysis_type_callback)
-        self.item_child_analysis_setup.clicked.connect(self.item_child_analisys_setup_callback)
-        self.item_child_run_analysis.clicked.connect(self.item_child_run_analysis_callback)
+        self.item_child_turn_off_acoustic_elements.clicked.connect(self.item_child_turn_off_acoustic_elements_callback)
         #
         app().main_window.theme_changed.connect(self.set_theme)
 
@@ -261,18 +246,6 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         app().main_window.input_ui.add_compressor_excitation()
         app().main_window.set_input_widget(None)
 
-    def item_child_select_analysis_type_callback(self):
-        app().main_window.input_ui.analysis_type_input()
-        self._update_items()
-    
-    def item_child_analisys_setup_callback(self):
-        app().main_window.input_ui.analysis_setup()
-        self._update_items()
-
-    def item_child_run_analysis_callback(self):
-        app().main_window.input_ui.run_analysis()
-        self._update_items()
-
     def enable_actions_according_to_import_type(self):
         import_type = app().project.model.mesh.import_type
         if import_type == 0:
@@ -314,42 +287,9 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_radiation_impedance.setDisabled(bool_key)
         self.item_child_add_perforated_plate.setDisabled(bool_key)
         self.item_child_set_acoustic_element_length_correction.setDisabled(bool_key)
-        self.item_child_turn_off_acoustic_elements.setDisabled(bool_key)
         self.item_child_add_compressor_excitation.setDisabled(bool_key)
-        #
-        self.item_child_select_analysis_type.setDisabled(bool_key)
-        if bool_key:
-            self.item_child_analysis_setup.setDisabled(True)
-            self.item_child_run_analysis.setDisabled(True)
-
-    def _update_items(self):
-        """ Enables and disables the child items on the menu after
-            the solution is done.
-        """
-        self.modify_model_setup_items_access(False)
-        self.item_child_analysis_setup.setDisabled(True)
-        self.item_child_run_analysis.setDisabled(True)
-                    
-        if self.project.analysis_id in [None, 2, 4]:
-            self.item_child_analysis_setup.setDisabled(True)
-        else:
-            self.item_child_analysis_setup.setDisabled(False)
-        
-        if self.project.analysis_id is not None and self.project.setup_analysis_complete:
-            self.item_child_run_analysis.setDisabled(False)
-            
-    def update_structural_analysis_visibility_items(self):
-        self.item_top_structural_model_setup.setHidden(False)
-        self.item_top_acoustic_model_setup.setHidden(True)
-        
-    def update_acoustic_analysis_visibility_items(self):
-        self.item_top_structural_model_setup.setHidden(True)
-        self.item_top_acoustic_model_setup.setHidden(False)
-
-    def update_coupled_analysis_visibility_items(self):
-        self.item_top_structural_model_setup.setHidden(False)
-        self.item_top_acoustic_model_setup.setHidden(False)
-
+        self.item_child_turn_off_acoustic_elements.setDisabled(bool_key)
+ 
     def set_theme(self, theme : str):
 
         if theme == "dark":

@@ -358,14 +358,10 @@ class SetCrossSectionInput(QDialog):
             self.tabWidget_general.setCurrentIndex(0)
 
             if len(section_parameters) == 6:
-                self.update_section_entries(section_type,
-                                            section_parameters,
-                                            variable_section=False)
+                self.update_pipe_section_entries(section_type, section_parameters)
 
             elif len(section_parameters) == 10:
-                self.update_section_entries(section_type,
-                                            section_parameters,
-                                            variable_section=True)
+                self.update_pipe_section_entries(section_type, section_parameters)
 
                 if len(line_ids) == 1:
                     line_elements = app().project.model.mesh.elements_from_line[line_ids[0]]
@@ -374,10 +370,7 @@ class SetCrossSectionInput(QDialog):
 
         elif element_type == "beam_1":
             self.tabWidget_general.setCurrentIndex(1)
-
-            self.update_section_entries(section_type,
-                                        section_parameters,
-                                        variable_section=False)    
+            self.update_beam_section_entries(section_type, section_parameters)    
 
     def check_if_lines_belongs_to_psd(self, line_ids: list):
 

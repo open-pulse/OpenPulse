@@ -1,21 +1,22 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_data_files
 
+
+datas = [
+    # we need to add the paths in pairs
+    ('pulse/interface/data/', 'pulse/interface/data/'),
+    ('pulse/libraries/', 'pulse/libraries/'),
+]
+datas += collect_data_files('molde')
+datas += collect_data_files('opps')
 
 a = Analysis(
     ['pulse/launch.py'],
     pathex=[],
     binaries=[],
-
-    # we need to add the paths in pairs
-    datas=[
-        ('pulse/interface/data/', 'pulse/interface/data/'),
-        ('pulse/libraries/', 'pulse/libraries/'),
-    ],
+    datas=datas,
     hiddenimports=[
         "vtk",
-        "vtkLogger",
-        "vtkObject",
-        "vtkModules",
     ],
     hookspath=[],
     hooksconfig={},

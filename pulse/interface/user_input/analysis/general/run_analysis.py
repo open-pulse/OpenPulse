@@ -19,11 +19,12 @@ class RunAnalysisInput():
         self.model = app().project.model
 
         self._initialize()
-        self._load_analysis_info()
+        self._load_analysis_setup()
 
         LoadingWindow(self.run_analysis).run()
     
     def run_analysis(self):
+
         logging.info("Processing the cross-sections [1/4]")
         self.process_cross_sections()
         if self.project.preprocessor.stop_processing:
@@ -55,18 +56,21 @@ class RunAnalysisInput():
         self.complete = False
         self.solve = None
 
-    def _load_analysis_info(self):
-        self.analysis_id = self.project.analysis_id
+    def _load_analysis_setup(self):
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        self.analysis_id = analysis_setup["analysis_id"]
+        self.modes = analysis_setup.get("modes", 40)
+        self.sigma_factor = analysis_setup.get("sigma_factor", 40)
+
         self.analysis_type_label = self.project.analysis_type_label
         self.frequencies = self.model.frequencies
-        self.modes = self.project.modes
 
     def pre_non_linear_convergence_plot(self):
         import matplotlib.pyplot as plt
         from matplotlib.animation import FuncAnimation
 
         if isinstance(self.solve, AcousticSolver):
-            if self.analysis_id in [3,5,6]:
+            if self.analysis_id in [3, 5, 6]:
                 if self.solve.non_linear:
                     fig = plt.figure(figsize=[8,6])
                     ax  = fig.add_subplot(1,1,1)
@@ -137,7 +141,7 @@ class RunAnalysisInput():
             self.solution_acoustic, self.convergence_data_log = self.solve.direct_method()
 
         elif self.analysis_id == 5: # Coupled Harmonic Analysis - Direct Method
-            
+
             t0_acoustic = time()
             self.solution_acoustic, self.convergence_data_log = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
             self.project.time_to_solve_acoustic_model = time() - t0_acoustic
@@ -163,13 +167,20 @@ class RunAnalysisInput():
             self.project.time_to_solve_structural_model = time() - t0_structural
             
         elif self.analysis_id == 2: # Structural Modal Analysis
-            self.natural_frequencies_structural, self.solution_structural = self.solve.modal_analysis(modes = self.modes, sigma=self.project.sigma)
+            self.natural_frequencies_structural, self.solution_structural = self.solve.modal_analysis(  
+                                                                                                      modes = self.modes, 
+                                                                                                      sigma_factor = self.sigma_factor
+                                                                                                      )
 
         elif self.analysis_id == 4: # Acoustic Modal Analysis
-            self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes, sigma=self.project.sigma)
+            self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(
+                                                                                                  modes = self.modes, 
+                                                                                                  sigma_factor = self.sigma_factor
+                                                                                                  )
 
         elif self.analysis_id == 7: # Static Analysis
             self.solution_structural = self.solve.static_analysis()
+
         else:
             raise NotImplementedError("Not implemented analysis")
 
@@ -278,12 +289,12 @@ class RunAnalysisInput():
         # WARNINGS REACHED DURING SOLUTION
         title = self.analysis_type_label
         message = ""
-        if self.analysis_type_label == "Harmonic Analysis - Structural":
+        if self.analysis_id in [0, 1]:
             if self.solve.flag_ModeSup_prescribed_NonNull_DOFs:
                 message = self.solve.warning_ModeSup_prescribedDOFs
             if self.solve.flag_Clump and self.analysis_id==1:
                 message = self.solve.warning_Clump[0]
-        if self.analysis_type_label == "Modal Analysis - Structural":
+        if self.analysis_id in [2]:
             if self.solve.flag_Modal_prescribed_NonNull_DOFs:
                 message = self.solve.warning_Modal_prescribedDOFs[0] 
         if message != "":

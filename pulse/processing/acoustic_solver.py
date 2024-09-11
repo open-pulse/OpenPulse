@@ -152,7 +152,7 @@ class AcousticSolver:
 
         return volume_velocity_combined
 
-    def modal_analysis(self, modes=20, which='LM', sigma=0.01):
+    def modal_analysis(self, **kwargs):
         """
         This method evaluate the FEM acoustic modal analysis. The FETM formulation is not suitable to performe modal analysis.
 
@@ -185,13 +185,17 @@ class AcousticSolver:
             Modal shapes
         """
 
+        modes = kwargs.get("modes", 40)
+        which = kwargs.get("which", "LM")
+        sigma_factor = kwargs.get("sigma_factor", 1e-2)
+
         K, M = self.assembly.get_global_matrices_modal()
         K_link, M_link = self.assembly.get_link_global_matrices_modal()
 
         K_add = K + K_link
         M_add = M + M_link
 
-        eigen_values, eigen_vectors = eigs(K_add, M=M_add, k=modes, which=which, sigma=sigma)
+        eigen_values, eigen_vectors = eigs(K_add, M=M_add, k=modes, which=which, sigma=sigma_factor)
 
         positive_real = np.absolute(np.real(eigen_values))
         natural_frequencies = np.sqrt(positive_real)/(2*np.pi)

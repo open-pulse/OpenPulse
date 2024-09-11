@@ -57,7 +57,6 @@ class Project:
         self.plot_pressure_field = False
         self.plot_stress_field = False
         self.is_file_loaded = False
-        self.setup_analysis_complete = False
         self.none_project_action = False
         self.stress_stiffening_enabled = False
 
@@ -80,11 +79,15 @@ class Project:
         self.max_stress = ""
         self.stress_label = ""
 
+        # default animation settings
+        self.frames = 40
+        self.cycles = 3
+
     def initial_load_project_actions(self):
 
         try:
 
-            self.reset(reset_all=True)
+            self.reset(reset_all = True)
 
             if app().pulse_file.check_pipeline_data():
                 self.process_geometry_and_mesh()
@@ -116,7 +119,7 @@ class Project:
 
     def reset_project(self, **kwargs):
 
-        self.reset(reset_all=True)
+        self.reset(reset_all = True)
         app().pulse_file.remove_element_properties_from_project_file()
         app().pulse_file.remove_nodal_properties_from_project_file()
 
@@ -234,8 +237,13 @@ class Project:
 
         return False
 
-    def update_project_analysis_setup_state(self, _bool):
-        self.setup_analysis_complete = _bool
+    def is_analysis_setup_complete(self):
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        if isinstance(analysis_setup, dict):
+            if "analysis_id" in analysis_setup.keys():
+                self.analysis_id = analysis_setup["analysis_id"]
+                return True
+        return False
 
     def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
         if parameters is None:
@@ -288,13 +296,6 @@ class Project:
         for i in self.preprocessor.mesh.geometry_points:
             points[i] = self.preprocessor.nodes[i]
         return points
-
-    def set_modes_sigma(self, modes, sigma=1e-2):
-        self.modes = modes
-        self.sigma = sigma
-
-    def get_modes(self):
-        return self.modes
 
     def set_analysis_type(self, analysis_id: int, analysis_text: str, method_text = ""):
         self.analysis_id = analysis_id

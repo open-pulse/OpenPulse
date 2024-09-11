@@ -86,9 +86,9 @@ class PlotAcousticPressureField(QWidget):
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
         if index >= 2:
-            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
+            app().main_window.animation_toolbar.setDisabled(True)
         else:
-            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
+            app().main_window.animation_toolbar.setDisabled(False) 
 
     def load_user_preference_colormap(self):
         try:
