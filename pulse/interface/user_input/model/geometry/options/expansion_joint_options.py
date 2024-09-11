@@ -26,31 +26,19 @@ class ExpansionJointOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        if not self.expansion_joint_info:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
 
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        self.pipeline.add_expansion_joint(
-            xyz,
-            diameter = self.expansion_joint_info.get("effective_diameter", 0),
-            thickness = 0,
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.add_expansion_joint(xyz, **kwargs)
 
     def attach_callback(self):
-        if self.expansion_joint_info is None:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
-
-        parameters = self.expansion_joint_info.get("section_parameters")
-        if parameters is None:
-            return
-
-        self.pipeline.connect_expansion_joints(
-            diameter = self.expansion_joint_info.get("effective_diameter", 0),
-            thickness = 0,
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.connect_expansion_joints(**kwargs)
 
     def configure_structure(self):
         app().main_window.close_dialogs()
@@ -62,6 +50,7 @@ class ExpansionJointOptions(StructureOptions):
             return
 
         self.expansion_joint_info = expansion_joint_input.expansion_joint_info
+        self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
@@ -74,9 +63,23 @@ class ExpansionJointOptions(StructureOptions):
 
         self.geometry_designer_widget.create_structure_frame.setEnabled(enable)
 
+    def _get_kwargs(self) -> dict:
+        if self.expansion_joint_info is None:
+            return
+
+        parameters = self.expansion_joint_info.get("section_parameters")
+        if parameters is None:
+            return
+
+        return dict(
+            diameter = self.expansion_joint_info.get("effective_diameter", 0),
+            thickness = 0,
+            extra_info = self._get_extra_info(),
+        )
+
     def _get_extra_info(self):
         return dict(
             structural_element_type = "expansion_joint",
             expansion_joint_info = deepcopy(self.expansion_joint_info),
-            current_material_info = self.geometry_designer_widget.current_material_info,
+            material_info = self.geometry_designer_widget.current_material_info,
         )

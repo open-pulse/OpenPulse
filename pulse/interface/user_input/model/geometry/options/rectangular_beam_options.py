@@ -25,37 +25,19 @@ class RectangularBeamOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        if not self.cross_section_info:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
 
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
-            return
-        
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        self.pipeline.add_rectangular_beam(
-            xyz,
-            width = parameters[0],
-            height = parameters[1],
-            thickness = (parameters[0] - parameters[2]) / 2,
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.add_rectangular_beam(xyz, **kwargs)
 
     def attach_callback(self):
-        if self.cross_section_info is None:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
-            return
-
-        self.pipeline.connect_rectangular_beams(
-            width = parameters[0],
-            height = parameters[1],
-            thickness = (parameters[0] - parameters[2]) / 2,
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.connect_rectangular_beams(**kwargs)
 
     def configure_structure(self):
         self.cross_section_widget.set_inputs_to_geometry_creator()     
@@ -73,6 +55,7 @@ class RectangularBeamOptions(StructureOptions):
             return
 
         self.cross_section_info = self.cross_section_widget.beam_section_info
+        self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
@@ -85,9 +68,24 @@ class RectangularBeamOptions(StructureOptions):
 
         self.geometry_designer_widget.create_structure_frame.setEnabled(enable)
 
+    def _get_kwargs(self) -> dict:
+        if self.cross_section_info is None:
+            return
+
+        parameters = self.cross_section_info.get("section_parameters")
+        if parameters is None:
+            return
+
+        return dict(
+            width = parameters[0],
+            height = parameters[1],
+            thickness = (parameters[0] - parameters[2]) / 2,
+            extra_info = self._get_extra_info(),
+        )
+
     def _get_extra_info(self):
         return dict(
             structural_element_type = "beam_1",
             cross_section_info = deepcopy(self.cross_section_info),
-            current_material_info = self.geometry_designer_widget.current_material_info,
+            material_info = self.geometry_designer_widget.current_material_info,
         )

@@ -257,7 +257,7 @@ class GeometryDesignerWidget(QWidget):
         if not issubclass(self.current_structure_type, Point):
             self.xyz_changed_callback()
 
-        self.current_options.update_permissions()
+        self._update_permissions()
         self._update_information_text()
         self.x_line_edit.setFocus()
 
@@ -282,6 +282,9 @@ class GeometryDesignerWidget(QWidget):
 
     def configure_structure_callback(self):
         self.current_options.configure_structure()
+        self._update_permissions()
+        self._update_information_text()
+        self.render_widget.update_plot(reset_camera=False)
 
     def cross_section_confirm_callback(self):
         self.cross_section_widget.complete = True
@@ -296,7 +299,7 @@ class GeometryDesignerWidget(QWidget):
             return
         
         self.current_options.xyz_callback(xyz)
-        self.current_options.update_permissions()
+        self._update_permissions()
         self.render_widget.update_plot(reset_camera=True)
 
     def xyz_apply_evaluation_callback(self):
@@ -390,7 +393,7 @@ class GeometryDesignerWidget(QWidget):
 
     def attach_selection_callback(self):
         self.current_options.attach_callback()
-        self.current_options.update_permissions()
+        self._update_permissions()
         self.render_widget.update_plot(reset_camera=True)
         self._reset_xyz()
 
@@ -526,32 +529,6 @@ class GeometryDesignerWidget(QWidget):
 
         self.render_widget.update_plot(reset_camera=True)
     
-    def _get_parameters(self) -> dict | None:
-        current_widget = self.options_stack_widget.currentWidget()
-        kwargs = current_widget.get_parameters()
-        if kwargs is None:
-            return
-        if self.current_material_info is not None:
-            kwargs["extra_info"]["material_info"] = self.current_material_info
-        return kwargs
-
-    def _update_section_of_selected_structures(self):
-        kwargs = self._get_parameters()
-        if kwargs is None:
-            return
-
-        for structure in self.pipeline.selected_structures:
-            if issubclass(self.current_structure_type, Pipe):
-                _type = Pipe | Bend
-            else:
-                _type = self.current_structure_type
-
-            if not isinstance(structure, _type):
-                continue
-
-            for k, v in kwargs.items():
-                setattr(structure, k, v)
-    
     def _update_material_of_selected_structures(self):
         for structure in self.pipeline.selected_structures:
             structure.extra_info["material_info"] =  self.current_material_info
@@ -586,12 +563,11 @@ class GeometryDesignerWidget(QWidget):
         return structures.get(structure_name)
 
     def _update_information_text(self):
-        return
         cross_section_info = getattr(self.current_options, "cross_section_info", None)
 
         section_label = ""
         section_parameters = ""
-        if cross_section_info is not None:
+        if cross_section_info:
             section_label = cross_section_info["section_type_label"]
             section_parameters = cross_section_info["section_parameters"]
 
@@ -603,7 +579,7 @@ class GeometryDesignerWidget(QWidget):
 
         message = "Active configuration\n\n"
 
-        if cross_section_info is not None:
+        if cross_section_info:
             if section_label == "Reducer":
                 message += f"Section type: {section_label} (variable)\n"
             elif section_label  == "Pipe":
@@ -636,34 +612,9 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.set_info_text(message)
 
     def _update_permissions(self):
-        return
-        # current_widget = self.options_stack_widget.currentWidget()
-        # cross_section_info = getattr(current_widget, "cross_section_info", None)
-        # expansion_joint_info = getattr(current_widget, "expansion_joint_info", None)
-        # valve_info = getattr(current_widget, "valve_info", None)
-
-        # # usefull variables
-        # have_selection = bool(self.pipeline.selected_points or self.pipeline.selected_structures)
-        # have_staged = bool(self.pipeline.staged_points or self.pipeline.staged_structures)
-        # widget_configured = (
-        #     (cross_section_info is not None) 
-        #     or (expansion_joint_info is not None) 
-        #     or (valve_info is not None)
-        # )
-        # multiple_points_selected = len(self.pipeline.selected_points) >= 1
-        # is_point = issubclass(self.current_structure_type, Point)
-        # is_beam = issubclass(self.current_structure_type, Beam)
-
-        # self.set_material_button.setDisabled(False)
-
-        # self.add_button.setDisabled(False)
-        # self.delete_button.setDisabled(False)
-        # self.attach_button.setDisabled(False)
-
-        # # disable_xyz = (not is_point and not widget_configured)
-        # self.x_line_edit.setDisabled(False)
-        # self.y_line_edit.setDisabled(False)
-        # self.z_line_edit.setDisabled(False)
+        if self.current_options is None:
+            return
+        self.current_options.update_permissions()
 
     def _load_project(self):
         app().loader.load_project_data()

@@ -25,37 +25,18 @@ class PipeOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        if not self.cross_section_info:
-            return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
-            return
-        
+        kwargs = self._get_kwargs()
+        if kwargs is None:
+            return        
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        self.pipeline.add_bent_pipe(
-            xyz,
-            diameter = parameters[0],
-            thickness = parameters[1],
-            curvature_radius = self._get_bending_radius(parameters[0]),
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.add_bent_pipe(xyz, **kwargs)
 
     def attach_callback(self):
-        if self.cross_section_info is None:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
-            return
-
-        self.pipeline.connect_bent_pipes(
-            diameter = parameters[0],
-            thickness = parameters[1],
-            curvature_radius = self._get_bending_radius(parameters[0]),
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.connect_bent_pipes(**kwargs)
 
     def configure_structure(self):
         self.cross_section_widget._add_icon_and_title()
@@ -74,7 +55,20 @@ class PipeOptions(StructureOptions):
             return
 
         self.cross_section_info = self.cross_section_widget.pipe_section_info
+        self.configure_section_of_selected()
         self.update_permissions()
+
+    def configure_section_of_selected(self):
+        kwargs = self._get_kwargs()
+        if kwargs is None:
+            return
+
+        for structure in self.pipeline.selected_structures:
+            if not isinstance(structure, Pipe | Bend):
+                continue
+
+            for k, v in kwargs.items():
+                setattr(structure, k, v)
 
     def update_permissions(self):
         if self.cross_section_info:
@@ -85,6 +79,21 @@ class PipeOptions(StructureOptions):
             enable = False
 
         self.geometry_designer_widget.create_structure_frame.setEnabled(enable)
+    
+    def _get_kwargs(self):
+        if not self.cross_section_info:
+            return
+
+        parameters = self.cross_section_info.get("section_parameters")
+        if parameters is None:
+            return
+
+        return dict(
+            diameter = parameters[0],
+            thickness = parameters[1],
+            curvature_radius = self._get_bending_radius(parameters[0]),
+            extra_info = self._get_extra_info(),
+        )
 
     def _get_bending_radius(self, diameter):
         geometry_input_widget = app().main_window.geometry_input_wigdet
@@ -110,5 +119,5 @@ class PipeOptions(StructureOptions):
         return dict(
             structural_element_type = "pipe_1",
             cross_section_info = deepcopy(self.cross_section_info),
-            current_material_info = self.geometry_designer_widget.current_material_info,
+            material_info = self.geometry_designer_widget.current_material_info,
         )

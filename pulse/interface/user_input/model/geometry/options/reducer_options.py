@@ -25,45 +25,19 @@ class ReducerOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        if not self.cross_section_info:
-            return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
         
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        self.pipeline.add_reducer_eccentric(
-            xyz,
-            initial_diameter = parameters[0],
-            final_diameter = parameters[4],
-            thickness = parameters[1],
-            initial_offset_y = parameters[2],
-            initial_offset_z = parameters[3],
-            final_offset_y = parameters[6],
-            final_offset_z = parameters[7],
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.add_reducer_eccentric(xyz, **kwargs)
 
     def attach_callback(self):
-        if self.cross_section_info is None:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
-            return
-
-        self.pipeline.connect_reducer_eccentrics(
-            initial_diameter = parameters[0],
-            final_diameter = parameters[4],
-            thickness = parameters[1],
-            initial_offset_y = parameters[2],
-            initial_offset_z = parameters[3],
-            final_offset_y = parameters[6],
-            final_offset_z = parameters[7],
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.connect_reducer_eccentrics(**kwargs)
 
     def configure_structure(self):
         self.cross_section_widget.set_inputs_to_geometry_creator()     
@@ -81,6 +55,7 @@ class ReducerOptions(StructureOptions):
             return
 
         self.cross_section_info = self.cross_section_widget.pipe_section_info
+        self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
@@ -93,9 +68,29 @@ class ReducerOptions(StructureOptions):
 
         self.geometry_designer_widget.create_structure_frame.setEnabled(enable)
 
+    def _get_kwargs(self) -> dict:
+        if self.cross_section_info is None:
+            return
+
+        parameters = self.cross_section_info.get("section_parameters")
+        if parameters is None:
+            return
+
+        return dict(
+            initial_diameter = parameters[0],
+            final_diameter = parameters[4],
+            thickness = parameters[1],
+            initial_offset_y = parameters[2],
+            initial_offset_z = parameters[3],
+            final_offset_y = parameters[6],
+            final_offset_z = parameters[7],
+            extra_info = self._get_extra_info(),
+        )
+
+
     def _get_extra_info(self):
         return dict(
             structural_element_type = "pipe_1",
             cross_section_info = deepcopy(self.cross_section_info),
-            current_material_info = self.geometry_designer_widget.current_material_info,
+            material_info = self.geometry_designer_widget.current_material_info,
         )
