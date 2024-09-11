@@ -57,7 +57,7 @@ class VolumeVelocityInput(QDialog):
         # QLineEdit
         self.lineEdit_imag_value: QLineEdit
         self.lineEdit_real_value: QLineEdit
-        self.lineEdit_selection_id: QLineEdit
+        self.lineEdit_node_ids: QLineEdit
         self.lineEdit_table_path: QLineEdit
 
         # QPushButton
@@ -101,7 +101,7 @@ class VolumeVelocityInput(QDialog):
 
         if selected_nodes:
             text = ", ".join([str(i) for i in selected_nodes])
-            self.lineEdit_selection_id.setText(text)
+            self.lineEdit_node_ids.setText(text)
 
             if len(selected_nodes) == 1:
                 for (property, *args), data in self.properties.nodal_properties.items():
@@ -109,24 +109,22 @@ class VolumeVelocityInput(QDialog):
 
                         if "table_paths" in data.keys():
                             table_paths = data["table_paths"]
-                            self.tabWidget_main.setCurrentIndex(1)
                             self.lineEdit_table_path.setText(table_paths[0])
                         else:
-                            self.tabWidget_main.setCurrentIndex(0)
                             real_value = float(data["real_values"][0])
                             imag_value = float(data["imag_values"][0])
                             self.lineEdit_real_value.setText(str(real_value))
                             self.lineEdit_imag_value.setText(str(imag_value))
 
     def tab_event_callback(self):
-        self.lineEdit_selection_id.setText("")
+        self.lineEdit_node_ids.setText("")
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 1:
-            self.lineEdit_selection_id.setText("")
-            self.lineEdit_selection_id.setDisabled(True)
+            self.lineEdit_node_ids.setText("")
+            self.lineEdit_node_ids.setDisabled(True)
         else:
             self.selection_callback()
-            self.lineEdit_selection_id.setDisabled(False)
+            self.lineEdit_node_ids.setDisabled(False)
 
     def update_tabs_visibility(self):
         self.tabWidget_main.setTabVisible(1, False)
@@ -192,10 +190,10 @@ class VolumeVelocityInput(QDialog):
 
     def constant_values_attribution_callback(self):
 
-        lineEdit = self.lineEdit_selection_id.text()
+        lineEdit = self.lineEdit_node_ids.text()
         stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
         if stop:
-            self.lineEdit_selection_id.setFocus()
+            self.lineEdit_node_ids.setFocus()
             return
 
         stop, volume_velocity = self.check_complex_entries(self.lineEdit_real_value, self.lineEdit_imag_value)
@@ -228,9 +226,8 @@ class VolumeVelocityInput(QDialog):
 
             self.properties._set_nodal_property("volume_velocity", data, node_id)
 
-        app().pulse_file.write_nodal_properties_in_file()
-        app().main_window.update_plots()
-        self.close()
+        self.actions_to_finalize()
+        # self.close()
 
         print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
 
@@ -325,10 +322,10 @@ class VolumeVelocityInput(QDialog):
 
     def table_values_attribution_callback(self):
 
-        str_nodes = self.lineEdit_selection_id.text()
+        str_nodes = self.lineEdit_node_ids.text()
         stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
         if stop:
-            self.lineEdit_selection_id.setFocus()
+            self.lineEdit_node_ids.setFocus()
             return
 
         self.remove_conflicting_excitations(node_ids)
@@ -365,13 +362,13 @@ class VolumeVelocityInput(QDialog):
 
                 self.properties._set_nodal_property("volume_velocity", data, node_id)
 
-            app().pulse_file.write_nodal_properties_in_file()
-            app().pulse_file.write_imported_table_data_in_file()
             # self.process_table_file_removal(table_names)
-            app().main_window.update_plots()
 
-            print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")   
-            self.close()
+            self.actions_to_finalize()
+            # self.close()
+            app().pulse_file.write_imported_table_data_in_file()
+
+            print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
 
         else:
             title = "Additional inputs required"
@@ -391,10 +388,13 @@ class VolumeVelocityInput(QDialog):
 
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
-        self.lineEdit_selection_id.setText(item.text(0))
+        if item.text(0) != "":
+            self.lineEdit_node_ids.setText(item.text(0))
+            node_id = int(item.text(0))
+            app().main_window.set_selection(nodes=[node_id])
 
     def on_doubleclick_item(self, item):
-        self.lineEdit_selection_id.setText(item.text(0))
+        self.lineEdit_node_ids.setText(item.text(0))
 
     def remove_conflicting_excitations(self, node_ids: int | list | tuple):
 
@@ -410,11 +410,21 @@ class VolumeVelocityInput(QDialog):
 
         app().pulse_file.write_nodal_properties_in_file()
 
+    def remove_table_files_from_nodes(self, node_ids : list):
+        table_names = self.properties.get_nodal_related_table_names("volume_velocity", node_ids)
+        self.process_table_file_removal(table_names)
+
+    def process_table_file_removal(self, table_names : list):
+        if table_names:
+            for table_name in table_names:
+                self.properties.remove_imported_tables("acoustic", table_name)
+            app().pulse_file.write_imported_table_data_in_file()
+
     def remove_callback(self):
 
-        if  self.lineEdit_selection_id.text() != "":
+        if  self.lineEdit_node_ids.text() != "":
 
-            str_nodes = self.lineEdit_selection_id.text()
+            str_nodes = self.lineEdit_node_ids.text()
             stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
             if stop:
                 return
@@ -422,9 +432,7 @@ class VolumeVelocityInput(QDialog):
             self.remove_table_files_from_nodes(node_ids[0])
             self.properties._remove_nodal_property("volume_velocity", node_ids[0])
 
-            app().pulse_file.write_nodal_properties_in_file()
-            self.load_nodes_info()
-            app().main_window.update_plots()
+            self.actions_to_finalize()
             # self.close()
 
     def reset_callback(self):
@@ -451,22 +459,17 @@ class VolumeVelocityInput(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("volume_velocity")
-            app().pulse_file.write_nodal_properties_in_file()
-            app().main_window.update_plots()
-            self.close()
 
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("volume_velocity", node_ids)
-        self.process_table_file_removal(table_names)
+            self.actions_to_finalize()
+            # self.close()
 
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+    def actions_to_finalize(self):
+        app().pulse_file.write_nodal_properties_in_file()
+        self.load_nodes_info()
+        app().main_window.update_plots()
 
     def reset_input_fields(self):
-        self.lineEdit_selection_id.setText("")
+        self.lineEdit_node_ids.setText("")
         self.lineEdit_real_value.setText("")
         self.lineEdit_imag_value.setText("")
         self.lineEdit_table_path.setText("")

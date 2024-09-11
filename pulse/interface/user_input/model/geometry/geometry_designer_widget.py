@@ -1,30 +1,47 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox
 from PyQt5 import uic
+from PyQt5.QtCore import Qt
+
 import re
 from numbers import Number
 import numpy as np
 import math
 from copy import deepcopy
-from opps.model import Point, Pipe, Bend, Flange, ExpansionJoint, Valve, Reducer, IBeam, CBeam, TBeam, CircularBeam, RectangularBeam, Beam
 from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
+from opps.model import (
+    Point,
+    Pipe,
+    Bend,
+    Flange,
+    ExpansionJoint,
+    Valve,
+    Reducer,
+    IBeam,
+    CBeam,
+    TBeam,
+    CircularBeam,
+    RectangularBeam,
+)
 
 from pulse import app, UI_DIR
 from molde.utils import TreeInfo
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.model.geometry.edit_pipe_widget import EditPipeWidget
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
 
-from pulse.interface.user_input.model.geometry.pipe_options_widget import PipeOptionsWidget
-from pulse.interface.user_input.model.geometry.reducer_options_widget import ReducerOptionsWidget
-from pulse.interface.user_input.model.geometry.flange_options_widget import FlangeOptionsWidget
-from pulse.interface.user_input.model.geometry.valve_options_widget import ValveOptionsWidget
-from pulse.interface.user_input.model.geometry.expansion_joint_options_widget import ExpansionJointOptionsWidget
-from pulse.interface.user_input.model.geometry.rectangular_beam_options_widget import RectangularBeamOptionsWidget
-from pulse.interface.user_input.model.geometry.circular_beam_options_widget import CircularBeamOptionsWidget
-from pulse.interface.user_input.model.geometry.t_beam_options_widget import TBeamOptionsWidget
-from pulse.interface.user_input.model.geometry.i_beam_options_widget import IBeamOptionsWidget
-from pulse.interface.user_input.model.geometry.c_beam_options_widget import CBeamOptionsWidget
+from pulse.interface.user_input.model.geometry.options import (
+    StructureOptions,
+    PipeOptions,
+    FlangeOptions,
+    ReducerOptions,
+    TBeamOptions,
+    IBeamOptions,
+    CBeamOptions,
+    CircularBeamOptions,
+    RectangularBeamOptions,
+    ExpansionJointOptions,
+    ValveOptions,
+)
 
 
 class GeometryDesignerWidget(QWidget):
@@ -54,6 +71,11 @@ class GeometryDesignerWidget(QWidget):
         self.unit_combobox: QComboBox
         self.structure_combobox: QComboBox
         self.division_combobox: QComboBox
+        self.bending_options_combobox: QComboBox
+
+        # QFrame
+        self.frame_bending_options: QFrame
+        self.create_structure_frame: QFrame
 
         #QPushButton
         self.add_button: QPushButton
@@ -63,13 +85,14 @@ class GeometryDesignerWidget(QWidget):
         self.cancel_division_button: QPushButton
         self.delete_button: QPushButton
         self.finalize_button: QPushButton
-        self.set_fluid_button: QPushButton
+        self.configure_button: QPushButton
         self.set_material_button: QPushButton
 
         # QLineEdit
         self.x_line_edit: QLineEdit
         self.y_line_edit: QLineEdit
         self.z_line_edit: QLineEdit
+        self.bending_radius_line_edit: QLineEdit
 
         # QLabel
         self.dx_label: QLabel
@@ -91,42 +114,21 @@ class GeometryDesignerWidget(QWidget):
         self.empty_widget: QWidget
     
     def _create_layout(self):
-
         self.cross_section_widget = CrossSectionWidget()
-
-        self.pipe_options_widget = PipeOptionsWidget(self)
-        self.reducer_options_widget = ReducerOptionsWidget(self)
-        self.flange_options_widget = FlangeOptionsWidget(self)
-        self.valve_options_widget = ValveOptionsWidget(self)
-        self.expansion_joint_options_widget = ExpansionJointOptionsWidget(self)
-        self.rectangular_beam_options_widget = RectangularBeamOptionsWidget(self)
-        self.circular_beam_options_widget = CircularBeamOptionsWidget(self)
-        self.t_beam_options_widget = TBeamOptionsWidget(self)
-        self.i_beam_options_widget = IBeamOptionsWidget(self)
-        self.c_beam_options_widget = CBeamOptionsWidget(self)
-
-        self.options_stack_widget.addWidget(self.pipe_options_widget)
-        self.options_stack_widget.addWidget(self.reducer_options_widget)
-        self.options_stack_widget.addWidget(self.flange_options_widget)
-        self.options_stack_widget.addWidget(self.valve_options_widget)
-        self.options_stack_widget.addWidget(self.expansion_joint_options_widget)
-        self.options_stack_widget.addWidget(self.rectangular_beam_options_widget)
-        self.options_stack_widget.addWidget(self.circular_beam_options_widget)
-        self.options_stack_widget.addWidget(self.t_beam_options_widget)
-        self.options_stack_widget.addWidget(self.i_beam_options_widget)
-        self.options_stack_widget.addWidget(self.c_beam_options_widget)
-
         self.material_widget = MaterialInputs(self)
         self.material_widget.hide()
 
     def _create_connections(self):
+        self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.cross_section_confirm_callback)
+        self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.cross_section_confirm_callback)
+
         self.render_widget.selection_changed.connect(self.selection_callback)
         self.select_all_action.triggered.connect(self.select_all_callback)
 
         self.unit_combobox.currentTextChanged.connect(self.unity_changed_callback)
         self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         self.set_material_button.clicked.connect(self.show_material_widget_callback)
-        self.set_fluid_button.clicked.connect(self.show_fluid_widget_callback)
+        self.configure_button.clicked.connect(self.configure_structure_callback)
         self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material_callback)
 
         self.x_line_edit.textEdited.connect(self.xyz_changed_callback)
@@ -137,22 +139,14 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
         self.z_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
 
+        self.bending_options_combobox.currentIndexChanged.connect(self.xyz_changed_callback)
+        self.bending_radius_line_edit.textChanged.connect(self.xyz_changed_callback)
+
         self.division_combobox.currentTextChanged.connect(self.division_type_changed_callback)
         self.division_slider.valueChanged.connect(self.division_slider_callback)
         self.division_amount_spinbox.textChanged.connect(self.division_amount_spinbox_callback)
         self.cancel_division_button.clicked.connect(self.cancel_division_callback)
         self.apply_division_button.clicked.connect(self.apply_division_callback)
-
-        self.pipe_options_widget.edited.connect(self.options_changed_callback)
-        self.reducer_options_widget.edited.connect(self.options_changed_callback)
-        self.flange_options_widget.edited.connect(self.options_changed_callback)
-        self.valve_options_widget.edited.connect(self.options_changed_callback)
-        self.expansion_joint_options_widget.edited.connect(self.options_changed_callback)
-        self.rectangular_beam_options_widget.edited.connect(self.options_changed_callback)
-        self.circular_beam_options_widget.edited.connect(self.options_changed_callback)
-        self.t_beam_options_widget.edited.connect(self.options_changed_callback)
-        self.i_beam_options_widget.edited.connect(self.options_changed_callback)
-        self.c_beam_options_widget.edited.connect(self.options_changed_callback)
 
         self.add_button.clicked.connect(self.add_structure_callback)
         self.attach_button.clicked.connect(self.attach_selection_callback)
@@ -162,12 +156,22 @@ class GeometryDesignerWidget(QWidget):
         self.finalize_button.clicked.connect(self.finalize_callback)
 
     def _initialize(self):
-
         self.tags = list()
+
+        self.pipe_options = PipeOptions(self)
+        self.flange_options = FlangeOptions(self)
+        self.reducer_options = ReducerOptions(self)
+        self.rectangular_beam_options = RectangularBeamOptions(self)
+        self.circular_beam_options = CircularBeamOptions(self)
+        self.t_beam_options = TBeamOptions(self)
+        self.i_beam_options = IBeamOptions(self)
+        self.c_beam_options = CBeamOptions(self)
+        self.expansion_joint_options = ExpansionJointOptions(self)
+        self.valve_options = ValveOptions(self)
+        self.current_options: StructureOptions = self.pipe_options
 
         self.current_structure_type = None
         self.current_material_info = None
-        self._cached_sections = dict()
 
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback("pipe")
@@ -199,7 +203,7 @@ class GeometryDesignerWidget(QWidget):
         unit_pattern = re.compile(r"\[(m|mm|in)\]")
         for label in self.findChildren(QLabel):
             if unit_pattern.match(label.text()) is not None:
-                label.setText(unit_label_text)
+                label.setText(f"[{unit_label_text}]")
 
     def structure_type_changed_callback(self, structure_name: str):
         # the previous value before this change
@@ -207,40 +211,41 @@ class GeometryDesignerWidget(QWidget):
             self._reset_xyz()
 
         structure_name = structure_name.lower().strip()
-        self.current_structure_type = self._structure_name_to_class(structure_name)    
+        self.current_structure_type = self._structure_name_to_class(structure_name)  
 
-        self.options_stack_widget.setCurrentWidget(self.empty_widget)
         self._show_deltas_mode(True)
+        self.frame_bending_options.setEnabled(False)
 
         if issubclass(self.current_structure_type, Pipe):
-            self.options_stack_widget.setCurrentWidget(self.pipe_options_widget)
-
-        elif issubclass(self.current_structure_type, Reducer):
-            self.options_stack_widget.setCurrentWidget(self.reducer_options_widget)
+            self.frame_bending_options.setEnabled(True)
+            self.current_options = self.pipe_options
 
         elif issubclass(self.current_structure_type, Flange):
-            self.options_stack_widget.setCurrentWidget(self.flange_options_widget)
+            self.current_options = self.flange_options
 
-        elif issubclass(self.current_structure_type, Valve):
-            self.options_stack_widget.setCurrentWidget(self.valve_options_widget)
-
-        elif issubclass(self.current_structure_type, ExpansionJoint):
-            self.options_stack_widget.setCurrentWidget(self.expansion_joint_options_widget)
+        elif issubclass(self.current_structure_type, Reducer):
+            self.current_options = self.reducer_options
 
         elif issubclass(self.current_structure_type, RectangularBeam):
-            self.options_stack_widget.setCurrentWidget(self.rectangular_beam_options_widget)
+            self.current_options = self.rectangular_beam_options
 
         elif issubclass(self.current_structure_type, CircularBeam):
-            self.options_stack_widget.setCurrentWidget(self.circular_beam_options_widget)
+            self.current_options = self.circular_beam_options
 
         elif issubclass(self.current_structure_type, TBeam):
-            self.options_stack_widget.setCurrentWidget(self.t_beam_options_widget)
+            self.current_options = self.t_beam_options
 
         elif issubclass(self.current_structure_type, IBeam):
-            self.options_stack_widget.setCurrentWidget(self.i_beam_options_widget)
+            self.current_options = self.i_beam_options
 
         elif issubclass(self.current_structure_type, CBeam):
-            self.options_stack_widget.setCurrentWidget(self.c_beam_options_widget)
+            self.current_options = self.c_beam_options
+
+        elif issubclass(self.current_structure_type, ExpansionJoint):
+            self.current_options = self.expansion_joint_options
+
+        elif issubclass(self.current_structure_type, Valve):
+            self.current_options = self.valve_options
 
         elif issubclass(self.current_structure_type, Point):
             self._show_deltas_mode(False)
@@ -252,7 +257,7 @@ class GeometryDesignerWidget(QWidget):
         if not issubclass(self.current_structure_type, Point):
             self.xyz_changed_callback()
 
-        self._update_permissions()
+        self.current_options.update_permissions()
         self._update_information_text()
         self.x_line_edit.setFocus()
 
@@ -261,9 +266,6 @@ class GeometryDesignerWidget(QWidget):
         self.material_widget._add_icon_and_title()
         self.material_widget.load_data_from_materials_library()
         self.material_widget.setVisible(True)
-
-    def show_fluid_widget_callback(self):
-        pass 
 
     def options_changed_callback(self):
         self._update_permissions()
@@ -278,6 +280,13 @@ class GeometryDesignerWidget(QWidget):
         self._update_information_text()
         self.render_widget.update_plot(reset_camera=False)
 
+    def configure_structure_callback(self):
+        self.current_options.configure_structure()
+
+    def cross_section_confirm_callback(self):
+        self.cross_section_widget.complete = True
+        self.cross_section_widget.close()
+
     def xyz_changed_callback(self):
         try:
             xyz = self._get_xyz()
@@ -285,13 +294,10 @@ class GeometryDesignerWidget(QWidget):
             return
         except TypeError:
             return
-
-        if issubclass(self.current_structure_type, Point):
-            self._xyz_point_callback(xyz)
-        else:
-            self._xyz_structure_callback(xyz)
-
-        self._update_permissions()
+        
+        self.current_options.xyz_callback(xyz)
+        self.current_options.update_permissions()
+        self.render_widget.update_plot(reset_camera=False)
 
     def xyz_apply_evaluation_callback(self):
         self.x_line_edit.blockSignals(True)
@@ -369,7 +375,6 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=False)
 
     def delete_selection_callback(self):
-
         for structure in self.pipeline.selected_structures:
             if not isinstance(structure, Point):
                 tag = structure.tag
@@ -384,21 +389,10 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=False)
 
     def attach_selection_callback(self):
-        current_widget = self.options_stack_widget.currentWidget()
-        self.pipeline.dismiss()
-        self.pipeline.clear_structure_selection()
-
-        if not callable(current_widget.add_function):
-            return
-
-        kwargs = self._get_parameters()
-        if kwargs is None:
-            return
-
-        current_widget.attach_function(**kwargs)
+        self.current_options.attach_callback()
+        self.current_options.update_permissions()
         self.render_widget.update_plot(reset_camera=True)
         self._reset_xyz()
-        self._update_permissions()
 
     def add_structure_callback(self):
         self.pipeline.commit()
@@ -407,7 +401,7 @@ class GeometryDesignerWidget(QWidget):
 
     def cancel_callback(self):
         app().main_window.update_plots()
-        app().main_window.use_structural_setup_workspace()
+        app().main_window.use_model_setup_workspace()
 
     def finalize_callback(self):
         self.pipeline.dismiss()
@@ -418,16 +412,16 @@ class GeometryDesignerWidget(QWidget):
         geometry_handler.export_model_data_file()
 
         app().pulse_file.modify_project_attributes(
-                                                    length_unit = self.length_unit,
-                                                    element_size = 0.01, 
-                                                    geometry_tolerance = 1e-6,
-                                                    import_type = 1,
-                                                    )
+            length_unit = self.length_unit,
+            element_size = 0.01, 
+            geometry_tolerance = 1e-6,
+            import_type = 1,
+        )
 
         self._load_project()
 
         app().main_window.update_plots()
-        app().main_window.use_structural_setup_workspace()
+        app().main_window.use_model_setup_workspace()
         app().main_window.plot_lines_with_cross_sections()
         self.render_widget.set_info_text("")
 
@@ -502,17 +496,17 @@ class GeometryDesignerWidget(QWidget):
         self._set_xyz(x, y, z)
 
     def _show_deltas_mode(self, boolean):
-        x_text = self.dx_label.text().removeprefix("Δ")
-        y_text = self.dy_label.text().removeprefix("Δ")
-        z_text = self.dz_label.text().removeprefix("Δ")
 
         if boolean:
-            x_text = "Δ" + x_text
-            y_text = "Δ" + y_text
-            z_text = "Δ" + z_text
+            x_text = "Length Δx:"
+            y_text = "Length Δy:"
+            z_text = "Length Δz:"
             self.sizes_coords_label.setText("Bounding Box Sizes")
         
         else:
+            x_text = "Coordinate x:"
+            y_text = "Coordinate y:"
+            z_text = "Coordinate z:"
             self.sizes_coords_label.setText("Coordinates")
         
         self.dx_label.setText(x_text)
@@ -530,25 +524,6 @@ class GeometryDesignerWidget(QWidget):
             self.pipeline.clear_selection()
             self.pipeline.add_isolated_point(xyz)
 
-        self.render_widget.update_plot(reset_camera=True)
-
-    def _xyz_structure_callback(self, xyz):
-        current_widget = self.options_stack_widget.currentWidget()
-        self.pipeline.dismiss()
-        self.pipeline.clear_structure_selection()
-
-        if xyz == (0, 0, 0):
-            self.render_widget.update_plot(reset_camera=False)
-            return
-
-        if not callable(current_widget.add_function):
-            return
-
-        kwargs = self._get_parameters()
-        if kwargs is None:
-            return
-
-        current_widget.add_function(xyz, **kwargs)
         self.render_widget.update_plot(reset_camera=True)
     
     def _get_parameters(self) -> dict | None:
@@ -611,8 +586,8 @@ class GeometryDesignerWidget(QWidget):
         return structures.get(structure_name)
 
     def _update_information_text(self):
-        current_widget = self.options_stack_widget.currentWidget()
-        cross_section_info = getattr(current_widget, "cross_section_info", None)
+        return
+        cross_section_info = getattr(self.current_options, "cross_section_info", None)
 
         section_label = ""
         section_parameters = ""
@@ -661,38 +636,34 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.set_info_text(message)
 
     def _update_permissions(self):
-        current_widget = self.options_stack_widget.currentWidget()
-        cross_section_info = getattr(current_widget, "cross_section_info", None)
-        expansion_joint_info = getattr(current_widget, "expansion_joint_info", None)
-        valve_info = getattr(current_widget, "valve_info", None)
+        return
+        # current_widget = self.options_stack_widget.currentWidget()
+        # cross_section_info = getattr(current_widget, "cross_section_info", None)
+        # expansion_joint_info = getattr(current_widget, "expansion_joint_info", None)
+        # valve_info = getattr(current_widget, "valve_info", None)
 
-        # usefull variables
-        have_selection = bool(self.pipeline.selected_points or self.pipeline.selected_structures)
-        have_staged = bool(self.pipeline.staged_points or self.pipeline.staged_structures)
-        widget_configured = (
-            (cross_section_info is not None) 
-            or (expansion_joint_info is not None) 
-            or (valve_info is not None)
-        )
-        multiple_points_selected = len(self.pipeline.selected_points) >= 1
-        is_point = issubclass(self.current_structure_type, Point)
-        is_beam = issubclass(self.current_structure_type, Beam)
+        # # usefull variables
+        # have_selection = bool(self.pipeline.selected_points or self.pipeline.selected_structures)
+        # have_staged = bool(self.pipeline.staged_points or self.pipeline.staged_structures)
+        # widget_configured = (
+        #     (cross_section_info is not None) 
+        #     or (expansion_joint_info is not None) 
+        #     or (valve_info is not None)
+        # )
+        # multiple_points_selected = len(self.pipeline.selected_points) >= 1
+        # is_point = issubclass(self.current_structure_type, Point)
+        # is_beam = issubclass(self.current_structure_type, Beam)
 
-        self.set_material_button.setDisabled(is_point)
-        self.set_fluid_button.setDisabled(is_beam or is_point)
+        # self.set_material_button.setDisabled(False)
 
-        self.add_button.setDisabled(not have_staged)
-        self.delete_button.setDisabled(not (have_selection or have_staged))
-        self.attach_button.setDisabled(
-            is_point
-            or not widget_configured
-            or not multiple_points_selected
-        )
+        # self.add_button.setDisabled(False)
+        # self.delete_button.setDisabled(False)
+        # self.attach_button.setDisabled(False)
 
-        disable_xyz = (not is_point and not widget_configured)
-        self.x_line_edit.setDisabled(disable_xyz)
-        self.y_line_edit.setDisabled(disable_xyz)
-        self.z_line_edit.setDisabled(disable_xyz)
+        # # disable_xyz = (not is_point and not widget_configured)
+        # self.x_line_edit.setDisabled(False)
+        # self.y_line_edit.setDisabled(False)
+        # self.z_line_edit.setDisabled(False)
 
     def _load_project(self):
         app().loader.load_project_data()

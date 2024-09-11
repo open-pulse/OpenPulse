@@ -35,7 +35,7 @@ class ImportDataToCompare(QDialog):
     def _config_window(self):    
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.vibra_icon)
+        self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Import data to compare")
 
     def _initialize(self):

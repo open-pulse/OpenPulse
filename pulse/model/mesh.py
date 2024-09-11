@@ -43,12 +43,13 @@ class Mesh:
     def set_element_size(self, element_size):
         self.element_size = element_size
 
-    def set_mesher_setup(self, mesh_setup=dict()):
-        self.element_size = mesh_setup.get('element size', 0.01)
-        self.tolerance = mesh_setup.get('tolerance', 1e-6)
-        self.length_unit = mesh_setup.get('length unit', 'meter')
-        self.import_type = mesh_setup.get("import type", 1)
-        self.geometry_path = mesh_setup.get('geometry path', "")
+    def set_mesher_setup(self, **kwargs):
+        mesher_setup = kwargs.get("mesher_setup", dict())
+        self.element_size = mesher_setup.get('element_size', 0.01)
+        self.tolerance = mesher_setup.get('geometry_tolerance', 1e-6)
+        self.length_unit = mesher_setup.get('length_unit', 'meter')
+        self.import_type = mesher_setup.get("import_type", 1)
+        self.geometry_path = mesher_setup.get('geometry_path', "")
 
     def generate(self):
         """

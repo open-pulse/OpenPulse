@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtWidgets import QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget, QDialog
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -14,7 +13,7 @@ import numpy as np
 window_title = "Error"
 window_title2 = "Warning"
 
-class CrossSectionWidget(QWidget):
+class CrossSectionWidget(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -270,6 +269,7 @@ class CrossSectionWidget(QWidget):
             self.lineEdit_wall_thickness_final.setText(str(thickness))
 
     def set_inputs_to_geometry_creator(self):
+        self.complete = False
         self.tabWidget_general.setTabVisible(2,False)
         self.label_element_id.setVisible(False)
         self.lineEdit_element_id_initial.setVisible(False)
@@ -296,37 +296,37 @@ class CrossSectionWidget(QWidget):
         self.section_parameters = list()
         self.pipe_section_info = dict()
 
-        outside_diameter = check_inputs(self.lineEdit_outside_diameter, "'outside diameter (Pipe section)'")
+        outside_diameter = check_inputs(self.lineEdit_outside_diameter, 'outside diameter')
         if outside_diameter is None:
             self.lineEdit_outside_diameter.setFocus()
             return True
         self.section_parameters.append(outside_diameter)
 
-        thickness = check_inputs(self.lineEdit_wall_thickness, "'thickness (Pipe section)'")
+        thickness = check_inputs(self.lineEdit_wall_thickness, 'wall thickness')
         if thickness is None:
             self.lineEdit_wall_thickness.setFocus()
             return True
         self.section_parameters.append(thickness)
         
-        offset_y = check_inputs(self.lineEdit_offset_y, "'offset y (Pipe section)'", only_positive=False, zero_included=True)
+        offset_y = check_inputs(self.lineEdit_offset_y, 'offset y', only_positive=False, zero_included=True)
         if offset_y is None:
             self.lineEdit_offset_y.setFocus()
             return True
         self.section_parameters.append(offset_y)
 
-        offset_z = check_inputs(self.lineEdit_offset_z, "'offset z (Pipe section)'", only_positive=False, zero_included=True)
+        offset_z = check_inputs(self.lineEdit_offset_z, 'offset z', only_positive=False, zero_included=True)
         if offset_z is None:
             self.lineEdit_offset_z.setFocus()
             return True
         self.section_parameters.append(offset_z)
 
-        insulation_density = check_inputs(self.lineEdit_insulation_density, "'insulation density'", zero_included=True)
+        insulation_density = check_inputs(self.lineEdit_insulation_density, 'insulation density', zero_included=True)
         if insulation_density is None:
             self.lineEdit_insulation_density.setFocus()
             return True
         self.section_parameters.append(insulation_density)
 
-        insulation_thickness = check_inputs(self.lineEdit_insulation_thickness, "'insulation thickness'", zero_included=True)
+        insulation_thickness = check_inputs(self.lineEdit_insulation_thickness, 'insulation thickness', zero_included=True)
         if insulation_thickness is None:
             self.lineEdit_insulation_thickness.setFocus()
             return True
@@ -334,18 +334,14 @@ class CrossSectionWidget(QWidget):
 
         message = ""
         if np.isclose(outside_diameter, 2*thickness, atol=1e-5) or 2*thickness > outside_diameter:
-            message = "The THICKNESS must be less than \nthe outside radius."
-            return True
-            
-        if thickness == 0.0:
-            message = "The THICKNESS must be greater than zero."
-            return True
+            message = "The pipe 'wall thickness' must be less than half of the outside diameter."
+            self.lineEdit_wall_thickness.setFocus()
 
         if message != "":
             title = "Input cross-section error"
             PrintMessageInput([window_title, title, message]) 
             return True
-        
+
         if len(self.section_parameters) == 6:
             
             self.section_type_label = "Pipe"
@@ -356,76 +352,66 @@ class CrossSectionWidget(QWidget):
 
         message = ""
 
-        outside_diameter_initial = check_inputs(self.lineEdit_outside_diameter_initial, "'outside diameter (initial)'")
+        outside_diameter_initial = check_inputs(self.lineEdit_outside_diameter_initial, 'outside diameter (initial)')
         if outside_diameter_initial is None:
             self.lineEdit_outside_diameter_initial.setFocus()
             return True
         
-        outside_diameter_final = check_inputs(self.lineEdit_outside_diameter_final, "'outside diameter (final)'")
+        outside_diameter_final = check_inputs(self.lineEdit_outside_diameter_final, 'outside diameter (final)')
         if outside_diameter_final is None:
             self.lineEdit_outside_diameter_final.setFocus()
             return True
 
-        thickness_initial = check_inputs(self.lineEdit_wall_thickness_initial, "'thickness (initial)'")
+        thickness_initial = check_inputs(self.lineEdit_wall_thickness_initial, 'thickness (initial)')
         if thickness_initial is None:
             self.lineEdit_wall_thickness_initial.setFocus()
             return True
         
-        thickness_final = check_inputs(self.lineEdit_wall_thickness_final, "'thickness (final)'")
+        thickness_final = check_inputs(self.lineEdit_wall_thickness_final, 'thickness (final)')
         if thickness_final is None:
             self.lineEdit_wall_thickness_final.setFocus()
             return True
 
         if np.isclose(outside_diameter_initial, 2*thickness_initial, atol=1e-5) or 2*thickness_initial > outside_diameter_initial:
-            message = "The INITIAL THICKNESS must be less than \nthe initial outside radius."
-            return True
-
-        if thickness_initial == 0.0:
-            message = "The INITIAL THICKNESS must be greater than zero."
-            return True
+            message = "The 'initial thickness' be less than half of the 'initial outside diameter'."
 
         if np.isclose(outside_diameter_final, 2*thickness_final, atol=1e-5) or 2*thickness_final > outside_diameter_final:
-            message = "The FINAL THICKNESS must be less than \nthe final outside radius."
-            return True
-
-        if thickness_final == 0.0:
-            message = "The FINAL THICKNESS must be greater than zero."
-            return True
+            message = "The 'final thickness' be less than half of the 'final outside diameter'."
         
         if message != "":
             title = "Input cross-section error"
             PrintMessageInput([window_title, title, message])
             return True
 
-        offset_y_initial = check_inputs(self.lineEdit_offset_y_initial, "'offset y (initial)'", only_positive=False, zero_included=True)
+        offset_y_initial = check_inputs(self.lineEdit_offset_y_initial, 'offset y (initial)', only_positive=False, zero_included=True)
         if offset_y_initial is None:
             self.lineEdit_offset_y_initial.setFocus()
             return True
 
-        offset_y_final = check_inputs(self.lineEdit_offset_y_final, "'offset y (final)'", only_positive=False, zero_included=True)
+        offset_y_final = check_inputs(self.lineEdit_offset_y_final, 'offset y (final)', only_positive=False, zero_included=True)
         if offset_y_final is None:
             self.lineEdit_offset_y_final.setFocus()
             return True
 
-        offset_z_initial = check_inputs(self.lineEdit_offset_z_initial, "'offset z (initial)'", only_positive=False, zero_included=True)
+        offset_z_initial = check_inputs(self.lineEdit_offset_z_initial, 'offset z (initial)', only_positive=False, zero_included=True)
         if offset_z_initial is None:
             self.lineEdit_offset_z_initial.setFocus()
             return True
         
-        offset_z_final = check_inputs(self.lineEdit_offset_z_final, "'offset z (final)'", only_positive=False, zero_included=True)
+        offset_z_final = check_inputs(self.lineEdit_offset_z_final, 'offset z (final)', only_positive=False, zero_included=True)
         if offset_z_final is None:
             self.lineEdit_offset_z_final.setFocus()
             return True
         
         insulation_thickness = check_inputs(self.lineEdit_insulation_thickness_variable_section, 
-                                            "'insulation thickness (variable pipe section)'",
+                                            'insulation thickness (variable pipe section)',
                                             zero_included=True)
         if insulation_thickness is None:
             self.lineEdit_insulation_thickness_variable_section.setFocus()
             return True
         
         insulation_density = check_inputs(  self.lineEdit_insulation_density_variable_section, 
-                                            "'density thickness (variable pipe section)'",
+                                            'density thickness (variable pipe section)',
                                             zero_included=True  )
         if insulation_density is None:
             self.lineEdit_insulation_density_variable_section.setFocus()
@@ -466,76 +452,78 @@ class CrossSectionWidget(QWidget):
 
             self.section_type_label = "Rectangular section"
 
-            base = check_inputs(self.lineEdit_base_rectangular_section, 'Base (Rectangular section)')
+            base = check_inputs(self.lineEdit_base_rectangular_section, 'base (Rectangular section)')
             if base is None:
                 self.lineEdit_base_rectangular_section.setFocus()
                 return True
             
-            height = check_inputs(self.lineEdit_height_rectangular_section, 'Height (Rectangular section)')
+            height = check_inputs(self.lineEdit_height_rectangular_section, 'height (Rectangular section)')
             if height is None:
                 self.lineEdit_height_rectangular_section.setFocus()
                 return True
             
-            offset_y = check_inputs(self.lineEdit_offsety_rectangular_section, 'Offset y (Rectangular section)', only_positive=False, zero_included=True)
+            offset_y = check_inputs(self.lineEdit_offsety_rectangular_section, 'offset y (Rectangular section)', only_positive=False, zero_included=True)
             if offset_y is None:
                 self.lineEdit_offsety_rectangular_section.setFocus()
                 return True
             
-            offset_z = check_inputs(self.lineEdit_offsetz_rectangular_section, 'Offset z (Rectangular section)', only_positive=False, zero_included=True)
+            offset_z = check_inputs(self.lineEdit_offsetz_rectangular_section, 'offset z (Rectangular section)', only_positive=False, zero_included=True)
             if offset_z is None:
                 self.lineEdit_offsetz_rectangular_section.setFocus()
                 return True
    
             if self.lineEdit_wall_thickness_rectangular_section.text() != "":
                 
-                thickness = check_inputs(self.lineEdit_wall_thickness_rectangular_section, 'Thickness (Rectangular section)')
+                thickness = check_inputs(self.lineEdit_wall_thickness_rectangular_section, 'wall thickness (Rectangular section)')
                 if thickness is None:
                     self.lineEdit_wall_thickness_rectangular_section.setFocus()
                     return True
 
                 if thickness > np.min([(base/2), (height/2)]):
-                    title = "Input cross-section error"
-                    message = "Error in THICKNESS value input."
+                    title = "Invalid cross-section parameters"
+                    message = "For a rectangular cross-section, the wall thickness must be simultaneously "
+                    message += "greater than half of the base and height section parameters."
                     PrintMessageInput([window_title, title, message])
                     return True             
                 else:
                     base_in = base - 2*thickness
                     height_in = height - 2*thickness
+
             else:
                 base_in = 0
                 height_in = 0
-            
+
             self.section_parameters = [base, height, base_in, height_in, offset_y, offset_z]
 
         elif tab_index == 1: # Circular section
 
             self.section_type_label = "Circular section"
 
-            outside_diameter_beam = check_inputs(self.lineEdit_outside_diameter_circular_section, 'Outside diameter (Circular section)')
+            outside_diameter_beam = check_inputs(self.lineEdit_outside_diameter_circular_section, 'outside diameter (Circular section)')
             if outside_diameter_beam is None:
                 self.lineEdit_outside_diameter_circular_section.setFocus()
                 return True
             
-            offset_y = check_inputs(self.lineEdit_offsety_circular_section, 'Offset y (Circular section)', only_positive=False, zero_included=True)
+            offset_y = check_inputs(self.lineEdit_offsety_circular_section, 'offset y (Circular section)', only_positive=False, zero_included=True)
             if offset_y is None:
                 self.lineEdit_offsety_circular_section.setFocus()
                 return True
             
-            offset_z = check_inputs(self.lineEdit_offsetz_circular_section, 'Offset z (Circular section)', only_positive=False, zero_included=True)
+            offset_z = check_inputs(self.lineEdit_offsetz_circular_section, 'offset z (Circular section)', only_positive=False, zero_included=True)
             if offset_z is None:
                 self.lineEdit_offsetz_circular_section.setFocus()
                 return True
 
             if self.lineEdit_wall_thickness_circular_section != "":
-                thickness = check_inputs(self.lineEdit_wall_thickness_circular_section, 'Thickness (Circular section)', zero_included=True)
+                thickness = check_inputs(self.lineEdit_wall_thickness_circular_section, 'wall thickness (Circular section)', zero_included=True)
                 if thickness is None:
                     self.lineEdit_wall_thickness_circular_section.setFocus()
                     return True
  
             if np.isclose(outside_diameter_beam, 2*thickness, atol=1e-5) or 2*thickness > outside_diameter_beam:
-                title = "INPUT CROSS-SECTION ERROR (CIRCULAR PROFILE)"
-                message = "The outside diameter must be greater than 2*THICKNESS."
-                message += "Note: let THICKNESS input field blank for massive sections"
+                title = "Invalid cross-section parameters"
+                message = "For a circular cross-section, the wall thickness must be simultaneously "
+                message += "greater than half of the base and height section parameters."
                 PrintMessageInput([window_title, title, message])
                 return True
 
@@ -545,7 +533,7 @@ class CrossSectionWidget(QWidget):
 
             self.section_type_label = "C-section"
 
-            h = check_inputs(self.lineEdit_height_C_section, 'Height (C-profile)')
+            h = check_inputs(self.lineEdit_height_C_section, 'height (C-profile)')
             if h is None:
                 self.lineEdit_height_C_section
                 return True
@@ -575,19 +563,19 @@ class CrossSectionWidget(QWidget):
                 self.lineEdit_t2_C_section.setFocus()
                 return True
 
-            offset_y = check_inputs(self.lineEdit_offsety_C_section, 'Offset y (C-profile)',only_positive=False, zero_included=True)
+            offset_y = check_inputs(self.lineEdit_offsety_C_section, 'offset y (C-profile)',only_positive=False, zero_included=True)
             if offset_y is None:
                 self.lineEdit_offsety_C_section.setFocus()
                 return True
 
-            offset_z = check_inputs(self.lineEdit_offsetz_C_section, 'Offset z (C-profile)', only_positive=False, zero_included=True)            
+            offset_z = check_inputs(self.lineEdit_offsetz_C_section, 'offset z (C-profile)', only_positive=False, zero_included=True)            
             if offset_z is None:
                 self.lineEdit_offsetz_C_section.setFocus()
                 return True
 
             if h < (t1 + t2):
                 title = "Input cross-section error"
-                message = "The HEIGHT must be greater than t1+t2 summation."
+                message = "The height must be greater than t1+t2 summation."
                 PrintMessageInput([window_title, title, message])
                 return True
 
@@ -597,7 +585,7 @@ class CrossSectionWidget(QWidget):
 
             self.section_type_label = "I-section"
 
-            h = check_inputs(self.lineEdit_height_I_section, 'Height (I-profile)')
+            h = check_inputs(self.lineEdit_height_I_section, 'height (I-profile)')
             if h is None:
                 self.lineEdit_height_I_section.setFocus()
                 return True
@@ -627,19 +615,19 @@ class CrossSectionWidget(QWidget):
                 self.lineEdit_t2_I_section.setFocus()
                 return True
 
-            offset_y = check_inputs(self.lineEdit_offsety_I_section, 'Offset y (I-profile)', only_positive=False, zero_included=True)
+            offset_y = check_inputs(self.lineEdit_offsety_I_section, 'offset y (I-profile)', only_positive=False, zero_included=True)
             if offset_y is None:
                 self.lineEdit_offsety_I_section.setFocus()
                 return True
 
-            offset_z = check_inputs(self.lineEdit_offsetz_I_section, 'Offset z (I-profile)', only_positive=False, zero_included=True)
+            offset_z = check_inputs(self.lineEdit_offsetz_I_section, 'offset z (I-profile)', only_positive=False, zero_included=True)
             if offset_z is None:
                 self.lineEdit_offsetz_I_section.setFocus()
                 return True
 
             if h < (t1 + t2):
                 title = "Input cross-section error"
-                message = "The HEIGHT must be greater than t1+t2 summation."
+                message = "The height must be greater than t1+t2 summation."
                 PrintMessageInput([window_title, title, message])
                 return True
 
@@ -649,7 +637,7 @@ class CrossSectionWidget(QWidget):
 
             self.section_type_label = "T-section"
 
-            h = check_inputs(self.lineEdit_height_T_section, 'HEIGHT (T-profile)')
+            h = check_inputs(self.lineEdit_height_T_section, 'height (T-profile)')
             if h is None:
                 self.lineEdit_height_T_section.setFocus()
                 return True
@@ -669,19 +657,19 @@ class CrossSectionWidget(QWidget):
                 self.lineEdit_t1_T_section.setFocus()
                 return True
 
-            offset_y = check_inputs(self.lineEdit_offsety_T_section, 'OFFSET Y (T-profile)', only_positive=False, zero_included=True)
+            offset_y = check_inputs(self.lineEdit_offsety_T_section, 'offset y (T-profile)', only_positive=False, zero_included=True)
             if offset_y is None:
                 self.lineEdit_offsety_T_section.setFocus()
                 return True
 
-            offset_z = check_inputs(self.lineEdit_offsetz_T_section, 'OFFSET Y (T-profile)', only_positive=False, zero_included=True)
+            offset_z = check_inputs(self.lineEdit_offsetz_T_section, 'offset z (T-profile)', only_positive=False, zero_included=True)
             if offset_z is None:
                 self.lineEdit_offsetz_T_section.setFocus()
                 return True
 
             if h < t1:
                 title = "Input cross-section error"
-                message = "The HEIGHT must be greater than t1."
+                message = "The height must be greater than t1."
                 PrintMessageInput([window_title, title, message])
                 return True
 
@@ -694,29 +682,29 @@ class CrossSectionWidget(QWidget):
             Izz = float(0)
             Iyz = float(0)
 
-            area = check_inputs(self.lineEdit_area, "'Area (Generic section)'")
+            area = check_inputs(self.lineEdit_area, 'Area (Generic section)')
             if area is None:
                 return True
 
-            Iyy = check_inputs(self.lineEdit_Iyy, "'Iyy (Generic section)'")
+            Iyy = check_inputs(self.lineEdit_Iyy, 'Iyy (Generic section)')
             if Iyy is None:
                 return True
 
-            Izz = check_inputs(self.lineEdit_Izz, "'Izz (Generic section)'")
+            Izz = check_inputs(self.lineEdit_Izz, 'Izz (Generic section)')
             if Izz is None:
                 return True
 
-            Iyz = check_inputs(self.lineEdit_Iyz, "'Iyz (Generic section)'", only_positive=False, zero_included=True)
+            Iyz = check_inputs(self.lineEdit_Iyz, 'Iyz (Generic section)', only_positive=False, zero_included=True)
             if Iyz is None:
                 return True
 
-            shear_coefficient = check_inputs(self.lineEdit_shear_coefficient, "'Shear Factor (Generic section)'")
+            shear_coefficient = check_inputs(self.lineEdit_shear_coefficient, 'Shear Factor (Generic section)')
             if shear_coefficient is None:
                 return True
 
             if shear_coefficient > 1:
                 title = "Input cross-section error"
-                message = "The SHEAR FACTOR must be less or equals to 1."
+                message = "The shear factor must be less or equals to 1."
                 PrintMessageInput([window_title, title, message]) 
                 return True
             else:  

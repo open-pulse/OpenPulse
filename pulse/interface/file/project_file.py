@@ -68,7 +68,7 @@ class ProjectFile:
             if project_setup is None:
                 project_setup = dict()
 
-            project_setup["mesher setup"] = data
+            project_setup["mesher_setup"] = data
 
             self.filebox.write(self.project_setup_filename, project_setup)
             app().main_window.project_data_modified = True
@@ -80,12 +80,12 @@ class ProjectFile:
 
         data = self.filebox.read(self.project_setup_filename)
 
-        if "mesher setup" in data.keys():
-            project_setup = data["mesher setup"]
+        if "mesher_setup" in data.keys():
+            project_setup = data["mesher_setup"]
 
-            if "geometry filename" in project_setup.keys():
+            if "geometry_filename" in project_setup.keys():
 
-                geometry_filename = project_setup["geometry filename"]
+                geometry_filename = project_setup["geometry_filename"]
                 dirname = self.project_folder_path / "geometry" 
                 temp_path = dirname / geometry_filename
                 internal_path = f"geometry_file/{geometry_filename}"
@@ -168,7 +168,7 @@ class ProjectFile:
         if project_setup is None:
             return   
 
-        project_setup["analysis setup"] = analysis_setup         
+        project_setup["analysis_setup"] = analysis_setup         
         self.filebox.write(self.project_setup_filename, project_setup)
 
         app().main_window.project_data_modified = True
@@ -181,8 +181,8 @@ class ProjectFile:
         if project_setup is None:
             return
 
-        if "analysis setup" in project_setup.keys():
-            analysis_setup = project_setup["analysis setup"]
+        if "analysis_setup" in project_setup.keys():
+            analysis_setup = project_setup["analysis_setup"]
 
         return analysis_setup
 
@@ -192,7 +192,7 @@ class ProjectFile:
         if project_setup is None:
             return   
 
-        project_setup["inertia load"] = inertia_load         
+        project_setup["inertia_load"] = inertia_load         
         self.filebox.write(self.project_setup_filename, project_setup)
 
         app().main_window.project_data_modified = True
@@ -205,8 +205,8 @@ class ProjectFile:
             return
 
         inertia_load = None
-        if "inertia load" in project_setup.keys():
-            inertia_load = project_setup["inertia load"]
+        if "inertia_load" in project_setup.keys():
+            inertia_load = project_setup["inertia_load"]
 
         return inertia_load
 
@@ -449,8 +449,8 @@ class ProjectFile:
         if project_setup is None:
             return False
 
-        mesher_setup = project_setup["mesher setup"]
-        import_type = mesher_setup["import type"]
+        mesher_setup = project_setup["mesher_setup"]
+        import_type = mesher_setup["import_type"]
 
         lines_data = self.read_line_properties_from_file()
         if lines_data is None:
@@ -483,27 +483,27 @@ class ProjectFile:
         if project_setup is None:
             return
 
-        if "mesher setup" in project_setup.keys():
+        if "mesher_setup" in project_setup.keys():
 
-            data = project_setup["mesher setup"]
+            data = project_setup["mesher_setup"]
 
             if project_name is not None:
-                data['name'] = project_name
+                data['project_name'] = project_name
 
             if import_type is not None:
-                data['import type'] = import_type
+                data['import_type'] = import_type
 
             if length_unit is not None:
-                data['length unit'] = length_unit
+                data['length_unit'] = length_unit
 
             if element_size is not None:
-                data['element size'] = element_size
+                data['element_size'] = element_size
 
             if geometry_tolerance is not None:
-                data['geometry tolerance'] = geometry_tolerance
+                data['geometry_tolerance'] = geometry_tolerance
 
             if geometry_filename is not None:
-                data['geometry file'] = geometry_filename
+                data['geometry_filename'] = geometry_filename
 
             self.write_project_setup_in_file(data)
             # self.load(self._project_ini_file_path)

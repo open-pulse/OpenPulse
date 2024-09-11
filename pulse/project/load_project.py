@@ -359,8 +359,9 @@ class LoadProject:
             cross_section = data["cross_section"]
             self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
 
-        elif data["section_type_label"] == "Reducer":
-            self.preprocessor.set_variable_cross_section_by_line(line_id, data)
+        elif "section_type_label" in data.keys():
+            if data["section_type_label"] == "Reducer":
+                self.preprocessor.set_variable_cross_section_by_line(line_id, data)
 
 
     def load_fluids(self, line_id: int, data: dict):
@@ -477,8 +478,8 @@ class LoadProject:
         if project_setup is None:
             return
 
-        if "mesher setup" in project_setup.keys():
-            self.preprocessor.mesh.set_mesher_setup(mesh_setup=project_setup["mesher setup"])
+        if "mesher_setup" in project_setup.keys():
+            self.preprocessor.mesh.set_mesher_setup(mesher_setup=project_setup["mesher_setup"])
 
 
     def load_inertia_load_setup(self):

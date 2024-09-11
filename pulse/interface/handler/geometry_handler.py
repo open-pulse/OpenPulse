@@ -54,7 +54,7 @@ class GeometryHandler:
 
         for structure in self.pipeline.structures:
 
-            if isinstance(structure, (Pipe, Beam, Reducer, ExpansionJoint)):
+            if isinstance(structure, (Pipe, Beam, Reducer, Flange, ExpansionJoint)):
 
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
@@ -244,6 +244,7 @@ class GeometryHandler:
         self.pipeline.reset()
 
         lines_data = app().pulse_file.read_line_properties_from_file()
+        # print("-> process_pipeline")
 
         if isinstance(lines_data, dict):
             for _line_id, data in lines_data.items():
@@ -286,9 +287,24 @@ class GeometryHandler:
         else:
             section_parameters = [0.01, 0.001, 0, 0, 0 ,0]
 
+        if "section_type_label" in data.keys():
+            section_type_label = data["section_type_label"]
+        else:
+            section_type_label = "Pipe"
+
         if len(section_parameters) == 6:
 
-            if data["structure_name"] == "bend":
+            if data["structure_name"] == "pipe":
+                start = Point(*data['start_coords'])
+                end = Point(*data['end_coords'])
+                structure = Pipe(
+                                 start, 
+                                 end, 
+                                 diameter = section_parameters[0],
+                                 thickness = section_parameters[1],
+                                )
+
+            elif data["structure_name"] == "bend":
                 start = Point(*data['start_coords'])
                 end = Point(*data['end_coords'])
                 corner = Point(*data['corner_coords'])
@@ -302,15 +318,15 @@ class GeometryHandler:
                                  thickness = section_parameters[1]
                                 )
 
-            else:
+            elif data["structure_name"] == "flange":
                 start = Point(*data['start_coords'])
                 end = Point(*data['end_coords'])
-                structure = Pipe(
-                                 start, 
-                                 end, 
-                                 diameter = section_parameters[0],
-                                 thickness = section_parameters[1],
-                                )
+                structure = Flange(
+                                   start, 
+                                   end, 
+                                   diameter = section_parameters[0],
+                                   thickness = section_parameters[1],
+                                   )
 
         elif len(section_parameters) == 10:
 
@@ -334,7 +350,7 @@ class GeometryHandler:
         structure.tag = line_id
 
         section_info = {
-                        "section_type_label" : data["section_type_label"],
+                        "section_type_label" : section_type_label,
                         "section_parameters" : section_parameters
                        }
 
@@ -488,7 +504,7 @@ class GeometryHandler:
         gmsh.write(str(path))
         gmsh.finalize()
 
-    def open_cad_file(self, path):
+    def open_cad_file(self, path: str):
 
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
@@ -554,7 +570,7 @@ class GeometryHandler:
 
     def process_curved_lines(self, lines):
 
-        curved_structures = []
+        curved_structures = list()
 
         for line in lines:
 
@@ -613,7 +629,7 @@ class GeometryHandler:
 
     def process_straight_lines(self, lines):
 
-        straight_structures = []
+        straight_structures = list()
 
         for line in lines:
 
@@ -820,6 +836,8 @@ class GeometryHandler:
 
             if "cross_section_info" in structure.extra_info.keys():
                 section_info[tag] = structure.extra_info["cross_section_info"]
+            else:
+                section_info[tag] = self.get_dummy_pipe_section_info()
 
             if "material_info" in structure.extra_info.keys():
                 material_id = structure.extra_info["material_info"]
@@ -882,7 +900,7 @@ class GeometryHandler:
             data["corner_coords"] = get_data(structure.corner.coords())
             data["curvature_radius"] = np.round(structure.curvature, 8)
 
-        elif isinstance(structure, Pipe | Beam | Reducer | Valve | ExpansionJoint):
+        elif isinstance(structure, Pipe | Beam | Reducer | Flange | Valve | ExpansionJoint):
             data["structure_name"] = self.get_structure_name(structure)
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
@@ -907,6 +925,12 @@ class GeometryHandler:
             return "valve"
         else:
             return "undefined"
+
+    def get_dummy_pipe_section_info(self):
+        section_info = dict()
+        section_info["section_type_label"] = "Pipe"
+        section_info["section_parameters"] = [0.01, 0.001, 0, 0, 0 ,0]
+        return section_info
 
     # def remove_lines(self, structures_data: dict):
     #     """ This method removes the lines properties associated with the

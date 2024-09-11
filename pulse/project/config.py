@@ -100,10 +100,10 @@ class Config:
     def getRecentProjectByID(self, id_):
         return self.recent_projects[list(self.recent_projects.keys())[id_]]
 
-    def haveRecentProjects(self):
-        return self.recentProjectsSize() > 0
+    def have_recent_projects(self):
+        return self.recent_projects_size() > 0
 
-    def recentProjectsSize(self):
+    def recent_projects_size(self):
         return len(self.recent_projects)
 
     def write_recent_project(self, project_path):
