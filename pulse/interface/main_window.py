@@ -567,10 +567,11 @@ class MainWindow(QMainWindow):
         self.mesh_toolbar.setDisabled(True)
         self.animation_toolbar.setEnabled(False)
 
-        if self.action_model_setup_workspace.isChecked():
-            self.action_model_setup_workspace.toggle()
-        if self.action_results_workspace.isChecked():
-            self.action_results_workspace.toggle()
+        self.action_geometry_editor_workspace.setEnabled(False)
+        if not self.action_model_setup_workspace.isEnabled():
+            self.action_model_setup_workspace.setEnabled(True)
+        elif not self.action_results_workspace.isEnabled():
+            self.action_results_workspace.setEnabled(True)
 
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
@@ -579,11 +580,12 @@ class MainWindow(QMainWindow):
 
         self.mesh_toolbar.setDisabled(False)
         self.animation_toolbar.setEnabled(False)
-
-        if self.action_geometry_editor_workspace.isChecked():
-            self.action_geometry_editor_workspace.toggle()
-        if self.action_results_workspace.isChecked():
-            self.action_results_workspace.toggle()
+        
+        self.action_model_setup_workspace.setEnabled(False)
+        if not self.action_geometry_editor_workspace.isEnabled():
+            self.action_geometry_editor_workspace.setEnabled(True)
+        elif not self.action_results_workspace.isEnabled():
+            self.action_results_workspace.setEnabled(True)
 
         self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
@@ -596,18 +598,16 @@ class MainWindow(QMainWindow):
             self.results_viewer_wigdet.update_visibility_items()
             self.animation_toolbar.setEnabled(False)
 
-            if self.action_geometry_editor_workspace.isChecked():
-                self.action_geometry_editor_workspace.toggle()
-            if self.action_model_setup_workspace.isChecked():
-                self.action_model_setup_workspace.toggle()
+            self.action_results_workspace.setEnabled(False)
+            if not self.action_geometry_editor_workspace.isEnabled():
+                self.action_geometry_editor_workspace.setEnabled(True)
+            elif not self.action_model_setup_workspace.isEnabled():
+                self.action_model_setup_workspace.setEnabled(True)
 
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
             self.render_widgets_stack.setCurrentWidget(self.results_widget)
             self.results_viewer_wigdet.update_visibility_items()
             self._configure_visualization(tubes=True)
-
-        else:
-            self.action_results_workspace.toggle()
 
     def render_changed_callback(self, new_index):
         if self.last_render_index is None:
@@ -897,7 +897,7 @@ class MainWindow(QMainWindow):
 
         close = QMessageBox.question(   
                                         self, 
-                                        "Quit_", 
+                                        "Quit", 
                                         "Would you like to save the project data before exit?", 
                                         QMessageBox.Cancel | QMessageBox.Discard | QMessageBox.Save
                                     )
@@ -1062,7 +1062,7 @@ class MainWindow(QMainWindow):
         else:
             close = QMessageBox.question(
                                             self, 
-                                            "QUIT", 
+                                            "Quit", 
                                             "Would you like to close the application?", 
                                             QMessageBox.Yes | QMessageBox.No
                                         )

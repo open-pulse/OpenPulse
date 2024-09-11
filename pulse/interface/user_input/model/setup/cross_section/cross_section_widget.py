@@ -276,7 +276,7 @@ class CrossSectionWidget(QDialog):
         self.lineEdit_element_id_final.setVisible(False)
         self.pushButton_flip_element_ids_initial.setVisible(False)
         self.pushButton_flip_element_ids_final.setVisible(False)
-    
+
     def hide_all_tabs(self):
         for i in range(self.tabWidget_general.count()):
             self.tabWidget_general.setTabVisible(i, False)
