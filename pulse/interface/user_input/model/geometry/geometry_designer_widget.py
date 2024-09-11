@@ -297,7 +297,7 @@ class GeometryDesignerWidget(QWidget):
         
         self.current_options.xyz_callback(xyz)
         self.current_options.update_permissions()
-        self.render_widget.update_plot(reset_camera=False)
+        self.render_widget.update_plot(reset_camera=True)
 
     def xyz_apply_evaluation_callback(self):
         self.x_line_edit.blockSignals(True)
