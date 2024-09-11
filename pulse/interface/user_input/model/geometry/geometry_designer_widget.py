@@ -282,6 +282,7 @@ class GeometryDesignerWidget(QWidget):
 
     def configure_structure_callback(self):
         self.current_options.configure_structure()
+        self.render_widget.update_plot(reset_camera=False)
 
     def cross_section_confirm_callback(self):
         self.cross_section_widget.complete = True

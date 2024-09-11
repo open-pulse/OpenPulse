@@ -25,39 +25,19 @@ class TBeamOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        if not self.cross_section_info:
-            return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
         
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        self.pipeline.add_t_beam(
-            xyz,
-            height = parameters[0],
-            width = parameters[1],
-            thickness_1 = parameters[2],
-            thickness_2 = parameters[3],
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.add_t_beam(xyz, **kwargs)
 
     def attach_callback(self):
-        if self.cross_section_info is None:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
-            return
-
-        self.pipeline.connect_t_beams(
-            height = parameters[0],
-            width = parameters[1],
-            thickness_1 = parameters[2],
-            thickness_2 = parameters[3],
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.connect_t_beams(**kwargs)
 
     def configure_structure(self):
         self.cross_section_widget.set_inputs_to_geometry_creator()     
@@ -75,6 +55,7 @@ class TBeamOptions(StructureOptions):
             return
 
         self.cross_section_info = self.cross_section_widget.beam_section_info
+        self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
@@ -86,6 +67,22 @@ class TBeamOptions(StructureOptions):
             enable = False
 
         self.geometry_designer_widget.create_structure_frame.setEnabled(enable)
+
+    def _get_kwargs(self) -> dict:
+        if self.cross_section_info is None:
+            return
+
+        parameters = self.cross_section_info.get("section_parameters")
+        if parameters is None:
+            return
+
+        return dict(
+            height = parameters[0],
+            width = parameters[1],
+            thickness_1 = parameters[2],
+            thickness_2 = parameters[3],
+            extra_info = self._get_extra_info(),
+        )
 
     def _get_extra_info(self):
         return dict(

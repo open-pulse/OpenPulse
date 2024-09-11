@@ -25,43 +25,19 @@ class CBeamOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        if not self.cross_section_info:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
 
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
-            return
-        
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        self.pipeline.add_c_beam(
-            xyz,
-            height = parameters[0],
-            width_1 = parameters[1],
-            width_2 = parameters[3],
-            thickness_1 = parameters[2],
-            thickness_2 = parameters[4],
-            thickness_3 = parameters[5],
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.add_c_beam(xyz, **kwargs)
 
     def attach_callback(self):
-        if self.cross_section_info is None:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
-            return
-
-        self.pipeline.connect_c_beams(
-            height = parameters[0],
-            width_1 = parameters[1],
-            width_2 = parameters[3],
-            thickness_1 = parameters[2],
-            thickness_2 = parameters[4],
-            thickness_3 = parameters[5],
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.connect_c_beams(**kwargs)
 
     def configure_structure(self):
         self.cross_section_widget.set_inputs_to_geometry_creator()     
@@ -79,6 +55,7 @@ class CBeamOptions(StructureOptions):
             return
 
         self.cross_section_info = self.cross_section_widget.beam_section_info
+        self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
@@ -90,6 +67,24 @@ class CBeamOptions(StructureOptions):
             enable = False
 
         self.geometry_designer_widget.create_structure_frame.setEnabled(enable)
+
+    def _get_kwargs(self) -> dict:
+        if self.cross_section_info is None:
+            return
+
+        parameters = self.cross_section_info.get("section_parameters")
+        if parameters is None:
+            return
+
+        return dict(
+            height = parameters[0],
+            width_1 = parameters[1],
+            width_2 = parameters[3],
+            thickness_1 = parameters[2],
+            thickness_2 = parameters[4],
+            thickness_3 = parameters[5],
+            extra_info = self._get_extra_info(),
+        )
 
     def _get_extra_info(self):
         return dict(

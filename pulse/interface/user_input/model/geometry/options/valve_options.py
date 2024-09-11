@@ -26,31 +26,19 @@ class ValveOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        if not self.valve_info:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
         
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        self.pipeline.add_valve(
-            xyz,
-            diameter = self.valve_info.get("valve_effective_diameter", 0),
-            thickness = 0,
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.add_valve(xyz, **kwargs)
 
     def attach_callback(self):
-        if self.valve_info is None:
+        kwargs = self._get_kwargs()
+        if kwargs is None:
             return
-
-        parameters = self.valve_info.get("section_parameters")
-        if parameters is None:
-            return
-
-        self.pipeline.connect_valves(
-            diameter = self.valve_info.get("valve_effective_diameter", 0),
-            thickness = 0,
-            extra_info = self._get_extra_info(),
-        )
+        self.pipeline.connect_valves(**kwargs)
 
     def configure_structure(self):
         app().main_window.close_dialogs()
@@ -62,6 +50,7 @@ class ValveOptions(StructureOptions):
             return
 
         self.valve_info = valve_input.valve_info
+        self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
@@ -73,6 +62,20 @@ class ValveOptions(StructureOptions):
             enable = False
 
         self.geometry_designer_widget.create_structure_frame.setEnabled(enable)
+
+    def _get_kwargs(self) -> dict:
+        if self.valve_info is None:
+            return
+
+        parameters = self.valve_info.get("section_parameters")
+        if parameters is None:
+            return
+
+        return dict(
+            diameter = self.valve_info.get("valve_effective_diameter", 0),
+            thickness = 0,
+            extra_info = self._get_extra_info(),
+        )
 
     def _get_extra_info(self):
         return dict(
