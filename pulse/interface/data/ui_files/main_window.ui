@@ -808,9 +808,6 @@
    </property>
   </action>
   <action name="action_geometry_editor_workspace">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset>
      <normaloff>../icons/common/model_settings.png</normaloff>../icons/common/model_settings.png</iconset>
@@ -823,9 +820,6 @@
    </property>
   </action>
   <action name="action_model_setup_workspace">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset>
      <normaloff>../icons/common/engineering.png</normaloff>../icons/common/engineering.png</iconset>
@@ -838,9 +832,6 @@
    </property>
   </action>
   <action name="action_results_workspace">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset>
      <normaloff>../icons/common/calculate.png</normaloff>../icons/common/calculate.png</iconset>
