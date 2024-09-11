@@ -389,12 +389,18 @@ class MainWindow(QMainWindow):
         return list(self.selected_elements)
 
     def use_geometry_workspace(self):
+        if self.action_geometry_editor_workspace.isChecked():
+            return
         self.action_geometry_editor_workspace.trigger()
 
     def use_model_setup_workspace(self):
+        if self.action_model_setup_workspace.isChecked():
+            return
         self.action_model_setup_workspace.trigger()
 
     def use_results_workspace(self):
+        if self.action_results_workspace.isChecked():
+            return
         self.action_results_workspace.trigger()
 
     def plot_lines(self):
