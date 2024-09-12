@@ -176,7 +176,7 @@ class AnalysisToolbar(QToolBar):
         self.physical_domains_callback()
 
     def run_analysis_callback(self):
-        app().main_window.input_ui.run_analysis()
+        app().project.run_analysis()
 
     def configure_analysis_callback(self):
 
@@ -319,13 +319,12 @@ class AnalysisToolbar(QToolBar):
             return
 
         if analysis_id in [0, 1, 3, 5, 6, 7]:
-            app().project.set_structural_solution(None)
-            app().project.set_acoustic_solution(None)
+            app().project.reset_solution()
 
         if analysis_id in [2, 4, 7]:
             app().project.model.frequencies = None
             self.pushButton_run_analysis.setEnabled(True)
-            app().main_window.input_ui.run_analysis()
+            app().project.run_analysis()
 
         else:
             app().main_window.input_ui.analysis_setup()

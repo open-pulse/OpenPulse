@@ -33,15 +33,18 @@ class PlotTransmissionLoss(QWidget):
         self.update_flip_buttons()
 
     def _initialize(self):
-        self.unit_label = "dB"
-        self.analysis_method = self.project.analysis_method_label
-        self.frequencies = self.model.frequencies
+
+        self.preprocessor = app().project.model.preprocessor
         self.solution = self.project.get_acoustic_solution()
-        self.preprocessor = self.project.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.elements = self.preprocessor.acoustic_elements
-        self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
+
+        self.diameters_from_node = self.preprocessor.neighbor_elements_diameter()
         self.neighboor_elements = self.preprocessor.neighboor_elements_of_node
+
+        self.unit_label = "dB"
+        self.frequencies = self.model.frequencies
+        self.elements = self.preprocessor.acoustic_elements
+        self.analysis_method = self.project.analysis_method_label
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -205,7 +208,7 @@ class PlotTransmissionLoss(QWidget):
             self.y_label = "Noise reduction"
 
     def get_minor_outer_diameter_from_node(self, node):
-        data = self.dict_elements_diameter[node]
+        data = self.diameters_from_node[node]
         inner_diameter = []
         density = []
         speed_of_sound = []

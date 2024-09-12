@@ -355,39 +355,47 @@ class ProjectFile:
         return self.filebox.read(self.thumbnail_filename)
     
     def write_results_data_in_file(self):
+
+        self.filebox.remove(self.results_data_filename)
+
         with self.filebox.open(self.results_data_filename, "w") as internal_file:
             with h5py.File(internal_file, "w") as f:
-
-                acoustic_modal_solver = app().project.acoustic_modal_solver
-                if acoustic_modal_solver is not None:
-                    if acoustic_modal_solver.modal_shape is not None:
-                        natural_frequencies = acoustic_modal_solver.natural_frequencies
-                        modal_shape = acoustic_modal_solver.modal_shape
-                        f.create_dataset("modal_acoustic/natural_frequencies", data=natural_frequencies, dtype=float)
-                        f.create_dataset("modal_acoustic/modal_shape", data=modal_shape, dtype=float)
                 
-                structural_modal_solver = app().project.structural_modal_solver
-                if structural_modal_solver is not None:
-                    if structural_modal_solver.modal_shape is not None:
-                        natural_frequencies = structural_modal_solver.natural_frequencies
-                        modal_shape = structural_modal_solver.modal_shape
+                analysis_id = app().project.analysis_id
+                acoustic_solver = app().project.acoustic_solver
+                structural_solver = app().project.structural_solver
+
+                if analysis_id == 2:
+                    if structural_solver.modal_shape is not None:
+                        natural_frequencies = structural_solver.natural_frequencies
+                        modal_shape = structural_solver.modal_shape
                         f.create_dataset("modal_structural/natural_frequencies", data=natural_frequencies, dtype=float)
                         f.create_dataset("modal_structural/modal_shape", data=modal_shape, dtype=float)
 
-                acoustic_harmonic_solver = app().project.acoustic_harmonic_solver
-                if acoustic_harmonic_solver is not None:
-                    if acoustic_harmonic_solver.solution is not None:
-                        frequencies = acoustic_harmonic_solver.frequencies
-                        solution = acoustic_harmonic_solver.solution
+                if analysis_id == 4:
+                    if acoustic_solver.modal_shape is not None:
+                        natural_frequencies = acoustic_solver.natural_frequencies
+                        modal_shape = acoustic_solver.modal_shape
+                        f.create_dataset("modal_acoustic/natural_frequencies", data=natural_frequencies, dtype=float)
+                        f.create_dataset("modal_acoustic/modal_shape", data=modal_shape, dtype=float)
+
+                if analysis_id in [3, 5, 6]:
+                    if acoustic_solver.solution is not None:
+                        frequencies = acoustic_solver.frequencies
+                        solution = acoustic_solver.solution
                         f.create_dataset("harmonic_acoustic/frequencies", data=frequencies, dtype=float)
                         f.create_dataset("harmonic_acoustic/solution", data=solution, dtype=complex)
-                
-                structural_harmonic_solver = app().project.structural_harmonic_solver
-                if structural_harmonic_solver is not None:
-                    if structural_harmonic_solver.solution is not None:
-                        frequencies = acoustic_harmonic_solver.frequencies
-                        solution = acoustic_harmonic_solver.solution
+
+                if analysis_id in [0, 1, 5, 6]:
+                    if structural_solver.solution is not None:
+                        frequencies = acoustic_solver.frequencies
+                        solution = acoustic_solver.solution
                         f.create_dataset("harmonic_structural/frequencies", data=frequencies, dtype=float)
+                        f.create_dataset("harmonic_structural/solution", data=solution, dtype=complex)
+
+                if analysis_id == 7:
+                    if structural_solver.solution is not None:
+                        solution = acoustic_solver.solution
                         f.create_dataset("harmonic_structural/solution", data=solution, dtype=complex)
 
                 app().main_window.project_data_modified = True

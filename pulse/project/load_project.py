@@ -766,4 +766,63 @@ class LoadProject:
             message += "from both the project files and model setup."
             PrintMessageInput([window_title_2, title, message])
 
+    def load_analysis_results(self):
+    
+        act_modal_analysis = False
+        str_modal_analysis = False
+        act_harmonic_analysis = False
+        str_harmonic_analysis = False
+        str_static_analysis = False
+
+        results_data = app().pulse_file.read_results_data_from_file()
+
+        if results_data:
+            # logging.info("Loading results...")
+            for key, data in results_data.items():
+
+                if key == "modal_acoustic":
+                    act_modal_analysis = True
+                    app().main_window.project.acoustic_solver.natural_frequencies = data["natural_frequencies"]
+                    app().main_window.project.acoustic_solver.modal_shape = data["modal_shape"]
+
+                elif key == "modal_structural":
+                    str_modal_analysis = True
+                    app().main_window.project.structural_solver.natural_frequencies = data["natural_frequencies"]
+                    app().main_window.project.structural_solver.modal_shape = data["modal_shape"]
+
+                elif key == "harmonic_acoustic":
+                    act_harmonic_analysis = True
+                    app().main_window.project.acoustic_solver.frequencies = data["frequencies"]
+                    app().main_window.project.acoustic_solver.solution = data["solution"]
+                    app().main_window.advanced_results_menu.disable_advanced_acoustic_plots_buttons(False)
+
+                elif key == "harmonic_structural":
+                    str_harmonic_analysis = True
+                    app().main_window.project.structural_solver.frequencies = data["frequencies"]
+                    app().main_window.project.structural_solver.solution = data["solution"]
+
+                else:
+                    continue
+            
+            # # logging.info("Updating analysis render...")
+            # if act_modal_analysis:
+            #     app().main_window.viewer_tabs.show_acoustic_modal_analysis()
+            #     app().main_window.menu_widget.update_items()
+
+            # elif str_modal_analysis:
+            #     app().main_window.viewer_tabs.show_structural_modal_analysis()
+            #     app().main_window.menu_widget.update_items()
+
+            # elif act_harmonic_analysis:
+            #     app().main_window.viewer_tabs.show_acoustic_harmonic_analysis()
+            #     app().main_window.menu_widget.update_items()
+
+            # elif str_harmonic_analysis:
+            #     return
+            #     app().main_window.viewer_tabs.show_structural_harmonic_analysis()
+            #     app().main_window.menu_widget.update_items()
+
+            # else:
+            #     return
+
 # fmt: on

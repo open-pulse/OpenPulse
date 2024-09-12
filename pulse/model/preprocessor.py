@@ -2151,7 +2151,7 @@ class Preprocessor:
                 cross_section = CrossSection(valve_section_info = valve_section_info)     
 
             if self.stop_processing:
-                return
+                return True
 
             self.set_cross_section_by_elements(
                                                elements, 

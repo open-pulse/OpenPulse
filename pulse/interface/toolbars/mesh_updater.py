@@ -63,8 +63,6 @@ class MeshUpdater:
 
     def process_mesh_and_load_project(self):
 
-        self.t0 = time()
-
         if app().pulse_file.check_pipeline_data():
             self.current_element_size, self.current_geometry_tolerance = self.get_mesh_attributes_from_project_file()
             # app().pulse_file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
@@ -75,7 +73,6 @@ class MeshUpdater:
             app().main_window.initial_project_action(True)
             app().main_window.update_plots()  
             self.complete = True
-            app().project.time_to_load_or_create_project = time() - self.t0
 
     def undo_mesh_actions(self):
 

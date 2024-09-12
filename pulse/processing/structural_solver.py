@@ -52,8 +52,11 @@ class StructuralSolver:
         self._initialize()
 
     def _initialize(self):
-
+        
+        self.natural_frequencies = None
+        self.modal_shape = None
         self.solution = None
+
         self.reset_stress_stiffening = False
         self.flag_Modal_prescribed_NonNull_DOFs = False
         self.flag_ModeSup_prescribed_NonNull_DOFs = False
@@ -253,12 +256,12 @@ class StructuralSolver:
         eigen_values, eigen_vectors = eigs(Kadd_lump, M=Madd_lump, k=modes, which=which, sigma=sigma_factor)
 
         positive_real = np.absolute(np.real(eigen_values))
-        natural_frequencies = np.sqrt(positive_real)/(2*np.pi)
-        modal_shape = np.real(eigen_vectors)
+        natural_frequencies = np.sqrt(positive_real) / (2 * np.pi)
+        # modal_shape = np.real(eigen_vectors)
 
         index_order = np.argsort(natural_frequencies)
         natural_frequencies = natural_frequencies[index_order]
-        modal_shape = modal_shape[:, index_order]
+        modal_shape = eigen_vectors[:, index_order]
 
         if not harmonic_analysis:
             modal_shape = self._reinsert_prescribed_dofs(modal_shape, modal_analysis=True)
@@ -270,8 +273,13 @@ class StructuralSolver:
                                                             "The null value has been attributed to those DOFs with non-zero values."]
 
         if self.stop_processing():
-            return None, None        
-        
+            self.modal_shape = None
+            self.natural_frequencies = list()
+            return None, None
+
+        self.natural_frequencies = natural_frequencies
+        self.modal_shape = np.real(modal_shape)
+
         return natural_frequencies, modal_shape
 
 

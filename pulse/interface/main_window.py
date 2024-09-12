@@ -236,7 +236,7 @@ class MainWindow(QMainWindow):
         app().splash.update_progress(30)
         self._load_section_plane()
         dt = time() - t0
-        print(f"Time to process A: {dt} [s]")
+        print(f"Time to process A: {round(dt, 6)} [s]")
 
         t1 = time()
         self._create_layout()
@@ -245,7 +245,7 @@ class MainWindow(QMainWindow):
         self._add_toolbars()
         app().splash.update_progress(70)
         dt = time() - t1
-        print(f"Time to process B: {dt} [s]")
+        print(f"Time to process B: {round(dt, 6)} [s]")
 
         t2 = time()
         self.plot_lines_with_cross_sections()
@@ -254,7 +254,7 @@ class MainWindow(QMainWindow):
         self.create_temporary_folder()
         app().splash.update_progress(98)
         dt = time() - t2
-        print(f"Time to process C: {dt} [s]")
+        print(f"Time to process C: {round(dt, 6)} [s]")
 
         app().splash.close()
         self.showMaximized()
@@ -262,7 +262,7 @@ class MainWindow(QMainWindow):
         app().processEvents()
         self.create_file_dialog()
         dt = time() - t0
-        print(f"Time to process D: {dt} [s]")
+        print(f"Time to process D: {round(dt, 6)} [s]")
 
         if not self.is_temporary_folder_empty():
             self.recovery_dialog()
@@ -451,7 +451,7 @@ class MainWindow(QMainWindow):
                 self.analysis_toolbar.load_analysis_settings()
                 self.model_and_analysis_items.modify_model_setup_items_access(False)
                 # dt = time() - t0
-                # print(f"initial_project_action: {dt} s")
+                # print(f"initial_project_action: {round(dt, 6)} s")
                 return True
             else:
                 self.model_and_analysis_items.modify_geometry_item_access(False)
@@ -481,7 +481,7 @@ class MainWindow(QMainWindow):
         else:
             self.disable_workspace_selector_and_geometry_editor(True)
         # dt = time() - t0
-        # print(f"Elapsed time to load_recent_project: {dt}s")
+        # print(f"Elapsed time to load_recent_project: {round(dt, 6)}s")
 
     # internal
     def _update_recent_projects(self):

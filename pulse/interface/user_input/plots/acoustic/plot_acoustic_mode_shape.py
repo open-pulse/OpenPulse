@@ -113,11 +113,6 @@ class PlotAcousticModeShape(QWidget):
         app().config.write_colormap_in_file(colormap)
         app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
-        
-    def get_dict_modes_frequencies(self):
-        self.natural_frequencies = app().project.natural_frequencies_acoustic
-        modes = np.arange(1,len(self.natural_frequencies)+1,1)
-        self.dict_modes_frequencies = dict(zip(modes, self.natural_frequencies))
 
     def update_plot(self):
 
@@ -163,21 +158,25 @@ class PlotAcousticModeShape(QWidget):
         return color_scale_setup
 
     def load_natural_frequencies(self):
-        self.get_dict_modes_frequencies()
+
+        self.natural_frequencies = list(app().project.natural_frequencies_acoustic)
+        modes = np.arange(1, len(self.natural_frequencies) + 1, 1)
+        self.modes_to_frequencies = dict(zip(modes, self.natural_frequencies))
+
         self.treeWidget_frequencies.clear()
-        for mode, natural_frequency in self.dict_modes_frequencies.items():
+        for mode, natural_frequency in self.modes_to_frequencies.items():
             new = QTreeWidgetItem([str(mode), str(round(natural_frequency,4))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_frequencies.addTopLevelItem(new)
 
     def on_click_item(self, item):
-        self.selected_natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
+        self.selected_natural_frequency = self.modes_to_frequencies[int(item.text(0))]
         self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
         self.update_plot()
 
     def on_doubleclick_item(self, item):
-        natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
+        natural_frequency = self.modes_to_frequencies[int(item.text(0))]
         self.lineEdit_natural_frequency.setText(str(natural_frequency))
         self.update_plot()
 

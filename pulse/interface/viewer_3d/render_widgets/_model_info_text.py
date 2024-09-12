@@ -288,14 +288,14 @@ def analysis_info_text(frequency_index: int):
 
     if project.analysis_id in [2, 4]:
         if project.analysis_type_label == "Structural Modal Analysis":
-            frequencies = project.get_structural_natural_frequencies()
+            frequencies = list(project.natural_frequencies_structural)
 
         if project.analysis_type_label == "Acoustic Modal Analysis":
-            frequencies = project.get_acoustic_natural_frequencies()
+            frequencies = list(project.natural_frequencies_acoustic)
 
         if frequencies is None:
             return ""
-        
+
         if frequency_index >= len(frequencies):
             return ""
 

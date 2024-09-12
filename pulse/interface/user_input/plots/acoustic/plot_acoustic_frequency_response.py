@@ -30,14 +30,12 @@ class PlotAcousticFrequencyResponse(QWidget):
         self.selection_callback()
 
     def _initialize(self):
-        self.preprocessor = self.project.preprocessor
+        self.solution = self.project.get_acoustic_solution()
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.nodes = self.preprocessor.nodes
         self.analysis_method = self.project.analysis_method_label
         self.frequencies = self.model.frequencies
-        self.solution = self.project.get_acoustic_solution()
 
-    def _config_window(self):        
+    def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
@@ -90,7 +88,7 @@ class PlotAcousticFrequencyResponse(QWidget):
             return True
 
     def get_response(self, node_id):
-        response = get_acoustic_frf(self.preprocessor, self.solution, node_id)
+        response = get_acoustic_frf(app().project.model.preprocessor, self.solution, node_id)
         if complex(0) in response:
             response += 1e-12
         return response

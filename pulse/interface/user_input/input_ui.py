@@ -32,7 +32,6 @@ from pulse.interface.user_input.model.criteria.check_pulsation_criteria import C
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
 #
 from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
-from pulse.interface.user_input.analysis.general.run_analysis import RunAnalysisInput
 #
 from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
 from pulse.interface.user_input.plots.structural.plot_nodal_results_field_for_harmonic_analysis import PlotNodalResultsFieldForHarmonicAnalysis
@@ -192,43 +191,40 @@ class InputUi:
         
         if read.complete:
             if read.flag_run:
-                self.run_analysis()
+                app().project.run_analysis()
             return True
         else:
             return False
-       
-    def run_analysis(self):
 
-        setup_complete = app().project.is_analysis_setup_complete()
+    # def run_analysis(self):
 
-        # t0 = time()
-        if not setup_complete:
-            title = "Incomplete analysis setup" 
-            message = "Please, it is necessary to choose an analysis type "
-            message += "and setup it before trying to solve the model."
-            PrintMessageInput([window_title_1, title, message])
-            return
+    #     setup_complete = app().project.is_analysis_setup_complete()
 
-        analysis_id = app().project.analysis_id
-        self.before_run = self.project.get_pre_solution_model_checks()
-        if self.before_run.check_is_there_a_problem(analysis_id):
-            return
-        # self.project.time_to_checking_entries = time()-t0
+    #     if not setup_complete:
+    #         title = "Incomplete analysis setup" 
+    #         message = "Please, it is necessary to choose an analysis type "
+    #         message += "and setup it before trying to solve the model."
+    #         PrintMessageInput([window_title_1, title, message])
+    #         return
 
-        read = self.process_input(RunAnalysisInput)
+    #     analysis_id = app().project.analysis_id
+    #     self.before_run = self.project.get_pre_solution_model_checks()
+    #     if self.before_run.check_is_there_a_problem(analysis_id):
+    #         return
 
-        if read.complete:
-            if analysis_id == 2:
-                self.before_run.check_modal_analysis_imported_data()
-            elif analysis_id in [3, 5, 6]:
-                self.before_run.check_all_acoustic_criteria()
+    #     read = self.process_input(RunAnalysisInput)
 
-            self.after_run = self.project.get_post_solution_model_checks()
-            self.after_run.check_all_acoustic_criterias()
-            self.main_window.use_results_workspace()
+    #     if read.complete:
+    #         if analysis_id == 2:
+    #             self.before_run.check_modal_analysis_imported_data()
+    #         elif analysis_id in [3, 5, 6]:
+    #             self.before_run.check_all_acoustic_criteria()
 
-            app().main_window.results_widget.show_empty()
-            # app().main_window.results_viewer_wigdet.remove_widget()
+    #         self.after_run = self.project.get_post_solution_model_checks()
+    #         self.after_run.check_all_acoustic_criterias()
+    #         self.main_window.use_results_workspace()
+
+    #         app().main_window.results_widget.show_empty()
 
     def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")

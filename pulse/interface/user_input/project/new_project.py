@@ -204,13 +204,11 @@ class NewProjectInput(QDialog):
         return setup_data
 
     def start_project(self):
-        t0 = time()
 
         if self.check_project_inputs():
             return
 
         if self.stop:
-            self.project.time_to_load_or_create_project = 0
             return
    
         if self.create_project():
@@ -227,9 +225,8 @@ class NewProjectInput(QDialog):
 
         app().main_window.update_plots()
 
-        self.project.time_to_load_or_create_project = time() - t0
         self.complete = True
-        
+
         self.close()
 
     def keyPressEvent(self, event):

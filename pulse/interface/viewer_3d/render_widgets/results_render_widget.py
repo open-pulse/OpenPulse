@@ -483,8 +483,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         return color_table
 
     def _compute_pressure_field(self, frequency_index, phase_step):
+
         project = app().project
-        preprocessor = project.preprocessor
+        preprocessor = project.model.preprocessor
         solution = project.get_acoustic_solution()
 
         *_, pressure_field_data, self.min_max_pressures_values_current = (
