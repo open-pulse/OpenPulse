@@ -59,6 +59,7 @@ class GeometryRenderWidget(CommonRenderWidget):
             self.selected_points_actor,
         )
 
+        self.visualization_changed_callback()
         if reset_camera:
             self.renderer.ResetCamera()
         self.update()
