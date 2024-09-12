@@ -36,7 +36,13 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
+                          ]
 
         self.labels = np.array(["Normal axial",
                                 "Normal bending y",

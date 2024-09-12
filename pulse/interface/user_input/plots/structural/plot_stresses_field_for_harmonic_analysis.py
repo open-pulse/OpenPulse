@@ -52,7 +52,13 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
+                          ]
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
