@@ -388,8 +388,8 @@ class ProjectFile:
 
                 if analysis_id in [0, 1, 5, 6]:
                     if structural_solver.solution is not None:
-                        frequencies = acoustic_solver.frequencies
-                        solution = acoustic_solver.solution
+                        frequencies = structural_solver.frequencies
+                        solution = structural_solver.solution
                         f.create_dataset("harmonic_structural/frequencies", data=frequencies, dtype=float)
                         f.create_dataset("harmonic_structural/solution", data=solution, dtype=complex)
 

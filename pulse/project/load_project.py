@@ -795,19 +795,19 @@ class LoadProject:
 
                 if key == "harmonic_acoustic":
                     act_harmonic_analysis = True
-                    app().main_window.project.acoustic_solver.frequencies = data["frequencies"]
-                    app().main_window.project.acoustic_solver.solution = data["solution"]
+                    app().main_window.project.model.frequencies = data["frequencies"]
+                    app().main_window.project.solution_acoustic = data["solution"]
 
                 if key == "harmonic_structural":
                     str_harmonic_analysis = True
-                    app().main_window.project.structural_solver.frequencies = data["frequencies"]
-                    app().main_window.project.structural_solver.solution = data["solution"]
+                    app().main_window.project.model.frequencies = data["frequencies"]
+                    app().main_window.project.solution_structural = data["solution"]
 
                 if key == "static_structural":
                     str_static_analysis = True
-                    app().main_window.project.structural_solver.frequencies = [0]
-                    app().main_window.project.structural_solver.solution = data["solution"]
-            
+                    app().main_window.project.model.frequencies = [0]
+                    app().main_window.project.solution_structural = data["solution"]
+
             logging.info("Updating analysis render [75%]")
             if act_modal_analysis:
                 pass
