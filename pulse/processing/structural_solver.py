@@ -683,7 +683,7 @@ class StructuralSolver:
                 Dts = element._Dts
                 Bts = element._Bts
 
-                rot = element._rot
+                rot = element.element_rotation_matrix
                 T = element.cross_section.principal_axis_translation
                 
                 normal = Dab @ Bab @ T @ rot @ u

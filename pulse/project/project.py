@@ -82,6 +82,7 @@ class Project:
         try:
 
             self.reset(reset_all = True)
+            app().loader.load_analysis_results()
 
             if app().pulse_file.check_pipeline_data():
                 self.process_geometry_and_mesh()
@@ -541,6 +542,7 @@ class Project:
 
         app().main_window.use_results_workspace()
         app().main_window.results_widget.show_empty()
+        app().main_window.results_viewer_wigdet.bottom_widget.hide()
 
     def pre_non_linear_convergence_plot(self):
 

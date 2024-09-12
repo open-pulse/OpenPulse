@@ -596,7 +596,7 @@ class MainWindow(QMainWindow):
 
             self.results_widget.update_selection()
             self.results_viewer_wigdet.update_visibility_items()
-            self.animation_toolbar.setEnabled(False)
+            self.animation_toolbar.setEnabled(False)    
 
             self.action_results_workspace.setEnabled(False)
             if not self.action_geometry_editor_workspace.isEnabled():

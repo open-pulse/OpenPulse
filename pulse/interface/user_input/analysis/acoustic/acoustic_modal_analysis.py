@@ -21,11 +21,16 @@ class AcousticModalAnalysisInput(QDialog):
 
         app().main_window.set_input_widget(self)
 
+        self._initialize()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
         self._load_analysis_setup()
         self.exec()
+
+    def _initialize(self):
+        self.modes = None
+        self.complete = False
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

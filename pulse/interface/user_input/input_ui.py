@@ -186,45 +186,15 @@ class InputUi:
 
         if self.project.analysis_id in [None, 2, 4]:
             return False
-        
+
         read = self.process_input(AnalysisSetupInput)
-        
+
         if read.complete:
             if read.flag_run:
                 app().project.run_analysis()
             return True
         else:
             return False
-
-    # def run_analysis(self):
-
-    #     setup_complete = app().project.is_analysis_setup_complete()
-
-    #     if not setup_complete:
-    #         title = "Incomplete analysis setup" 
-    #         message = "Please, it is necessary to choose an analysis type "
-    #         message += "and setup it before trying to solve the model."
-    #         PrintMessageInput([window_title_1, title, message])
-    #         return
-
-    #     analysis_id = app().project.analysis_id
-    #     self.before_run = self.project.get_pre_solution_model_checks()
-    #     if self.before_run.check_is_there_a_problem(analysis_id):
-    #         return
-
-    #     read = self.process_input(RunAnalysisInput)
-
-    #     if read.complete:
-    #         if analysis_id == 2:
-    #             self.before_run.check_modal_analysis_imported_data()
-    #         elif analysis_id in [3, 5, 6]:
-    #             self.before_run.check_all_acoustic_criteria()
-
-    #         self.after_run = self.project.get_post_solution_model_checks()
-    #         self.after_run.check_all_acoustic_criterias()
-    #         self.main_window.use_results_workspace()
-
-    #         app().main_window.results_widget.show_empty()
 
     def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")

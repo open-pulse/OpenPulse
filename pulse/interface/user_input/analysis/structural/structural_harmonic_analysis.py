@@ -4,10 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import  app, UI_DIR
-from pulse.interface.formatters.icons import *
-
-from pathlib import Path
-
 
 class StructuralHarmonicAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -16,8 +12,8 @@ class StructuralHarmonicAnalysisInput(QDialog):
         ui_path = UI_DIR / "analysis/general/harmonic_analysis_method.ui"
         uic.loadUi(ui_path, self)
 
-        self._config_window()
         self._initialize()
+        self._config_window()
         self._define_qt_variables()       
         self._create_connections()
         self.exec()
@@ -44,18 +40,18 @@ class StructuralHarmonicAnalysisInput(QDialog):
         self.pushButton_go_to_analysis_setup : QPushButton
     
     def _create_connections(self):
-        self.pushButton_go_to_analysis_setup.clicked.connect(self.button_clicked)
+        self.pushButton_go_to_analysis_setup.clicked.connect(self.analysis_setup_callback)
 
-    def button_clicked(self):
-        self.check()
+    def analysis_setup_callback(self):
+        self.go_to_analysis_setup()
 
-    def check(self):
+    def go_to_analysis_setup(self):
         self.index = self.comboBox_method.currentIndex()
         self.close()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
+            self.go_to_analysis_setup()
         elif event.key() == Qt.Key_Escape:
             self.index = -1
             self.close()

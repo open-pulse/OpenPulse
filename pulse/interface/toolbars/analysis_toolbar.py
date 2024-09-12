@@ -262,7 +262,7 @@ class AnalysisToolbar(QToolBar):
     def modal_structural(self):
 
         modal = StructuralModalAnalysisInput()
-        if modal.modes is None:
+        if not modal.complete:
             return
 
         analysis_id = 2
@@ -282,7 +282,7 @@ class AnalysisToolbar(QToolBar):
     def modal_acoustic(self):
 
         modal = AcousticModalAnalysisInput()
-        if modal.modes is None:
+        if not modal.complete:
             return
 
         analysis_id = 4

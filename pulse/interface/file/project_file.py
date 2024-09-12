@@ -356,7 +356,7 @@ class ProjectFile:
     
     def write_results_data_in_file(self):
 
-        self.filebox.remove(self.results_data_filename)
+        # self.filebox.remove(self.results_data_filename)
 
         with self.filebox.open(self.results_data_filename, "w") as internal_file:
             with h5py.File(internal_file, "w") as f:

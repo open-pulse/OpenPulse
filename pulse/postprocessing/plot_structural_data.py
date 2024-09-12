@@ -190,7 +190,7 @@ def get_structural_response(preprocessor, solution, column, **kwargs):
                         phases[ind+3, column], phases[ind+4, column], phases[ind+5, column]]).T
 
     if new_scf is None:
-        scf = preprocessor.structure_principal_diagonal/50
+        scf = preprocessor.structure_principal_diagonal / 50
 
     if Normalize:
         if r_max == 0:

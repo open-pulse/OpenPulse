@@ -72,8 +72,11 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_transmission_loss.setDisabled(True)
         self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
         self.item_child_plot_perforated_plate_convergence_data.setHidden(True)
-                            
-        if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
+
+        acoustic_solution = self.project.get_acoustic_solution()
+        structural_solution = self.project.get_structural_solution()
+
+        if structural_solution is not None or acoustic_solution is not None:
 
             if self.project.analysis_id in [0, 1, 2, 7]:
                 self.item_top_results_viewer_structural.setHidden(False)

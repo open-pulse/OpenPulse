@@ -11,6 +11,7 @@ from pulse.tools.utils import *
 
 from pulse.model.cross_section import CrossSection
 
+import logging
 from time import time
 from collections import defaultdict
 
@@ -56,6 +57,8 @@ class LoadProject:
         #
         self.load_analysis_file()
         self.load_inertia_load_setup()
+        #
+        # self.load_analysis_results()
 
 
     def load_fluids_library(self):
@@ -777,52 +780,48 @@ class LoadProject:
         results_data = app().pulse_file.read_results_data_from_file()
 
         if results_data:
-            # logging.info("Loading results...")
+            logging.info("Loading results [10%]")
             for key, data in results_data.items():
 
                 if key == "modal_acoustic":
                     act_modal_analysis = True
-                    app().main_window.project.acoustic_solver.natural_frequencies = data["natural_frequencies"]
-                    app().main_window.project.acoustic_solver.modal_shape = data["modal_shape"]
+                    app().main_window.project.natural_frequencies_acoustic = data["natural_frequencies"]
+                    app().main_window.project.solution_acoustic = data["modal_shape"]
 
-                elif key == "modal_structural":
+                if key == "modal_structural":
                     str_modal_analysis = True
-                    app().main_window.project.structural_solver.natural_frequencies = data["natural_frequencies"]
-                    app().main_window.project.structural_solver.modal_shape = data["modal_shape"]
+                    app().main_window.project.natural_frequencies_structural = data["natural_frequencies"]
+                    app().main_window.project.solution_structural = data["modal_shape"]
 
-                elif key == "harmonic_acoustic":
+                if key == "harmonic_acoustic":
                     act_harmonic_analysis = True
                     app().main_window.project.acoustic_solver.frequencies = data["frequencies"]
                     app().main_window.project.acoustic_solver.solution = data["solution"]
-                    app().main_window.advanced_results_menu.disable_advanced_acoustic_plots_buttons(False)
 
-                elif key == "harmonic_structural":
+                if key == "harmonic_structural":
                     str_harmonic_analysis = True
                     app().main_window.project.structural_solver.frequencies = data["frequencies"]
                     app().main_window.project.structural_solver.solution = data["solution"]
 
-                else:
-                    continue
+                if key == "static_structural":
+                    str_static_analysis = True
+                    app().main_window.project.structural_solver.frequencies = [0]
+                    app().main_window.project.structural_solver.solution = data["solution"]
             
-            # # logging.info("Updating analysis render...")
-            # if act_modal_analysis:
-            #     app().main_window.viewer_tabs.show_acoustic_modal_analysis()
-            #     app().main_window.menu_widget.update_items()
+            logging.info("Updating analysis render [75%]")
+            if act_modal_analysis:
+                pass
 
-            # elif str_modal_analysis:
-            #     app().main_window.viewer_tabs.show_structural_modal_analysis()
-            #     app().main_window.menu_widget.update_items()
+            elif str_modal_analysis:
+                pass
 
-            # elif act_harmonic_analysis:
-            #     app().main_window.viewer_tabs.show_acoustic_harmonic_analysis()
-            #     app().main_window.menu_widget.update_items()
+            elif act_harmonic_analysis:
+                pass
 
-            # elif str_harmonic_analysis:
-            #     return
-            #     app().main_window.viewer_tabs.show_structural_harmonic_analysis()
-            #     app().main_window.menu_widget.update_items()
+            elif str_harmonic_analysis:
+                return
 
-            # else:
-            #     return
+            else:
+                return
 
 # fmt: on

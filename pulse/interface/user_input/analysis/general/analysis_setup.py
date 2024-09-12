@@ -122,10 +122,21 @@ class AnalysisSetupInput(QDialog):
                 self.lineEdit_bh.setText(str(self.model.global_damping[3]))
 
     def update_frequency_setup_input_texts(self):
-        if self.model.f_step != 0:
-            self.lineEdit_fmin.setText(str(self.model.f_min))
-            self.lineEdit_fmax.setText(str(self.model.f_max))
-            self.lineEdit_fstep.setText(str(self.model.f_step))
+
+        if (self.model.f_min, self.model.f_max, self.model.f_step).count(None):
+            f_min = 0
+            f_max = 200
+            f_step = 1
+
+        else:
+            f_min = self.model.f_min
+            f_max = self.model.f_max
+            f_step = self.model.f_step
+
+        if f_step != 0:
+            self.lineEdit_fmin.setText(str(f_min))
+            self.lineEdit_fmax.setText(str(f_max))
+            self.lineEdit_fstep.setText(str(f_step))
             if app().project.model.properties.check_if_there_are_tables_at_the_model():
                 self.lineEdit_fmin.setDisabled(True)
                 self.lineEdit_fmax.setDisabled(True)
