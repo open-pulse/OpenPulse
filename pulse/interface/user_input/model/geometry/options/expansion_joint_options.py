@@ -67,10 +67,6 @@ class ExpansionJointOptions(StructureOptions):
         if self.expansion_joint_info is None:
             return
 
-        parameters = self.expansion_joint_info.get("section_parameters")
-        if parameters is None:
-            return
-
         return dict(
             diameter = self.expansion_joint_info.get("effective_diameter", 0),
             thickness = 0,
