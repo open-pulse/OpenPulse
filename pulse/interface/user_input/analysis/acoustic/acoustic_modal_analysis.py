@@ -5,7 +5,6 @@ from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.formatters.icons import *
 
 from math import pi
 
@@ -30,7 +29,8 @@ class AcousticModalAnalysisInput(QDialog):
 
     def _initialize(self):
         self.modes = None
-        self.complete = False
+        self.setup_defined = False
+        self.proceed_solution = False
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -41,13 +41,15 @@ class AcousticModalAnalysisInput(QDialog):
     def _define_qt_variables(self):
 
         # QLineEdit
-        self.lineEdit_number_modes : QLineEdit
-        self.lineEdit_sigma_factor : QLineEdit
+        self.lineEdit_number_modes: QLineEdit
+        self.lineEdit_sigma_factor: QLineEdit
 
         # QPushButton
-        self.pushButton_run_analysis : QPushButton
+        self.pushButton_run_analysis: QPushButton
+        self.pushButton_enter_setup: QPushButton
 
     def _create_connections(self):
+        self.pushButton_enter_setup.clicked.connect(self.enter_setup_callback)
         self.pushButton_run_analysis.clicked.connect(self.run_analysis)
 
     def _load_analysis_setup(self):
@@ -65,7 +67,7 @@ class AcousticModalAnalysisInput(QDialog):
 
         if self.lineEdit_number_modes.text() == "":
             message = "Invalid a value to the number of modes."
-            self.text_data = [window_title_1, title, message]
+            PrintMessageInput([window_title_1, title, message])
             return True
 
         else:
@@ -74,24 +76,45 @@ class AcousticModalAnalysisInput(QDialog):
                 self.modes = int(self.lineEdit_number_modes.text())
             except Exception:
                 message = "Invalid input value for number of modes."
-                self.text_data = [window_title_1, title, message]
+                PrintMessageInput([window_title_1, title, message])
                 return True
 
             try:
                 self.sigma_factor = float(self.lineEdit_sigma_factor.text())
             except Exception:
                 message = "Invalid input value for sigma factor."
-                self.text_data = [window_title_1, title, message]
+                PrintMessageInput([window_title_1, title, message])
                 return True
             
         return False
     
-    def run_analysis(self):
+    def enter_setup_callback(self):
+
         if self.check_analysis_inputs():
-            PrintMessageInput(self.text_data)
             return
-        self.complete = True
+
+        analysis_id = 4
+        analysis_type = "Acoustic Modal Analysis"
+
+        app().project.set_analysis_type(analysis_id, analysis_type, None)
+
+        analysis_setup = {
+                          "analysis_id" : analysis_id,
+                          "modes" : self.modes,
+                          "sigma_factor" : self.sigma_factor
+                          }
+
+        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+
+        self.setup_defined = True
         self.close()
+
+    def run_analysis(self):
+
+        if self.enter_setup_callback():
+            return
+
+        self.proceed_solution = True
 
     def button_clicked(self):
         self.check_analysis_inputs()

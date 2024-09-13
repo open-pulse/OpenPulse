@@ -356,26 +356,26 @@ class ProjectFile:
     
     def write_results_data_in_file(self):
 
-        # self.filebox.remove(self.results_data_filename)
+        self.remove_results_data_from_project_file()
 
         with self.filebox.open(self.results_data_filename, "w") as internal_file:
             with h5py.File(internal_file, "w") as f:
-                
+
                 analysis_id = app().project.analysis_id
                 acoustic_solver = app().project.acoustic_solver
                 structural_solver = app().project.structural_solver
 
                 if analysis_id == 2:
-                    if structural_solver.modal_shape is not None:
+                    if structural_solver.modal_shapes is not None:
                         natural_frequencies = structural_solver.natural_frequencies
-                        modal_shape = structural_solver.modal_shape
+                        modal_shape = structural_solver.modal_shapes
                         f.create_dataset("modal_structural/natural_frequencies", data=natural_frequencies, dtype=float)
                         f.create_dataset("modal_structural/modal_shape", data=modal_shape, dtype=float)
 
                 if analysis_id == 4:
-                    if acoustic_solver.modal_shape is not None:
+                    if acoustic_solver.modal_shapes is not None:
                         natural_frequencies = acoustic_solver.natural_frequencies
-                        modal_shape = acoustic_solver.modal_shape
+                        modal_shape = acoustic_solver.modal_shapes
                         f.create_dataset("modal_acoustic/natural_frequencies", data=natural_frequencies, dtype=float)
                         f.create_dataset("modal_acoustic/modal_shape", data=modal_shape, dtype=float)
 
@@ -395,8 +395,8 @@ class ProjectFile:
 
                 if analysis_id == 7:
                     if structural_solver.solution is not None:
-                        solution = acoustic_solver.solution
-                        f.create_dataset("harmonic_structural/solution", data=solution, dtype=complex)
+                        solution = structural_solver.solution
+                        f.create_dataset("static_structural/solution", data=solution, dtype=complex)
 
                 app().main_window.project_data_modified = True
 

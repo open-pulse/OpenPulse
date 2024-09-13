@@ -118,7 +118,7 @@ def get_min_max_resultant_displacements(solution, column, **kwargs):
 
         r_min = 1
         r_max = 0
-        thetas = np.arange(0, N_div+1, 1)*(2*pi/N_div)
+        thetas = np.arange(0, N_div + 1, 1)*(2 * pi / N_div)
         for theta in thetas:
 
             factor = np.cos(theta + _phases)
@@ -385,7 +385,6 @@ def get_stresses_to_plot(**kwargs):
     min_max_values = [min(stresses), max(stresses)]
 
     return stresses_data, min_max_values
-
 
 # def get_internal_loads_data(preprocessor, column, absolute=False, real=False, imaginary=False):
 

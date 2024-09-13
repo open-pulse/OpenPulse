@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 
 
 class CoupledHarmonicAnalysisInput(QDialog):
@@ -14,6 +13,8 @@ class CoupledHarmonicAnalysisInput(QDialog):
         ui_path = UI_DIR / "analysis/general/harmonic_analysis_method.ui"
         uic.loadUi(ui_path, self)
         
+        app().main_window.set_input_widget(self)
+
         self._config_window()
         self._initialize()
         self._define_qt_variables()       

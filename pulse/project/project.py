@@ -65,10 +65,18 @@ class Project:
         self.structural_solver = None
 
     def reset_solution(self):
-        self.solution_structural = None
-        self.solution_acoustic = None
+        self.structural_solution = None
+        self.acoustic_solution = None
+
         self.natural_frequencies_acoustic = list()
         self.natural_frequencies_structural = list()
+
+        self.acoustic_harmonic_solution = None
+        self.acoustic_modal_solution = None
+        self.structural_harmonic_solution = None
+        self.structural_modal_solution = None
+        self.structural_static_solution = None
+        self.structural_reactions = dict()
 
     def reset_analysis_setup(self):
         self.modes = 0
@@ -316,15 +324,30 @@ class Project:
 
     def get_structural_solver(self) -> StructuralSolver:
         if self.analysis_id in [5, 6]:
-            return StructuralSolver(self.model, acoustic_solution=self.solution_acoustic)
+            return StructuralSolver(self.model, acoustic_solution=self.acoustic_solution)
         else:
             return StructuralSolver(self.model)
 
     def get_structural_solution(self):
-        return self.solution_structural
+        return self.structural_solution
+
+    def get_acoustic_harmonic_solution(self):
+        return self.acoustic_harmonic_solution
+
+    def get_acoustic_modal_solution(self):
+        return self.acoustic_modal_solution
+
+    def get_structural_harmonic_solution(self):
+        return self.structural_harmonic_solution
+
+    def get_structural_modal_solution(self):
+        return self.structural_modal_solution
+
+    def get_structural_static_solution(self):
+        return self.structural_static_solution
 
     def get_acoustic_solution(self):
-        return self.solution_acoustic
+        return self.acoustic_solution
 
     def get_structural_reactions(self):
         return self.structural_reactions
@@ -355,10 +378,10 @@ class Project:
 
     def is_the_solution_finished(self):
 
-        if self.solution_acoustic is not None:
+        if self.acoustic_solution is not None:
             return True
 
-        elif self.solution_structural is not None:
+        elif self.structural_solution is not None:
             return True
 
         else:
@@ -400,36 +423,55 @@ class Project:
     def process_analysis(self):
 
         if self.analysis_id == 0: # Structural Harmonic Analysis - Direct Method
-            self.solution_structural = self.structural_solver.direct_method()
+            self.structural_solver.direct_method()
+            self.structural_solution = self.structural_solver.solution
+            # self.structural_harmonic_solution = self.structural_solver.solution
 
         elif self.analysis_id == 1: # Structural Harmonic Analysis - Mode Superposition Method
-            self.solution_structural = self.structural_solver.mode_superposition(self.modes)
+            self.structural_solver.mode_superposition(self.modes)
+            self.structural_solution = self.structural_solver.solution
+            # self.structural_harmonic_solution = self.structural_solver.solution
 
         elif self.analysis_id == 3: # Acoustic Harmonic Analysis - Direct Method
-            self.solution_acoustic, self.perforated_plate_data_log = self.structural_solver.direct_method()
+            self.acoustic_solver.direct_method()
+            self.acoustic_solution = self.acoustic_solver.solution
+            self.perforated_plate_data_log = self.acoustic_solver.convergence_data_log
 
         elif self.analysis_id == 5: # Coupled Harmonic Analysis - Direct Method
-            self.solution_acoustic, self.perforated_plate_data_log = self.acoustic_solver.direct_method()
+            self.acoustic_solver.direct_method()
+            self.acoustic_solution = self.acoustic_solver.solution
+            self.perforated_plate_data_log = self.acoustic_solver.convergence_data_log
+
             self.structural_solver = self.get_structural_solver()
-            self.solution_structural = self.structural_solver.direct_method()
+            self.structural_solver.direct_method()
+            self.structural_solution = self.structural_solver.solution
+            # self.structural_harmonic_solution = self.structural_solver.solution
 
         elif self.analysis_id == 6: # Coupled Harmonic Analysis - Mode Superposition Method
-            self.solution_acoustic, self.perforated_plate_data_log = self.acoustic_solver.direct_method()
+            self.acoustic_solver.direct_method()
+            self.acoustic_solution = self.acoustic_solver.solution
+            self.perforated_plate_data_log = self.acoustic_solver.convergence_data_log
             self.structural_solver = self.get_structural_solver()
-            self.solution_structural = self.structural_solver.mode_superposition(self.modes)
+            self.structural_solver.mode_superposition(self.modes)
+            self.structural_solution = self.structural_solver.solution
+            # self.structural_harmonic_solution = self.structural_solver.solution
 
         elif self.analysis_id == 2: # Structural Modal Analysis
             self.structural_solver.modal_analysis(modes = self.modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_structural = self.structural_solver.natural_frequencies
-            self.solution_structural = self.structural_solver.modal_shape
+            self.structural_solution = self.structural_solver.modal_shapes
+            # self.structural_modal_solution = self.structural_solver.modal_shapes
 
         elif self.analysis_id == 4: # Acoustic Modal Analysis
             self.acoustic_solver.modal_analysis(modes = self.modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_acoustic = self.acoustic_solver.natural_frequencies
-            self.solution_acoustic = self.acoustic_solver.modal_shape
+            self.acoustic_solution = self.acoustic_solver.modal_shapes
+            # self.structural_modal_solution = self.acoustic_solver.modal_shapes
 
         elif self.analysis_id == 7: # Static Analysis
-            self.solution_structural = self.structural_solver.static_analysis()
+            self.structural_solver.static_analysis()
+            self.structural_solution = self.structural_solver.solution
+            # self.structural_static_solution = self.structural_solver.solution
 
         else:
             raise NotImplementedError("Not implemented analysis")
@@ -476,11 +518,7 @@ class Project:
         self.post_non_linear_convergence_plot()  
 
         if self.preprocessor.stop_processing:
-            self.solution_acoustic = None
-            self.solution_structural = None
-            self.natural_frequencies_acoustic = None
-            self.natural_frequencies_structural = None
-            self.structural_reactions = dict()
+            self.reset_solution()
             self.preprocessor.stop_processing = False
             return
 
@@ -509,7 +547,7 @@ class Project:
 
     def calculate_structural_reactions(self):
 
-        if self.solution_structural is None:
+        if self.structural_solution is None:
             return
 
         if self.analysis_id == 7:

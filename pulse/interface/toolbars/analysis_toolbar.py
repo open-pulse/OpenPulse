@@ -100,30 +100,10 @@ class AnalysisToolbar(QToolBar):
         for _type in [" Harmonic", " Modal", " Static"]:
             self.combo_box_analysis_type.addItem(_type)
 
-    def load_analysis_settings(self):
+    def physical_domain_callback(self):
+        self.update_run_analysis_button()
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-
-        if isinstance(analysis_setup, dict):
-            analysis_id = analysis_setup["analysis_id"]
-            if analysis_id in [0, 1, 3, 5, 6]:
-                self.combo_box_analysis_type.setCurrentIndex(0)
-            elif analysis_id in [2, 4]:
-                self.combo_box_analysis_type.setCurrentIndex(1)
-            elif analysis_id == 7:
-                self.combo_box_analysis_domain.setCurrentIndex(2)
-
-            if analysis_id in [0, 1, 2, 7]:
-                self.combo_box_analysis_domain.setCurrentIndex(0)
-            elif analysis_id in [3, 4]:
-                self.combo_box_analysis_domain.setCurrentIndex(1)
-            elif analysis_id in [5, 6]:
-                self.combo_box_analysis_domain.setCurrentIndex(2)
-
-            setup_complete = app().project.is_analysis_setup_complete()
-            self.pushButton_run_analysis.setEnabled(setup_complete)
-
-    def physical_domains_callback(self):
+    def analysis_type_callback(self):
 
         if self.combo_box_analysis_type.currentIndex() == 0:
             available_domains = [" Structural", " Acoustic", " Coupled"]
@@ -135,8 +115,13 @@ class AnalysisToolbar(QToolBar):
             available_domains = list()
 
         self.combo_box_analysis_domain.clear()
+        self.combo_box_analysis_domain.blockSignals(True)
+
         for _domain in available_domains:
             self.combo_box_analysis_domain.addItem(_domain)
+
+        self.update_run_analysis_button()
+        self.combo_box_analysis_domain.blockSignals(False)
 
     def _config_widgets(self):
 
@@ -168,19 +153,20 @@ class AnalysisToolbar(QToolBar):
 
     def _create_connections(self):
         #
-        self.combo_box_analysis_type.currentIndexChanged.connect(self.physical_domains_callback)
+        self.combo_box_analysis_type.currentIndexChanged.connect(self.analysis_type_callback)
+        self.combo_box_analysis_domain.currentIndexChanged.connect(self.physical_domain_callback)
         #
         self.pushButton_run_analysis.clicked.connect(self.run_analysis_callback)
         self.pushButton_configure_analysis.clicked.connect(self.configure_analysis_callback)
         #
-        self.physical_domains_callback()
+        self.analysis_type_callback()
 
     def run_analysis_callback(self):
         app().project.run_analysis()
 
     def configure_analysis_callback(self):
 
-        self.complete = False
+        app().main_window.close_dialogs()
 
         analysis_type = self.combo_box_analysis_type.currentIndex()
         domain = self.combo_box_analysis_domain.currentIndex()
@@ -206,9 +192,6 @@ class AnalysisToolbar(QToolBar):
         else:
             pass
 
-        if self.complete:
-            self.actions_to_finalize()
-
     def harmonic_structural(self):
 
         select = StructuralHarmonicAnalysisInput()
@@ -225,7 +208,10 @@ class AnalysisToolbar(QToolBar):
             analysis_method = "Mode Superposition Method"
 
         app().project.set_analysis_type(analysis_id, analysis_type, analysis_method)
-        self.complete = True
+
+        app().project.reset_solution()
+        if app().main_window.input_ui.analysis_setup():
+            self.update_run_analysis_button()
 
     def harmonic_acoustic(self):
 
@@ -239,7 +225,10 @@ class AnalysisToolbar(QToolBar):
             return
     
         app().project.set_analysis_type(analysis_id, analysis_type, analysis_method)
-        self.complete = True
+
+        app().project.reset_solution()
+        if app().main_window.input_ui.analysis_setup():
+            self.update_run_analysis_button()
 
     def harmonic_coupled(self):
 
@@ -257,74 +246,102 @@ class AnalysisToolbar(QToolBar):
             analysis_method = "Mode Superposition Method"
 
         app().project.set_analysis_type(analysis_id, analysis_type, analysis_method)
-        self.complete = True
+
+        app().project.reset_solution()
+        if app().main_window.input_ui.analysis_setup():
+            self.update_run_analysis_button()
 
     def modal_structural(self):
 
         modal = StructuralModalAnalysisInput()
-        if not modal.complete:
+
+        if modal.setup_defined:
+            self.update_run_analysis_button()
+
+        if not modal.proceed_solution:
             return
 
-        analysis_id = 2
-        analysis_type = "Structural Modal Analysis"
-
-        app().project.set_analysis_type(analysis_id, analysis_type, None)
-
-        analysis_setup = {
-                          "analysis_id" : analysis_id,
-                          "modes" : modal.modes,
-                          "sigma_factor" : modal.sigma_factor
-                          }
-
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
-        self.complete = modal.complete
+        app().project.model.frequencies = None
+        app().project.run_analysis()
 
     def modal_acoustic(self):
 
         modal = AcousticModalAnalysisInput()
-        if not modal.complete:
+
+        if modal.setup_defined:
+            self.update_run_analysis_button()
+
+        if not modal.proceed_solution:
             return
-
-        analysis_id = 4
-        analysis_type = "Acoustic Modal Analysis"
-
-        app().project.set_analysis_type(analysis_id, analysis_type, None)
-
-        analysis_setup = {
-                          "analysis_id" : analysis_id,
-                          "modes" : modal.modes,
-                          "sigma_factor" : modal.sigma_factor
-                          }
-
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
-        self.complete = modal.complete
+        
+        app().project.model.frequencies = None
+        app().project.run_analysis()
 
     def static_analysis(self):
 
         static = StaticAnalysisInput()
-        if not static.complete:
+
+        if static.setup_defined:
+            self.update_run_analysis_button()
+
+        if not static.proceed_solution:
             return
 
-        analysis_id = 7
-        analysis_type = "Static Analysis"
+        app().project.run_analysis()
 
-        app().project.set_analysis_type(analysis_id, analysis_type, None)
-        self.complete = static.complete
-    
-    def actions_to_finalize(self):
+    def update_run_analysis_button(self):
 
+        analysis_type = self.combo_box_analysis_type.currentIndex()
+        domain = self.combo_box_analysis_domain.currentIndex()
+
+        new_analysis_ids = list()
         analysis_id = app().project.analysis_id
 
-        if analysis_id is None:
-            return
+        if analysis_type == 0:
+            if domain == 0:
+                new_analysis_ids = [0, 1]
+            elif domain == 1:
+                new_analysis_ids = [3]
+            else:
+                new_analysis_ids = [5, 6]
 
-        if analysis_id in [0, 1, 3, 5, 6, 7]:
-            app().project.reset_solution()
+        elif analysis_type == 1:
+            if domain == 0:
+                new_analysis_ids = [2]
+            else:
+                new_analysis_ids = [4]
 
-        if analysis_id in [2, 4, 7]:
-            app().project.model.frequencies = None
-            self.pushButton_run_analysis.setEnabled(True)
-            app().project.run_analysis()
+        elif analysis_type == 2:
+            if domain == 0:
+                new_analysis_ids = [7]
 
         else:
-            app().main_window.input_ui.analysis_setup()
+            pass
+
+        if analysis_id in new_analysis_ids:
+            self.pushButton_run_analysis.setEnabled(True)
+        else:
+            self.pushButton_run_analysis.setEnabled(False)
+
+    def load_analysis_settings(self):
+
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+
+        if isinstance(analysis_setup, dict):
+            analysis_id = analysis_setup["analysis_id"]
+            if analysis_id in [0, 1, 3, 5, 6]:
+                self.combo_box_analysis_type.setCurrentIndex(0)
+            elif analysis_id in [2, 4]:
+                self.combo_box_analysis_type.setCurrentIndex(1)
+            elif analysis_id == 7:
+                self.combo_box_analysis_type.setCurrentIndex(2)
+
+            if analysis_id in [0, 1, 2, 7]:
+                self.combo_box_analysis_domain.setCurrentIndex(0)
+            elif analysis_id in [3, 4]:
+                self.combo_box_analysis_domain.setCurrentIndex(1)
+            elif analysis_id in [5, 6]:
+                self.combo_box_analysis_domain.setCurrentIndex(2)
+
+            setup_complete = app().project.is_analysis_setup_complete()
+            self.pushButton_run_analysis.setEnabled(setup_complete)

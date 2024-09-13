@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
@@ -119,6 +118,8 @@ class PlotAcousticFrequencyResponse(QWidget):
 
     def get_color(self, index):
 
+        from numpy import random
+
         colors = [  (0,0,1), (0,0,0), (1,0,0),
                     (0,1,1), (1,0,1), (1,1,0),
                     (0.25,0.25,0.25)  ]
@@ -126,7 +127,7 @@ class PlotAcousticFrequencyResponse(QWidget):
         if index <= 6:
             return colors[index]
         else:
-            return tuple(np.random.randint(0, 255, size=3) / 255)
+            return tuple(random.randint(0, 255, size=3) / 255)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

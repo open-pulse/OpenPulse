@@ -152,8 +152,8 @@ class PlotTransmissionLoss(QWidget):
         else:
             selected_ids = app().main_window.list_selected_nodes()
         
-        self.input_node_ID = None
-        self.output_node_ID = None
+        self.input_node_id = None
+        self.output_node_id = None
         self.lineEdit_input_node_id.setText("")
         self.lineEdit_output_node_id.setText("")
 
@@ -165,10 +165,10 @@ class PlotTransmissionLoss(QWidget):
                     for (property, *args), data in app().project.model.properties.nodal_properties.items():
                         if property == "volume_velocity" and args[0] == node_id:
                             self.input_volume_velocity = np.real(data["values"])
-                            self.input_node_ID = node_id
+                            self.input_node_id = node_id
                         
                         elif property == "radiation_impedance" and args[0] == node_id:
-                            self.output_node_ID = node_id
+                            self.output_node_id = node_id
 
                 else:
                     return True
@@ -176,24 +176,24 @@ class PlotTransmissionLoss(QWidget):
         else:
 
             if len(selected_ids) == 2:
-                self.input_node_ID = selected_ids[0]
-                self.output_node_ID = selected_ids[1]
+                self.input_node_id = selected_ids[0]
+                self.output_node_id = selected_ids[1]
             else:
                 return True
 
-        self.lineEdit_input_node_id.setText(str(self.input_node_ID))
-        self.lineEdit_output_node_id.setText(str(self.output_node_ID))
+        self.lineEdit_input_node_id.setText(str(self.input_node_id))
+        self.lineEdit_output_node_id.setText(str(self.output_node_id))
 
     def check_inputs(self):
 
         input_node = self.lineEdit_input_node_id.text()
-        stop, self.input_node_ID = self.before_run.check_selected_ids(input_node, "nodes", single_id=True)
+        stop, self.input_node_id = self.before_run.check_selected_ids(input_node, "nodes", single_id=True)
         if stop:
             self.lineEdit_input_node_id.setFocus()
             return True
 
         output_node = self.lineEdit_output_node_id.text()
-        stop, self.output_node_ID = self.before_run.check_selected_ids(output_node, "nodes", single_id=True)
+        stop, self.output_node_id = self.before_run.check_selected_ids(output_node, "nodes", single_id=True)
         if stop:
             self.lineEdit_output_node_id.setFocus()
             return True
@@ -221,10 +221,10 @@ class PlotTransmissionLoss(QWidget):
 
     def get_TL_NR(self):
 
-        P_out = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
+        P_out = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_id)
 
-        d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_ID)
-        d_out, rho_out, c0_out = self.get_minor_outer_diameter_from_node(self.output_node_ID)
+        d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_id)
+        d_out, rho_out, c0_out = self.get_minor_outer_diameter_from_node(self.output_node_id)
         A_in = np.pi*(d_in**2)/4
         A_out = np.pi*(d_out**2)/4
 
@@ -255,7 +255,7 @@ class PlotTransmissionLoss(QWidget):
 
         if index == 1:
 
-            P_in = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
+            P_in = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_id)
             Prms_in2 = np.real(P_in*np.conjugate(P_in))/2 + zero_shift
             Prms_out2 = np.real(P_out*np.conjugate(P_out))/2 + zero_shift
             NR = 10*np.log10(Prms_in2/Prms_out2)
@@ -266,18 +266,23 @@ class PlotTransmissionLoss(QWidget):
         self.model_results = dict()
         self.title = "Acoustic frequency response - {}".format(self.analysis_method)
         legend_label = "{} between nodes {} and {}".format(self.y_label,
-                                                           self.input_node_ID, 
-                                                           self.output_node_ID)
-        self.model_results = {  "x_data" : self.frequencies,
-                                "y_data" : self.get_TL_NR(),
-                                "x_label" : "Frequency [Hz]",
-                                "y_label" : self.y_label,
-                                "title" : self.title,
-                                "data_information" : legend_label,
-                                "legend" : legend_label,
-                                "unit" : self.unit_label,
-                                "color" : [0,0,1],
-                                "linestyle" : "-"  }
+                                                           self.input_node_id, 
+                                                           self.output_node_id)
+        
+        key = ("nodes", (self.input_node_id, self.output_node_id))
+
+        self.model_results[key] = { 
+                                    "x_data" : self.frequencies,
+                                    "y_data" : self.get_TL_NR(),
+                                    "x_label" : "Frequency [Hz]",
+                                    "y_label" : self.y_label,
+                                    "title" : self.title,
+                                    "data_information" : legend_label,
+                                    "legend" : legend_label,
+                                    "unit" : self.unit_label,
+                                    "color" : [0,0,1],
+                                    "linestyle" : "-"
+                                   }
 
     def call_plotter(self):
         if self.check_inputs():

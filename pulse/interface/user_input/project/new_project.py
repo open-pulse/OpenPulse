@@ -2,13 +2,12 @@ from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QFileDialog, QLabel, QLi
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-from pulse.interface.formatters.icons import *
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import app, UI_DIR
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import os
+from pathlib import Path
 from time import time
 
 window_title = "Error"

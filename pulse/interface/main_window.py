@@ -69,7 +69,6 @@ class MainWindow(QMainWindow):
     def _initialize(self):
 
         self.dialog = None
-        self.pulse_file = None
         self.input_ui = None
 
         self.current_plot_type = None
@@ -1006,12 +1005,10 @@ class MainWindow(QMainWindow):
                 return
 
             if obj.ignore_results_data:
-                pass
-                # self.ulse_file.remove_results_data_from_project_file()
-            
+                app().pulse_file.remove_results_data_from_project_file()
+
             if obj.ignore_mesh_data:
-                pass
-                # self.pulse_file.remove_mesh_data_from_project_file()
+                app().pulse_file.remove_mesh_data_from_project_file()
 
             self.save_project_as(file_path)
 

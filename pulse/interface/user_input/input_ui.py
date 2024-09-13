@@ -192,9 +192,10 @@ class InputUi:
         if read.complete:
             if read.flag_run:
                 app().project.run_analysis()
-            return True
-        else:
-            return False
+        #     return True
+        # else:
+        #     return False
+        return read.complete
 
     def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")

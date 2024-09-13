@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pathlib import Path

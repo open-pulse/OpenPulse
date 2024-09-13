@@ -4,12 +4,10 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 
 import numpy as np
 
 from pulse import UI_DIR
-from pulse.interface.formatters.icons import get_openpulse_icon
 
 class AcousticModelInfo(QDialog):
     def __init__(self, *args, **kwargs):

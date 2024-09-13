@@ -12,6 +12,8 @@ class StructuralHarmonicAnalysisInput(QDialog):
         ui_path = UI_DIR / "analysis/general/harmonic_analysis_method.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
+
         self._initialize()
         self._config_window()
         self._define_qt_variables()       
@@ -22,7 +24,7 @@ class StructuralHarmonicAnalysisInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("Structural harmonic analysis")
+        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
         self.index = -1
