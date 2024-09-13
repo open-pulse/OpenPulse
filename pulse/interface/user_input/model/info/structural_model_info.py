@@ -7,9 +7,6 @@ from pulse import app, UI_DIR
 
 import numpy as np
 
-from pulse import UI_DIR
-from pulse.interface.formatters.icons import get_openpulse_icon
-
 class StructuralModelInfo(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -26,8 +23,8 @@ class StructuralModelInfo(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
-        self.load_nodes_info()
-        self.project_info()
+        self.load_nodal_properties()
+        self.load_project_info()
         self.exec()
 
     def _config_window(self):
@@ -56,27 +53,18 @@ class StructuralModelInfo(QDialog):
 
     def _config_widgets(self):
 
-        self.treeWidget_prescribed_dofs.setColumnWidth(1, 20)
-        self.treeWidget_prescribed_dofs.setColumnWidth(2, 80)
-        
-        self.treeWidget_constrained_dofs.setColumnWidth(1, 20)
-        self.treeWidget_constrained_dofs.setColumnWidth(2, 80)
+        for i, w in enumerate([70, 70]):
+            self.treeWidget_prescribed_dofs.setColumnWidth(i, w)
+            self.treeWidget_constrained_dofs.setColumnWidth(i, w)
+            self.treeWidget_masses.setColumnWidth(i, w)
+            self.treeWidget_springs.setColumnWidth(i, w)
+            self.treeWidget_dampers.setColumnWidth(i, w)
 
-        self.treeWidget_nodal_loads.setColumnWidth(1, 20)
-        self.treeWidget_nodal_loads.setColumnWidth(2, 80)
-
-        self.treeWidget_masses.setColumnWidth(1, 20)
-        self.treeWidget_masses.setColumnWidth(2, 80)
-
-        self.treeWidget_springs.setColumnWidth(1, 20)
-        self.treeWidget_springs.setColumnWidth(2, 80)
-
-        self.treeWidget_dampers.setColumnWidth(1, 20)
-        self.treeWidget_dampers.setColumnWidth(2, 80)
-
-    def project_info(self):
-        self.lineEdit_number_nodes.setText(str(len(self.preprocessor.nodes)))
-        self.lineEdit_number_elements.setText(str(len(self.preprocessor.structural_elements)))
+            self.treeWidget_prescribed_dofs.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_constrained_dofs.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_masses.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_springs.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_dampers.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def text_label(self, mask, load_labels):
 
@@ -98,7 +86,7 @@ class StructuralModelInfo(QDialog):
 
         return text
 
-    def load_nodes_info(self):
+    def load_nodal_properties(self):
 
                 
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
@@ -182,6 +170,10 @@ class StructuralModelInfo(QDialog):
                 for i in range(2):
                     item.setTextAlignment(i, Qt.AlignCenter)
                 self.treeWidget_nodal_loads.addTopLevelItem(item)
+
+    def load_project_info(self):
+        self.lineEdit_number_nodes.setText(str(len(self.preprocessor.nodes)))
+        self.lineEdit_number_elements.setText(str(len(self.preprocessor.structural_elements)))
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:

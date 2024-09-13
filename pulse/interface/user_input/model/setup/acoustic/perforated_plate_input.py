@@ -499,7 +499,7 @@ class PerforatedPlateInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             return
         
-        self.perforated_plate_inputs['dimensionless _impedance'] = imported_values
+        self.perforated_plate_inputs['dimensionless_impedance'] = imported_values
 
         return imported_values, imported_table_path
 
@@ -606,7 +606,7 @@ class PerforatedPlateInput(QDialog):
                     self.lineEdit_discharge_coefficient.setFocus()
                     return True
 
-                self.perforated_plate_inputs['discharge _coefficient'] = discharge_coefficient
+                self.perforated_plate_inputs['discharge_coefficient'] = discharge_coefficient
                 self.perforated_plate_inputs['nonlinear_effects'] = self.checkBox_nonlinear_discharge_coefficient.isChecked()
 
                 # Check nonlinear discharge coefficient

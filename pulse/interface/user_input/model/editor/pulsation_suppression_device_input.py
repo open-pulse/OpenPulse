@@ -888,6 +888,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
             data = {
                     "correction_type" : _type,
+                    "coords" : list(np.round(coords, 5)),
                     "psd_name" : psd_label
                     }
 

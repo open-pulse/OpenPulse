@@ -307,7 +307,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
             self.treeWidget_elements_info.addTopLevelItem(item)
 
-        self.update_tabs_visibility()         
+        self.update_tabs_visibility()
 
     def update_tabs_visibility(self):
 
