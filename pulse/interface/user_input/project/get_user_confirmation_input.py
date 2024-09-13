@@ -49,8 +49,8 @@ class GetUserConfirmationInput(QDialog):
         self.pushButton_leftButton : QPushButton
 
     def _create_connections(self):
-        self.pushButton_rightButton.clicked.connect(self.confirm_action)
-        self.pushButton_leftButton.clicked.connect(self.force_to_close)
+        self.pushButton_rightButton.clicked.connect(self.right_callback)
+        self.pushButton_leftButton.clicked.connect(self.left_callback)
 
     def _configure_buttons(self):
         if self.buttons_config:
@@ -77,14 +77,14 @@ class GetUserConfirmationInput(QDialog):
         self.label_message.adjustSize()
         self.adjustSize()
 
-    def confirm_action(self):
+    def right_callback(self):
         self._cancel = False
         self._continue = True
-        self._stop = False
+        # self._stop = False
         self.close()
 
-    def force_to_close(self):
-        self._cancel = False
+    def left_callback(self):
+        self._cancel = True
         self._continue = False
-        self._stop = True
+        # self._stop = True
         self.close()

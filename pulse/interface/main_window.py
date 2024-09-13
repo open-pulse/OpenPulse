@@ -149,6 +149,8 @@ class MainWindow(QMainWindow):
         self.action_pulsation_suppression_device_editor: QAction
         self.action_section_plane: QAction
         self.action_exit: QAction
+        #TODO: implement a new user preferences
+        self.action_user_preferences.setVisible(False)
 
         # QMenu
         self.menu_recent: QMenu
@@ -638,6 +640,7 @@ class MainWindow(QMainWindow):
         self.use_geometry_workspace()
     
     def action_user_preferences_callback(self):
+        return
         self.input_ui.mesh_setup_visibility()
 
     def action_exit_callback(self):
