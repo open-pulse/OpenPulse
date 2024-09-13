@@ -426,7 +426,7 @@ class MassSpringDamperInput(QDialog):
             value = 0
 
         if value == 0:
-            return True, None
+            return False, None
         else:
             return False, value
 
@@ -527,24 +527,30 @@ class MassSpringDamperInput(QDialog):
                         }
 
                 self.properties._set_nodal_property("lumped_stiffness", data, node_id)
+                print("set_lumped_stiffness")
 
     def check_constant_values_lumped_dampings(self, node_ids: list):
 
         stop, Cx = self.check_entries(self.lineEdit_Cx, "Cx")
         if stop:
             return True
+
         stop, Cy = self.check_entries(self.lineEdit_Cy, "Cy")
         if stop:
-            return True     
+            return True
+
         stop, Cz = self.check_entries(self.lineEdit_Cz, "Cz")
         if stop:
-            return True       
+            return True
+
         stop, Crx = self.check_entries(self.lineEdit_Crx, "Crx")
         if stop:
-            return True        
+            return True
+
         stop, Cry = self.check_entries(self.lineEdit_Cry, "Cry")
         if stop:
-            return True        
+            return True
+
         stop, Crz = self.check_entries(self.lineEdit_Crz, "Crz")
         if stop:
             return True
