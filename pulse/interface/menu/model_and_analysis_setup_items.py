@@ -104,8 +104,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     def item_child_set_material_callback(self):
         previous_color_mode = app().main_window.get_color_mode()
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines_with_cross_sections()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.action_plot_material_callback()
         app().main_window.input_ui.set_material()
         app().main_window.set_input_widget(None)
@@ -114,137 +113,145 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def item_child_set_fluid_callback(self):
         previous_color_mode = app().main_window.get_color_mode()
         app().main_window.action_plot_fluid_callback()
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines_with_cross_sections()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_fluid()
         app().main_window.set_input_widget(None)
         app().main_window.set_color_mode(previous_color_mode)
 
     def item_child_set_cross_section_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines_with_cross_sections()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_cross_section()
         app().main_window.set_input_widget(None)
 
     def item_child_set_structural_element_type_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_structural_element_type()
         app().main_window.set_input_widget(None)
 
     def item_child_set_prescribed_dofs_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.set_prescribed_dofs()
         app().main_window.set_input_widget(None)
 
     def item_child_set_nodal_loads_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.set_nodal_loads()
         app().main_window.set_input_widget(None)
 
     def item_child_add_mass_spring_damper_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.add_mass_spring_damper()
         app().main_window.set_input_widget(None)
 
     def item_child_add_elastic_nodal_links_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.add_elastic_nodal_links()
         app().main_window.set_input_widget(None)
 
     def item_child_set_inertial_loads_callback(self):
         obj = app().main_window.input_ui.set_inertial_load()
-        if obj.complete:
-            app().main_window.plot_mesh()
+        # if obj.complete:
+        #     app().main_window.plot_mesh()
         app().main_window.set_input_widget(None)
 
     def item_child_set_stress_stiffening_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines_with_cross_sections()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_stress_stress_stiffening()
         app().main_window.set_input_widget(None)
 
     def item_child_add_valve_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.add_valve()
         app().main_window.set_input_widget(None)
 
     def item_child_add_expansion_joint_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.add_expansion_joint()
         app().main_window.set_input_widget(None)
 
     def item_child_set_beam_x_axis_rotation_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines_with_cross_sections()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_beam_xaxis_rotation()
         app().main_window.set_input_widget(None)
 
     def item_child_set_rotation_decoupling_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("elements")
         app().main_window.input_ui.set_rotation_decoupling_dofs()
         app().main_window.set_input_widget(None)
 
     def item_child_set_acoustic_element_type_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_acoustic_element_type()
         app().main_window.set_input_widget(None)
 
     def item_child_set_acoustic_pressure_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()      
+        self.configure_render_according_to_inputs("nodes")     
         app().main_window.input_ui.set_acoustic_pressure()
         app().main_window.set_input_widget(None)
 
     def item_child_set_volume_velocity_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()  
+        self.configure_render_according_to_inputs("nodes")  
         app().main_window.input_ui.set_volume_velocity()
         app().main_window.set_input_widget(None)
 
     def item_child_set_specific_impedance_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh() 
+        self.configure_render_according_to_inputs("nodes") 
         app().main_window.input_ui.set_specific_impedance()
         app().main_window.set_input_widget(None)
 
     def item_child_set_radiation_impedance_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.set_radiation_impedance()
         app().main_window.set_input_widget(None)
 
     def item_child_add_perforated_plate_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("elements")
         app().main_window.input_ui.add_perforated_plate()
         app().main_window.set_input_widget(None)
 
     def item_child_set_acoustic_element_length_correction_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("elements")
         app().main_window.input_ui.set_acoustic_element_length_correction()
         app().main_window.set_input_widget(None)
 
     def item_child_turn_off_acoustic_elements_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("elements")
         app().main_window.input_ui.turn_off_acoustic_elements()
         app().main_window.set_input_widget(None)
 
     def item_child_add_compressor_excitation_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.add_compressor_excitation()
         app().main_window.set_input_widget(None)
+
+    def configure_render_according_to_inputs(self, set_by: str):
+
+        geometry_data = app().main_window.action_show_geometry_data.isChecked()
+        mesh_data = app().main_window.action_show_mesh_data.isChecked()
+        lines = app().main_window.action_plot_lines.isChecked()
+        lines_with_cross_sections = app().main_window.action_plot_lines_with_cross_section.isChecked()
+
+        if set_by == "nodes":
+            if mesh_data or geometry_data:
+                return
+            else:
+                app().main_window.action_show_geometry_data.trigger()
+                if not lines:
+                    app().main_window.action_plot_lines.trigger()
+
+        elif set_by == "elements":
+            if mesh_data:
+                return
+            else:
+                app().main_window.action_show_mesh_data.trigger()
+                if not lines:
+                    app().main_window.action_plot_lines.trigger()
+
+        elif set_by == "lines":
+            if lines or lines_with_cross_sections:
+                return
+            else:
+                app().main_window.action_plot_lines_with_cross_section_callback()
 
     def enable_actions_according_to_import_type(self):
         import_type = app().project.model.mesh.import_type
