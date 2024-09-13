@@ -333,11 +333,11 @@ class MainWindow(QMainWindow):
         geometry_handler.export_cad_file(path)
 
     # public
-    def update_plots(self):
+    def update_plots(self, reset_camera=True):
         self.project.enhance_pipe_sections_appearance()
-        self.geometry_widget.update_plot(reset_camera=True)
-        self.mesh_widget.update_plot(reset_camera=True)
-        self.results_widget.update_plot(reset_camera=True)
+        self.geometry_widget.update_plot(reset_camera)
+        self.mesh_widget.update_plot(reset_camera)
+        self.results_widget.update_plot(reset_camera)
 
     def selection_changed_callback(self):
         # TODO: implement something useful

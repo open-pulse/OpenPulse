@@ -2,6 +2,7 @@ import sys, os, platform
 from vtkmodules.vtkCommonCore import vtkObject, vtkLogger
 import qdarktheme
 import logging
+from traceback import format_tb
 
 from pulse import USER_PATH
 from pulse.interface.application import Application
@@ -10,6 +11,16 @@ from pulse.interface.application import Application
 def custom_exception_hooks(exc_type, exc_value, exc_traceback):
     # Logs unhandled errors for future checks 
     logging.error("Unhandled error", exc_info=(exc_type, exc_value, exc_traceback))
+    
+    try:
+        from pulse.interface.user_input.project.print_message import PrintMessageInput
+        PrintMessageInput([
+            "Unhandled error",
+            f"{exc_type.__name__}: {exc_value}",
+            "\n".join(format_tb(exc_traceback, limit=-1))
+        ])
+    except Exception as e:
+        logging.exception(e)
 
 sys.excepthook = custom_exception_hooks
 

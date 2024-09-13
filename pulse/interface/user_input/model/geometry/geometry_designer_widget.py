@@ -76,6 +76,7 @@ class GeometryDesignerWidget(QWidget):
 
         # QFrame
         self.frame_bending_options: QFrame
+        self.frame_bounding_box_sizes: QFrame
         self.create_structure_frame: QFrame
 
         #QPushButton
