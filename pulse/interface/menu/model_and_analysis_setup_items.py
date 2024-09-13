@@ -149,9 +149,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         app().main_window.set_input_widget(None)
 
     def item_child_set_inertial_loads_callback(self):
-        obj = app().main_window.input_ui.set_inertial_load()
-        # if obj.complete:
-        #     app().main_window.plot_mesh()
+        app().main_window.input_ui.set_inertial_load()
         app().main_window.set_input_widget(None)
 
     def item_child_set_stress_stiffening_callback(self):
@@ -232,26 +230,16 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         lines_with_cross_sections = app().main_window.action_plot_lines_with_cross_section.isChecked()
 
         if set_by == "nodes":
-            if mesh_data or geometry_data:
-                return
-            else:
-                app().main_window.action_show_geometry_data.trigger()
-                if not lines:
-                    app().main_window.action_plot_lines.trigger()
+            if not (mesh_data or geometry_data):
+                app().main_window.plot_geometry_points()
 
         elif set_by == "elements":
-            if mesh_data:
-                return
-            else:
-                app().main_window.action_show_mesh_data.trigger()
-                if not lines:
-                    app().main_window.action_plot_lines.trigger()
+            if not mesh_data:
+                app().main_window.plot_mesh()
 
         elif set_by == "lines":
-            if lines or lines_with_cross_sections:
-                return
-            else:
-                app().main_window.action_plot_lines_with_cross_section_callback()
+            if not (lines or lines_with_cross_sections):
+                app().main_window.plot_lines_with_cross_sections()
 
     def enable_actions_according_to_import_type(self):
         import_type = app().project.model.mesh.import_type

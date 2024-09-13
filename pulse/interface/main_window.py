@@ -71,8 +71,6 @@ class MainWindow(QMainWindow):
         self.dialog = None
         self.input_ui = None
 
-        self.current_plot_type = None
-
         self.model_and_analysis_setup_widget = None
         self.results_viewer_wigdet = None
 
@@ -407,22 +405,25 @@ class MainWindow(QMainWindow):
 
     def plot_lines(self):
         self._configure_visualization(points=True, lines=True)
-        self.current_plot_type = "lines_plot"
 
     def plot_lines_with_cross_sections(self):
         self._configure_visualization(
             points=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
         )
-        self.current_plot_type = "lines_with_cross_section_plot"
 
     def plot_mesh(self):
         self._configure_visualization(
             nodes=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
         )
-        self.current_plot_type = "mesh_plot"
     
+    def plot_geometry_points(self):
+        self._configure_visualization(
+            points=True, lines=True, tubes=True,
+            acoustic_symbols=True, structural_symbols=True,
+        )    
+
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
 
