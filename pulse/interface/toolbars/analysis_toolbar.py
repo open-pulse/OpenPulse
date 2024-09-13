@@ -325,6 +325,7 @@ class AnalysisToolbar(QToolBar):
 
     def load_analysis_settings(self):
 
+        self.pushButton_run_analysis.setEnabled(False)
         analysis_setup = app().pulse_file.read_analysis_setup_from_file()
 
         if isinstance(analysis_setup, dict):

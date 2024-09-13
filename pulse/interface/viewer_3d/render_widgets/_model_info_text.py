@@ -207,7 +207,7 @@ def material_info_text(material) -> str:
     tree = TreeInfo("Material")
     tree.add_item("Name", material.name)
     tree.add_item("Density", material.density, "kg/m³")
-    tree.add_item("Elasticity modulus", round(material.elasticity_modulus/1e9, 2), "MPa")
+    tree.add_item("Elasticity modulus", round(material.elasticity_modulus / 1e9, 2), "GPa")
     tree.add_item("Poisson ratio", material.poisson_ratio, "")
     return str(tree)
 
