@@ -1104,7 +1104,7 @@ class MassSpringDamperInput(QDialog):
 
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
-        app().main_window.update_plots()
+        app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
 
     def text_label(self, mask, load_labels):
