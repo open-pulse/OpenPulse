@@ -293,7 +293,7 @@ class ExpansionJointInput(QDialog):
 
         if message != "":
             PrintMessageInput([window_title_1, title, message])
-            return True, value
+            return True, None
         else:
             return False, value
 
