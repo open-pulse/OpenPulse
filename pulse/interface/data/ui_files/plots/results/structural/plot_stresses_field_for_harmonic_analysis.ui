@@ -941,6 +941,31 @@
               </item>
               <item>
                <property name="text">
+                <string>BWR diverging scale</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>PiYG diverging scale</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>PRGn diverging scale</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>BrBG diverging scale</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>PuOr diverging scale</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
                 <string> Grayscale</string>
                </property>
               </item>

@@ -51,7 +51,13 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
+                          ]
 
     def _load_structural_solver(self):
 

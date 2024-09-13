@@ -31,7 +31,13 @@ class PlotAcousticPressureField(QWidget):
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
+                          ]
 
     def _config_window(self):
         self.setWindowIcon(app().main_window.pulse_icon)

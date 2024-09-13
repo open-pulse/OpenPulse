@@ -24,13 +24,17 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
 
     def _initialize(self):
 
-        self.colormaps = [
-                          "jet",
+        self.colormaps = ["jet",
                           "viridis",
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
                           ]
 
     def _config_window(self):

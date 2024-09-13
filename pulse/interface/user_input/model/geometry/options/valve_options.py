@@ -67,10 +67,6 @@ class ValveOptions(StructureOptions):
         if self.valve_info is None:
             return
 
-        parameters = self.valve_info.get("section_parameters")
-        if parameters is None:
-            return
-
         return dict(
             diameter = self.valve_info.get("valve_effective_diameter", 0),
             thickness = 0,
