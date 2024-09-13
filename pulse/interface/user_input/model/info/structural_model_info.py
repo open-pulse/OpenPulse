@@ -17,8 +17,9 @@ class StructuralModelInfo(QDialog):
         ui_path = UI_DIR / "model/info/structural_model_Info.ui"
         uic.loadUi(ui_path, self)
 
-        self.project = app().project
         app().main_window.set_input_widget(self)
+
+        self.project = app().project
 
         self._config_window()
         self._initialize()
@@ -36,7 +37,7 @@ class StructuralModelInfo(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
 
     def _define_qt_variables(self):
         # QLineEdit
@@ -74,11 +75,11 @@ class StructuralModelInfo(QDialog):
         self.treeWidget_dampers.setColumnWidth(2, 80)
 
     def project_info(self):
-        self.lineEdit_number_nodes.setText(str(len(self.project.preprocessor.nodes)))
-        self.lineEdit_number_elements.setText(str(len(self.project.preprocessor.structural_elements)))
-        
+        self.lineEdit_number_nodes.setText(str(len(self.preprocessor.nodes)))
+        self.lineEdit_number_elements.setText(str(len(self.preprocessor.structural_elements)))
+
     def text_label(self, mask, load_labels):
-        
+
         text = ""
         labels = load_labels[mask]
 
@@ -94,12 +95,13 @@ class StructuralModelInfo(QDialog):
             text = "[{}, {}]".format(*labels)
         elif list(mask).count(True) == 1:
             text = "[{}]".format(*labels)
+
         return text
 
     def load_nodes_info(self):
 
                 
-        for (property, *args), data in self.model.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "lumped_stiffness":
 
@@ -108,8 +110,8 @@ class StructuralModelInfo(QDialog):
                 load_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])        
                 lumped_stiffness_mask = [False if bc is None else True for bc in values]
 
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_stiffness_mask, load_labels))])
-                self.treeWidget_springs.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_stiffness_mask, load_labels))])
+                self.treeWidget_springs.addTopLevelItem(item)
 
             if property == "lumped_dampings":
 
@@ -118,8 +120,10 @@ class StructuralModelInfo(QDialog):
                 load_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz'])
                 lumped_dampings_mask = [False if bc is None else True for bc in values]
 
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_dampings_mask, load_labels))])
-                self.treeWidget_dampers.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_dampings_mask, load_labels))])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_dampers.addTopLevelItem(item)
 
             if property == "lumped_masses":
 
@@ -128,8 +132,10 @@ class StructuralModelInfo(QDialog):
                 load_labels = np.array(['m_x','m_y','m_z','Jx','Jy','Jz'])
                 lumped_masses_mask = [False if bc is None else True for bc in values]
 
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_masses_mask, load_labels))])
-                self.treeWidget_masses.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), str(self.text_label(lumped_masses_mask, load_labels))])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_masses.addTopLevelItem(item)
 
             if property == "prescribed_dofs":
 
@@ -147,8 +153,10 @@ class StructuralModelInfo(QDialog):
                         prescribed_dofs_mask[index] = True
 
                 if prescribed_dofs_mask.count(False) != 6:    
-                    new = QTreeWidgetItem([str(node_id), str(self.text_label(prescribed_dofs_mask, load_labels))])
-                    self.treeWidget_prescribed_dofs.addTopLevelItem(new)
+                    item = QTreeWidgetItem([str(node_id), str(self.text_label(prescribed_dofs_mask, load_labels))])
+                    for i in range(2):
+                        item.setTextAlignment(i, Qt.AlignCenter)
+                    self.treeWidget_prescribed_dofs.addTopLevelItem(item)
 
                 for index, value in enumerate(values):
                     if isinstance(value, complex):
@@ -158,8 +166,10 @@ class StructuralModelInfo(QDialog):
                         constrained_dofs_mask[index] = False
 
                 if constrained_dofs_mask.count(False) != 6:    
-                    new = QTreeWidgetItem([str(node_id), str(self.text_label(constrained_dofs_mask, load_labels))])
-                    self.treeWidget_constrained_dofs.addTopLevelItem(new)
+                    item = QTreeWidgetItem([str(node_id), str(self.text_label(constrained_dofs_mask, load_labels))])
+                    for i in range(2):
+                        item.setTextAlignment(i, Qt.AlignCenter)
+                    self.treeWidget_constrained_dofs.addTopLevelItem(item)
 
             if property == "nodal_loads":
 
@@ -168,8 +178,10 @@ class StructuralModelInfo(QDialog):
                 load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
                 nodal_loads_mask = [False if bc is None else True for bc in values]
 
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(nodal_loads_mask, load_labels))])
-                self.treeWidget_nodal_loads.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), str(self.text_label(nodal_loads_mask, load_labels))])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_nodal_loads.addTopLevelItem(item)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:

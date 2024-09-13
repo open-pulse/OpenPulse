@@ -63,8 +63,8 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
 
         if app().project.structural_solver is None:
 
-            logging.info("Processing the cross-sections [75%]")
             def callback():
+                logging.info("Processing the cross-sections [75%]")
                 app().project.model.preprocessor.process_cross_sections_mapping()
             LoadingWindow(callback).run()
 

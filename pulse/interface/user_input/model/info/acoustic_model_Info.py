@@ -80,11 +80,19 @@ class AcousticModelInfo(QDialog):
         self.lineEdit_number_elements.setText(str(len(self.acoustic_elements)))
         
     def text_label(self, value):
+
         text = ""
-        if isinstance(value, complex):
+        if isinstance(value, (complex | int | float)):
             value_label = str(value)
+        elif isinstance(value, list) and len(value) == 1:
+            value_label = str(value[0])
         elif isinstance(value, np.ndarray):
             value_label = 'Table'
+        elif isinstance(value, str):
+            value_label = value
+        else:
+            return ""
+
         text = "{}".format(value_label)
         return text
 
@@ -94,35 +102,45 @@ class AcousticModelInfo(QDialog):
             if property == "acoustic_pressure":
                 node_id = args[0]
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
-                self.treeWidget_acoustic_pressure.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_acoustic_pressure.addTopLevelItem(item)
 
             if property == "volume_velocity":
                 node_id = args[0]
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
-                self.treeWidget_volume_velocity.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_volume_velocity.addTopLevelItem(item)
 
             if property == "specific_impedance":
                 node_id = args[0]
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
-                self.treeWidget_specific_impedance.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_specific_impedance.addTopLevelItem(item)
 
             if property == "radiation_impedance":
                 node_id = args[0]
-                index = data["radiation impedance"]
+                index = data["impedance_type"]
                 impedance_types = ["Anechoic", "Unflanged", "Flanged"]    
-                new = QTreeWidgetItem([str(node_id), impedance_types[index]])
-                self.treeWidget_radiation_impedance.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), impedance_types[index]])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_radiation_impedance.addTopLevelItem(item)
 
         for (property, *args), data in app().project.model.properties.element_properties.items():
             if property == "element_length_correction":
                 element_id = args[0]
                 correction_types = ["Expansion", "Side branch", "Loop"]
                 index = data["length correction index"]    
-                new = QTreeWidgetItem([str(element_id), correction_types[index]])
-                self.treeWidget_element_length_correction.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(element_id), correction_types[index]])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_element_length_correction.addTopLevelItem(item)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F4:
