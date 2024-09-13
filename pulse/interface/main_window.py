@@ -789,7 +789,6 @@ class MainWindow(QMainWindow):
     def _add_analysis_toolbar(self):
         self.analysis_toolbar = AnalysisToolbar()
         self.addToolBar(self.analysis_toolbar)
-        # self.insertToolBarBreak(self.analysis_toolbar)
         self.analysis_toolbar.setDisabled(True)
 
     def _add_animation_toolbar(self):
