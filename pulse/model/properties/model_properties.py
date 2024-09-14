@@ -340,6 +340,15 @@ class ModelProperties:
         else:
             return None
 
+    def get_line_edges(self, line_id: int):
+        line_data = self.line_properties[line_id]
+        if "start_coords" in line_data.keys() and "end_coords" in line_data.keys():
+            start_coords = np.array(line_data["start_coords"], dtype=float)
+            end_coords = np.array(line_data["end_coords"], dtype=float)
+            return end_coords, start_coords
+        else:
+            return None, None
+
     def get_nodal_related_table_names(self, property : str, node_ids : int | list) -> list:
         """
         """

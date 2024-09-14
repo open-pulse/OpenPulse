@@ -8,9 +8,9 @@ from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, Rectangu
 from opps.model import SimpleCurve
 
 import gmsh
-from math import dist
-import os
 import numpy as np
+
+# from math import dist
 from collections import defaultdict
 
 
@@ -35,6 +35,7 @@ class GeometryHandler:
         self.points_coords = dict()
         self.points_coords_cache = dict()
         self.lines_mapping = dict()
+        self.curve_length = dict()
         self.valve_internal_lines = dict()
         # self.valve_points_to_ignore = dict()
         self.pipeline = self.project.pipeline
@@ -71,11 +72,12 @@ class GeometryHandler:
                     start_coords = _start_coords
                     end_coords = _end_coords
 
-                start_coords = gmsh.model.occ.addPoint(*start_coords)
-                end_coords = gmsh.model.occ.addPoint(*end_coords)
+                start_point = gmsh.model.occ.addPoint(*start_coords)
+                end_point = gmsh.model.occ.addPoint(*end_coords)
+                line_tag = gmsh.model.occ.addLine(start_point, end_point)
 
-                line_tag = gmsh.model.occ.addLine(start_coords, end_coords)
                 self.lines_mapping[line_tag] = structure.tag
+                self.curve_length[structure.tag] = np.linalg.norm(end_coords-start_coords)
 
             elif isinstance(structure, Valve):
 
@@ -102,6 +104,7 @@ class GeometryHandler:
                     (coords_A, coords_B) = valve_points["external_points"]
                     point_A = gmsh.model.occ.addPoint(*coords_A, meshSize=lc)
                     point_B = gmsh.model.occ.addPoint(*coords_B, meshSize=lc)
+                    self.curve_length[structure.tag] = np.linalg.norm(coords_B - coords_A)
 
                 if "flange_points" in valve_points.keys():
                     (coords_C, coords_D) = valve_points["flange_points"]
@@ -174,12 +177,13 @@ class GeometryHandler:
                     end_coords = _end_coords
                     center_coords = _center_coords
 
-                start_coords = gmsh.model.occ.addPoint(*start_coords)
-                end_coords = gmsh.model.occ.addPoint(*end_coords)
+                start_point = gmsh.model.occ.addPoint(*start_coords)
+                end_point = gmsh.model.occ.addPoint(*end_coords)
                 center_point = gmsh.model.occ.addPoint(*center_coords)
+                line_tag = gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
 
-                line_tag = gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
                 self.lines_mapping[line_tag] = structure.tag
+                self.curve_length[structure.tag] = get_arc_length(start_coords, end_coords, center_coords)
 
         gmsh.model.occ.synchronize()
 
@@ -586,7 +590,7 @@ class GeometryHandler:
                 start = Point(*start_coords)
                 end = Point(*end_coords)
 
-                line_length = dist(start_coords, end_coords)
+                line_length = np.linalg.norm(start_coords - end_coords)
                 
                 if line_length < 0.001:
                     self.print_warning_for_small_length(line, line_length)
@@ -642,7 +646,7 @@ class GeometryHandler:
                 start_coords = self.get_point_coords(start_point)
                 end_coords = self.get_point_coords(end_point)
 
-                line_length = dist(start_coords, end_coords)
+                line_length = np.linalg.norm(start_coords - end_coords)
                 
                 if line_length < 0.001:
                     self.print_warning_for_small_length(line, line_length)
@@ -739,18 +743,20 @@ class GeometryHandler:
 
         a_vector = start_coords - corner_coords
         b_vector = end_coords - corner_coords
-        c_vector = a_vector + b_vector
-        c_vector_normalized = c_vector / np.linalg.norm(c_vector)
 
         norm_a_vector = np.linalg.norm(a_vector)
         norm_b_vector = np.linalg.norm(b_vector)
 
-        corner_distance = norm_a_vector / np.sqrt(0.5 * ((np.dot(a_vector, b_vector) / (norm_a_vector * norm_b_vector)) + 1))
+        cos_2x = (np.dot(a_vector, b_vector) / (norm_a_vector * norm_b_vector))
+        cos_x = np.sqrt((1 + cos_2x) / 2)
+        corner_distance = norm_a_vector / cos_x
 
+        c_vector = a_vector + b_vector
+        c_vector_normalized = c_vector / np.linalg.norm(c_vector)
         center_coords = corner_coords + c_vector_normalized * corner_distance
 
-        start_curve_radius = dist(center_coords, start_coords)
-        end_curve_radius = dist(center_coords, end_coords)
+        start_curve_radius = np.linalg.norm(center_coords - start_coords)
+        end_curve_radius = np.linalg.norm(center_coords - end_coords)
         radius = (start_curve_radius + end_curve_radius) / 2
 
         return np.round(radius, 8)
@@ -943,5 +949,19 @@ class GeometryHandler:
         
     #     for line_id in lines_to_remove:
     #         app().project.model.properties._remove_line(line_id)
+
+def get_arc_length(coords_A, coords_B, coords_C):
+
+    u = coords_A - coords_C
+    v = coords_B - coords_C
+
+    norm_u = np.linalg.norm(u)
+    norm_v = np.linalg.norm(v)
+    cos_alpha = np.dot(u, v) / (norm_u * norm_v)
+
+    average_radius = (norm_u + norm_v) / 2
+    arc_length = np.arccos(cos_alpha) * average_radius
+
+    return arc_length
 
 # fmt: on

@@ -39,7 +39,6 @@ class PlotTransmissionLoss(QWidget):
         self.before_run = self.project.get_pre_solution_model_checks()
 
         self.diameters_from_node = self.preprocessor.neighbor_elements_diameter()
-        self.neighboor_elements = self.preprocessor.neighboor_elements_of_node
 
         self.unit_label = "dB"
         self.frequencies = self.model.frequencies
@@ -160,7 +159,7 @@ class PlotTransmissionLoss(QWidget):
         if self.comboBox_processing_selector.currentIndex() == 0:
             for node_id in selected_ids:
 
-                neigh_elements = self.neighboor_elements(node_id)
+                neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
                 if len(neigh_elements) == 1:
                     for (property, *args), data in app().project.model.properties.nodal_properties.items():
                         if property == "volume_velocity" and args[0] == node_id:

@@ -108,6 +108,7 @@ class Preprocessor:
 
         # t0 = time()
         self._load_neighbors()
+        self.mesh._process_line_nodes()
         # dt = time() - t0
         # print(f"Time to process _load_neighbors: {dt}")
 
@@ -345,30 +346,6 @@ class Preprocessor:
             neighbor_diameters[last].append((index, outer_diameter, inner_diameter))
         return neighbor_diameters    
     
-    def neighboor_elements_of_node(self, node_id: int):
-        """
-        This method returns the acoustic elements that a node belongs to.
-
-        Parameters
-        ----------
-        int
-            Node external indexes.
-
-        Returns
-        ----------
-        List
-            List of acoustic elements indexes.
-        """
-        node = self.nodes[node_id]
-        neighboor_elements = defaultdict(list) 
-
-        for element in self.acoustic_elements.values():
-            first = element.first_node
-            last = element.last_node
-            if node in [first, last]:
-                neighboor_elements[node].append(element)#.index)
-        return neighboor_elements[node]
-
     def check_disconnected_lines(self, tolerance=1e-6):
         """
         This methods shearchs for disconnected lines inside sphere of radius r < (size/2) + tolerance.
@@ -1272,7 +1249,7 @@ class Preprocessor:
             return
 
         decoupled_rotations = data["decoupled_rotations"]
-        neighboor_elements = self.neighboor_elements_of_node(node_id)
+        neighboor_elements = self.structural_elements_connected_to_node[node_id]
 
         if len(neighboor_elements) < 3:
             return mat_ones
@@ -1981,8 +1958,8 @@ class Preprocessor:
             ext_id1 = min(node_ids) 
             ext_id2 = max(node_ids)
 
-            neigh_elem_node_1 = self.neighboor_elements_of_node(ext_id1)
-            neigh_elem_node_2 = self.neighboor_elements_of_node(ext_id2)
+            neigh_elem_node_1 = self.acoustic_elements_connected_to_node[ext_id1]
+            neigh_elem_node_2 = self.acoustic_elements_connected_to_node[ext_id2]
 
             if len(neigh_elem_node_1) == 1:
 

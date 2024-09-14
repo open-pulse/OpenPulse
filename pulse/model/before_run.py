@@ -1,10 +1,11 @@
 # fmt: off
 
-from collections import defaultdict
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-import numpy as np
-
 from pulse import app
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.tools.utils import mm_to_m
+
+import numpy as np
+from collections import defaultdict
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -623,15 +624,16 @@ class BeforeRun:
 
         return line_ids, element_ids
     
-    def check_beam_theory_criteria(self, criteria=10):
+    def check_beam_theory_criteria(self):
         """
         """
         
         def get_neighboors(input_lines, list_of_neighboor_lines, neighboor_data, index):
-            
+
             stop = False
             removed_from_list = False
             output_lines = input_lines.copy()
+
             if input_lines in list_of_neighboor_lines:
                 list_of_neighboor_lines.remove(input_lines)
 
@@ -643,76 +645,97 @@ class BeforeRun:
                         cache_neighboor_lines = neighboor_lines.copy()
                         stop=True
                         break
+
             if stop:
                 for line in cache_neighboor_lines:
                     if line not in output_lines:
                         output_lines.append(line)
-                
+
                 if cache_neighboor_lines in list_of_neighboor_lines:
                     list_of_neighboor_lines.remove(cache_neighboor_lines)
                     removed_from_list = True
 
             neighboor_data[index] = output_lines
-                
-            if not removed_from_list or len(list_of_neighboor_lines)==0:
+
+            if not removed_from_list or len(list_of_neighboor_lines) == 0:
                 if len(list_of_neighboor_lines) > 0:
                     output_lines = list_of_neighboor_lines[0]
                     index += 1
-            
+
             return output_lines, list_of_neighboor_lines, neighboor_data, index
 
-        self.section_data_lines = app().loader.get_cross_sections_from_file()
+        section_data_lines = app().loader.get_cross_sections_from_file()
 
-        self.one_section_one_line = {}
-        self.one_section_multiple_lines = {}
-        for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_lines.items():
+        self.one_section_one_line = dict()
+        self.one_section_multiple_lines = dict()
+        for section_id, [element_type, section_parameters, tag_type, line_ids] in section_data_lines.items():
 
             if (element_type == "pipe_1" and len(section_parameters) == 6) or "beam_1" in element_type:
 
-                if len(tags) == 1:
-                    line_id = tags[0]
-                    length_1, edge_nodes_1 = self.properties.get_line_length(line_id)
+                if len(line_ids) == 1:
+
+                    line_id = line_ids[0]
+                    length_mm = self.preprocessor.mesh.curve_length[line_id]
+                    length_m = mm_to_m(length_mm)
 
                     if element_type == "pipe_1" and len(section_parameters) == 6:
                         parameter = section_parameters[0]
+
                     elif "beam_1" in element_type:
                         parameter = max(section_parameters)
                 
-                    ratio_1 = length_1/parameter
-                    self.one_section_one_line[section_id] = {   "section parameter" : parameter,
-                                                                "length" : length_1,
-                                                                "ratio" : ratio_1,
-                                                                "line ID" : tags   }
-                    
+                    ratio_1 = length_m / parameter
+                    self.one_section_one_line[section_id] = {
+                                                            "section parameter" : parameter,
+                                                            "length" : length_m,
+                                                            "ratio" : ratio_1,
+                                                            "line ID" : line_ids
+                                                            }
+
                 else:
 
-                    data = {}
+                    # data = dict()
                     neighboor_lines = list()
 
-                    for i, tag in enumerate(tags):
-                        filtered_lines = list()                                
-                        length_0, edge_nodes_0 = self.properties.get_line_length(tag)
-                        lines = self.get_lines_from_nodes(edge_nodes_0)
-                        for line in lines:
-                            if line in tags and line not in filtered_lines:
-                                filtered_lines.append(line)
-                        data[tag] = [length_0, edge_nodes_0, filtered_lines]
-                        neighboor_lines.append(filtered_lines)
-                        
-                    index = 1
+                    for i, line_id in enumerate(line_ids):
+
+                        edge_nodes = list()
+                        line_edges = self.properties.get_line_edges(line_id)
+
+                        filtered_lines = list()                
+
+                        for coords in line_edges:
+
+                            node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+                            edge_nodes.append(node_id)
+
+                            for line in self.preprocessor.mesh.lines_from_node[node_id]:
+                                if (line in line_ids) and (line not in filtered_lines):
+                                    filtered_lines.append(line)
+
+                        if filtered_lines:  
+                            # data[line_id] = [length_m, edge_nodes, filtered_lines]
+                            neighboor_lines.append(filtered_lines)
+
                     cache_neighboor_lines = neighboor_lines.copy()
                     ref_lines = neighboor_lines[0]
+
+                    index = 1
                     max_iter = 0
-                    neighboor_data = {}
+                    neighboor_data = dict()
 
                     while len(cache_neighboor_lines) > 0 and max_iter < 1000:
-                        ref_lines, cache_neighboor_lines, neighboor_data, index = get_neighboors(   ref_lines, 
-                                                                                                    cache_neighboor_lines, 
-                                                                                                    neighboor_data, 
-                                                                                                    index   )
-                    
+                        # print("\nAntes:", (ref_lines, cache_neighboor_lines, neighboor_data, index))
+                        neigh_data = get_neighboors(ref_lines, cache_neighboor_lines, neighboor_data, index)
+                        ref_lines, cache_neighboor_lines, neighboor_data, index = neigh_data
+                        # print("Depois:", (ref_lines, cache_neighboor_lines, neighboor_data, index))
+
+                    # print(f"antes -> {neighboor_data}")
+                    # neighboor_data = self.filter_braches_with_equal_section(neighboor_data)
+                    # print(f"depois -> {neighboor_data}")
+
                     aux = dict()
-                    if len(neighboor_data)>0:
+                    if neighboor_data:
                         for ind, neigh_lines in neighboor_data.items():
 
                             if element_type == "pipe_1" and len(section_parameters) == 6:
@@ -722,11 +745,12 @@ class BeforeRun:
 
                             lengths = list()
                             for _line_id in neigh_lines:
-                                length, _ = self.properties.get_line_length(_line_id)
-                                lengths.append(length)
+                                length_mm = self.preprocessor.mesh.curve_length[_line_id]
+                                length_m = mm_to_m(length_mm)
+                                lengths.append(length_m)
 
                             total_length = np.sum(lengths)
-                            ratio = total_length/parameter
+                            ratio = total_length / parameter
 
                             aux[ind] = {
                                         "section parameter" : parameter,
@@ -738,28 +762,63 @@ class BeforeRun:
 
                     self.one_section_multiple_lines[section_id] = aux
 
-    def get_lines_from_nodes(self, edge_nodes):
-        """
-        """
-        lines = list()
-        if len(edge_nodes) == 2:
-            
-            node_1 = edge_nodes[0]
-            node_2 = edge_nodes[1]
+    def filter_braches_with_equal_section(self, data: dict):
+        index = 0
+        aux = dict()
+        for _, line_ids in data.items():
 
-            elements_node_1 = self.preprocessor.elements_connected_to_node[node_1]
-            elements_node_2 = self.preprocessor.elements_connected_to_node[node_2]
-            
-            # if len(elements_node_1) == 2:
-            for element in elements_node_1:
-                line_1 = self.model.mesh.line_from_element[element.index]
-                lines.append(line_1)
+            main_lines = line_ids.copy()
 
-            # if len(elements_node_2) == 2:
-            for element in elements_node_2:
-                line_2 = self.model.mesh.line_from_element[element.index]
-                lines.append(line_2)
-        
-        return lines
+            for line_id in line_ids:
+
+                # main_lines = list()
+                # branch_lines = list()
+                selected_element = None
+
+                edge_nodes = list()
+                line_edges = self.properties.get_line_edges(line_id)
+                for coords in line_edges:
+
+                    node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+                    edge_nodes.append(node_id)
+
+                    if len(self.preprocessor.mesh.lines_from_node[node_id]) > 2:
+
+                        elements = self.preprocessor.structural_elements_connected_to_node[node_id]
+                        for element in elements:
+                            if self.preprocessor.mesh.line_from_element[element.index] == line_id:
+                                selected_element = element
+                                break
+
+                        list_elements = elements.copy()
+                        list_elements.remove(selected_element)
+
+                        u = selected_element.directional_vector
+                        for element in list_elements:
+
+                            v = selected_element.directional_vector
+
+                            if round(np.dot(u, v), 6) == 1:
+
+                                line_0 = self.preprocessor.mesh.line_from_element[selected_element.index]
+                                line_1 = self.preprocessor.mesh.line_from_element[element.index]
+
+                                if line_0 not in main_lines:
+                                    main_lines.append(line_0)
+
+                                if line_1 not in main_lines:
+                                    main_lines.append(line_1)
+
+                                break
+
+                if main_lines:
+                    index += 1
+                    aux[index] = main_lines
+
+                elif selected_element is not None:
+                    index += 1
+                    aux[index] = [self.preprocessor.mesh.line_from_element[selected_element.index]]
+
+        return aux
 
 # fmt: on

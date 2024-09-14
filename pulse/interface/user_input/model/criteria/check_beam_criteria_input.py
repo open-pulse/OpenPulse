@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon, QFont
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -13,7 +13,7 @@ class CheckBeamCriteriaInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "criterias/check_beam_criteria.ui"
+        ui_path = UI_DIR / "criterias/beam_criteria_assistant.ui"
         uic.loadUi(ui_path, self)
 
         self.project = app().project
@@ -24,7 +24,9 @@ class CheckBeamCriteriaInput(QDialog):
         self.define_qt_variables()
         self.create_connections()
         self.load_existing_sections()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -32,21 +34,27 @@ class CheckBeamCriteriaInput(QDialog):
         self.setWindowIcon(app().main_window.pulse_icon)
 
     def _initialize(self):
+        self.keep_window_open = True
         self.before_run = BeforeRun()
 
     def define_qt_variables(self):
+
         # QLineEdit
-        self.lineEdit_beam_criteria : QLineEdit
-        self.lineEdit_section_id : QLineEdit
-        self.lineEdit_segment_id : QLineEdit
+        self.lineEdit_beam_criteria: QLineEdit
+        self.lineEdit_section_id: QLineEdit
+        self.lineEdit_segment_id: QLineEdit
+
         # QPushButton
-        self.pushButton_check_criteria : QPushButton
-        self.pushButton_more_info : QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_check_criteria: QPushButton
+        self.pushButton_more_info: QPushButton
+
         # QTreeWidget
-        self.treeWidget_non_beam_segments : QTreeWidget
-        self.treeWidget_sections_parameters_by_lines : QTreeWidget
+        self.treeWidget_non_beam_segments: QTreeWidget
+        self.treeWidget_sections_parameters_by_lines: QTreeWidget
 
     def create_connections(self):
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_check_criteria.clicked.connect(self.check_beam_theory_criteria)
         self.pushButton_more_info.clicked.connect(self.get_beam_validity_criteria_info)
         self.treeWidget_non_beam_segments.itemClicked.connect(self.on_click_non_beam_segments)
@@ -212,6 +220,8 @@ class CheckBeamCriteriaInput(QDialog):
     
     def get_beam_validity_criteria_info(self):
 
+        self.hide()
+
         title = "Beam validity criteria relevant information"
         message = "1) The Beam Validity Criteria Tool has been developed to aid the user to find "
         message += "segments in the structure that potentially do not attempt the 3D Timoshenko beam theory. "
@@ -229,9 +239,12 @@ class CheckBeamCriteriaInput(QDialog):
         message += "but to provide an additional filter to focus on segments that could lead to physically "
         message += "non-representative results."
         #
-        window_title = "Warning"
         PrintMessageInput([window_title_1, title, message], alignment=Qt.AlignJustify)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)
