@@ -679,7 +679,7 @@ class NodalLoadsInput(QDialog):
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
         self.load_nodes_info()
-        app().main_window.update_plots()
+        app().main_window.update_plots(reset_camera=False)
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.setText("")

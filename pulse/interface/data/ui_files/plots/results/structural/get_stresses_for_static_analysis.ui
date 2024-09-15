@@ -190,13 +190,13 @@
        <widget class="QLineEdit" name="lineEdit_element_id">
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
@@ -260,13 +260,13 @@
        <widget class="QLineEdit" name="lineEdit_axial_stress">
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
@@ -299,13 +299,13 @@
        <widget class="QLineEdit" name="lineEdit_hoop_stress">
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
@@ -404,13 +404,13 @@
        <widget class="QLineEdit" name="lineEdit_bending_stress_y">
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
@@ -791,13 +791,13 @@
        <widget class="QLineEdit" name="lineEdit_torsional_stress">
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
@@ -859,13 +859,13 @@
        <widget class="QLineEdit" name="lineEdit_shear_stress_yz">
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
@@ -927,13 +927,13 @@
        <widget class="QLineEdit" name="lineEdit_shear_stress_xy">
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
@@ -966,13 +966,13 @@
        <widget class="QLineEdit" name="lineEdit_bending_stress_z">
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>120</width>
           <height>28</height>
          </size>
         </property>

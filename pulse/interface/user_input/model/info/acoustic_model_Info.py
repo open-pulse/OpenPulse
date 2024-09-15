@@ -4,12 +4,8 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 
 import numpy as np
-
-from pulse import UI_DIR
-from pulse.interface.formatters.icons import get_openpulse_icon
 
 class AcousticModelInfo(QDialog):
     def __init__(self, *args, **kwargs):
@@ -26,8 +22,9 @@ class AcousticModelInfo(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
-        self.load_nodes_info()
-        self.project_info()
+        self.load_nodal_properties()
+        self.load_elements_properties()
+        self.load_project_info()
         self.exec()
 
     def _config_window(self):
@@ -57,74 +54,104 @@ class AcousticModelInfo(QDialog):
         pass
 
     def _config_widgets(self):
-        self.treeWidget_acoustic_pressure.setColumnWidth(1, 20)
-        self.treeWidget_acoustic_pressure.setColumnWidth(2, 80)
 
-        self.treeWidget_volume_velocity.setColumnWidth(1, 20)
-        self.treeWidget_volume_velocity.setColumnWidth(2, 80)
+        for i, w in enumerate([70, 70]):
+            self.treeWidget_acoustic_pressure.setColumnWidth(i, w)
+            self.treeWidget_volume_velocity.setColumnWidth(i, w)
+            self.treeWidget_specific_impedance.setColumnWidth(i, w)
+            self.treeWidget_radiation_impedance.setColumnWidth(i, w)
+            self.treeWidget_perforated_plate.setColumnWidth(i, w)
+            self.treeWidget_element_length_correction.setColumnWidth(i, w)
 
-        self.treeWidget_specific_impedance.setColumnWidth(1, 20)
-        self.treeWidget_specific_impedance.setColumnWidth(2, 80)
+            self.treeWidget_acoustic_pressure.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_volume_velocity.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_specific_impedance.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_radiation_impedance.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_perforated_plate.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_element_length_correction.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-        self.treeWidget_radiation_impedance.setColumnWidth(1, 20)
-        self.treeWidget_radiation_impedance.setColumnWidth(2, 80)
-
-        self.treeWidget_perforated_plate.setColumnWidth(1, 20)
-        self.treeWidget_perforated_plate.setColumnWidth(2, 80)
-
-        self.treeWidget_element_length_correction.setColumnWidth(1, 20)
-        self.treeWidget_element_length_correction.setColumnWidth(2, 80)
-
-    def project_info(self):
-        self.acoustic_elements = self.preprocessor.get_acoustic_elements()
-        self.nodes = self.preprocessor.get_nodes_relative_to_acoustic_elements()
-        self.lineEdit_number_nodes.setText(str(len(self.nodes)))
-        self.lineEdit_number_elements.setText(str(len(self.acoustic_elements)))
-        
     def text_label(self, value):
+
         text = ""
-        if isinstance(value, complex):
+        if isinstance(value, (complex | int | float)):
             value_label = str(value)
+        elif isinstance(value, list) and len(value) == 1:
+            value_label = str(value[0])
         elif isinstance(value, np.ndarray):
             value_label = 'Table'
+        elif isinstance(value, str):
+            value_label = value
+        else:
+            return ""
+
         text = "{}".format(value_label)
         return text
 
-    def load_nodes_info(self):
+    def load_nodal_properties(self):
 
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
             if property == "acoustic_pressure":
                 node_id = args[0]
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
-                self.treeWidget_acoustic_pressure.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_acoustic_pressure.addTopLevelItem(item)
 
             if property == "volume_velocity":
                 node_id = args[0]
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
-                self.treeWidget_volume_velocity.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_volume_velocity.addTopLevelItem(item)
 
             if property == "specific_impedance":
                 node_id = args[0]
                 values = data["values"]
-                new = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
-                self.treeWidget_specific_impedance.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), str(self.text_label(values))])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_specific_impedance.addTopLevelItem(item)
 
             if property == "radiation_impedance":
                 node_id = args[0]
-                index = data["radiation impedance"]
+                index = data["impedance_type"]
                 impedance_types = ["Anechoic", "Unflanged", "Flanged"]    
-                new = QTreeWidgetItem([str(node_id), impedance_types[index]])
-                self.treeWidget_radiation_impedance.addTopLevelItem(new)
+                item = QTreeWidgetItem([str(node_id), impedance_types[index]])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_radiation_impedance.addTopLevelItem(item)
+
+    def load_elements_properties(self):
 
         for (property, *args), data in app().project.model.properties.element_properties.items():
             if property == "element_length_correction":
                 element_id = args[0]
                 correction_types = ["Expansion", "Side branch", "Loop"]
-                index = data["length correction index"]    
-                new = QTreeWidgetItem([str(element_id), correction_types[index]])
-                self.treeWidget_element_length_correction.addTopLevelItem(new)
+                index = data["correction_type"]
+                item = QTreeWidgetItem([str(element_id), correction_types[index]])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_element_length_correction.addTopLevelItem(item)
+
+            if property == "perforated_plate":
+                element_id = args[0]
+                hole_diameter = data.get("hole_diameter", "")
+                thickness = data.get("plate_thickness", "")
+                porosity = data.get("area_porosity", "")
+                discharge_coefficient = data.get("discharge_coefficient", "")
+                text = f"[{hole_diameter}, {thickness}, {round(porosity, 6)}, {discharge_coefficient}]"
+                item = QTreeWidgetItem([str(element_id), text])
+                for i in range(2):
+                    item.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_perforated_plate.addTopLevelItem(item)
+
+    def load_project_info(self):
+        self.acoustic_elements = self.preprocessor.get_acoustic_elements()
+        self.nodes = self.preprocessor.get_nodes_relative_to_acoustic_elements()
+        self.lineEdit_number_nodes.setText(str(len(self.nodes)))
+        self.lineEdit_number_elements.setText(str(len(self.acoustic_elements)))
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F4:

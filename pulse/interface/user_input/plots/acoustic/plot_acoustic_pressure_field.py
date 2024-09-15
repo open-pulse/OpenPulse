@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-# from pulse.interface.formatters.icons import *
 
 import numpy as np
 
@@ -32,7 +31,13 @@ class PlotAcousticPressureField(QWidget):
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
+                          ]
 
     def _config_window(self):
         self.setWindowIcon(app().main_window.pulse_icon)

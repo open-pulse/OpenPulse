@@ -207,7 +207,7 @@ def material_info_text(material) -> str:
     tree = TreeInfo("Material")
     tree.add_item("Name", material.name)
     tree.add_item("Density", material.density, "kg/m³")
-    tree.add_item("Elasticity modulus", round(material.elasticity_modulus/1e9, 2), "MPa")
+    tree.add_item("Elasticity modulus", round(material.elasticity_modulus / 1e9, 2), "GPa")
     tree.add_item("Poisson ratio", material.poisson_ratio, "")
     return str(tree)
 
@@ -288,14 +288,14 @@ def analysis_info_text(frequency_index: int):
 
     if project.analysis_id in [2, 4]:
         if project.analysis_type_label == "Structural Modal Analysis":
-            frequencies = project.get_structural_natural_frequencies()
+            frequencies = list(project.natural_frequencies_structural)
 
         if project.analysis_type_label == "Acoustic Modal Analysis":
-            frequencies = project.get_acoustic_natural_frequencies()
+            frequencies = list(project.natural_frequencies_acoustic)
 
         if frequencies is None:
             return ""
-        
+
         if frequency_index >= len(frequencies):
             return ""
 

@@ -98,6 +98,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
 
     def update_plot(self, reset_camera=False):
+
         self.remove_actors()
         self.mesh_picker.update_bounds()
         project = app().project
@@ -112,28 +113,33 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
             # update the data according to the current analysis
             if self.analysis_mode == AnalysisMode.DISPLACEMENT:
+                unit = "Unit: [m]"
                 deformed = True
                 color_table = self._compute_displacement_field(
                     self.current_frequency_index, self.current_phase_step
                 )
 
             elif self.analysis_mode == AnalysisMode.STRESS:
+                unit = "Unit: [Pa]"
                 deformed = True
                 color_table = self._compute_stress_field(
                     self.current_frequency_index, self.current_phase_step
                 )
 
             elif self.analysis_mode == AnalysisMode.PRESURE:
+                unit = "Unit: [Pa]"
                 color_table = self._compute_pressure_field(
                     self.current_frequency_index, self.current_phase_step
                 )
 
             else:
                 # Empty color table
+                unit = ""
                 color_table = ColorTable([], [0, 0], self.colormap)
                 self.colorbar_actor.VisibilityOff()
 
-        except Exception as e:
+        except Exception as error_log:
+            print(str(error_log))
             return
 
         acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
@@ -153,6 +159,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.plane_actor,
         )
 
+        self.colorbar_actor.SetTitle(unit)
         self.colorbar_actor.SetLookupTable(color_table)
         self.tubes_actor.set_color_table(color_table)
 
@@ -161,6 +168,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if reset_camera:
             self.renderer.ResetCamera()
+
         self.update_info_text()
         self.update()
 
@@ -253,8 +261,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.update_plot()
 
     def show_displacement_field(self, frequency_index):
-        solution = app().project.get_structural_solution()
 
+        solution = app().project.get_structural_solution()
         self.current_frequency_index = frequency_index
         self.current_phase_step = 0
         self.analysis_mode = AnalysisMode.DISPLACEMENT
@@ -430,6 +438,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         return all([actor is not None for actor in actors])
 
     def _compute_displacement_field(self, frequency_index, phase_step):
+
         project = app().project
         preprocessor = project.preprocessor
         solution = project.get_structural_solution()
@@ -483,8 +492,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         return color_table
 
     def _compute_pressure_field(self, frequency_index, phase_step):
+
         project = app().project
-        preprocessor = project.preprocessor
+        preprocessor = project.model.preprocessor
         solution = project.get_acoustic_solution()
 
         *_, pressure_field_data, self.min_max_pressures_values_current = (

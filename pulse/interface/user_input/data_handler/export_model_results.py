@@ -8,8 +8,6 @@ import os
 import numpy as np
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
-from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"

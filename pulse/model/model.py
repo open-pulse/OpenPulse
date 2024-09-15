@@ -60,6 +60,7 @@ class Model:
             self.set_static_analysis_setup(analysis_setup)
 
     def set_frequency_setup(self, analysis_setup: dict):
+        self.frequencies = None
         self.f_min = analysis_setup.get("f_min", None)
         self.f_max = analysis_setup.get("f_max", None)
         self.f_step = analysis_setup.get("f_step", None)
@@ -67,8 +68,6 @@ class Model:
             self.frequencies = analysis_setup.get("frequencies", None)
         elif (self.f_min, self.f_max, self.f_step).count(None) != 3:
             self.frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step)
-        else:
-            self.frequencies = None
 
     def set_global_damping(self, analysis_setup: dict):
         self.global_damping = analysis_setup.get("global_damping", [0., 0., 0., 0.])

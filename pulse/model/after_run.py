@@ -17,7 +17,7 @@ class AfterRun:
         self.load_model_and_analysis_data()
 
     def load_model_and_analysis_data(self):
-        self.solution_acoustic = self.project.solution_acoustic
+        self.solution_acoustic = app().project.acoustic_solution
         self.frequencies = self.model.frequencies
         self.map_nodes = self.preprocessor.map_global_to_external_index
         self.nodes = self.preprocessor.nodes
@@ -42,7 +42,7 @@ class AfterRun:
 
                 aux = [min(p0) for p0 in static_pressure]
                 static_pressure = np.array(aux).reshape(-1,1)
-                pressure_ratio = np.abs(self.solution_acoustic/static_pressure)
+                pressure_ratio = np.abs(self.solution_acoustic / static_pressure)
                 criteria = pressure_ratio > nl_criteria
                 aux_freq = np.any(criteria, axis=0)
                 aux_nodes = np.any(criteria, axis=1)

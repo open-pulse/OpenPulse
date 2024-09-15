@@ -6,7 +6,6 @@ from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
@@ -32,12 +31,10 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         self.selection_callback()
 
     def _initialize(self):
-        self.preprocessor = self.project.preprocessor
+        self.solution = self.project.get_acoustic_solution()
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.nodes = self.preprocessor.nodes
         self.analysis_method = self.project.analysis_method_label
         self.frequencies = self.model.frequencies
-        self.solution = self.project.get_acoustic_solution()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -133,9 +130,10 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
             return True
 
     def get_response(self):
-        
-        numerator = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_id)
-        denominator = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_id)
+
+        preprocessor = app().project.model.preprocessor
+        numerator = get_acoustic_frf(preprocessor, self.solution, self.output_node_id)
+        denominator = get_acoustic_frf(preprocessor, self.solution, self.input_node_id)
 
         if complex(0) in denominator:
             denominator += 1e-12

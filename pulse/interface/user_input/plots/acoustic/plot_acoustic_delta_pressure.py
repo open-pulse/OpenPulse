@@ -4,7 +4,6 @@ from PyQt5.QtCore import pyqtSignal, QEvent, QObject, Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter

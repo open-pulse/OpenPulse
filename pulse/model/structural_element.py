@@ -158,7 +158,6 @@ class StructuralElement:
         self._Bab = None
         self._Dts = None
         self._Bts = None
-        self._rot = None
 
         self.sub_transformation_matrix = None
         self.sub_inverse_rotation_matrix = None
@@ -251,6 +250,15 @@ class StructuralElement:
                          (self.last_node.z + self.first_node.z) / 2 ], dtype=float)
 
     @property
+    def directional_vector(self):
+        return np.array([self.delta_x, self.delta_y, self.delta_z], dtype=float)
+
+    @property
+    def normalized_directional_vector(self):
+        v = np.array([self.delta_x, self.delta_y, self.delta_z], dtype=float)
+        return v / np.linalg.norm(v)
+
+    @property
     def global_dof(self):
         """
         This method returns the element global degrees of freedom. The 3D Timoshenko beam theory implemented takes into account the three node's translations and the three node's rotations.
@@ -276,7 +284,7 @@ class StructuralElement:
         return values
 
     def element_results_lcs(self):
-        return self.element_rotation_matrix@self.element_results_gcs()
+        return self.element_rotation_matrix @ self.element_results_gcs()
     
     def static_element_results_gcs(self):
         values = np.zeros(DOF_PER_ELEMENT, dtype=float)
@@ -285,7 +293,7 @@ class StructuralElement:
         return values
 
     def static_element_results_lcs(self):
-        return self.element_rotation_matrix@self.static_element_results_gcs()
+        return self.element_rotation_matrix @ self.static_element_results_gcs()
 
     def mean_element_results(self):
         results_gcs = self.element_results_gcs()
@@ -361,7 +369,7 @@ class StructuralElement:
         
         mass_matrix_gcs : Element mass matrix in the global coordinate system.
         """
-        self._rot = R = self.element_rotation_matrix = self._element_rotation_matrix()
+        R = self.element_rotation_matrix
         Rt = self.transpose_rotation_matrix = self.element_rotation_matrix.T
         if self.element_type == 'pipe_1':
             if self.variable_section:
@@ -399,7 +407,7 @@ class StructuralElement:
         
         mass_matrix_gcs : Element mass matrix in the global coordinate system.
         """
-        self._rot = R = self.element_rotation_matrix = self._element_rotation_matrix()
+        R = self.element_rotation_matrix
         Rt = self.transpose_rotation_matrix = self.element_rotation_matrix.T
         if self.element_type == "expansion_joint":
             stiffness = Rt @ self.stiffness_matrix_expansion_joint_harmonic(frequencies=frequencies) @ R
@@ -480,7 +488,8 @@ class StructuralElement:
         Rt = self.transpose_rotation_matrix
         return Rt @ self.get_distributed_load()
 
-    def _element_rotation_matrix(self):
+    @ property
+    def element_rotation_matrix(self):
         """
         This method returns the transformation matrix that perform a rotation from the element's local coordinate system to the global coordinate system.
 
@@ -493,8 +502,9 @@ class StructuralElement:
         # self.sub_transformation_matrix = _rotation_matrix(self.delta_x, self.delta_y, self.delta_z)
         R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = self.sub_transformation_matrix
         return R
-    
-    def _inverse_element_rotation_matrix(self):
+
+    @ property
+    def inverse_element_rotation_matrix(self):
         R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = self.sub_inverse_rotation_matrix
         return R
@@ -1174,8 +1184,7 @@ class StructuralElement:
         aux[0,:] = -force[0,:]
         aux[6,:] =  force[1,:]
 
-        # R = self.element_rotation_matrix
-        R = self._element_rotation_matrix()
+        R = self.element_rotation_matrix
 
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis

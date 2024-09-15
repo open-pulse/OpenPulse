@@ -4,12 +4,12 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import os
 import numpy as np
+from pathlib import Path
 
 window_title_1 ="Error"
 window_title_2 ="Warning"
@@ -426,7 +426,7 @@ class MassSpringDamperInput(QDialog):
             value = 0
 
         if value == 0:
-            return True, None
+            return False, None
         else:
             return False, value
 
@@ -527,24 +527,30 @@ class MassSpringDamperInput(QDialog):
                         }
 
                 self.properties._set_nodal_property("lumped_stiffness", data, node_id)
+                print("set_lumped_stiffness")
 
     def check_constant_values_lumped_dampings(self, node_ids: list):
 
         stop, Cx = self.check_entries(self.lineEdit_Cx, "Cx")
         if stop:
             return True
+
         stop, Cy = self.check_entries(self.lineEdit_Cy, "Cy")
         if stop:
-            return True     
+            return True
+
         stop, Cz = self.check_entries(self.lineEdit_Cz, "Cz")
         if stop:
-            return True       
+            return True
+
         stop, Crx = self.check_entries(self.lineEdit_Crx, "Crx")
         if stop:
-            return True        
+            return True
+
         stop, Cry = self.check_entries(self.lineEdit_Cry, "Cry")
         if stop:
-            return True        
+            return True
+
         stop, Crz = self.check_entries(self.lineEdit_Crz, "Crz")
         if stop:
             return True
@@ -1098,7 +1104,7 @@ class MassSpringDamperInput(QDialog):
 
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
-        app().main_window.update_plots()
+        app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
 
     def text_label(self, mask, load_labels):

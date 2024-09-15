@@ -5,7 +5,6 @@ from PyQt5 import uic
 from pathlib import Path
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 

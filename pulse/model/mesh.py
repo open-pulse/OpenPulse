@@ -38,6 +38,7 @@ class Mesh:
         self.nodes_from_gmsh_lines = dict()
 
         self.lines_mapping = dict()
+        self.curve_length = dict()
         self.valve_internal_lines = dict()
 
     def set_element_size(self, element_size):
@@ -91,7 +92,7 @@ class Mesh:
         self._process_mesh()
         self._process_gmsh_lines_mesh_data()
         self._concatenate_line_elements()
-        self._concatenate_line_nodes()
+        # self._concatenate_line_nodes()
 
         self._save_geometry_points()
         self._finalize_gmsh()
@@ -123,6 +124,7 @@ class Mesh:
         geometry_handler.create_geometry()
 
         self.lines_mapping = geometry_handler.lines_mapping
+        self.curve_length = geometry_handler.curve_length
         self.valve_internal_lines = geometry_handler.valve_internal_lines
 
     def _set_gmsh_options(self):
@@ -202,7 +204,7 @@ class Mesh:
                 line_elements = list_line_elements[0]
                 self.elements_from_gmsh_lines[tag] = [self.map_elements[element] for element in line_elements]
 
-            line_nodes, _, _ = gmsh.model.mesh.getNodes(dim, tag, True)
+            line_nodes, _coords, _ = gmsh.model.mesh.getNodes(dim, tag, True)
             self.nodes_from_gmsh_lines[tag] = [self.map_nodes[node] for node in line_nodes]
 
         # dt = time() - t0
@@ -237,6 +239,27 @@ class Mesh:
             self.nodes_from_line[line_id].extend(line_nodes)
             for node_id in line_nodes:
                 self.lines_from_node[node_id].append(line_id)
+
+    def _process_line_nodes(self):
+        """
+        """
+        self.lines_from_node.clear()
+        self.nodes_from_line.clear()
+        for node_id, elements in self.preprocessor.structural_elements_connected_to_node.items():
+            for element in elements:
+
+                line_id = self.line_from_element[element.index]
+                if line_id in self.nodes_from_line.keys():
+                    if node_id not in self.nodes_from_line[line_id]:
+                        self.nodes_from_line[line_id].append(node_id)
+                else:
+                    self.nodes_from_line[line_id].append(node_id)
+
+                if node_id in self.lines_from_node.keys():
+                    if line_id not in self.lines_from_node[node_id]:
+                        self.lines_from_node[node_id].append(line_id)
+                else:
+                    self.lines_from_node[node_id].append(line_id)
 
     def _save_geometry_points(self):
         """

@@ -118,10 +118,13 @@ class DecouplingRotationDOFsInput(QDialog):
                 element = self.preprocessor.structural_elements[element_id]
 
                 if element.element_type == "beam_1":
+
                     node_ids = [element.first_node.external_index, element.last_node.external_index]
+
                     for node_id in node_ids:
-                        neighboor_elements = self.preprocessor.neighboor_elements_of_node(node_id)
-                        if len(neighboor_elements) == 3:
+
+                        neighboor_elements = self.preprocessor.structural_elements_connected_to_node[node_id]
+                        if len(neighboor_elements) >= 3:
                             self.lineEdit_tjoint_node_id.setText(str(node_id))
                             return
                         self.lineEdit_tjoint_node_id.setText("")
@@ -168,9 +171,10 @@ class DecouplingRotationDOFsInput(QDialog):
         
         tjoint_node_id = None
         node_ids = [element.first_node.external_index, element.last_node.external_index]
+
         for node_id in node_ids:
-            neighboor_elements = self.preprocessor.neighboor_elements_of_node(node_id)
-            if len(neighboor_elements) == 3:
+            neighboor_elements = self.preprocessor.structural_elements_connected_to_node[node_id]
+            if len(neighboor_elements) >= 3:
                 tjoint_node_id = node_id
                 break
 

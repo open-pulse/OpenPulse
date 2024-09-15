@@ -340,6 +340,39 @@ class ModelProperties:
         else:
             return None
 
+    def get_line_edges(self, line_id: int):
+        line_data = self.line_properties[line_id]
+        if "start_coords" in line_data.keys() and "end_coords" in line_data.keys():
+            start_coords = np.array(line_data["start_coords"], dtype=float)
+            end_coords = np.array(line_data["end_coords"], dtype=float)
+            return start_coords, end_coords
+        else:
+            return None, None
+
+    def map_line_to_points(self):
+        line_to_points = dict()
+        for line_id, data in self.line_properties.items():
+
+            data: dict
+            aux = dict()
+            if "start_coords" in data.keys() and "end_coords" in data.keys():
+                start_coords = np.array(data["start_coords"], dtype=float)
+                end_coords = np.array(data["end_coords"], dtype=float)
+                aux["start_coords"] = start_coords
+                aux["end_coords"] = end_coords
+
+            else:
+                return dict()
+
+            if "corner_coords" in data.keys():
+                corner_coords = np.array(data["corner_coords"], dtype=float)
+                aux["corner_coords"] = corner_coords
+                line_to_points[line_id, "curve"] = aux
+            else:
+                line_to_points[line_id, "line"] = aux
+            
+            return line_to_points
+
     def get_nodal_related_table_names(self, property : str, node_ids : int | list) -> list:
         """
         """

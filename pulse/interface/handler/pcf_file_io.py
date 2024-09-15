@@ -1,6 +1,7 @@
 
 from opps.io.pcf.pcf_exporter import PCFExporter
 from opps.io.pcf.pcf_handler import PCFHandler
+from opps.model import Pipe, Bend, Flange, Reducer, ExpansionJoint, Valve
 
 from pulse import app
 
@@ -18,7 +19,6 @@ class PCFFileIO:
         This function is absolutelly disgusting. I will refactor this next week, 
         but for now it will be like this just in order to make the bosses happy =)
         '''
-        from opps.model import Pipe, Bend, Flange
 
         last_path = app().config.get_last_folder_for("pcf folder")
         if last_path is None:
@@ -39,33 +39,68 @@ class PCFFileIO:
 
         for structure in pipeline.structures:
             if isinstance(structure, Pipe | Bend):
-                if structure.start_diameter == structure.end_diameter:
-                    section_label = 'Pipe'
-                    start_thickness = structure.start_diameter * 0.05
-                    section_parameters = [structure.start_diameter, start_thickness, 0, 0, 0, 0]
-                else:
-                    section_label = 'Reducer'  
-                    start_thickness = structure.start_diameter * 0.05
-                    end_thickness = structure.end_diameter * 0.05
-                    section_parameters = [structure.start_diameter, start_thickness, 0, 0, 
-                                          structure.end_diameter, end_thickness, 0, 0, 0, 0]
+                structure.extra_info = dict(
+                    structural_element_type = "pipe_1",
+                    cross_section_info = dict(
+                        section_type_label = "Pipe",
+                        section_parameters = [structure.diameter, structure.thickness, 0, 0, 0, 0]
+                    )
+                )
+
+            elif isinstance(structure, Reducer):
+                structure.extra_info = dict(
+                    structural_element_type = "pipe_1",
+                    cross_section_info = dict(
+                        section_type_label = "Reducer",
+                        section_parameters = [
+                            structure.initial_diameter, structure.thickness, 0, 0, 
+                            structure.final_diameter, structure.thickness, 0, 0, 0, 0
+                        ]
+                    )
+                )
 
             elif isinstance(structure, Flange):
-                section_label = 'Pipe'
-                thickness = structure.diameter * 0.05
-                section_parameters = [structure.diameter, thickness, 0, 0, 0, 0]
+                structure.extra_info = dict(
+                    structural_element_type = "pipe_1",
+                    cross_section_info = dict(
+                        section_type_label = "Flange",  # talvez seja pipe
+                        section_parameters = [structure.diameter, structure.thickness, 0, 0, 0, 0]
+                    )
+                )
+            
+            elif isinstance(structure, Valve):
+                structure.extra_info = dict(
+                    structural_element_type = "valve",
+                    valve_info = dict(
+                        acoustic_behavior=0,
+                        valve_effective_diameter = structure.diameter,
+                        valve_wall_thickness = structure.thickness,
+                        flange_diameter = structure.flange_outer_diameter,
+                        flange_length = structure.flange_length,
+                        body_section_parameters = [structure.diameter, structure.thickness, 0, 0, 0, 0],
+                        flange_section_parameters = [structure.flange_outer_diameter, 0.07, 0, 0, 0, 0],
+                        valve_name = "valve_test",
 
-            cross_section_info = {
-                                  'section_type_label': section_label, 
-                                  'section_parameters': section_parameters
-                                  }
+                        # These values are arbitrary and are not reliable
+                        valve_mass = 100,
+                        stiffening_factor = 10,
+                    ),
+                    cross_section_info = dict(
+                        section_type_label = "Valve",
+                    )
+                )
 
-            # There are no beams in pcf files, therefore it is pipe_1
-            structure.extra_info["structural_element_type"] = "pipe_1"
-            structure.extra_info["cross_section_info"] = cross_section_info
 
-        # TODO: the method 'process_geometry_callback' does not exist anymore
-        # app().main_window.geometry_input_wigdet.process_geometry_callback()
+            elif isinstance(structure, ExpansionJoint):
+                structure.extra_info = dict(
+                    structural_element_type = "expansion_joint",
+                    expansion_joint_info = dict(
+                        effective_diameter = structure.diameter,
+                    )
+                )
+
+        pipeline.merge_coincident_points()
+        app().main_window.geometry_widget.update_plot(reset_camera=True)
 
     def export_pcf(self):
 

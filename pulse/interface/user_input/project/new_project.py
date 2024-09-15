@@ -2,13 +2,12 @@ from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QFileDialog, QLabel, QLi
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-from pathlib import Path
 
-from pulse.interface.formatters.icons import *
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import app, UI_DIR
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import os
+from pathlib import Path
 from time import time
 
 window_title = "Error"
@@ -204,13 +203,11 @@ class NewProjectInput(QDialog):
         return setup_data
 
     def start_project(self):
-        t0 = time()
 
         if self.check_project_inputs():
             return
 
         if self.stop:
-            self.project.time_to_load_or_create_project = 0
             return
    
         if self.create_project():
@@ -227,9 +224,8 @@ class NewProjectInput(QDialog):
 
         app().main_window.update_plots()
 
-        self.project.time_to_load_or_create_project = time() - t0
         self.complete = True
-        
+
         self.close()
 
     def keyPressEvent(self, event):

@@ -4,7 +4,6 @@ from PyQt5.QtGui import QIcon
 from pathlib import Path
 
 from pulse import app
-from pulse.interface.formatters.icons import *
 
 class PickColorInput(QColorDialog):
     def __init__(self, *args, **kwargs):

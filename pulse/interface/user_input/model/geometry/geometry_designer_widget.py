@@ -28,6 +28,7 @@ from molde.utils import TreeInfo
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
+from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
 
 from pulse.interface.user_input.model.geometry.options import (
     StructureOptions,
@@ -75,6 +76,7 @@ class GeometryDesignerWidget(QWidget):
 
         # QFrame
         self.frame_bending_options: QFrame
+        self.frame_bounding_box_sizes: QFrame
         self.create_structure_frame: QFrame
 
         #QPushButton
@@ -589,11 +591,7 @@ class GeometryDesignerWidget(QWidget):
             message += f"Section data: {section_parameters}\n\n"
 
         if material is not None:
-            message += f"Material name: {material.name}\n"
-            message += f"Material id: {material.identifier}\n"
-            message += f"Elasticity modulus: {material.elasticity_modulus}\n"
-            message += f"Poisson ratio: {material.poisson_ratio}\n"
-            message += f"Density: {material.density}\n\n"
+            message += material_info_text(material)
 
         if len(self.pipeline.selected_points) == 2:
             a = self.pipeline.selected_points[0].coords()

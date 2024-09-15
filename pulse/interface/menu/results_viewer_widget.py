@@ -2,9 +2,10 @@ from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
+from pulse import app, UI_DIR
 from pulse.interface.menu.results_viewer_items import ResultsViewerItems
 
-from pulse import app, UI_DIR
+from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
 
 class ResultsViewerWidget(QWidget):
     def __init__(self):

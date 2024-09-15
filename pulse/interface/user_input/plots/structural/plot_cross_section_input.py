@@ -129,15 +129,6 @@ class PlotCrossSectionInput(QDialog):
             if stop:
                 return True
 
-            if self.line_typed in list(self.project.number_sections_by_line.keys()):
-                N = self.project.number_sections_by_line[self.line_typed]
-                self.message = f"Dear user, you have selected a line with {N} multiple cross-sections, therefore, the cross-section "
-                self.message += "plot by line selection will not work. \n\nIn this case, we strongly recommend selecting an element " 
-                self.message += "from the desired line to plot its cross-section."
-                self.title = "Line with multiples cross-sections"
-                self.window_title = window_title_2
-                return True
-
             cross_section = self.model.properties._get_property("cross_section", line_id=self.line_typed)
             expansion_joint_data = self.model.properties._get_property("expansion_joint_data", ine_id=self.line_typed)
 
