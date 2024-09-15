@@ -442,7 +442,7 @@
            </attribute>
            <column>
             <property name="text">
-             <string>ID</string>
+             <string>Section ID</string>
             </property>
             <property name="textAlignment">
              <set>AlignCenter</set>
@@ -523,7 +523,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Segment id:</string>
+            <string>Group id:</string>
            </property>
           </widget>
          </item>
@@ -632,7 +632,7 @@
            </attribute>
            <column>
             <property name="text">
-             <string>ID</string>
+             <string>Group ID</string>
             </property>
             <property name="textAlignment">
              <set>AlignCenter</set>
@@ -640,7 +640,7 @@
            </column>
            <column>
             <property name="text">
-             <string>Ratio</string>
+             <string>Section ID</string>
             </property>
             <property name="textAlignment">
              <set>AlignCenter</set>
@@ -648,7 +648,7 @@
            </column>
            <column>
             <property name="text">
-             <string>Section parameters</string>
+             <string>Group lines</string>
             </property>
             <property name="textAlignment">
              <set>AlignCenter</set>
@@ -656,7 +656,7 @@
            </column>
            <column>
             <property name="text">
-             <string>List of lines</string>
+             <string>Ratio L/d</string>
             </property>
             <property name="textAlignment">
              <set>AlignCenter</set>

@@ -14,6 +14,8 @@ from pulse.processing.acoustic_solver import AcousticSolver
 from pulse.tools.utils import *
 #
 import logging
+from collections import defaultdict
+
 
 window_title = "Error"
 
@@ -295,6 +297,27 @@ class Project:
 
     def set_color_scale_setup(self, color_scale_setup):
         self.color_scale_setup = color_scale_setup
+
+    def map_lines_neighboors(self):
+        # line_to_points = self.model.properties.map_line_to_points()
+        lines_neighboors = defaultdict(list)
+        for line_id, data in self.model.properties.line_properties.items():
+            for coords in self.model.properties.get_line_edges(line_id):
+                if coords is None:
+                    return
+
+                node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+                neigh_elements = self.preprocessor.structural_elements_connected_to_node[node_id]
+    
+                for element in neigh_elements:
+
+                    element_line = self.preprocessor.mesh.line_from_element[element.index]
+                    _data = self.model.properties.line_properties[element_line]
+
+                    if "corner_coords" in _data.keys():
+                        lines_neighboors[line_id, "curve"].append(element_line)
+                    else:
+                        lines_neighboors[line_id, "line"].append(element_line)
 
     def get_geometry_points(self):
         points = dict()

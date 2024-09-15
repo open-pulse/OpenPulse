@@ -248,10 +248,15 @@ class StructuralElement:
         return np.array([(self.last_node.x + self.first_node.x) / 2, 
                          (self.last_node.y + self.first_node.y) / 2,
                          (self.last_node.z + self.first_node.z) / 2 ], dtype=float)
-    
+
     @property
     def directional_vector(self):
         return np.array([self.delta_x, self.delta_y, self.delta_z], dtype=float)
+
+    @property
+    def normalized_directional_vector(self):
+        v = np.array([self.delta_x, self.delta_y, self.delta_z], dtype=float)
+        return v / np.linalg.norm(v)
 
     @property
     def global_dof(self):
