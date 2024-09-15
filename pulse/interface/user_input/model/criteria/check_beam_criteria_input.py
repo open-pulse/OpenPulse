@@ -48,7 +48,6 @@ class CheckBeamCriteriaInput(QDialog):
         # QLineEdit
         self.lineEdit_beam_criteria: QLineEdit
         self.lineEdit_section_id: QLineEdit
-        self.lineEdit_segment_id: QLineEdit
 
         # QPushButton
         self.pushButton_cancel: QPushButton
@@ -67,8 +66,8 @@ class CheckBeamCriteriaInput(QDialog):
         #
         self.treeWidget_non_beam_segments.itemClicked.connect(self.on_click_non_beam_segments)
         self.treeWidget_non_beam_segments.itemDoubleClicked.connect(self.on_double_click_non_beam_segments)
-        self.treeWidget_sections_parameters_by_lines.itemClicked.connect(self.on_click_treeWidget_section_parameters_by_line)
-        self.treeWidget_sections_parameters_by_lines.itemDoubleClicked.connect(self.on_doubleClick_treeWidget_section_parameters_by_line)
+        self.treeWidget_sections_parameters_by_lines.itemClicked.connect(self.on_click_section_parameters_by_line)
+        self.treeWidget_sections_parameters_by_lines.itemDoubleClicked.connect(self.on_doubleClick_section_parameters_by_line)
         #
         self.config_treeWidget()
 
@@ -148,36 +147,27 @@ class CheckBeamCriteriaInput(QDialog):
                 self.treeWidget_non_beam_segments.addTopLevelItem(new)
 
     def on_click_non_beam_segments(self, item):
-        self.lineEdit_segment_id.setText("")
         section_id = item.text(0)
         if section_id != "":
-            self.lineEdit_segment_id.setText(section_id)
-
-    def on_double_click_non_beam_segments(self, item):
-        self.lineEdit_segment_id.setText("")
-        section_id = item.text(0)
-        if section_id != "":
-            self.lineEdit_segment_id.setText(section_id)
             if int(section_id) in self.non_beam_data.keys():
                 data = self.non_beam_data[int(section_id)]
                 lines_to_highlight = data[2]
                 app().main_window.set_selection(lines = lines_to_highlight)
 
-    def on_click_treeWidget_section_parameters_by_line(self, item):
-        self.lineEdit_section_id.setText("")
-        key = item.text(0)
-        if key != "":
-            if int(key) in self.section_data_lines.keys():
-                self.lineEdit_section_id.setText(key)               
+    def on_double_click_non_beam_segments(self, item):
+        self.on_double_click_non_beam_segments(item)
 
-    def on_doubleClick_treeWidget_section_parameters_by_line(self, item):
+    def on_click_section_parameters_by_line(self, item):
         self.lineEdit_section_id.setText("")
         key = item.text(0)
         if key != "":
             if int(key) in self.section_data_lines.keys():
                 self.lineEdit_section_id.setText(key)
-                [_element_type, _section_parameters, _, section_lines] = self.section_data_lines[int(key)]
-                app().main_window.set_selection(lines = section_lines)
+                *_, section_lines = self.section_data_lines[int(key)]
+                app().main_window.set_selection(lines = section_lines)           
+
+    def on_doubleClick_section_parameters_by_line(self, item):
+        self.on_click_section_parameters_by_line(item)
 
     def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False):
 
@@ -226,17 +216,17 @@ class CheckBeamCriteriaInput(QDialog):
         self.hide()
 
         title = "Beam validity criteria relevant information"
-        message = "1) The Beam Validity Criteria Tool has been developed to aid the user to find "
-        message += "segments in the structure that potentially do not attempt the 3D Timoshenko beam theory. "
+        message = "1) The Beam Validity Criteria Tool has been developed to aid the user in finding "
+        message += "branches that potentially do not fit the 3D Timoshenko beam theory;"
         #
         message += "\n\n2) It is known for structural engineers that to fit the Timoshenko beam "
         message += "theory hypothesis the ratio of length and cross-section predominant dimension " 
-        message += "should reach, depending on geometry details, at least a factor of 10 or 20. "
+        message += "should reach, depending on geometry details, at least a factor of 10 or 20;"
         #
         message += "\n\n3) The current tool evaluates the ratios for each continuous segment with "
-        message += "the same section and compared them with the user-defined value. "
+        message += "the same section and compared them with the user-defined value;"
         #
-        message += "\n\n4) The segments that do not meet the criteria are then highlighted on OpenPulse's render. "
+        message += "\n\n4) The segments that do not meet the criteria are then highlighted on the OpenPulse's render;"
         #
         message += "\n\n5) This auxiliar tool does not intend to automate or replace the engineer criteria, "
         message += "but to provide an additional filter to focus on segments that could lead to physically "
