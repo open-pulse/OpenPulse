@@ -113,24 +113,28 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
             # update the data according to the current analysis
             if self.analysis_mode == AnalysisMode.DISPLACEMENT:
+                unit = "Unit: [m]"
                 deformed = True
                 color_table = self._compute_displacement_field(
                     self.current_frequency_index, self.current_phase_step
                 )
 
             elif self.analysis_mode == AnalysisMode.STRESS:
+                unit = "Unit: [Pa]"
                 deformed = True
                 color_table = self._compute_stress_field(
                     self.current_frequency_index, self.current_phase_step
                 )
 
             elif self.analysis_mode == AnalysisMode.PRESURE:
+                unit = "Unit: [Pa]"
                 color_table = self._compute_pressure_field(
                     self.current_frequency_index, self.current_phase_step
                 )
 
             else:
                 # Empty color table
+                unit = ""
                 color_table = ColorTable([], [0, 0], self.colormap)
                 self.colorbar_actor.VisibilityOff()
 
@@ -155,6 +159,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.plane_actor,
         )
 
+        self.colorbar_actor.SetTitle(unit)
         self.colorbar_actor.SetLookupTable(color_table)
         self.tubes_actor.set_color_table(color_table)
 
