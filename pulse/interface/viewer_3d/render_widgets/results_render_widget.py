@@ -105,29 +105,49 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if not project.get_structural_elements():
             return
+        
+        analysis_id = None
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        if isinstance(analysis_setup, dict):
+            analysis_id = analysis_setup["analysis_id"]
 
         try:
+
             # Default behavior
             self.colorbar_actor.VisibilityOn()
             deformed = False
+            unit = ""
 
             # update the data according to the current analysis
             if self.analysis_mode == AnalysisMode.DISPLACEMENT:
-                unit = "Unit: [m]"
+
+                if analysis_id in [0, 1, 5, 6, 7]:
+                    unit = "Unit: [m]"
+                elif analysis_id in [2]:
+                    unit = "Unit: [--]"
+
                 deformed = True
                 color_table = self._compute_displacement_field(
                     self.current_frequency_index, self.current_phase_step
                 )
 
             elif self.analysis_mode == AnalysisMode.STRESS:
-                unit = "Unit: [Pa]"
+
+                if analysis_id in [0, 1, 5, 6, 7]:
+                    unit = "Unit: [Pa]"
+
                 deformed = True
                 color_table = self._compute_stress_field(
                     self.current_frequency_index, self.current_phase_step
                 )
 
             elif self.analysis_mode == AnalysisMode.PRESURE:
-                unit = "Unit: [Pa]"
+
+                if analysis_id in [3, 5, 6]:
+                    unit = "Unit: [Pa]"
+                elif analysis_id in [4]:
+                    unit = "Unit: [--]"
+
                 color_table = self._compute_pressure_field(
                     self.current_frequency_index, self.current_phase_step
                 )
