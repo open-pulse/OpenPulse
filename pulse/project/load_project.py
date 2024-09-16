@@ -1,6 +1,6 @@
 # fmt: off
 
-from pulse import app
+from pulse import app, version
 
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
@@ -14,6 +14,7 @@ from pulse.model.cross_section import CrossSection
 import logging
 from time import time
 from collections import defaultdict
+from packaging.version import Version
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -473,6 +474,25 @@ class LoadProject:
             app().project.model.properties.acoustic_imported_tables = imported_tables["acoustic"]
         if "structural" in imported_tables.keys():
             app().project.model.properties.structural_imported_tables = imported_tables["structural"]
+
+
+    def check_file_version(self):
+
+        project_setup = app().pulse_file.read_project_setup_from_file()
+        if project_setup is None:
+            return True
+
+        # file_version = ""
+        # if "version" in project_setup.keys():
+        #     file_version = project_setup["version"]
+
+        # if Version(file_version) > version():
+        #     #TODO: return whenever the versions are incompatible
+        #     title = "Incorrect file version"
+        #     message = "The project file version is incompatible with the current OpenPulse version. "
+        #     message += "As a results, the project data loading will be canceled."
+        #     PrintMessageInput([window_title_1, title, message])
+        #     return False
 
 
     def load_mesh_setup_from_file(self):

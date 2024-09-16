@@ -40,6 +40,7 @@ class CircularBeamOptions(StructureOptions):
         self.pipeline.connect_circular_beams(**kwargs)
 
     def configure_structure(self):
+        self.cross_section_widget._add_icon_and_title()
         self.cross_section_widget.set_inputs_to_geometry_creator()     
         self.cross_section_widget.hide_all_tabs()     
         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)

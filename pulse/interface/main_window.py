@@ -946,10 +946,14 @@ class MainWindow(QMainWindow):
         def tmp():
 
             self.reset_geometry_render()
+
             if project_path is not None:
                 app().config.add_recent_file(project_path)
                 app().config.write_last_folder_path_in_file("project folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
+                if app().loader.check_file_version():
+                    self.reset_temporary_folder()
+                    return
                 self.update_window_title(project_path)
 
             logging.info("Loading project [1/3]")

@@ -2,15 +2,11 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 
+from opps.model import Reducer
+from molde.stylesheets import set_qproperty
+from .structure_options import StructureOptions
 
 from copy import deepcopy
-
-from opps.model import Reducer
-
-from molde.stylesheets import set_qproperty
-
-from .structure_options import StructureOptions
-from pulse import app
 
 
 class ReducerOptions(StructureOptions):
@@ -23,12 +19,12 @@ class ReducerOptions(StructureOptions):
         self.structure_type = Reducer
         self.cross_section_info = dict()
         self.update_permissions()
-    
+
     def xyz_callback(self, xyz):
         kwargs = self._get_kwargs()
         if kwargs is None:
             return
-        
+
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
         self.pipeline.add_reducer_eccentric(xyz, **kwargs)
@@ -40,11 +36,13 @@ class ReducerOptions(StructureOptions):
         self.pipeline.connect_reducer_eccentrics(**kwargs)
 
     def configure_structure(self):
+        self.cross_section_widget._add_icon_and_title()
         self.cross_section_widget.set_inputs_to_geometry_creator()     
         self.cross_section_widget.hide_all_tabs()     
         self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
         self.cross_section_widget.lineEdit_outside_diameter_initial.setFocus()
+        self.load_data_from_pipe_section()
         self.cross_section_widget.exec()
 
         if not self.cross_section_widget.complete:
@@ -76,6 +74,19 @@ class ReducerOptions(StructureOptions):
         self.geometry_designer_widget.add_button.setEnabled(enable_add)
         self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
 
+    def load_data_from_pipe_section(self):
+
+        outside_diameter = self.cross_section_widget.lineEdit_outside_diameter.text()
+        wall_thickness = self.cross_section_widget.lineEdit_wall_thickness.text()
+        offset_y = self.cross_section_widget.lineEdit_offset_y.text()
+        offset_z = self.cross_section_widget.lineEdit_offset_z.text()
+
+        for i, value in enumerate([outside_diameter, wall_thickness, offset_y, offset_z]):
+            self.cross_section_widget.right_variable_pipe_lineEdits[i].setText(value)
+
+        for lineEdit in self.cross_section_widget.right_variable_pipe_lineEdits:
+            lineEdit.setText("")
+
     def _get_kwargs(self) -> dict:
         if self.cross_section_info is None:
             return
@@ -94,7 +105,6 @@ class ReducerOptions(StructureOptions):
             final_offset_z = parameters[7],
             extra_info = self._get_extra_info(),
         )
-
 
     def _get_extra_info(self):
         return dict(
