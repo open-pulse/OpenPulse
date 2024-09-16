@@ -105,26 +105,23 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         if not project.get_structural_elements():
             return
-        
-        analysis_id = None
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-        if isinstance(analysis_setup, dict):
-            analysis_id = analysis_setup["analysis_id"]
 
         try:
 
             # Default behavior
             self.colorbar_actor.VisibilityOn()
             deformed = False
-            unit = ""
+    
+            unit_label = ""
+            analysis_id = project.analysis_id
 
             # update the data according to the current analysis
             if self.analysis_mode == AnalysisMode.DISPLACEMENT:
 
                 if analysis_id in [0, 1, 5, 6, 7]:
-                    unit = "Unit: [m]"
+                    unit_label = "Unit: [m]"
                 elif analysis_id in [2]:
-                    unit = "Unit: [--]"
+                    unit_label = "Unit: [--]"
 
                 deformed = True
                 color_table = self._compute_displacement_field(
@@ -134,7 +131,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             elif self.analysis_mode == AnalysisMode.STRESS:
 
                 if analysis_id in [0, 1, 5, 6, 7]:
-                    unit = "Unit: [Pa]"
+                    unit_label = "Unit: [Pa]"
 
                 deformed = True
                 color_table = self._compute_stress_field(
@@ -144,9 +141,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             elif self.analysis_mode == AnalysisMode.PRESURE:
 
                 if analysis_id in [3, 5, 6]:
-                    unit = "Unit: [Pa]"
+                    unit_label = "Unit: [Pa]"
                 elif analysis_id in [4]:
-                    unit = "Unit: [--]"
+                    unit_label = "Unit: [--]"
 
                 color_table = self._compute_pressure_field(
                     self.current_frequency_index, self.current_phase_step
@@ -178,11 +175,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.plane_actor,
         )
 
-        unit = app().project.get_unit()
-        if unit is None:
-            unit = ""
-
-        self.colorbar_actor.SetTitle(f"Unit: [{unit}]")
+        self.colorbar_actor.SetTitle(unit_label)
         self.colorbar_actor.SetLookupTable(color_table)
         self.tubes_actor.set_color_table(color_table)
 

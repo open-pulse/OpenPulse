@@ -44,8 +44,6 @@ class Project:
         self.color_scale_setup = dict()
 
         self.perforated_plate_data_log = None
-        self.plot_pressure_field = False
-        self.plot_stress_field = False
         self.none_project_action = False
         self.stress_stiffening_enabled = False
 
@@ -374,22 +372,6 @@ class Project:
 
     def get_structural_reactions(self):
         return self.structural_reactions
-
-    def get_unit(self):
-
-        if self.analysis_id is None:
-            return self.analysis_id
-
-        analysis = self.analysis_id
-        if analysis >=0 and analysis <= 7:
-            if (analysis in [3, 5, 6] and self.plot_pressure_field) or self.plot_stress_field:
-                return "Pa"
-            elif analysis in [5, 6] and not self.plot_pressure_field:
-                return "m"            
-            elif analysis in [0, 1, 7]:
-                return "m"
-            else:
-                return "-"
 
     def set_stresses_values_for_color_table(self, values):
         self.stresses_values_for_color_table = values
