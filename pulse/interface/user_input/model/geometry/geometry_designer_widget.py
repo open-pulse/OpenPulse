@@ -116,7 +116,7 @@ class GeometryDesignerWidget(QWidget):
         self.empty_widget: QWidget
     
     def _create_layout(self):
-        self.cross_section_widget = CrossSectionWidget()
+        self.cross_section_widget = CrossSectionWidget(self)
         self.material_widget = MaterialInputs(self)
         self.material_widget.hide()
 
