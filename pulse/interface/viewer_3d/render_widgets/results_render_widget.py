@@ -154,7 +154,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
             else:
                 # Empty color table
-                unit = ""
                 color_table = ColorTable([], [0, 0], self.colormap)
                 self.colorbar_actor.VisibilityOff()
 
@@ -179,7 +178,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.plane_actor,
         )
 
-        self.colorbar_actor.SetTitle(unit)
+        unit = app().project.get_unit()
+        if unit is None:
+            unit = ""
+
+        self.colorbar_actor.SetTitle(f"Unit: [{unit}]")
         self.colorbar_actor.SetLookupTable(color_table)
         self.tubes_actor.set_color_table(color_table)
 
