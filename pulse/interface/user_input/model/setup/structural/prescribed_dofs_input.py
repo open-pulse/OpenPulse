@@ -321,7 +321,7 @@ class PrescribedDofsInput(QDialog):
 
             app().pulse_file.write_nodal_properties_in_file()
             self.load_nodes_info()
-            app().main_window.update_plots()
+            app().main_window.update_plots(reset_camera=False)
             # self.close()
 
             print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")  

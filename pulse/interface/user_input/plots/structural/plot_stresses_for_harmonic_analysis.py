@@ -7,7 +7,9 @@ from pulse import app, UI_DIR
 from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 
+import logging
 import numpy as np
 
 class PlotStressesForHarmonicAnalysis(QWidget):
@@ -18,11 +20,10 @@ class PlotStressesForHarmonicAnalysis(QWidget):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
 
         self._config_window()
         self._initialize()
+        self._load_structural_solver()
         self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
@@ -40,11 +41,26 @@ class PlotStressesForHarmonicAnalysis(QWidget):
         
         self.stress_data = list()
 
-        self.preprocessor = self.project.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-        self.frequencies = self.model.frequencies
-        self.solve = self.project.structural_solve 
-        self.analysis_method = self.project.analysis_method_label
+        self.before_run = app().project.get_pre_solution_model_checks()
+
+        self.frequencies = app().project.model.frequencies
+        self.analysis_method = app().project.analysis_method_label
+    
+    def _load_structural_solver(self):
+
+        if app().project.structural_solver is None:
+
+            def callback():
+                logging.info("Processing the cross-sections [75%]")
+                app().project.model.preprocessor.process_cross_sections_mapping()
+            LoadingWindow(callback).run()
+
+            self.structural_solver = app().project.get_structural_solver()
+            if self.structural_solver.solution is None:
+                self.structural_solver.solution = app().project.structural_solution
+
+        else:
+            self.structural_solver = app().project.structural_solver
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -99,13 +115,10 @@ class PlotStressesForHarmonicAnalysis(QWidget):
 
     def get_stress_data(self, element_id):
 
-        if self.stress_data == [] or self.update_damping:
-            _damping = self.checkBox_damping_effect.isChecked()
-            self.stress_data = self.solve.stress_calculate(
-                                                            pressure_external = 0, 
-                                                            damping = _damping
-                                                            )
+        if len(self.stress_data) == 0 or self.update_damping:
+            damping_effect = self.checkBox_damping_effect.isChecked()
 
+            self.stress_data = self.structural_solver.stress_calculate(damping = damping_effect)
             self.update_damping = False
 
         response = get_stress_spectrum_data(

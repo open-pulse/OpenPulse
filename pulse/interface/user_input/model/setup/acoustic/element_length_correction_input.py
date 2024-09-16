@@ -136,7 +136,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                 node_ids.append(last_node)
         
         for node_id in node_ids:
-            neigh_elements = self.preprocessor.neighboor_elements_of_node(node_id)
+            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
 
             if correction_type in [1, 2]:
 
@@ -307,7 +307,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
             self.treeWidget_elements_info.addTopLevelItem(item)
 
-        self.update_tabs_visibility()         
+        self.update_tabs_visibility()
 
     def update_tabs_visibility(self):
 

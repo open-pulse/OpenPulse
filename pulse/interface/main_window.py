@@ -69,10 +69,7 @@ class MainWindow(QMainWindow):
     def _initialize(self):
 
         self.dialog = None
-        self.pulse_file = None
         self.input_ui = None
-
-        self.current_plot_type = None
 
         self.model_and_analysis_setup_widget = None
         self.results_viewer_wigdet = None
@@ -121,52 +118,55 @@ class MainWindow(QMainWindow):
         
         # QAction
         self.action_open_project: QAction
-        self.action_geometry_editor_workspace : QAction
+        self.action_geometry_editor_workspace: QAction
         self.action_model_setup_workspace: QAction
-        self.action_analysis_setup_workspace : QAction
-        self.action_results_workspace : QAction
-        self.action_export_geometry : QAction
-        self.action_import_geometry : QAction
-        self.action_export_pcf : QAction
-        self.action_import_pcf : QAction
-        self.action_set_dark_theme : QAction
-        self.action_set_light_theme : QAction
-        self.action_save_project : QAction
-        self.action_save_project_as : QAction
-        self.action_show_mesh_data : QAction
-        self.action_show_geometry_data : QAction
-        self.action_show_lines : QAction
-        self.action_show_tubes : QAction
-        self.action_show_symbols : QAction
-        self.action_show_transparent : QAction
-        self.action_select_elements : QAction
-        self.action_plot_geometry_editor : QAction
-        self.action_plot_lines : QAction
-        self.action_plot_lines_with_cross_section : QAction
-        self.action_plot_mesh : QAction
-        self.action_export_piping : QAction
-        self.action_user_preferences : QAction
-        self.action_geometry_editor_help : QAction
-        self.action_pulsation_suppression_device_editor : QAction
-        self.action_section_plane : QAction
+        self.action_analysis_setup_workspace: QAction
+        self.action_results_workspace: QAction
+        self.action_export_geometry: QAction
+        self.action_import_geometry: QAction
+        self.action_export_pcf: QAction
+        self.action_import_pcf: QAction
+        self.action_set_dark_theme: QAction
+        self.action_set_light_theme: QAction
+        self.action_save_project: QAction
+        self.action_save_project_as: QAction
+        self.action_show_mesh_data: QAction
+        self.action_show_geometry_data: QAction
+        self.action_show_lines: QAction
+        self.action_show_tubes: QAction
+        self.action_show_symbols: QAction
+        self.action_show_transparent: QAction
+        self.action_select_elements: QAction
+        self.action_plot_geometry_editor: QAction
+        self.action_plot_lines: QAction
+        self.action_plot_lines_with_cross_section: QAction
+        self.action_plot_mesh: QAction
+        self.action_export_piping: QAction
+        self.action_user_preferences: QAction
+        self.action_geometry_editor_help: QAction
+        self.action_pulsation_suppression_device_editor: QAction
+        self.action_section_plane: QAction
+        self.action_exit: QAction
+        #TODO: implement a new user preferences
+        self.action_user_preferences.setVisible(False)
 
         # QMenu
-        self.menu_recent : QMenu
-        self.menu_project : QMenu
-        self.menu_plots : QMenu
-        self.menu_settings : QMenu
-        self.menu_model_info : QMenu
-        self.menu_help : QMenu
+        self.menu_recent: QMenu
+        self.menu_project: QMenu
+        self.menu_plots: QMenu
+        self.menu_settings: QMenu
+        self.menu_model_info: QMenu
+        self.menu_help: QMenu
 
         # QSplitter
-        self.splitter : QSplitter
+        self.splitter: QSplitter
 
         # QStackedWidget
-        self.setup_widgets_stack : QStackedWidget
-        self.render_widgets_stack : QStackedWidget
+        self.setup_widgets_stack: QStackedWidget
+        self.render_widgets_stack: QStackedWidget
 
         # QToolBar
-        self.tool_bar : QToolBar
+        self.tool_bar: QToolBar
         self.tool_bar.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _connect_actions(self):
@@ -236,7 +236,7 @@ class MainWindow(QMainWindow):
         app().splash.update_progress(30)
         self._load_section_plane()
         dt = time() - t0
-        print(f"Time to process A: {dt} [s]")
+        print(f"Time to process A: {round(dt, 6)} [s]")
 
         t1 = time()
         self._create_layout()
@@ -245,7 +245,7 @@ class MainWindow(QMainWindow):
         self._add_toolbars()
         app().splash.update_progress(70)
         dt = time() - t1
-        print(f"Time to process B: {dt} [s]")
+        print(f"Time to process B: {round(dt, 6)} [s]")
 
         t2 = time()
         self.plot_lines_with_cross_sections()
@@ -254,7 +254,7 @@ class MainWindow(QMainWindow):
         self.create_temporary_folder()
         app().splash.update_progress(98)
         dt = time() - t2
-        print(f"Time to process C: {dt} [s]")
+        print(f"Time to process C: {round(dt, 6)} [s]")
 
         app().splash.close()
         self.showMaximized()
@@ -262,7 +262,7 @@ class MainWindow(QMainWindow):
         app().processEvents()
         self.create_file_dialog()
         dt = time() - t0
-        print(f"Time to process D: {dt} [s]")
+        print(f"Time to process D: {round(dt, 6)} [s]")
 
         if not self.is_temporary_folder_empty():
             self.recovery_dialog()
@@ -333,11 +333,11 @@ class MainWindow(QMainWindow):
         geometry_handler.export_cad_file(path)
 
     # public
-    def update_plots(self):
+    def update_plots(self, reset_camera=True):
         self.project.enhance_pipe_sections_appearance()
-        self.geometry_widget.update_plot(reset_camera=True)
-        self.mesh_widget.update_plot(reset_camera=True)
-        self.results_widget.update_plot(reset_camera=True)
+        self.geometry_widget.update_plot(reset_camera)
+        self.mesh_widget.update_plot(reset_camera)
+        self.results_widget.update_plot(reset_camera)
 
     def selection_changed_callback(self):
         # TODO: implement something useful
@@ -405,22 +405,25 @@ class MainWindow(QMainWindow):
 
     def plot_lines(self):
         self._configure_visualization(points=True, lines=True)
-        self.current_plot_type = "lines_plot"
 
     def plot_lines_with_cross_sections(self):
         self._configure_visualization(
             points=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
         )
-        self.current_plot_type = "lines_with_cross_section_plot"
 
     def plot_mesh(self):
         self._configure_visualization(
             nodes=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
         )
-        self.current_plot_type = "mesh_plot"
     
+    def plot_geometry_points(self):
+        self._configure_visualization(
+            points=True, lines=True, tubes=True,
+            acoustic_symbols=True, structural_symbols=True,
+        )    
+
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
 
@@ -451,7 +454,7 @@ class MainWindow(QMainWindow):
                 self.analysis_toolbar.load_analysis_settings()
                 self.model_and_analysis_items.modify_model_setup_items_access(False)
                 # dt = time() - t0
-                # print(f"initial_project_action: {dt} s")
+                # print(f"initial_project_action: {round(dt, 6)} s")
                 return True
             else:
                 self.model_and_analysis_items.modify_geometry_item_access(False)
@@ -481,7 +484,7 @@ class MainWindow(QMainWindow):
         else:
             self.disable_workspace_selector_and_geometry_editor(True)
         # dt = time() - t0
-        # print(f"Elapsed time to load_recent_project: {dt}s")
+        # print(f"Elapsed time to load_recent_project: {round(dt, 6)}s")
 
     # internal
     def _update_recent_projects(self):
@@ -596,7 +599,7 @@ class MainWindow(QMainWindow):
 
             self.results_widget.update_selection()
             self.results_viewer_wigdet.update_visibility_items()
-            self.animation_toolbar.setEnabled(False)
+            self.animation_toolbar.setEnabled(False)    
 
             self.action_results_workspace.setEnabled(False)
             if not self.action_geometry_editor_workspace.isEnabled():
@@ -638,7 +641,11 @@ class MainWindow(QMainWindow):
         self.use_geometry_workspace()
     
     def action_user_preferences_callback(self):
+        return
         self.input_ui.mesh_setup_visibility()
+
+    def action_exit_callback(self):
+        self.close_app()
 
     def action_geometry_editor_help_callback(self):
         self.input_ui.geometry_editor_help()
@@ -783,7 +790,6 @@ class MainWindow(QMainWindow):
     def _add_analysis_toolbar(self):
         self.analysis_toolbar = AnalysisToolbar()
         self.addToolBar(self.analysis_toolbar)
-        # self.insertToolBarBreak(self.analysis_toolbar)
         self.analysis_toolbar.setDisabled(True)
 
     def _add_animation_toolbar(self):
@@ -1006,12 +1012,10 @@ class MainWindow(QMainWindow):
                 return
 
             if obj.ignore_results_data:
-                pass
-                # self.ulse_file.remove_results_data_from_project_file()
-            
+                app().pulse_file.remove_results_data_from_project_file()
+
             if obj.ignore_mesh_data:
-                pass
-                # self.pulse_file.remove_mesh_data_from_project_file()
+                app().pulse_file.remove_mesh_data_from_project_file()
 
             self.save_project_as(file_path)
 

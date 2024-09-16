@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 
 window_title_1 = "Error"
 window_title_2 = "Warning"

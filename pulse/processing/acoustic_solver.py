@@ -47,6 +47,10 @@ class AcousticSolver:
 
     def _initialize(self):
 
+        self.natural_frequencies = None
+        self.modal_shapes = None
+        self.solution = None
+        
         self.solution_nm1 = None
         self.convergence_data_log = None
 
@@ -198,14 +202,13 @@ class AcousticSolver:
         eigen_values, eigen_vectors = eigs(K_add, M=M_add, k=modes, which=which, sigma=sigma_factor)
 
         positive_real = np.absolute(np.real(eigen_values))
-        natural_frequencies = np.sqrt(positive_real)/(2*np.pi)
-        modal_shape = np.real(eigen_vectors)
+        natural_frequencies = np.sqrt(positive_real) / (2 * np.pi)
 
         index_order = np.argsort(natural_frequencies)
         natural_frequencies = natural_frequencies[index_order]
-        modal_shape = modal_shape[:, index_order]
+        modal_shapes = eigen_vectors[:, index_order]
 
-        modal_shape = self._reinsert_prescribed_dofs(modal_shape, modal_analysis=True)
+        modal_shapes = self._reinsert_prescribed_dofs(modal_shapes, modal_analysis=True)
         for value in self.prescribed_values:
             if value is not None:
                 if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
@@ -216,7 +219,10 @@ class AcousticSolver:
         if self.stop_processing():
             return None, None
 
-        return natural_frequencies, modal_shape
+        self.natural_frequencies = natural_frequencies
+        self.modal_shapes = np.real(modal_shapes)
+
+        return natural_frequencies, modal_shapes
 
     def direct_method(self):
         """
@@ -247,7 +253,7 @@ class AcousticSolver:
             for i in range(cols):
                 solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
 
-            solution = self._reinsert_prescribed_dofs(solution)
+            self.solution = self._reinsert_prescribed_dofs(solution)
 
             return solution, self.convergence_data_log
 
@@ -283,7 +289,7 @@ class AcousticSolver:
                     for i in range(cols):
                         solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
 
-                    solution = self._reinsert_prescribed_dofs(solution)
+                    self.solution = self._reinsert_prescribed_dofs(solution)
                     
                     delta_pressures = list()
                     cache_delta_residues = list()
@@ -346,16 +352,20 @@ class AcousticSolver:
 
                     if converged:
                         self.convergence_data_log = [self.iterations, pressure_residues, delta_residues, 100*self.target]
+                        self.solution = self.solution_nm1
                         return self.solution_nm1, self.convergence_data_log
 
             else:
 
                 for i in range(cols):
-                    solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
+                    solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
                     if self.stop_processing():
+                        self.solution = None
                         return None, None
-                solution = self._reinsert_prescribed_dofs(solution)
-                return solution, self.convergence_data_log                     
+
+                self.solution = self._reinsert_prescribed_dofs(solution)
+
+                return self.solution, self.convergence_data_log                     
 
     def graph_callback(self, interval, fig, ax):  
         import matplotlib.pyplot as plt

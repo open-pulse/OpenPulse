@@ -293,7 +293,7 @@ class ExpansionJointInput(QDialog):
 
         if message != "":
             PrintMessageInput([window_title_1, title, message])
-            return True, value
+            return True, None
         else:
             return False, value
 
@@ -653,7 +653,7 @@ class ExpansionJointInput(QDialog):
             if "expansion_joint_info" in data.keys():
 
                 ej_info = data["expansion_joint_info"]
-                L = ej_info["joint_length"]
+                L = round(ej_info["joint_length"], 6)
                 d_eff = ej_info["effective_diameter"]
                 mass = ej_info["joint_mass"]
                 rods = ej_info["rods"]
@@ -674,6 +674,15 @@ class ExpansionJointInput(QDialog):
                 item.setTextAlignment(0, Qt.AlignCenter)
                 item.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_expansion_joints_info.addTopLevelItem(item)
+
+        self.update_tab_visibility()
+
+    def update_tab_visibility(self):
+        self.tabWidget_main.setTabVisible(1, False)
+        for data in self.properties.line_properties.values():
+            if "expansion_joint_info" in data.keys():
+                self.tabWidget_main.setTabVisible(1, True)
+                return
 
     def on_click_item(self, item):
         self.lineEdit_selected_id.setText(item.text(0))
@@ -745,7 +754,7 @@ class ExpansionJointInput(QDialog):
 
     def remove_callback(self):
 
-        if self.lineEdit_selected_id.text() == "":
+        if self.lineEdit_selected_id.text() != "":
 
             line_id = int(self.lineEdit_selected_id.text())
             self.reset_all_lineEdits()
@@ -756,8 +765,8 @@ class ExpansionJointInput(QDialog):
             self.restore_the_cross_section([line_id])
             self.preprocessor.add_expansion_joint_by_lines(line_id, None)
 
-            self.load_expansion_joints_info()
             self.actions_to_finalize()
+            self.load_expansion_joints_info()
 
     def reset_callback(self):
 

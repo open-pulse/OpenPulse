@@ -52,8 +52,11 @@ class StructuralSolver:
         self._initialize()
 
     def _initialize(self):
-
+        
+        self.natural_frequencies = None
+        self.modal_shapes = None
         self.solution = None
+
         self.reset_stress_stiffening = False
         self.flag_Modal_prescribed_NonNull_DOFs = False
         self.flag_ModeSup_prescribed_NonNull_DOFs = False
@@ -131,13 +134,13 @@ class StructuralSolver:
         if static_analysis:
             _frequencies = np.array([0.], dtype=float)
         else:
-            _frequencies = self.frequencies       
+            _frequencies = self.frequencies
 
         cols = len(_frequencies)
         rows = len(unprescribed_indexes)
         F_eq = np.zeros((rows,cols), dtype=complex)
         
-        if np.sum(self.array_prescribed_values) != 0:
+        if np.sum(self.array_prescribed_values):
             
             Kr_add_lump = complex(0)
             Mr_add_lump = complex(0)
@@ -253,15 +256,15 @@ class StructuralSolver:
         eigen_values, eigen_vectors = eigs(Kadd_lump, M=Madd_lump, k=modes, which=which, sigma=sigma_factor)
 
         positive_real = np.absolute(np.real(eigen_values))
-        natural_frequencies = np.sqrt(positive_real)/(2*np.pi)
-        modal_shape = np.real(eigen_vectors)
+        natural_frequencies = np.sqrt(positive_real) / (2 * np.pi)
+        # modal_shapes = np.real(eigen_vectors)
 
         index_order = np.argsort(natural_frequencies)
         natural_frequencies = natural_frequencies[index_order]
-        modal_shape = modal_shape[:, index_order]
+        modal_shapes = eigen_vectors[:, index_order]
 
         if not harmonic_analysis:
-            modal_shape = self._reinsert_prescribed_dofs(modal_shape, modal_analysis=True)
+            modal_shapes = self._reinsert_prescribed_dofs(modal_shapes, modal_analysis=True)
             for value in self.prescribed_values:
                 if value is not None:
                     if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
@@ -270,9 +273,14 @@ class StructuralSolver:
                                                             "The null value has been attributed to those DOFs with non-zero values."]
 
         if self.stop_processing():
-            return None, None        
-        
-        return natural_frequencies, modal_shape
+            self.modal_shapes = None
+            self.natural_frequencies = list()
+            return None, None
+
+        self.natural_frequencies = natural_frequencies
+        self.modal_shapes = np.real(modal_shapes)
+
+        return natural_frequencies, modal_shapes
 
 
     def direct_method(self):
@@ -437,7 +445,7 @@ class StructuralSolver:
         ????
             Gets the nodal results at the global coordinate system and updates the global matrices to get into account the stress stiffening effect. 
         """
-       
+
         alphaV, betaV, alphaH, betaH = self.model.global_damping
         # F = self.assembly.get_global_loads_for_static_analysis()
         F = self.get_combined_loads(static_analysis=True)
@@ -452,11 +460,11 @@ class StructuralSolver:
         F_M =  (-(omega**2))*(self.M + self.M_exp_joint + self.M_lump[0])
         F_C = 1j*(( betaH + omega*betaV )*(self.K + self.K_exp_joint[0]) + 
                   ( alphaH + omega*alphaV )*(self.M + self.M_exp_joint))
-        
+
         F_Clump = 1j*omega*self.C_lump[0]
         A = F_K + F_M + F_C + F_Clump
 
-        solution[:,0] = spsolve(A, F[:,0])
+        solution[:, 0] = spsolve(A, F[:, 0])
         self.solution = self._reinsert_prescribed_dofs(solution)
 
         return self.solution
@@ -611,7 +619,7 @@ class StructuralSolver:
 
                 self.dict_reactions_at_dampers = dict_reactions_at_dampers
 
-    def stress_calculate(self, pressure_external = 0, damping = False, _real_values=False):
+    def stress_calculate(self, **kwargs):
         """
         This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.
 
@@ -620,7 +628,7 @@ class StructuralSolver:
         global_damping : list of floats.
             Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
 
-        pressure_external : float, optional
+        external_pressure : float, optional
             Static pressure difference between atmosphere and the fluid in the pipeline.
             Default is 0.
             
@@ -641,6 +649,11 @@ class StructuralSolver:
                 Transversal-xz shear
         """
 
+        external_pressure = kwargs.get("external_pressure", 0.)
+        damping = kwargs.get("damping", False)
+        static_analysis = kwargs.get("static_analysis", False)
+        real_values = kwargs.get("real_values", False)
+
         self.stress_field_dict = dict()
 
         if damping:
@@ -648,16 +661,22 @@ class StructuralSolver:
         else:
             betaH = betaV = 0
 
-        elements = self.model.preprocessor.structural_elements.values()
-        omega = 2 * pi * self.frequencies.reshape(1,-1)
-        damping = np.ones([6,1]) @  (1 + 1j*( betaH + omega * betaV ))
-        p0 = pressure_external
+        if static_analysis:
+            _frequencies = np.array([0], dtype=float)
+        else:
+            _frequencies = self.frequencies
 
-        for element in elements:
+        structural_elements = self.model.preprocessor.structural_elements.values()
+        omega = 2 * pi * _frequencies.reshape(1,-1)
+
+        damping = np.ones([6,1]) @  (1 + 1j*( betaH + omega * betaV ))
+        p0 = external_pressure
+
+        for element in structural_elements:
 
             if element.element_type in ['beam_1', 'expansion_joint', 'valve']:
-                element.stress = np.zeros((7, len(self.frequencies)))
-            
+                element.stress = np.zeros((7, len(_frequencies)))
+
             elif element.element_type == 'pipe_1':
                 # Internal Loads
                 structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
@@ -675,7 +694,7 @@ class StructuralSolver:
                 Dts = element._Dts
                 Bts = element._Bts
 
-                rot = element._rot
+                rot = element.element_rotation_matrix
                 T = element.cross_section.principal_axis_translation
                 
                 normal = Dab @ Bab @ T @ rot @ u
@@ -697,12 +716,14 @@ class StructuralSolver:
                 if self.acoustic_solution is not None:
                     p = self.acoustic_solution[acoustic_dofs, :]
                 else:
-                    p = np.zeros((2, len(self.frequencies)))
-                pm = np.sum(p,axis=0)/2
+                    p = np.zeros((2, len(_frequencies)))
+
+                pm = np.sum(p, axis=0) / 2
 
                 if element.wall_formulation == "thick_wall":
                     hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
                     radial_stress =  -2*nu*(pm*di**2 - p0*do**2)/(do**2 - di**2)
+
                 if element.wall_formulation == "thin_wall":
                     hoop_stress = pm
                     radial_stress = -nu*pi*(do/(do-di) - 1)
@@ -715,7 +736,7 @@ class StructuralSolver:
                                     element.internal_load[4]/area,
                                     element.internal_load[5]/area   ].T
                 
-                if _real_values:
+                if real_values:
                     element.stress = np.real(stress_data)
                 else:
                     element.stress = stress_data

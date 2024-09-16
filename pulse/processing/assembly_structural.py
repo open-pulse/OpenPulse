@@ -425,13 +425,16 @@ class AssemblyStructural:
         
             # elementary loads - element integration
             for element in self.preprocessor.structural_elements.values():
+
                 position = element.global_dof
                 # self-weight loads
                 if self.model.weight_load:
                     loads[position] += element.get_self_weighted_load(self.model.gravity_vector)
+
                 # stress stiffening loads
                 if self.model.internal_pressure_load:
                     loads[position] += element.force_vector_stress_stiffening()
+
                 # distributed loads
                 if self.model.element_distributed_load:
                     loads[position] += element.get_distributed_load()
@@ -441,7 +444,7 @@ class AssemblyStructural:
                 for (property, *args), data in self.model.properties.nodal_properties.items():
                     if property == "nodal_loads":
 
-                        node_id = args
+                        node_id = args[0]
                         node = self.preprocessor.nodes[node_id]
                         position = node.global_dof
                         values = data["values"]

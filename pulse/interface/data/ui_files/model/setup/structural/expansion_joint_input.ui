@@ -474,7 +474,7 @@
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::ClickFocus</enum>
+                       <enum>Qt::StrongFocus</enum>
                       </property>
                       <property name="styleSheet">
                        <string notr="true"/>
@@ -549,7 +549,7 @@
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::ClickFocus</enum>
+                       <enum>Qt::StrongFocus</enum>
                       </property>
                       <property name="styleSheet">
                        <string notr="true"/>
@@ -658,7 +658,7 @@
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::ClickFocus</enum>
+                       <enum>Qt::StrongFocus</enum>
                       </property>
                       <property name="styleSheet">
                        <string notr="true"/>
@@ -723,7 +723,7 @@
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::ClickFocus</enum>
+                       <enum>Qt::StrongFocus</enum>
                       </property>
                       <property name="styleSheet">
                        <string notr="true"/>
@@ -2125,10 +2125,30 @@
  </widget>
  <tabstops>
   <tabstop>tabWidget_main</tabstop>
+  <tabstop>lineEdit_expansion_joint_name</tabstop>
+  <tabstop>lineEdit_effective_diameter</tabstop>
+  <tabstop>lineEdit_joint_mass</tabstop>
+  <tabstop>lineEdit_axial_locking_criteria</tabstop>
+  <tabstop>comboBox_axial_stop_rod</tabstop>
+  <tabstop>lineEdit_axial_stiffness</tabstop>
+  <tabstop>lineEdit_transversal_stiffness</tabstop>
+  <tabstop>lineEdit_torsional_stiffness</tabstop>
+  <tabstop>lineEdit_angular_stiffness</tabstop>
   <tabstop>pushButton_attribute</tabstop>
-  <tabstop>treeWidget_expansion_joints_info</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_load_table_axial_stiffness</tabstop>
+  <tabstop>pushButton_load_table_transversal_stiffness</tabstop>
+  <tabstop>pushButton_load_table_torsional_stiffness</tabstop>
+  <tabstop>pushButton_load_table_angular_stiffness</tabstop>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>pushButton_remove</tabstop>
+  <tabstop>lineEdit_path_table_axial_stiffness</tabstop>
+  <tabstop>lineEdit_path_table_transversal_stiffness</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>lineEdit_path_table_angular_stiffness</tabstop>
+  <tabstop>lineEdit_path_table_torsional_stiffness</tabstop>
+  <tabstop>treeWidget_expansion_joints_info</tabstop>
+  <tabstop>tabWidget_inputs</tabstop>
  </tabstops>
  <resources/>
  <connections/>

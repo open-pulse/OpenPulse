@@ -1023,13 +1023,13 @@ hysteretic</string>
            <property name="minimumSize">
             <size>
              <width>100</width>
-             <height>30</height>
+             <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>100</width>
-             <height>30</height>
+             <height>28</height>
             </size>
            </property>
            <property name="font">
@@ -1054,13 +1054,13 @@ hysteretic</string>
            <property name="minimumSize">
             <size>
              <width>100</width>
-             <height>30</height>
+             <height>28</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>100</width>
-             <height>30</height>
+             <height>28</height>
             </size>
            </property>
            <property name="font">

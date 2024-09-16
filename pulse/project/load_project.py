@@ -11,6 +11,7 @@ from pulse.tools.utils import *
 
 from pulse.model.cross_section import CrossSection
 
+import logging
 from time import time
 from collections import defaultdict
 
@@ -56,6 +57,8 @@ class LoadProject:
         #
         self.load_analysis_file()
         self.load_inertia_load_setup()
+        #
+        # self.load_analysis_results()
 
 
     def load_fluids_library(self):
@@ -765,5 +768,59 @@ class LoadProject:
             message += "meshing processing, therefore, they were removed "
             message += "from both the project files and model setup."
             PrintMessageInput([window_title_2, title, message])
+
+    def load_analysis_results(self):
+    
+        act_modal_analysis = False
+        str_modal_analysis = False
+        act_harmonic_analysis = False
+        str_harmonic_analysis = False
+        str_static_analysis = False
+
+        results_data = app().pulse_file.read_results_data_from_file()
+
+        if results_data:
+            logging.info("Loading results [10%]")
+            for key, data in results_data.items():
+
+                if key == "modal_acoustic":
+                    act_modal_analysis = True
+                    app().main_window.project.natural_frequencies_acoustic = data["natural_frequencies"]
+                    app().main_window.project.acoustic_solution = data["modal_shape"]
+
+                if key == "modal_structural":
+                    str_modal_analysis = True
+                    app().main_window.project.natural_frequencies_structural = data["natural_frequencies"]
+                    app().main_window.project.structural_solution = data["modal_shape"]
+
+                if key == "harmonic_acoustic":
+                    act_harmonic_analysis = True
+                    app().main_window.project.model.frequencies = data["frequencies"]
+                    app().main_window.project.acoustic_solution = data["solution"]
+
+                if key == "harmonic_structural":
+                    str_harmonic_analysis = True
+                    app().main_window.project.model.frequencies = data["frequencies"]
+                    app().main_window.project.structural_solution = data["solution"]
+
+                if key == "static_structural":
+                    str_static_analysis = True
+                    app().main_window.project.structural_solution = data["solution"]
+
+            logging.info("Updating analysis render [75%]")
+            if act_modal_analysis:
+                pass
+
+            elif str_modal_analysis:
+                pass
+
+            elif act_harmonic_analysis:
+                pass
+
+            elif str_harmonic_analysis:
+                return
+
+            else:
+                return
 
 # fmt: on

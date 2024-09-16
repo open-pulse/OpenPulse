@@ -494,7 +494,7 @@
         </column>
         <column>
          <property name="text">
-          <string>-</string>
+          <string>PP parameteres</string>
          </property>
          <property name="textAlignment">
           <set>AlignCenter</set>

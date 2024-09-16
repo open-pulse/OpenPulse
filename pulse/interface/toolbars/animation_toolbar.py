@@ -205,6 +205,7 @@ class AnimationToolbar(QToolBar):
             file_path = file_path.parent / (file_path.name + suffix)
 
         try:
+
             if file_path.suffix.lower() in [".gif", ".webp"]:
                 LoadingWindow(app().main_window.results_widget.save_animation).run(file_path)
             else:

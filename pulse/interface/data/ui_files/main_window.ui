@@ -148,7 +148,6 @@
     </property>
     <addaction name="action_structural_model_info"/>
     <addaction name="action_acoustic_model_info"/>
-    <addaction name="action_check_beam_criteria"/>
    </widget>
    <widget class="QMenu" name="menu_help">
     <property name="title">
@@ -169,6 +168,7 @@
     <property name="title">
      <string>Tools</string>
     </property>
+    <addaction name="action_check_beam_criteria"/>
     <addaction name="action_pulsation_suppression_device_editor"/>
    </widget>
    <addaction name="menu_project"/>
@@ -518,7 +518,7 @@
   </action>
   <action name="action_check_beam_criteria">
    <property name="text">
-    <string>Check Beam Validity Criteria</string>
+    <string>Beam theory validity checker</string>
    </property>
   </action>
   <action name="action_select_analysis_type">

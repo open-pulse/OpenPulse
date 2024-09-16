@@ -96,13 +96,13 @@
               <widget class="QPushButton" name="cancel_division_button">
                <property name="minimumSize">
                 <size>
-                 <width>60</width>
+                 <width>72</width>
                  <height>0</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>60</width>
+                 <width>72</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -133,13 +133,13 @@
               <widget class="QPushButton" name="apply_division_button">
                <property name="minimumSize">
                 <size>
-                 <width>60</width>
+                 <width>72</width>
                  <height>0</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>60</width>
+                 <width>72</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -371,6 +371,18 @@
             <layout class="QHBoxLayout" name="horizontalLayout">
              <item>
               <widget class="QPushButton" name="delete_button">
+               <property name="minimumSize">
+                <size>
+                 <width>72</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>72</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
@@ -399,6 +411,18 @@
              </item>
              <item>
               <widget class="QPushButton" name="attach_button">
+               <property name="minimumSize">
+                <size>
+                 <width>72</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>72</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
@@ -411,6 +435,18 @@
              </item>
              <item>
               <widget class="QPushButton" name="add_button">
+               <property name="minimumSize">
+                <size>
+                 <width>72</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>72</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
@@ -1195,6 +1231,33 @@
                </property>
               </widget>
              </item>
+             <item row="6" column="1">
+              <widget class="QLabel" name="structure_type_label_3">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>120</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Structure material:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>
@@ -1274,6 +1337,18 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>72</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>72</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -1304,6 +1379,18 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>72</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>72</width>
+          <height>16777215</height>
+         </size>
         </property>
         <property name="font">
          <font>
