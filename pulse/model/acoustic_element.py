@@ -867,8 +867,8 @@ class AcousticElement:
             Integer number relative to radiation impedance type.
 
             0 -> anechoic termination
-            1 -> unflanged termination
-            2 -> flanged termination
+            1 -> flanged termination
+            2 -> unflanged termination
 
         frequencies : float-array
             The frequencies vector of the harmonic analysis.
@@ -895,9 +895,9 @@ class AcousticElement:
             return impedance_complex + 0j
 
         elif impedance_type == 1:
-            return self.unflanged_termination_impedance(kappa_complex, impedance_complex)
+            return self.flanged_termination_impedance(kappa_complex, impedance_complex)
 
         elif impedance_type == 2:
-            return self.flanged_termination_impedance(kappa_complex, impedance_complex)
-        
+            return self.unflanged_termination_impedance(kappa_complex, impedance_complex)
+
 # fmt: on

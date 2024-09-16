@@ -253,10 +253,10 @@ class SetFluidCompositionInput(QDialog):
 
     def remaining_composition_highlight(self, value):
         if value >= 0:
-            style_sheet =   """  QLabel{border-radius: 4px; border-color: rgb(100, 100, 100); border-style: solid; border-width: 1px; color: rgb(100, 100, 100); background-color: rgb(255, 255, 255)}
+            style_sheet =   """  QLabel{border-radius: 4px; border-color: rgb(100, 100, 100); border-style: solid; border-width: 1px}
                             """
         else:
-            style_sheet =   """  QLabel{border-radius: 4px; border-color: rgb(250, 10, 10); border-style: solid; border-width: 2px; color: rgb(250, 10, 10); background-color: rgb(255, 255, 255)}
+            style_sheet =   """  QLabel{border-radius: 4px; border-color: rgb(250, 10, 10); border-style: solid; border-width: 2px; color: rgb(250, 10, 10)}
                             """
         self.label_remaining_composition.setStyleSheet(style_sheet)
 
