@@ -825,7 +825,7 @@ class MainWindow(QMainWindow):
             else:
                 self.action_set_light_theme_callback()
         else:
-            self.action_set_light_theme_callback()
+            self.action_set_dark_theme_callback()
         self.update_theme = True
 
     def action_set_dark_theme_callback(self):
