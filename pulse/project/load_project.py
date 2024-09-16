@@ -486,7 +486,7 @@ class LoadProject:
         # if "version" in project_setup.keys():
         #     file_version = project_setup["version"]
 
-        # if Version(file_version) > version():
+        # if Version(file_version) > Version(version()):
         #     #TODO: return whenever the versions are incompatible
         #     title = "Incorrect file version"
         #     message = "The project file version is incompatible with the current OpenPulse version. "
