@@ -60,11 +60,8 @@ from pulse.interface.user_input.model.criteria.check_beam_criteria_input import 
 #
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 #
-from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
-#
 from pulse import app
 
-from time import time
 import logging
 
 window_title_1 = "Error"
@@ -76,7 +73,7 @@ class InputUi:
         self.main_window = app().main_window
         self.project = app().main_window.project
 
-        self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
+        self.menu_items = app().main_window.model_setup_widget.model_setup_items
 
         self._reset()
 

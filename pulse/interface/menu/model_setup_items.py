@@ -8,7 +8,7 @@ from pulse.interface.menu.common_menu_items import CommonMenuItems
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
-class ModelAndAnalysisSetupItems(CommonMenuItems):
+class ModelSetupItems(CommonMenuItems):
     """Menu Items
 
     This class is responsible for creating, configuring and building the items

@@ -17,7 +17,7 @@ from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
-from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
+from pulse.interface.menu.model_setup_widget import ModelSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.handler.pcf_file_io import PCFFileIO
@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         self.dialog = None
         self.input_ui = None
 
-        self.model_and_analysis_setup_widget = None
+        self.model_setup_widget = None
         self.results_viewer_wigdet = None
 
         self.interface_theme = None
@@ -201,7 +201,7 @@ class MainWindow(QMainWindow):
 
     def _create_layout(self):
 
-        self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget()
+        self.model_setup_widget = ModelSetupWidget()
         self.results_viewer_wigdet = ResultsViewerWidget()
         self.input_ui = InputUi(self)
         self.mesh_widget = MeshRenderWidget()
@@ -215,14 +215,14 @@ class MainWindow(QMainWindow):
 
         self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget, self)
         self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
-        self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
+        self.setup_widgets_stack.addWidget(self.model_setup_widget)
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
         self.splitter.setSizes([100, 400])
         self.splitter.widget(0).setMinimumWidth(420)
         self._update_visualization()
 
-        self.model_and_analysis_items = self.model_and_analysis_setup_widget.model_and_analysis_setup_items
+        self.model_and_analysis_items = self.model_setup_widget.model_setup_items
 
     def create_file_dialog(self):
         self.file_dialog = FileDialog()
@@ -424,6 +424,9 @@ class MainWindow(QMainWindow):
             acoustic_symbols=True, structural_symbols=True,
         )    
 
+    def plot_results(self):
+        self._configure_visualization(tubes=True)  
+
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
 
@@ -590,7 +593,7 @@ class MainWindow(QMainWindow):
         elif not self.action_results_workspace.isEnabled():
             self.action_results_workspace.setEnabled(True)
 
-        self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
+        self.setup_widgets_stack.setCurrentWidget(self.model_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
 
     def action_results_workspace_callback(self):

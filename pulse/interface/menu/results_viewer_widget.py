@@ -1,11 +1,9 @@
-from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
+from PyQt5.QtWidgets import QFrame, QWidget
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
 from pulse.interface.menu.results_viewer_items import ResultsViewerItems
-
-from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
 
 class ResultsViewerWidget(QWidget):
     def __init__(self):
@@ -84,73 +82,78 @@ class ResultsViewerWidget(QWidget):
         self.results_viewer_items.update_tree_visibility_after_solution()
 
     def add_structural_mode_shape_widget(self):
+        self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_structural_mode_shapes()
         self.add_widget(widget, animation_widget=True)
 
     def add_displacement_field_widget(self):
+        self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_displacement_field()
         self.add_widget(widget, animation_widget=True)
 
     def add_structural_frequency_response_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_structural_frequency_response()
         self.add_widget(widget)
-        app().main_window.plot_mesh()
 
     def add_stress_field_widget(self):
+        self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_stress_field()
         self.add_widget(widget, animation_widget=True)
 
     def add_stress_frequency_response_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_stress_frequency_response()
         self.add_widget(widget)
-        app().main_window.plot_mesh()
 
     def add_reaction_frequency_response_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_reaction_frequency_response()
         self.add_widget(widget)
-        app().main_window.plot_mesh()
 
     def add_acoustic_mode_shape_widget(self):
+        self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_acoustic_mode_shapes()
         self.add_widget(widget, animation_widget=True)
 
     def add_acoustic_pressure_field_widget(self):
+        self.configure_render_according_to_plot_type("tubes")
         widget = app().main_window.input_ui.plot_acoustic_pressure_field()
         self.add_widget(widget, animation_widget=True)
 
     def add_acoustic_frequency_response_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_acoustic_frequency_response()
         self.add_widget(widget)
-        app().main_window.plot_mesh()
 
     def add_acoustic_frequency_response_function_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_acoustic_frequency_response_function()
         self.add_widget(widget)
-        app().main_window.plot_mesh()
 
     def add_acoustic_delta_pressures_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_acoustic_delta_pressures()
         self.add_widget(widget)
-        app().main_window.plot_mesh()
 
     def add_transmission_loss_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_transmission_loss()
         self.add_widget(widget)
-        app().main_window.plot_mesh()
 
     def add_perforated_plate_convergence_widget(self):
         widget = app().main_window.input_ui.plot_perforated_plate_convergence_data()
         self.add_widget(widget)
 
     def add_pulsation_criteria_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.check_api618_pulsation_criteria()
         self.add_widget(widget)
-        app().main_window.plot_mesh()
 
     def add_shaking_forces_criteria_widget(self):
+        self.configure_render_according_to_plot_type("lines")
         widget = app().main_window.input_ui.shaking_forces_criteria()
         self.add_widget(widget)
-        app().main_window.plot_lines()
 
     def add_widget(self, widget: QWidget, animation_widget=False):
 
@@ -165,3 +168,22 @@ class ResultsViewerWidget(QWidget):
 
         app().main_window.animation_toolbar.setEnabled(animation_widget)
         self.adjustSize()
+
+    def configure_render_according_to_plot_type(self, set_by: str):
+
+        geometry_data = app().main_window.action_show_geometry_data.isChecked()
+        mesh_data = app().main_window.action_show_mesh_data.isChecked()
+        lines = app().main_window.action_plot_lines.isChecked()
+        lines_with_cross_sections = app().main_window.action_plot_lines_with_cross_section.isChecked()
+
+        if set_by == "nodes":
+            if not (mesh_data or geometry_data):
+                app().main_window.plot_mesh()
+                # app().main_window.plot_geometry_points()
+
+        elif set_by == "lines":
+            if not (lines or lines_with_cross_sections):
+                app().main_window.plot_lines_with_cross_sections()
+
+        else:
+            app().main_window.plot_results()
