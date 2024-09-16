@@ -218,14 +218,18 @@ class InputUi:
             if solution is None:
                 return None
             elif app().project.analysis_id == 7:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotNodalResultsForStaticAnalysis)
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotNodalResultsForHarmonicAnalysis)
 
     def plot_reaction_frequency_response(self):
         if app().project.analysis_id in [0, 1, 5, 6]:
+            app().main_window.results_widget.show_empty()
             return self.process_input(PlotReactionsForHarmonicAnalysis)
         elif app().project.analysis_id == 7:
+            app().main_window.results_widget.show_empty()
             return self.process_input(PlotReactionsForStaticAnalysis)  
 
     def plot_stress_field(self):
@@ -244,8 +248,10 @@ class InputUi:
             if solution is None:
                 return
             elif app().project.analysis_id == 7:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotStressesForStaticAnalysis)
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotStressesForHarmonicAnalysis)     
 
     def plot_acoustic_mode_shapes(self):
@@ -271,6 +277,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotAcousticFrequencyResponse)
 
     def plot_acoustic_frequency_response_function(self):
@@ -279,6 +286,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotAcousticFrequencyResponseFunction)
 
     def plot_acoustic_delta_pressures(self):
