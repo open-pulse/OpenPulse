@@ -22,8 +22,7 @@ def app() -> "Application":
 def version():
     # copying the version from pyproject.toml
     import pkg_resources
-    from packaging.version import Version
-    return Version(pkg_resources.get_distribution('pulse').version)
+    return pkg_resources.get_distribution('pulse').version
 
 def release_date():
-    return 'Apr 30th 2024'
+    return 'Oct 1st 2024'
