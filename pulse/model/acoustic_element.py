@@ -789,10 +789,7 @@ class AcousticElement:
 
     def perforated_plate_matrix(self, frequencies):
         self.update_pp_impedance(frequencies)
-        admittance = self.area_fluid / self.pp_impedance
-
-        print(admittance[:10])
-        
+        admittance = self.area_fluid / self.pp_impedance       
         return np.c_[- admittance, admittance, admittance, - admittance]
 
     def unflanged_termination_impedance(self, kappa_complex, impedance_complex):
