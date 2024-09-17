@@ -206,7 +206,7 @@ class PerforatedPlateInput(QDialog):
                         bias_flow_effects = pp_data["bias_flow_effects"]
                         self.checkBox_bias_flow_coefficient.setChecked(bias_flow_effects)
                         if bias_flow_effects:
-                            self.lineEdit_bias_flow_coefficient.setText(str(pp_data["bias_coefficient"]))
+                            self.lineEdit_bias_flow_coefficient.setText(str(pp_data["bias_flow_coefficient"]))
                     else:
                         self.checkBox_bias_flow_coefficient.setChecked(False)
 

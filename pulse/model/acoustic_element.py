@@ -258,17 +258,20 @@ class AcousticElement:
             admittance matrix corresponding to a frequency of analysis.
         """
         self.area_fluid = self.cross_section.area_fluid
-        self.reset()
         if self.perforated_plate:
-            if self.perforated_plate.type in [0,1]:
-                return self.perforated_plate_matrix(frequencies)  
+            if self.perforated_plate.type in [0, 1]:
+                return self.perforated_plate_matrix(frequencies)
             else:
                 d = self.perforated_plate.hole_diameter
-                self.area_fluid = pi*(d**2)/4
+                self.area_fluid = pi*(d**2) / 4
+
+        self.reset()
         if self.element_type in ['undamped mean flow','peters','howe']:
             return self.fetm_mean_flow_matrix(frequencies, length_correction)
+
         elif self.element_type in ['undamped','proportional','wide-duct','LRF fluid equivalent']:
             return self.fetm_matrix(frequencies, length_correction)
+
         elif self.element_type == 'LRF full':
             return self.lrf_thermoviscous_matrix(frequencies, length_correction)
 
@@ -709,6 +712,7 @@ class AcousticElement:
         return kappa_complex, impedance_complex
 
     def update_pp_impedance(self, frequencies):
+
         # Fluid physical quantities
         if frequencies[0]==0:
             frequencies[0] = float(1e-4)
@@ -784,7 +788,7 @@ class AcousticElement:
             xi_l = 1j*k/(sigma*c_l)*( t / f_function(k_ef * d/2) + 8* d/(3*pi * f_function(k_stokes * d/2))*foks_porosity )
             xi_nl = 4 * u_n * (1-sigma**2)/(3*pi*c*(sigma*c_l)**2)
             z_orif = - (xi_l + xi_nl) * z 
-        
+
         self.pp_impedance = z_orif
 
     def perforated_plate_matrix(self, frequencies):

@@ -36,13 +36,15 @@ class PerforatedPlate:
         divisor = wave_number * self.hole_diameter / 2
         return (1 - dividend / divisor ) /self.porosity
 
-    # def flow_impedance(self, mach):
-    #     return 4*mach / (3*pi * self.porosity * self.linear_discharge_coefficient**2)
+    def flow_impedance(self, mach):
+        return (4 * mach) / (3*pi * self.porosity * self.linear_discharge_coefficient**2)
 
     def nonlinear_impedance(self, speed_of_sound, u_n):
-        return u_n*(1 - self.porosity**2)*self.correction_factor/(2*speed_of_sound*(self.porosity*self.nonlinear_discharge_coefficient)**2)
+        num = u_n*(1 - self.porosity**2) * self.correction_factor
+        den = (2*speed_of_sound*((self.porosity*self.nonlinear_discharge_coefficient)**2))
+        return num / den
 
     def bias_impedance(self, mach):
-        den = (1 - self.porosity**2) * (self.bias_coefficient * mach)
-        num = (self.porosity * self.linear_discharge_coefficient**2)
-        return den / num
+        num = (1 - self.porosity**2) * (self.bias_flow_coefficient * mach)
+        den = (self.porosity * self.linear_discharge_coefficient**2)
+        return num / den

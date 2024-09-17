@@ -7,7 +7,7 @@ from numpy.linalg import norm
 from scipy.sparse.linalg import eigs, spsolve
 
 def relative_error(vect_1, vect_2):
-    return norm((vect_2-vect_1))/norm(vect_1)
+    return norm((vect_2-vect_1)) / norm(vect_1)
 
 class AcousticSolver:
     """ This class creates a Acoustic Solution object from input data.
@@ -237,14 +237,14 @@ class AcousticSolver:
         solution = np.zeros((rows, cols), dtype=complex)
 
         perforated_plate = False
-        for (property, _), data in self.model.properties.element_properties.items():
+        for (property, _) in self.model.properties.element_properties.keys():
             if property == "perforated_plate":
                 perforated_plate = True
                 break
 
         cond_1 = (not perforated_plate)
         cond_2 = (perforated_plate and not self.nl_pp_elements)
-            
+
         if cond_1 or cond_2:
 
             for i in range(cols):
@@ -265,7 +265,6 @@ class AcousticSolver:
 
             self.plt = plt
 
-            # self.iterations = list()
             pressure_residues = list()
             delta_residues = list()
 
@@ -276,23 +275,22 @@ class AcousticSolver:
             freq_indexes = dict()
 
             count = 0
-            relative_difference = 1
             converged = False
+            relative_difference = 1
 
             if self.nl_pp_elements:
                 while relative_difference > self.target or not converged:
 
                     if self.stop_processing():
+                        self.solution = None
                         return None, None
-
-                    self.get_global_matrices()
 
                     for i in range(cols):
                         solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
 
                     solution = self._reinsert_prescribed_dofs(solution)
                     
-                    delta_pressures = list()
+                    delta_pressures_list = list()
                     cache_delta_residues = list()
                     cache_pressure_residues = np.array([])
 
@@ -303,23 +301,23 @@ class AcousticSolver:
 
                         pressure_first = solution[first_index, :]
                         pressure_last = solution[last_index, :]
-                        delta_pressure =  pressure_last - pressure_first
-                        element.update_delta_pressure(delta_pressure)
+                        pp_delta_pressure =  pressure_last - pressure_first
+                        element.update_delta_pressure(pp_delta_pressure)
 
                         pressure_residue_first = relative_error(solution[first_index, indexes], previous_solution[first_index, indexes])
                         pressure_residue_last = relative_error(solution[last_index, indexes], previous_solution[last_index, indexes])
                         cache_pressure_residues = np.r_[ cache_pressure_residues, pressure_residue_first, pressure_residue_last ] 
 
-                        index = np.argmax(np.abs(element.delta_pressure[indexes]))
-                        max_value = np.max(np.abs(element.delta_pressure[indexes]))
+                        index = np.argmax(np.abs(pp_delta_pressure[indexes]))
+                        max_value = np.max(np.abs(pp_delta_pressure[indexes]))
 
-                        if len(delta_pressures) == len(self.nl_pp_elements):
-                            delta_pressures[i] = element.delta_pressure[1:]
-                            cache_delta_residues[i] = relative_error(delta_pressures[i], cache_delta_pressures[i])
+                        if len(delta_pressures_list) == len(self.nl_pp_elements):
+                            delta_pressures_list[i] = pp_delta_pressure[1:]
+                            cache_delta_residues[i] = relative_error(delta_pressures_list[i], cache_delta_pressures[i])
                         else:
-                            delta_pressures.append(element.delta_pressure[1:])
-                            cache_delta_pressures.append(np.zeros_like(element.delta_pressure[1:], dtype=complex))
-                            cache_delta_residues.append(relative_error(delta_pressures[i], cache_delta_pressures[i]))
+                            delta_pressures_list.append(pp_delta_pressure[1:])
+                            cache_delta_pressures.append(np.zeros_like(pp_delta_pressure[1:], dtype=complex))
+                            cache_delta_residues.append(relative_error(delta_pressures_list[i], cache_delta_pressures[i]))
 
                         if count >= 5:
                             if len(cache_delta) == len(self.nl_pp_elements):                                
@@ -338,10 +336,8 @@ class AcousticSolver:
                     delta_residues.append(100*max(cache_delta_residues))
                     self.iterations.append(count)
 
-                    cache_delta_pressures = delta_pressures.copy()
-
+                    cache_delta_pressures = delta_pressures_list.copy()
                     previous_solution = solution.copy()
-                    solution = np.zeros((rows, cols), dtype=complex)
 
                     for ind, repetitions in freq_indexes.items():
                         if repetitions >= 4:
@@ -352,7 +348,7 @@ class AcousticSolver:
                                 indexes.remove(freq)
                                 message = f"The {freq}Hz frequency step produces unstable results, therefore "
                                 message += "it will be excluded from the calculation of the residue convergence criteria.\n"
-                                print(message)  
+                                print(message)
 
                     self.relative_error = pressure_residues
                     self.deltaP_errors = delta_residues
@@ -363,7 +359,13 @@ class AcousticSolver:
                         self.solution = previous_solution
                         return self.solution, self.convergence_data_log
 
+                    else:
+                        self.get_global_matrices()
+                        solution = np.zeros((rows, cols), dtype=complex)
+
+
     def graph_callback(self, interval, fig, ax):
+
         import matplotlib.pyplot as plt
 
         if (len(self.iterations) < 2) or (len(self.relative_error) < 2):
@@ -391,16 +393,16 @@ class AcousticSolver:
         second_plot_label = f'Target: {perc_criteria}%'
         
         if self.deltaP_errors:
-            _legends = plt.legend(handles=[first_plot, third_plot, second_plot], labels=[first_plot_label, third_plot_label, second_plot_label])#, loc='upper right')
+            _legends = plt.legend(handles=[first_plot, third_plot, second_plot], labels=[first_plot_label, third_plot_label, second_plot_label])
         else:
-            _legends = plt.legend(handles=[first_plot, second_plot], labels=[first_plot_label, second_plot_label])#, loc='upper right')
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[first_plot_label, second_plot_label])
 
         plt.gca().add_artist(_legends)
         # plt.grid()
 
-        ax.set_title('Perforated plate convergence plot', fontsize = 11, fontweight = 'bold')
-        ax.set_xlabel('Iteration [n]', fontsize = 10, fontweight = 'bold')
-        ax.set_ylabel("Relative error [%]", fontsize = 10, fontweight = 'bold')
+        ax.set_title('Perforated plate convergence plot', fontsize = 11)#, fontweight = 'bold')
+        ax.set_xlabel('Iteration [n]', fontsize = 10)#, fontweight = 'bold')
+        ax.set_ylabel("Relative error [%]", fontsize = 10)#, fontweight = 'bold')
 
         return (first_plot, second_plot, third_plot)
 
