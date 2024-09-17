@@ -292,8 +292,15 @@ class GeometryDesignerWidget(QWidget):
         self.cross_section_widget.complete = True
         self.cross_section_widget.close()
 
+    def update_bending_radius_visibility(self):
+        if self.bending_options_combobox.currentIndex() == 2:
+            self.bending_radius_line_edit.setEnabled(True)
+        else:
+            self.bending_radius_line_edit.setEnabled(False)
+
     def xyz_changed_callback(self):
         try:
+            self.update_bending_radius_visibility()
             xyz = self._get_xyz()
         except ValueError:
             return
@@ -333,13 +340,13 @@ class GeometryDesignerWidget(QWidget):
             self.division_slider.setMinimum(0)
             self.division_slider.setMaximum(100)
             self.division_slider.setValue(50)
-            self.division_slider_label.setText("Position")
+            self.division_slider_label.setText("Position:")
 
         elif division_type == "multiple division":
             self.division_slider.setMinimum(1)
             self.division_slider.setMaximum(10)
             self.division_slider.setValue(1)
-            self.division_slider_label.setText("Divisions")
+            self.division_slider_label.setText("Divisions:")
 
     def division_slider_callback(self, value):
         self.division_amount_spinbox.setValue(value)
