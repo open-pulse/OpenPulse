@@ -216,10 +216,12 @@ class GeometryDesignerWidget(QWidget):
         self.current_structure_type = self._structure_name_to_class(structure_name)  
 
         self._show_deltas_mode(True)
-        self.frame_bending_options.setEnabled(False)
+        if self.structure_combobox.currentIndex() == 0:
+            self.frame_bending_options.setEnabled(True)
+        else:
+            self.frame_bending_options.setEnabled(False)
 
         if issubclass(self.current_structure_type, Pipe):
-            self.frame_bending_options.setEnabled(True)
             self.current_options = self.pipe_options
 
         elif issubclass(self.current_structure_type, Flange):
