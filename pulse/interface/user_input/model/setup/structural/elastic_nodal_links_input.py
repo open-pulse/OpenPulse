@@ -204,7 +204,6 @@ class ElasticNodalLinksInput(QDialog):
 
     def _config_widgets(self):
         #
-        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
         self.cache_tab = self.tabWidget_main.currentIndex()
         #
         for i, w in enumerate([120, 200]):

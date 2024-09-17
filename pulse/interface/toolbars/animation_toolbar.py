@@ -53,8 +53,6 @@ class AnimationToolbar(QToolBar):
 
     def _config_widgets(self):
 
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
-
         # QPushButton
         self.pushButton_animate.setFixedHeight(28)
         self.pushButton_animate.setFixedWidth(40)

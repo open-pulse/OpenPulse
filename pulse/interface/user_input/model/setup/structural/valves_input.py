@@ -176,11 +176,10 @@ class ValvesInput(QDialog):
         self.setMinimumHeight(620)
 
     def _config_widgets(self):
+        #
         for i, w in enumerate([100, 120, 160]):
             self.treeWidget_valves_info.setColumnWidth(i, w)
             self.treeWidget_valves_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
-
-        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _create_lists_of_lineEdits(self):
         self.list_lineEdits =  [

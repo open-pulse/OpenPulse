@@ -125,8 +125,6 @@ class AnalysisToolbar(QToolBar):
 
     def _config_widgets(self):
 
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
-
         # QComboBox
         self.combo_box_analysis_type.setFixedHeight(26)
         self.combo_box_analysis_type.setFixedWidth(90)

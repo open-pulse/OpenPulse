@@ -83,14 +83,12 @@ class BeamXaxisRotationInput(QDialog):
         self.tabWidget_xaxis_rotation_angle: QTabWidget
 
     def _config_widgets(self):
+        #
         self.pushButton_remove.setDisabled(True)
         #
-        self.treeWidget_xaxis_rotation_angle.setColumnWidth(0, 120)
-        # self.treeWidget_xaxis_rotation_angle.setColumnWidth(1, 100)
-        self.treeWidget_xaxis_rotation_angle.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_xaxis_rotation_angle.headerItem().setTextAlignment(1, Qt.AlignCenter)
-        #
-        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        for i, w in enumerate([120, 100]):
+            self.treeWidget_xaxis_rotation_angle.setColumnWidth(i, w)
+            self.treeWidget_xaxis_rotation_angle.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _create_connections(self):
         self.comboBox_selection.currentIndexChanged.connect(self.change_selection_callback)

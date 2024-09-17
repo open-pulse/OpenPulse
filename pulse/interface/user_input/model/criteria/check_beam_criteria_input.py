@@ -40,7 +40,6 @@ class CheckBeamCriteriaInput(QDialog):
 
     def _config_widgets(self):
         pass
-        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _initialize(self):
         self.keep_window_open = True

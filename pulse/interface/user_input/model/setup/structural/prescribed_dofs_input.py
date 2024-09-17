@@ -152,11 +152,10 @@ class PrescribedDofsInput(QDialog):
                                             self.lineEdit_path_table_rz ]
 
     def _config_widgets(self):
+        #
         for i, w in enumerate([80, 60]):
             self.treeWidget_nodal_info.setColumnWidth(i, w)
             self.treeWidget_nodal_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
-        #
-        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _create_connections(self):
         #

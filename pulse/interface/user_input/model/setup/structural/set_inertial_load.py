@@ -63,7 +63,6 @@ class SetInertialLoad(QDialog):
 
     def _config_widgets(self):
         pass
-        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")  
 
     def check_gravity_values(self):
 
