@@ -35,6 +35,7 @@ from ._model_info_text import (
     elements_info_text,
     lines_info_text,
     nodes_info_text,
+    min_max_stresses_info_text,
 )
 
 
@@ -429,6 +430,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         info_text += nodes_info_text()
         info_text += elements_info_text()
         info_text += lines_info_text()
+
+        if self.analysis_mode == AnalysisMode.STRESS:
+            info_text += min_max_stresses_info_text()
+
         self.set_info_text(info_text)
 
     def remove_actors(self):
