@@ -288,6 +288,7 @@ class GeometryDesignerWidget(QWidget):
         self.current_options.configure_structure()
         self._update_permissions()
         self._update_information_text()
+        self.xyz_changed_callback()
         self.render_widget.update_plot(reset_camera=False)
 
     def cross_section_confirm_callback(self):
