@@ -22,3 +22,4 @@ class EditorStagedPointsActor(GhostActor):
 
         set_polydata_colors(data, (255, 180, 50))
         self.make_ghost()
+        self.GetProperty().SetPointSize(8)
