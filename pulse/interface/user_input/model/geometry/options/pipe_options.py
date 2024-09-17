@@ -45,6 +45,7 @@ class PipeOptions(StructureOptions):
         self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
         self.cross_section_widget.lineEdit_outside_diameter.setFocus()
+        self.load_data_from_reducer_section()
         self.cross_section_widget.exec()
 
         if not self.cross_section_widget.complete:
@@ -87,7 +88,31 @@ class PipeOptions(StructureOptions):
         self.geometry_designer_widget.attach_button.setEnabled(enable_attach)
         self.geometry_designer_widget.add_button.setEnabled(enable_add)
         self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
-    
+
+    def load_data_from_reducer_section(self):
+
+        outside_diameter = self.cross_section_widget.lineEdit_outside_diameter_final.text()
+        if outside_diameter != "":
+            self.cross_section_widget.lineEdit_outside_diameter.setText(outside_diameter)
+
+        wall_thickness = self.cross_section_widget.lineEdit_wall_thickness_final.text()
+        if wall_thickness != "":
+            self.cross_section_widget.lineEdit_wall_thickness.setText(wall_thickness)
+
+        offset_y = self.cross_section_widget.lineEdit_offset_y_final.text()
+        if offset_y != "":
+            self.cross_section_widget.lineEdit_offset_y.setText(offset_y)
+
+        offset_z = self.cross_section_widget.lineEdit_offset_z_final.text()
+        if offset_z != "":
+            self.cross_section_widget.lineEdit_offset_z.setText(offset_z)
+
+        for lineEdit in self.cross_section_widget.left_variable_pipe_lineEdits:
+            lineEdit.setText("")
+
+        for lineEdit in self.cross_section_widget.right_variable_pipe_lineEdits:
+            lineEdit.setText("")
+
     def _get_kwargs(self):
         if not self.cross_section_info:
             return

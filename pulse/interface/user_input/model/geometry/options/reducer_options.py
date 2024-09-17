@@ -82,10 +82,13 @@ class ReducerOptions(StructureOptions):
         offset_z = self.cross_section_widget.lineEdit_offset_z.text()
 
         for i, value in enumerate([outside_diameter, wall_thickness, offset_y, offset_z]):
-            self.cross_section_widget.right_variable_pipe_lineEdits[i].setText(value)
+            self.cross_section_widget.left_variable_pipe_lineEdits[i].setText(value)
 
         for lineEdit in self.cross_section_widget.right_variable_pipe_lineEdits:
             lineEdit.setText("")
+
+        if outside_diameter != "" and wall_thickness != "":
+            self.cross_section_widget.lineEdit_outside_diameter_final.setFocus()
 
     def _get_kwargs(self) -> dict:
         if self.cross_section_info is None:
