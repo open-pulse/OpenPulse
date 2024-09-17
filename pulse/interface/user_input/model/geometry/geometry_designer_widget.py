@@ -293,10 +293,23 @@ class GeometryDesignerWidget(QWidget):
         self.cross_section_widget.close()
 
     def update_bending_radius_visibility(self):
-        if self.bending_options_combobox.currentIndex() == 2:
+
+        index = self.bending_options_combobox.currentIndex()
+        if index == 2:
             self.bending_radius_line_edit.setEnabled(True)
+            if self.bending_radius_line_edit.text() in ["1.5*D", "1.0*D"]:
+                self.bending_radius_line_edit.setText("")
+
         else:
+            self.bending_radius_line_edit.blockSignals(True)
             self.bending_radius_line_edit.setEnabled(False)
+            if index == 0:
+                self.bending_radius_line_edit.setText("1.5*D")
+            elif index == 1:
+                self.bending_radius_line_edit.setText("1.0*D")
+            else:
+                self.bending_radius_line_edit.setText("")
+            self.bending_radius_line_edit.blockSignals(False)
 
     def xyz_changed_callback(self):
         try:
