@@ -10,10 +10,12 @@ from opps.model import Valve
 from molde.stylesheets import set_qproperty
 
 from .structure_options import StructureOptions
-from pulse.interface.user_input.model.setup.structural.valves_input import ValvesInput
+
 from pulse import app
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.model.setup.structural.valves_input import ValvesInput
 
-
+window_title = "Error"
 class ValveOptions(StructureOptions):
     def __init__(self, geometry_designer_widget: "GeometryDesignerWidget") -> None:
         super().__init__()
@@ -41,15 +43,18 @@ class ValveOptions(StructureOptions):
         self.pipeline.connect_valves(**kwargs)
 
     def configure_structure(self):
+
         app().main_window.close_dialogs()
-        valve_input = ValvesInput(render_type="geometry")
+        self.valve_input = ValvesInput(render_type="geometry")
+        self.load_data_from_pipe_section()
+        self.valve_input.exec_callback()
         app().main_window.set_input_widget(None)
 
-        if not valve_input.complete:
+        if not self.valve_input.complete:
             self.valve_info = dict()
             return
 
-        self.valve_info = valve_input.valve_info
+        self.valve_info = self.valve_input.valve_info
         self.configure_section_of_selected()
         self.update_permissions()
 
@@ -70,6 +75,26 @@ class ValveOptions(StructureOptions):
         self.geometry_designer_widget.attach_button.setEnabled(enable_attach)
         self.geometry_designer_widget.add_button.setEnabled(enable_add)
         self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
+
+    def load_data_from_pipe_section(self):
+
+        outside_diameter = self.cross_section_widget.lineEdit_outside_diameter.text()
+        wall_thickness = self.cross_section_widget.lineEdit_wall_thickness.text()
+
+        try:
+
+            section_parameters = self.cross_section_widget.pipe_section_info["section_parameters"]
+            outside_diameter = section_parameters[0]
+            wall_thickness = section_parameters[1]
+            effective_diameter = outside_diameter - 2 * wall_thickness
+
+            self.valve_input.lineEdit_effective_diameter.setText(f"{round(effective_diameter, 6)}")
+            self.valve_input.lineEdit_wall_thickness.setText(f"{round(wall_thickness, 6)}")
+        
+        except Exception as error_log:
+            title = "Error while tranfering pipe data"
+            message = str(error_log)
+            PrintMessageInput([window_title, title, message])
 
     def _get_kwargs(self) -> dict:
         if self.valve_info is None:

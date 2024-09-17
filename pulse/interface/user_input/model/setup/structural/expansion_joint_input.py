@@ -30,21 +30,22 @@ class ExpansionJointInput(QDialog):
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
+
         self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._configure_appearance()
 
         if self.render_type == "model":
-
             self._config_widgets()
             self.load_expansion_joints_info()
             self.selection_callback()
+            self.exec_callback()
 
-        self._configure_appearance()
-
+    def exec_callback(self):
         while self.keep_window_open:
             self.exec()
 
