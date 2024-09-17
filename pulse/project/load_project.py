@@ -490,12 +490,11 @@ class LoadProject:
 
         software_version = version()
         if Version(file_version) > Version(software_version):
-            
             title = "Incorrect file version"
             message = "The project file version is incompatible with the current OpenPulse version. "
             message += "As a result, the project data loading will be canceled."
             PrintMessageInput([window_title_1, title, message])
-            return False
+            return True
 
 
     def load_mesh_setup_from_file(self):
