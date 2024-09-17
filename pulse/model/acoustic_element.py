@@ -263,7 +263,7 @@ class AcousticElement:
         self.reset()
         if self.perforated_plate:
             if self.perforated_plate.type in [0,1]:
-                return self.perforated_plate_matrix(frequencies, self.perforated_plate.nonlinear_effect)  
+                return self.perforated_plate_matrix(frequencies)  
             else:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2)/4
@@ -710,7 +710,7 @@ class AcousticElement:
 
         return kappa_complex, impedance_complex
 
-    def update_pp_impedance(self, frequencies, nonlinear_effect):
+    def update_pp_impedance(self, frequencies):
         # Fluid physical quantities
         if frequencies[0]==0:
             frequencies[0] = float(1e-4)
@@ -747,12 +747,12 @@ class AcousticElement:
             theta_flow = 0
 
             #TODO: use mach number as input when the formulation is validated
-            if self.perforated_plate.bias_effect:
+            if self.perforated_plate.bias_flow_effects:
                 theta_g = self.perforated_plate.bias_impedance(0)
             else:
                 theta_g = 0
-            
-            if nonlinear_effect:
+
+            if self.perforated_plate.nonlinear_effects:
                 theta_nl = self.perforated_plate.nonlinear_impedance(c, u_n)
             else:
                 theta_nl = 0
@@ -788,8 +788,8 @@ class AcousticElement:
         
         self.pp_impedance = z_orif
 
-    def perforated_plate_matrix(self, frequencies, nonlinear_effect):
-        self.update_pp_impedance(frequencies, nonlinear_effect)
+    def perforated_plate_matrix(self, frequencies):
+        self.update_pp_impedance(frequencies)
         admittance = self.area_fluid / self.pp_impedance
         
         return np.c_[- admittance, admittance, admittance, - admittance]

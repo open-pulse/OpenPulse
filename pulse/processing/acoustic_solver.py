@@ -36,12 +36,12 @@ class AcousticSolver:
         self.assembly = AssemblyAcoustic(model)
         self.acoustic_elements = model.preprocessor.acoustic_elements
 
-        self.nl_pp_elements = self.check_non_linear_perforated_plate()
-
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
         # self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
         self.get_pipe_and_unprescribed_indexes = self.assembly.get_pipe_and_unprescribed_indexes()
+
+        self.nl_pp_elements = self.check_non_linear_perforated_plate()
 
         self._initialize()
 
@@ -59,21 +59,16 @@ class AcousticSolver:
         self.iterations = list()
 
         self.max_iter = 100
-        self.target = 10/100
+        self.target = 10 / 100
 
     def check_non_linear_perforated_plate(self):
 
         elements = list()
-        self.non_linear = False
-
         for (property, element_id) in self.model.properties.element_properties.keys():
             if property == "perforated_plate":
                 element = self.acoustic_elements[element_id]
-                if element.perforated_plate.nonlinear_effect:
+                if element.perforated_plate.nonlinear_effects:
                     elements.append(element)
-
-        if elements:
-            self.non_linear = True
 
         return elements
 
@@ -278,7 +273,7 @@ class AcousticSolver:
             relative_difference = 1
             converged = False
 
-            if self.non_linear:
+            if self.nl_pp_elements:
                 while relative_difference > self.target or not converged:
 
                     if self.stop_processing():
@@ -287,9 +282,9 @@ class AcousticSolver:
                     self.get_global_matrices()
 
                     for i in range(cols):
-                        solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
+                        solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
 
-                    self.solution = self._reinsert_prescribed_dofs(solution)
+                    solution = self._reinsert_prescribed_dofs(solution)
                     
                     delta_pressures = list()
                     cache_delta_residues = list()
@@ -313,7 +308,7 @@ class AcousticSolver:
                             delta_pressures.append(element.delta_pressure[1:])
                             cache_delta_pressures.append(np.zeros_like(element.delta_pressure[1:], dtype=complex))
                             cache_delta_residues.append(relative_error(delta_pressures[i], cache_delta_pressures[i]))
-                                        
+
                         if count >= 5:
                             if len(cache_delta) == len(self.nl_pp_elements):                                
                                 if abs((cache_delta[i]-max_value)/cache_delta[i]) > 0.5:
@@ -382,11 +377,11 @@ class AcousticSolver:
         ax.set_ylim(*ylim)
         perc_criteria = self.target*100
 
-        first_plot, = plt.plot(self.iterations, self.relative_error, color=[1,0,0], linewidth=2, marker='s', markersize=6, markerfacecolor=[0,0,1])
-        second_plot, = plt.plot(xlim, [perc_criteria, perc_criteria], color=[0,0,0], linewidth=2, linestyle="--")
-        
+        first_plot, = plt.plot(self.iterations, self.relative_error, color=[1,0,0], linewidth=1, marker='s', markersize=6, markerfacecolor=[0,0,1])
+        second_plot, = plt.plot(xlim, [perc_criteria, perc_criteria], color=[0,0,0], linewidth=1, linestyle="--")
+
         if self.deltaP_errors:
-            third_plot, = plt.plot(self.iterations, self.deltaP_errors, color=[0,0,1], linewidth=2, marker='s', markersize=6, markerfacecolor=[1,0,0])
+            third_plot, = plt.plot(self.iterations, self.deltaP_errors, color=[0,0,1], linewidth=1, marker='s', markersize=6, markerfacecolor=[1,0,0])
         else:
             third_plot, = plt.plot([])
         
@@ -398,12 +393,13 @@ class AcousticSolver:
             _legends = plt.legend(handles=[first_plot, third_plot, second_plot], labels=[first_plot_label, third_plot_label, second_plot_label])#, loc='upper right')
         else:
             _legends = plt.legend(handles=[first_plot, second_plot], labels=[first_plot_label, second_plot_label])#, loc='upper right')
+
         plt.gca().add_artist(_legends)
         # plt.grid()
 
-        ax.set_title('PERFORATED PLATE: CONVERGENCE PLOT', fontsize = 16, fontweight = 'bold')
-        ax.set_xlabel('Iteration [n]', fontsize = 14, fontweight = 'bold')
-        ax.set_ylabel("Relative error [%]", fontsize = 14, fontweight = 'bold')
+        ax.set_title('Perforated plate convergence plot', fontsize = 11, fontweight = 'bold')
+        ax.set_xlabel('Iteration [n]', fontsize = 10, fontweight = 'bold')
+        ax.set_ylabel("Relative error [%]", fontsize = 10, fontweight = 'bold')
 
         return (first_plot, second_plot, third_plot)
 

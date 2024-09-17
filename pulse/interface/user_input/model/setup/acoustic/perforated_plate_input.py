@@ -181,24 +181,34 @@ class PerforatedPlateInput(QDialog):
                     self.reset_input_fields()
                     
                     self.lineEdit_hole_diameter.setText(str(pp_data["hole_diameter"]))
-                    self.lineEdit_plate_thickness.setText(str(pp_data["thickness"]))
+                    self.lineEdit_plate_thickness.setText(str(pp_data["plate_thickness"]))
 
                     if pp_data["single_hole"]:
                         self.checkBox_single_hole.setChecked(pp_data["single_hole"])
 
-                    self.lineEdit_area_porosity.setText(str(pp_data["porosity"]))
+                    area_porosity = pp_data["area_porosity"]
+                    self.lineEdit_area_porosity.setText(str(round(area_porosity, 8)))
 
                     self.comboBox_perforated_plate_model.setCurrentIndex(pp_data["type"])
 
-                    if pp_data["nonlinear_effect"]:
-                        self.lineEdit_nonlin_discharge.setText(str(pp_data["nonlinear_discharge_coefficient"]))
-
+                    if "nonlinear_effects" in pp_data.keys():
+                        nl_effects = pp_data["nonlinear_effects"]
+                        self.checkBox_nonlinear_discharge_coefficient.setChecked(nl_effects)
+                        if nl_effects:
+                            self.lineEdit_nonlin_discharge.setText(str(pp_data["nonlinear_discharge_coefficient"]))
                     else:
-                        if pp_data["linear_discharge_coefficient"]:
-                            self.lineEdit_discharge_coefficient.setText(str(pp_data["linear_discharge_coefficient"]))
-                    
-                    if pp_data["bias_effect"]:
-                        self.lineEdit_bias_flow_coefficient.setText(str(pp_data["bias_coefficient"]))
+                        self.checkBox_nonlinear_discharge_coefficient.setChecked(False)
+
+                    if "linear_discharge_coefficient" in pp_data.keys():
+                        self.lineEdit_discharge_coefficient.setText(str(pp_data["linear_discharge_coefficient"]))
+
+                    if "bias_flow_effects" in pp_data.keys():
+                        bias_flow_effects = pp_data["bias_flow_effects"]
+                        self.checkBox_bias_flow_coefficient.setChecked(bias_flow_effects)
+                        if bias_flow_effects:
+                            self.lineEdit_bias_flow_coefficient.setText(str(pp_data["bias_coefficient"]))
+                    else:
+                        self.checkBox_bias_flow_coefficient.setChecked(False)
 
                     if "table path" in pp_data.keys():
                         _table_path = pp_data["table path"]
@@ -207,11 +217,12 @@ class PerforatedPlateInput(QDialog):
                         self.tabWidget_dimensionless.setCurrentIndex(1)
                         self.lineEdit_load_table_path.setText(_table_path)
 
-                    elif pp_data["dimensionless_impedance is not None"]:
+                    elif pp_data["dimensionless_impedance"] is not None:
                         self.lineEdit_load_table_path.setText("")
                         self.tabWidget_dimensionless.setCurrentIndex(0)
-                        self.lineEdit_impedance_real.setText(str(np.real(pp_data["dimensionless_impedance"])))
-                        self.lineEdit_impedance_imag.setText(str(np.imag(pp_data["dimensionless_impedance"])))
+                        dim_impedance = pp_data["dimensionless_impedance"]
+                        self.lineEdit_impedance_real.setText(str(np.real(dim_impedance)))
+                        self.lineEdit_impedance_imag.setText(str(np.imag(dim_impedance)))
 
     def _config_widgets(self):
         #
@@ -312,7 +323,7 @@ class PerforatedPlateInput(QDialog):
                 if len(selected_elements) == 1:
                     area_porosity = self.get_area_porosity(selected_elements[0])
                     if isinstance(area_porosity, float):
-                        self.lineEdit_area_porosity.setText(str(round(area_porosity, 6)))
+                        self.lineEdit_area_porosity.setText(str(round(area_porosity, 8)))
                     else:
                         self.lineEdit_area_porosity.setText("")
                 else:
@@ -552,12 +563,13 @@ class PerforatedPlateInput(QDialog):
             if self.perforated_plate_inputs['type'] == 2:
                 self.perforated_plate_inputs['plate_thickness'] = round(min(elements_lengths), 6)
                 self.perforated_plate_inputs['area_porosity'] = 0
-                self.perforated_plate_inputs['discharge_coefficient'] = 0
-                self.perforated_plate_inputs['nonlinear_effects'] = 0
-                self.perforated_plate_inputs['nonlinear_discharge_coefficient'] = 0
+                self.perforated_plate_inputs['discharge_coefficient'] = 1
+                self.perforated_plate_inputs['nonlinear_effects'] = False
+                self.perforated_plate_inputs['nonlinear_discharge_coefficient'] = 1
                 self.perforated_plate_inputs['correction_factor'] = 0
-                self.perforated_plate_inputs['bias_flow_effects'] = 0
+                self.perforated_plate_inputs['bias_flow_effects'] = False
                 self.perforated_plate_inputs['bias_flow_coefficient'] = 0
+
             else:
 
                 # Check plate thickness
@@ -885,10 +897,10 @@ class PerforatedPlateInput(QDialog):
             if property == "perforated_plate" and isinstance(data, dict):
 
                 hole_diameter = data.get("hole_diameter", "")
-                thickness = data.get("plate_thickness", "")
+                plat_thickness = data.get("plate_thickness", "")
                 porosity = data.get("area_porosity", "")
 
-                text = f"[{hole_diameter}, {thickness}, {round(porosity, 6)}]"
+                text = f"[{hole_diameter}, {plat_thickness}, {round(porosity, 8)}]"
 
                 item = QTreeWidgetItem([str(element_id), text])
                 for i in range(2):

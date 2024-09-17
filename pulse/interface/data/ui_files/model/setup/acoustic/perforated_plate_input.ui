@@ -1681,7 +1681,7 @@
                    <x>0</x>
                    <y>0</y>
                    <width>422</width>
-                   <height>252</height>
+                   <height>262</height>
                   </rect>
                  </property>
                  <layout class="QGridLayout" name="gridLayout_3">
@@ -2725,8 +2725,7 @@
                          </size>
                         </property>
                         <property name="styleSheet">
-                         <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
-QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
+                         <string notr="true"/>
                         </property>
                         <property name="text">
                          <string/>
@@ -2751,8 +2750,7 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                          </size>
                         </property>
                         <property name="styleSheet">
-                         <string notr="true">QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}
-QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}</string>
+                         <string notr="true"/>
                         </property>
                         <property name="text">
                          <string/>
@@ -2895,6 +2893,9 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
                              <width>60</width>
                              <height>26</height>
                             </size>
+                           </property>
+                           <property name="styleSheet">
+                            <string notr="true"/>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignCenter</set>

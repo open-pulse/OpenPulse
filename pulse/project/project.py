@@ -483,7 +483,7 @@ class Project:
         if isinstance(self.acoustic_solver, AcousticSolver):
             if self.analysis_id in [3, 5, 6]:
                 from time import sleep
-                if self.acoustic_solver.non_linear:
+                if self.acoustic_solver.nl_pp_elements:
                     sleep(1)
 
     def run_analysis(self):
@@ -593,7 +593,7 @@ class Project:
 
         if isinstance(self.acoustic_solver, AcousticSolver):
             if self.analysis_id in [3, 5, 6]:
-                if self.acoustic_solver.non_linear:
+                if self.acoustic_solver.nl_pp_elements:
                     fig = plt.figure(figsize=[8,6])
                     ax  = fig.add_subplot(1,1,1)
                     self.anime = FuncAnimation(fig, self.acoustic_solver.graph_callback, fargs=(fig,ax), interval=2000)
@@ -604,7 +604,7 @@ class Project:
     def post_non_linear_convergence_plot(self):
         if isinstance(self.acoustic_solver, AcousticSolver):
             if self.analysis_id in [3, 5, 6]:
-                if self.acoustic_solver.non_linear:
+                if self.acoustic_solver.nl_pp_elements:
                     self.anime._stop()
 
 # fmt: on
