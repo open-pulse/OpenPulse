@@ -99,7 +99,7 @@ class TurnOffAcousticElementsInput(QDialog):
 
     def _config_widgets(self):
         #
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
         #
         for i, w in enumerate([120, 140]):
             self.treeWidget_elements_info.setColumnWidth(i, w)

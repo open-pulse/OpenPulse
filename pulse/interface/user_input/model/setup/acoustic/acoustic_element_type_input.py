@@ -149,7 +149,7 @@ class AcousticElementTypeInput(QDialog):
 
     def _config_widgets(self):
         self.treeWidget_element_type.setColumnWidth(0, 150)
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def tab_selection_callback(self):
         if self.tabWidget_main.currentIndex() == 0:

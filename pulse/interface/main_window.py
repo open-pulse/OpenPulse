@@ -97,8 +97,8 @@ class MainWindow(QMainWindow):
         for path in theme_dir.rglob("*.qss"):
             stylesheets.append(path.read_text())
 
-        combined_stylesheet = "\n\n".join(stylesheets)
-        self.setStyleSheet(combined_stylesheet)
+        self.combined_stylesheet = "\n\n".join(stylesheets)
+        self.setStyleSheet(self.combined_stylesheet)
 
     def _config_window(self):
         self.showMinimized()
@@ -167,7 +167,6 @@ class MainWindow(QMainWindow):
 
         # QToolBar
         self.tool_bar: QToolBar
-        self.tool_bar.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _connect_actions(self):
         '''
@@ -1055,6 +1054,8 @@ class MainWindow(QMainWindow):
 
     def set_input_widget(self, dialog):
         self.dialog = dialog
+        if isinstance(self.dialog, QDialog):
+            self.dialog.setStyleSheet(self.combined_stylesheet)
 
     def close_dialogs(self):
         if isinstance(self.dialog, (QDialog, QWidget)):

@@ -98,7 +98,7 @@ class StressStiffeningInput(QDialog):
             self.treeWidget_stress_stiffening.setColumnWidth(i, w)
             self.treeWidget_stress_stiffening.headerItem().setTextAlignment(i, Qt.AlignCenter)
         #
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def attribution_type_callback(self):
 

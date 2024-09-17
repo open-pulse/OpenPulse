@@ -41,7 +41,7 @@ class MeshToolbar(QToolBar):
 
     def _config_widgets(self):
 
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
         self.label_element_size.setAlignment(Qt.AlignRight)
         self.label_geometry_tolerance.setAlignment(Qt.AlignRight)

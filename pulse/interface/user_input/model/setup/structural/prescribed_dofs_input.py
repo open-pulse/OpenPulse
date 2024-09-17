@@ -156,7 +156,7 @@ class PrescribedDofsInput(QDialog):
             self.treeWidget_nodal_info.setColumnWidth(i, w)
             self.treeWidget_nodal_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
         #
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _create_connections(self):
         #

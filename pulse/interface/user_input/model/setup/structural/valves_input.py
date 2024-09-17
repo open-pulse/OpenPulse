@@ -180,7 +180,7 @@ class ValvesInput(QDialog):
             self.treeWidget_valves_info.setColumnWidth(i, w)
             self.treeWidget_valves_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _create_lists_of_lineEdits(self):
         self.list_lineEdits =  [

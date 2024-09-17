@@ -81,7 +81,7 @@ class GetInformationOfGroup(QDialog):
             if len(self.column_widths):
                 self.treeWidget_group_info.setColumnWidth(col, self.column_widths[col])
         
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def on_click_item(self, item):
         text = item.text(0)

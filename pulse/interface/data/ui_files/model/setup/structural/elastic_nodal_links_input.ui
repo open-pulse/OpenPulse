@@ -238,8 +238,11 @@
              <kerning>false</kerning>
             </font>
            </property>
+           <property name="tabletTracking">
+            <bool>false</bool>
+           </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::StrongFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
@@ -311,8 +314,11 @@
              <kerning>false</kerning>
             </font>
            </property>
+           <property name="tabletTracking">
+            <bool>false</bool>
+           </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::StrongFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
