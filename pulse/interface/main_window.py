@@ -960,7 +960,7 @@ class MainWindow(QMainWindow):
 
                 self.update_window_title(project_path)
 
-            logging.info("Loading project [1/3]")
+            # logging.info("Loading project [30%]")
             self.project.load_project()
             self.mesh_toolbar.update_mesh_attributes()
 
@@ -971,10 +971,10 @@ class MainWindow(QMainWindow):
 
             self.initial_project_action(True)
 
-            logging.info("Update recent projects [2/3]")
+            logging.info("Update recent projects [80%]")
             self._update_recent_projects()
 
-            logging.info("Configuring visualization [3/3]")
+            logging.info("Configuring visualization [95%]")
             self.action_front_view_callback()
             self.update_plots()
 

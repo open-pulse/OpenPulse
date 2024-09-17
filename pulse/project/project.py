@@ -106,17 +106,16 @@ class Project:
 
     def load_project(self):
 
-        logging.info("Loading project data [1/3]")
+        logging.info("Loading project data [30%]")
         app().loader.load_project_data()
 
-        logging.info("Processing geometry and mesh [1/3]")
+        logging.info("Processing geometry and mesh [50%]")
         self.initial_load_project_actions()
 
-        logging.info("Loading mesh dependent properties [1/3]")
+        logging.info("Loading mesh dependent properties [60%]")
         app().loader.load_mesh_dependent_properties()
 
-        logging.info("Finalizing model data loading [1/3]")
-        # self.enhance_pipe_sections_appearance()
+        logging.info("Finalizing model data loading [75%]")
         self.preprocessor.process_all_rotation_matrices()
         self.preprocessor.check_disconnected_lines()
 
