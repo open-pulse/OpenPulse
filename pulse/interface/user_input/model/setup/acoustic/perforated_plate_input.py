@@ -964,7 +964,7 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, element_id, pp_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/info/perforated_plate/get_perforated_plate_info.ui"
+        ui_path = UI_DIR / "model/info/get_perforated_plate_info.ui"
         uic.loadUi(ui_path, self)
 
         self._config_window()

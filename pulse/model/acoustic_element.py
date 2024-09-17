@@ -182,10 +182,8 @@ class AcousticElement:
 
         self.section_parameters_render = None
 
-    def update_pressure(self, solution):
-        pressure_first = solution[self.first_node.global_index, :]
-        pressure_last = solution[self.last_node.global_index, :]
-        self.delta_pressure =  pressure_last - pressure_first
+    def update_delta_pressure(self, delta_pressure):
+        self.delta_pressure = delta_pressure
 
     @property
     def global_dof(self):
@@ -734,9 +732,10 @@ class AcousticElement:
         k = omega / c
 
         if isinstance(self.pp_impedance, np.ndarray):
-            u_n = np.abs(self.delta_pressure/self.pp_impedance)
+            u_n = np.abs(self.delta_pressure / self.pp_impedance)
         else:
             u_n = 0
+
         self.u_n = u_n
 
         if self.perforated_plate.type == 0:
@@ -791,6 +790,8 @@ class AcousticElement:
     def perforated_plate_matrix(self, frequencies):
         self.update_pp_impedance(frequencies)
         admittance = self.area_fluid / self.pp_impedance
+
+        print(admittance[:10])
         
         return np.c_[- admittance, admittance, admittance, - admittance]
 

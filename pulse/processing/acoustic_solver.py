@@ -50,8 +50,7 @@ class AcousticSolver:
         self.natural_frequencies = None
         self.modal_shapes = None
         self.solution = None
-        
-        self.solution_nm1 = None
+
         self.convergence_data_log = None
 
         self.relative_error = list()
@@ -242,20 +241,27 @@ class AcousticSolver:
             if property == "perforated_plate":
                 perforated_plate = True
                 break
+
+        cond_1 = (not perforated_plate)
+        cond_2 = (perforated_plate and not self.nl_pp_elements)
             
-        if not perforated_plate:
+        if cond_1 or cond_2:
 
             for i in range(cols):
-                solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
+                solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
+
+                if self.stop_processing():
+                    self.solution = None
+                    return None, None
 
             self.solution = self._reinsert_prescribed_dofs(solution)
 
-            return solution, self.convergence_data_log
+            return self.solution, None      
 
         else:
 
-            self.solution_nm1 = np.zeros((rows, cols), dtype=complex)
-            vect_freqs = list(np.arange(cols, dtype=int))[1:]
+            indexes = list(np.arange(cols, dtype=int))[1:]
+            previous_solution = np.zeros((rows, cols), dtype=complex)
 
             self.plt = plt
 
@@ -291,15 +297,21 @@ class AcousticSolver:
                     cache_pressure_residues = np.array([])
 
                     for i, element in enumerate(self.nl_pp_elements):
-                        element.update_pressure(solution)
-                        first = element.first_node.global_index
-                        last = element.last_node.global_index
-                        pressure_residue_first = relative_error(solution[first, vect_freqs], self.solution_nm1[first, vect_freqs])
-                        pressure_residue_last = relative_error(solution[last, vect_freqs], self.solution_nm1[last, vect_freqs])
+
+                        first_index = element.first_node.global_index
+                        last_index = element.last_node.global_index
+
+                        pressure_first = solution[first_index, :]
+                        pressure_last = solution[last_index, :]
+                        delta_pressure =  pressure_last - pressure_first
+                        element.update_delta_pressure(delta_pressure)
+
+                        pressure_residue_first = relative_error(solution[first_index, indexes], previous_solution[first_index, indexes])
+                        pressure_residue_last = relative_error(solution[last_index, indexes], previous_solution[last_index, indexes])
                         cache_pressure_residues = np.r_[ cache_pressure_residues, pressure_residue_first, pressure_residue_last ] 
-        
-                        index = np.argmax(np.abs(element.delta_pressure[vect_freqs]))
-                        max_value = np.max(np.abs(element.delta_pressure[vect_freqs]))
+
+                        index = np.argmax(np.abs(element.delta_pressure[indexes]))
+                        max_value = np.max(np.abs(element.delta_pressure[indexes]))
 
                         if len(delta_pressures) == len(self.nl_pp_elements):
                             delta_pressures[i] = element.delta_pressure[1:]
@@ -327,16 +339,17 @@ class AcousticSolver:
                     self.iterations.append(count)
 
                     cache_delta_pressures = delta_pressures.copy()
-                    self.solution_nm1 = solution
+
+                    previous_solution = solution.copy()
                     solution = np.zeros((rows, cols), dtype=complex)
 
                     for ind, repetitions in freq_indexes.items():
                         if repetitions >= 4:
                             if ind not in self.unstable_frequencies:
-                                _frequencies = self.frequencies[vect_freqs]
+                                _frequencies = self.frequencies[indexes]
                                 freq = _frequencies[ind]
                                 self.unstable_frequencies[ind] = freq
-                                vect_freqs.remove(freq)
+                                indexes.remove(freq)
                                 message = f"The {freq}Hz frequency step produces unstable results, therefore "
                                 message += "it will be excluded from the calculation of the residue convergence criteria.\n"
                                 print(message)  
@@ -347,22 +360,10 @@ class AcousticSolver:
 
                     if converged:
                         self.convergence_data_log = [self.iterations, pressure_residues, delta_residues, 100*self.target]
-                        self.solution = self.solution_nm1
-                        return self.solution_nm1, self.convergence_data_log
+                        self.solution = previous_solution
+                        return self.solution, self.convergence_data_log
 
-            else:
-
-                for i in range(cols):
-                    solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
-                    if self.stop_processing():
-                        self.solution = None
-                        return None, None
-
-                self.solution = self._reinsert_prescribed_dofs(solution)
-
-                return self.solution, self.convergence_data_log                     
-
-    def graph_callback(self, interval, fig, ax):  
+    def graph_callback(self, interval, fig, ax):
         import matplotlib.pyplot as plt
 
         if (len(self.iterations) < 2) or (len(self.relative_error) < 2):
