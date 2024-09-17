@@ -42,6 +42,7 @@ from pulse.interface.user_input.model.geometry.options import (
     RectangularBeamOptions,
     ExpansionJointOptions,
     ValveOptions,
+    PointOptions,
 )
 
 
@@ -170,8 +171,9 @@ class GeometryDesignerWidget(QWidget):
         self.c_beam_options = CBeamOptions(self)
         self.expansion_joint_options = ExpansionJointOptions(self)
         self.valve_options = ValveOptions(self)
-        self.current_options: StructureOptions = self.pipe_options
+        self.point_options = PointOptions(self)
 
+        self.current_options: StructureOptions = self.pipe_options
         self.current_structure_type = None
         self.current_material_info = None
 
@@ -253,10 +255,12 @@ class GeometryDesignerWidget(QWidget):
 
         elif issubclass(self.current_structure_type, Point):
             self._show_deltas_mode(False)
-            self.pipeline.dismiss()
-            self.pipeline.clear_structure_selection()
-            self._set_xyz_to_selected_point()
-            self.render_widget.update_plot(reset_camera=False)
+            self.current_options = self.point_options
+
+            # self.pipeline.dismiss()
+            # self.pipeline.clear_structure_selection()
+            # self._set_xyz_to_selected_point()
+            # self.render_widget.update_plot(reset_camera=False)
 
         if not issubclass(self.current_structure_type, Point):
             self.xyz_changed_callback()
@@ -288,6 +292,7 @@ class GeometryDesignerWidget(QWidget):
         self.current_options.configure_structure()
         self._update_permissions()
         self._update_information_text()
+        self.xyz_changed_callback()
         self.render_widget.update_plot(reset_camera=False)
 
     def cross_section_confirm_callback(self):
@@ -523,7 +528,6 @@ class GeometryDesignerWidget(QWidget):
         self._set_xyz(x, y, z)
 
     def _show_deltas_mode(self, boolean):
-
         if boolean:
             x_text = "Length Δx:"
             y_text = "Length Δy:"

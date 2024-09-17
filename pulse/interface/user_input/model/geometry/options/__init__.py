@@ -9,3 +9,4 @@ from .circular_beam_options import CircularBeamOptions
 from .rectangular_beam_options import RectangularBeamOptions
 from .expansion_joint_options import ExpansionJointOptions
 from .valve_options import ValveOptions
+from .point_options import PointOptions
