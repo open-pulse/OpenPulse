@@ -416,6 +416,8 @@ class GeometryDesignerWidget(QWidget):
 
         self.pipeline.clear_structure_selection()
         self.render_widget.update_plot(reset_camera=False)
+        self.modified = True
+        self._update_permissions()
 
     def delete_selection_callback(self):
         for structure in self.pipeline.selected_structures:
