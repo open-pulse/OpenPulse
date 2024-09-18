@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
+import numpy as np
 
 from opps.model import Point
 
@@ -25,6 +26,12 @@ class PointOptions(StructureOptions):
             # Create new point
             self.pipeline.dismiss()
             self.pipeline.clear_selection()
+
+            # If the point already exists ignore the command
+            for point in self.pipeline.points:
+                if np.all(point.coords() == xyz):
+                    return
+
             self.pipeline.add_isolated_point(xyz)
 
     def attach_callback(self):
