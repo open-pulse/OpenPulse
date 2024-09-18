@@ -78,6 +78,7 @@ class GeometryDesignerWidget(QWidget):
         # QFrame
         self.frame_bending_options: QFrame
         self.frame_bounding_box_sizes: QFrame
+        self.frame_division_options: QFrame
         self.create_structure_frame: QFrame
 
         #QPushButton
@@ -218,10 +219,16 @@ class GeometryDesignerWidget(QWidget):
         self.current_structure_type = self._structure_name_to_class(structure_name)  
 
         self._show_deltas_mode(True)
-        if self.structure_combobox.currentIndex() == 0:
+        structure_index = self.structure_combobox.currentIndex()
+        if structure_index == 0:
             self.frame_bending_options.setEnabled(True)
         else:
             self.frame_bending_options.setEnabled(False)
+
+        if structure_index in [1, 2, 8, 9, 10]:
+            self.frame_division_options.setEnabled(False)
+        else:
+            self.frame_division_options.setEnabled(True)
 
         if issubclass(self.current_structure_type, Pipe):
             self.current_options = self.pipe_options
