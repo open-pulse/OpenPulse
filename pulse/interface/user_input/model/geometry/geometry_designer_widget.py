@@ -255,6 +255,7 @@ class GeometryDesignerWidget(QWidget):
 
         elif issubclass(self.current_structure_type, Point):
             self._show_deltas_mode(False)
+            self._set_xyz_to_selected_point()
             self.current_options = self.point_options
 
             # self.pipeline.dismiss()
