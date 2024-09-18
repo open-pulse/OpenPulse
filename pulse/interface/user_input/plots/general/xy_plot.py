@@ -34,7 +34,7 @@ class XYPlot(QWidget):
         ui_path = UI_DIR / "plots/graphs/plot_xy_widget.ui"
         uic.loadUi(ui_path, self)
 
-        # app().main_window.set_input_widget(self)
+        app().main_window.set_input_widget(self)
         app().main_window.theme_changed.connect(self.paint_toolbar_icons)
 
         self.number_of_plots = plot_config.get("number_of_plots", 1)

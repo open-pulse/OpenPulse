@@ -70,7 +70,7 @@ class ResultsViewerWidget(QWidget):
             self.add_transmission_loss_widget)
         
         self.results_viewer_items.item_child_plot_perforated_plate_convergence_data.clicked.connect(
-            self.add_perforated_plate_convergence_widget)
+            self.plot_perforated_plate_convergence_data)
         
         self.results_viewer_items.item_child_check_pulsation_criteria.clicked.connect(
             self.add_pulsation_criteria_widget)
@@ -141,9 +141,10 @@ class ResultsViewerWidget(QWidget):
         widget = app().main_window.input_ui.plot_transmission_loss()
         self.add_widget(widget)
 
-    def add_perforated_plate_convergence_widget(self):
-        widget = app().main_window.input_ui.plot_perforated_plate_convergence_data()
-        self.add_widget(widget)
+    def plot_perforated_plate_convergence_data(self):
+        app().project.acoustic_solver.xy_plot.show()
+        # widget = app().main_window.input_ui.plot_perforated_plate_convergence_data()
+        # self.add_widget(widget)
 
     def add_pulsation_criteria_widget(self):
         self.configure_render_according_to_plot_type("nodes")

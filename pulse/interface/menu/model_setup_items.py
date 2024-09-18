@@ -95,9 +95,6 @@ class ModelSetupItems(CommonMenuItems):
         #
         app().main_window.theme_changed.connect(self.set_theme)
 
-    # def create_plot_convergence_data(self):
-    #     self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_perforated_plate_convergence_data)
-
     # Callbacks
     def item_child_create_geometry_callback(self):
         app().main_window.input_ui.call_geometry_editor()

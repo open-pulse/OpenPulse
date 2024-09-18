@@ -511,15 +511,12 @@ class Project:
 
         logging.info("Initializing the problem solver [30%]")
         self.initialize_solver()
-        # self.pre_non_linear_convergence_plot()
 
         logging.info("Solution in progress [50%]")
         self.process_analysis()
 
         logging.info("Saving the solution data [95%]")
         app().pulse_file.write_results_data_in_file()
-
-        # self.post_non_linear_convergence_plot()
 
         if self.preprocessor.stop_processing:
             self.reset_solution()
@@ -585,26 +582,5 @@ class Project:
         app().main_window.use_results_workspace()
         app().main_window.results_widget.show_empty()
         app().main_window.results_viewer_wigdet.bottom_widget.hide()
-
-    def pre_non_linear_convergence_plot(self):
-
-        import matplotlib.pyplot as plt
-        from matplotlib.animation import FuncAnimation
-
-        if isinstance(self.acoustic_solver, AcousticSolver):
-            if self.analysis_id in [3, 5, 6]:
-                if self.acoustic_solver.nl_pp_elements:
-                    fig = plt.figure(figsize=[8,6])
-                    ax  = fig.add_subplot(1,1,1)
-                    self.anime = FuncAnimation(fig, self.acoustic_solver.graph_callback, fargs=(fig,ax), interval=2000)
-                    self.anime._start()
-                    plt.ion()
-                    plt.show()
-
-    def post_non_linear_convergence_plot(self):
-        if isinstance(self.acoustic_solver, AcousticSolver):
-            if self.analysis_id in [3, 5, 6]:
-                if self.acoustic_solver.nl_pp_elements:
-                    self.anime._stop()
 
 # fmt: on
