@@ -219,6 +219,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         # Change the animation button to paused
         app().main_window.animation_toolbar.pause_animation()
 
+    def clear_cache(self):
+        self._animation_cached_data.clear()
+
     def update_animation(self, frame: int):
         if self.analysis_mode == AnalysisMode.EMPTY:
             self.stop_animation()
@@ -230,7 +233,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         ]
 
         if any(conditions_to_clear_cache):
-            self._animation_cached_data.clear()
+            self.clear_cache()
 
         if not self._animation_cached_data:
             LoadingWindow(self.cache_animation_frames).run()

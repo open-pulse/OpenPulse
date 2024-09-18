@@ -184,6 +184,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.update_animation_widget_visibility()
         self.selected_index = 0
         self.get_stress_data()
+        app().main_window.results_widget.clear_cache()
 
     def confirm_button(self):
         self.update_plot()
