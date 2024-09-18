@@ -23,8 +23,10 @@ from opps.model import (
     RectangularBeam,
 )
 
-from pulse import app, UI_DIR
+from molde.stylesheets import set_qproperty
 from molde.utils import TreeInfo
+
+from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
@@ -54,6 +56,7 @@ class GeometryDesignerWidget(QWidget):
         uic.loadUi(ui_path, self)
 
         self.render_widget = render_widget
+        self.modified = False
 
         self.project = app().project
         self.pipeline = self.project.pipeline
@@ -423,6 +426,7 @@ class GeometryDesignerWidget(QWidget):
 
         self.pipeline.dismiss()
         self.pipeline.delete_selection()
+        self.modified = True
 
         self._reset_xyz()
         self._update_permissions()
@@ -432,20 +436,25 @@ class GeometryDesignerWidget(QWidget):
         self.current_options.attach_callback()
         self._update_permissions()
         self.render_widget.update_plot(reset_camera=True)
+        self.modified = True
         self._reset_xyz()
+        self._update_permissions()
 
     def add_structure_callback(self):
         self.pipeline.commit()
         if self.current_structure_type == Point:
             self.pipeline.clear_point_selection()
         self.render_widget.update_plot(reset_camera=False)
+        self.modified = True
         self._reset_xyz()
+        self._update_permissions()
 
     def cancel_callback(self):
         app().main_window.update_plots()
         app().main_window.use_model_setup_workspace()
 
     def finalize_callback(self):
+        self.modified = False
         self.pipeline.dismiss()
 
         geometry_handler = GeometryHandler()
@@ -648,7 +657,13 @@ class GeometryDesignerWidget(QWidget):
     def _update_permissions(self):
         if self.current_options is None:
             return
+        
         self.current_options.update_permissions()
+        
+        if self.modified:
+            set_qproperty(self.finalize_button, warning=True, status="danger")
+        else:
+            set_qproperty(self.finalize_button, warning=False, status="default")
 
     def _load_project(self):
         app().loader.load_project_data()
