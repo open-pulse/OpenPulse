@@ -37,6 +37,7 @@ class PipeOptions(StructureOptions):
         if kwargs is None:
             return
         self.pipeline.connect_bent_pipes(**kwargs)
+        self.pipeline.commit()
 
     def configure_structure(self):
         self.cross_section_widget._add_icon_and_title()
