@@ -221,7 +221,7 @@ class AnalysisToolbar(QToolBar):
             analysis_method = "Direct Method"
         else:
             return
-    
+
         app().project.set_analysis_type(analysis_id, analysis_type, analysis_method)
 
         app().project.reset_solution()
