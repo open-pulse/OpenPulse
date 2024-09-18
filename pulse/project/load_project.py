@@ -58,8 +58,6 @@ class LoadProject:
         #
         self.load_analysis_file()
         self.load_inertia_load_setup()
-        #
-        # self.load_analysis_results()
 
 
     def load_fluids_library(self):
@@ -521,14 +519,16 @@ class LoadProject:
 
 
     def load_analysis_file(self):
-
         analysis_setup = app().pulse_file.load_analysis_file()
+        if isinstance(analysis_setup, dict):
+            self.model.set_frequency_setup(analysis_setup)
+            self.model.set_global_damping(analysis_setup)
 
-        if analysis_setup is None:
-            return
 
-        self.model.set_frequency_setup(analysis_setup)
-        self.model.set_global_damping(analysis_setup)
+    def load_analysis_id(self):
+        analysis_setup = app().pulse_file.load_analysis_file()
+        if isinstance(analysis_setup, dict):
+            app().project.set_analysis_id(analysis_setup.get("analysis_id", None))
 
 
     def get_psd_related_lines(self):

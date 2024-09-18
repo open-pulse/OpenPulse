@@ -65,9 +65,7 @@ class StaticAnalysisInput(QDialog):
     def enter_setup_callback(self):
 
         analysis_id = 7
-        analysis_type = "Static Analysis"
-
-        app().project.set_analysis_type(analysis_id, analysis_type, None)
+        app().project.set_analysis_id(analysis_id)
 
         weight_load = self.checkBox_self_weight_load.isChecked()
         internal_pressure_load = self.checkBox_internal_pressure_load.isChecked()

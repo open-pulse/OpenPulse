@@ -94,9 +94,8 @@ class AcousticModalAnalysisInput(QDialog):
             return
 
         analysis_id = 4
-        analysis_type = "Acoustic Modal Analysis"
 
-        app().project.set_analysis_type(analysis_id, analysis_type, None)
+        app().project.set_analysis_id(analysis_id)
 
         analysis_setup = {
                           "analysis_id" : analysis_id,

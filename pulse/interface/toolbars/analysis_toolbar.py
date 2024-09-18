@@ -196,16 +196,14 @@ class AnalysisToolbar(QToolBar):
         if select.index == -1:
             return
 
-        self.method_id = select.index
-        analysis_type = "Structural Harmonic Analysis"
-        if self.method_id == 0:
+        method_id = select.index
+
+        if method_id == 0:
             analysis_id = 0
-            analysis_method = "Direct Method"
         else:
             analysis_id = 1
-            analysis_method = "Mode Superposition Method"
 
-        app().project.set_analysis_type(analysis_id, analysis_type, analysis_method)
+        app().project.set_analysis_id(analysis_id)
 
         app().project.reset_solution()
         if app().main_window.input_ui.analysis_setup():
@@ -213,16 +211,14 @@ class AnalysisToolbar(QToolBar):
 
     def harmonic_acoustic(self):
 
-        self.method_id = 0
-        analysis_type = "Acoustic Harmonic Analysis"
+        method_id = 0
 
-        if self.method_id == 0:
+        if method_id == 0:
             analysis_id = 3
-            analysis_method = "Direct Method"
         else:
             return
 
-        app().project.set_analysis_type(analysis_id, analysis_type, analysis_method)
+        app().project.set_analysis_id(analysis_id)
 
         app().project.reset_solution()
         if app().main_window.input_ui.analysis_setup():
@@ -234,16 +230,14 @@ class AnalysisToolbar(QToolBar):
         if coupled.index == -1:
             return
 
-        self.method_id = coupled.index
-        analysis_type = "Coupled Harmonic Analysis"
-        if self.method_id == 0:
+        method_id = coupled.index
+
+        if method_id == 0:
             analysis_id = 5
-            analysis_method = "Direct Method"
         else:
             analysis_id = 6
-            analysis_method = "Mode Superposition Method"
 
-        app().project.set_analysis_type(analysis_id, analysis_type, analysis_method)
+        app().project.set_analysis_id(analysis_id)
 
         app().project.reset_solution()
         if app().main_window.input_ui.analysis_setup():
@@ -324,23 +318,21 @@ class AnalysisToolbar(QToolBar):
     def load_analysis_settings(self):
 
         self.pushButton_run_analysis.setEnabled(False)
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
 
-        if isinstance(analysis_setup, dict):
-            analysis_id = analysis_setup["analysis_id"]
-            if analysis_id in [0, 1, 3, 5, 6]:
-                self.combo_box_analysis_type.setCurrentIndex(0)
-            elif analysis_id in [2, 4]:
-                self.combo_box_analysis_type.setCurrentIndex(1)
-            elif analysis_id == 7:
-                self.combo_box_analysis_type.setCurrentIndex(2)
+        analysis_id = app().project.analysis_id
+        if analysis_id in [0, 1, 3, 5, 6]:
+            self.combo_box_analysis_type.setCurrentIndex(0)
+        elif analysis_id in [2, 4]:
+            self.combo_box_analysis_type.setCurrentIndex(1)
+        elif analysis_id == 7:
+            self.combo_box_analysis_type.setCurrentIndex(2)
 
-            if analysis_id in [0, 1, 2, 7]:
-                self.combo_box_analysis_domain.setCurrentIndex(0)
-            elif analysis_id in [3, 4]:
-                self.combo_box_analysis_domain.setCurrentIndex(1)
-            elif analysis_id in [5, 6]:
-                self.combo_box_analysis_domain.setCurrentIndex(2)
+        if analysis_id in [0, 1, 2, 7]:
+            self.combo_box_analysis_domain.setCurrentIndex(0)
+        elif analysis_id in [3, 4]:
+            self.combo_box_analysis_domain.setCurrentIndex(1)
+        elif analysis_id in [5, 6]:
+            self.combo_box_analysis_domain.setCurrentIndex(2)
 
-            setup_complete = app().project.is_analysis_setup_complete()
-            self.pushButton_run_analysis.setEnabled(setup_complete)
+        setup_complete = app().project.is_analysis_setup_complete()
+        self.pushButton_run_analysis.setEnabled(setup_complete)

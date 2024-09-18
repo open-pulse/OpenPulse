@@ -90,6 +90,7 @@ class Project:
         try:
 
             self.reset(reset_all = True)
+            app().loader.load_analysis_id()
             app().loader.load_analysis_results()
 
             if app().pulse_file.check_pipeline_data():
@@ -249,34 +250,6 @@ class Project:
                 return True
         return False
 
-    def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
-        if parameters is None:
-            remove = True
-            capped = False
-            etype = "pipe_1"
-        else:
-            remove = False
-            capped = True
-            etype = "valve"
-
-        self.preprocessor.add_expansion_joint_by_lines(line_ids, None, remove=True)
-        self.preprocessor.add_valve_by_lines(line_ids, parameters, remove=remove, reset_cross=reset_cross)
-        # self.set_structural_element_type_by_lines(line_ids, etype)
-
-    def load_valve_by_lines(self, line_id, data, cross_sections):
-        valve_elements = data["valve_elements"]
-        valve_cross, flange_cross = cross_sections
-        self.preprocessor.add_valve_by_line(line_id, data)
-
-        if 'flange_elements' in data.keys():
-            flange_elements = data["flange_elements"]
-            _valve_elements = [element_id for element_id in valve_elements if element_id not in flange_elements]
-            self.preprocessor.set_cross_section_by_element(_valve_elements, valve_cross)
-            self.preprocessor.set_cross_section_by_element(flange_elements, flange_cross)
-        else:
-            self.preprocessor.set_cross_section_by_element(valve_elements, valve_cross)
-        self.preprocessor.set_structural_element_type_by_lines(line_id, 'valve')
-
     def get_structural_elements(self):
         return self.preprocessor.structural_elements
     
@@ -322,10 +295,31 @@ class Project:
             points[i] = self.preprocessor.nodes[i]
         return points
 
-    def set_analysis_type(self, analysis_id: int, analysis_text: str, method_text = ""):
+    def set_analysis_id(self, analysis_id: int):
+
         self.analysis_id = analysis_id
-        self.analysis_type_label = analysis_text
-        self.analysis_method_label = method_text
+
+        if analysis_id in [0, 1]:
+            self.analysis_type_label = "Structural Harmonic Analysis"
+        elif analysis_id == 2:
+            self.analysis_type_label = "Structural Modal Analysis"
+        elif analysis_id == 3:
+            self.analysis_type_label = "Acoustic Harmonic Analysis"
+        elif analysis_id == 4:
+            self.analysis_type_label = "Acoustic Modal Analysis"
+        elif analysis_id in [5, 6]:
+            self.analysis_type_label = "Coupled Harmonic Analysis"
+        elif analysis_id == 7:
+            self.analysis_type_label = "Structural Static Analysis"
+        else:
+            self.analysis_type_label = None
+
+        if self.analysis_id in [0, 5, 3]:
+            self.analysis_method_label = "Direct method"
+        elif self.analysis_id in [1, 6]:
+            self.analysis_method_label = "Mode superposition method"
+        else:
+            self.analysis_method_label = None
 
     def load_analysis_setup(self):
         self.analysis_setup = app().pulse_file.read_analysis_setup_from_file()
@@ -390,6 +384,21 @@ class Project:
 
         else:
             return False
+
+    def get_harmonic_analysis_method(self):
+
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        if isinstance(analysis_setup, dict):
+            analysis_id = analysis_setup.get("analysis_id", None)
+
+        if analysis_id is None:
+            return ""
+        
+        elif analysis_id in [0, 3, 5]:
+            return "Direct method"
+        
+        elif analysis_id in [1, 6]:
+            return "Mode superposition method"
 
     def initialize_solver(self):
 
