@@ -734,7 +734,7 @@ class BeforeRun:
     def separate_braches_with_equal_section(self, data: dict):
 
         index = 0
-        max_iter = 10
+        max_iter = 200
         group_of_lines = dict()
 
         for _, line_ids in data.items():
@@ -748,7 +748,7 @@ class BeforeRun:
                 if current_line not in main_lines:
                     main_lines.append(current_line)
 
-                line_id = self.get_next_c0_continuous_line(current_line, main_lines, remaining_lines)
+                line_id = self.get_next_c1_continuous_line(current_line, main_lines, remaining_lines)
 
                 if isinstance(line_id, int):
                     if line_id not in main_lines:
@@ -770,7 +770,7 @@ class BeforeRun:
 
         return group_of_lines
 
-    def get_next_c0_continuous_line(self, current_line, main_lines, remaining_lines):
+    def get_next_c1_continuous_line(self, current_line, main_lines, remaining_lines):
         """
         """
         for coords in self.properties.get_line_edges(current_line):

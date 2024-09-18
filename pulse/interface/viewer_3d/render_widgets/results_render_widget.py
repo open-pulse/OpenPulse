@@ -35,6 +35,7 @@ from ._model_info_text import (
     elements_info_text,
     lines_info_text,
     nodes_info_text,
+    min_max_stresses_info_text,
 )
 
 
@@ -107,24 +108,44 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             return
 
         try:
+
             # Default behavior
             self.colorbar_actor.VisibilityOn()
             deformed = False
+    
+            unit_label = ""
+            analysis_id = project.analysis_id
 
             # update the data according to the current analysis
             if self.analysis_mode == AnalysisMode.DISPLACEMENT:
+
+                if analysis_id in [0, 1, 5, 6, 7]:
+                    unit_label = "Unit: [m]"
+                elif analysis_id in [2]:
+                    unit_label = "Unit: [--]"
+
                 deformed = True
                 color_table = self._compute_displacement_field(
                     self.current_frequency_index, self.current_phase_step
                 )
 
             elif self.analysis_mode == AnalysisMode.STRESS:
+
+                if analysis_id in [0, 1, 5, 6, 7]:
+                    unit_label = "Unit: [Pa]"
+
                 deformed = True
                 color_table = self._compute_stress_field(
                     self.current_frequency_index, self.current_phase_step
                 )
 
             elif self.analysis_mode == AnalysisMode.PRESURE:
+
+                if analysis_id in [3, 5, 6]:
+                    unit_label = "Unit: [Pa]"
+                elif analysis_id in [4]:
+                    unit_label = "Unit: [--]"
+
                 color_table = self._compute_pressure_field(
                     self.current_frequency_index, self.current_phase_step
                 )
@@ -155,11 +176,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.plane_actor,
         )
 
-        unit = app().project.get_unit()
-        if unit is None:
-            unit = ""
-
-        self.colorbar_actor.SetTitle(f"Unit: [{unit}]")
+        self.colorbar_actor.SetTitle(unit_label)
         self.colorbar_actor.SetLookupTable(color_table)
         self.tubes_actor.set_color_table(color_table)
 
@@ -202,6 +219,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         # Change the animation button to paused
         app().main_window.animation_toolbar.pause_animation()
 
+    def clear_cache(self):
+        self._animation_cached_data.clear()
+
     def update_animation(self, frame: int):
         if self.analysis_mode == AnalysisMode.EMPTY:
             self.stop_animation()
@@ -213,7 +233,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         ]
 
         if any(conditions_to_clear_cache):
-            self._animation_cached_data.clear()
+            self.clear_cache()
 
         if not self._animation_cached_data:
             LoadingWindow(self.cache_animation_frames).run()
@@ -413,6 +433,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         info_text += nodes_info_text()
         info_text += elements_info_text()
         info_text += lines_info_text()
+
+        if self.analysis_mode == AnalysisMode.STRESS:
+            info_text += min_max_stresses_info_text()
+
         self.set_info_text(info_text)
 
     def remove_actors(self):

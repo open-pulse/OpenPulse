@@ -53,8 +53,6 @@ class AnimationToolbar(QToolBar):
 
     def _config_widgets(self):
 
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
-
         # QPushButton
         self.pushButton_animate.setFixedHeight(28)
         self.pushButton_animate.setFixedWidth(40)
@@ -138,12 +136,12 @@ class AnimationToolbar(QToolBar):
     def frames_value_changed(self):
         self.frames = self.spinBox_frames.value()
         app().project.frames = self.frames
-        app().main_window.results_widget._animation_cached_data.clear()
+        app().main_window.results_widget.clear_cache()
 
     def cycles_value_changed(self):
         self.cycles = self.spinBox_cycles.value()
         app().project.cycles = self.cycles
-        app().main_window.results_widget._animation_cached_data.clear()
+        app().main_window.results_widget.clear_cache()
 
     def slider_callback(self):
         self.pause_animation()      

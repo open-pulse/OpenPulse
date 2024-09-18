@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>464</width>
-    <height>746</height>
+    <height>787</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,7 +46,7 @@
         <x>0</x>
         <y>0</y>
         <width>458</width>
-        <height>696</height>
+        <height>737</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
@@ -63,7 +63,7 @@
         <number>4</number>
        </property>
        <item row="3" column="0">
-        <widget class="QFrame" name="frame_4">
+        <widget class="QFrame" name="frame_division_options_2">
          <property name="frameShape">
           <enum>QFrame::Box</enum>
          </property>
@@ -170,13 +170,13 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="minimum">
@@ -195,13 +195,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -239,13 +239,13 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -270,13 +270,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -297,13 +297,13 @@
                <property name="minimumSize">
                 <size>
                  <width>42</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>42</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -477,19 +477,22 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
                 </font>
+               </property>
+               <property name="clearButtonEnabled">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -563,13 +566,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -614,19 +617,22 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
                 </font>
+               </property>
+               <property name="clearButtonEnabled">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -635,13 +641,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -662,13 +668,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -689,19 +695,22 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
                 </font>
+               </property>
+               <property name="clearButtonEnabled">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -759,13 +768,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -803,19 +812,22 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
                 </font>
+               </property>
+               <property name="clearButtonEnabled">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -824,13 +836,13 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -865,13 +877,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -942,13 +954,13 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>1677215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -966,13 +978,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -993,13 +1005,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -1044,13 +1056,13 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>1677215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -1074,13 +1086,13 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>1677215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -1110,13 +1122,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -1143,13 +1155,13 @@
                <property name="minimumSize">
                 <size>
                  <width>180</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>180</width>
-                 <height>1677215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">
@@ -1236,13 +1248,13 @@
                <property name="minimumSize">
                 <size>
                  <width>120</width>
-                 <height>0</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>120</width>
-                 <height>16777215</height>
+                 <height>26</height>
                 </size>
                </property>
                <property name="font">

@@ -144,7 +144,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>176</width>
+                <width>200</width>
                 <height>26</height>
                </size>
               </property>
@@ -209,19 +209,6 @@
                </property>
               </item>
              </widget>
-            </item>
-            <item row="0" column="1">
-             <spacer name="horizontalSpacer_11">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </widget>
@@ -384,7 +371,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>176</width>
+             <width>200</width>
              <height>26</height>
             </size>
            </property>
@@ -811,7 +798,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>176</width>
+             <width>200</width>
              <height>16777215</height>
             </size>
            </property>

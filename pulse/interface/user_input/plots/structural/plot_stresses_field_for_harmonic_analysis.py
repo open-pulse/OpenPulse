@@ -160,11 +160,13 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         self.update_animation_widget_visibility()
         if self.lineEdit_selected_frequency.text() == "":
             return
-        else:
-            frequency_selected = float(self.lineEdit_selected_frequency.text())
-            if frequency_selected in self.frequencies:
-                self.selected_index = self.dict_frequency_to_index[frequency_selected]
-                self.get_stress_data()
+
+        frequency_selected = float(self.lineEdit_selected_frequency.text())
+        if frequency_selected in self.frequencies:
+            self.selected_index = self.dict_frequency_to_index[frequency_selected]
+            self.get_stress_data()
+        app().main_window.results_widget.clear_cache()
+
 
     def get_user_color_scale_setup(self):
 

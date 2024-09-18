@@ -115,7 +115,7 @@ class ResultsViewerItems(CommonMenuItems):
                     self.item_child_plot_stress_frequency_response.setDisabled(False)
                     self.item_child_plot_reaction_frequency_response.setDisabled(False)
 
-                if self.project.perforated_plate_data_log:
+                if self.project.perforated_plate_data_log is not None:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
                     self.item_child_plot_perforated_plate_convergence_data.setHidden(False)
 

@@ -196,11 +196,10 @@ class NodalLoadsInput(QDialog):
                                     lineEdit_imag.setText(str(np.imag(values[index])))
 
     def _config_widgets(self):
+        #
         for i, w in enumerate([80, 60]):
             self.treeWidget_nodal_info.setColumnWidth(i, w)
             self.treeWidget_nodal_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
-        #
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 

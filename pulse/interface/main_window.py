@@ -17,7 +17,7 @@ from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
-from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
+from pulse.interface.menu.model_setup_widget import ModelSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.handler.pcf_file_io import PCFFileIO
@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         self.dialog = None
         self.input_ui = None
 
-        self.model_and_analysis_setup_widget = None
+        self.model_setup_widget = None
         self.results_viewer_wigdet = None
 
         self.interface_theme = None
@@ -97,8 +97,8 @@ class MainWindow(QMainWindow):
         for path in theme_dir.rglob("*.qss"):
             stylesheets.append(path.read_text())
 
-        combined_stylesheet = "\n\n".join(stylesheets)
-        self.setStyleSheet(combined_stylesheet)
+        self.combined_stylesheet = "\n\n".join(stylesheets)
+        self.setStyleSheet(self.combined_stylesheet)
 
     def _config_window(self):
         self.showMinimized()
@@ -167,7 +167,6 @@ class MainWindow(QMainWindow):
 
         # QToolBar
         self.tool_bar: QToolBar
-        self.tool_bar.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _connect_actions(self):
         '''
@@ -201,7 +200,7 @@ class MainWindow(QMainWindow):
 
     def _create_layout(self):
 
-        self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget()
+        self.model_setup_widget = ModelSetupWidget()
         self.results_viewer_wigdet = ResultsViewerWidget()
         self.input_ui = InputUi(self)
         self.mesh_widget = MeshRenderWidget()
@@ -215,14 +214,14 @@ class MainWindow(QMainWindow):
 
         self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget, self)
         self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
-        self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
+        self.setup_widgets_stack.addWidget(self.model_setup_widget)
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
         self.splitter.setSizes([100, 400])
         self.splitter.widget(0).setMinimumWidth(420)
         self._update_visualization()
 
-        self.model_and_analysis_items = self.model_and_analysis_setup_widget.model_and_analysis_setup_items
+        self.model_and_analysis_items = self.model_setup_widget.model_setup_items
 
     def create_file_dialog(self):
         self.file_dialog = FileDialog()
@@ -424,6 +423,9 @@ class MainWindow(QMainWindow):
             acoustic_symbols=True, structural_symbols=True,
         )    
 
+    def plot_results(self):
+        self._configure_visualization(tubes=True)  
+
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
 
@@ -590,7 +592,7 @@ class MainWindow(QMainWindow):
         elif not self.action_results_workspace.isEnabled():
             self.action_results_workspace.setEnabled(True)
 
-        self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
+        self.setup_widgets_stack.setCurrentWidget(self.model_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
 
     def action_results_workspace_callback(self):
@@ -822,7 +824,7 @@ class MainWindow(QMainWindow):
             else:
                 self.action_set_light_theme_callback()
         else:
-            self.action_set_light_theme_callback()
+            self.action_set_dark_theme_callback()
         self.update_theme = True
 
     def action_set_dark_theme_callback(self):
@@ -943,13 +945,21 @@ class MainWindow(QMainWindow):
         def tmp():
 
             self.reset_geometry_render()
+
             if project_path is not None:
+
                 app().config.add_recent_file(project_path)
                 app().config.write_last_folder_path_in_file("project folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
+
+                if app().loader.check_file_version():
+                    self.reset_temporary_folder()
+                    self.load_recent_project()
+                    return
+
                 self.update_window_title(project_path)
 
-            logging.info("Loading project [1/3]")
+            # logging.info("Loading project [30%]")
             self.project.load_project()
             self.mesh_toolbar.update_mesh_attributes()
 
@@ -960,10 +970,10 @@ class MainWindow(QMainWindow):
 
             self.initial_project_action(True)
 
-            logging.info("Update recent projects [2/3]")
+            logging.info("Update recent projects [80%]")
             self._update_recent_projects()
 
-            logging.info("Configuring visualization [3/3]")
+            logging.info("Configuring visualization [95%]")
             self.action_front_view_callback()
             self.update_plots()
 
@@ -1044,6 +1054,8 @@ class MainWindow(QMainWindow):
 
     def set_input_widget(self, dialog):
         self.dialog = dialog
+        if isinstance(self.dialog, QDialog):
+            self.dialog.setStyleSheet(self.combined_stylesheet)
 
     def close_dialogs(self):
         if isinstance(self.dialog, (QDialog, QWidget)):

@@ -1,6 +1,6 @@
 # fmt: off
 
-from pulse import app
+from pulse import app, version
 
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
@@ -14,6 +14,7 @@ from pulse.model.cross_section import CrossSection
 import logging
 from time import time
 from collections import defaultdict
+from packaging.version import Version
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -57,8 +58,6 @@ class LoadProject:
         #
         self.load_analysis_file()
         self.load_inertia_load_setup()
-        #
-        # self.load_analysis_results()
 
 
     def load_fluids_library(self):
@@ -475,6 +474,27 @@ class LoadProject:
             app().project.model.properties.structural_imported_tables = imported_tables["structural"]
 
 
+    def check_file_version(self):
+
+        project_setup = app().pulse_file.read_project_setup_from_file()
+        if project_setup is None:
+            return True
+
+        if "version" in project_setup.keys():
+            file_version = project_setup["version"]
+        else:
+            #TODO: remove this as soon as possible
+            file_version = version()
+
+        software_version = version()
+        if Version(file_version) > Version(software_version):
+            title = "Incorrect file version"
+            message = "The project file version is incompatible with the current OpenPulse version. "
+            message += "As a result, the project data loading will be canceled."
+            PrintMessageInput([window_title_1, title, message])
+            return True
+
+
     def load_mesh_setup_from_file(self):
 
         project_setup = app().pulse_file.read_project_setup_from_file()
@@ -499,14 +519,16 @@ class LoadProject:
 
 
     def load_analysis_file(self):
-
         analysis_setup = app().pulse_file.load_analysis_file()
+        if isinstance(analysis_setup, dict):
+            self.model.set_frequency_setup(analysis_setup)
+            self.model.set_global_damping(analysis_setup)
 
-        if analysis_setup is None:
-            return
 
-        self.model.set_frequency_setup(analysis_setup)
-        self.model.set_global_damping(analysis_setup)
+    def load_analysis_id(self):
+        analysis_setup = app().pulse_file.load_analysis_file()
+        if isinstance(analysis_setup, dict):
+            app().project.set_analysis_id(analysis_setup.get("analysis_id", None))
 
 
     def get_psd_related_lines(self):

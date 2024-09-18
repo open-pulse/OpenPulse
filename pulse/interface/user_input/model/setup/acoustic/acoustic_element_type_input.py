@@ -136,20 +136,27 @@ class AcousticElementTypeInput(QDialog):
                         self.lineEdit_proportional_damping.setDisabled(False)
 
                 else:
+
                     if element_type == "undamped":
                         self.comboBox_element_type.setCurrentIndex(0)
+                        return
 
-                    elif element_type in ["undamped mean flow", "peters", "howe"]:
+                    mf_element_types = ["undamped mean flow", "peters", "howe"]
+
+                    if element_type in mf_element_types:
+
+                        etype_index = mf_element_types.index(element_type)
                         vol_flow = self.properties._get_property("volume_flow", line_id=line_id)
+
                         if isinstance(vol_flow, float):
                             self.checkBox_flow_effects.setChecked(True)
                             self.lineEdit_vol_flow.setText(str(vol_flow))
+                            self.comboBox_element_type.setCurrentIndex(etype_index)
 
         self.comboBox_selection.blockSignals(False)
 
     def _config_widgets(self):
         self.treeWidget_element_type.setColumnWidth(0, 150)
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def tab_selection_callback(self):
         if self.tabWidget_main.currentIndex() == 0:

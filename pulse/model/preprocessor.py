@@ -1615,7 +1615,10 @@ class Preprocessor:
         for elements in slicer(self.mesh.elements_from_line, lines):
             self.set_vol_flow_by_element(elements, vol_flow)
 
-    def set_perforated_plate_by_elements(self, elements: list | tuple, perforated_plate: PerforatedPlate):
+    def set_perforated_plate_by_elements(self, elements: int | list | tuple, perforated_plate: PerforatedPlate):
+
+        if isinstance(elements, int):
+            elements = [elements]
 
         for element in slicer(self.structural_elements, elements):
             element.perforated_plate = perforated_plate

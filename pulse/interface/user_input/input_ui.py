@@ -60,11 +60,8 @@ from pulse.interface.user_input.model.criteria.check_beam_criteria_input import 
 #
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 #
-from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
-#
 from pulse import app
 
-from time import time
 import logging
 
 window_title_1 = "Error"
@@ -76,7 +73,7 @@ class InputUi:
         self.main_window = app().main_window
         self.project = app().main_window.project
 
-        self.menu_items = app().main_window.model_and_analysis_setup_widget.model_and_analysis_setup_items
+        self.menu_items = app().main_window.model_setup_widget.model_setup_items
 
         self._reset()
 
@@ -199,8 +196,6 @@ class InputUi:
 
     def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")
-        self.project.plot_pressure_field = False
-        self.project.plot_stress_field = False
         solution = self.project.get_structural_solution()
         if app().project.analysis_id in [2, 4]:
             if solution is None:
@@ -210,8 +205,6 @@ class InputUi:
 
     def plot_displacement_field(self):
         self.project.set_min_max_type_stresses("", "", "")
-        self.project.plot_pressure_field = False
-        self.project.plot_stress_field = False
         solution = self.project.get_structural_solution()
         if app().project.analysis_id in [0, 1, 5, 6, 7]:
             if solution is None:
@@ -225,19 +218,21 @@ class InputUi:
             if solution is None:
                 return None
             elif app().project.analysis_id == 7:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotNodalResultsForStaticAnalysis)
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotNodalResultsForHarmonicAnalysis)
 
     def plot_reaction_frequency_response(self):
         if app().project.analysis_id in [0, 1, 5, 6]:
+            app().main_window.results_widget.show_empty()
             return self.process_input(PlotReactionsForHarmonicAnalysis)
         elif app().project.analysis_id == 7:
+            app().main_window.results_widget.show_empty()
             return self.process_input(PlotReactionsForStaticAnalysis)  
 
     def plot_stress_field(self):
-        self.project.plot_pressure_field = False
-        self.project.plot_stress_field = True
         if app().project.analysis_id in [0, 1, 5, 6, 7]:
             solution = self.project.get_structural_solution()
             if solution is None:
@@ -253,13 +248,13 @@ class InputUi:
             if solution is None:
                 return
             elif app().project.analysis_id == 7:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotStressesForStaticAnalysis)
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotStressesForHarmonicAnalysis)     
 
     def plot_acoustic_mode_shapes(self):
-        self.project.plot_pressure_field = True
-        self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
         if app().project.analysis_id in [2, 4]:
             if solution is None:
@@ -269,8 +264,6 @@ class InputUi:
 
     def plot_acoustic_pressure_field(self):
         self.project.set_min_max_type_stresses("", "", "")
-        self.project.plot_pressure_field = True
-        self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
         if app().project.analysis_id in [3, 5, 6]:
             if solution is None:
@@ -284,6 +277,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotAcousticFrequencyResponse)
 
     def plot_acoustic_frequency_response_function(self):
@@ -292,6 +286,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotAcousticFrequencyResponseFunction)
 
     def plot_acoustic_delta_pressures(self):
