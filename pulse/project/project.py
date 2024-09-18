@@ -44,8 +44,6 @@ class Project:
         self.color_scale_setup = dict()
 
         self.perforated_plate_data_log = None
-        self.plot_pressure_field = False
-        self.plot_stress_field = False
         self.none_project_action = False
         self.stress_stiffening_enabled = False
 
@@ -92,6 +90,7 @@ class Project:
         try:
 
             self.reset(reset_all = True)
+            app().loader.load_analysis_id()
             app().loader.load_analysis_results()
 
             if app().pulse_file.check_pipeline_data():
@@ -108,17 +107,16 @@ class Project:
 
     def load_project(self):
 
-        logging.info("Loading project data [1/3]")
+        logging.info("Loading project data [30%]")
         app().loader.load_project_data()
 
-        logging.info("Processing geometry and mesh [1/3]")
+        logging.info("Processing geometry and mesh [50%]")
         self.initial_load_project_actions()
 
-        logging.info("Loading mesh dependent properties [1/3]")
+        logging.info("Loading mesh dependent properties [60%]")
         app().loader.load_mesh_dependent_properties()
 
-        logging.info("Finalizing model data loading [1/3]")
-        # self.enhance_pipe_sections_appearance()
+        logging.info("Finalizing model data loading [75%]")
         self.preprocessor.process_all_rotation_matrices()
         self.preprocessor.check_disconnected_lines()
 
@@ -252,34 +250,6 @@ class Project:
                 return True
         return False
 
-    def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
-        if parameters is None:
-            remove = True
-            capped = False
-            etype = "pipe_1"
-        else:
-            remove = False
-            capped = True
-            etype = "valve"
-
-        self.preprocessor.add_expansion_joint_by_lines(line_ids, None, remove=True)
-        self.preprocessor.add_valve_by_lines(line_ids, parameters, remove=remove, reset_cross=reset_cross)
-        # self.set_structural_element_type_by_lines(line_ids, etype)
-
-    def load_valve_by_lines(self, line_id, data, cross_sections):
-        valve_elements = data["valve_elements"]
-        valve_cross, flange_cross = cross_sections
-        self.preprocessor.add_valve_by_line(line_id, data)
-
-        if 'flange_elements' in data.keys():
-            flange_elements = data["flange_elements"]
-            _valve_elements = [element_id for element_id in valve_elements if element_id not in flange_elements]
-            self.preprocessor.set_cross_section_by_element(_valve_elements, valve_cross)
-            self.preprocessor.set_cross_section_by_element(flange_elements, flange_cross)
-        else:
-            self.preprocessor.set_cross_section_by_element(valve_elements, valve_cross)
-        self.preprocessor.set_structural_element_type_by_lines(line_id, 'valve')
-
     def get_structural_elements(self):
         return self.preprocessor.structural_elements
     
@@ -325,10 +295,31 @@ class Project:
             points[i] = self.preprocessor.nodes[i]
         return points
 
-    def set_analysis_type(self, analysis_id: int, analysis_text: str, method_text = ""):
+    def set_analysis_id(self, analysis_id: int):
+
         self.analysis_id = analysis_id
-        self.analysis_type_label = analysis_text
-        self.analysis_method_label = method_text
+
+        if analysis_id in [0, 1]:
+            self.analysis_type_label = "Structural Harmonic Analysis"
+        elif analysis_id == 2:
+            self.analysis_type_label = "Structural Modal Analysis"
+        elif analysis_id == 3:
+            self.analysis_type_label = "Acoustic Harmonic Analysis"
+        elif analysis_id == 4:
+            self.analysis_type_label = "Acoustic Modal Analysis"
+        elif analysis_id in [5, 6]:
+            self.analysis_type_label = "Coupled Harmonic Analysis"
+        elif analysis_id == 7:
+            self.analysis_type_label = "Structural Static Analysis"
+        else:
+            self.analysis_type_label = None
+
+        if self.analysis_id in [0, 5, 3]:
+            self.analysis_method_label = "Direct method"
+        elif self.analysis_id in [1, 6]:
+            self.analysis_method_label = "Mode superposition method"
+        else:
+            self.analysis_method_label = None
 
     def load_analysis_setup(self):
         self.analysis_setup = app().pulse_file.read_analysis_setup_from_file()
@@ -375,22 +366,6 @@ class Project:
     def get_structural_reactions(self):
         return self.structural_reactions
 
-    def get_unit(self):
-
-        if self.analysis_id is None:
-            return self.analysis_id
-
-        analysis = self.analysis_id
-        if analysis >=0 and analysis <= 7:
-            if (analysis in [3, 5, 6] and self.plot_pressure_field) or self.plot_stress_field:
-                return "Pa"
-            elif analysis in [5, 6] and not self.plot_pressure_field:
-                return "m"            
-            elif analysis in [0, 1, 7]:
-                return "m"
-            else:
-                return "-"
-
     def set_stresses_values_for_color_table(self, values):
         self.stresses_values_for_color_table = values
     
@@ -409,6 +384,21 @@ class Project:
 
         else:
             return False
+
+    def get_harmonic_analysis_method(self):
+
+        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        if isinstance(analysis_setup, dict):
+            analysis_id = analysis_setup.get("analysis_id", None)
+
+        if analysis_id is None:
+            return ""
+        
+        elif analysis_id in [0, 3, 5]:
+            return "Direct method"
+        
+        elif analysis_id in [1, 6]:
+            return "Mode superposition method"
 
     def initialize_solver(self):
 
@@ -502,7 +492,7 @@ class Project:
         if isinstance(self.acoustic_solver, AcousticSolver):
             if self.analysis_id in [3, 5, 6]:
                 from time import sleep
-                if self.acoustic_solver.non_linear:
+                if self.acoustic_solver.nl_pp_elements:
                     sleep(1)
 
     def run_analysis(self):
@@ -528,27 +518,24 @@ class Project:
             self.preprocessor.stop_processing = False
             return
 
-        logging.info("Initializing the problem solver [%30]")
+        logging.info("Initializing the problem solver [30%]")
         self.initialize_solver()
-        self.pre_non_linear_convergence_plot()
 
         logging.info("Solution in progress [50%]")
         self.process_analysis()
 
-        logging.info("Saving the solution data [%95]")
+        logging.info("Saving the solution data [95%]")
         app().pulse_file.write_results_data_in_file()
-
-        self.post_non_linear_convergence_plot()  
 
         if self.preprocessor.stop_processing:
             self.reset_solution()
             self.preprocessor.stop_processing = False
             return
 
-        logging.info("Post-processing the obtained results [%90]")
+        logging.info("Post-processing the obtained results [90%]")
         self.check_warnings()
 
-        logging.info("Processing the post solution checks [%95]")
+        logging.info("Processing the post solution checks [95%]")
         self.post_solution_actions()
 
     def check_warnings(self):
@@ -604,26 +591,5 @@ class Project:
         app().main_window.use_results_workspace()
         app().main_window.results_widget.show_empty()
         app().main_window.results_viewer_wigdet.bottom_widget.hide()
-
-    def pre_non_linear_convergence_plot(self):
-
-        import matplotlib.pyplot as plt
-        from matplotlib.animation import FuncAnimation
-
-        if isinstance(self.acoustic_solver, AcousticSolver):
-            if self.analysis_id in [3, 5, 6]:
-                if self.acoustic_solver.non_linear:
-                    fig = plt.figure(figsize=[8,6])
-                    ax  = fig.add_subplot(1,1,1)
-                    self.anime = FuncAnimation(fig, self.acoustic_solver.graph_callback, fargs=(fig,ax), interval=2000)
-                    self.anime._start()
-                    plt.ion()
-                    plt.show()
-
-    def post_non_linear_convergence_plot(self):
-        if isinstance(self.acoustic_solver, AcousticSolver):
-            if self.analysis_id in [3, 5, 6]:
-                if self.acoustic_solver.non_linear:
-                    self.anime._stop()
 
 # fmt: on

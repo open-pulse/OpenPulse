@@ -76,7 +76,7 @@ class PrintMessageInput(QDialog):
         while elapsed_time <= duration:
             sleep(0.1)
             elapsed_time = time() - t0
-            value = int(100*(elapsed_time/duration))
+            value = int(100*(elapsed_time / duration))
             self.progress_bar_timer.setValue(value)
         self.close()
 

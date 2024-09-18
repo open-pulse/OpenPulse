@@ -87,8 +87,6 @@ class SetCrossSectionInput(QDialog):
         # QPushButton
         self.pushButton_confirm_pipe = self.findChild(QPushButton, 'pushButton_confirm_pipe')
         self.pushButton_confirm_beam = self.findChild(QPushButton, 'pushButton_confirm_beam')
-        self.pushButton_flip_element_ids_initial = self.findChild(QPushButton, 'pushButton_flip_element_ids_initial')
-        self.pushButton_flip_element_ids_final = self.findChild(QPushButton, 'pushButton_flip_element_ids_final')
         self.pushButton_load_section_info = self.findChild(QPushButton, "pushButton_load_section_info")
         self.pushButton_plot_pipe_cross_section = self.findChild(QPushButton, 'pushButton_plot_pipe_cross_section')
         self.pushButton_plot_beam_cross_section = self.findChild(QPushButton, 'pushButton_plot_beam_cross_section')
@@ -114,8 +112,6 @@ class SetCrossSectionInput(QDialog):
         #
         self.pushButton_confirm_pipe.clicked.connect(self.pipe_section_attribution_callback)
         self.pushButton_confirm_beam.clicked.connect(self.beam_section_attribution_callback)
-        self.pushButton_flip_element_ids_initial.clicked.connect(self.flip_element_ids)
-        self.pushButton_flip_element_ids_final.clicked.connect(self.flip_element_ids)
         self.pushButton_load_section_info.clicked.connect(self.load_section_info)
         #
         self.tabWidget_general.currentChanged.connect(self.main_tab_callback)
@@ -134,8 +130,8 @@ class SetCrossSectionInput(QDialog):
             if len(selected_lines) == 1:
                 self.get_line_elements(selected_lines[0])
             elif len(selected_lines) > 1:
-                self.input_widget.lineEdit_element_id_initial.setTex("")
-                self.input_widget.lineEdit_element_id_final.setTex("")
+                self.input_widget.lineEdit_element_id_initial.setText("")
+                self.input_widget.lineEdit_element_id_final.setText("")
 
     def selection_callback(self):
 
@@ -401,13 +397,6 @@ class SetCrossSectionInput(QDialog):
                     return
 
                 app().main_window.set_selection(lines = _lines_typed)
-
-    def flip_element_ids(self):
-        self.flip = not self.flip
-        temp_initial = self.input_widget.lineEdit_element_id_initial.text()
-        temp_final = self.input_widget.lineEdit_element_id_final.text()
-        self.input_widget.lineEdit_element_id_initial.setText(temp_final)
-        self.input_widget.lineEdit_element_id_final.setText(temp_initial)
 
     def attribution_type_callback(self):
         

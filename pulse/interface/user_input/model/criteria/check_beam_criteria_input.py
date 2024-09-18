@@ -8,6 +8,8 @@ from pulse.model.before_run import BeforeRun
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
+window_title_2 = "Warning"
+
 
 class CheckBeamCriteriaInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -37,7 +39,7 @@ class CheckBeamCriteriaInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _config_widgets(self):
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
+        pass
 
     def _initialize(self):
         self.keep_window_open = True
@@ -103,10 +105,12 @@ class CheckBeamCriteriaInput(QDialog):
     def check_beam_theory_criteria(self):
 
         self.non_beam_data = dict()
-        self.treeWidget_non_beam_segments.clear()
-        self.before_run.check_beam_theory_criteria()
+
         lineEdit = self.lineEdit_beam_criteria
         criteria = self.check_inputs(lineEdit, "Beam criteria")
+
+        self.treeWidget_non_beam_segments.clear()
+        self.before_run.check_beam_theory_criteria()
 
         if criteria is not None:
 
@@ -133,18 +137,28 @@ class CheckBeamCriteriaInput(QDialog):
             if lines_to_highlight:
                 app().main_window.set_selection(lines = lines_to_highlight)
 
-            for group_id, data in self.non_beam_data.items():
+            if self.non_beam_data:
 
-                section_index = data[0]
-                ratio = round(data[1], 4)
-                lines = data[2]
+                for group_id, data in self.non_beam_data.items():
 
-                new = QTreeWidgetItem([str(group_id), str(section_index), str(lines)[1:-1], str(ratio)])
+                    section_index = data[0]
+                    ratio = round(data[1], 4)
+                    lines = data[2]
 
-                for i in range(4):
-                    new.setTextAlignment(i, Qt.AlignCenter)
+                    new = QTreeWidgetItem([str(group_id), str(section_index), str(lines)[1:-1], str(ratio)])
 
-                self.treeWidget_non_beam_segments.addTopLevelItem(new)
+                    for i in range(4):
+                        new.setTextAlignment(i, Qt.AlignCenter)
+
+                    self.treeWidget_non_beam_segments.addTopLevelItem(new)
+
+            else:
+
+                self.hide()
+                title = "No branches out of user-defined criteria"
+                message = "The all piping branches from current structure meets "
+                message += "the user-defined 'L/d' beam validity criteria."
+                PrintMessageInput([window_title_2, title, message])
 
     def on_click_non_beam_segments(self, item):
         section_id = item.text(0)

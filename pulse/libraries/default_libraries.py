@@ -1,14 +1,15 @@
-import configparser
+from configparser import ConfigParser
 
 from pulse import app
 
 def default_material_library():
-    config = configparser.ConfigParser()
+
+    config = ConfigParser()
 
     config["1"] = {
         "name": "Steel",
         "identifier": 1,
-        "color": "[170,170,170]",  # Light Gray
+        "color": "[253, 152, 145]",  # Red level 7
         "density": 7860,
         "elasticity_modulus": 210,
         "poisson_ratio": 0.3,
@@ -18,7 +19,7 @@ def default_material_library():
     config["2"] = {
         "name": "Stainless_steel",
         "identifier": 2,
-        "color": "[126,46,31]",  # Wood color
+        "color": "[132, 170, 255]",  # Blue level 7
         "density": 7750,
         "elasticity_modulus": 193,
         "poisson_ratio": 0.31,
@@ -28,7 +29,7 @@ def default_material_library():
     config["3"] = {
         "name": "Ni-Co-Cr_alloy",
         "identifier": 3,
-        "color": "[0,255,255]",  # Cyan
+        "color": "[126, 226, 184]",  # Green level 7
         "density": 8220,
         "elasticity_modulus": 212,
         "poisson_ratio": 0.315,
@@ -38,7 +39,7 @@ def default_material_library():
     config["4"] = {
         "name": "Cast_iron",
         "identifier": 4,
-        "color": "[50,50,50]",  # Dark Grey
+        "color": "[184, 172, 246]",  # Purple level 7
         "density": 7200,
         "elasticity_modulus": 110,
         "poisson_ratio": 0.28,
@@ -48,7 +49,7 @@ def default_material_library():
     config["5"] = {
         "name": "Aluminum",
         "identifier": 5,
-        "color": "[255,255,255]",  # White
+        "color": "[255, 211, 135]",  # Yellow level 7
         "density": 2770,
         "elasticity_modulus": 71,
         "poisson_ratio": 0.333,
@@ -58,7 +59,7 @@ def default_material_library():
     config["6"] = {
         "name": "Brass",
         "identifier": 6,
-        "color": "[181,166,66]",  # Brass color
+        "color": "[248, 136, 174]",  # Pink level 7
         "density": 8150,
         "elasticity_modulus": 96,
         "poisson_ratio": 0.345,
@@ -72,12 +73,12 @@ def default_fluid_library():
 
     # Reference: RefProp v10.0
 
-    config = configparser.ConfigParser()
+    config = ConfigParser()
 
     config["1"] = {
         "name": "Air",
         "identifier": 1,
-        "color": "[255,170,127]",  # Blue
+        "color": "[197, 212, 255]",  # Blue level 8
         "density": 1.204263,
         "speed_of_sound": 343.395034,
         "isentropic_exponent": 1.401985,
@@ -92,7 +93,7 @@ def default_fluid_library():
     config["2"] = {
         "name": "Air",
         "identifier": 2,
-        "color": "[255,85,255]",  # Blue
+        "color": "[73, 143, 255]",  # Blue level 6
         "density": 0.945625,
         "speed_of_sound": 387.054839,
         "isentropic_exponent": 1.397945,
@@ -107,7 +108,7 @@ def default_fluid_library():
     config["3"] = {
         "name": "Hydrogen",
         "identifier": 3,
-        "color": "[116,200,255]",  # Magenta
+        "color": "[155, 225, 216]",  # Turquoise level 8
         "density": 0.077173,
         "speed_of_sound": 1357.568075,
         "isentropic_exponent": 1.402898,
@@ -121,7 +122,7 @@ def default_fluid_library():
     config["4"] = {
         "name": "Hydrogen",
         "identifier": 4,
-        "color": "[255,102,102]",  # Magenta
+        "color": "[54, 160, 148]",  # Turquoise level 6
         "density": 0.767785,
         "speed_of_sound": 1365.114753,
         "isentropic_exponent": 1.404047,
@@ -135,7 +136,7 @@ def default_fluid_library():
     config["5"] = {
         "name": "Methane",
         "identifier": 5,
-        "color": "[103,255,164]",  # Cyan
+        "color": "[186, 243, 219]",  # Green level 8
         "density": 0.66816,
         "speed_of_sound": 445.010623,
         "isentropic_exponent": 1.308321,

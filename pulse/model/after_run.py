@@ -23,14 +23,13 @@ class AfterRun:
         self.nodes = self.preprocessor.nodes
         self.structural_elements = self.preprocessor.structural_elements
         self.acoustic_elements = self.preprocessor.acoustic_elements
-        # self.acoustic_criteria = defaultdict(list)
 
     def check_the_acoustic_criterias_related_to_elements(self, nl_criteria=0.08):
-        # list_non_linear = []
+
         if self.solution_acoustic is None:
             pass
         else:
-            if self.project.analysis_id in [3,5,6]:
+            if self.project.analysis_id in [3, 5, 6]:
                 static_pressure = [[] for _ in range(len(self.nodes))]
                 for element in self.acoustic_elements.values():
                     if element.fluid is None:
@@ -39,10 +38,11 @@ class AfterRun:
                     else:
                         static_pressure[element.first_node.global_index].append(element.fluid.pressure)
                         static_pressure[element.last_node.global_index].append(element.fluid.pressure)
-
+                
                 aux = [min(p0) for p0 in static_pressure]
-                static_pressure = np.array(aux).reshape(-1,1)
+                static_pressure = np.array(aux).reshape(-1, 1)
                 pressure_ratio = np.abs(self.solution_acoustic / static_pressure)
+
                 criteria = pressure_ratio > nl_criteria
                 aux_freq = np.any(criteria, axis=0)
                 aux_nodes = np.any(criteria, axis=1)

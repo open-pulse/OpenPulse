@@ -1,4 +1,4 @@
-from pulse import app
+from pulse import app, version
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
@@ -69,6 +69,7 @@ class ProjectFile:
                 project_setup = dict()
 
             project_setup["mesher_setup"] = data
+            project_setup["version"] = version()
 
             self.filebox.write(self.project_setup_filename, project_setup)
             app().main_window.project_data_modified = True
@@ -100,7 +101,7 @@ class ProjectFile:
                 self.filebox.read_to_path(internal_path, temp_path)
 
                 return str(temp_path)
-    
+
     def read_project_setup_from_file(self):
         return self.filebox.read(self.project_setup_filename)
 

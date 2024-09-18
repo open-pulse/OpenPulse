@@ -108,7 +108,7 @@ class RadiationImpedanceInput(QDialog):
     def load_nodes_info(self):
 
         self.treeWidget_nodal_info.clear()
-        radiation_impedances = ["Anechoic", "Unflanged", "Flanged"]
+        radiation_impedances = ["Anechoic", "Flanged", "Unflanged"]
 
         for (property, *args), data in self.properties.nodal_properties.items():
 

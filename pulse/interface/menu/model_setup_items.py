@@ -8,7 +8,7 @@ from pulse.interface.menu.common_menu_items import CommonMenuItems
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
-class ModelAndAnalysisSetupItems(CommonMenuItems):
+class ModelSetupItems(CommonMenuItems):
     """Menu Items
 
     This class is responsible for creating, configuring and building the items
@@ -94,9 +94,6 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_turn_off_acoustic_elements.clicked.connect(self.item_child_turn_off_acoustic_elements_callback)
         #
         app().main_window.theme_changed.connect(self.set_theme)
-
-    # def create_plot_convergence_data(self):
-    #     self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_perforated_plate_convergence_data)
 
     # Callbacks
     def item_child_create_geometry_callback(self):

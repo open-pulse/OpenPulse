@@ -95,9 +95,7 @@ class StructuralModalAnalysisInput(QDialog):
             return True
 
         analysis_id = 2
-        analysis_type = "Structural Modal Analysis"
-
-        app().project.set_analysis_type(analysis_id, analysis_type, None)
+        app().project.set_analysis_id(analysis_id)
 
         analysis_setup = {
                           "analysis_id" : analysis_id,

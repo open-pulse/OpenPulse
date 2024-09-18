@@ -34,7 +34,7 @@ class ImportDataToCompare(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("Import data to compare")
+        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
 

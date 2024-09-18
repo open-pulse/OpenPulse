@@ -23,8 +23,10 @@ from opps.model import (
     RectangularBeam,
 )
 
-from pulse import app, UI_DIR
+from molde.stylesheets import set_qproperty
 from molde.utils import TreeInfo
+
+from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
@@ -42,6 +44,7 @@ from pulse.interface.user_input.model.geometry.options import (
     RectangularBeamOptions,
     ExpansionJointOptions,
     ValveOptions,
+    PointOptions,
 )
 
 
@@ -53,6 +56,7 @@ class GeometryDesignerWidget(QWidget):
         uic.loadUi(ui_path, self)
 
         self.render_widget = render_widget
+        self.modified = False
 
         self.project = app().project
         self.pipeline = self.project.pipeline
@@ -77,6 +81,7 @@ class GeometryDesignerWidget(QWidget):
         # QFrame
         self.frame_bending_options: QFrame
         self.frame_bounding_box_sizes: QFrame
+        self.frame_division_options: QFrame
         self.create_structure_frame: QFrame
 
         #QPushButton
@@ -116,7 +121,7 @@ class GeometryDesignerWidget(QWidget):
         self.empty_widget: QWidget
     
     def _create_layout(self):
-        self.cross_section_widget = CrossSectionWidget()
+        self.cross_section_widget = CrossSectionWidget(self)
         self.material_widget = MaterialInputs(self)
         self.material_widget.hide()
 
@@ -170,8 +175,9 @@ class GeometryDesignerWidget(QWidget):
         self.c_beam_options = CBeamOptions(self)
         self.expansion_joint_options = ExpansionJointOptions(self)
         self.valve_options = ValveOptions(self)
-        self.current_options: StructureOptions = self.pipe_options
+        self.point_options = PointOptions(self)
 
+        self.current_options: StructureOptions = self.pipe_options
         self.current_structure_type = None
         self.current_material_info = None
 
@@ -216,10 +222,18 @@ class GeometryDesignerWidget(QWidget):
         self.current_structure_type = self._structure_name_to_class(structure_name)  
 
         self._show_deltas_mode(True)
-        self.frame_bending_options.setEnabled(False)
+        structure_index = self.structure_combobox.currentIndex()
+        if structure_index == 0:
+            self.frame_bending_options.setEnabled(True)
+        else:
+            self.frame_bending_options.setEnabled(False)
+
+        if structure_index in [1, 2, 8, 9, 10]:
+            self.frame_division_options.setEnabled(False)
+        else:
+            self.frame_division_options.setEnabled(True)
 
         if issubclass(self.current_structure_type, Pipe):
-            self.frame_bending_options.setEnabled(True)
             self.current_options = self.pipe_options
 
         elif issubclass(self.current_structure_type, Flange):
@@ -251,10 +265,13 @@ class GeometryDesignerWidget(QWidget):
 
         elif issubclass(self.current_structure_type, Point):
             self._show_deltas_mode(False)
-            self.pipeline.dismiss()
-            self.pipeline.clear_structure_selection()
             self._set_xyz_to_selected_point()
-            self.render_widget.update_plot(reset_camera=False)
+            self.current_options = self.point_options
+
+            # self.pipeline.dismiss()
+            # self.pipeline.clear_structure_selection()
+            # self._set_xyz_to_selected_point()
+            # self.render_widget.update_plot(reset_camera=False)
 
         if not issubclass(self.current_structure_type, Point):
             self.xyz_changed_callback()
@@ -286,14 +303,35 @@ class GeometryDesignerWidget(QWidget):
         self.current_options.configure_structure()
         self._update_permissions()
         self._update_information_text()
+        self.xyz_changed_callback()
         self.render_widget.update_plot(reset_camera=False)
 
     def cross_section_confirm_callback(self):
         self.cross_section_widget.complete = True
         self.cross_section_widget.close()
 
+    def update_bending_radius_visibility(self):
+
+        index = self.bending_options_combobox.currentIndex()
+        if index == 2:
+            self.bending_radius_line_edit.setEnabled(True)
+            if self.bending_radius_line_edit.text() in ["1.5*D", "1.0*D"]:
+                self.bending_radius_line_edit.setText("")
+
+        else:
+            self.bending_radius_line_edit.blockSignals(True)
+            self.bending_radius_line_edit.setEnabled(False)
+            if index == 0:
+                self.bending_radius_line_edit.setText("1.5*D")
+            elif index == 1:
+                self.bending_radius_line_edit.setText("1.0*D")
+            else:
+                self.bending_radius_line_edit.setText("")
+            self.bending_radius_line_edit.blockSignals(False)
+
     def xyz_changed_callback(self):
         try:
+            self.update_bending_radius_visibility()
             xyz = self._get_xyz()
         except ValueError:
             return
@@ -333,13 +371,13 @@ class GeometryDesignerWidget(QWidget):
             self.division_slider.setMinimum(0)
             self.division_slider.setMaximum(100)
             self.division_slider.setValue(50)
-            self.division_slider_label.setText("Position")
+            self.division_slider_label.setText("Position:")
 
         elif division_type == "multiple division":
             self.division_slider.setMinimum(1)
             self.division_slider.setMaximum(10)
             self.division_slider.setValue(1)
-            self.division_slider_label.setText("Divisions")
+            self.division_slider_label.setText("Divisions:")
 
     def division_slider_callback(self, value):
         self.division_amount_spinbox.setValue(value)
@@ -378,6 +416,8 @@ class GeometryDesignerWidget(QWidget):
 
         self.pipeline.clear_structure_selection()
         self.render_widget.update_plot(reset_camera=False)
+        self.modified = True
+        self._update_permissions()
 
     def delete_selection_callback(self):
         for structure in self.pipeline.selected_structures:
@@ -388,6 +428,7 @@ class GeometryDesignerWidget(QWidget):
 
         self.pipeline.dismiss()
         self.pipeline.delete_selection()
+        self.modified = True
 
         self._reset_xyz()
         self._update_permissions()
@@ -397,18 +438,25 @@ class GeometryDesignerWidget(QWidget):
         self.current_options.attach_callback()
         self._update_permissions()
         self.render_widget.update_plot(reset_camera=True)
+        self.modified = True
         self._reset_xyz()
+        self._update_permissions()
 
     def add_structure_callback(self):
         self.pipeline.commit()
+        if self.current_structure_type == Point:
+            self.pipeline.clear_point_selection()
         self.render_widget.update_plot(reset_camera=False)
+        self.modified = True
         self._reset_xyz()
+        self._update_permissions()
 
     def cancel_callback(self):
         app().main_window.update_plots()
         app().main_window.use_model_setup_workspace()
 
     def finalize_callback(self):
+        self.modified = False
         self.pipeline.dismiss()
 
         geometry_handler = GeometryHandler()
@@ -501,7 +549,6 @@ class GeometryDesignerWidget(QWidget):
         self._set_xyz(x, y, z)
 
     def _show_deltas_mode(self, boolean):
-
         if boolean:
             x_text = "Length Δx:"
             y_text = "Length Δy:"
@@ -612,7 +659,13 @@ class GeometryDesignerWidget(QWidget):
     def _update_permissions(self):
         if self.current_options is None:
             return
+        
         self.current_options.update_permissions()
+        
+        if self.modified:
+            set_qproperty(self.finalize_button, warning=True, status="danger")
+        else:
+            set_qproperty(self.finalize_button, warning=False, status="default")
 
     def _load_project(self):
         app().loader.load_project_data()
