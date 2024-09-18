@@ -230,6 +230,8 @@ class AcousticSolver:
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
 
+        self.solution = None
+
         perforated_plate = False
         for (property, _) in self.model.properties.element_properties.keys():
             if property == "perforated_plate":

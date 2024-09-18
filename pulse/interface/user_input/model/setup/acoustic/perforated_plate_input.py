@@ -722,6 +722,8 @@ class PerforatedPlateInput(QDialog):
             self.properties._remove_element_property("perforated_plate", element_id)
             app().pulse_file.write_element_properties_in_file()
 
+            self.preprocessor.set_perforated_plate_by_elements(element_id, None)
+
             self.lineEdit_element_id.setText("")
             self.load_elements_info()
             app().main_window.update_plots()
@@ -756,6 +758,8 @@ class PerforatedPlateInput(QDialog):
 
             for element_id in element_ids:
                 self.properties._remove_element_property("perforated_plate", element_id)
+
+            self.preprocessor.set_perforated_plate_by_elements(element_ids, None)
 
             app().pulse_file.write_element_properties_in_file()
             self.load_elements_info()
