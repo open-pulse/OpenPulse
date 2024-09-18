@@ -509,27 +509,27 @@ class Project:
             self.preprocessor.stop_processing = False
             return
 
-        logging.info("Initializing the problem solver [%30]")
+        logging.info("Initializing the problem solver [30%]")
         self.initialize_solver()
-        self.pre_non_linear_convergence_plot()
+        # self.pre_non_linear_convergence_plot()
 
         logging.info("Solution in progress [50%]")
         self.process_analysis()
 
-        logging.info("Saving the solution data [%95]")
+        logging.info("Saving the solution data [95%]")
         app().pulse_file.write_results_data_in_file()
 
-        self.post_non_linear_convergence_plot()  
+        # self.post_non_linear_convergence_plot()
 
         if self.preprocessor.stop_processing:
             self.reset_solution()
             self.preprocessor.stop_processing = False
             return
 
-        logging.info("Post-processing the obtained results [%90]")
+        logging.info("Post-processing the obtained results [90%]")
         self.check_warnings()
 
-        logging.info("Processing the post solution checks [%95]")
+        logging.info("Processing the post solution checks [95%]")
         self.post_solution_actions()
 
     def check_warnings(self):

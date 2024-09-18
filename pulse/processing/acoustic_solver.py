@@ -6,6 +6,8 @@ import numpy as np
 from numpy.linalg import norm
 from scipy.sparse.linalg import eigs, spsolve
 
+import logging
+
 def relative_error(vect_1, vect_2):
     return norm((vect_2-vect_1)) / norm(vect_1)
 
@@ -247,7 +249,8 @@ class AcousticSolver:
 
         if cond_1 or cond_2:
 
-            for i in range(cols):
+            for i, freq in enumerate(self.frequencies):
+                logging.info(f"Solution step {i+1} and frequency {freq} [{i}/{len(self.frequencies)}]")
                 solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
 
                 if self.stop_processing():
@@ -279,13 +282,22 @@ class AcousticSolver:
             relative_difference = 1
 
             if self.nl_pp_elements:
-                while relative_difference > self.target or not converged:
 
+                self.update_xy_plot_data()
+
+                while relative_difference > self.target or not converged:
+                    
+                    progress = 2 * (count + 1) + 50
+                    if progress > 96:
+                        progress = 96
+
+                    logging.info(f"Solving non-linear perforated plate - iteration {count+1} [{progress}%]")
+                    
                     if self.stop_processing():
                         self.solution = None
                         return None, None
 
-                    for i in range(cols):
+                    for i, freq in enumerate(self.frequencies):
                         solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
 
                     solution = self._reinsert_prescribed_dofs(solution)
@@ -355,16 +367,58 @@ class AcousticSolver:
                     converged = self.check_convergence_criterias(pressure_residues, delta_residues)
 
                     if converged:
+                        self.xy_plot.show()
                         self.convergence_data_log = [self.iterations, pressure_residues, delta_residues, 100*self.target]
                         self.solution = previous_solution
                         return self.solution, self.convergence_data_log
 
                     else:
+                        self.update_xy_plot_data()
                         self.get_global_matrices()
                         solution = np.zeros((rows, cols), dtype=complex)
 
+    def initialize_xy_plotter(self):
+
+        from pulse.interface.user_input.plots.general.xy_plot import XYPlot
+
+        legends = [f'Target: {self.target*100}%', "Pressure residues", "Delta pressure residues"]
+
+        plots_config = {
+                        "number_of_plots" : 3,
+                        "x_label" : "Iterations [n]",
+                        "y_label" : "Relative error [%]",
+                        "colors" : [(0,0,0), (0,0,1), (1,0,0)],
+                        "line_styles" : ["--", "-", "-"],
+                        "markers" : [None, "o", "o"],
+                        "legends" : legends,
+                        "title" : "Perforated plate convergence plot"
+                        }
+
+        self.xy_plot = XYPlot(plots_config)
+        # self.xy_plot.show()
+
+    def update_xy_plot_data(self):
+        if self.iterations:
+            dy = 20
+            xlim = (1, max(self.iterations))
+            ylim = (0, (round(max(self.relative_error)/dy,0)+1)*dy)
+            x_data = self.iterations
+            self.xy_plot.set_plot_data(x_data, self.relative_error, 1, (xlim, ylim))
+            if self.deltaP_errors:
+                self.xy_plot.set_plot_data(x_data, self.deltaP_errors, 2, (xlim, ylim))
+
+        else:
+            criteria = 100* self.target
+            self.initialize_xy_plotter()
+            xlim = (1, 100)
+            ylim = (0, 120)
+            x_data = [0, 100]
+            y_data = [criteria, criteria]
+            self.xy_plot.set_plot_data(x_data, y_data, 0, (xlim, ylim))
 
     def graph_callback(self, interval, fig, ax):
+
+        #TODO: remove this method if is it possible
 
         import matplotlib.pyplot as plt
 
