@@ -62,6 +62,8 @@ class AcousticSolver:
         self.max_iter = 100
         self.target = 10 / 100
 
+        self.warning_modal_prescribed_pressures = ""
+
     def check_non_linear_perforated_plate(self):
 
         elements = list()
@@ -209,9 +211,9 @@ class AcousticSolver:
             if value is not None:
                 if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
                     self.flag_Modal_prescribed_NonNull_DOFs = True
-                    self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values have been ignored in the modal analysis.\n"+
-                                                        "The null value has been attributed to those DOFs with non-zero values."]
-        
+                    self.warning_modal_prescribed_pressures  = "The Prescribed Pressure values have been ignored in the modal analysis. "
+                    self.warning_modal_prescribed_pressures += "The null value has been attributed to those DOFs."
+
         if self.stop_processing():
             return None, None
 
