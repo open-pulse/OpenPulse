@@ -25,4 +25,4 @@ def version():
     return pkg_resources.get_distribution('pulse').version
 
 def release_date():
-    return 'Apr 30th 2024'
+    return 'Sep 30th 2024'
