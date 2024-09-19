@@ -542,17 +542,17 @@ class Project:
 
         message = ""
         if self.analysis_id in [0, 1]:
-            if self.structural_solver.flag_ModeSup_prescribed_non_null_dofs:
+            if self.structural_solver.warning_mode_sup_prescribed_dofs != "":
                 message = self.structural_solver.warning_mode_sup_prescribed_dofs
             if self.structural_solver.flag_Clump and self.analysis_id==1:
                 message = self.structural_solver.warning_Clump
 
         elif self.analysis_id in [2]:
-            if self.structural_solver.flag_Modal_prescribed_non_null_dofs:
+            if self.structural_solver.warning_modal_prescribed_dofs != "":
                 message = self.structural_solver.warning_modal_prescribed_dofs
 
         elif self.analysis_id in [3]:
-            if self.structural_solver.flag_Modal_prescribed_non_null_dofs:
+            if self.acoustic_solver.warning_modal_prescribed_pressures != "":
                 message = self.acoustic_solver.warning_modal_prescribed_pressures
 
         if message != "":
