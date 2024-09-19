@@ -1818,7 +1818,6 @@ class Preprocessor:
 
                 pos_data = [value if value is not None else 0. for value in values]
                 neg_data = [-value if value is not None else 0. for value in values]
-                # mask = [False if value is None else True for value in values]
 
                 indexes_i = [ gdofs_node1, gdofs_node1, gdofs_node2, gdofs_node2 ] 
                 indexes_j = [ gdofs_node1, gdofs_node2, gdofs_node1, gdofs_node2 ] 
