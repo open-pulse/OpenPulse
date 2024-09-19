@@ -191,6 +191,8 @@ class AcousticSolver:
         which = kwargs.get("which", "LM")
         sigma_factor = kwargs.get("sigma_factor", 1e-2)
 
+        self.warning_modal_prescribed_pressures = ""
+
         K, M = self.assembly.get_global_matrices_modal()
         K_link, M_link = self.assembly.get_link_global_matrices_modal()
 

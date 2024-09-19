@@ -143,7 +143,6 @@ class MainWindow(QMainWindow):
         self.action_plot_mesh: QAction
         self.action_export_piping: QAction
         self.action_user_preferences: QAction
-        self.action_geometry_editor_help: QAction
         self.action_pulsation_suppression_device_editor: QAction
         self.action_section_plane: QAction
         self.action_exit: QAction
@@ -648,9 +647,6 @@ class MainWindow(QMainWindow):
 
     def action_exit_callback(self):
         self.close_app()
-
-    def action_geometry_editor_help_callback(self):
-        self.input_ui.geometry_editor_help()
 
     def action_pulsation_suppression_device_editor_callback(self):
         self.input_ui.pulsation_suppression_device_editor()
