@@ -1,12 +1,11 @@
+# fmt: off
 
 from pulse.model.model import Model
 from pulse.processing.assembly_structural import AssemblyStructural
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from time import time
 import logging
 import numpy as np
-from math import pi
 
 from scipy.sparse import triu
 from scipy.sparse.linalg import eigs, spsolve
@@ -58,12 +57,12 @@ class StructuralSolver:
         self.solution = None
 
         self.reset_stress_stiffening = False
-        self.flag_Modal_prescribed_NonNull_DOFs = False
-        self.flag_ModeSup_prescribed_NonNull_DOFs = False
+        self.flag_Modal_prescribed_non_null_dofs = False
+        self.flag_ModeSup_prescribed_non_null_dofs = False
 
         self.warning_Clump = ""
-        self.warning_ModeSup_prescribedDOFs = ""
-        self.warning_Modal_prescribedDOFs = ""
+        self.warning_modal_prescribed_dofs = ""
+        self.warning_mode_sup_prescribed_dofs = ""
 
         self.reactions_at_constrained_dofs = None
         self.dict_reactions_at_springs = None
@@ -268,9 +267,9 @@ class StructuralSolver:
             for value in self.prescribed_values:
                 if value is not None:
                     if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
-                        self.flag_Modal_prescribed_NonNull_DOFs = True
-                        self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values have been ignored in the modal analysis.\n"+
-                                                            "The null value has been attributed to those DOFs with non-zero values."]
+                        self.flag_Modal_prescribed_non_null_dofs = True
+                        self.warning_modal_prescribed_dofs  = "The Prescribed DOFs of non-zero values have been ignored in the modal analysis. "
+                        self.warning_modal_prescribed_dofs += "The null value has been attributed to those DOFs with non-zero values."
 
         if self.stop_processing():
             self.modal_shapes = None
@@ -362,11 +361,12 @@ class StructuralSolver:
         global_damping = self.model.global_damping
         alphaV, betaV, alphaH, betaH = global_damping
 
-        if np.sum(self.prescribed_values)>0:
+        if np.sum(self.prescribed_values) > 0:
             solution = self.direct_method(global_damping)
-            self.flag_ModeSup_prescribed_NonNull_DOFs = True
-            self.warning_ModeSup_prescribedDOFs = "The Harmonic Analysis of prescribed DOF's problems \nhad been solved through the Direct Method!"
+            self.flag_ModeSup_prescribed_non_null_dofs = True
+            self.warning_mode_sup_prescribed_dofs = "The Harmonic Analysis of prescribed DOF's problems had been solved through the Direct Method!"
             return solution
+
         else:
             F = self.assembly.get_global_loads(loads_matrix3D=fastest)
             if self.model.preprocessor.stress_stiffening_enabled:
@@ -391,8 +391,8 @@ class StructuralSolver:
         if fastest:    
         
             number_modes = len(natural_frequencies)
-            omega = 2*np.pi*self.frequencies.reshape(cols,1,1)
-            omega_n = 2*np.pi*natural_frequencies
+            omega = 2 * np.pi * self.frequencies.reshape(cols,1,1)
+            omega_n = 2 * np.pi * natural_frequencies
             F_kg = (omega_n**2)
             F_mg =  -(omega**2)
             F_cg = 1j*((betaH + betaV*omega)*(omega_n**2) + (alphaH + omega*alphaV)) 
@@ -426,10 +426,10 @@ class StructuralSolver:
         self.solution = self._reinsert_prescribed_dofs(solution)
 
         if self.flag_Clump:
-            self.warning_Clump = ["There are external dampers connecting nodes to the ground. The damping,\n"+
-                                    "treated as a viscous non-proportional model, will be ignored in mode \n"+
-                                    "superposition. It's recommended to solve the harmonic analysis through \n"+
-                                    "direct method if you want to get more accurate results!"]
+            self.warning_Clump  = "There are external dampers connecting nodes to the ground. The damping, "
+            self.warning_Clump += "treated as a viscous non-proportional model, will be ignored in mode "
+            self.warning_Clump += "superposition. It's recommended to solve the harmonic analysis through "
+            self.warning_Clump += "direct method if you want to get more accurate results!"
 
         return self.solution
 
@@ -726,7 +726,7 @@ class StructuralSolver:
 
                 if element.wall_formulation == "thin_wall":
                     hoop_stress = pm
-                    radial_stress = -nu*pi*(do/(do-di) - 1)
+                    radial_stress = -nu * np.pi * (do/(do-di) - 1)
                    
                 stress_data = np.c_[element.internal_load[0]/area - radial_stress,
                                     element.internal_load[1] * ro/Iy,
@@ -749,3 +749,5 @@ class StructuralSolver:
         if self.model.preprocessor.stop_processing:
             print("\nProcessing interruption was requested by the user. \nSolution interruped.")
             return True
+
+# fmt: on

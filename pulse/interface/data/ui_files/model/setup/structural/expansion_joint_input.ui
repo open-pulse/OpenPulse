@@ -226,7 +226,7 @@
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::StrongFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
@@ -354,7 +354,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>418</width>
-                  <height>359</height>
+                  <height>354</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_8">
@@ -1956,6 +1956,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
                    </font>
                   </property>
@@ -1986,6 +1987,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
                    </font>
                   </property>
@@ -2124,6 +2126,7 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>lineEdit_selected_id</tabstop>
   <tabstop>tabWidget_main</tabstop>
   <tabstop>lineEdit_expansion_joint_name</tabstop>
   <tabstop>lineEdit_effective_diameter</tabstop>
@@ -2136,19 +2139,19 @@
   <tabstop>lineEdit_angular_stiffness</tabstop>
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>pushButton_cancel</tabstop>
-  <tabstop>pushButton_load_table_axial_stiffness</tabstop>
-  <tabstop>pushButton_load_table_transversal_stiffness</tabstop>
-  <tabstop>pushButton_load_table_torsional_stiffness</tabstop>
-  <tabstop>pushButton_load_table_angular_stiffness</tabstop>
-  <tabstop>pushButton_reset</tabstop>
-  <tabstop>pushButton_remove</tabstop>
   <tabstop>lineEdit_path_table_axial_stiffness</tabstop>
+  <tabstop>pushButton_load_table_axial_stiffness</tabstop>
   <tabstop>lineEdit_path_table_transversal_stiffness</tabstop>
-  <tabstop>scrollArea</tabstop>
-  <tabstop>lineEdit_path_table_angular_stiffness</tabstop>
+  <tabstop>pushButton_load_table_transversal_stiffness</tabstop>
   <tabstop>lineEdit_path_table_torsional_stiffness</tabstop>
-  <tabstop>treeWidget_expansion_joints_info</tabstop>
+  <tabstop>pushButton_load_table_torsional_stiffness</tabstop>
+  <tabstop>lineEdit_path_table_angular_stiffness</tabstop>
+  <tabstop>pushButton_load_table_angular_stiffness</tabstop>
   <tabstop>tabWidget_inputs</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>treeWidget_expansion_joints_info</tabstop>
+  <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources/>
  <connections/>

@@ -542,14 +542,18 @@ class Project:
 
         message = ""
         if self.analysis_id in [0, 1]:
-            if self.structural_solver.flag_ModeSup_prescribed_NonNull_DOFs:
-                message = self.structural_solver.warning_ModeSup_prescribedDOFs
+            if self.structural_solver.flag_ModeSup_prescribed_non_null_dofs:
+                message = self.structural_solver.warning_mode_sup_prescribed_dofs
             if self.structural_solver.flag_Clump and self.analysis_id==1:
-                message = self.structural_solver.warning_Clump[0]
+                message = self.structural_solver.warning_Clump
 
-        if self.analysis_id in [2]:
-            if self.structural_solver.flag_Modal_prescribed_NonNull_DOFs:
-                message = self.structural_solver.warning_Modal_prescribedDOFs[0]
+        elif self.analysis_id in [2]:
+            if self.structural_solver.flag_Modal_prescribed_non_null_dofs:
+                message = self.structural_solver.warning_modal_prescribed_dofs
+
+        elif self.analysis_id in [3]:
+            if self.structural_solver.flag_Modal_prescribed_non_null_dofs:
+                message = self.acoustic_solver.warning_modal_prescribed_pressures
 
         if message != "":
             title = self.analysis_type_label

@@ -1675,7 +1675,7 @@
                     </font>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>1</number>
                    </property>
                    <widget class="QWidget" name="tab_spring_table">
                     <attribute name="title">
@@ -3434,6 +3434,11 @@
                     <height>28</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true"/>
                   </property>
@@ -3459,6 +3464,11 @@
                     <height>28</height>
                    </size>
                   </property>
+                  <property name="font">
+                   <font>
+                    <pointsize>10</pointsize>
+                   </font>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true"/>
                   </property>
@@ -3483,6 +3493,8 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>lineEdit_first_node_id</tabstop>
+  <tabstop>lineEdit_last_node_id</tabstop>
   <tabstop>tabWidget_main</tabstop>
   <tabstop>tabWidget_inputs</tabstop>
   <tabstop>tabWidget_constant_values</tabstop>
@@ -3523,10 +3535,15 @@
   <tabstop>pushButton_load_Cry_table</tabstop>
   <tabstop>lineEdit_path_table_Crz</tabstop>
   <tabstop>pushButton_load_Crz_table</tabstop>
-  <tabstop>pushButton_reset</tabstop>
-  <tabstop>pushButton_remove</tabstop>
-  <tabstop>pushButton_cancel</tabstop>
   <tabstop>pushButton_attribute</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>checkBox_link_stiffness</tabstop>
+  <tabstop>checkBox_link_dampings</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>tabWidget_remove</tabstop>
+  <tabstop>treeWidget_structural_stiffness_links</tabstop>
+  <tabstop>treeWidget_structural_damping_links</tabstop>
  </tabstops>
  <resources/>
  <connections/>
