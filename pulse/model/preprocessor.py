@@ -28,9 +28,7 @@ class Preprocessor:
     """
     def __init__(self):
 
-        # self.project = project
         self.mesh = None
-
         self.reset_variables()
 
     def reset_variables(self):
@@ -1081,52 +1079,6 @@ class Preprocessor:
 
                 self.set_cross_section_by_elements(joint_elements, cross_sections)
 
-    # def set_cross_section_plot_info_by_element(self, elements, cross_section):
-    #     """
-    #     This method attributes cross section object to a list of acoustic and structural elements.
-
-    #     Parameters
-    #     ----------
-    #     elements : list
-    #         Acoustic and structural elements indexes.
-            
-    #     cross_section : Cross section object
-    #         Tube cross section data.
-            
-    #     update_cross_section : bool, optional
-    #         True if the cross section data have to be evaluated or updated. False otherwise.
-    #         Default is False.
-    #     """
-
-    #     if isinstance(cross_section, list):
-    #         for i, element in enumerate(elements):
-    #             _cross_section = cross_section[i]
-    #             _element = [element]
-    #             for element in slicer(self.structural_elements, _element):
-    #                 element.cross_section_plot_info = _cross_section
-    #             for element in slicer(self.acoustic_elements, _element):
-    #                 element.cross_section_plot_info = _cross_section
-    #     else:    
-    #         for element in slicer(self.structural_elements, elements):
-    #             element.cross_section_plot_info = cross_section
-    #         for element in slicer(self.acoustic_elements, elements):
-    #             element.cross_section_plot_info = cross_section
-
-    # def set_cross_section_plot_info_by_line(self, lines, cross_section):
-    #     """
-    #     This method attributes cross section plot info object to all elements that belongs to a line/entity.
-
-    #     Parameters
-    #     ----------
-    #     line : list
-    #         Entities tag.
-            
-    #     cross_section : Cross section plot info object
-    #         Tube cross section data.
-    #     """
-    #     for elements in slicer(self.mesh.elements_from_line, lines):
-    #         self.set_cross_section_plot_info_by_element(elements, cross_section)
-
     def set_structural_element_type_by_lines(self, line_ids: int | list, element_type: str):
         """
         This method attributes structural element type to all elements that belongs to a line/entity.
@@ -1645,30 +1597,6 @@ class Preprocessor:
         for element in slicer(self.structural_elements, elements):
             element.beam_xaxis_rotation = angle
 
-    # def get_radius(self):
-    #     """
-    #     This method updates and returns the ????.
-
-    #     Returns
-    #     ----------
-    #     dictionary
-    #         Radius at certain node.
-    #     """
-    #     self.radius = {}
-    #     for element in self.structural_elements.values():
-    #         first = element.first_node.global_index
-    #         last  = element.last_node.global_index
-    #         radius = element.cross_section.external_radius
-    #         if self.radius.get(first, -1) == -1:
-    #             self.radius[first] = radius
-    #         elif self.radius[first] < radius:
-    #             self.radius[first] = radius
-    #         if self.radius.get(last, -1) == -1:
-    #             self.radius[last] = radius
-    #         elif self.radius[last] < radius:
-    #             self.radius[last] = radius
-    #     return self.radius
-
     def set_elements_to_ignore_in_acoustic_analysis(self, element_ids: int | list, turned_off: bool):
         """
         """
@@ -1851,38 +1779,6 @@ class Preprocessor:
             last_node = node_1
         return reord_gdofs, first_node, last_node
 
-    # def get_nodes_and_elements_with_expansion(self, ratio=10):
-    #     title = "Incomplete model setup"
-    #     message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' elements to proceed."
-    #     self.nodes_with_cross_section_transition = dict()
-    #     for node, neigh_elements in self.structural_elements_connected_to_node.items():
-    #         check_complete = False
-    #         if len(neigh_elements) == 2:
-
-    #             if neigh_elements[0].element_type == "pipe_1":
-    #                 if neigh_elements[0].cross_section is None:
-    #                     PrintMessageInput([window_title_1, title, message])
-    #                     return
-    #                 else:
-    #                     check_complete = True
-    #                     diameter_first = neigh_elements[0].cross_section.outer_diameter
-                        
-    #             if neigh_elements[1].element_type == "pipe_1":
-    #                 if neigh_elements[1].cross_section is None:
-    #                     PrintMessageInput([window_title_1, title, message])
-    #                     return
-    #                 else:
-    #                     check_complete = True
-    #                     diameter_last = neigh_elements[1].cross_section.outer_diameter
-                
-    #             if check_complete:
-    #                 diameters = [diameter_first, diameter_last]
-    #                 diameters_ratio = max(diameters)/min(diameters)
-    #                 if diameters_ratio > 2:
-    #                     self.nodes_with_cross_section_transition[node] = neigh_elements
-    #                     # print(node.external_index, diameters_ratio)
-
-
     def get_structural_links_data(self, node_ids: list, data: dict):
         """
         This method ???????
@@ -1920,9 +1816,8 @@ class Preprocessor:
             if "values" in data.keys():
                 values = data["values"]
 
-                pos_data = values
-                neg_data = [-value if value is not None else None for value in values]
-                # mask = [False if value is None else True for value in values]
+                pos_data = [value if value is not None else 0. for value in values]
+                neg_data = [-value if value is not None else 0. for value in values]
 
                 indexes_i = [ gdofs_node1, gdofs_node1, gdofs_node2, gdofs_node2 ] 
                 indexes_j = [ gdofs_node1, gdofs_node2, gdofs_node1, gdofs_node2 ] 
@@ -1930,7 +1825,7 @@ class Preprocessor:
 
                 indexes_i = np.array(indexes_i, dtype=int).flatten()
                 indexes_j = np.array(indexes_j, dtype=int).flatten()
-                out_data = np.array(out_data, dtype=float).flatten()
+                out_data = np.array(out_data, dtype=complex).flatten()
 
                 coords_1 = self.nodes[ext_id1].coordinates
                 coords_2 = self.nodes[ext_id2].coordinates
@@ -2261,3 +2156,27 @@ class Preprocessor:
 
         for element in self.structural_elements.values():
             element.static_analysis_evaluated = True
+
+    # def get_radius(self):
+    #     """
+    #     This method updates and returns the ????.
+
+    #     Returns
+    #     ----------
+    #     dictionary
+    #         Radius at certain node.
+    #     """
+    #     self.radius = {}
+    #     for element in self.structural_elements.values():
+    #         first = element.first_node.global_index
+    #         last  = element.last_node.global_index
+    #         radius = element.cross_section.external_radius
+    #         if self.radius.get(first, -1) == -1:
+    #             self.radius[first] = radius
+    #         elif self.radius[first] < radius:
+    #             self.radius[first] = radius
+    #         if self.radius.get(last, -1) == -1:
+    #             self.radius[last] = radius
+    #         elif self.radius[last] < radius:
+    #             self.radius[last] = radius
+    #     return self.radius

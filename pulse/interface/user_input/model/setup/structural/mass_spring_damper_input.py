@@ -526,7 +526,6 @@ class MassSpringDamperInput(QDialog):
                         }
 
                 self.properties._set_nodal_property("lumped_stiffness", data, node_id)
-                print("set_lumped_stiffness")
 
     def check_constant_values_lumped_dampings(self, node_ids: list):
 

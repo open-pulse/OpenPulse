@@ -668,7 +668,7 @@ class LoadProject:
 
                 title = "Nodal-related model attributions failed"
                 message = "Some nodal-related model attributions could not be mapped "
-                message += "after the meshing processing. The non-mapped nodes will be"
+                message += "after the meshing processing. The non-mapped nodes will be "
                 message += f"removed from nodal properties file. \n\nDetails:"
 
                 for (node_id, coords) in non_mapped_nodes:

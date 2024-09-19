@@ -31,6 +31,9 @@
     <height>435</height>
    </size>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
+  </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
@@ -2008,7 +2011,7 @@
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::StrongFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
@@ -2147,8 +2150,39 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>lineEdit_node_ids</tabstop>
   <tabstop>tabWidget_nodal_loads</tabstop>
+  <tabstop>lineEdit_real_fx</tabstop>
+  <tabstop>lineEdit_imag_fx</tabstop>
+  <tabstop>lineEdit_real_fy</tabstop>
+  <tabstop>lineEdit_imag_fy</tabstop>
+  <tabstop>lineEdit_real_fz</tabstop>
+  <tabstop>lineEdit_imag_fz</tabstop>
+  <tabstop>lineEdit_real_mx</tabstop>
+  <tabstop>lineEdit_imag_mx</tabstop>
+  <tabstop>lineEdit_real_my</tabstop>
+  <tabstop>lineEdit_imag_my</tabstop>
+  <tabstop>lineEdit_real_mz</tabstop>
+  <tabstop>lineEdit_imag_mz</tabstop>
   <tabstop>pushButton_constant_value_confirm</tabstop>
+  <tabstop>pushButton_cancel_tab0</tabstop>
+  <tabstop>lineEdit_path_table_fx</tabstop>
+  <tabstop>pushButton_load_fx_table</tabstop>
+  <tabstop>lineEdit_path_table_fy</tabstop>
+  <tabstop>pushButton_load_fy_table</tabstop>
+  <tabstop>lineEdit_path_table_fz</tabstop>
+  <tabstop>pushButton_load_fz_table</tabstop>
+  <tabstop>lineEdit_path_table_mx</tabstop>
+  <tabstop>pushButton_load_mx_table</tabstop>
+  <tabstop>lineEdit_path_table_my</tabstop>
+  <tabstop>pushButton_load_my_table</tabstop>
+  <tabstop>lineEdit_path_table_mz</tabstop>
+  <tabstop>pushButton_load_mz_table</tabstop>
+  <tabstop>pushButton_table_values_confirm</tabstop>
+  <tabstop>pushButton_cancel_tab1</tabstop>
+  <tabstop>treeWidget_nodal_info</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>pushButton_reset</tabstop>
  </tabstops>
  <resources/>
  <connections/>
