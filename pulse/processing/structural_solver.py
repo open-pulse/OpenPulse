@@ -57,8 +57,6 @@ class StructuralSolver:
         self.solution = None
 
         self.reset_stress_stiffening = False
-        self.flag_Modal_prescribed_non_null_dofs = False
-        self.flag_ModeSup_prescribed_non_null_dofs = False
 
         self.warning_Clump = ""
         self.warning_modal_prescribed_dofs = ""
@@ -238,6 +236,8 @@ class StructuralSolver:
         sigma_factor = kwargs.get("sigma_factor", 1e-2)
         harmonic_analysis = kwargs.get("harmonic_analysis", False)
 
+        self.warning_modal_prescribed_dofs = ""
+
         if K == list() and M == list():
 
             if self.model.preprocessor.stress_stiffening_enabled:
@@ -267,7 +267,6 @@ class StructuralSolver:
             for value in self.prescribed_values:
                 if value is not None:
                     if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
-                        self.flag_Modal_prescribed_non_null_dofs = True
                         self.warning_modal_prescribed_dofs  = "The Prescribed DOFs of non-zero values have been ignored in the modal analysis. "
                         self.warning_modal_prescribed_dofs += "The null value has been attributed to those DOFs with non-zero values."
 
@@ -361,10 +360,12 @@ class StructuralSolver:
         global_damping = self.model.global_damping
         alphaV, betaV, alphaH, betaH = global_damping
 
+        self.warning_mode_sup_prescribed_dofs = ""
+
         if np.sum(self.prescribed_values) > 0:
             solution = self.direct_method(global_damping)
-            self.flag_ModeSup_prescribed_non_null_dofs = True
-            self.warning_mode_sup_prescribed_dofs = "The Harmonic Analysis of prescribed DOF's problems had been solved through the Direct Method!"
+            self.warning_mode_sup_prescribed_dofs = "The Harmonic Analysis of prescribed DOF's problems "
+            self.warning_mode_sup_prescribed_dofs += "had been solved through the Direct Method."
             return solution
 
         else:
@@ -667,7 +668,7 @@ class StructuralSolver:
             _frequencies = self.frequencies
 
         structural_elements = self.model.preprocessor.structural_elements.values()
-        omega = 2 * pi * _frequencies.reshape(1,-1)
+        omega = 2 * np.pi * _frequencies.reshape(1,-1)
 
         damping = np.ones([6,1]) @  (1 + 1j*( betaH + omega * betaV ))
         p0 = external_pressure
