@@ -319,15 +319,39 @@ class GeometryDesignerWidget(QWidget):
                 self.bending_radius_line_edit.setText("")
 
         else:
+
             self.bending_radius_line_edit.blockSignals(True)
             self.bending_radius_line_edit.setEnabled(False)
+            d = self.get_pipe_diameter()
+
             if index == 0:
-                self.bending_radius_line_edit.setText("1.5*D")
+                if d is None:
+                    self.bending_radius_line_edit.setText("1.5*D")
+                else:
+                    bending_radius = 1.5 * d
+                    self.bending_radius_line_edit.setText(str(round(bending_radius, 6)))
+
             elif index == 1:
-                self.bending_radius_line_edit.setText("1.0*D")
+                if d is None:
+                    self.bending_radius_line_edit.setText("1.0*D")
+                else:
+                    bending_radius = 1.0 * d
+                    self.bending_radius_line_edit.setText(str(round(bending_radius, 6)))
+
             else:
                 self.bending_radius_line_edit.setText("")
+
             self.bending_radius_line_edit.blockSignals(False)
+
+    def get_pipe_diameter(self):
+
+        try:
+            section_parameters = self.cross_section_widget.pipe_section_info["section_parameters"]
+            diameter = section_parameters[0]
+        except:
+            return None
+        
+        return diameter
 
     def xyz_changed_callback(self):
         try:
