@@ -21,6 +21,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - Beam theory validity check assistant.
 - Pulsation suppression device editor.
 - Import and export PCF files.
+- New methodologies.
 
 ## New geometry interface
 
