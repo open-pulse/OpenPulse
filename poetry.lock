@@ -928,7 +928,7 @@ vtk = "^9.2.6"
 type = "git"
 url = "https://github.com/open-pulse/opps"
 reference = "HEAD"
-resolved_reference = "b9837eb192f46728da42264e8524f1794eb6cee7"
+resolved_reference = "ca4625b135d074761c08f0e69afcc2978b3aff77"
 
 [[package]]
 name = "ordered-set"
