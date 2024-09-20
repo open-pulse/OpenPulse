@@ -3,7 +3,7 @@
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
-*V2.0.2 September 20th 2024 (now: v2.0.0a5 May 28th 2024)*
+*V2.0.4 September 20th 2024*
 
 OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. It allows to create or/and import the geometry of the pipe system, insert materials properties, set standardized or customized sections, and import pressure/acceleration/force loads (from measurements or theory). OpenPulse performs an acoustic time-harmonic response analysis of the respective 1D acoustic domain using the Finite Element Transfer Matrix Method (FETM). The resulting pressure field is applied as a distributed load over the respective structural piping system, modeled with the Timoshenko beam theory and the Finite Element Method (FEM), in order to run a structural time-harmonic response analysis. In addition to simply boundary conditions as constraints on displacements, OpenPulse allows to insert lumped springs, masses and dampers along the domain.
 
@@ -21,7 +21,6 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - Beam theory validity check assistant.
 - Pulsation suppression device editor.
 - Import and export PCF files.
-- New methodologies.
 
 ## New geometry interface
 
@@ -105,8 +104,7 @@ poetry run python pulse
 
 ## Next events 
 
-- Internoise 2024, 25 - 29 August, Nantes, France.
-- IIR conference on Compressors and Refrigerants 2024, 9 - 11 September, Bratislava, Slovakia.
+- Internoise 2025, 24 - 27 August, São Paulo, Brazil.
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
@@ -126,7 +124,7 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Danilo Espindola](https://www.linkedin.com/in/danilo-espindola-7b47a626b/) - Interface with other softwares;
    - [Vitor Slongo](https://www.linkedin.com/in/vitor-slongo-45298a270/) - Mesh and Geometry Specialist;
    - [Gildean Almeida](https://www.linkedin.com/in/gildean-almeida-708862298/) - Validation;
-   - [Fabrício Cruz](https://www.linkedin.com/in/fabricio-emanuel-cruz/) - Validation.
+   - [Fabrício Cruz](https://www.linkedin.com/in/fabricio-emanuel-cruz/) - Validation (Former Member).
 
 ![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true) 
 
