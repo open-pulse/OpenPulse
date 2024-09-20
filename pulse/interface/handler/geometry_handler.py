@@ -160,7 +160,8 @@ class GeometryHandler:
 
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
-                _center_coords = structure.center.coords()
+                # _center_coords = structure.center.coords()
+                _center_coords = structure.center_coords
 
                 print(f"Center coordinates (opps): {_center_coords} [m]")
 
@@ -621,6 +622,8 @@ class GeometryHandler:
 
                     corner = Point(*corner_coords)
                     pipe = Bend(start, end, corner, radius)
+                    
+                    pipe.center_coords = center_coords
 
                     curved_structures.append(pipe)
 
