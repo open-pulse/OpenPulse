@@ -848,6 +848,9 @@ class PulsationSuppressionDeviceInput(QDialog):
 
                 for node_id in args:
                     if node_id in self.nodes_from_removed_lines:
+                        lines_from_node = app().project.model.mesh.lines_from_node[node_id]
+                        if len(lines_from_node) >= 2:
+                            continue
                         self.properties._remove_nodal_property(property, node_id)
 
         self.nodes_from_removed_lines.clear()
