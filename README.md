@@ -79,7 +79,7 @@ poetry run python pulse
 
 - Project page on [Researchgate](https://www.researchgate.net/project/Acoustically-Induced-Vibration-in-Pipeline-Systems).
   
-- [Português] Demonstração rápida: [MOPT YouTube](https://youtu.be/-C5Am9ekM7E).
+- [Português] Demonstração rápida: [MOPT YouTube](https://youtu.be/qhuQcdCk4i0).
 
 ## Article published: Mechanical Systems and Signal Processing - Volume 186, 1 March 2023
 
