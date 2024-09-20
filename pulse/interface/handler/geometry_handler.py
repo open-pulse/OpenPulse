@@ -162,6 +162,8 @@ class GeometryHandler:
                 _end_coords = structure.end.coords()
                 _center_coords = structure.center.coords()
 
+                print(f"Center coordinates (opps): {_center_coords} [m]")
+
                 if self.length_unit == "meter":
                     start_coords = m_to_mm(_start_coords)
                     end_coords = m_to_mm(_end_coords)
@@ -180,6 +182,7 @@ class GeometryHandler:
                 start_point = gmsh.model.occ.addPoint(*start_coords)
                 end_point = gmsh.model.occ.addPoint(*end_coords)
                 center_point = gmsh.model.occ.addPoint(*center_coords)
+
                 line_tag = gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
 
                 self.lines_mapping[line_tag] = structure.tag
@@ -606,6 +609,7 @@ class GeometryHandler:
                         end_coords = self.get_point_coords(end_point)
 
                     corner_coords = self.get_corner_point_coords(start_point, end_point)
+                    center_coords = self.get_center_point_coords(start_point, end_point)
 
                     if corner_coords is None:
                         message = f"The connecting lines from 'Circle curve' {line} are parallel "
@@ -703,7 +707,7 @@ class GeometryHandler:
                 line = gmsh.model.get_adjacencies(0, point)[0][0]
                 points = list(gmsh.model.get_adjacencies(1, line)[1])
         return line, points
-    
+
     def get_corner_point_coords(self, start_point, end_point):
         """
             Reference: https://mathworld.wolfram.com/Line-LineIntersection.html
@@ -734,6 +738,43 @@ class GeometryHandler:
             return np.round(Xc, 5)
         else:
             return None
+
+    def get_center_point_coords(self, start_point, end_point):
+        """
+            This method returns the arc circle center coordinates.
+        """
+
+        coords_start = self.conv_unit(gmsh.model.getValue(0, start_point, []))
+        coords_end = self.conv_unit(gmsh.model.getValue(0, end_point, []))
+
+        _, points_Lstart = self.get_connecting_line_data(coords_start, start_point)
+        _, points_Lend = self.get_connecting_line_data(coords_end, end_point)
+
+        X1 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[0], []))
+        X2 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[1], []))
+
+        X3 = self.conv_unit(gmsh.model.getValue(0, points_Lend[0], []))
+        X4 = self.conv_unit(gmsh.model.getValue(0, points_Lend[1], []))
+
+        u = X2 - X1
+        v = X4 - X3
+        n = np.cross(u, v)
+        
+        u /= np.linalg.norm(u)
+        v /= np.linalg.norm(v)
+        n /= np.linalg.norm(n)
+
+        A = np.array([[u[0], u[1], u[2]],
+                      [v[0], v[1], v[2]],
+                      [n[0], n[1], n[2]]], dtype=float)
+
+        b = np.array([  np.sum(u*coords_start), 
+                        np.sum(v*coords_end),
+                        np.sum(n*coords_start)], dtype=float)
+
+        center_coordinates = np.linalg.solve(A, b)
+        print(f"Center coordinates (gmsh): {center_coordinates}[m]")
+        return center_coordinates
 
     def get_radius(self, corner_coords, start_point, end_point):
         """
