@@ -26,22 +26,22 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 ## New geometry interface
 
 <p align="">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2_A.PNG?raw=true" alt="OpenPulse logo" width="800"/>
+   <img src="https://open-pulse.github.io/OpenPulse/doc/NOP_geom.png?raw=true" alt="OpenPulse logo" width="800"/>
 
 ## Enhanced FE/FETM modeling and representation
 
 <p align="">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2_C.PNG?raw=true" alt="OpenPulse logo" width="800"/> 
-
-## Dark theme
+   <img src="https://open-pulse.github.io/OpenPulse/doc/NOP_FEM.png?raw=true" alt="OpenPulse logo" width="800"/> 
+   
+## Pulsation suppression device editor
 
 <p align="">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2_B.PNG?raw=true" alt="OpenPulse logo" width="800"/>
+   <img src="https://open-pulse.github.io/OpenPulse/doc/NOP_Filtros.png?raw=true" alt="OpenPulse logo" width="800"/> 
 
 ## Enhanced results visualisation
 
 <p align="">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2.gif?raw=true" alt="OpenPulse logo" width="800"/>
+   <img src="https://open-pulse.github.io/OpenPulse/doc/NOP_video.gif?raw=true" alt="OpenPulse logo" width="800"/>
 
 ## Installing through an executable
 
