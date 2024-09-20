@@ -136,52 +136,47 @@ class PlotTransmissionLoss(QWidget):
             message += "node ID at inlet of the duct or filter and the node ID at the end termination. "
             message += "By definition, the NR represents the sound pressure level differece between the "
             message += "input and output of a duct or filter and it does not require a anechoic termination."
-        PrintMessageInput([window_title, title, message])
 
-    def check_nodes_information(self, picked_nodes=None):
-        
-        if picked_nodes is None:
-            selected_ids = list()
-            if self.lineEdit_input_node_id.text() != "":
-                input_node_id = self.lineEdit_input_node_id.text()
-                selected_ids.append(int(input_node_id))
-            if self.lineEdit_output_node_id.text() != "":
-                output_node_id = self.lineEdit_output_node_id.text()
-                selected_ids.append(int(output_node_id))
-        else:
-            selected_ids = app().main_window.list_selected_nodes()
-        
-        self.input_node_id = None
-        self.output_node_id = None
-        self.lineEdit_input_node_id.setText("")
-        self.lineEdit_output_node_id.setText("")
+        PrintMessageInput([window_title, title, message], height=320, width=580)
+
+    def check_nodes_information(self):
 
         if self.comboBox_processing_selector.currentIndex() == 0:
-            for node_id in selected_ids:
 
-                neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
-                if len(neigh_elements) == 1:
-                    for (property, *args), data in app().project.model.properties.nodal_properties.items():
-                        if property == "volume_velocity" and args[0] == node_id:
-                            self.input_volume_velocity = np.real(data["values"])
-                            self.input_node_id = node_id
-                        
-                        elif property == "radiation_impedance" and args[0] == node_id:
-                            self.output_node_id = node_id
+            vv_data = app().project.model.properties._get_property("volume_velocity", node_ids=self.input_node_id)
+            input_at = app().project.model.properties._get_property("radiation_impedance", node_ids=self.input_node_id)
+            
+            if (vv_data, input_at).count(None):
+                self.input_node_id = None
+                self.lineEdit_input_node_id.setText("")
 
-                else:
-                    return True
+            elif "values" in vv_data.keys():
+                self.input_volume_velocity = np.real(vv_data["values"])
+                input_impedance_type = input_at["impedance_type"]
+                if input_impedance_type != 0:
+                    self.input_node_id = None
+                    self.lineEdit_input_node_id.setText("")
+
+            output_at = app().project.model.properties._get_property("radiation_impedance", node_ids=self.output_node_id)
+
+            if output_at is None:
+                self.output_node_id = None
+                self.lineEdit_output_node_id.setText("")
+
+            elif "impedance_type" in output_at.keys():
+                output_impedance_type = output_at["impedance_type"]
+                if output_impedance_type != 0:
+                    self.output_node_id = None
+                    self.lineEdit_output_node_id.setText("")
 
         else:
 
-            if len(selected_ids) == 2:
-                self.input_node_id = selected_ids[0]
-                self.output_node_id = selected_ids[1]
-            else:
+            if (self.input_node_id, self.output_node_id).count(None):
                 return True
 
-        self.lineEdit_input_node_id.setText(str(self.input_node_id))
-        self.lineEdit_output_node_id.setText(str(self.output_node_id))
+        if (self.input_node_id, self.output_node_id).count(None):
+            self.call_help()
+            return True
 
     def check_inputs(self):
 
@@ -207,10 +202,12 @@ class PlotTransmissionLoss(QWidget):
             self.y_label = "Noise reduction"
 
     def get_minor_outer_diameter_from_node(self, node):
+
         data = self.diameters_from_node[node]
-        inner_diameter = []
-        density = []
-        speed_of_sound = []
+        density = list()
+        speed_of_sound = list()
+        inner_diameter = list()
+
         for (index, _, int_dia) in data:
             inner_diameter.append(int_dia)
             density.append(self.elements[index].fluid.density)

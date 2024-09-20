@@ -86,6 +86,7 @@ class AcousticPressureInput(QDialog):
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_search.clicked.connect(self.load_acoustic_pressure_table)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #

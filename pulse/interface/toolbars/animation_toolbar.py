@@ -73,6 +73,8 @@ class AnimationToolbar(QToolBar):
         self.phase_slider.setOrientation(Qt.Orientation.Horizontal)
         self.phase_slider.setMaximumWidth(300)
         self.phase_slider.setCursor(Qt.PointingHandCursor)
+        self.phase_slider.setMinimum(0)
+        self.phase_slider.setMaximum(360)
 
         # QSpinBox
         self.spinBox_cycles.setMinimum(1)
@@ -100,6 +102,8 @@ class AnimationToolbar(QToolBar):
         #
         self.spinBox_frames.valueChanged.connect(self.frames_value_changed)
         self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
+        #
+        self.update_phase_slider_steps()
 
     def get_spacer(self):
         spacer = QWidget()
@@ -135,6 +139,7 @@ class AnimationToolbar(QToolBar):
 
     def frames_value_changed(self):
         self.frames = self.spinBox_frames.value()
+        self.update_phase_slider_steps()
         app().project.frames = self.frames
         app().main_window.results_widget.clear_cache()
 
@@ -147,6 +152,11 @@ class AnimationToolbar(QToolBar):
         self.pause_animation()      
         value = self.phase_slider.value()
         app().main_window.results_widget.slider_callback(value)
+
+    def update_phase_slider_steps(self):
+        frames = self.spinBox_frames.value()
+        single_step = int(360 / frames)
+        self.phase_slider.setSingleStep(single_step)
 
     def pause_animation(self):
         if self.pushButton_animate.isChecked(): 
