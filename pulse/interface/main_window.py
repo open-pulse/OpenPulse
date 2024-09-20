@@ -494,11 +494,11 @@ class MainWindow(QMainWindow):
             self.menu_recent.removeAction(action)
 
         self.menu_actions = list()
-        for name, path in reversed(self.config.recent_projects.items()):
-            path = Path(path)
-            if not os.path.exists():
+        for path in reversed(self.config.get_recent_files()):
+            if not path.exists():
                 continue
-            import_action = QAction(str(name) + "\t" + str(path))
+    
+            import_action = QAction(str(path.name) + "\t" + str(path))
             import_action.setStatusTip(str(path))
             import_action.triggered.connect(partial(self.open_project, path))
             self.menu_recent.addAction(import_action)
