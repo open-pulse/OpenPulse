@@ -19,7 +19,7 @@ window_title_2 = "Warning"
 
 
 def get_data(data):
-    return list(np.array(np.round(data, 6), dtype=float))
+    return list(np.array(np.round(data, 10), dtype=float))
 
 def normalize(vector):
     return vector / np.linalg.norm(vector)
@@ -52,6 +52,7 @@ class GeometryHandler:
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
+        gmsh.option.setNumber("Geometry.Tolerance", 1e-5)
 
         for structure in self.pipeline.structures:
 
@@ -160,10 +161,16 @@ class GeometryHandler:
 
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
-                # _center_coords = structure.center.coords()
+                _center_coords2 = structure.center.coords()
                 _center_coords = structure.center_coords
 
-                print(f"Center coordinates (opps): {_center_coords} [m]")
+                rad_1 = np.linalg.norm(_center_coords - _start_coords)
+                rad_2 = np.linalg.norm(_center_coords - _end_coords)
+                print(f"start-to-center: {rad_1} [m]")
+                print(f"end-to-center: {rad_2} [m]")
+
+                # print(f"Center coordinates (opps 1): {_center_coords} [m]")
+                # print(f"Center coordinates (opps 2): {_center_coords2} [m]")
 
                 if self.length_unit == "meter":
                     start_coords = m_to_mm(_start_coords)
@@ -317,11 +324,13 @@ class GeometryHandler:
                 end = Point(*data['end_coords'])
                 corner = Point(*data['corner_coords'])
                 curvature_radius = data['curvature_radius']
+                center_coords = data['center_coords']
                 structure = Bend(
                                  start, 
                                  end, 
                                  corner, 
-                                 curvature_radius, 
+                                 curvature_radius,
+                                 center_coords = center_coords,
                                  diameter = section_parameters[0],
                                  thickness = section_parameters[1]
                                 )
@@ -533,7 +542,7 @@ class GeometryHandler:
         self.points_coords = dict()
         for point in points:
             coords = gmsh.model.getValue(*point, [])
-            self.points_coords[point[1]] = np.round(self.conv_unit(coords), 5)
+            self.points_coords[point[1]] = np.round(self.conv_unit(coords), 10)
 
         self.points_coords_cache = self.points_coords.copy()
         self.map_points_according_to_coordinates()
@@ -621,9 +630,9 @@ class GeometryHandler:
                     radius = self.get_radius(corner_coords, start_point, end_point)
 
                     corner = Point(*corner_coords)
-                    pipe = Bend(start, end, corner, radius)
+                    pipe = Bend(start, end, corner, radius, center_coords=center_coords)
                     
-                    pipe.center_coords = center_coords
+                    # pipe.center_coords = center_coords
 
                     curved_structures.append(pipe)
 
@@ -692,7 +701,7 @@ class GeometryHandler:
     def get_point_by_coords(self, coords):
         """ This method returns the points with 'coords' nodal coordinates. 
         """
-        key = str(list(np.round(coords, 5)))
+        key = str(list(np.round(coords, 10)))
         try:
             points = self.points_map[key]
             return points
@@ -722,6 +731,9 @@ class GeometryHandler:
         _, points_Lstart = self.get_connecting_line_data(coords_start, start_point)
         _, points_Lend = self.get_connecting_line_data(coords_end, end_point)
 
+        if (points_Lstart, points_Lend).count(None):
+            return None
+
         X1 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[0], []))
         X2 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[1], []))
 
@@ -738,7 +750,7 @@ class GeometryHandler:
         if np.round(np.linalg.norm(cross_ab), 8) != 0:
             s = np.dot(cross_cb, cross_ab)/(((np.linalg.norm(cross_ab)))**2)
             Xc = X1 + a*s
-            return np.round(Xc, 5)
+            return np.round(Xc, 10)
         else:
             return None
 
@@ -752,6 +764,9 @@ class GeometryHandler:
 
         _, points_Lstart = self.get_connecting_line_data(coords_start, start_point)
         _, points_Lend = self.get_connecting_line_data(coords_end, end_point)
+
+        if (points_Lstart, points_Lend).count(None):
+            return None
 
         X1 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[0], []))
         X2 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[1], []))
@@ -777,6 +792,39 @@ class GeometryHandler:
 
         center_coordinates = np.linalg.solve(A, b)
         print(f"Center coordinates (gmsh): {center_coordinates}[m]")
+        print(f"Start coordinates (gmsh): {coords_start}[m]")
+        print(f"End coordinates (gmsh): {coords_end}[m]")
+
+        rad_1 = np.linalg.norm(center_coordinates - coords_start)
+        rad_2 = np.linalg.norm(center_coordinates - coords_end)
+
+        diff_rad = np.abs(rad_1-rad_2)
+        x, y, z = center_coordinates
+
+        if diff_rad > 1e-5:
+            N = 60
+            deltas = 0.00002*np.random.randn(N)
+            for i in range(N):
+                x_d = x + deltas[i]
+                for j in range(N):
+                    y_d = y + deltas[j]
+                    for k in range(N):
+                        z_d = z + deltas[k]
+                        _center = np.array([x_d, y_d, z_d], dtype=float)
+                        _rad_1 = np.linalg.norm(_center - coords_start)
+                        _rad_2 = np.linalg.norm(_center - coords_end)
+                        if np.abs(_rad_1-_rad_2) < diff_rad:
+                            diff_rad = np.abs(_rad_1-_rad_2)
+                            rad_1 = _rad_1
+                            rad_2 = _rad_2
+                            # print(np.abs(_rad_1-_rad_2), new_center)
+                            center_coordinates = np.round(_center, 10)
+
+            print(f"Center coordinates (gmsh): {center_coordinates}[m]")
+
+        print(f"start-to-center: {rad_1} [m]")
+        print(f"end-to-center: {rad_2} [m]")
+
         return center_coordinates
 
     def get_radius(self, corner_coords, start_point, end_point):
@@ -948,6 +996,7 @@ class GeometryHandler:
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
             data["corner_coords"] = get_data(structure.corner.coords())
+            data["center_coords"] = get_data(structure.center_coords)
             data["curvature_radius"] = np.round(structure.curvature, 8)
 
         elif isinstance(structure, Pipe | Beam | Reducer | Flange | Valve | ExpansionJoint):
