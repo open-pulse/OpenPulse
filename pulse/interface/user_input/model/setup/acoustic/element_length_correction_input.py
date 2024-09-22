@@ -144,7 +144,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                     filtered_data[node_id] = { 
                                               "correction_type" : correction_type,
                                               "coords" : coords,
-                                              "element_ids" : [element.index for element in neigh_elements]
+                                              "element_ids" : [int(element.index) for element in neigh_elements]
                                               }
 
             else:
@@ -162,7 +162,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                         filtered_data[node_id] = { 
                                                   "correction_type" : correction_type,
                                                   "coords" : coords,
-                                                  "element_ids" : [element.index for element in neigh_elements]
+                                                  "element_ids" : [int(element.index) for element in neigh_elements]
                                                   }
 
         if filtered_data:

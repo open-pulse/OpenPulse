@@ -881,7 +881,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
             node_id = self.preprocessor.get_node_id_by_coordinates(coords)
             neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
-            element_ids = [element.index for element in neigh_elements]
+            element_ids = [int(element.index) for element in neigh_elements]
 
             if connection_type == "radial":
                 _type = 1
