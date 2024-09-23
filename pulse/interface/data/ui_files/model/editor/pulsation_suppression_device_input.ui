@@ -313,7 +313,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>dual_chamber</string>
+                    <string>double_volume_psd</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -580,7 +580,7 @@
                     </font>
                    </property>
                    <property name="currentIndex">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <item>
                     <property name="text">
