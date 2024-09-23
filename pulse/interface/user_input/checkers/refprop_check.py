@@ -84,7 +84,9 @@ class CheckREFPROP:
         
         else:
             title = "REFPROP version detected"
-            message = f"The current REFPROP version {version} installed "
-            message += "in the computer meets the OpenPulse requirements."
+            message = f"The current REFPROP version installed in the "
+            message += "computer meets the OpenPulse requirements.\n\n"
+            message += "Compatible versions: >= v10.0\n"
+            message += f"Current version: v{version}\n"
             PrintMessageInput([window_title_2, title, message], auto_close=True)
             return False
