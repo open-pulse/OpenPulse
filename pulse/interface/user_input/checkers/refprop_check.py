@@ -15,7 +15,6 @@ class CheckREFPROP:
 
         self.check_external_dependency()
 
-
     def check_external_dependency(self):
 
         from ctREFPROP.ctREFPROP import REFPROPFunctionLibrary
@@ -30,7 +29,6 @@ class CheckREFPROP:
             self.refprop = REFPROPFunctionLibrary(refProp_path)
             if self.check_refprop_version():
                 return True
-
 
     def get_refprop_path(self):
 
@@ -70,7 +68,6 @@ class CheckREFPROP:
                     PrintMessageInput([window_title_1, title, message])
 
         return refProp_path
-
 
     def check_refprop_version(self):
 
