@@ -1217,11 +1217,11 @@ class Preprocessor:
                              [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
                              [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
                              [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-                             [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0]]  )
-        
+                             [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0]], dtype=float)
+
         node = self.nodes[node_id]
         element = self.structural_elements[element_id]
-        
+
         if decoupled_rotations.count(False) == 3:
             mat_out = mat_ones
 
@@ -2042,8 +2042,11 @@ class Preprocessor:
         """
         rotation_data = np.zeros((self.number_structural_elements, 3), dtype=float)
         for index, element in enumerate(self.structural_elements.values()):
-            rotation_data[index,:] = element.mean_rotations_at_local_coordinate_system()   
-        
+            if element.decoupling_info is None:
+                rotation_data[index,:] = element.mean_rotations_at_local_coordinate_system()   
+            else:
+                rotation_data[index,:] = element.rotations_at_local_coordinate_system_decoupled() 
+
         rotation_results_matrices = transformation_matrix_Nx3x3_by_angles(rotation_data[:, 0], rotation_data[:, 1], rotation_data[:, 2])  
         matrix_resultant = rotation_results_matrices@self.transformation_matrices 
         r = Rotation.from_matrix(matrix_resultant)
