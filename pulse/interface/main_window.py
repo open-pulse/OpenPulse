@@ -27,8 +27,9 @@ from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
-from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
+from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
+from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
 import logging
@@ -122,6 +123,7 @@ class MainWindow(QMainWindow):
         self.action_model_setup_workspace: QAction
         self.action_analysis_setup_workspace: QAction
         self.action_results_workspace: QAction
+        self.action_check_refprop: QAction
         self.action_export_geometry: QAction
         self.action_import_geometry: QAction
         self.action_export_pcf: QAction
@@ -558,6 +560,9 @@ class MainWindow(QMainWindow):
 
     def action_export_geometry_callback(self):
         self.export_geometry()
+
+    def action_check_refprop_callback(self):
+        CheckREFPROP()
 
     def action_geometry_editor_workspace_callback(self):
 
