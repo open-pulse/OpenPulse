@@ -153,10 +153,10 @@ class AcousticElementLengthCorrectionInput(QDialog):
                     element_0 = neigh_elements[0]
                     element_1 = neigh_elements[1]
 
-                    diam_0 = element_0.cross_section.outer_diameter
-                    diam_1 = element_1.cross_section.outer_diameter
+                    inside_diam_0 = element_0.cross_section.outer_diameter - 2*element_0.cross_section.thickness
+                    inside_diam_1 = element_1.cross_section.outer_diameter - 2*element_1.cross_section.thickness
 
-                    if diam_0 != diam_1:
+                    if inside_diam_0 != inside_diam_1:
                         node = app().project.model.preprocessor.nodes[node_id]
                         coords = list(np.round(node.coordinates, 5))
                         filtered_data[node_id] = { 
