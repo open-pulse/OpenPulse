@@ -567,6 +567,7 @@ class GeometryDesignerWidget(QWidget):
     
     def _set_xyz_to_selected_point(self):
         if len(self.pipeline.selected_points) != 1:
+            self._reset_xyz()
             return
 
         x, y, z = np.round(self.pipeline.selected_points[0].coords(), 6)

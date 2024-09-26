@@ -37,7 +37,7 @@ class NewProjectInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("New project")
+        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 
@@ -167,6 +167,10 @@ class NewProjectInput(QDialog):
                 self.project.process_geometry_and_mesh()
 
         except Exception as error_log:
+
+            app().project.model.mesh.set_mesher_setup()
+            app().main_window.reset_temporary_folder()
+            app().project.model.mesh._create_gmsh_geometry()
 
             window_title = "Error"
             title = "Error while creating new project"

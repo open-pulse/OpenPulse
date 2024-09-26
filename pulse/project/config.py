@@ -16,7 +16,7 @@ class Config:
         self.load_config_file()
         self.load_args()
 
-    def get_recent_files(self) -> list:
+    def get_recent_files(self) -> list[Path]:
         config = configparser.ConfigParser()
         config.read(self.config_path)
 
