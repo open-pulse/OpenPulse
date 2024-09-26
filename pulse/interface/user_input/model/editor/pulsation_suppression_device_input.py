@@ -237,6 +237,10 @@ class PulsationSuppressionDeviceInput(QDialog):
             vol_spacing = self.spinBox_volumes_spacing.value()
             self.lineEdit_pipe3_length.setText(str(round(vol_spacing, 4)))
             self.lineEdit_pipe3_length.setDisabled(True)
+            self.lineEdit_pipe3_wall_thickness.setDisabled(True)
+        #     self.update_wall_thickness_for_plate_setup()
+        # else:
+        #     self.lineEdit_pipe3_wall_thickness.setEnabled(True)
 
     def volumes_connection_callback(self):
         index = self.comboBox_volumes_connection.currentIndex()
@@ -246,11 +250,23 @@ class PulsationSuppressionDeviceInput(QDialog):
             vol_spacing = self.spinBox_volumes_spacing.value()
             self.lineEdit_pipe3_length.setText(str(round(vol_spacing, 4)))
             self.lineEdit_pipe3_length.setDisabled(True)
+            # self.lineEdit_pipe3_wall_thickness.setDisabled(True)
+            # self.update_wall_thickness_for_plate_setup()
 
         else:
             if self.comboBox_number_volumes.currentIndex() == 0:
                 self.lineEdit_pipe3_distance.setEnabled(True)
                 self.lineEdit_pipe3_length.setEnabled(True)
+            # self.lineEdit_pipe3_wall_thickness.setEnabled(True)
+
+    def update_wall_thickness_for_plate_setup(self):
+        try:
+            vol_diam = float(self.lineEdit_volume1_diameter.text())
+            choke_diam = float(self.lineEdit_pipe3_diameter.text())
+            wall_thickness = (vol_diam - choke_diam) / 2
+            self.lineEdit_pipe3_wall_thickness.setText(f"{round(wall_thickness, 6)}")
+        except:
+            self.lineEdit_pipe3_wall_thickness.setText("")
 
     def tuned_filter_callback(self):
 

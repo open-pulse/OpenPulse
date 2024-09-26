@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>630</width>
-    <height>651</height>
+    <height>663</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -235,6 +235,9 @@
           </property>
           <item row="0" column="0">
            <widget class="QScrollArea" name="scrollArea">
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
@@ -818,7 +821,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>Volumes connection</string>
+                    <string>Volumes connection:</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -2597,6 +2600,50 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>lineEdit_device_label</tabstop>
+  <tabstop>lineEdit_connecting_coord_x</tabstop>
+  <tabstop>lineEdit_connecting_coord_y</tabstop>
+  <tabstop>lineEdit_connecting_coord_z</tabstop>
+  <tabstop>comboBox_connection_pipe</tabstop>
+  <tabstop>comboBox_main_axis</tabstop>
+  <tabstop>comboBox_number_volumes</tabstop>
+  <tabstop>spinBox_volumes_spacing</tabstop>
+  <tabstop>comboBox_volumes_connection</tabstop>
+  <tabstop>comboBox_pipe1_connection</tabstop>
+  <tabstop>comboBox_pipe2_connection</tabstop>
+  <tabstop>comboBox_tuned_filter</tabstop>
+  <tabstop>lineEdit_rotation_plane</tabstop>
+  <tabstop>spinBox_pipe1_rotation_angle</tabstop>
+  <tabstop>spinBox_pipe2_rotation_angle</tabstop>
+  <tabstop>lineEdit_volume1_diameter</tabstop>
+  <tabstop>lineEdit_volume1_wall_thickness</tabstop>
+  <tabstop>lineEdit_volume1_length</tabstop>
+  <tabstop>lineEdit_volume2_diameter</tabstop>
+  <tabstop>lineEdit_volume2_wall_thickness</tabstop>
+  <tabstop>lineEdit_volume2_length</tabstop>
+  <tabstop>lineEdit_pipe1_diameter</tabstop>
+  <tabstop>lineEdit_pipe1_wall_thickness</tabstop>
+  <tabstop>lineEdit_pipe1_length</tabstop>
+  <tabstop>lineEdit_pipe1_distance</tabstop>
+  <tabstop>lineEdit_pipe2_diameter</tabstop>
+  <tabstop>lineEdit_pipe2_wall_thickness</tabstop>
+  <tabstop>lineEdit_pipe2_length</tabstop>
+  <tabstop>lineEdit_pipe2_distance</tabstop>
+  <tabstop>lineEdit_pipe3_diameter</tabstop>
+  <tabstop>lineEdit_pipe3_wall_thickness</tabstop>
+  <tabstop>lineEdit_pipe3_length</tabstop>
+  <tabstop>lineEdit_pipe3_distance</tabstop>
+  <tabstop>pushButton_create_psd</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>lineEdit_selection</tabstop>
+  <tabstop>treeWidget_psd_info</tabstop>
+  <tabstop>lineEdit_volume1_distance_2</tabstop>
+  <tabstop>lineEdit_volume1_distance</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
