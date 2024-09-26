@@ -140,6 +140,8 @@ class PulsationSuppressionDeviceInput(QDialog):
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
+        self.spinBox_volumes_spacing.valueChanged.connect(self.volumes_spacing_callback)
+        #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
         self.treeWidget_psd_info.itemClicked.connect(self.on_click_item)
@@ -227,14 +229,44 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.update_tuned_filter_callback()
 
+    def volumes_spacing_callback(self):
+        index = self.comboBox_volumes_connection.currentIndex()
+        if index == 2:
+            self.lineEdit_pipe3_distance.setText("")
+            self.lineEdit_pipe3_distance.setDisabled(True)
+            vol_spacing = self.spinBox_volumes_spacing.value()
+            self.lineEdit_pipe3_length.setText(str(round(vol_spacing, 4)))
+            self.lineEdit_pipe3_length.setDisabled(True)
+            self.lineEdit_pipe3_wall_thickness.setDisabled(True)
+        #     self.update_wall_thickness_for_plate_setup()
+        # else:
+        #     self.lineEdit_pipe3_wall_thickness.setEnabled(True)
+
     def volumes_connection_callback(self):
         index = self.comboBox_volumes_connection.currentIndex()
         if index == 2:
             self.lineEdit_pipe3_distance.setText("")
             self.lineEdit_pipe3_distance.setDisabled(True)
+            vol_spacing = self.spinBox_volumes_spacing.value()
+            self.lineEdit_pipe3_length.setText(str(round(vol_spacing, 4)))
+            self.lineEdit_pipe3_length.setDisabled(True)
+            # self.lineEdit_pipe3_wall_thickness.setDisabled(True)
+            # self.update_wall_thickness_for_plate_setup()
+
         else:
             if self.comboBox_number_volumes.currentIndex() == 0:
                 self.lineEdit_pipe3_distance.setEnabled(True)
+                self.lineEdit_pipe3_length.setEnabled(True)
+            # self.lineEdit_pipe3_wall_thickness.setEnabled(True)
+
+    def update_wall_thickness_for_plate_setup(self):
+        try:
+            vol_diam = float(self.lineEdit_volume1_diameter.text())
+            choke_diam = float(self.lineEdit_pipe3_diameter.text())
+            wall_thickness = (vol_diam - choke_diam) / 2
+            self.lineEdit_pipe3_wall_thickness.setText(f"{round(wall_thickness, 6)}")
+        except:
+            self.lineEdit_pipe3_wall_thickness.setText("")
 
     def tuned_filter_callback(self):
 
@@ -617,9 +649,6 @@ class PulsationSuppressionDeviceInput(QDialog):
         volumes_spacing = self._psd_data["volumes spacing"]
         volume1_length = self._psd_data["volume #1 parameters"][2]
         volume2_length = self._psd_data["volume #2 parameters"][2]
-        pipe3_length = self._psd_data["pipe #3 parameters"][2]
-        pipe3_distance = self._psd_data["pipe #3 parameters"][3]
-        
 
         if len(self._psd_data["pipe #1 parameters"]) == 5: # i.e. pipe #1 is radial
             pipe1_distance = self._psd_data["pipe #1 parameters"][3]
@@ -637,7 +666,6 @@ class PulsationSuppressionDeviceInput(QDialog):
                 message = "The 'pipe #1 distance' must be greater than half of the 'pipe #1 diameter'"
                 PrintMessageInput([window_title_2, title, message])
                 return True
-
         
         if len(self._psd_data["pipe #2 parameters"]) == 5: # i.e. pipe #2 is radial
             pipe2_distance = self._psd_data["pipe #2 parameters"][3]
@@ -658,25 +686,30 @@ class PulsationSuppressionDeviceInput(QDialog):
                 PrintMessageInput([window_title_2, title, message])
                 return True
 
-        # TODO: check if the cases where these are equal to each other and see if they are valid
-        if pipe3_distance > volume1_length:
-            title = "Invalid pipe #3 length"
-            message = "The 'pipe #3 distance' must be less than the 'volume #1 length'"
-            PrintMessageInput([window_title_2, title, message])
-            return True
-        
-        if pipe3_length < volumes_spacing:
-            title = "Invalid pipe #3 length"
-            message = "The 'pipe #3 length' must be greater than or equal to the 'volumes spacing'"
-            PrintMessageInput([window_title_2, title, message])
-            return True            
-        
-        if pipe3_distance + pipe3_length < volume1_length + volumes_spacing:
-            title = "Invalid combination of pipe #3 length and distance"
-            message = "The pipe #3 length plus the pipe #3 distance must be less "
-            message += "than the volume #1 length plus the volumes spacing"
-            PrintMessageInput([window_title_2, title, message])
-            return True
+        if self.comboBox_volumes_connection.currentIndex() in [0, 1]:
+
+            pipe3_length = self._psd_data["pipe #3 parameters"][2]
+            pipe3_distance = self._psd_data["pipe #3 parameters"][3]
+
+            # TODO: check if the cases where these are equal to each other and see if they are valid
+            if pipe3_distance > volume1_length:
+                title = "Invalid pipe #3 length"
+                message = "The 'pipe #3 distance' must be less than the 'volume #1 length'"
+                PrintMessageInput([window_title_2, title, message])
+                return True
+            
+            if pipe3_length < volumes_spacing:
+                title = "Invalid pipe #3 length"
+                message = "The 'pipe #3 length' must be greater than or equal to the 'volumes spacing'"
+                PrintMessageInput([window_title_2, title, message])
+                return True            
+            
+            if pipe3_distance + pipe3_length < volume1_length + volumes_spacing:
+                title = "Invalid combination of pipe #3 length and distance"
+                message = "The pipe #3 length plus the pipe #3 distance must be less "
+                message += "than the volume #1 length plus the volumes spacing"
+                PrintMessageInput([window_title_2, title, message])
+                return True
 
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
@@ -848,6 +881,9 @@ class PulsationSuppressionDeviceInput(QDialog):
 
                 for node_id in args:
                     if node_id in self.nodes_from_removed_lines:
+                        lines_from_node = app().project.model.mesh.lines_from_node[node_id]
+                        if len(lines_from_node) >= 2:
+                            continue
                         self.properties._remove_nodal_property(property, node_id)
 
         self.nodes_from_removed_lines.clear()
@@ -878,7 +914,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
             node_id = self.preprocessor.get_node_id_by_coordinates(coords)
             neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
-            element_ids = [element.index for element in neigh_elements]
+            element_ids = [int(element.index) for element in neigh_elements]
 
             if connection_type == "radial":
                 _type = 1

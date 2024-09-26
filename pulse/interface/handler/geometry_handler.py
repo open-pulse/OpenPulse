@@ -162,7 +162,7 @@ class GeometryHandler:
                 _end_coords = structure.end.coords()
                 _center_coords = structure.center.coords()
 
-                print(f"Center coordinates (opps): {_center_coords} [m]")
+                # print(f"Center coordinates (opps): {_center_coords} [m]")
 
                 if self.length_unit == "meter":
                     start_coords = m_to_mm(_start_coords)
@@ -251,7 +251,6 @@ class GeometryHandler:
         self.pipeline.reset()
 
         lines_data = app().pulse_file.read_line_properties_from_file()
-        # print("-> process_pipeline")
 
         if isinstance(lines_data, dict):
             for _line_id, data in lines_data.items():
@@ -609,7 +608,7 @@ class GeometryHandler:
                         end_coords = self.get_point_coords(end_point)
 
                     corner_coords = self.get_corner_point_coords(start_point, end_point)
-                    center_coords = self.get_center_point_coords(start_point, end_point)
+                    # center_coords = self.get_center_point_coords(start_point, end_point)
 
                     if corner_coords is None:
                         message = f"The connecting lines from 'Circle curve' {line} are parallel "
@@ -773,7 +772,7 @@ class GeometryHandler:
                         np.sum(n*coords_start)], dtype=float)
 
         center_coordinates = np.linalg.solve(A, b)
-        print(f"Center coordinates (gmsh): {center_coordinates}[m]")
+        # print(f"Center coordinates (gmsh): {center_coordinates}[m]")
         return center_coordinates
 
     def get_radius(self, corner_coords, start_point, end_point):
