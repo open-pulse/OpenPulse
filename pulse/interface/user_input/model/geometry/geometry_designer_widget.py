@@ -460,6 +460,7 @@ class GeometryDesignerWidget(QWidget):
 
     def attach_selection_callback(self):
         self.current_options.attach_callback()
+        self.pipeline.commit()
         self._update_permissions()
         self.render_widget.update_plot(reset_camera=True)
         self.modified = True
