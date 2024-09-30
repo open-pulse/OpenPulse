@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, 
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
 
+from itertools import chain
 import re
 from numbers import Number
 import numpy as np
@@ -146,8 +147,8 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
         self.z_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
 
-        self.bending_options_combobox.currentIndexChanged.connect(self.xyz_changed_callback)
-        self.bending_radius_line_edit.textChanged.connect(self.xyz_changed_callback)
+        self.bending_options_combobox.currentIndexChanged.connect(self.bending_options_changed_callback)
+        self.bending_radius_line_edit.textChanged.connect(self.bending_options_changed_callback)
 
         self.division_combobox.currentTextChanged.connect(self.division_type_changed_callback)
         self.division_slider.valueChanged.connect(self.division_slider_callback)
@@ -352,6 +353,16 @@ class GeometryDesignerWidget(QWidget):
             return None
         
         return diameter
+
+    def bending_options_changed_callback(self):
+        self._update_bending_radius_of_selected_structures()
+        self.update_bending_radius_visibility()
+        self._update_permissions()
+        self.render_widget.update_plot(reset_camera=False)
+
+        # if it has any problem remove the previous lines
+        # and uncomment the following:
+        # self.xyz_changed_callback()
 
     def xyz_changed_callback(self):
         try:
@@ -607,6 +618,18 @@ class GeometryDesignerWidget(QWidget):
     def _update_material_of_selected_structures(self):
         for structure in self.pipeline.selected_structures:
             structure.extra_info["material_info"] =  self.current_material_info
+    
+    def _update_bending_radius_of_selected_structures(self):
+        if not isinstance(self.current_options, PipeOptions):
+            return
+
+        for structure in chain(self.pipeline.selected_structures, self.pipeline.staged_structures):
+            if not isinstance(structure, Bend):
+                pass
+            bending_radius = self.pipe_options._get_bending_radius(structure.diameter)
+            structure.curvature = bending_radius
+
+        self.pipeline.recalculate_curvatures()
 
     def _unit_abreviation(self, unit):
         if self.length_unit == "meter":
