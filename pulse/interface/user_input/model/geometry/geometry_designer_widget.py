@@ -191,6 +191,7 @@ class GeometryDesignerWidget(QWidget):
             self._set_xyz_to_selected_point()
 
         if not self.pipeline.selected_structures:
+            self.pipeline.main_editor.remove_collapsed_bends()
             self.cancel_division_callback()
 
         self._update_permissions()
@@ -355,14 +356,13 @@ class GeometryDesignerWidget(QWidget):
         return diameter
 
     def bending_options_changed_callback(self):
-        self._update_bending_radius_of_selected_structures()
-        self.update_bending_radius_visibility()
-        self._update_permissions()
-        self.render_widget.update_plot(reset_camera=False)
-
-        # if it has any problem remove the previous lines
-        # and uncomment the following:
-        # self.xyz_changed_callback()
+        if self.pipeline.selected_structures:
+            self._update_bending_radius_of_selected_structures()
+            self.update_bending_radius_visibility()
+            self._update_permissions()
+            self.render_widget.update_plot(reset_camera=False)
+        else:
+            self.xyz_changed_callback()
 
     def xyz_changed_callback(self):
         try:
@@ -623,7 +623,7 @@ class GeometryDesignerWidget(QWidget):
         if not isinstance(self.current_options, PipeOptions):
             return
 
-        for structure in chain(self.pipeline.selected_structures, self.pipeline.staged_structures):
+        for structure in self.pipeline.selected_structures:
             if not isinstance(structure, Bend):
                 pass
             bending_radius = self.pipe_options._get_bending_radius(structure.diameter)
