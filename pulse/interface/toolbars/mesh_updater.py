@@ -48,22 +48,20 @@ class MeshUpdater:
         element_size = None
         geometry_tolerance = None
 
-        if "mesher setup" in project_setup.keys():
+        if "mesher_setup" in project_setup.keys():
 
-            mesh_setup = project_setup["mesher setup"]
+            mesh_setup = project_setup["mesher_setup"]
             keys = mesh_setup.keys()
 
-            if 'element size' in keys:
-                element_size = mesh_setup['element size']
+            if 'element_size' in keys:
+                element_size = mesh_setup['element_size']
 
-            if 'geometry tolerance' in keys:
-                geometry_tolerance = mesh_setup['geometry tolerance']
+            if 'geometry_tolerance' in keys:
+                geometry_tolerance = mesh_setup['geometry_tolerance']
 
         return element_size, geometry_tolerance
 
     def process_mesh_and_load_project(self):
-
-        self.t0 = time()
 
         if app().pulse_file.check_pipeline_data():
             self.current_element_size, self.current_geometry_tolerance = self.get_mesh_attributes_from_project_file()
@@ -75,7 +73,6 @@ class MeshUpdater:
             app().main_window.initial_project_action(True)
             app().main_window.update_plots()  
             self.complete = True
-            app().project.time_to_load_or_create_project = time() - self.t0
 
     def undo_mesh_actions(self):
 

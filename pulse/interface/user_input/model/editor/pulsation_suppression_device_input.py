@@ -877,8 +877,8 @@ class PulsationSuppressionDeviceInput(QDialog):
         for (coords, connection_type) in device.branch_data:
 
             node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-            elements = self.preprocessor.neighboor_elements_of_node(node_id)
-            element_ids = [element.index for element in elements]
+            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
+            element_ids = [element.index for element in neigh_elements]
 
             if connection_type == "radial":
                 _type = 1
@@ -888,6 +888,7 @@ class PulsationSuppressionDeviceInput(QDialog):
 
             data = {
                     "correction_type" : _type,
+                    "coords" : list(np.round(coords, 5)),
                     "psd_name" : psd_label
                     }
 
@@ -1001,7 +1002,7 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.preprocessor.mesh._create_gmsh_geometry()
 
         self.load_psd_info()
-        # app().main_window.use_structural_setup_workspace()
+        # app().main_window.use_model_setup_workspace()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:

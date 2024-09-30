@@ -4,8 +4,9 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 
+import logging
 import numpy as np
 
 class PlotStressesForStaticAnalysis(QWidget):
@@ -16,10 +17,10 @@ class PlotStressesForStaticAnalysis(QWidget):
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
-        self.project = app().main_window.project
 
-        self._initialize()
         self._config_window()
+        self._initialize()
+        self._load_structural_solver()
         self._define_qt_variables()
         self._create_list_lineEdits()
         self._create_connections()
@@ -34,7 +35,21 @@ class PlotStressesForStaticAnalysis(QWidget):
                                 "Transversal shear xy", 
                                 "Transversal shear xz"]
 
-        self.solve = self.project.structural_solve
+    def _load_structural_solver(self):
+
+        if app().project.structural_solver is None:
+
+            def callback():
+                logging.info("Processing the cross-sections [75%]")
+                app().project.model.preprocessor.process_cross_sections_mapping()
+            LoadingWindow(callback).run()
+
+            self.structural_solver = app().project.get_structural_solver()
+            if self.structural_solver.solution is None:
+                self.structural_solver.solution = app().project.structural_solution
+
+        else:
+            self.structural_solver = app().project.structural_solver
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -87,7 +102,7 @@ class PlotStressesForStaticAnalysis(QWidget):
 
     def _update_lineEdit(self, selected_element : int):
 
-        self.stress_data = self.solve.stress_calculate(pressure_external = 0, damping = False)
+        self.stress_data = self.structural_solver.stress_calculate(static_analysis=True)
         stresses = np.real(np.array(self.stress_data[selected_element][:,0]))
 
         self.lineEdit_axial_stress.setText("{:.6e}".format(stresses[0]))

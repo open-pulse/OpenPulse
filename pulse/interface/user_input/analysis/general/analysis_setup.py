@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -15,7 +14,7 @@ window_title = "Error"
 class AnalysisSetupInput(QDialog):
     def __init__(self):
         super().__init__()
-       
+
         """
         |--------------------------------------------------------------------|
         |                    Analysis ID codification                        |
@@ -30,11 +29,7 @@ class AnalysisSetupInput(QDialog):
         |    7 - Structural - Static analysis (under development)            |
         |--------------------------------------------------------------------|
         """
-
-        app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
-        self.analysis_id = self.project.analysis_id
+        self.analysis_id = app().project.analysis_id
 
         if self.analysis_id in [1, 6]:
             ui_path = UI_DIR / "analysis/structural/harmonic_analysis_mode_superposition_method.ui"
@@ -42,14 +37,19 @@ class AnalysisSetupInput(QDialog):
             ui_path = UI_DIR / "analysis/structural/harmonic_analysis_direct_method.ui"
         elif self.analysis_id in [3]:
             ui_path = UI_DIR / "analysis/acoustic/harmonic_analysis_direct_method.ui"
-        elif self.analysis_id == 7:
-            read = StaticAnalysisInput()
-            self.complete = self.flag_run = read.complete
-            return
+        # elif self.analysis_id == 7:
+        #     read = StaticAnalysisInput()
+        #     self.complete = self.flag_run = read.complete
+        #     return
         else:
             return
 
         uic.loadUi(ui_path, self)
+
+        app().main_window.set_input_widget(self)
+
+        self.project = app().project
+        self.model = app().project.model
 
         self._initialize()
         self._config_window()
@@ -65,9 +65,6 @@ class AnalysisSetupInput(QDialog):
         self.flag_run = False
         self.frequencies = list()
         self.modes = 0
-        #
-        self.title = self.project.analysis_type_label
-        self.subtitle = self.project.analysis_method_label
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -79,8 +76,8 @@ class AnalysisSetupInput(QDialog):
         # QLabel
         self.label_title : QLabel
         self.label_subtitle : QLabel
-        self.label_title.setText(self.title)
-        self.label_subtitle.setText(self.subtitle)
+        self.label_title.setText(app().project.analysis_type_label)
+        self.label_subtitle.setText(app().project.analysis_method_label)
         
         # QLineEdit
 
@@ -122,10 +119,23 @@ class AnalysisSetupInput(QDialog):
                 self.lineEdit_bh.setText(str(self.model.global_damping[3]))
 
     def update_frequency_setup_input_texts(self):
-        if self.model.f_step != 0:
-            self.lineEdit_fmin.setText(str(self.model.f_min))
-            self.lineEdit_fmax.setText(str(self.model.f_max))
-            self.lineEdit_fstep.setText(str(self.model.f_step))
+
+        if (self.model.f_min, self.model.f_max, self.model.f_step).count(None):
+            f_min = 0
+            f_max = 200
+            f_step = 1
+
+        else:
+            f_min = self.model.f_min
+            f_max = self.model.f_max
+            f_step = self.model.f_step
+
+        if f_step != 0:
+
+            self.lineEdit_fmin.setText(str(f_min))
+            self.lineEdit_fmax.setText(str(f_max))
+            self.lineEdit_fstep.setText(str(f_step))
+
             if app().project.model.properties.check_if_there_are_tables_at_the_model():
                 self.lineEdit_fmin.setDisabled(True)
                 self.lineEdit_fmax.setDisabled(True)
@@ -137,7 +147,7 @@ class AnalysisSetupInput(QDialog):
         if analysis_setup is None:
             analysis_setup = dict()
         
-        analysis_setup["analysis id"] = self.analysis_id
+        analysis_setup["analysis_id"] = self.analysis_id
 
         f_min = f_max = f_step = 0.
 
@@ -201,7 +211,7 @@ class AnalysisSetupInput(QDialog):
                 return True
 
         global_damping = [alpha_v, beta_v, alpha_h, beta_h]
-        analysis_setup["global damping"] = global_damping
+        analysis_setup["global_damping"] = global_damping
         self.model.set_global_damping(analysis_setup)
 
         if app().project.model.properties.check_if_there_are_tables_at_the_model():
@@ -210,14 +220,14 @@ class AnalysisSetupInput(QDialog):
             self.model.set_frequency_setup(analysis_setup)
 
         if self.analysis_id in [1, 6]:
-            self.project.set_modes_sigma(number_of_modes)
             analysis_setup["modes"] = number_of_modes
 
         app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().main_window.analysis_toolbar.pushButton_run_analysis.setEnabled(True)
 
-        self.project.update_project_analysis_setup_state(True)
         self.complete = True
         self.close()
+
         return False
 
     def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False, _float=False):

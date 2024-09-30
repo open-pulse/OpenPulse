@@ -4801,9 +4801,6 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tabWidget_main</tabstop>
-  <tabstop>tabWidget_inputs</tabstop>
-  <tabstop>tabWidget_constant_values</tabstop>
   <tabstop>lineEdit_Mx</tabstop>
   <tabstop>lineEdit_My</tabstop>
   <tabstop>lineEdit_Mz</tabstop>
@@ -4822,7 +4819,6 @@
   <tabstop>lineEdit_Crx</tabstop>
   <tabstop>lineEdit_Cry</tabstop>
   <tabstop>lineEdit_Crz</tabstop>
-  <tabstop>tabWidget_table_values</tabstop>
   <tabstop>lineEdit_path_table_Mx</tabstop>
   <tabstop>pushButton_load_Mx_table</tabstop>
   <tabstop>lineEdit_path_table_My</tabstop>
@@ -4859,17 +4855,21 @@
   <tabstop>pushButton_load_Cry_table</tabstop>
   <tabstop>lineEdit_path_table_Crz</tabstop>
   <tabstop>pushButton_load_Crz_table</tabstop>
-  <tabstop>pushButton_cancel</tabstop>
   <tabstop>pushButton_attribute</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>tabWidget_inputs</tabstop>
+  <tabstop>tabWidget_constant_values</tabstop>
   <tabstop>tabWidget_remove</tabstop>
   <tabstop>checkBox_remove_mass</tabstop>
   <tabstop>checkBox_remove_spring</tabstop>
   <tabstop>checkBox_remove_damper</tabstop>
-  <tabstop>treeWidget_masses</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>pushButton_reset</tabstop>
   <tabstop>treeWidget_springs</tabstop>
   <tabstop>treeWidget_dampers</tabstop>
-  <tabstop>pushButton_reset</tabstop>
-  <tabstop>pushButton_remove</tabstop>
+  <tabstop>treeWidget_masses</tabstop>
+  <tabstop>tabWidget_table_values</tabstop>
  </tabstops>
  <resources/>
  <connections/>

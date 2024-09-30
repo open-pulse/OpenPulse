@@ -223,39 +223,12 @@ class PlotReactionsForStaticAnalysis(QWidget):
     def get_mask_for_values(self, values: list) -> list:
         return [False if value is None else True for value in values]
 
-    # def get_lumped_dampings_mask(self, values: list) -> list:
-    #     return [False if bc is None else True for bc in values]
-
-    # def get_lumped_stiffness_mask(self, values: list) -> list:
-    #     return [False if bc is None else True for bc in values]
-
-    # def get_constrained_dofs_mask(self, values: list) -> list:
-
-    #     constrained_dofs_mask = [False, False, False, False, False, False]
-    #     for index, value in enumerate(values):
-
-    #         if isinstance(value, complex):
-    #             if value == complex(0):
-    #                 constrained_dofs_mask[index] = True
-
-    #         elif isinstance(value, np.ndarray):
-    #             if np.sum(value) == complex(0):
-    #                 constrained_dofs_mask[index] = True
-    #             else:
-    #                 constrained_dofs_mask[index] = False
-
-    #     return constrained_dofs_mask
-
     def on_click_item(self, item):
         node_id = int(item.text(0))
-        # self.lineEdit_node_id.setText(item.text(0))
-        print("on_click_item deveria atualizar")
         self.plot_reactions(node_id)
 
     def on_doubleclick_item(self, item):
         node_id = int(item.text(0))
-        # self.lineEdit_node_id.setText(item.text(0))
-        print("on_click_item deveria atualizar")
         self.plot_reactions(node_id)
 
     def plot_reactions(self, node_id: int):

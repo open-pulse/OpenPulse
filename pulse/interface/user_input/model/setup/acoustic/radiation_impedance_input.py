@@ -108,7 +108,7 @@ class RadiationImpedanceInput(QDialog):
     def load_nodes_info(self):
 
         self.treeWidget_nodal_info.clear()
-        radiation_impedances = ["Anechoic", "Unflanged", "Flanged"]
+        radiation_impedances = ["Anechoic", "Flanged", "Unflanged"]
 
         for (property, *args), data in self.properties.nodal_properties.items():
 
@@ -238,7 +238,7 @@ class RadiationImpedanceInput(QDialog):
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
         self.load_nodes_info()
-        app().main_window.update_plots()
+        app().main_window.update_plots(reset_camera=False)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

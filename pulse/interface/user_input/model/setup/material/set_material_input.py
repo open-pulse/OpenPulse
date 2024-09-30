@@ -43,7 +43,7 @@ class SetMaterialInput(QDialog):
     def _initialize(self):
 
         self.material = None
-        self.selected_row = None
+        self.selected_column = None
         self.keep_window_open = True
 
         self.before_run = app().project.get_pre_solution_model_checks()
@@ -125,23 +125,26 @@ class SetMaterialInput(QDialog):
         self.comboBox_attribution_type.blockSignals(False)
 
     def on_cell_clicked(self, row, col):
-        self.selected_row = row
+        self.selected_column = col
         self.update_material_selection()
 
     def on_cell_double_clicked(self, row, col):
-        self.selected_row = row
+        self.selected_column = col
         self.material_attribution_callback()
 
     def current_cell_changed(self, current_row, current_col, previous_row, previous_col):
-        self.selected_row = current_row
+        self.selected_column = current_col
         self.update_material_selection()
 
     def update_material_selection(self):
-        if self.selected_row is None:
+
+        if self.selected_column is None:
             return
-        item = self.tableWidget_material_data.item(self.selected_row, 0)
+
+        item = self.tableWidget_material_data.item(0, self.selected_column)
         if item is None:
             return
+
         material_name = item.text()
         self.lineEdit_selected_material_name.setText("")
         if material_name != "":

@@ -24,13 +24,17 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
 
     def _initialize(self):
 
-        self.colormaps = [
-                          "jet",
+        self.colormaps = ["jet",
                           "viridis",
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
                           ]
 
     def _config_window(self):
@@ -80,9 +84,9 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
         if index >= 4:
-            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
+            app().main_window.animation_toolbar.setDisabled(True)
         else:
-            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
+            app().main_window.animation_toolbar.setDisabled(False) 
 
     def load_user_preference_colormap(self):
         try:
@@ -124,6 +128,8 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
             color_scale_setup = self.get_user_color_scale_setup()
             app().project.set_color_scale_setup(color_scale_setup)
             app().main_window.results_widget.show_displacement_field(frequency)
+            app().main_window.results_widget.clear_cache()
+
 
     def get_user_color_scale_setup(self):
 

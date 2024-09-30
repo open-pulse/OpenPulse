@@ -8,9 +8,9 @@ from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, Rectangu
 from opps.model import SimpleCurve
 
 import gmsh
-from math import dist
-import os
 import numpy as np
+
+# from math import dist
 from collections import defaultdict
 
 
@@ -35,6 +35,7 @@ class GeometryHandler:
         self.points_coords = dict()
         self.points_coords_cache = dict()
         self.lines_mapping = dict()
+        self.curve_length = dict()
         self.valve_internal_lines = dict()
         # self.valve_points_to_ignore = dict()
         self.pipeline = self.project.pipeline
@@ -54,7 +55,7 @@ class GeometryHandler:
 
         for structure in self.pipeline.structures:
 
-            if isinstance(structure, (Pipe, Beam, Reducer, ExpansionJoint)):
+            if isinstance(structure, (Pipe, Beam, Reducer, Flange, ExpansionJoint)):
 
                 _start_coords = structure.start.coords()
                 _end_coords = structure.end.coords()
@@ -71,11 +72,12 @@ class GeometryHandler:
                     start_coords = _start_coords
                     end_coords = _end_coords
 
-                start_coords = gmsh.model.occ.addPoint(*start_coords)
-                end_coords = gmsh.model.occ.addPoint(*end_coords)
+                start_point = gmsh.model.occ.addPoint(*start_coords)
+                end_point = gmsh.model.occ.addPoint(*end_coords)
+                line_tag = gmsh.model.occ.addLine(start_point, end_point)
 
-                line_tag = gmsh.model.occ.addLine(start_coords, end_coords)
                 self.lines_mapping[line_tag] = structure.tag
+                self.curve_length[structure.tag] = np.linalg.norm(end_coords-start_coords)
 
             elif isinstance(structure, Valve):
 
@@ -102,6 +104,7 @@ class GeometryHandler:
                     (coords_A, coords_B) = valve_points["external_points"]
                     point_A = gmsh.model.occ.addPoint(*coords_A, meshSize=lc)
                     point_B = gmsh.model.occ.addPoint(*coords_B, meshSize=lc)
+                    self.curve_length[structure.tag] = np.linalg.norm(coords_B - coords_A)
 
                 if "flange_points" in valve_points.keys():
                     (coords_C, coords_D) = valve_points["flange_points"]
@@ -159,6 +162,8 @@ class GeometryHandler:
                 _end_coords = structure.end.coords()
                 _center_coords = structure.center.coords()
 
+                print(f"Center coordinates (opps): {_center_coords} [m]")
+
                 if self.length_unit == "meter":
                     start_coords = m_to_mm(_start_coords)
                     end_coords = m_to_mm(_end_coords)
@@ -174,12 +179,14 @@ class GeometryHandler:
                     end_coords = _end_coords
                     center_coords = _center_coords
 
-                start_coords = gmsh.model.occ.addPoint(*start_coords)
-                end_coords = gmsh.model.occ.addPoint(*end_coords)
+                start_point = gmsh.model.occ.addPoint(*start_coords)
+                end_point = gmsh.model.occ.addPoint(*end_coords)
                 center_point = gmsh.model.occ.addPoint(*center_coords)
 
-                line_tag = gmsh.model.occ.add_circle_arc(start_coords, center_point, end_coords)
+                line_tag = gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
+
                 self.lines_mapping[line_tag] = structure.tag
+                self.curve_length[structure.tag] = get_arc_length(start_coords, end_coords, center_coords)
 
         gmsh.model.occ.synchronize()
 
@@ -244,6 +251,7 @@ class GeometryHandler:
         self.pipeline.reset()
 
         lines_data = app().pulse_file.read_line_properties_from_file()
+        # print("-> process_pipeline")
 
         if isinstance(lines_data, dict):
             for _line_id, data in lines_data.items():
@@ -286,9 +294,24 @@ class GeometryHandler:
         else:
             section_parameters = [0.01, 0.001, 0, 0, 0 ,0]
 
+        if "section_type_label" in data.keys():
+            section_type_label = data["section_type_label"]
+        else:
+            section_type_label = "Pipe"
+
         if len(section_parameters) == 6:
 
-            if data["structure_name"] == "bend":
+            if data["structure_name"] == "pipe":
+                start = Point(*data['start_coords'])
+                end = Point(*data['end_coords'])
+                structure = Pipe(
+                                 start, 
+                                 end, 
+                                 diameter = section_parameters[0],
+                                 thickness = section_parameters[1],
+                                )
+
+            elif data["structure_name"] == "bend":
                 start = Point(*data['start_coords'])
                 end = Point(*data['end_coords'])
                 corner = Point(*data['corner_coords'])
@@ -302,15 +325,15 @@ class GeometryHandler:
                                  thickness = section_parameters[1]
                                 )
 
-            else:
+            elif data["structure_name"] == "flange":
                 start = Point(*data['start_coords'])
                 end = Point(*data['end_coords'])
-                structure = Pipe(
-                                 start, 
-                                 end, 
-                                 diameter = section_parameters[0],
-                                 thickness = section_parameters[1],
-                                )
+                structure = Flange(
+                                   start, 
+                                   end, 
+                                   diameter = section_parameters[0],
+                                   thickness = section_parameters[1],
+                                   )
 
         elif len(section_parameters) == 10:
 
@@ -334,7 +357,7 @@ class GeometryHandler:
         structure.tag = line_id
 
         section_info = {
-                        "section_type_label" : data["section_type_label"],
+                        "section_type_label" : section_type_label,
                         "section_parameters" : section_parameters
                        }
 
@@ -488,7 +511,7 @@ class GeometryHandler:
         gmsh.write(str(path))
         gmsh.finalize()
 
-    def open_cad_file(self, path):
+    def open_cad_file(self, path: str):
 
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
@@ -554,7 +577,7 @@ class GeometryHandler:
 
     def process_curved_lines(self, lines):
 
-        curved_structures = []
+        curved_structures = list()
 
         for line in lines:
 
@@ -570,7 +593,7 @@ class GeometryHandler:
                 start = Point(*start_coords)
                 end = Point(*end_coords)
 
-                line_length = dist(start_coords, end_coords)
+                line_length = np.linalg.norm(start_coords - end_coords)
                 
                 if line_length < 0.001:
                     self.print_warning_for_small_length(line, line_length)
@@ -586,6 +609,7 @@ class GeometryHandler:
                         end_coords = self.get_point_coords(end_point)
 
                     corner_coords = self.get_corner_point_coords(start_point, end_point)
+                    center_coords = self.get_center_point_coords(start_point, end_point)
 
                     if corner_coords is None:
                         message = f"The connecting lines from 'Circle curve' {line} are parallel "
@@ -613,7 +637,7 @@ class GeometryHandler:
 
     def process_straight_lines(self, lines):
 
-        straight_structures = []
+        straight_structures = list()
 
         for line in lines:
 
@@ -626,7 +650,7 @@ class GeometryHandler:
                 start_coords = self.get_point_coords(start_point)
                 end_coords = self.get_point_coords(end_point)
 
-                line_length = dist(start_coords, end_coords)
+                line_length = np.linalg.norm(start_coords - end_coords)
                 
                 if line_length < 0.001:
                     self.print_warning_for_small_length(line, line_length)
@@ -683,7 +707,7 @@ class GeometryHandler:
                 line = gmsh.model.get_adjacencies(0, point)[0][0]
                 points = list(gmsh.model.get_adjacencies(1, line)[1])
         return line, points
-    
+
     def get_corner_point_coords(self, start_point, end_point):
         """
             Reference: https://mathworld.wolfram.com/Line-LineIntersection.html
@@ -715,6 +739,43 @@ class GeometryHandler:
         else:
             return None
 
+    def get_center_point_coords(self, start_point, end_point):
+        """
+            This method returns the arc circle center coordinates.
+        """
+
+        coords_start = self.conv_unit(gmsh.model.getValue(0, start_point, []))
+        coords_end = self.conv_unit(gmsh.model.getValue(0, end_point, []))
+
+        _, points_Lstart = self.get_connecting_line_data(coords_start, start_point)
+        _, points_Lend = self.get_connecting_line_data(coords_end, end_point)
+
+        X1 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[0], []))
+        X2 = self.conv_unit(gmsh.model.getValue(0, points_Lstart[1], []))
+
+        X3 = self.conv_unit(gmsh.model.getValue(0, points_Lend[0], []))
+        X4 = self.conv_unit(gmsh.model.getValue(0, points_Lend[1], []))
+
+        u = X2 - X1
+        v = X4 - X3
+        n = np.cross(u, v)
+        
+        u /= np.linalg.norm(u)
+        v /= np.linalg.norm(v)
+        n /= np.linalg.norm(n)
+
+        A = np.array([[u[0], u[1], u[2]],
+                      [v[0], v[1], v[2]],
+                      [n[0], n[1], n[2]]], dtype=float)
+
+        b = np.array([  np.sum(u*coords_start), 
+                        np.sum(v*coords_end),
+                        np.sum(n*coords_start)], dtype=float)
+
+        center_coordinates = np.linalg.solve(A, b)
+        print(f"Center coordinates (gmsh): {center_coordinates}[m]")
+        return center_coordinates
+
     def get_radius(self, corner_coords, start_point, end_point):
         """
         """
@@ -723,18 +784,20 @@ class GeometryHandler:
 
         a_vector = start_coords - corner_coords
         b_vector = end_coords - corner_coords
-        c_vector = a_vector + b_vector
-        c_vector_normalized = c_vector / np.linalg.norm(c_vector)
 
         norm_a_vector = np.linalg.norm(a_vector)
         norm_b_vector = np.linalg.norm(b_vector)
 
-        corner_distance = norm_a_vector / np.sqrt(0.5 * ((np.dot(a_vector, b_vector) / (norm_a_vector * norm_b_vector)) + 1))
+        cos_2x = (np.dot(a_vector, b_vector) / (norm_a_vector * norm_b_vector))
+        cos_x = np.sqrt((1 + cos_2x) / 2)
+        corner_distance = norm_a_vector / cos_x
 
+        c_vector = a_vector + b_vector
+        c_vector_normalized = c_vector / np.linalg.norm(c_vector)
         center_coords = corner_coords + c_vector_normalized * corner_distance
 
-        start_curve_radius = dist(center_coords, start_coords)
-        end_curve_radius = dist(center_coords, end_coords)
+        start_curve_radius = np.linalg.norm(center_coords - start_coords)
+        end_curve_radius = np.linalg.norm(center_coords - end_coords)
         radius = (start_curve_radius + end_curve_radius) / 2
 
         return np.round(radius, 8)
@@ -820,6 +883,8 @@ class GeometryHandler:
 
             if "cross_section_info" in structure.extra_info.keys():
                 section_info[tag] = structure.extra_info["cross_section_info"]
+            else:
+                section_info[tag] = self.get_dummy_pipe_section_info()
 
             if "material_info" in structure.extra_info.keys():
                 material_id = structure.extra_info["material_info"]
@@ -882,7 +947,7 @@ class GeometryHandler:
             data["corner_coords"] = get_data(structure.corner.coords())
             data["curvature_radius"] = np.round(structure.curvature, 8)
 
-        elif isinstance(structure, Pipe | Beam | Reducer | Valve | ExpansionJoint):
+        elif isinstance(structure, Pipe | Beam | Reducer | Flange | Valve | ExpansionJoint):
             data["structure_name"] = self.get_structure_name(structure)
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
@@ -908,6 +973,12 @@ class GeometryHandler:
         else:
             return "undefined"
 
+    def get_dummy_pipe_section_info(self):
+        section_info = dict()
+        section_info["section_type_label"] = "Pipe"
+        section_info["section_parameters"] = [0.01, 0.001, 0, 0, 0 ,0]
+        return section_info
+
     # def remove_lines(self, structures_data: dict):
     #     """ This method removes the lines properties associated with the
     #         removed structures.
@@ -919,5 +990,19 @@ class GeometryHandler:
         
     #     for line_id in lines_to_remove:
     #         app().project.model.properties._remove_line(line_id)
+
+def get_arc_length(coords_A, coords_B, coords_C):
+
+    u = coords_A - coords_C
+    v = coords_B - coords_C
+
+    norm_u = np.linalg.norm(u)
+    norm_v = np.linalg.norm(v)
+    cos_alpha = np.dot(u, v) / (norm_u * norm_v)
+
+    average_radius = (norm_u + norm_v) / 2
+    arc_length = np.arccos(cos_alpha) * average_radius
+
+    return arc_length
 
 # fmt: on

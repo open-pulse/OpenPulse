@@ -1,16 +1,13 @@
 # fmt: off
 
-import numpy as np
-from pulse.interface.utils import rotation_matrices
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication
 
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import CommonRenderWidget
 from molde.colors import Color
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
-
-from pulse import ICON_DIR, app
+from pulse import app, ICON_DIR
 from pulse.interface.viewer_3d.actors import SectionPlaneActor, ElementAxesActor, ElementLinesActor, NodesActor, PointsActor, TubeActor
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticElementsSymbolsActor, AcousticNodesSymbolsActor
 from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralElementsSymbolsActor, StructuralNodesSymbolsActor
@@ -18,10 +15,10 @@ from pulse.interface.viewer_3d.actors.structural_symbols_actor import Structural
 from ._mesh_picker import MeshPicker
 from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text
 
-
 class MeshRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+
         self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
 

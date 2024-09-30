@@ -1,6 +1,6 @@
 # fmt: off
 
-from pulse import app
+from pulse import app, version
 
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
@@ -11,8 +11,10 @@ from pulse.tools.utils import *
 
 from pulse.model.cross_section import CrossSection
 
+import logging
 from time import time
 from collections import defaultdict
+from packaging.version import Version
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -359,8 +361,9 @@ class LoadProject:
             cross_section = data["cross_section"]
             self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
 
-        elif data["section_type_label"] == "Reducer":
-            self.preprocessor.set_variable_cross_section_by_line(line_id, data)
+        elif "section_type_label" in data.keys():
+            if data["section_type_label"] == "Reducer":
+                self.preprocessor.set_variable_cross_section_by_line(line_id, data)
 
 
     def load_fluids(self, line_id: int, data: dict):
@@ -471,14 +474,35 @@ class LoadProject:
             app().project.model.properties.structural_imported_tables = imported_tables["structural"]
 
 
+    def check_file_version(self):
+
+        project_setup = app().pulse_file.read_project_setup_from_file()
+        if project_setup is None:
+            return True
+
+        if "version" in project_setup.keys():
+            file_version = project_setup["version"]
+        else:
+            #TODO: remove this as soon as possible
+            file_version = version()
+
+        software_version = version()
+        if Version(file_version) > Version(software_version):
+            title = "Incorrect file version"
+            message = "The project file version is incompatible with the current OpenPulse version. "
+            message += "As a result, the project data loading will be canceled."
+            PrintMessageInput([window_title_1, title, message])
+            return True
+
+
     def load_mesh_setup_from_file(self):
 
         project_setup = app().pulse_file.read_project_setup_from_file()
         if project_setup is None:
             return
 
-        if "mesher setup" in project_setup.keys():
-            self.preprocessor.mesh.set_mesher_setup(mesh_setup=project_setup["mesher setup"])
+        if "mesher_setup" in project_setup.keys():
+            self.preprocessor.mesh.set_mesher_setup(mesher_setup=project_setup["mesher_setup"])
 
 
     def load_inertia_load_setup(self):
@@ -495,14 +519,16 @@ class LoadProject:
 
 
     def load_analysis_file(self):
-
         analysis_setup = app().pulse_file.load_analysis_file()
+        if isinstance(analysis_setup, dict):
+            self.model.set_frequency_setup(analysis_setup)
+            self.model.set_global_damping(analysis_setup)
 
-        if analysis_setup is None:
-            return
 
-        self.model.set_frequency_setup(analysis_setup)
-        self.model.set_global_damping(analysis_setup)
+    def load_analysis_id(self):
+        analysis_setup = app().pulse_file.load_analysis_file()
+        if isinstance(analysis_setup, dict):
+            app().project.set_analysis_id(analysis_setup.get("analysis_id", None))
 
 
     def get_psd_related_lines(self):
@@ -642,7 +668,7 @@ class LoadProject:
 
                 title = "Nodal-related model attributions failed"
                 message = "Some nodal-related model attributions could not be mapped "
-                message += "after the meshing processing. The non-mapped nodes will be"
+                message += "after the meshing processing. The non-mapped nodes will be "
                 message += f"removed from nodal properties file. \n\nDetails:"
 
                 for (node_id, coords) in non_mapped_nodes:
@@ -764,5 +790,59 @@ class LoadProject:
             message += "meshing processing, therefore, they were removed "
             message += "from both the project files and model setup."
             PrintMessageInput([window_title_2, title, message])
+
+    def load_analysis_results(self):
+    
+        act_modal_analysis = False
+        str_modal_analysis = False
+        act_harmonic_analysis = False
+        str_harmonic_analysis = False
+        str_static_analysis = False
+
+        results_data = app().pulse_file.read_results_data_from_file()
+
+        if results_data:
+            logging.info("Loading results [10%]")
+            for key, data in results_data.items():
+
+                if key == "modal_acoustic":
+                    act_modal_analysis = True
+                    app().main_window.project.natural_frequencies_acoustic = data["natural_frequencies"]
+                    app().main_window.project.acoustic_solution = data["modal_shape"]
+
+                if key == "modal_structural":
+                    str_modal_analysis = True
+                    app().main_window.project.natural_frequencies_structural = data["natural_frequencies"]
+                    app().main_window.project.structural_solution = data["modal_shape"]
+
+                if key == "harmonic_acoustic":
+                    act_harmonic_analysis = True
+                    app().main_window.project.model.frequencies = data["frequencies"]
+                    app().main_window.project.acoustic_solution = data["solution"]
+
+                if key == "harmonic_structural":
+                    str_harmonic_analysis = True
+                    app().main_window.project.model.frequencies = data["frequencies"]
+                    app().main_window.project.structural_solution = data["solution"]
+
+                if key == "static_structural":
+                    str_static_analysis = True
+                    app().main_window.project.structural_solution = data["solution"]
+
+            logging.info("Updating analysis render [75%]")
+            if act_modal_analysis:
+                pass
+
+            elif str_modal_analysis:
+                pass
+
+            elif act_harmonic_analysis:
+                pass
+
+            elif str_harmonic_analysis:
+                return
+
+            else:
+                return
 
 # fmt: on

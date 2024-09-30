@@ -8,7 +8,7 @@ from pulse.interface.menu.common_menu_items import CommonMenuItems
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
-class ModelAndAnalysisSetupItems(CommonMenuItems):
+class ModelSetupItems(CommonMenuItems):
     """Menu Items
 
     This class is responsible for creating, configuring and building the items
@@ -22,12 +22,6 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
         self._create_items()
         self._create_connections()
-        self._update_items()
-
-    def keyPressEvent(self, event):
-        """This deals with key events that are directly linked with the menu."""
-        if event.key() == Qt.Key_F5:
-            self.item_child_run_analysis_callback()
 
     def _create_items(self):
         """Creates all TreeWidgetItems."""
@@ -61,15 +55,11 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_compressor_excitation = self.add_item('Add Compressor Excitation')
         self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
         #
-        self.item_top_analysis = self.add_top_item('Analysis')
-        self.item_child_select_analysis_type = self.add_item('Select Analysis Type')
-        self.item_child_analysis_setup = self.add_item('Analysis Setup')
-        self.item_child_run_analysis = self.add_item('Run Analysis')
-
-        self.top_level_items = [self.item_top_general_settings,
+        self.top_level_items = [
+                                self.item_top_general_settings,
                                 self.item_top_structural_model_setup,
-                                self.item_top_acoustic_model_setup,
-                                self.item_top_analysis]
+                                self.item_top_acoustic_model_setup
+                                ]
 
     def _create_connections(self):
         #
@@ -103,15 +93,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_add_compressor_excitation.clicked.connect(self.item_child_add_compressor_excitation_callback)
         self.item_child_turn_off_acoustic_elements.clicked.connect(self.item_child_turn_off_acoustic_elements_callback)
         #
-        # Analysis Setup
-        self.item_child_select_analysis_type.clicked.connect(self.item_child_select_analysis_type_callback)
-        self.item_child_analysis_setup.clicked.connect(self.item_child_analisys_setup_callback)
-        self.item_child_run_analysis.clicked.connect(self.item_child_run_analysis_callback)
-        #
         app().main_window.theme_changed.connect(self.set_theme)
-
-    # def create_plot_convergence_data(self):
-    #     self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_perforated_plate_convergence_data)
 
     # Callbacks
     def item_child_create_geometry_callback(self):
@@ -119,8 +101,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
 
     def item_child_set_material_callback(self):
         previous_color_mode = app().main_window.get_color_mode()
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines_with_cross_sections()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.action_plot_material_callback()
         app().main_window.input_ui.set_material()
         app().main_window.set_input_widget(None)
@@ -129,149 +110,133 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
     def item_child_set_fluid_callback(self):
         previous_color_mode = app().main_window.get_color_mode()
         app().main_window.action_plot_fluid_callback()
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines_with_cross_sections()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_fluid()
         app().main_window.set_input_widget(None)
         app().main_window.set_color_mode(previous_color_mode)
 
     def item_child_set_cross_section_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines_with_cross_sections()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_cross_section()
         app().main_window.set_input_widget(None)
 
     def item_child_set_structural_element_type_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_structural_element_type()
         app().main_window.set_input_widget(None)
 
     def item_child_set_prescribed_dofs_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.set_prescribed_dofs()
         app().main_window.set_input_widget(None)
 
     def item_child_set_nodal_loads_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.set_nodal_loads()
         app().main_window.set_input_widget(None)
 
     def item_child_add_mass_spring_damper_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.add_mass_spring_damper()
         app().main_window.set_input_widget(None)
 
     def item_child_add_elastic_nodal_links_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.add_elastic_nodal_links()
         app().main_window.set_input_widget(None)
 
     def item_child_set_inertial_loads_callback(self):
-        obj = app().main_window.input_ui.set_inertial_load()
-        if obj.complete:
-            app().main_window.plot_mesh()
+        app().main_window.input_ui.set_inertial_load()
         app().main_window.set_input_widget(None)
 
     def item_child_set_stress_stiffening_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines_with_cross_sections()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_stress_stress_stiffening()
         app().main_window.set_input_widget(None)
 
     def item_child_add_valve_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.add_valve()
         app().main_window.set_input_widget(None)
 
     def item_child_add_expansion_joint_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.add_expansion_joint()
         app().main_window.set_input_widget(None)
 
     def item_child_set_beam_x_axis_rotation_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines_with_cross_sections()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_beam_xaxis_rotation()
         app().main_window.set_input_widget(None)
 
     def item_child_set_rotation_decoupling_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("elements")
         app().main_window.input_ui.set_rotation_decoupling_dofs()
         app().main_window.set_input_widget(None)
 
     def item_child_set_acoustic_element_type_callback(self):
-        if app().main_window.action_show_mesh_data.isChecked():
-            app().main_window.plot_lines()
+        self.configure_render_according_to_inputs("lines")
         app().main_window.input_ui.set_acoustic_element_type()
         app().main_window.set_input_widget(None)
 
     def item_child_set_acoustic_pressure_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()      
+        self.configure_render_according_to_inputs("nodes")     
         app().main_window.input_ui.set_acoustic_pressure()
         app().main_window.set_input_widget(None)
 
     def item_child_set_volume_velocity_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()  
+        self.configure_render_according_to_inputs("nodes")  
         app().main_window.input_ui.set_volume_velocity()
         app().main_window.set_input_widget(None)
 
     def item_child_set_specific_impedance_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh() 
+        self.configure_render_according_to_inputs("nodes") 
         app().main_window.input_ui.set_specific_impedance()
         app().main_window.set_input_widget(None)
 
     def item_child_set_radiation_impedance_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.set_radiation_impedance()
         app().main_window.set_input_widget(None)
 
     def item_child_add_perforated_plate_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("elements")
         app().main_window.input_ui.add_perforated_plate()
         app().main_window.set_input_widget(None)
 
     def item_child_set_acoustic_element_length_correction_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("elements")
         app().main_window.input_ui.set_acoustic_element_length_correction()
         app().main_window.set_input_widget(None)
 
     def item_child_turn_off_acoustic_elements_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("elements")
         app().main_window.input_ui.turn_off_acoustic_elements()
         app().main_window.set_input_widget(None)
 
     def item_child_add_compressor_excitation_callback(self):
-        if app().main_window.action_show_geometry_data.isChecked():
-            app().main_window.plot_mesh()
+        self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.add_compressor_excitation()
         app().main_window.set_input_widget(None)
 
-    def item_child_select_analysis_type_callback(self):
-        app().main_window.input_ui.analysis_type_input()
-        self._update_items()
-    
-    def item_child_analisys_setup_callback(self):
-        app().main_window.input_ui.analysis_setup()
-        self._update_items()
+    def configure_render_according_to_inputs(self, set_by: str):
 
-    def item_child_run_analysis_callback(self):
-        app().main_window.input_ui.run_analysis()
-        self._update_items()
+        geometry_data = app().main_window.action_show_geometry_data.isChecked()
+        mesh_data = app().main_window.action_show_mesh_data.isChecked()
+        lines = app().main_window.action_plot_lines.isChecked()
+        lines_with_cross_sections = app().main_window.action_plot_lines_with_cross_section.isChecked()
+
+        if set_by == "nodes":
+            if not (mesh_data or geometry_data):
+                app().main_window.plot_geometry_points()
+
+        elif set_by == "elements":
+            if not mesh_data:
+                app().main_window.plot_mesh()
+
+        elif set_by == "lines":
+            if not (lines or lines_with_cross_sections):
+                app().main_window.plot_lines_with_cross_sections()
 
     def enable_actions_according_to_import_type(self):
         import_type = app().project.model.mesh.import_type
@@ -316,40 +281,7 @@ class ModelAndAnalysisSetupItems(CommonMenuItems):
         self.item_child_set_acoustic_element_length_correction.setDisabled(bool_key)
         self.item_child_add_compressor_excitation.setDisabled(bool_key)
         self.item_child_turn_off_acoustic_elements.setDisabled(bool_key)
-        #
-        self.item_child_select_analysis_type.setDisabled(bool_key)
-        if bool_key:
-            self.item_child_analysis_setup.setDisabled(True)
-            self.item_child_run_analysis.setDisabled(True)
-
-    def _update_items(self):
-        """ Enables and disables the child items on the menu after
-            the solution is done.
-        """
-        self.modify_model_setup_items_access(False)
-        self.item_child_analysis_setup.setDisabled(True)
-        self.item_child_run_analysis.setDisabled(True)
-                    
-        if self.project.analysis_id in [None, 2, 4]:
-            self.item_child_analysis_setup.setDisabled(True)
-        else:
-            self.item_child_analysis_setup.setDisabled(False)
-        
-        if self.project.analysis_id is not None and self.project.setup_analysis_complete:
-            self.item_child_run_analysis.setDisabled(False)
-            
-    def update_structural_analysis_visibility_items(self):
-        self.item_top_structural_model_setup.setHidden(False)
-        self.item_top_acoustic_model_setup.setHidden(True)
-        
-    def update_acoustic_analysis_visibility_items(self):
-        self.item_top_structural_model_setup.setHidden(True)
-        self.item_top_acoustic_model_setup.setHidden(False)
-
-    def update_coupled_analysis_visibility_items(self):
-        self.item_top_structural_model_setup.setHidden(False)
-        self.item_top_acoustic_model_setup.setHidden(False)
-
+ 
     def set_theme(self, theme : str):
 
         if theme == "dark":

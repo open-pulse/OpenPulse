@@ -35,7 +35,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
             ),
             (
                 self._get_lumped_mass_symbol(),
-                loadSymbol(SYMBOLS_DIR / "structural/lumped_mass.obj"),
+                loadSymbol(SYMBOLS_DIR / "structural/new_lumped_mass.obj"),
             ),
             (
                 self._get_lumped_spring_symbol(),
@@ -293,7 +293,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _get_lumped_mass_symbol(self):
 
         src = 5
-        rot = (0, 0, 0)
+        rot = (0, 90, -90)
         scl = (1, 1, 1)
         col = (7, 156, 231)
 

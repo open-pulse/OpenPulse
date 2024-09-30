@@ -4,8 +4,9 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 
+import logging
 import numpy as np
 
 
@@ -18,6 +19,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
 
         self._config_window()
         self._initialize()
+        self._load_structural_solver()
         self._define_qt_variables()
         self._create_connections()
         self.update_plot()
@@ -29,14 +31,18 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.keys = np.arange(7)
         self.selected_index = None
 
-        self.solve = app().project.structural_solve
-
         self.colormaps = ["jet",
                           "viridis",
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
+                          ]
 
         self.labels = np.array(["Normal axial",
                                 "Normal bending y",
@@ -45,6 +51,22 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
                                 "Torsional shear",
                                 "Transversal shear xy",
                                 "Transversal shear xz"])
+
+    def _load_structural_solver(self):
+
+        if app().project.structural_solver is None:
+
+            def callback():
+                logging.info("Processing the cross-sections [75%]")
+                app().project.model.preprocessor.process_cross_sections_mapping()
+            LoadingWindow(callback).run()
+
+            self.structural_solver = app().project.get_structural_solver()
+            if self.structural_solver.solution is None:
+                self.structural_solver.solution = app().project.structural_solution
+
+        else:
+            self.structural_solver = app().project.structural_solver
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -85,9 +107,9 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
         if index >= 2:
-            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
+            app().main_window.animation_toolbar.setDisabled(True)
         else:
-            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
+            app().main_window.animation_toolbar.setDisabled(False) 
 
     def load_user_preference_colormap(self):
         try:
@@ -111,12 +133,13 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         stress_label = self.labels[index]
         stress_key = self.keys[index]
 
-        if self.stress_data == list():
-            self.stress_data = self.solve.stress_calculate( pressure_external = 0, 
-                                                            damping = False )
+        app().project.model.frequencies = np.array([0.], dtype=float)
+
+        if len(self.stress_data) == 0:
+            self.stress_data = self.structural_solver.stress_calculate(static_analysis=True)
 
         stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }
-        
+
         stress_list = list(stress_field.values())
         min_stress = np.min(stress_list)
         max_stress = np.max(stress_list)
@@ -161,6 +184,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.update_animation_widget_visibility()
         self.selected_index = 0
         self.get_stress_data()
+        app().main_window.results_widget.clear_cache()
 
     def confirm_button(self):
         self.update_plot()

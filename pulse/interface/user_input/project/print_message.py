@@ -9,7 +9,7 @@ from pulse.interface.formatters.icons import *
 from time import sleep, time 
 
 class PrintMessageInput(QDialog):
-    def __init__(self, text_info, *args, **kwargs):
+    def __init__(self, text_info, **kwargs):
         super().__init__()
 
         ui_path = UI_DIR / "messages/print_message.ui"
@@ -23,6 +23,7 @@ class PrintMessageInput(QDialog):
         self._create_connections()
         self._config_widgets()
         self._set_texts()
+        self._adjust_size(kwargs)
         self.exec()
 
     def _config_window(self):
@@ -76,7 +77,7 @@ class PrintMessageInput(QDialog):
         while elapsed_time <= duration:
             sleep(0.1)
             elapsed_time = time() - t0
-            value = int(100*(elapsed_time/duration))
+            value = int(100*(elapsed_time / duration))
             self.progress_bar_timer.setValue(value)
         self.close()
 
@@ -95,10 +96,22 @@ class PrintMessageInput(QDialog):
             self.setWindowIcon(icon)
         
         self.adjustSize()
+        self.label_message.adjustSize()
         self.label_message.setAlignment(Qt.AlignCenter)
+
         if self.auto_close:
             self.timer.timeout.connect(self.message_close)
             self.timer.start(50) 
+
+    def _adjust_size(self, kwargs: dict):
+
+        height = kwargs.get("height", None)
+        if isinstance(height, int):
+            self.setFixedHeight(height)
+
+        width = kwargs.get("width", None)
+        if isinstance(width, int):
+            self.setFixedWidth(width)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

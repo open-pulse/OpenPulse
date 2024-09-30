@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -81,8 +80,6 @@ class GetInformationOfGroup(QDialog):
             self.treeWidget_group_info.headerItem().setTextAlignment(col, Qt.AlignCenter)
             if len(self.column_widths):
                 self.treeWidget_group_info.setColumnWidth(col, self.column_widths[col])
-        
-        self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def on_click_item(self, item):
         text = item.text(0)

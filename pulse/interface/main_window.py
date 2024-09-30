@@ -1,13 +1,9 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QAbstractButton, QAction, QComboBox, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
+from PyQt5.QtWidgets import QAbstractButton, QAction, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCloseEvent, QCursor
 from PyQt5 import uic
-
-# from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
-from opps.io.pcf.pcf_exporter import PCFExporter
-from opps.io.pcf.pcf_handler import PCFHandler
 
 from molde.render_widgets import CommonRenderWidget
 from molde import stylesheets
@@ -17,13 +13,16 @@ from pulse import *
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
+from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
+from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
 from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
-from pulse.interface.menu.model_and_analysis_setup_widget import ModelAndAnalysisSetupWidget
+from pulse.interface.menu.model_setup_widget import ModelSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.handler.pcf_file_io import PCFFileIO
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
 from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 from pulse.interface.user_input.project.get_started import GetStartedInput
@@ -72,12 +71,9 @@ class MainWindow(QMainWindow):
     def _initialize(self):
 
         self.dialog = None
-        self.pulse_file = None
         self.input_ui = None
 
-        self.current_plot_type = None
-
-        self.model_and_analysis_setup_widget = None
+        self.model_setup_widget = None
         self.results_viewer_wigdet = None
 
         self.interface_theme = None
@@ -85,8 +81,6 @@ class MainWindow(QMainWindow):
         self.last_render_index = None
 
         self.project_data_modified = False
-
-        self.cache_indexes = list()
 
     def _load_stylesheets(self):
         return
@@ -106,15 +100,14 @@ class MainWindow(QMainWindow):
         for path in theme_dir.rglob("*.qss"):
             stylesheets.append(path.read_text())
 
-        combined_stylesheet = "\n\n".join(stylesheets)
-        self.setStyleSheet(combined_stylesheet)
+        self.combined_stylesheet = "\n\n".join(stylesheets)
+        self.setStyleSheet(self.combined_stylesheet)
 
     def _config_window(self):
         self.showMinimized()
         self.installEventFilter(self)
         self.pulse_icon = icons.get_openpulse_icon()
         self.setWindowIcon(self.pulse_icon)
-        # self.setStyleSheet("""QToolTip{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}""")
 
     def _define_qt_variables(self):
         '''
@@ -128,53 +121,54 @@ class MainWindow(QMainWindow):
         
         # QAction
         self.action_open_project: QAction
-        self.action_geometry_workspace : QAction
-        self.action_structural_setup_workspace : QAction
-        self.action_acoustic_setup_workspace : QAction
-        self.action_analysis_setup_workspace : QAction
-        self.action_results_workspace : QAction
-        self.action_export_geometry : QAction
-        self.action_import_geometry : QAction
-        self.action_export_pcf : QAction
-        self.action_import_pcf : QAction
-        self.action_set_dark_theme : QAction
-        self.action_set_light_theme : QAction
-        self.action_save_project : QAction
-        self.action_save_project_as : QAction
-        self.action_show_mesh_data : QAction
-        self.action_show_geometry_data : QAction
-        self.action_show_lines : QAction
-        self.action_show_tubes : QAction
-        self.action_show_symbols : QAction
-        self.action_show_transparent : QAction
-        self.action_select_elements : QAction
-        self.action_plot_geometry_editor : QAction
-        self.action_plot_lines : QAction
-        self.action_plot_lines_with_cross_section : QAction
-        self.action_plot_mesh : QAction
-        self.action_export_piping : QAction
-        self.action_user_preferences : QAction
-        self.action_geometry_editor_help : QAction
-        self.action_pulsation_suppression_device_editor : QAction
-        self.action_section_plane : QAction
+        self.action_geometry_editor_workspace: QAction
+        self.action_model_setup_workspace: QAction
+        self.action_analysis_setup_workspace: QAction
+        self.action_results_workspace: QAction
+        self.action_export_geometry: QAction
+        self.action_import_geometry: QAction
+        self.action_export_pcf: QAction
+        self.action_import_pcf: QAction
+        self.action_set_dark_theme: QAction
+        self.action_set_light_theme: QAction
+        self.action_save_project: QAction
+        self.action_save_project_as: QAction
+        self.action_show_mesh_data: QAction
+        self.action_show_geometry_data: QAction
+        self.action_show_lines: QAction
+        self.action_show_tubes: QAction
+        self.action_show_symbols: QAction
+        self.action_show_transparent: QAction
+        self.action_select_elements: QAction
+        self.action_plot_geometry_editor: QAction
+        self.action_plot_lines: QAction
+        self.action_plot_lines_with_cross_section: QAction
+        self.action_plot_mesh: QAction
+        self.action_export_piping: QAction
+        self.action_user_preferences: QAction
+        self.action_pulsation_suppression_device_editor: QAction
+        self.action_section_plane: QAction
+        self.action_exit: QAction
+        #TODO: implement a new user preferences
+        self.action_user_preferences.setVisible(False)
 
         # QMenu
-        self.menu_recent : QMenu
-        self.menu_project : QMenu
-        self.menu_plots : QMenu
-        self.menu_settings : QMenu
-        self.menu_model_info : QMenu
-        self.menu_help : QMenu
+        self.menu_recent: QMenu
+        self.menu_project: QMenu
+        self.menu_plots: QMenu
+        self.menu_settings: QMenu
+        self.menu_model_info: QMenu
+        self.menu_help: QMenu
 
         # QSplitter
-        self.splitter : QSplitter
+        self.splitter: QSplitter
 
         # QStackedWidget
-        self.setup_widgets_stack : QStackedWidget
-        self.render_widgets_stack : QStackedWidget
+        self.setup_widgets_stack: QStackedWidget
+        self.render_widgets_stack: QStackedWidget
 
         # QToolBar
-        self.tool_bar : QToolBar
+        self.tool_bar: QToolBar
 
     def _connect_actions(self):
         '''
@@ -197,32 +191,9 @@ class MainWindow(QMainWindow):
 
         self.selection_changed.connect(self.selection_changed_callback)
 
-    def _create_workspaces_toolbar(self):
-        actions = {
-            Workspace.GEOMETRY: self.action_geometry_workspace,
-            Workspace.STRUCTURAL_SETUP: self.action_structural_setup_workspace,
-            Workspace.ACOUSTIC_SETUP: self.action_acoustic_setup_workspace,
-            Workspace.RESULTS: self.action_results_workspace,
-        }
-
-        self.combo_box_workspaces = QComboBox()
-        self.combo_box_workspaces.setMinimumSize(170, 26)
-
-        # iterating sorted items make the icons appear in the same 
-        # order as defined in the Workspace enumerator
-        for _, action in sorted(actions.items()):
-            self.combo_box_workspaces.addItem(f" {action.text()}")
-
-        self.combo_box_workspaces.currentIndexChanged.connect(self.update_combobox_indexes)
-        self.combo_box_workspaces.currentIndexChanged.connect(lambda x: actions[x].trigger())
-        self.tool_bar.addWidget(self.combo_box_workspaces)
-
-    def update_combobox_indexes(self, index):
-        self.cache_indexes.append(index)
-
     def disable_workspace_selector_and_geometry_editor(self, _bool):
         #TODO: improve as soon as possible
-        self.combo_box_workspaces.setDisabled(_bool)
+        self.action_results_workspace.setDisabled(_bool)
         self.action_plot_geometry_editor.setDisabled(_bool)
         self.action_export_geometry.setDisabled(_bool)
         self.action_export_pcf.setDisabled(_bool)
@@ -231,7 +202,7 @@ class MainWindow(QMainWindow):
 
     def _create_layout(self):
 
-        self.model_and_analysis_setup_widget = ModelAndAnalysisSetupWidget()
+        self.model_setup_widget = ModelSetupWidget()
         self.results_viewer_wigdet = ResultsViewerWidget()
         self.input_ui = InputUi(self)
         self.mesh_widget = MeshRenderWidget()
@@ -245,14 +216,14 @@ class MainWindow(QMainWindow):
 
         self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget, self)
         self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
-        self.setup_widgets_stack.addWidget(self.model_and_analysis_setup_widget)
+        self.setup_widgets_stack.addWidget(self.model_setup_widget)
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
         self.splitter.setSizes([100, 400])
-        self.splitter.widget(0).setMinimumWidth(380)
+        self.splitter.widget(0).setMinimumWidth(420)
         self._update_visualization()
 
-        self.model_and_analysis_items = self.model_and_analysis_setup_widget.model_and_analysis_setup_items
+        self.model_and_analysis_items = self.model_setup_widget.model_setup_items
 
     def create_file_dialog(self):
         self.file_dialog = FileDialog()
@@ -266,26 +237,25 @@ class MainWindow(QMainWindow):
         app().splash.update_progress(30)
         self._load_section_plane()
         dt = time() - t0
-        print(f"Time to process A: {dt} [s]")
+        print(f"Time to process A: {round(dt, 6)} [s]")
 
         t1 = time()
         self._create_layout()
-        self._create_workspaces_toolbar()
         self._create_status_bar()
         self._update_recent_projects()
-        self._add_mesh_toolbar()
+        self._add_toolbars()
         app().splash.update_progress(70)
         dt = time() - t1
-        print(f"Time to process B: {dt} [s]")
+        print(f"Time to process B: {round(dt, 6)} [s]")
 
         t2 = time()
         self.plot_lines_with_cross_sections()
-        self.use_structural_setup_workspace()
+        self.use_model_setup_workspace()
         self.load_user_preferences()
         self.create_temporary_folder()
         app().splash.update_progress(98)
         dt = time() - t2
-        print(f"Time to process C: {dt} [s]")
+        print(f"Time to process C: {round(dt, 6)} [s]")
 
         app().splash.close()
         self.showMaximized()
@@ -293,7 +263,7 @@ class MainWindow(QMainWindow):
         app().processEvents()
         self.create_file_dialog()
         dt = time() - t0
-        print(f"Time to process D: {dt} [s]")
+        print(f"Time to process D: {round(dt, 6)} [s]")
 
         if not self.is_temporary_folder_empty():
             self.recovery_dialog()
@@ -338,77 +308,12 @@ class MainWindow(QMainWindow):
             self.load_recent_project()
 
     def open_pcf(self):
-        '''
-        This function is absolutelly disgusting. I will refactor this next week, 
-        but for now it will be like this just in order to make the bosses happy =)
-        '''
-        from opps.model import Pipe, Bend, Flange
-
-        last_path = app().config.get_last_folder_for("pcf folder")
-        if last_path is None:
-            last_path = str(Path().home())
-
-        file_path, check = self.file_dialog.get_open_file_name(
-                                                                "Open PCF File", 
-                                                                last_path, 
-                                                                filter = "PCF File (*.pcf)"
-                                                               )
-
-        if not check:
-            return
-
-        pipeline = app().project.pipeline
-        pcf_handler = PCFHandler()
-        pcf_handler.load(file_path, pipeline)
-
-        for structure in pipeline.structures:
-            if isinstance(structure, Pipe | Bend):
-                if structure.start_diameter == structure.end_diameter:
-                    section_label = 'Pipe'
-                    start_thickness = structure.start_diameter * 0.05
-                    section_parameters = [structure.start_diameter, start_thickness, 0, 0, 0, 0]
-                else:
-                    section_label = 'Reducer'  
-                    start_thickness = structure.start_diameter * 0.05
-                    end_thickness = structure.end_diameter * 0.05
-                    section_parameters = [structure.start_diameter, start_thickness, 0, 0, 
-                                          structure.end_diameter, end_thickness, 0, 0, 0, 0]
-
-            elif isinstance(structure, Flange):
-                section_label = 'Pipe'
-                thickness = structure.diameter * 0.05
-                section_parameters = [structure.diameter, thickness, 0, 0, 0, 0]
-
-            cross_section_info = {
-                'section_type_label': section_label, 
-                'section_parameters': section_parameters
-            }
-
-            # There are no beams in pcf files, therefore it is pipe_1
-            structure.extra_info["structural_element_type"] = "pipe_1"
-            structure.extra_info["cross_section_info"] = cross_section_info
-
-        self.geometry_input_wigdet.process_geometry_callback()
+        pcf_file = PCFFileIO()
+        pcf_file.open_pcf()
 
     def export_pcf(self):
-
-        last_path = app().config.get_last_folder_for("exported pcf folder")
-        if last_path is None:
-            last_path = str(Path().home())
-
-        path, check = self.file_dialog.get_save_file_name( 
-                                                            'Export PCF file', 
-                                                            last_path, 
-                                                            'PCF File (*.pcf)'
-                                                         )
-
-        if not check:
-            return
-
-        pipeline = app().project.pipeline
-        pcf_exporter = PCFExporter()
-        pcf_exporter.save(path, pipeline)
-        self.update_plots()
+        pcf_file = PCFFileIO()
+        pcf_file.export_pcf()
 
     def export_geometry(self):
 
@@ -429,11 +334,11 @@ class MainWindow(QMainWindow):
         geometry_handler.export_cad_file(path)
 
     # public
-    def update_plots(self):
+    def update_plots(self, reset_camera=True):
         self.project.enhance_pipe_sections_appearance()
-        self.geometry_widget.update_plot(reset_camera=True)
-        self.mesh_widget.update_plot(reset_camera=True)
-        self.results_widget.update_plot(reset_camera=True)
+        self.geometry_widget.update_plot(reset_camera)
+        self.mesh_widget.update_plot(reset_camera)
+        self.results_widget.update_plot(reset_camera)
 
     def selection_changed_callback(self):
         # TODO: implement something useful
@@ -484,39 +389,45 @@ class MainWindow(QMainWindow):
     def list_selected_elements(self) -> list[int]:
         return list(self.selected_elements)
 
-    def get_current_workspace(self):
-        return self.combo_box_workspaces.currentIndex()
-
     def use_geometry_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(Workspace.GEOMETRY)
+        if self.action_geometry_editor_workspace.isChecked():
+            return
+        self.action_geometry_editor_workspace.trigger()
 
-    def use_structural_setup_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(Workspace.STRUCTURAL_SETUP)
-
-    def use_acoustic_setup_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(Workspace.ACOUSTIC_SETUP)
+    def use_model_setup_workspace(self):
+        if self.action_model_setup_workspace.isChecked():
+            return
+        self.action_model_setup_workspace.trigger()
 
     def use_results_workspace(self):
-        self.combo_box_workspaces.setCurrentIndex(Workspace.RESULTS)
+        if self.action_results_workspace.isChecked():
+            return
+        self.action_results_workspace.trigger()
 
     def plot_lines(self):
         self._configure_visualization(points=True, lines=True)
-        self.current_plot_type = "lines_plot"
 
     def plot_lines_with_cross_sections(self):
         self._configure_visualization(
             points=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
         )
-        self.current_plot_type = "lines_with_cross_section_plot"
 
     def plot_mesh(self):
         self._configure_visualization(
             nodes=True, lines=True, tubes=True,
             acoustic_symbols=True, structural_symbols=True,
         )
-        self.current_plot_type = "mesh_plot"
     
+    def plot_geometry_points(self):
+        self._configure_visualization(
+            points=True, lines=True, tubes=True,
+            acoustic_symbols=True, structural_symbols=True,
+        )    
+
+    def plot_results(self):
+        self._configure_visualization(tubes=True)  
+
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
 
@@ -533,23 +444,28 @@ class MainWindow(QMainWindow):
         return obj.complete
 
     def initial_project_action(self, finalized):
+
         # t0 = time()
+        self.analysis_toolbar.setEnabled(False)
+        self.project.none_project_action = False
         self.update_export_geometry_file_access()
         self.model_and_analysis_items.modify_model_setup_items_access(True)
+
         if finalized:
             self.disable_workspace_selector_and_geometry_editor(False)
             if app().pulse_file.check_pipeline_data():
-                self.project.none_project_action = False
+                self.analysis_toolbar.setEnabled(True)
+                self.analysis_toolbar.load_analysis_settings()
                 self.model_and_analysis_items.modify_model_setup_items_access(False)
                 # dt = time() - t0
-                # print(f"initial_project_action: {dt} s")
+                # print(f"initial_project_action: {round(dt, 6)} s")
                 return True
             else:
                 self.model_and_analysis_items.modify_geometry_item_access(False)
                 return True
-        else:
-            self.project.none_project_action = True
-            return False
+
+        self.project.none_project_action = True
+        return False
 
     def reset_geometry_render(self):
         self.project.pipeline.reset()
@@ -562,7 +478,7 @@ class MainWindow(QMainWindow):
         # t0 = time()
         self.mesh_toolbar.pushButton_generate_mesh.setDisabled(True)
 
-        if self.config.open_last_project and self.config.haveRecentProjects():
+        if self.config.open_last_project and self.config.have_recent_projects():
             self.open_project(self.config.getMostRecentProjectDir())
 
         elif self.get_started():
@@ -572,7 +488,7 @@ class MainWindow(QMainWindow):
         else:
             self.disable_workspace_selector_and_geometry_editor(True)
         # dt = time() - t0
-        # print(f"Elapsed time to load_recent_project: {dt}s")
+        # print(f"Elapsed time to load_recent_project: {round(dt, 6)}s")
 
     # internal
     def _update_recent_projects(self):
@@ -646,53 +562,59 @@ class MainWindow(QMainWindow):
     def action_export_geometry_callback(self):
         self.export_geometry()
 
-    def action_geometry_workspace_callback(self):
+    def action_geometry_editor_workspace_callback(self):
+
         self.clear_selection()
         self._configure_visualization(
-            points=True, tubes=True,
+            points=True, lines=True, tubes=True,
             acoustic_symbols=self.visualization_filter.acoustic_symbols,
             structural_symbols=self.visualization_filter.structural_symbols,
         )
         self.close_dialogs()
         self.mesh_toolbar.setDisabled(True)
+        self.animation_toolbar.setEnabled(False)
+
+        self.action_geometry_editor_workspace.setEnabled(False)
+        if not self.action_model_setup_workspace.isEnabled():
+            self.action_model_setup_workspace.setEnabled(True)
+        elif not self.action_results_workspace.isEnabled():
+            self.action_results_workspace.setEnabled(True)
 
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
-    def action_structural_setup_workspace_callback(self):
+    def action_model_setup_workspace_callback(self):
+
         self.mesh_toolbar.setDisabled(False)
-        self.model_and_analysis_setup_widget.update_visibility_for_structural_analysis()
+        self.animation_toolbar.setEnabled(False)
+        
+        self.action_model_setup_workspace.setEnabled(False)
+        if not self.action_geometry_editor_workspace.isEnabled():
+            self.action_geometry_editor_workspace.setEnabled(True)
+        elif not self.action_results_workspace.isEnabled():
+            self.action_results_workspace.setEnabled(True)
 
-        self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
+        self.setup_widgets_stack.setCurrentWidget(self.model_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
-
-    def action_acoustic_setup_workspace_callback(self):
-        self.mesh_widget.update_selection()
-        self.mesh_toolbar.setDisabled(False)
-        self.model_and_analysis_setup_widget.update_visibility_for_acoustic_analysis()
-
-        self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
-        self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
-
-    def action_coupled_setup_workspace_callback(self):
-        self.model_and_analysis_setup_widget.update_visibility_for_coupled_analysis()
-        self.setup_widgets_stack.setCurrentWidget(self.model_and_analysis_setup_widget)
-        self.render_widgets_stack.setCurrentWidget(self.results_widget)
 
     def action_results_workspace_callback(self):
 
-        self.results_widget.update_selection()
-        self.results_viewer_wigdet.update_visibility_items()
-
         if self.project.is_the_solution_finished():
+
+            self.results_widget.update_selection()
+            self.results_viewer_wigdet.update_visibility_items()
+            self.animation_toolbar.setEnabled(False)    
+
+            self.action_results_workspace.setEnabled(False)
+            if not self.action_geometry_editor_workspace.isEnabled():
+                self.action_geometry_editor_workspace.setEnabled(True)
+            elif not self.action_model_setup_workspace.isEnabled():
+                self.action_model_setup_workspace.setEnabled(True)
+
             self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
             self.render_widgets_stack.setCurrentWidget(self.results_widget)
             self.results_viewer_wigdet.update_visibility_items()
             self._configure_visualization(tubes=True)
-
-        else:
-            if self.cache_indexes:
-                self.combo_box_workspaces.setCurrentIndex(self.cache_indexes[-2])
 
     def render_changed_callback(self, new_index):
         if self.last_render_index is None:
@@ -723,27 +645,28 @@ class MainWindow(QMainWindow):
         self.use_geometry_workspace()
     
     def action_user_preferences_callback(self):
+        return
         self.input_ui.mesh_setup_visibility()
 
-    def action_geometry_editor_help_callback(self):
-        self.input_ui.geometry_editor_help()
+    def action_exit_callback(self):
+        self.close_app()
 
     def action_pulsation_suppression_device_editor_callback(self):
         self.input_ui.pulsation_suppression_device_editor()
 
     def action_plot_lines_callback(self):
-        if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-            self.use_structural_setup_workspace()
+        if not self.action_model_setup_workspace.isChecked():
+            self.action_model_setup_workspace_callback()
         self.plot_lines()
 
     def action_plot_lines_with_cross_section_callback(self):
-        if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-            self.use_structural_setup_workspace()
+        if not self.action_model_setup_workspace.isChecked():
+            self.action_model_setup_workspace_callback()
         self.plot_lines_with_cross_sections()
 
     def action_plot_mesh_callback(self):
-        if self.get_current_workspace() not in [Workspace.STRUCTURAL_SETUP, Workspace.ACOUSTIC_SETUP]:
-            self.use_structural_setup_workspace()
+        if not self.action_model_setup_workspace.isChecked():
+            self.action_model_setup_workspace_callback()
         self.plot_mesh()
 
     def action_plot_cross_section_callback(self):
@@ -792,62 +715,14 @@ class MainWindow(QMainWindow):
         self.mesh_widget.update()
         self.results_widget.update()
 
-    def action_set_structural_element_type_callback(self):
-        self.input_ui.set_structural_element_type()
-
-    def action_set_prescribed_dofs_callback(self):
-        self.input_ui.set_prescribed_dofs()
-
-    def action_set_nodal_loads_callback(self):
-        self.input_ui.set_nodal_loads()
-
-    def action_add_mass_spring_damper_callback(self):
-        self.input_ui.add_mass_spring_damper()
-
-    def action_set_stress_stiffening_callback(self):
-        self.input_ui.set_stress_stress_stiffening()
-
-    def action_add_elastic_nodal_links_callback(self):
-        self.input_ui.add_elastic_nodal_links()
-
-    def action_structural_model_info_callback(self):
-        self.input_ui.structural_model_info()
-
-    def action_set_acoustic_element_type_callback(self):
-        self.input_ui.set_acoustic_element_type()
-
-    def action_set_acoustic_pressure_callback(self):
-        self.input_ui.set_acoustic_pressure()
-
-    def action_set_volume_velocity_callback(self):
-        self.input_ui.set_volume_velocity()
-
-    def action_set_specific_impedance_callback(self):
-        self.input_ui.set_specific_impedance()
-
-    def action_add_perforated_plate_callback(self):
-        self.input_ui.add_perforated_plate()
-
-    def action_set_acoustic_element_length_correction_callback(self):
-        self.input_ui.set_acoustic_element_length_correction()
-
-    def action_add_compressor_excitation_callback(self):
-        self.input_ui.add_compressor_excitation()
-
     def action_acoustic_model_info_callback(self):
         self.input_ui.acoustic_model_info()
     
+    def action_structural_model_info_callback(self):
+        self.input_ui.structural_model_info()
+
     def action_check_beam_criteria_callback(self):
         self.input_ui.check_beam_criteria()
-
-    def action_select_analysis_type_callback(self):
-        self.input_ui.analysis_type_input()
-
-    def action_analysis_setup_callback(self):
-        self.input_ui.analysis_setup()
-    
-    def action_run_analysis_callback(self):
-        self.input_ui.run_analysis()
 
     def action_about_openpulse_callback(self):
         AboutOpenPulseInput()
@@ -913,6 +788,21 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.mesh_toolbar)
         self.insertToolBarBreak(self.mesh_toolbar)
 
+    def _add_analysis_toolbar(self):
+        self.analysis_toolbar = AnalysisToolbar()
+        self.addToolBar(self.analysis_toolbar)
+        self.analysis_toolbar.setDisabled(True)
+
+    def _add_animation_toolbar(self):
+        self.animation_toolbar = AnimationToolbar()
+        self.addToolBar(self.animation_toolbar)
+        self.insertToolBarBreak(self.animation_toolbar)
+
+    def _add_toolbars(self):
+        self._add_mesh_toolbar()
+        self._add_analysis_toolbar()
+        self._add_animation_toolbar()
+
     def _create_status_bar(self):
         self.status_bar = StatusBar(self)
         self.setStatusBar(self.status_bar)
@@ -933,7 +823,7 @@ class MainWindow(QMainWindow):
             else:
                 self.action_set_light_theme_callback()
         else:
-            self.action_set_light_theme_callback()
+            self.action_set_dark_theme_callback()
         self.update_theme = True
 
     def action_set_dark_theme_callback(self):
@@ -980,7 +870,7 @@ class MainWindow(QMainWindow):
             else:
                 self.user_preferences["bottom font color"] = (0, 0, 0)
             self.config.write_user_preferences_in_file(self.user_preferences)
-            # self.opv_widget.set_user_interface_preferences(self.user_preferences)
+            # self.blah.set_user_interface_preferences(self.user_preferences)
 
     def savePNG_call(self):
 
@@ -998,7 +888,7 @@ class MainWindow(QMainWindow):
             return
 
         # TODO: reimplement this
-        # self.opv_widget().savePNG(path)
+        # self.blah.savePNG(path)
 
     def positioning_cursor_on_widget(self, widget):
         width, height = widget.width(), widget.height()
@@ -1037,7 +927,7 @@ class MainWindow(QMainWindow):
                 return
 
             self.reset_temporary_folder()
-            self.project.reset(reset_all=True)
+            self.project.reset(reset_all = True)
             self.project.model.properties._reset_variables()
 
         self.reset_geometry_render()
@@ -1051,13 +941,21 @@ class MainWindow(QMainWindow):
         def tmp():
 
             self.reset_geometry_render()
+
             if project_path is not None:
+
                 app().config.add_recent_file(project_path)
                 app().config.write_last_folder_path_in_file("project folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
+
+                if app().loader.check_file_version():
+                    self.reset_temporary_folder()
+                    self.load_recent_project()
+                    return
+
                 self.update_window_title(project_path)
 
-            logging.info("Loading project [1/3]")
+            # logging.info("Loading project [30%]")
             self.project.load_project()
             self.mesh_toolbar.update_mesh_attributes()
 
@@ -1068,10 +966,10 @@ class MainWindow(QMainWindow):
 
             self.initial_project_action(True)
 
-            logging.info("Update recent projects [2/3]")
+            logging.info("Update recent projects [80%]")
             self._update_recent_projects()
 
-            logging.info("Configuring visualization [3/3]")
+            logging.info("Configuring visualization [95%]")
             self.action_front_view_callback()
             self.update_plots()
 
@@ -1120,12 +1018,10 @@ class MainWindow(QMainWindow):
                 return
 
             if obj.ignore_results_data:
-                pass
-                # self.ulse_file.remove_results_data_from_project_file()
-            
+                app().pulse_file.remove_results_data_from_project_file()
+
             if obj.ignore_mesh_data:
-                pass
-                # self.pulse_file.remove_mesh_data_from_project_file()
+                app().pulse_file.remove_mesh_data_from_project_file()
 
             self.save_project_as(file_path)
 
@@ -1142,7 +1038,9 @@ class MainWindow(QMainWindow):
         copy(TEMP_PROJECT_FILE, path)
         self.update_window_title(path)
         self.project_data_modified = False
-        print("The project data has been saved.")
+
+        from datetime import datetime
+        print(f"The project data has been saved @ {datetime.now()}")
 
     def update_window_title(self, project_path : str | Path):
         if isinstance(project_path, str):
@@ -1151,7 +1049,10 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"{project_name}")
 
     def set_input_widget(self, dialog):
+        return
         self.dialog = dialog
+        if isinstance(self.dialog, QDialog):
+            self.dialog.setStyleSheet(self.combined_stylesheet)
 
     def close_dialogs(self):
         if isinstance(self.dialog, (QDialog, QWidget)):
@@ -1174,7 +1075,7 @@ class MainWindow(QMainWindow):
         else:
             close = QMessageBox.question(
                                             self, 
-                                            "QUIT", 
+                                            "Quit", 
                                             "Would you like to close the application?", 
                                             QMessageBox.Yes | QMessageBox.No
                                         )
@@ -1195,13 +1096,13 @@ class MainWindow(QMainWindow):
         if event.type() == QEvent.ShortcutOverride:
             if alt_pressed and (event.key() == Qt.Key_E):
                 self.set_selection()
-                self.combo_box_workspaces.setCurrentIndex(0)
+                self.use_geometry_workspace()
             elif alt_pressed and (event.key() == Qt.Key_S):
-                self.combo_box_workspaces.setCurrentIndex(1)
+                self.use_model_setup_workspace()
             elif alt_pressed and (event.key() == Qt.Key_A):
-                self.combo_box_workspaces.setCurrentIndex(2)
+                self.use_model_setup_workspace()
             elif alt_pressed and (event.key() == Qt.Key_R):
-                self.combo_box_workspaces.setCurrentIndex(3)
+                self.use_results_workspace()
             elif event.key() == Qt.Key_F5:
                 self.update_plots()
         return super(MainWindow, self).eventFilter(obj, event)

@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_structural_data import get_reactions
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
@@ -178,29 +177,6 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
 
     def get_mask_for_values(self, values: list) -> list:
         return [False if value is None else True for value in values]
-
-    # def get_lumped_dampings_mask(self, values: list) -> list:
-    #     return [False if bc is None else True for bc in values]
-
-    # def get_lumped_stiffness_mask(self, values: list) -> list:
-    #     return [False if bc is None else True for bc in values]
-
-    # def get_constrained_dofs_mask(self, values: list) -> list:
-
-    #     constrained_dofs_mask = [False, False, False, False, False, False]
-    #     for index, value in enumerate(values):
-
-    #         if isinstance(value, complex):
-    #             if value == complex(0):
-    #                 constrained_dofs_mask[index] = True
-
-    #         elif isinstance(value, np.ndarray):
-    #             if np.sum(value) == complex(0):
-    #                 constrained_dofs_mask[index] = True
-    #             else:
-    #                 constrained_dofs_mask[index] = False
-
-    #     return constrained_dofs_mask
 
     def disable_non_existing_reactions(self, node_id):
         

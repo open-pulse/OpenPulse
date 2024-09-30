@@ -86,6 +86,7 @@ class AcousticPressureInput(QDialog):
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_search.clicked.connect(self.load_acoustic_pressure_table)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
@@ -465,7 +466,7 @@ class AcousticPressureInput(QDialog):
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
         self.load_nodes_info()
-        app().main_window.update_plots()
+        app().main_window.update_plots(reset_camera=False)
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.setText("")

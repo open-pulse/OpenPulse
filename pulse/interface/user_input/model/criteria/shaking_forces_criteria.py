@@ -7,8 +7,9 @@ from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 
-import os
+import logging
 import numpy as np
 
 window_title_1 = "Error"
@@ -18,13 +19,14 @@ class ShakingForcesCriteriaInput(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        ui_path = UI_DIR / "criterias/shaking_forces_criteria_widget.ui"
+        ui_path = UI_DIR / "plots/results/acoustic/plot_shaking_forces.ui"
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
 
         self._config_window()
         self._initialize()
+        self._load_structural_solver()
         self._define_qt_variables()
         self._create_connections()
         # self._config_widgets()
@@ -36,11 +38,26 @@ class ShakingForcesCriteriaInput(QWidget):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+
         self.keep_window_open = True
         self.complete = False
         self.unit_label = "N"
 
         self.frequencies = app().project.model.frequencies
+
+    def _load_structural_solver(self):
+
+        if app().project.structural_solver is None:
+
+            def callback():
+                logging.info("Processing the cross-sections [75%]")
+                app().project.model.preprocessor.process_cross_sections_mapping()
+
+            LoadingWindow(callback).run()
+
+            # self.structural_solver = app().project.get_structural_solver()
+            # if self.structural_solver.solution is None:
+            #     self.structural_solver.solution = app().project.structural_solution
 
     def _define_qt_variables(self):
 
@@ -91,8 +108,10 @@ class ShakingForcesCriteriaInput(QWidget):
 
             element = app().project.model.preprocessor.structural_elements[element_id]
 
-            pressure_first = app().project.solution_acoustic[element.first_node.global_index, :]
-            pressure_last = app().project.solution_acoustic[element.last_node.global_index, :]
+            acoustic_solution = app().project.get_acoustic_solution()
+
+            pressure_first = acoustic_solution[element.first_node.global_index, :]
+            pressure_last = acoustic_solution[element.last_node.global_index, :]
             pressure = np.c_[pressure_first, pressure_last].T
 
             pressure_loads += element.force_vector_acoustic_gcs(self.frequencies, pressure, pressure_external)

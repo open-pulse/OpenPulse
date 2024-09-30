@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
@@ -30,14 +29,12 @@ class PlotAcousticFrequencyResponse(QWidget):
         self.selection_callback()
 
     def _initialize(self):
-        self.preprocessor = self.project.preprocessor
+        self.solution = self.project.get_acoustic_solution()
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.nodes = self.preprocessor.nodes
         self.analysis_method = self.project.analysis_method_label
         self.frequencies = self.model.frequencies
-        self.solution = self.project.get_acoustic_solution()
 
-    def _config_window(self):        
+    def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
@@ -90,7 +87,7 @@ class PlotAcousticFrequencyResponse(QWidget):
             return True
 
     def get_response(self, node_id):
-        response = get_acoustic_frf(self.preprocessor, self.solution, node_id)
+        response = get_acoustic_frf(app().project.model.preprocessor, self.solution, node_id)
         if complex(0) in response:
             response += 1e-12
         return response
@@ -121,6 +118,8 @@ class PlotAcousticFrequencyResponse(QWidget):
 
     def get_color(self, index):
 
+        from numpy import random
+
         colors = [  (0,0,1), (0,0,0), (1,0,0),
                     (0,1,1), (1,0,1), (1,1,0),
                     (0.25,0.25,0.25)  ]
@@ -128,7 +127,7 @@ class PlotAcousticFrequencyResponse(QWidget):
         if index <= 6:
             return colors[index]
         else:
-            return tuple(np.random.randint(0, 255, size=3) / 255)
+            return tuple(random.randint(0, 255, size=3) / 255)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

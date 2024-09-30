@@ -1435,88 +1435,6 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="6">
-               <widget class="QPushButton" name="pushButton_flip_element_ids_final">
-                <property name="minimumSize">
-                 <size>
-                  <width>40</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>40</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>MS Shell Dlg 2</family>
-                  <pointsize>10</pointsize>
-                  <weight>50</weight>
-                  <italic>false</italic>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset>
-                  <normaloff>../../../../icons/common/invert_icon.png</normaloff>../../../../icons/common/invert_icon.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>20</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="3">
-               <widget class="QPushButton" name="pushButton_flip_element_ids_initial">
-                <property name="minimumSize">
-                 <size>
-                  <width>40</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="maximumSize">
-                 <size>
-                  <width>40</width>
-                  <height>26</height>
-                 </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <family>MS Shell Dlg 2</family>
-                  <pointsize>10</pointsize>
-                  <weight>50</weight>
-                  <italic>false</italic>
-                  <bold>false</bold>
-                 </font>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="icon">
-                 <iconset>
-                  <normaloff>../../../../icons/common/invert_icon.png</normaloff>../../../../icons/common/invert_icon.png</iconset>
-                </property>
-                <property name="iconSize">
-                 <size>
-                  <width>20</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </widget>
-              </item>
               <item row="3" column="3">
                <widget class="QLabel" name="label_62">
                 <property name="minimumSize">
@@ -2276,19 +2194,6 @@
                 </property>
                </spacer>
               </item>
-              <item row="2" column="4">
-               <spacer name="horizontalSpacer_19">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
               <item row="2" column="7">
                <spacer name="horizontalSpacer_17">
                 <property name="orientation">
@@ -2302,11 +2207,88 @@
                 </property>
                </spacer>
               </item>
+              <item row="0" column="3">
+               <widget class="QFrame" name="frame_11">
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_16">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item row="0" column="0">
+                  <widget class="QPushButton" name="pushButton_invert_input_values">
+                   <property name="minimumSize">
+                    <size>
+                     <width>40</width>
+                     <height>26</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>40</width>
+                     <height>26</height>
+                    </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>MS Shell Dlg 2</family>
+                     <pointsize>10</pointsize>
+                     <weight>50</weight>
+                     <italic>false</italic>
+                     <bold>false</bold>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>../../../../icons/common/swap_horizontal_arrows.png</normaloff>../../../../icons/common/swap_horizontal_arrows.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>22</width>
+                     <height>22</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
            <item row="3" column="0">
             <widget class="QFrame" name="frame_20">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>72</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>72</height>
+              </size>
+             </property>
              <property name="frameShape">
               <enum>QFrame::NoFrame</enum>
              </property>
@@ -6305,7 +6287,7 @@
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>380</width>
+                  <width>420</width>
                   <height>40</height>
                  </size>
                 </property>
@@ -6689,18 +6671,16 @@
   <tabstop>pushButton_plot_pipe_cross_section</tabstop>
   <tabstop>pushButton_confirm_pipe</tabstop>
   <tabstop>lineEdit_element_id_initial</tabstop>
-  <tabstop>pushButton_flip_element_ids_initial</tabstop>
-  <tabstop>lineEdit_element_id_final</tabstop>
-  <tabstop>pushButton_flip_element_ids_final</tabstop>
   <tabstop>lineEdit_outside_diameter_initial</tabstop>
-  <tabstop>lineEdit_outside_diameter_final</tabstop>
   <tabstop>lineEdit_wall_thickness_initial</tabstop>
-  <tabstop>lineEdit_wall_thickness_final</tabstop>
   <tabstop>lineEdit_offset_y_initial</tabstop>
-  <tabstop>lineEdit_offset_y_final</tabstop>
   <tabstop>lineEdit_offset_z_initial</tabstop>
-  <tabstop>lineEdit_offset_z_final</tabstop>
   <tabstop>pushButton_select_standard_section_initial</tabstop>
+  <tabstop>lineEdit_element_id_final</tabstop>
+  <tabstop>lineEdit_outside_diameter_final</tabstop>
+  <tabstop>lineEdit_wall_thickness_final</tabstop>
+  <tabstop>lineEdit_offset_y_final</tabstop>
+  <tabstop>lineEdit_offset_z_final</tabstop>
   <tabstop>pushButton_select_standard_section_final</tabstop>
   <tabstop>lineEdit_insulation_thickness_variable_section</tabstop>
   <tabstop>lineEdit_insulation_density_variable_section</tabstop>

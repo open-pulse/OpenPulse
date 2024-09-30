@@ -1,4 +1,4 @@
-from pulse import app
+from pulse import app, version
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
@@ -68,7 +68,8 @@ class ProjectFile:
             if project_setup is None:
                 project_setup = dict()
 
-            project_setup["mesher setup"] = data
+            project_setup["mesher_setup"] = data
+            project_setup["version"] = version()
 
             self.filebox.write(self.project_setup_filename, project_setup)
             app().main_window.project_data_modified = True
@@ -80,12 +81,12 @@ class ProjectFile:
 
         data = self.filebox.read(self.project_setup_filename)
 
-        if "mesher setup" in data.keys():
-            project_setup = data["mesher setup"]
+        if "mesher_setup" in data.keys():
+            project_setup = data["mesher_setup"]
 
-            if "geometry filename" in project_setup.keys():
+            if "geometry_filename" in project_setup.keys():
 
-                geometry_filename = project_setup["geometry filename"]
+                geometry_filename = project_setup["geometry_filename"]
                 dirname = self.project_folder_path / "geometry" 
                 temp_path = dirname / geometry_filename
                 internal_path = f"geometry_file/{geometry_filename}"
@@ -100,7 +101,7 @@ class ProjectFile:
                 self.filebox.read_to_path(internal_path, temp_path)
 
                 return str(temp_path)
-    
+
     def read_project_setup_from_file(self):
         return self.filebox.read(self.project_setup_filename)
 
@@ -168,7 +169,7 @@ class ProjectFile:
         if project_setup is None:
             return   
 
-        project_setup["analysis setup"] = analysis_setup         
+        project_setup["analysis_setup"] = analysis_setup         
         self.filebox.write(self.project_setup_filename, project_setup)
 
         app().main_window.project_data_modified = True
@@ -181,8 +182,8 @@ class ProjectFile:
         if project_setup is None:
             return
 
-        if "analysis setup" in project_setup.keys():
-            analysis_setup = project_setup["analysis setup"]
+        if "analysis_setup" in project_setup.keys():
+            analysis_setup = project_setup["analysis_setup"]
 
         return analysis_setup
 
@@ -192,7 +193,7 @@ class ProjectFile:
         if project_setup is None:
             return   
 
-        project_setup["inertia load"] = inertia_load         
+        project_setup["inertia_load"] = inertia_load         
         self.filebox.write(self.project_setup_filename, project_setup)
 
         app().main_window.project_data_modified = True
@@ -205,8 +206,8 @@ class ProjectFile:
             return
 
         inertia_load = None
-        if "inertia load" in project_setup.keys():
-            inertia_load = project_setup["inertia load"]
+        if "inertia_load" in project_setup.keys():
+            inertia_load = project_setup["inertia_load"]
 
         return inertia_load
 
@@ -355,40 +356,48 @@ class ProjectFile:
         return self.filebox.read(self.thumbnail_filename)
     
     def write_results_data_in_file(self):
+
+        self.remove_results_data_from_project_file()
+
         with self.filebox.open(self.results_data_filename, "w") as internal_file:
             with h5py.File(internal_file, "w") as f:
 
-                acoustic_modal_solver = app().project.acoustic_modal_solver
-                if acoustic_modal_solver is not None:
-                    if acoustic_modal_solver.modal_shape is not None:
-                        natural_frequencies = acoustic_modal_solver.natural_frequencies
-                        modal_shape = acoustic_modal_solver.modal_shape
-                        f.create_dataset("modal_acoustic/natural_frequencies", data=natural_frequencies, dtype=float)
-                        f.create_dataset("modal_acoustic/modal_shape", data=modal_shape, dtype=float)
-                
-                structural_modal_solver = app().project.structural_modal_solver
-                if structural_modal_solver is not None:
-                    if structural_modal_solver.modal_shape is not None:
-                        natural_frequencies = structural_modal_solver.natural_frequencies
-                        modal_shape = structural_modal_solver.modal_shape
+                analysis_id = app().project.analysis_id
+                acoustic_solver = app().project.acoustic_solver
+                structural_solver = app().project.structural_solver
+
+                if analysis_id == 2:
+                    if structural_solver.modal_shapes is not None:
+                        natural_frequencies = structural_solver.natural_frequencies
+                        modal_shape = structural_solver.modal_shapes
                         f.create_dataset("modal_structural/natural_frequencies", data=natural_frequencies, dtype=float)
                         f.create_dataset("modal_structural/modal_shape", data=modal_shape, dtype=float)
 
-                acoustic_harmonic_solver = app().project.acoustic_harmonic_solver
-                if acoustic_harmonic_solver is not None:
-                    if acoustic_harmonic_solver.solution is not None:
-                        frequencies = acoustic_harmonic_solver.frequencies
-                        solution = acoustic_harmonic_solver.solution
+                if analysis_id == 4:
+                    if acoustic_solver.modal_shapes is not None:
+                        natural_frequencies = acoustic_solver.natural_frequencies
+                        modal_shape = acoustic_solver.modal_shapes
+                        f.create_dataset("modal_acoustic/natural_frequencies", data=natural_frequencies, dtype=float)
+                        f.create_dataset("modal_acoustic/modal_shape", data=modal_shape, dtype=float)
+
+                if analysis_id in [3, 5, 6]:
+                    if acoustic_solver.solution is not None:
+                        frequencies = acoustic_solver.frequencies
+                        solution = acoustic_solver.solution
                         f.create_dataset("harmonic_acoustic/frequencies", data=frequencies, dtype=float)
                         f.create_dataset("harmonic_acoustic/solution", data=solution, dtype=complex)
-                
-                structural_harmonic_solver = app().project.structural_harmonic_solver
-                if structural_harmonic_solver is not None:
-                    if structural_harmonic_solver.solution is not None:
-                        frequencies = acoustic_harmonic_solver.frequencies
-                        solution = acoustic_harmonic_solver.solution
+
+                if analysis_id in [0, 1, 5, 6]:
+                    if structural_solver.solution is not None:
+                        frequencies = structural_solver.frequencies
+                        solution = structural_solver.solution
                         f.create_dataset("harmonic_structural/frequencies", data=frequencies, dtype=float)
                         f.create_dataset("harmonic_structural/solution", data=solution, dtype=complex)
+
+                if analysis_id == 7:
+                    if structural_solver.solution is not None:
+                        solution = structural_solver.solution
+                        f.create_dataset("static_structural/solution", data=solution, dtype=complex)
 
                 app().main_window.project_data_modified = True
 
@@ -449,8 +458,8 @@ class ProjectFile:
         if project_setup is None:
             return False
 
-        mesher_setup = project_setup["mesher setup"]
-        import_type = mesher_setup["import type"]
+        mesher_setup = project_setup["mesher_setup"]
+        import_type = mesher_setup["import_type"]
 
         lines_data = self.read_line_properties_from_file()
         if lines_data is None:
@@ -483,27 +492,27 @@ class ProjectFile:
         if project_setup is None:
             return
 
-        if "mesher setup" in project_setup.keys():
+        if "mesher_setup" in project_setup.keys():
 
-            data = project_setup["mesher setup"]
+            data = project_setup["mesher_setup"]
 
             if project_name is not None:
-                data['name'] = project_name
+                data['project_name'] = project_name
 
             if import_type is not None:
-                data['import type'] = import_type
+                data['import_type'] = import_type
 
             if length_unit is not None:
-                data['length unit'] = length_unit
+                data['length_unit'] = length_unit
 
             if element_size is not None:
-                data['element size'] = element_size
+                data['element_size'] = element_size
 
             if geometry_tolerance is not None:
-                data['geometry tolerance'] = geometry_tolerance
+                data['geometry_tolerance'] = geometry_tolerance
 
             if geometry_filename is not None:
-                data['geometry file'] = geometry_filename
+                data['geometry_filename'] = geometry_filename
 
             self.write_project_setup_in_file(data)
             # self.load(self._project_ini_file_path)

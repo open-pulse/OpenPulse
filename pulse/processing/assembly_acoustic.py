@@ -390,8 +390,7 @@ class AssemblyAcoustic:
                 elif property == "radiation_impedance":
 
                     impedance_type = data["impedance_type"]
-
-                    elements = self.preprocessor.neighboor_elements_of_node(node_id)
+                    elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
 
                     if len(elements) == 1:
                         element = elements[0]

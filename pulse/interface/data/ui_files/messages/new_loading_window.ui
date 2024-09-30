@@ -43,7 +43,7 @@
    <item>
     <widget class="QProgressBar" name="progress_bar">
      <property name="value">
-      <number>24</number>
+      <number>10</number>
      </property>
      <property name="textVisible">
       <bool>true</bool>

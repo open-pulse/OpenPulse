@@ -177,6 +177,9 @@
              </property>
              <item row="0" column="0">
               <widget class="QScrollArea" name="scrollArea">
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
                <property name="frameShape">
                 <enum>QFrame::NoFrame</enum>
                </property>
@@ -189,7 +192,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>432</width>
-                  <height>377</height>
+                  <height>372</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_10">
@@ -1706,7 +1709,7 @@
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::StrongFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
@@ -1843,24 +1846,24 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tabWidget_main</tabstop>
-  <tabstop>scrollArea</tabstop>
+  <tabstop>lineEdit_selected_id</tabstop>
   <tabstop>lineEdit_valve_name</tabstop>
   <tabstop>comboBox_flange_setup</tabstop>
-  <tabstop>comboBox_acoustic_effects</tabstop>
+  <tabstop>comboBox_acoustic_behavior</tabstop>
   <tabstop>lineEdit_effective_diameter</tabstop>
   <tabstop>lineEdit_wall_thickness</tabstop>
   <tabstop>lineEdit_stiffening_factor</tabstop>
   <tabstop>lineEdit_valve_mass</tabstop>
   <tabstop>lineEdit_flange_diameter</tabstop>
   <tabstop>lineEdit_flange_length</tabstop>
-  <tabstop>lineEdit_orifice_plate_thickness</tabstop>
-  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>lineEdit_internal_valve_length</tabstop>
   <tabstop>pushButton_attribute</tabstop>
-  <tabstop>checkBox_remove_valve_acoustic_effects</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
   <tabstop>treeWidget_valves_info</tabstop>
-  <tabstop>pushButton_reset</tabstop>
+  <tabstop>checkBox_remove_valve_acoustic_effects</tabstop>
   <tabstop>pushButton_remove</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>tabWidget_main</tabstop>
  </tabstops>
  <resources/>
  <connections/>

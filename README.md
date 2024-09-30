@@ -3,7 +3,7 @@
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
-*v2.0 April 30th 2024 (now: v2.0.0a5 May 28th 2024)*
+*V2.0.4 September 20th 2024*
 
 OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. It allows to create or/and import the geometry of the pipe system, insert materials properties, set standardized or customized sections, and import pressure/acceleration/force loads (from measurements or theory). OpenPulse performs an acoustic time-harmonic response analysis of the respective 1D acoustic domain using the Finite Element Transfer Matrix Method (FETM). The resulting pressure field is applied as a distributed load over the respective structural piping system, modeled with the Timoshenko beam theory and the Finite Element Method (FEM), in order to run a structural time-harmonic response analysis. In addition to simply boundary conditions as constraints on displacements, OpenPulse allows to insert lumped springs, masses and dampers along the domain.
 
@@ -18,26 +18,29 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - New interface and visualization tools.
 - Enhancements of project files management.
 - Enhanced animation of results (real and imaginary parts, phase monitoring, etc).
+- Beam theory validity check assistant.
+- Pulsation suppression device editor.
+- Import and export PCF files.
 
 ## New geometry interface
 
 <p align="">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2_A.PNG?raw=true" alt="OpenPulse logo" width="800"/>
+   <img src="https://github.com/open-pulse/OpenPulse/blob/v2.0/doc/NOP_geom.png" alt="OpenPulse logo" width="800"/>
 
 ## Enhanced FE/FETM modeling and representation
 
 <p align="">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2_C.PNG?raw=true" alt="OpenPulse logo" width="800"/> 
-
-## Dark theme
+   <img src="https://github.com/open-pulse/OpenPulse/blob/v2.0/doc/NOP_FEM.png" alt="OpenPulse logo" width="800"/> 
+   
+## Pulsation suppression device editor
 
 <p align="">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2_B.PNG?raw=true" alt="OpenPulse logo" width="800"/>
+   <img src="https://github.com/open-pulse/OpenPulse/blob/v2.0/doc/NOP_Filtros.png?raw=true" alt="OpenPulse logo" width="800"/> 
 
 ## Enhanced results visualisation
 
 <p align="">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OPv2.gif?raw=true" alt="OpenPulse logo" width="800"/>
+   <img src="https://github.com/open-pulse/OpenPulse/blob/v2.0/doc/NOP_video.gif?raw=true" alt="OpenPulse logo" width="800"/>
 
 ## Installing through an executable
 
@@ -76,7 +79,7 @@ poetry run python pulse
 
 - Project page on [Researchgate](https://www.researchgate.net/project/Acoustically-Induced-Vibration-in-Pipeline-Systems).
   
-- [Português] Demonstração rápida: [MOPT YouTube](https://youtu.be/-C5Am9ekM7E).
+- [Português] Demonstração rápida: [MOPT YouTube](https://youtu.be/qhuQcdCk4i0).
 
 ## Article published: Mechanical Systems and Signal Processing - Volume 186, 1 March 2023
 
@@ -101,8 +104,7 @@ poetry run python pulse
 
 ## Next events 
 
-- Internoise 2024, 25 - 29 August, Nantes, France.
-- IIR conference on Compressors and Refrigerants 2024, 9 - 11 September, Bratislava, Slovakia.
+- Internoise 2025, 24 - 27 August, São Paulo, Brazil.
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
@@ -122,7 +124,7 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Danilo Espindola](https://www.linkedin.com/in/danilo-espindola-7b47a626b/) - Interface with other softwares;
    - [Vitor Slongo](https://www.linkedin.com/in/vitor-slongo-45298a270/) - Mesh and Geometry Specialist;
    - [Gildean Almeida](https://www.linkedin.com/in/gildean-almeida-708862298/) - Validation;
-   - [Fabrício Cruz](https://www.linkedin.com/in/fabricio-emanuel-cruz/) - Validation.
+   - [Fabrício Cruz](https://www.linkedin.com/in/fabricio-emanuel-cruz/) - Validation (Former Member).
 
 ![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true) 
 

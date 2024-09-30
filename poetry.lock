@@ -832,7 +832,7 @@ vtk = "^9.3.0"
 type = "git"
 url = "https://github.com/andrefpf/molde"
 reference = "HEAD"
-resolved_reference = "4be4e29592bf748bdc131a15c21f7437eb3bd2dd"
+resolved_reference = "ee3e512731aaca823a0ee9f8177ad1e11dc4a71b"
 
 [[package]]
 name = "moviepy"
@@ -949,8 +949,8 @@ vtk = "^9.2.6"
 [package.source]
 type = "git"
 url = "https://github.com/open-pulse/opps"
-reference = "add_new_structures"
-resolved_reference = "4c81f2c4daf6d68d9dfa694bdc4a12aeefed2327"
+reference = "HEAD"
+resolved_reference = "b9837eb192f46728da42264e8524f1794eb6cee7"
 
 [[package]]
 name = "ordered-set"
@@ -1746,4 +1746,4 @@ web = ["wslink (>=1.0.4)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "25cc77016f9cb13dab3b33a8ed0edeaa89153ea616dd6de483e0e01bf0eb458d"
+content-hash = "948ad5d7a3fdb0ee617b534b2a1e67c1046d41f81ec45beaf1b59e42c193133e"

@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-# from pulse.interface.formatters.icons import *
 
 import numpy as np
 
@@ -32,7 +31,13 @@ class PlotAcousticPressureField(QWidget):
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
+                          ]
 
     def _config_window(self):
         self.setWindowIcon(app().main_window.pulse_icon)
@@ -86,9 +91,9 @@ class PlotAcousticPressureField(QWidget):
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
         if index >= 2:
-            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
+            app().main_window.animation_toolbar.setDisabled(True)
         else:
-            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False) 
+            app().main_window.animation_toolbar.setDisabled(False) 
 
     def load_user_preference_colormap(self):
         try:

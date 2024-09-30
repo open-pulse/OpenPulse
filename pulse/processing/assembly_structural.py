@@ -293,25 +293,25 @@ class AssemblyStructural:
 
             # processing lumped masses
             if _property == "lumped_masses":
-                i_indexes_M.append(position)
-                j_indexes_M.append(position)
+                i_indexes_M.extend(position)
+                j_indexes_M.extend(position)
                 values = data["values"]
-                M_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+                M_data.extend(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
             # processing lumped stiffness
             if _property == "lumped_stiffness":
-                i_indexes_K.append(position)
-                j_indexes_K.append(position)
+                i_indexes_K.extend(position)
+                j_indexes_K.extend(position)
                 values = data["values"]
-                K_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+                K_data.extend(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
             # processing lumped dampers
             if _property == "lumped_dampings":
-                i_indexes_C.append(position)
-                j_indexes_C.append(position)
+                i_indexes_C.extend(position)
+                j_indexes_C.extend(position)
                 flag_Clump = True
                 values = data["values"]
-                C_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+                C_data.extend(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
             # structural elastic link in PSDs
             if _property == "psd_structural_links":
@@ -319,7 +319,7 @@ class AssemblyStructural:
                 i_indexes_K.extend(psd_link_data["indexes_i"])
                 j_indexes_K.extend(psd_link_data["indexes_j"])
                 values = psd_link_data["data"]
-                K_data.append(self.get_bc_array_for_all_frequencies(False, values))
+                K_data.extend(self.get_bc_array_for_all_frequencies(False, values))
 
             # structural nodal link for stiffness
             if _property == "structural_stiffness_links":
@@ -327,7 +327,7 @@ class AssemblyStructural:
                 i_indexes_K.extend(link_data_K["indexes_i"])
                 j_indexes_K.extend(link_data_K["indexes_j"])
                 values = link_data_K["data"]
-                K_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+                K_data.extend(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
             # structural nodal link for damping
             if _property == "structural_damping_links":
@@ -335,7 +335,7 @@ class AssemblyStructural:
                 i_indexes_C.extend(link_data_C["indexes_i"])
                 j_indexes_C.extend(link_data_C["indexes_j"])
                 values = link_data_C["data"]
-                C_data.append(self.get_bc_array_for_all_frequencies(loaded_table, values))
+                C_data.extend(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
         data_Klump = np.array(K_data).reshape(-1, cols)
         data_Mlump = np.array(M_data).reshape(-1, cols)
@@ -425,13 +425,16 @@ class AssemblyStructural:
         
             # elementary loads - element integration
             for element in self.preprocessor.structural_elements.values():
+
                 position = element.global_dof
                 # self-weight loads
                 if self.model.weight_load:
                     loads[position] += element.get_self_weighted_load(self.model.gravity_vector)
+
                 # stress stiffening loads
                 if self.model.internal_pressure_load:
                     loads[position] += element.force_vector_stress_stiffening()
+
                 # distributed loads
                 if self.model.element_distributed_load:
                     loads[position] += element.get_distributed_load()
@@ -441,7 +444,7 @@ class AssemblyStructural:
                 for (property, *args), data in self.model.properties.nodal_properties.items():
                     if property == "nodal_loads":
 
-                        node_id = args
+                        node_id = args[0]
                         node = self.preprocessor.nodes[node_id]
                         position = node.global_dof
                         values = data["values"]
@@ -548,7 +551,7 @@ class AssemblyStructural:
         return loads
     
 
-    def get_bc_array_for_all_frequencies(self, loaded_table, boundary_condition):
+    def get_bc_array_for_all_frequencies(self, loaded_table, values):
         """
         This method perform the assembly process of the structural FEM force and moment loads.
 
@@ -572,10 +575,13 @@ class AssemblyStructural:
         else:
             number_frequencies = len(self.frequencies)
 
+        ones = np.ones(number_frequencies, dtype=float)
+        zeros = np.zeros(number_frequencies, dtype=float)
+
         if loaded_table:
-            list_arrays = [np.zeros(number_frequencies, dtype=float) if bc is None else bc[0:number_frequencies] for bc in boundary_condition]
+            list_arrays = [zeros if value is None else value[0:number_frequencies] for value in values]
             self.no_table = False
         else:
-            list_arrays = [np.zeros(number_frequencies, dtype=float) if bc is None else np.ones(number_frequencies, dtype=float)*bc for bc in boundary_condition]
+            list_arrays = [zeros if value is None else ones * value for value in values]
 
         return list_arrays

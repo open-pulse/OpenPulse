@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
 
 import numpy as np
 
@@ -33,7 +32,13 @@ class PlotStructuralModeShape(QWidget):
                           "inferno",
                           "magma",
                           "plasma",
-                          "grayscale"]
+                          "bwr",
+                          "PiYG",
+                          "PRGn",
+                          "BrBG",
+                          "PuOR",
+                          "grayscale",
+                          ]
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -96,9 +101,9 @@ class PlotStructuralModeShape(QWidget):
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
         if index >= 4:
-            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(True)
+            app().main_window.animation_toolbar.setDisabled(True)
         else:
-            app().main_window.results_viewer_wigdet.animation_widget.setDisabled(False)
+            app().main_window.animation_toolbar.setDisabled(False)
 
     def load_user_preference_colormap(self):
         try:
@@ -117,16 +122,19 @@ class PlotStructuralModeShape(QWidget):
         self.update_plot()
 
     def update_plot(self):
+
         self.update_animation_widget_visibility()
         if self.lineEdit_natural_frequency.text() == "":
             return
-        else:
-            app().project.analysis_type_label = "Structural Modal Analysis"
-            frequency = self.selected_natural_frequency
-            self.mode_index = self.natural_frequencies.index(frequency)
-            color_scale_setup = self.get_user_color_scale_setup()
-            app().project.set_color_scale_setup(color_scale_setup)
-            app().main_window.results_widget.show_displacement_field(self.mode_index)
+
+        app().project.analysis_type_label = "Structural Modal Analysis"
+        frequency = self.selected_natural_frequency
+        self.mode_index = self.natural_frequencies.index(frequency)
+        color_scale_setup = self.get_user_color_scale_setup()
+
+        app().project.set_color_scale_setup(color_scale_setup)
+        app().main_window.results_widget.show_displacement_field(self.mode_index)
+        app().main_window.results_widget.clear_cache()
 
     def update_transparency_callback(self):
         transparency = self.slider_transparency.value() / 100
@@ -199,30 +207,24 @@ class PlotStructuralModeShape(QWidget):
 
     def load_natural_frequencies(self):
         
-        self.natural_frequencies = app().project.natural_frequencies_structural
-        modes = np.arange(1, len(self.natural_frequencies)+1, 1)
-        self.dict_modes_frequencies = dict(zip(modes, self.natural_frequencies))
+        self.natural_frequencies = list(app().project.natural_frequencies_structural)
+        modes = np.arange(1, len(self.natural_frequencies) + 1, 1)
+        self.modes_to_frequencies = dict(zip(modes, self.natural_frequencies))
 
         self.treeWidget_frequencies.clear()
-        for mode, natural_frequency in self.dict_modes_frequencies.items():
+        for mode, natural_frequency in self.modes_to_frequencies.items():
             new = QTreeWidgetItem([str(mode), str(round(natural_frequency,4))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_frequencies.addTopLevelItem(new)
-        
-        # data = np.zeros((len(self.dict_modes_frequencies),2))
-        # data[:,0] = np.array(list(self.dict_modes_frequencies.keys()))
-        # data[:,1] = np.array(list(self.dict_modes_frequencies.values()))
-        # header = "Mode || Natural frequency [Hz]"
-        # np.savetxt("natural_frequencies_reference.dat", data, delimiter=";", header=header)
 
     def on_click_item(self, item):
-        self.selected_natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
+        self.selected_natural_frequency = self.modes_to_frequencies[int(item.text(0))]
         self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
         self.update_plot()
 
     def on_doubleclick_item(self, item):
-        self.selected_natural_frequency = self.dict_modes_frequencies[int(item.text(0))]
+        self.selected_natural_frequency = self.modes_to_frequencies[int(item.text(0))]
         self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
         self.update_plot()
 
