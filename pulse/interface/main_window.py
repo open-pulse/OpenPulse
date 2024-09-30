@@ -843,10 +843,10 @@ class MainWindow(QMainWindow):
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
-            icon_color = QColor(color_names.BLUE_6.to_hex())
+            self.icon_color = QColor(color_names.BLUE_6.to_hex())
 
         elif theme == "light":
-            icon_color = QColor(color_names.BLUE_4.to_hex())
+            self.icon_color = QColor(color_names.BLUE_4.to_hex())
     
         self.interface_theme = theme
         stylesheets.set_theme(theme)
@@ -858,7 +858,7 @@ class MainWindow(QMainWindow):
 
         # paint the icons of every children widget
         widgets = self.findChildren((QAbstractButton, QAction))
-        icons.change_icon_color_for_widgets(widgets, icon_color)
+        icons.change_icon_color_for_widgets(widgets, self.icon_color)
 
     def update_themes_in_file(self, theme):
         if self.update_theme:
