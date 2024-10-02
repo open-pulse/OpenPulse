@@ -9,6 +9,9 @@ from pulse.interface.application import Application
 
 
 def custom_exception_hooks(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.exit()
+
     # Logs unhandled errors for future checks 
     logging.error("Unhandled error", exc_info=(exc_type, exc_value, exc_traceback))
     
