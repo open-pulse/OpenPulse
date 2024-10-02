@@ -38,6 +38,7 @@ class StepHandler:
 
     
     def open(self, path, editor):
+        print('PASSEI AQUIIIII')
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Verbosity", 0)
         gmsh.open(str(path))
@@ -84,8 +85,27 @@ class StepHandler:
                         start_radius_center = start_radius
                         end_radius_center = end_radius
                         center_point = point
+                        center_coords = np.array(points_coords[center_point - 1][1])
 
-                center_coords = np.array(points_coords[center_point - 1][1])
+                    else:
+                        print(f'The center point of the curve {line} is broken.')
+                        # the start and end bisector is the geometric space that contains all possible center points
+                        # calculating the bisector direction by performing two cross products
+                        # (the bisector direction is orthogonal to the SE vector)
+
+                        middle_point = (start + end) / 2
+                        normal_vector = np.cross(end - start, point - start)
+                        bisector_direction = np.cross(end - start, normal_vector)
+
+                        # projecting the imported center point on the bisector line to obtain the correction to the imported center point
+                        correction_length = np.dot(bisector_direction, middle_point - point) / np.dot(bisector_direction, bisector_direction)
+                        center_corrected = middle_point - correction_length*bisector_direction
+                        print(f'The center point was recalculated and moved by {correction_length} m')
+                        print(f'The corrected center point coordinates are {center_corrected}')
+                        corrected_center_point = gmsh.model.occ.add_point(*center_corrected)
+                        center_coords = np.array(points_coords[corrected_center_point - 1][1])
+
+
                 start_coords = np.array(start_coords)
                 end_coords = np.array(end_coords)
 
