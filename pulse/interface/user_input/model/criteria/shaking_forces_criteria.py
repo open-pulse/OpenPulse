@@ -91,14 +91,14 @@ class ShakingForcesCriteriaInput(QWidget):
         stop, self.lines_typed = self.before_run.check_selected_ids(lineEdit.text(), "lines")
         if stop:
             lineEdit.setFocus()
-            return True
+            return dict()
         
         element_ids = list()
         for line_id in self.lines_typed:
             elements_from_line = app().project.model.preprocessor.mesh.elements_from_line[line_id]
             element_ids.extend(elements_from_line)
         
-        pressure_external = 0
+        pressure_external = 0.
 
         rows = app().project.model.preprocessor.DOFS_ELEMENT
         cols = len(self.frequencies)
@@ -122,11 +122,11 @@ class ShakingForcesCriteriaInput(QWidget):
         F_res = (F_x**2 + F_y** + F_z**2)**(1/2)
 
         shaking_forces = {
-                            "F_x" : F_x,
-                            "F_y" : F_y,
-                            "F_z" : F_z,
-                            "F_res" : F_res,
-                         }
+                          "F_x" : F_x,
+                          "F_y" : F_y,
+                          "F_z" : F_z,
+                          "F_res" : F_res,
+                          }
 
         return shaking_forces
 
@@ -134,26 +134,33 @@ class ShakingForcesCriteriaInput(QWidget):
 
         shaking_forces = self.process_shaking_forces_for_selected_lines()
 
-        x_data = self.frequencies
+        if shaking_forces:
 
-        self.results_to_plot = dict()
-        if self.checkBox_force_Fx.isChecked():
-            self.results_to_plot["F_x"] = {"x_data" : x_data,
-                                           "y_data" : shaking_forces["F_x"]}
+            x_data = self.frequencies
 
-        if self.checkBox_force_Fy.isChecked():
-            self.results_to_plot["F_y"] = {"x_data" : x_data,
-                                           "y_data" : shaking_forces["F_y"]}
+            self.results_to_plot = dict()
+            if self.checkBox_force_Fx.isChecked():
+                self.results_to_plot["F_x"] = {"x_data" : x_data,
+                                            "y_data" : shaking_forces["F_x"]}
 
-        if self.checkBox_force_Fz.isChecked():
-            self.results_to_plot["F_z"] = {"x_data" : x_data,
-                                           "y_data" : shaking_forces["F_z"]}
+            if self.checkBox_force_Fy.isChecked():
+                self.results_to_plot["F_y"] = {"x_data" : x_data,
+                                            "y_data" : shaking_forces["F_y"]}
 
-        if self.checkBox_resultant_force.isChecked():
-            self.results_to_plot["F_res"] = {"x_data" : x_data,
-                                             "y_data" : shaking_forces["F_res"]}
+            if self.checkBox_force_Fz.isChecked():
+                self.results_to_plot["F_z"] = {"x_data" : x_data,
+                                            "y_data" : shaking_forces["F_z"]}
 
-        self.call_plotter()
+            if self.checkBox_resultant_force.isChecked():
+                self.results_to_plot["F_res"] = {"x_data" : x_data,
+                                                "y_data" : shaking_forces["F_res"]}
+            
+            if self.results_to_plot:
+                self.call_plotter()
+            else:
+                title = "Invalid selection"
+                message = "Select at least one force component to proceed with the shaking forces calculation."
+                PrintMessageInput([window_title_1, title, message])
 
     def call_plotter(self):
 
@@ -166,7 +173,7 @@ class ShakingForcesCriteriaInput(QWidget):
 
     def join_model_data(self):
 
-        self.hide()
+        # self.hide()
 
         self.model_results = dict()
         title = f"Shaking forces from lines {self.lines_typed}"
@@ -190,12 +197,13 @@ class ShakingForcesCriteriaInput(QWidget):
                                     }
 
     def get_color(self, index):
+
         colors = [  
-                    (0,0,1), 
-                    (1,0,0),
-                    (1,0,1),
-                    (0,0,0)
-                 ]
+                  (0,0,1), 
+                  (1,0,0),
+                  (1,0,1),
+                  (0,0,0)
+                  ]
 
         if index <= 3:
             return colors[index]

@@ -165,6 +165,8 @@ class StructuralElement:
         self.mean_rotation_results = None
         self.rotation_matrix_results_at_lcs = None
 
+        self.transf_matrix_offset_shear_left = None
+        self.transf_matrix_offset_shear_right = None
         self.results_at_global_coordinate_system = None
 
         self.stress = None
@@ -929,7 +931,7 @@ class StructuralElement:
 
         Ke = Kabe + Ktse + K_geo
 
-        return self.transf_mat_OffsetShear_left @ Ke @ self.transf_mat_OffsetShear_right
+        return self.transf_matrix_offset_shear_left @ Ke @ self.transf_matrix_offset_shear_right
 
 
     def mass_matrix_pipes_variable_section(self):
@@ -1111,13 +1113,12 @@ class StructuralElement:
         To_J[[0,0,1,2],[4,5,3,3]] = [z2_offset, -y2_offset, -z2_offset, y2_offset]
 
         Of = np.zeros((E_dof, E_dof), dtype=float)
-        Of[0:N_dof, 0:N_dof] = To_I@Ro
-        Of[N_dof:, N_dof:] = To_J@Ro
+        Of[0:N_dof, 0:N_dof] = To_I @ Ro
+        Of[N_dof:, N_dof:] = To_J @ Ro
 
         self.transf_mat_Offset = Of
-        self.transf_mat_OffsetShear_left = Of.T@Sc.T
-        self.transf_mat_OffsetShear_right = Sc@Of
-
+        self.transf_matrix_offset_shear_left = Of.T @ Sc.T
+        self.transf_matrix_offset_shear_right = Sc @ Of
 
     def get_distributed_load(self):
         """
@@ -1163,7 +1164,7 @@ class StructuralElement:
         
         if self.force_offset:
             if self.variable_section:
-                return self.transf_mat_OffsetShear_left @ Fe
+                return self.transf_matrix_offset_shear_left @ Fe
             else:
                 return principal_axis.T @ Fe
         else:
@@ -1233,7 +1234,9 @@ class StructuralElement:
 
         if self.force_offset:
             if self.variable_section:
-                return R.T @ self.transf_mat_OffsetShear_left @ aux
+                if self.transf_matrix_offset_shear_left is None:
+                    self.process_offset_transformation_matrices()
+                return R.T @ self.transf_matrix_offset_shear_left @ aux
             else:
                 return R.T @ principal_axis.T @ aux
         else:
@@ -1352,7 +1355,7 @@ class StructuralElement:
 
         if self.force_offset:
             if self.variable_section:
-                return self.transf_mat_OffsetShear_left @ Fe_sw
+                return self.transf_matrix_offset_shear_left @ Fe_sw
             else:
                 return principal_axis.T @ Fe_sw
         else:
