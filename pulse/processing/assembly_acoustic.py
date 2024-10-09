@@ -381,7 +381,7 @@ class AssemblyAcoustic:
 
                 if property == "specific_impedance":
     
-                    impedance = data["values"]
+                    impedance = data["values"][0]
 
                     for element in elements:
                         if element.first_node.global_index == position or element.last_node.global_index == position:
@@ -416,7 +416,7 @@ class AssemblyAcoustic:
         return K_lump, Kr_lump  
 
     def get_nodal_admittance(self, impedance: (None | complex | np.ndarray), area_fluid: float, frequencies: np.ndarray) -> np.ndarray:
-        
+
         admittance = np.zeros(len(frequencies), dtype=complex)
 
         if impedance is not None:

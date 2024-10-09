@@ -205,8 +205,10 @@ class SpecificImpedanceInput(QDialog):
             PrintMessageInput([window_title_1, title, message])
             self.lineEdit_real_value.setFocus()
 
-        for node_id in node_ids:
-            self.remove_table_files_from_nodes(node_id)
+        # for node_id in node_ids:
+        #     self.remove_table_files_from_nodes(node_id)
+
+        self.remove_conflicting_excitations(node_ids)
 
         real_values = [np.real(specific_impedance)]
         imag_values = [np.imag(specific_impedance)]
@@ -240,6 +242,8 @@ class SpecificImpedanceInput(QDialog):
         real_values = np.real(values)
         imag_values = np.imag(values)
         data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
+
+        print(table_name, data.shape)
 
         self.properties.add_imported_tables("acoustic", table_name, data)
 
@@ -326,7 +330,8 @@ class SpecificImpedanceInput(QDialog):
             self.lineEdit_node_ids.setFocus()
             return
 
-        table_names = self.properties.get_nodal_related_table_names("specific_impedance", node_ids)
+        self.remove_conflicting_excitations(node_ids)
+        # table_names = self.properties.get_nodal_related_table_names("specific_impedance", node_ids)
 
         if self.lineEdit_table_path != "":
 
@@ -360,7 +365,7 @@ class SpecificImpedanceInput(QDialog):
 
                 self.properties._set_nodal_property("specific_impedance", data, node_id)
 
-            self.process_table_file_removal(table_names)
+            # self.process_table_file_removal(table_names)
 
             self.actions_to_finalize()
             # self.close()
@@ -401,7 +406,7 @@ class SpecificImpedanceInput(QDialog):
             node_ids = [node_ids]
 
         for node_id in node_ids:
-            for label in ["specific_impedance"]:
+            for label in ["specific_impedance", "radiation_impedance"]:
                 table_names = self.properties.get_nodal_related_table_names(label, node_id)
                 self.properties._remove_nodal_property(label, node_id)
 
@@ -415,6 +420,7 @@ class SpecificImpedanceInput(QDialog):
 
     def process_table_file_removal(self, table_names : list):
         if table_names:
+            print("process_table_file_removal", table_names)
             for table_name in table_names:
                 self.properties.remove_imported_tables("acoustic", table_name)
             app().pulse_file.write_imported_table_data_in_file()
@@ -464,6 +470,7 @@ class SpecificImpedanceInput(QDialog):
 
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
+        app().pulse_file.write_imported_table_data_in_file()
         self.load_nodes_info()
         app().main_window.update_plots(reset_camera=False)
 
