@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>345</width>
-    <height>590</height>
+    <height>593</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,7 +61,7 @@
          </font>
         </property>
         <property name="text">
-         <string>API 618 pulsation criteria</string>
+         <string>Recommended pulsation levels</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -98,7 +98,7 @@
       <item row="1" column="0">
        <widget class="QFrame" name="frame_14">
         <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
+         <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
@@ -443,6 +443,12 @@
          </item>
          <item row="3" column="0">
           <widget class="QFrame" name="frame_21">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>40</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
@@ -533,7 +539,7 @@
             <enum>QFrame::Box</enum>
            </property>
            <property name="text">
-            <string>7.9.4.2.5.2.2 Maximum Allowable Pulsation Limits at and Beyond Line-side Nozzles of Pulsation Suppression Devices</string>
+            <string>Maximum Allowable Pulsation Limits at and Beyond Line-side Connections of Pulsation Suppression Devices</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -558,7 +564,7 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
+         <enum>QFrame::NoFrame</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
@@ -604,7 +610,7 @@
             <enum>QFrame::Box</enum>
            </property>
            <property name="text">
-            <string>7.9.4.2.5.2.1 Maximum Allowable Compressor Cylinder Flange Pressure Pulsation</string>
+            <string>Maximum Allowable Compressor Cylinder Flange Pressure Pulsation</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -869,6 +875,12 @@
          </item>
          <item row="3" column="0">
           <widget class="QFrame" name="frame_6">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>40</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>

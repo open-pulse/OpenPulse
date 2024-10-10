@@ -148,7 +148,7 @@ class SetCrossSectionInput(QDialog):
             if self.check_if_lines_belongs_to_psd(selected_lines):
                 return
 
-            if len(selected_lines) == 1:
+            if len(selected_lines) >= 1:
 
                 line_id = selected_lines[0]
                 element_type = self.properties._get_property("structural_element_type", line_id=line_id)

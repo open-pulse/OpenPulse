@@ -13,7 +13,7 @@ import numpy as np
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-psi_to_Pa = 0.45359237*9.80665/((0.0254)**2)
+psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
 
 class CheckAPI618PulsationCriteriaInput(QWidget):
@@ -36,21 +36,9 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.selection_callback()
 
     def _initialize(self):
-        self.table_name = ""
-        self.stop = False
-        self.complete = False
-        self.aquisition_parameters_processed = False
-        self.node_ID_remove = None
-        self.remove_message = True
-        self.table_name = None
-        self.not_update_event = False
-
-        self.nodes = self.preprocessor.nodes
 
         self.before_run = self.project.get_pre_solution_model_checks()
         self.frequencies = self.model.frequencies
-
-        self.node_id = app().main_window.list_selected_nodes()
 
         self.solution = self.project.get_acoustic_solution()
 
@@ -98,11 +86,14 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.pushButton_plot_filtered_criteria.setDisabled(True)
 
         if len(selected_nodes) == 1:
-            node = self.nodes[selected_nodes[0]]
-            if node.compressor_excitation_table_names != []:
+
+            node_id = selected_nodes[0]
+            compressor_data = self.properties._get_property("compressor_excitation", node_ids=node_id)
+
+            if isinstance(compressor_data, dict):
                 self.pushButton_plot_unfiltered_criteria.setDisabled(False)
                 self.lineEdit_compressor_node_id.setText(str(selected_nodes[0]))
-                self.get_existing_compressor_info()
+                self.get_existing_compressor_info(node_id)
                 return
 
         if len(selected_nodes) == 1:
@@ -132,86 +123,112 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.lineEdit_line_pressure.setText("")
         self.lineEdit_speed_of_sound.setText("")
 
-    def get_existing_compressor_info(self):
-        node = self.preprocessor.nodes[self.node_id[0]]
-        comp_data = self.properties._get_property("compressor_excitation", node_ids=self.node_id[0])
-
+    def get_existing_compressor_info(self, node_id: int):
+        comp_data = self.properties._get_property("compressor_excitation", node_ids=node_id)
         if isinstance(comp_data, dict):
             self.update_compressor_data(comp_data)
 
-    def update_compressor_data(self, stage_data):
-        self.suction_pressure = stage_data["pressure at suction"]
-        self.pressure_ratio = stage_data["pressure ratio"]
+    def update_compressor_data(self, stage_data: dict):
+
+        parameters = stage_data.get("parameters", None)
+        if parameters is None:
+            return
+
+        self.suction_pressure = parameters["pressure_at_suction"]
+        self.pressure_ratio = parameters["pressure_ratio"]
         self.unfiltered_criteria = min([7, 3*self.pressure_ratio])
         self.lineEdit_pressure_ratio.setText(str(self.pressure_ratio))
         self.lineEdit_unfiltered_criteria.setText(str(round(self.unfiltered_criteria, 4)))
 
-    def get_acoustic_pressure(self):
-        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_id[0])
+    def get_acoustic_pressure(self, node_id: int):
+        response = get_acoustic_frf(self.preprocessor, self.solution, node_id)
         if complex(0) in response:
             response += np.ones(len(response), dtype=float)*(1e-12)
         return response
 
     def plot_unfiltered_criteria(self):
 
+        node_ids = app().main_window.list_selected_nodes()
+        if len(node_ids) == 1:
+            node_id = node_ids[0]
+
         # change to peak-to-peak pressure
-        acoustic_pressure = 2*self.get_acoustic_pressure()
+        acoustic_pressure = 2 * self.get_acoustic_pressure(node_id)
         self.absolute_line_pressure = self.get_line_pressure()
         avg_ratio = acoustic_pressure/self.absolute_line_pressure
-        
+
         self.model_results = dict()
         self.title = "Maximum Allowable Compressor Cylinder Flange Pressure Pulsation"
-        legend_label = "Acoustic pressure at node {}".format(self.node_id)
-        self.model_results["ratio"] = { "x_data" : self.frequencies,
-                                        "y_data" : 100*avg_ratio,
-                                        "x_label" : "Frequency [Hz]",
-                                        "y_label" : "Cylinder pressure ratio",
-                                        "title" : self.title,
-                                        "data_information" : legend_label,
-                                        "legend" : legend_label,
-                                        "unit" : "%",
-                                        "color" : [0,0,0],
-                                        "linestyle" : "-" }
+        legend_label = "Acoustic pressure at node {}".format(node_id)
+
+        key = ("ratio", (node_id))
+
+        self.model_results[key] = { 
+                                    "x_data" : self.frequencies,
+                                    "y_data" : 100*avg_ratio,
+                                    "x_label" : "Frequency [Hz]",
+                                    "y_label" : "Cylinder pressure ratio",
+                                    "title" : self.title,
+                                    "data_information" : legend_label,
+                                    "legend" : legend_label,
+                                    "unit" : "%",
+                                    "color" : [0,0,0],
+                                    "linestyle" : "-" 
+                                   }
         
         P_cf = np.ones_like(self.frequencies)*self.unfiltered_criteria
         # NOTE: Pcf is the maximum allowable unfiltered peak-to-peak pulsation level, as a 
         # percentage of average absolute line pressure at the compressor cylinder flange.
 
         legend_label = "Unfiltered criteria: {}%".format(round(self.unfiltered_criteria,2))
-        self.model_results["criteria"] = {  "x_data" : self.frequencies,
-                                            "y_data" : P_cf,
-                                            "x_label" : "Frequency [Hz]",
-                                            "y_label" : "Cylinder pressure ratio",
-                                            "title" : self.title,
-                                            "data_information" : legend_label,
-                                            "legend" : legend_label,
-                                            "unit" : "%",
-                                            "color" : [1,0,0],
-                                            "linestyle" : "-"  }
-        
-        self.plotter = FrequencyResponsePlotter()
-        self.plotter._multiple_data_to_plot(self.model_results)
 
+        key = ("criteria", (node_id))
+
+        self.model_results[key] = {  
+                                    "x_data" : self.frequencies,
+                                    "y_data" : P_cf,
+                                    "x_label" : "Frequency [Hz]",
+                                    "y_label" : "Cylinder pressure ratio",
+                                    "title" : self.title,
+                                    "data_information" : legend_label,
+                                    "legend" : legend_label,
+                                    "unit" : "%",
+                                    "color" : [1,0,0],
+                                    "linestyle" : "-"  
+                                   }
+
+        self.plotter = FrequencyResponsePlotter()
+        self.plotter._set_model_results_data_to_plot(self.model_results)
 
     def plot_filtered_criteria(self):
 
+        node_ids = app().main_window.list_selected_nodes()
+        if len(node_ids) == 1:
+            node_id = node_ids[0]
+
         self.absolute_line_pressure = self.get_line_pressure()
-        acoustic_pressure = 2*self.get_acoustic_pressure()
+        acoustic_pressure = 2 * self.get_acoustic_pressure(node_id)
         pulsation_ratio = acoustic_pressure/self.absolute_line_pressure
 
         self.model_results = dict()
-        self.title = "Maximum Allowable Pulsation Limits at and Beyond Line-side Nozzles\n of Pulsation Suppression Devices"
-        legend_label = "Acoustic pressure at node {}".format(self.node_id)
-        self.model_results["ratio"] = { "x_data" : self.frequencies,
-                                        "y_data" : 100*pulsation_ratio,
-                                        "x_label" : "Frequency [Hz]",
-                                        "y_label" : "Cylinder pressure ratio",
-                                        "title" : self.title,
-                                        "data_information" : legend_label,
-                                        "legend" : legend_label,
-                                        "unit" : "%",
-                                        "color" : [0,0,0],
-                                        "linestyle" : "-" }
+        self.title = "Maximum Allowable Pulsation Limits at and Beyond Line-side\n Connections of Pulsation Suppression Devices"       
+        legend_label = "Acoustic pressure at node {}".format(node_id)
+
+        key = ("ratio", (node_id))
+
+        self.model_results[key] = { 
+                                    "x_data" : self.frequencies,
+                                    "y_data" : 100*pulsation_ratio,
+                                    "x_label" : "Frequency [Hz]",
+                                    "y_label" : "Cylinder pressure ratio",
+                                    "title" : self.title,
+                                    "data_information" : legend_label,
+                                    "legend" : legend_label,
+                                    "unit" : "%",
+                                    "color" : [0,0,0],
+                                    "linestyle" : "-" 
+                                   }
+
         df = 0.2
         f_max = self.frequencies[-1]
         freq = np.arange(df, f_max + df, df)
@@ -220,19 +237,24 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         P_1 = 400*((speed_of_sound/(350 * line_pressure * inner_diameter * freq))**(1/2))
         
         legend_label = "Filtered criteria"
-        self.model_results["criteria"] = {  "x_data" : freq,
-                                            "y_data" : P_1,
-                                            "x_label" : "Frequency [Hz]",
-                                            "y_label" : "Cylinder pressure ratio",
-                                            "title" : self.title,
-                                            "data_information" : legend_label,
-                                            "legend" : legend_label,
-                                            "unit" : "%",
-                                            "color" : [1,0,0],
-                                            "linestyle" : "-"  }
+
+        key = ("criteria", (node_id))
+
+        self.model_results[key] = { 
+                                    "x_data" : freq,
+                                    "y_data" : P_1,
+                                    "x_label" : "Frequency [Hz]",
+                                    "y_label" : "Cylinder pressure ratio",
+                                    "title" : self.title,
+                                    "data_information" : legend_label,
+                                    "legend" : legend_label,
+                                    "unit" : "%",
+                                    "color" : [1,0,0],
+                                    "linestyle" : "-"  
+                                   }
         
         self.plotter = FrequencyResponsePlotter()
-        self.plotter._multiple_data_to_plot(self.model_results)
+        self.plotter._set_model_results_data_to_plot(self.model_results)
 
     def get_line_properties(self):
 

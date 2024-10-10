@@ -153,9 +153,12 @@ class SetFluidCompositionInput(QDialog):
 
         self.comboBox_temperature_units.setDisabled(True)
         self.comboBox_pressure_units.setDisabled(True)
+        self.comboBox_temperature_units.setCurrentIndex(0)
+
         self.label_discharge.setVisible(True)
         self.label_suction.setVisible(True)
         self.label_spacing.setVisible(True)
+
         self.lineEdit_pressure_disch.setVisible(True)
         self.lineEdit_temperature_disch.setVisible(True)
         self.lineEdit_temperature.setDisabled(True)

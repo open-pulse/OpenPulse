@@ -299,28 +299,66 @@ class StructuralElement:
         results_gcs = self.element_results_gcs()
         results_first_node = results_gcs[:DOF_PER_NODE_STRUCTURAL]
         results_last_node = results_gcs[DOF_PER_NODE_STRUCTURAL:]
-        return (results_first_node+results_last_node)/2
+        return (results_first_node + results_last_node) / 2
         # u_x = (results_gcs[0] + results_gcs[-6])/2
         # u_y = (results_gcs[1] + results_gcs[-5])/2
         # u_z = (results_gcs[2] + results_gcs[-4])/2       
         # theta_x = (results_gcs[3] + results_gcs[-3])/2
-        # tehta_y = (results_gcs[4] + results_gcs[-2])/2
-        # tehta_z = (results_gcs[5] + results_gcs[-1])/2
-        # return np.array([u_x, u_y, u_z, theta_x, tehta_y, tehta_z], dtype=float)
+        # theta_y = (results_gcs[4] + results_gcs[-2])/2
+        # theta_z = (results_gcs[5] + results_gcs[-1])/2
+        # return np.array([u_x, u_y, u_z, theta_x, theta_y, theta_z], dtype=float)
 
     def mean_rotations_at_global_coordinate_system(self):
         results_gcs = self.element_results_gcs()
         theta_x = (results_gcs[3] + results_gcs[-3])/2
-        tehta_y = (results_gcs[4] + results_gcs[-2])/2
-        tehta_z = (results_gcs[5] + results_gcs[-1])/2
-        return np.array([theta_x, tehta_y, tehta_z], dtype=float)
+        theta_y = (results_gcs[4] + results_gcs[-2])/2
+        theta_z = (results_gcs[5] + results_gcs[-1])/2
+        return np.array([theta_x, theta_y, theta_z], dtype=float)
 
     def mean_rotations_at_local_coordinate_system(self):
         results_lcs = self.element_results_lcs()
         theta_x = (results_lcs[3] + results_lcs[-3])/2
-        tehta_y = (results_lcs[4] + results_lcs[-2])/2
-        tehta_z = (results_lcs[5] + results_lcs[-1])/2
-        return np.array([theta_x, tehta_y, tehta_z], dtype=float)
+        theta_y = (results_lcs[4] + results_lcs[-2])/2
+        theta_z = (results_lcs[5] + results_lcs[-1])/2
+        return np.array([theta_x, theta_y, theta_z], dtype=float)
+    
+    def rotations_at_local_coordinate_system_decoupled(self):
+
+        results_lcs = self.element_results_lcs()
+        [_, node_id, decoupled_rotations] = self.decoupling_info
+
+        for index, value in enumerate(decoupled_rotations):
+            if index == 0:
+                if value:
+                    if node_id == self.last_node.external_index:
+                        theta_x = results_lcs[3]
+                    else:
+                        theta_x = results_lcs[-3]
+                else:
+                    theta_x = (results_lcs[3] + results_lcs[-3]) / 2
+
+            if index == 1:
+                if value:
+                    if node_id == self.last_node.external_index:
+                        theta_y = results_lcs[4]
+                    else:
+                        theta_y = results_lcs[-2]
+                else:
+                    theta_y = (results_lcs[4] + results_lcs[-2]) / 2
+
+            if index == 2:
+                if value:
+                    if node_id == self.last_node.external_index:
+                        theta_z = results_lcs[5]
+                    else:
+                        theta_z = results_lcs[-1]
+                else:
+                    theta_z = (results_lcs[5] + results_lcs[-1]) / 2
+
+        # print(f"Rotations (first node #{self.first_node.external_index}): {np.array([results_lcs[:3]], dtype=float)}")
+        # print(f"Rotations (last node #{self.last_node.external_index}): {np.array([results_lcs[-3:]], dtype=float)}")
+
+        return np.array([theta_x, theta_y, theta_z], dtype=float)
 
     def section_normal_vectors_at_lcs(self):
         theta_x, theta_y, theta_z = self.mean_rotations_at_local_coordinate_system()

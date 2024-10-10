@@ -164,14 +164,18 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                     pos = data["coords"]
                     node_id = args[0]
                     node = app().project.preprocessor.nodes[node_id]
-                    element = app().project.preprocessor.structural_elements_connected_to_node[node_id]
-                    rot = self.get_compressor_symbol_rotation(element, node)
 
-                    if element.cross_section is not None:
-                        diameter = element.cross_section.outer_diameter
-                        factor = (diameter + 0.06) / self.scale_factor
-                        scl = (factor, factor, factor)
-                        symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                    _elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+
+                    if len(_elements) == 1:
+                        element = _elements[0]
+                        rot = self.get_compressor_symbol_rotation(element, node)
+
+                        if element.cross_section is not None:
+                            diameter = element.cross_section.outer_diameter
+                            factor = (diameter + 0.06) / self.scale_factor
+                            scl = (factor, factor, factor)
+                            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         return symbols  
 
@@ -191,14 +195,17 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                     pos = data["coords"]
                     node_id = args[0]
                     node = app().project.preprocessor.nodes[node_id]
-                    element = app().project.preprocessor.structural_elements_connected_to_node[node_id]
-                    rot = self.get_compressor_symbol_rotation(element, node)
+                    _elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
 
-                    if element.cross_section is not None:
-                        diameter = element.cross_section.outer_diameter
-                        factor = (diameter + 0.06) / self.scale_factor
-                        scl = (factor, factor, factor)
-                        symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+                    if len(_elements) == 1:
+                        element = _elements[0]
+                        rot = self.get_compressor_symbol_rotation(element, node)
+
+                        if element.cross_section is not None:
+                            diameter = element.cross_section.outer_diameter
+                            factor = (diameter + 0.06) / self.scale_factor
+                            scl = (factor, factor, factor)
+                            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         return symbols  
 
