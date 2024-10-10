@@ -1202,11 +1202,13 @@ class StructuralElement:
         else:
             capped_end = 0
 
+        # print(f"-> capped_end [{self.index}]: {self.capped_end} / {capped_end}")
+
         if self.element_type == 'pipe_1':
 
             stress_axial = (pressures * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
             if self.wall_formulation == "thick_wall": 
-                force = A * (capped_end - 2*nu)* stress_axial
+                force = A * (capped_end - 2*nu) * stress_axial
             elif self.wall_formulation == "thin_wall":
                 force = A * (capped_end*stress_axial - nu*pressures*(Do/(Do-Di) - 1))
             else:
@@ -1214,7 +1216,7 @@ class StructuralElement:
 
         elif self.element_type in ['expansion_joint','valve']:
             nu = 0
-            force = (capped_end - 2*nu)* A *pressures
+            force = A * (capped_end - 2*nu) * pressures
 
         else:
             return np.zeros((rows, cols))

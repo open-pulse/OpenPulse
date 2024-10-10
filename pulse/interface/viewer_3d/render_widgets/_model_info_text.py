@@ -199,6 +199,8 @@ def lines_info_text() -> str:
                                              beam_xaxis_rotation, 
                                              valve_name
                                              )
+        
+        info_text += strucural_element_info_text()
 
     return info_text
 
@@ -280,6 +282,44 @@ def cross_section_info_text(cross_section, structural_element_type, beam_xaxis_r
 
     return info_text
 
+def strucural_element_info_text():
+
+    line_ids = app().main_window.list_selected_lines()
+    if len(line_ids) == 1:
+
+        tree = TreeInfo("structural element")
+
+        structural_element_type = app().project.model.properties._get_property("structural_element_type", line_id=line_ids[0])
+        if strucural_element_info_text is None:
+            label = "Pipe_1"
+        else:
+            label = structural_element_type
+        tree.add_item("Strucural element type", label)
+
+        if structural_element_type in ["Pipe_1", "pipe_1"]:
+
+            capped_end = app().project.model.properties._get_property("capped_end", line_id=line_ids[0])
+            if capped_end is not None:
+                label = "Active" if capped_end else "Inactive"
+            else:
+                label = "Active"
+            tree.add_item("Capped end", label)
+
+            force_offset = app().project.model.properties._get_property("force_offset", line_id=line_ids[0])
+            if force_offset is not None:
+                label = "Active" if force_offset else "Inactive"
+            else:
+                label = "Active"
+            tree.add_item("Force offset", label)
+
+            wall_formulation = app().project.model.properties._get_property("wall_formulation", line_id=line_ids[0])
+            if wall_formulation is not None:
+                label = wall_formulation.replace("_", " ").capitalize()
+            else:
+                label = "Thin wall"
+            tree.add_item("Wall formulation", label)
+
+    return str(tree)
 
 def analysis_info_text(frequency_index: int):
 
