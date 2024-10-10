@@ -179,6 +179,22 @@ class GeometryHandler:
                     end_coords = _end_coords
                     center_coords = _center_coords
 
+
+                if np.linalg.norm(start_coords - center_coords) != np.linalg.norm(end_coords - center_coords):
+                    print('The center point of the curve ?? is broken.')
+                    # calculating the bisector direction by performing two cross products
+                    # (the bisector direction is orthogonal to the SE vector)
+
+                    middle_point = (start_coords + end_coords) / 2
+                    normal_vector = np.cross(end_coords - start_coords, center_coords - start_coords)
+                    bisector_direction = np.cross(end_coords - start_coords, normal_vector)
+
+                    # projecting the imported center point on the bisector line to obtain the correction to the imported center point
+                    correction_length = np.dot(bisector_direction, middle_point - center_coords) / np.dot(bisector_direction, bisector_direction)
+                    center_coords = middle_point - correction_length*bisector_direction
+                    print(f'The center point was recalculated and moved by {correction_length} m')
+                    print(f'The corrected center point coordinates are {center_coords}')
+                                        
                 start_point = gmsh.model.occ.addPoint(*start_coords)
                 end_point = gmsh.model.occ.addPoint(*end_coords)
                 center_point = gmsh.model.occ.addPoint(*center_coords)
