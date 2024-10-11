@@ -52,7 +52,7 @@ class GeometryHandler:
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
-        gmsh.option.setNumber("Geometry.Tolerance", 1e-5)
+        gmsh.option.setNumber("Geometry.Tolerance", 1e-8)
 
         for structure in self.pipeline.structures:
 
@@ -166,8 +166,8 @@ class GeometryHandler:
 
                 rad_1 = np.linalg.norm(_center_coords - _start_coords)
                 rad_2 = np.linalg.norm(_center_coords - _end_coords)
-                print(f"start-to-center: {rad_1} [m]")
-                print(f"end-to-center: {rad_2} [m]")
+                # print(f"start-to-center: {rad_1} [m]")
+                # print(f"end-to-center: {rad_2} [m]")
 
                 # print(f"Center coordinates (opps 1): {_center_coords} [m]")
                 # print(f"Center coordinates (opps 2): {_center_coords2} [m]")
@@ -526,7 +526,7 @@ class GeometryHandler:
         gmsh.initialize('', False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
-        gmsh.option.setNumber('Geometry.Tolerance', 1e-6)
+        gmsh.option.setNumber('Geometry.Tolerance', 1e-8)
         gmsh.open(str(path))
 
         if self.length_unit == "meter":
@@ -617,6 +617,55 @@ class GeometryHandler:
                     if len(self.get_point_by_coords(end_coords)) < 2:
                         self.merge_near_points(end_coords)
                         end_coords = self.get_point_coords(end_point)
+
+                    print("\n")
+                    print(f"start coords.: {start_coords}")
+                    print(f"end coords.: {end_coords}")
+
+                    Ps = gmsh.model.getValue(0, start_point, [])
+                    Pe = gmsh.model.getValue(0, end_point, [])
+
+                    param_start = gmsh.model.getParametrization(1, line[1], Ps)
+                    # param_end = gmsh.model.getParametrization(1, line[1], Pe)
+
+                    print(f"param_start: {param_start}")
+                    # print(f"param_end: {param_end}")
+
+                    new_coord = gmsh.model.getValue(1, line[1], param_start)
+                    print(f"new_coord: {new_coord}")
+
+                    start_curvature = gmsh.model.getCurvature(1, line[1], param_start)
+                    # end_curvature = gmsh.model.getCurvature(1, line[1], param_end)
+
+                    start_radius = 1 / start_curvature
+                    # end_radius = 1 / end_curvature
+
+                    u = Ps - Pe
+                    v = gmsh.model.getDerivative(1, line[1], param_start)
+
+                    n_p = np.cross(u, v)
+                    dir_vect = np.cross(n_p, v)
+                    dir_vect /= np.linalg.norm(dir_vect)
+
+                    print(dir_vect)
+
+                    teste = Ps + start_radius * dir_vect
+                    print(f"teste: {teste}")
+
+                    der2_start = gmsh.model.getSecondDerivative(1, line[1], param_start)
+                    # der2_end = gmsh.model.getSecondDerivative(1, line[1], param_end)
+
+                    # print(f"start_radius: {start_radius}")
+                    # print(f"end_radius: {end_radius}")
+
+                    print(f"der2_start: {der2_start}")
+                    # print(f"der2_end: {der2_end}")
+
+                    n = der2_start / np.linalg.norm(der2_start)
+                    new_center = new_coord + n * start_radius
+
+                    print(f"center coords: {new_center}")
+                    print("\n")
 
                     corner_coords = self.get_corner_point_coords(start_point, end_point)
                     center_coords = self.get_center_point_coords(start_point, end_point)
@@ -820,10 +869,10 @@ class GeometryHandler:
                             # print(np.abs(_rad_1-_rad_2), new_center)
                             center_coordinates = np.round(_center, 10)
 
-            print(f"Center coordinates (gmsh): {center_coordinates}[m]")
+        #     print(f"Center coordinates (gmsh): {center_coordinates}[m]")
 
-        print(f"start-to-center: {rad_1} [m]")
-        print(f"end-to-center: {rad_2} [m]")
+        # print(f"start-to-center: {rad_1} [m]")
+        # print(f"end-to-center: {rad_2} [m]")
 
         return center_coordinates
 
