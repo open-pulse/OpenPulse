@@ -164,11 +164,11 @@ class GeometryHandler:
                 _center_coords2 = structure.center.coords()
                 _center_coords = structure.center_coords
 
-                rad_1 = np.linalg.norm(_center_coords - _start_coords)
-                rad_2 = np.linalg.norm(_center_coords - _end_coords)
-                # print(f"start-to-center: {rad_1} [m]")
-                # print(f"end-to-center: {rad_2} [m]")
+                start_radius = np.linalg.norm(_center_coords - _start_coords)
+                end_radius = np.linalg.norm(_center_coords - _end_coords)
 
+                # print(f"start-to-center: {start_radius} [m]")
+                # print(f"end-to-center: {end_radius} [m]")
                 # print(f"Center coordinates (opps 1): {_center_coords} [m]")
                 # print(f"Center coordinates (opps 2): {_center_coords2} [m]")
 
@@ -187,6 +187,18 @@ class GeometryHandler:
                     end_coords = _end_coords
                     center_coords = _center_coords
 
+                # print(start_coords)
+                # print(end_coords)
+                # print(center_coords)
+                # print(abs(start_radius-end_radius))
+
+                if abs(start_radius-end_radius) > 1e-12:
+                    center_coords, shift_value = self.get_corrected_arc_center_coordinates(start_coords, 
+                                                                                           end_coords, 
+                                                                                           center_coords)
+
+                    # print("The arc center point was shifted by {:.6e}[m]".format(shift_value))
+
                 start_point = gmsh.model.occ.addPoint(*start_coords)
                 end_point = gmsh.model.occ.addPoint(*end_coords)
                 center_point = gmsh.model.occ.addPoint(*center_coords)
@@ -204,6 +216,22 @@ class GeometryHandler:
                 gmsh.option.setNumber('General.FltkColorScheme', 1)
                 gmsh.fltk.run()
     
+    def get_corrected_arc_center_coordinates(self, start_coords, end_coords, center_coords):
+
+        middle_coords = (start_coords + end_coords) / 2
+        normal_vector = np.cross(end_coords - start_coords, center_coords - start_coords)
+        bisector_direction = np.cross(normal_vector, end_coords - start_coords)
+        # bisector_direction = np.cross(end - start, normal_vector)
+
+        u = center_coords - middle_coords
+        v = bisector_direction
+        projection_uv = (np.dot(u, v) / (np.linalg.norm(v)**2)) * v
+
+        corrected_center_coords = middle_coords + projection_uv
+        correction_length = np.linalg.norm(corrected_center_coords - center_coords)
+
+        return corrected_center_coords, correction_length
+
     def process_valve_points(self, start_coords: np.ndarray, end_coords: np.ndarray, valve_info: dict) -> dict:
         """
         """
@@ -542,7 +570,8 @@ class GeometryHandler:
         self.points_coords = dict()
         for point in points:
             coords = gmsh.model.getValue(*point, [])
-            self.points_coords[point[1]] = np.round(self.conv_unit(coords), 10)
+            self.points_coords[point[1]] = self.conv_unit(coords)
+            # self.points_coords[point[1]] = np.round(self.conv_unit(coords), 8)
 
         self.points_coords_cache = self.points_coords.copy()
         self.map_points_according_to_coordinates()
@@ -618,61 +647,20 @@ class GeometryHandler:
                         self.merge_near_points(end_coords)
                         end_coords = self.get_point_coords(end_point)
 
-                    print("\n")
-                    print(f"start coords.: {start_coords}")
-                    print(f"end coords.: {end_coords}")
+                    P0 = self.get_arc_center_point(line[1], start_point, end_point)
+                    center_coords = self.conv_unit(P0)
 
-                    Ps = gmsh.model.getValue(0, start_point, [])
-                    Pe = gmsh.model.getValue(0, end_point, [])
-
-                    param_start = gmsh.model.getParametrization(1, line[1], Ps)
-                    # param_end = gmsh.model.getParametrization(1, line[1], Pe)
-
-                    print(f"param_start: {param_start}")
-                    # print(f"param_end: {param_end}")
-
-                    new_coord = gmsh.model.getValue(1, line[1], param_start)
-                    print(f"new_coord: {new_coord}")
-
-                    start_curvature = gmsh.model.getCurvature(1, line[1], param_start)
-                    # end_curvature = gmsh.model.getCurvature(1, line[1], param_end)
-
-                    start_radius = 1 / start_curvature
-                    # end_radius = 1 / end_curvature
-
-                    u = Ps - Pe
-                    v = gmsh.model.getDerivative(1, line[1], param_start)
-
-                    n_p = np.cross(u, v)
-                    dir_vect = np.cross(n_p, v)
-                    dir_vect /= np.linalg.norm(dir_vect)
-
-                    print(dir_vect)
-
-                    teste = Ps + start_radius * dir_vect
-                    print(f"teste: {teste}")
-
-                    der2_start = gmsh.model.getSecondDerivative(1, line[1], param_start)
-                    # der2_end = gmsh.model.getSecondDerivative(1, line[1], param_end)
-
-                    # print(f"start_radius: {start_radius}")
-                    # print(f"end_radius: {end_radius}")
-
-                    print(f"der2_start: {der2_start}")
-                    # print(f"der2_end: {der2_end}")
-
-                    n = der2_start / np.linalg.norm(der2_start)
-                    new_center = new_coord + n * start_radius
-
-                    print(f"center coords: {new_center}")
-                    print("\n")
+                    # print(f"start coordinates: {start_coords}")
+                    # print(f"end coordinates: {end_coords}")
+                    # print(f"center coordinates: {center_coords}")
 
                     corner_coords = self.get_corner_point_coords(start_point, end_point)
-                    center_coords = self.get_center_point_coords(start_point, end_point)
+                    # center_coords = self.get_center_point_coords(start_point, end_point)
+                    # center_coords = np.round(self.conv_unit(P0), 8)
 
                     if corner_coords is None:
-                        message = f"The connecting lines from 'Circle curve' {line} are parallel "
-                        message += "and will be ignored in geometry construction."
+                        message = f"\nThe connecting lines from 'Circle curve' {line} are parallel "
+                        message += "and will be ignored in geometry construction.\n"
                         print(message)
                         continue
 
@@ -695,6 +683,55 @@ class GeometryHandler:
                 continue
         
         return curved_structures
+    
+    def get_arc_center_point(self, line_tag: int, start_point: int, end_point: int):
+
+        Ps = gmsh.model.getValue(0, start_point, [])
+        Pe = gmsh.model.getValue(0, end_point, [])
+
+        t_start = gmsh.model.getParametrization(1, line_tag, Ps)
+        t_end = gmsh.model.getParametrization(1, line_tag, Pe)
+        t_middle = (t_start + t_end) / 2
+
+        # print(f"t_start: {t_start}")
+        # print(f"t_end: {t_end}")
+
+        P1 = gmsh.model.getValue(1, line_tag, t_start)
+        P2 = gmsh.model.getValue(1, line_tag, t_middle)
+        P3 = gmsh.model.getValue(1, line_tag, t_end)
+        P0 = self.get_center_coordinates_from_3p_circle(P1, P2, P3)
+
+        # print(np.linalg.norm(P0-P1))
+        # print(np.linalg.norm(P0-P2))
+        # print(np.linalg.norm(P0-P3))
+        # print(P1)
+        # print(P3)
+        # print(P0)
+
+        # start_radius = 1 /gmsh.model.getCurvature(1, line[1], t_start)
+        # end_radius = 1 / gmsh.model.getCurvature(1, line[1], t_end)
+        # print(f"start_radius: {start_radius}")
+        # print(f"end_radius: {end_radius}")
+
+        return P0
+
+    def get_center_coordinates_from_3p_circle(self, P1: np.ndarray, P2: np.ndarray, P3: np.ndarray):
+
+        v1 = P2 - P1
+        v2 = P3 - P1
+
+        v11 = np.dot(v1, v1)
+        v22 = np.dot(v2, v2)
+        v12 = np.dot(v1, v2)
+
+        b = (1/(2*(v11*v22 - v12**2)))
+
+        k1 = b * v22*(v11 - v12)
+        k2 = b * v11*(v22 - v12)
+
+        P0 = P1 + k1*v1 + k2*v2
+
+        return P0
 
     def process_straight_lines(self, lines):
 
@@ -740,8 +777,8 @@ class GeometryHandler:
         """
         self.points_map  = defaultdict(list)
         for index, coords in self.points_coords.items():
-            # key = str(list(np.round(coords, 8)))
-            key = str(list(coords))
+            key = str(list(np.round(coords, 8)))
+            # key = str(list(coords))
             self.points_map[key].append(index)
 
     def get_point_coords(self, point):
@@ -750,7 +787,7 @@ class GeometryHandler:
     def get_point_by_coords(self, coords):
         """ This method returns the points with 'coords' nodal coordinates. 
         """
-        key = str(list(np.round(coords, 10)))
+        key = str(list(np.round(coords, 8)))
         try:
             points = self.points_map[key]
             return points
@@ -840,36 +877,12 @@ class GeometryHandler:
                         np.sum(n*coords_start)], dtype=float)
 
         center_coordinates = np.linalg.solve(A, b)
-        print(f"Center coordinates (gmsh): {center_coordinates}[m]")
-        print(f"Start coordinates (gmsh): {coords_start}[m]")
-        print(f"End coordinates (gmsh): {coords_end}[m]")
+        # print(f"Center coordinates (gmsh): {center_coordinates}[m]")
+        # print(f"Start coordinates (gmsh): {coords_start}[m]")
+        # print(f"End coordinates (gmsh): {coords_end}[m]")
 
         rad_1 = np.linalg.norm(center_coordinates - coords_start)
         rad_2 = np.linalg.norm(center_coordinates - coords_end)
-
-        diff_rad = np.abs(rad_1-rad_2)
-        x, y, z = center_coordinates
-
-        if diff_rad > 1e-5:
-            N = 60
-            deltas = 0.00002*np.random.randn(N)
-            for i in range(N):
-                x_d = x + deltas[i]
-                for j in range(N):
-                    y_d = y + deltas[j]
-                    for k in range(N):
-                        z_d = z + deltas[k]
-                        _center = np.array([x_d, y_d, z_d], dtype=float)
-                        _rad_1 = np.linalg.norm(_center - coords_start)
-                        _rad_2 = np.linalg.norm(_center - coords_end)
-                        if np.abs(_rad_1-_rad_2) < diff_rad:
-                            diff_rad = np.abs(_rad_1-_rad_2)
-                            rad_1 = _rad_1
-                            rad_2 = _rad_2
-                            # print(np.abs(_rad_1-_rad_2), new_center)
-                            center_coordinates = np.round(_center, 10)
-
-        #     print(f"Center coordinates (gmsh): {center_coordinates}[m]")
 
         # print(f"start-to-center: {rad_1} [m]")
         # print(f"end-to-center: {rad_2} [m]")
