@@ -86,6 +86,7 @@ class PlotStructuralModeShape(QWidget):
         self.treeWidget_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
         self.update_animation_widget_visibility()
+        self.load_user_preference_colormap()
         self.update_colormap_type()
 
     def _config_widgets(self):
@@ -107,6 +108,7 @@ class PlotStructuralModeShape(QWidget):
 
     def load_user_preference_colormap(self):
         try:
+            app().main_window.load_user_preferences()
             colormap = app().main_window.user_preferences["colormap"]
             if colormap in self.colormaps:
                 index = self.colormaps.index(colormap)

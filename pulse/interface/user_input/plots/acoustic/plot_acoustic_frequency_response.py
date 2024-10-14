@@ -95,14 +95,15 @@ class PlotAcousticFrequencyResponse(QWidget):
     def join_model_data(self):
 
         self.title = f"Acoustic frequency response - {self.analysis_method}"
-        legend_label = f"Acoustic pressure at node {self.selected_node_ids}"
         y_label = "Acoustic pressure"
         unit_label = "Pa"
 
         self.model_results = dict()
         for index, node_id in enumerate(self.selected_node_ids):
-        
-            key = ("line", (node_id))
+
+            key = ("node", (node_id))
+            legend_label = f"Acoustic pressure at node {node_id}"
+
             self.model_results[key] = {
                                         "x_data" : self.frequencies,
                                         "y_data" : self.get_response(node_id),

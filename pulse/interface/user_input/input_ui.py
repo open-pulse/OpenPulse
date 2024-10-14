@@ -201,6 +201,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotStructuralModeShape)      
 
     def plot_displacement_field(self):
@@ -210,6 +211,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotNodalResultsFieldForHarmonicAnalysis)
 
     def plot_structural_frequency_response(self):
@@ -260,6 +262,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotAcousticModeShape)           
 
     def plot_acoustic_pressure_field(self):
@@ -269,6 +272,7 @@ class InputUi:
             if solution is None:
                 return None
             else:
+                app().main_window.results_widget.show_empty()
                 return self.process_input(PlotAcousticPressureField)
 
     def plot_acoustic_frequency_response(self):
