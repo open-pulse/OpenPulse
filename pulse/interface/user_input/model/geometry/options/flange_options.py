@@ -31,7 +31,7 @@ class FlangeOptions(StructureOptions):
         
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        self.pipeline.add_flange(**kwargs)
+        self.pipeline.add_flange(xyz, **kwargs)
 
     def attach_callback(self):
         kwargs = self._get_kwargs()
