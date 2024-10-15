@@ -350,7 +350,7 @@ class GeometryHandler:
                 end = Point(*data['end_coords'])
                 corner = Point(*data['corner_coords'])
                 curvature_radius = data['curvature_radius']
-                center_coords = data['center_coords']
+                center_coords = data.get('center_coords')
 
                 structure = Bend(
                                  start, 
@@ -361,6 +361,9 @@ class GeometryHandler:
                                  diameter = section_parameters[0],
                                  thickness = section_parameters[1]
                                 )
+
+                if center_coords is None:
+                    structure.center_coords = structure.center.coords()
 
             elif data["structure_name"] == "flange":
                 start = Point(*data['start_coords'])
@@ -1014,7 +1017,12 @@ class GeometryHandler:
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
             # print("-> ", structure.center_coords)
-            data["center_coords"] = get_data(structure.center_coords)
+
+            if structure.center_coords is None:
+                data["center_coords"] = get_data(structure.center.coords())
+            else:
+                data["center_coords"] = get_data(structure.center_coords)
+
             data["corner_coords"] = get_data(structure.corner.coords())
             data["curvature_radius"] = np.round(structure.curvature, 8)
 
