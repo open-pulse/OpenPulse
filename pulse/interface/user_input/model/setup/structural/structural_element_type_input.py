@@ -29,7 +29,6 @@ class StructuralElementTypeInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self.selection_callback()
 
         self.element_type_change_callback()
         self.load_element_type_info()
@@ -97,6 +96,9 @@ class StructuralElementTypeInput(QDialog):
         self.treeWidget_element_type.itemDoubleClicked.connect(self.on_double_click_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+        #
+        self.selection_callback()
+        self.attribution_type_callback()
 
     def selection_callback(self):
 

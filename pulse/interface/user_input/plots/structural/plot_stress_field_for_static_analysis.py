@@ -102,6 +102,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.slider_transparency.valueChanged.connect(self.update_transparency_callback)
         #
         self.update_animation_widget_visibility()
+        self.load_user_preference_colormap()
         self.update_colormap_type()
 
     def update_animation_widget_visibility(self):
@@ -113,6 +114,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
 
     def load_user_preference_colormap(self):
         try:
+            app().main_window.load_user_preferences()
             colormap = app().main_window.user_preferences["colormap"]
             if colormap in self.colormaps:
                 index = self.colormaps.index(colormap)

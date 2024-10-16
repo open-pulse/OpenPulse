@@ -31,7 +31,7 @@ class FlangeOptions(StructureOptions):
         
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
-        self.pipeline.add_flange(**kwargs)
+        self.pipeline.add_flange(xyz, **kwargs)
 
     def attach_callback(self):
         kwargs = self._get_kwargs()
@@ -71,7 +71,6 @@ class FlangeOptions(StructureOptions):
         enable_delete = len(self.pipeline.selected_structures) + len(self.pipeline.selected_points) >= 1
 
         self.geometry_designer_widget.configure_button.setEnabled(True)
-        self.geometry_designer_widget.frame_bending_options.setEnabled(enable)
         self.geometry_designer_widget.frame_bounding_box_sizes.setEnabled(enable)
         self.geometry_designer_widget.attach_button.setEnabled(enable_attach)
         self.geometry_designer_widget.add_button.setEnabled(enable_add)
