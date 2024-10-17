@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QComboBox, QLabel, QFileDialog, QPushButton, QSlider, QSpinBox, QToolBar, QWidget
+from PyQt5.QtWidgets import QComboBox, QLabel, QPushButton, QToolBar, QWidget
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtGui import  QIcon
+from PyQt5.QtGui import  QIcon, QFont
 
 from pulse import app, UI_DIR, ICON_DIR
 from pulse.interface.formatters import icons
@@ -43,8 +43,8 @@ class AnalysisToolbar(QToolBar):
 
         self._load_icons()
         self._define_qt_variables()
-        self._configure_appearance()
         self._configure_layout()
+        self._configure_appearance()
         self._load_analysis_types()
         self._config_widgets()
         self._create_connections()
@@ -68,9 +68,15 @@ class AnalysisToolbar(QToolBar):
         self.pushButton_configure_analysis = QPushButton(self)
 
     def _configure_appearance(self):
-        self.setMinimumHeight(32)
+        self.setMinimumHeight(36)
         self.setMovable(True)
         self.setFloatable(True)
+
+        font = QFont()
+        font.setPointSize(10)
+
+        for widget in self.findChildren((QComboBox, QLabel, QPushButton)):
+            widget.setFont(font)
 
     def get_spacer(self):
         spacer = QWidget()
@@ -127,13 +133,13 @@ class AnalysisToolbar(QToolBar):
 
         # QComboBox
         self.combo_box_analysis_type.setFixedHeight(26)
-        self.combo_box_analysis_type.setFixedWidth(90)
+        self.combo_box_analysis_type.setFixedWidth(100)
         self.combo_box_analysis_domain.setFixedHeight(26)
-        self.combo_box_analysis_domain.setFixedWidth(90)
+        self.combo_box_analysis_domain.setFixedWidth(100)
 
         # QPushButton
         self.pushButton_configure_analysis.setFixedHeight(28)
-        self.pushButton_configure_analysis.setFixedWidth(40)
+        self.pushButton_configure_analysis.setFixedWidth(50)
         self.pushButton_configure_analysis.setIcon(self.settings_icon)
         self.pushButton_configure_analysis.setIconSize(QSize(20,20))
         self.pushButton_configure_analysis.setCursor(Qt.PointingHandCursor)
@@ -141,7 +147,7 @@ class AnalysisToolbar(QToolBar):
         # self.pushButton_configure_analysis.setCheckable(True)
 
         self.pushButton_run_analysis.setFixedHeight(28)
-        self.pushButton_run_analysis.setFixedWidth(40)
+        self.pushButton_run_analysis.setFixedWidth(50)
         self.pushButton_run_analysis.setIcon(self.solution_icon)
         self.pushButton_run_analysis.setIconSize(QSize(20,20))
         self.pushButton_run_analysis.setCursor(Qt.PointingHandCursor)
