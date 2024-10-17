@@ -5,7 +5,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 #
-from opps.model import Pipeline
+from pulse.editor import Pipeline
 from pulse.model.model import Model
 from pulse.model.after_run import AfterRun
 from pulse.model.before_run import BeforeRun

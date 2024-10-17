@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-from opps.model import ExpansionJoint
+from pulse.editor.structures import ExpansionJoint
 
 from molde.stylesheets import set_qproperty
 

@@ -1,15 +1,12 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox
 from PyQt5 import uic
-from PyQt5.QtCore import Qt
 
-from itertools import chain
 import re
 from numbers import Number
 import numpy as np
 import math
-from copy import deepcopy
-from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
-from opps.model import (
+from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
+from pulse.editor.structures import (
     Point,
     Pipe,
     Bend,
@@ -50,7 +47,7 @@ from pulse.interface.user_input.model.geometry.options import (
 
 
 class GeometryDesignerWidget(QWidget):
-    def __init__(self, render_widget: EditorRenderWidget, parent=None):
+    def __init__(self, render_widget: GeometryRenderWidget, parent=None):
         super().__init__(parent)
 
         ui_path = UI_DIR / "model/geometry/geometry_designer_widget.ui"

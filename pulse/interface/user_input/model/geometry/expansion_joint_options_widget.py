@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QPushButton, QLabel, 
 from PyQt5.QtCore import pyqtSignal
 from PyQt5 import uic
 
-from opps.model import ExpansionJoint
+from pulse.editor.structures import ExpansionJoint
 
 from pulse import app, UI_DIR
 from pulse.interface.utils import set_qt_property

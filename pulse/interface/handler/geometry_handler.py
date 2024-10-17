@@ -1,11 +1,24 @@
 # fmt: off
-
 from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.tools.utils import *
 
-from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam, ExpansionJoint
-from opps.model import SimpleCurve
+from pulse.editor.structures import (
+    Pipe,
+    Bend,
+    Point,
+    Flange,
+    Valve,
+    Beam,
+    Reducer,
+    RectangularBeam,
+    CircularBeam,
+    IBeam,
+    TBeam,
+    CBeam,
+    ExpansionJoint,
+    SimpleCurve,
+)
 
 import gmsh
 import numpy as np

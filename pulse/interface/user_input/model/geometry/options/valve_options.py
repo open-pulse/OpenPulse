@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-from opps.model import Valve
+from pulse.editor.structures import Valve
 
 from molde.stylesheets import set_qproperty
 

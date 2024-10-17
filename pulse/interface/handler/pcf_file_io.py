@@ -1,7 +1,7 @@
 
 from opps.io.pcf.pcf_exporter import PCFExporter
 from opps.io.pcf.pcf_handler import PCFHandler
-from opps.model import Pipe, Bend, Flange, Reducer, ExpansionJoint, Valve
+from pulse.editor.structures import Pipe, Bend, Flange, Reducer, ExpansionJoint, Valve
 
 from pulse import app
 

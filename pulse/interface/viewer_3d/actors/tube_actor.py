@@ -1,6 +1,6 @@
 import numpy as np
 import logging
-from opps.interface.viewer_3d.utils import cross_section_sources
+from pulse.interface.viewer_3d.utils import cross_section_sources
 from vtkmodules.vtkCommonCore import (
     vtkDoubleArray,
     vtkIntArray,

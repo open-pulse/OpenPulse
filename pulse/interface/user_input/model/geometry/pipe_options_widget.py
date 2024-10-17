@@ -6,10 +6,10 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5 import uic
 
 from molde.stylesheets import set_qproperty
-from opps.model import Pipe, Bend
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
+from pulse.editor.structures import Pipe, Bend
 
 
 class PipeOptionsWidget(QWidget):
