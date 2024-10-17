@@ -25,7 +25,7 @@ def load_symbol(path):
     return reader.GetOutput()
 
 
-VALVE_WHEEL = load_symbol(SYMBOLS_DIR / "valve_wheel.obj")
+VALVE_WHEEL = load_symbol(SYMBOLS_DIR / "other/valve_wheel.obj")
 
 
 def closed_pipe_data(length, outside_diameter, offset_y=0, offset_z=0, sides=20):

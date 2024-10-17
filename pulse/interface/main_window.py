@@ -1005,7 +1005,6 @@ class MainWindow(QMainWindow):
             return True
 
     def save_project_as_dialog(self):
-
         obj = SaveProjectDataSelector()
         if obj.complete:
 
@@ -1065,7 +1064,6 @@ class MainWindow(QMainWindow):
             self.set_input_widget(None)
 
     def close_app(self):
-
         self.close_dialogs()
 
         condition_1 = self.project.save_path is None
