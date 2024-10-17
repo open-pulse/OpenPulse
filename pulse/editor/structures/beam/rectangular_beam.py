@@ -9,6 +9,7 @@ class RectangularBeam(Beam):
         self.height = kwargs.get("height", 0.1)
         self.thickness_width = kwargs.get("thickness_width", 0.01)
         self.thickness_height = kwargs.get("thickness_height", 0.01)
+        self.angle = 0
 
     def as_dict(self) -> dict:
         return super().as_dict() | {

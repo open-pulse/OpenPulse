@@ -11,6 +11,7 @@ class IBeam(Beam):
         self.thickness_1 = kwargs.get("thickness_1", 0.01)
         self.thickness_2 = kwargs.get("thickness_2", 0.01)
         self.thickness_3 = kwargs.get("thickness_3", 0.01)
+        self.angle = 0
 
     def as_dict(self) -> dict:
         return super().as_dict() | {

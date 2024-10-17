@@ -9,6 +9,7 @@ class TBeam(Beam):
         self.height = kwargs.get("height", 0.1)
         self.thickness_1 = kwargs.get("thickness_1", 0.01)
         self.thickness_2 = kwargs.get("thickness_2", 0.01)
+        self.angle = 0
 
     def as_dict(self) -> dict:
         return super().as_dict() | {
