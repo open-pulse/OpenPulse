@@ -167,9 +167,15 @@
             <layout class="QGridLayout" name="gridLayout_3">
              <item row="2" column="1">
               <widget class="QSlider" name="division_slider">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>180</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
-                 <width>180</width>
+                 <width>0</width>
                  <height>26</height>
                 </size>
                </property>
@@ -194,7 +200,7 @@
               <widget class="QLabel" name="division_slider_label">
                <property name="minimumSize">
                 <size>
-                 <width>120</width>
+                 <width>0</width>
                  <height>26</height>
                 </size>
                </property>
@@ -238,7 +244,7 @@
               <widget class="QComboBox" name="division_combobox">
                <property name="minimumSize">
                 <size>
-                 <width>180</width>
+                 <width>0</width>
                  <height>26</height>
                 </size>
                </property>
@@ -269,7 +275,7 @@
               <widget class="QLabel" name="label">
                <property name="minimumSize">
                 <size>
-                 <width>120</width>
+                 <width>0</width>
                  <height>26</height>
                 </size>
                </property>
