@@ -22,7 +22,7 @@ class RectangularBeamActor(vtkActor):
             self.beam.thickness_width, self.beam.thickness_width,
         )
 
-        data = align_vtk_geometry(source, self.beam.start.coords(), vector)
+        data = align_vtk_geometry(source, self.beam.start.coords(), vector, angle=self.beam.angle)
         paint_data(data, self.beam.color.to_rgb())
 
         mapper = vtkPolyDataMapper()

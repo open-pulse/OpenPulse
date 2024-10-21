@@ -32,7 +32,7 @@ def align_y_rotations(vector):
     return rx, ry, rz
 
 
-def align_vtk_geometry(geometry: vtkPolyData, start: np.ndarray, vector: np.ndarray):
+def align_vtk_geometry(geometry: vtkPolyData, start: np.ndarray, vector: np.ndarray, angle: float = 0):
     x, y, z = start
     rx, ry, rz = align_y_rotations(vector)
 
@@ -41,6 +41,7 @@ def align_vtk_geometry(geometry: vtkPolyData, start: np.ndarray, vector: np.ndar
     transform.RotateZ(np.degrees(rz))
     transform.RotateX(np.degrees(rx))
     transform.RotateY(np.degrees(ry))
+    transform.RotateY(np.degrees(angle))
     transform.Update()
 
     transform_filter = vtkTransformFilter()
