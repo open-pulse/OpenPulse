@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QLabel, QFileDialog, QPushButton, QSlider, QSpinBox, QToolBar, QWidget
 from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtGui import  QIcon
+from PyQt5.QtGui import  QIcon, QFont
 
 from pulse import app, UI_DIR, ICON_DIR
 from pulse.interface.formatters import icons
@@ -55,7 +55,7 @@ class AnimationToolbar(QToolBar):
 
         # QPushButton
         self.pushButton_animate.setFixedHeight(28)
-        self.pushButton_animate.setFixedWidth(40)
+        self.pushButton_animate.setFixedWidth(50)
         self.pushButton_animate.setIcon(self.play_icon)
         self.pushButton_animate.setIconSize(QSize(20,20))
         self.pushButton_animate.setCursor(Qt.PointingHandCursor)
@@ -63,7 +63,7 @@ class AnimationToolbar(QToolBar):
         self.pushButton_animate.setCheckable(True)
 
         self.pushButton_export.setFixedHeight(28)
-        self.pushButton_export.setFixedWidth(40)
+        self.pushButton_export.setFixedWidth(50)
         self.pushButton_export.setIcon(self.export_icon)
         self.pushButton_export.setIconSize(QSize(20,20))
         self.pushButton_export.setCursor(Qt.PointingHandCursor)
@@ -81,7 +81,7 @@ class AnimationToolbar(QToolBar):
         self.spinBox_cycles.setMaximum(10)
         self.spinBox_cycles.setSingleStep(1)
         self.spinBox_cycles.setValue(app().project.cycles)
-        self.spinBox_cycles.setMinimumWidth(60)
+        self.spinBox_cycles.setMinimumWidth(70)
         self.spinBox_cycles.setAlignment(Qt.AlignHCenter)
         self.spinBox_cycles.setCursor(Qt.PointingHandCursor)
 
@@ -89,7 +89,7 @@ class AnimationToolbar(QToolBar):
         self.spinBox_frames.setMaximum(60)
         self.spinBox_frames.setSingleStep(10)
         self.spinBox_frames.setValue(app().project.frames)
-        self.spinBox_frames.setMinimumWidth(60)
+        self.spinBox_frames.setMinimumWidth(70)
         self.spinBox_frames.setAlignment(Qt.AlignHCenter)
         self.spinBox_frames.setCursor(Qt.PointingHandCursor)
 
@@ -133,9 +133,15 @@ class AnimationToolbar(QToolBar):
         self.adjustSize()
 
     def _configure_appearance(self):
-        self.setMinimumHeight(32)
+        self.setMinimumHeight(36)
         self.setMovable(True)
         self.setFloatable(True)
+
+        font = QFont()
+        font.setPointSize(10)
+
+        for widget in self.findChildren((QLabel, QPushButton, QSpinBox)):
+            widget.setFont(font)
 
     def frames_value_changed(self):
         self.frames = self.spinBox_frames.value()

@@ -124,8 +124,8 @@ class GeometryRenderWidget(CommonRenderWidget):
         shift_pressed = bool(modifiers & Qt.ShiftModifier)
         alt_pressed = bool(modifiers & Qt.AltModifier)
 
-        join = ctrl_pressed | shift_pressed
-        remove = alt_pressed
+        join = ctrl_pressed or shift_pressed
+        remove = ctrl_pressed or alt_pressed
 
         if not (join or remove):
             self.pipeline.clear_selection()

@@ -400,8 +400,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             nodes=picked_nodes,
             lines=picked_lines,
             elements=picked_elements,
-            join=ctrl_pressed | shift_pressed,
-            remove=alt_pressed,
+            join=ctrl_pressed or shift_pressed,
+            remove=ctrl_pressed or alt_pressed,
         )
 
     def update_selection(self):

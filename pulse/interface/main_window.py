@@ -35,8 +35,8 @@ from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseIn
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
 import logging
-# import qdarktheme
 import os
+# import qdarktheme
 
 from functools import partial
 from pathlib import Path
@@ -222,7 +222,7 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
         self.splitter.setSizes([100, 400])
-        self.splitter.widget(0).setMinimumWidth(420)
+        self.splitter.widget(0).setMinimumWidth(340)
         self._update_visualization()
 
         self.model_and_analysis_items = self.model_setup_widget.model_setup_items
@@ -1032,19 +1032,36 @@ class MainWindow(QMainWindow):
         return obj.complete
 
     def save_project_as(self, path):
-        path = Path(path)
-        self.project.name = path.stem
-        self.project.save_path = path
-        app().pulse_file.write_thumbnail()
-        app().config.add_recent_file(path)
-        app().config.write_last_folder_path_in_file("project folder", path)
-        # self.project_menu.update_recents_menu()
-        copy(TEMP_PROJECT_FILE, path)
-        self.update_window_title(path)
-        self.project_data_modified = False
 
-        from datetime import datetime
-        print(f"The project data has been saved @ {datetime.now()}")
+        def save_data(path):
+
+            logging.info("Saving the project data... [10%]")
+
+            from time import sleep
+            from datetime import datetime
+
+            path = Path(path)
+            self.project.name = path.stem
+            self.project.save_path = path
+
+            logging.info("Saving the project data... [20%]")
+            app().pulse_file.write_thumbnail()
+            app().config.add_recent_file(path)
+
+            logging.info("Saving the project data... [40%]")
+            app().config.write_last_folder_path_in_file("project folder", path)
+
+            logging.info("Saving the project data... [75%]")
+            # self.project_menu.update_recents_menu()
+            copy(TEMP_PROJECT_FILE, path)
+            self.update_window_title(path)
+            self.project_data_modified = False
+
+            logging.info("The project data has been saved. [100%]")
+            print(f"The project data has been saved @ {datetime.now()}")
+            sleep(0.5)
+
+        LoadingWindow(save_data).run(path)
 
     def update_window_title(self, project_path : str | Path):
         if isinstance(project_path, str):
@@ -1053,8 +1070,8 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f"{project_name}")
 
     def set_input_widget(self, dialog):
-        return
         self.dialog = dialog
+        return
         if isinstance(self.dialog, QDialog):
             self.dialog.setStyleSheet(self.combined_stylesheet)
 
