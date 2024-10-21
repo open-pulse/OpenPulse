@@ -417,7 +417,7 @@ def valve_data(length, outside_diameter, thickness, flange_diameter, flange_leng
     pipe = pipe_data(length, outside_diameter, thickness)
     start_flange = flange_data(flange_length, flange_diameter, 0)
     end_flange = apply_transform(start_flange, dy=length - flange_length)
-    handle = valve_handle(0, length / 2, 0, outside_diameter)
+    handle = valve_handle(outside_diameter)
     handle = apply_transform(handle, dy=length/2, rz=90)
 
     append_polydata.AddInputData(pipe)
@@ -428,7 +428,8 @@ def valve_data(length, outside_diameter, thickness, flange_diameter, flange_leng
     append_polydata.Update()
     return append_polydata.GetOutput()
 
-def valve_handle(x, y, z, outside_diameter):
+
+def valve_handle(outside_diameter):
     height = 1.5 * outside_diameter
     width = 0.20 * outside_diameter
     wheel_diameter = outside_diameter * 1.5
@@ -458,39 +459,3 @@ def valve_handle(x, y, z, outside_diameter):
     append_polydata.Update()
 
     return append_polydata.GetOutput()
-
-# def valve_handle(outside_diameter, height, axis_diameter):
-#     append_polydata = vtkAppendPolyData()
-#     width = 0.20 * outside_diameter
-
-#     # I just wanted to move the flange to the end of the structure
-#     # but that is the only way vtk let me do it.
-#     transform = vtkTransform()
-#     transform.Translate(0, (height - axis_diameter), 0)
-#     transform.Update()
-#     transform_filter = vtkTransformFilter()
-#     transform_filter.SetInputData(
-#         flange_data(axis_diameter, outside_diameter + width, axis_diameter)
-#     )
-#     transform_filter.SetTransform(transform)
-#     transform_filter.Update()
-#     end_flange = transform_filter.GetOutput()
-
-#     pipe = pipe_data(height, outside_diameter, 0)
-
-#     wheel_diameter = outside_diameter * 1.5
-#     transform = vtkTransform()
-#     transform.Translate(0, height, 0)
-#     transform.Scale(wheel_diameter, wheel_diameter, wheel_diameter)
-#     transform.Update()
-#     transform_filter = vtkTransformFilter()
-#     transform_filter.SetInputData(VALVE_WHEEL)
-#     transform_filter.SetTransform(transform)
-#     transform_filter.Update()
-#     wheel = transform_filter.GetOutput()
-
-#     append_polydata.AddInputData(end_flange)
-#     append_polydata.AddInputData(pipe)
-#     append_polydata.AddInputData(wheel)
-#     append_polydata.Update()
-#     return append_polydata.GetOutput()
