@@ -304,23 +304,24 @@ def reducer_data(
     return append_polydata.GetOutput()
 
 
-def flange_data(length, outside_diameter, thickness, bolts=8):
+def flange_data(length, outside_diameter, thickness, n_bolts=8):
     pipe = pipe_data(length, outside_diameter, thickness)
     append_polydata = vtkAppendPolyData()
     append_polydata.AddInputData(pipe)
+    bolt_radius = thickness / 6
 
-    for i in range(bolts):
-        angle = i * 2 * np.pi / bolts
-        nut = vtkCylinderSource()
-        nut.SetHeight(length + thickness / 2)
-        nut.SetRadius(thickness / 4 / 2)
-        nut.SetCenter(
-            (outside_diameter - thickness / 3) * np.sin(angle) / 2,
+    for i in range(n_bolts):
+        angle = i * 2 * np.pi / n_bolts
+        bolt = vtkCylinderSource()
+        bolt.SetHeight(length + thickness / 2)
+        bolt.SetRadius(bolt_radius)
+        bolt.SetCenter(
+            (outside_diameter - bolt_radius * 4) * np.sin(angle) / 2,
             length / 2,
-            (outside_diameter - thickness / 3) * np.cos(angle) / 2,
+            (outside_diameter - bolt_radius * 4) * np.cos(angle) / 2,
         )
-        nut.Update()
-        append_polydata.AddInputData(nut.GetOutput())
+        bolt.Update()
+        append_polydata.AddInputData(bolt.GetOutput())
 
     append_polydata.Update()
     return append_polydata.GetOutput()
