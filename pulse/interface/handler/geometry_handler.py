@@ -516,13 +516,17 @@ class GeometryHandler:
 
         valve_info = data["valve_info"]
         d_out, t, *_ = valve_info["body_section_parameters"]
+        flange_outer_diameter, *_ = valve_info["flange_section_parameters"]
+        flange_length = valve_info["flange_length"]
 
         structure = Valve(
-                          start, 
-                          end,
-                          diameter = d_out,
-                          thickness = t
-                          )
+            start, 
+            end,
+            diameter = d_out,
+            thickness = t,
+            flange_outer_diameter = flange_outer_diameter,
+            flange_length = flange_length,                          
+        )
 
         structure.tag = line_id
 

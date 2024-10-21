@@ -24,7 +24,13 @@ class ValveActor(vtkActor):
 
         vector = b - a
         length = np.linalg.norm(vector)
-        source = valve_data(length, self.valve.diameter, self.valve.thickness)
+        source = valve_data(
+            length, 
+            self.valve.diameter, 
+            self.valve.thickness,
+            self.valve.flange_outer_diameter,
+            self.valve.flange_length,
+        )
 
         data = align_vtk_geometry(source, a, vector)
         paint_data(data, self.valve.color.to_rgb())

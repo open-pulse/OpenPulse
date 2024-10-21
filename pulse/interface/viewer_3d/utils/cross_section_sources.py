@@ -407,17 +407,16 @@ def expansion_joint_data(length, outside_diameter, thickness):
     return append_polydata.GetOutput()
 
 
-def valve_data(length, outside_diameter, thickness):
+def valve_data(length, outside_diameter, thickness, flange_diameter, flange_length):
     append_polydata = vtkAppendPolyData()
 
     if length == 0:
         # empty poly data
         return vtkPolyData()
 
-    width = 0.20 * outside_diameter
     pipe = pipe_data(length, outside_diameter, thickness)
-    start_flange = flange_data(width, outside_diameter + width, width)
-    end_flange = apply_transform(start_flange, dy=(length - width))
+    start_flange = flange_data(flange_length, flange_diameter, 0)
+    end_flange = apply_transform(start_flange, dy=length - flange_length)
     handle = valve_handle(0, length / 2, 0, outside_diameter)
     handle = apply_transform(handle, dy=length/2, rz=90)
 
