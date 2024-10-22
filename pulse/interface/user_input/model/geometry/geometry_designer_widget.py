@@ -107,13 +107,16 @@ class GeometryDesignerWidget(QWidget):
         self.dy_label: QLabel
         self.dz_label: QLabel
         self.division_slider_label: QLabel
+        self.position_slider_label: QLabel
         self.sizes_coords_label: QLabel
 
         # QSlider
         self.division_slider: QSlider
+        self.position_slider: QSlider
 
         # QSpinBox
         self.division_amount_spinbox: QSpinBox
+        self.position_spinbox: QSpinBox
 
         # QStackedWidget
         self.options_stack_widget: QStackedWidget
@@ -152,7 +155,10 @@ class GeometryDesignerWidget(QWidget):
 
         self.division_combobox.currentTextChanged.connect(self.division_type_changed_callback)
         self.division_slider.valueChanged.connect(self.division_slider_callback)
-        self.division_amount_spinbox.textChanged.connect(self.division_amount_spinbox_callback)
+        self.division_amount_spinbox.textChanged.connect(self.divisions_spinboxes_callback)
+        self.position_slider.valueChanged.connect(self.position_slider_callback)
+        self.position_spinbox.textChanged.connect(self.divisions_spinboxes_callback)
+
         self.cancel_division_button.clicked.connect(self.cancel_division_callback)
         self.apply_division_button.clicked.connect(self.apply_division_callback)
 
@@ -403,21 +409,24 @@ class GeometryDesignerWidget(QWidget):
         division_type = text.lower()
 
         if division_type == "single division":
-            self.division_slider.setMinimum(0)
-            self.division_slider.setMaximum(100)
-            self.division_slider.setValue(50)
-            self.division_slider_label.setText("Position:")
+            self.options_stack_widget.setCurrentIndex(0)
+            self.position_slider.setMinimum(0)
+            self.position_slider.setMaximum(100)
+            self.position_slider.setValue(50)
 
         elif division_type == "multiple division":
+            self.options_stack_widget.setCurrentIndex(1)
             self.division_slider.setMinimum(1)
             self.division_slider.setMaximum(10)
             self.division_slider.setValue(1)
-            self.division_slider_label.setText("Divisions:")
 
     def division_slider_callback(self, value):
         self.division_amount_spinbox.setValue(value)
 
-    def division_amount_spinbox_callback(self, value):
+    def position_slider_callback(self, value):
+        self.position_spinbox.setValue(value)
+
+    def divisions_spinboxes_callback(self, value):
         value = int(value)
         division_type = self.division_combobox.currentText().lower()
         self.pipeline.dismiss()
@@ -425,12 +434,17 @@ class GeometryDesignerWidget(QWidget):
         if division_type == "single division":
             self.pipeline.preview_divide_structures(value / 100)
 
+            self.position_slider.blockSignals(True)
+            self.position_slider.setValue(value)
+            self.position_slider.blockSignals(False)
+
+
         elif division_type == "multiple division":
             self.pipeline.preview_divide_structures_evenly(value)
 
-        self.division_slider.blockSignals(True)
-        self.division_slider.setValue(value)
-        self.division_slider.blockSignals(False)
+            self.division_slider.blockSignals(True)
+            self.division_slider.setValue(value)
+            self.division_slider.blockSignals(False)
 
         self.render_widget.update_plot(reset_camera=False)
     
@@ -440,13 +454,14 @@ class GeometryDesignerWidget(QWidget):
 
     def apply_division_callback(self):
         self.pipeline.dismiss()
-        value = self.division_slider.value()
         division_type = self.division_combobox.currentText().lower()
 
         if division_type == "single division":
+            value = self.position_slider.value()
             self.pipeline.divide_structures(value / 100)
 
         elif division_type == "multiple division":
+            value = self.division_slider.value()
             self.pipeline.divide_structures_evenly(value)
 
         self.pipeline.clear_structure_selection()
