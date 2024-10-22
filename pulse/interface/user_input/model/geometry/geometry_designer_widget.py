@@ -404,6 +404,10 @@ class GeometryDesignerWidget(QWidget):
         self.x_line_edit.blockSignals(False)
         self.y_line_edit.blockSignals(False)
         self.z_line_edit.blockSignals(False)
+    
+    def adjust_stack_widget_height(self):
+        height = self.options_stack_widget.currentWidget().sizeHint().height()
+        self.options_stack_widget.setFixedHeight(height)
 
     def division_type_changed_callback(self, text: str):
         division_type = text.lower()
@@ -419,6 +423,11 @@ class GeometryDesignerWidget(QWidget):
             self.division_slider.setMinimum(1)
             self.division_slider.setMaximum(10)
             self.division_slider.setValue(1)
+        
+        elif division_type == "projection division":
+            self.options_stack_widget.setCurrentIndex(2)
+        
+        self.adjust_stack_widget_height()
 
     def division_slider_callback(self, value):
         self.division_amount_spinbox.setValue(value)
