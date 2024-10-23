@@ -9,6 +9,7 @@ from pulse.editor.editor_delegate import (
     DivideEditor,
     MainEditor,
     PointsEditor,
+    ReplaceEditor,
     SelectionEditor,
 )
 
@@ -20,6 +21,7 @@ from pulse.editor.structures import (
     Pipe,
     Point,
     Structure,
+    TBeam
 )
 
 # only to help the editor, ignore it
@@ -44,6 +46,7 @@ class Pipeline:
         self.points_editor = PointsEditor(self)
         self.selection_editor = SelectionEditor(self)
         self.connection_editor = ConnectionEditor(self)
+        self.replace_editor = ReplaceEditor(self)
         self.divide_editor = DivideEditor(self)
 
     def reset(self):
@@ -264,6 +267,40 @@ class Pipeline:
 
     def connect_t_beams(self, **kwargs):
         return self.connection_editor.connect_t_beams(**kwargs)
+
+    # Replace Editor
+    def replace_by_pipe(self, **kwargs):
+        return self.replace_editor.replace_selection_by(Pipe, **kwargs)
+    
+    # def replace_by_bent_pipes(self, curvature_radius, **kwargs):
+    #     return self.replace_editor.replace_by_bent_pipes(curvature_radius, **kwargs)
+
+    def replace_by_flanges(self, **kwargs):
+        return self.replace_editor.replace_by_flanges(**kwargs)
+
+    def replace_by_expansion_joints(self, **kwargs):
+        return self.replace_editor.replace_by_expansion_joints(**kwargs)
+
+    def replace_by_valves(self, **kwargs):
+        return self.replace_editor.replace_by_valves(**kwargs)
+
+    def replace_by_reducer_eccentrics(self, **kwargs):
+        return self.replace_editor.replace_by_reducer_eccentrics(**kwargs)
+
+    def replace_by_circular_beams(self, **kwargs):
+        return self.replace_editor.replace_by_circular_beams(**kwargs)
+
+    def replace_by_rectangular_beams(self, **kwargs):
+        return self.replace_editor.replace_by_rectangular_beams(**kwargs)
+
+    def replace_by_i_beams(self, **kwargs):
+        return self.replace_editor.replace_by_i_beams(**kwargs)
+
+    def replace_by_c_beams(self, **kwargs):
+        return self.replace_editor.replace_by_c_beams(**kwargs)
+
+    def replace_by_t_beams(self, **kwargs):
+        return self.replace_editor.replace_selection_by(TBeam, **kwargs)
 
     # Points Editor
     def attatch_point(self, point: Point):
