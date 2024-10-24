@@ -42,24 +42,6 @@ class SimpleCurve(Structure):
         center_coords = np.linalg.solve(A, b)
         return Point(*center_coords)
 
-        if self.is_colapsed():
-            return self.corner
-
-        a_vector = normalize(self.start.coords() - self.corner.coords())
-        b_vector = normalize(self.end.coords() - self.corner.coords())
-
-        if (a_vector == b_vector).all():
-            return self.corner
-
-        if np.dot(a_vector, b_vector) == 1:
-            return self.corner
-
-        sin_angle = np.linalg.norm(a_vector - b_vector) / 2
-        center_distance = self.curvature / sin_angle
-
-        c_vector = normalize(a_vector + b_vector)
-        return Point(*(self.corner.coords() + c_vector * center_distance))
-
     def update_corner_from_center(self, center):
         self.auto = False
         a_vector = self.start - center
