@@ -14,27 +14,21 @@ from pulse import app
 
 
 class CircularBeamOptions(StructureOptions):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    structure_type = CircularBeam
 
-        self.structure_type = CircularBeam
-        self.cross_section_info = dict()
-        self.update_permissions()
-    
-    def xyz_callback(self, xyz):
-        kwargs = self.get_kwargs()
-        if kwargs is None:
+    def get_kwargs(self) -> dict:
+        if self.structure_info is None:
             return
-        
-        self.pipeline.dismiss()
-        self.pipeline.clear_structure_selection()
-        self.pipeline.add_circular_beam(xyz, **kwargs)
 
-    def attach_callback(self):
-        kwargs = self.get_kwargs()
-        if kwargs is None:
+        parameters = self.structure_info.get("section_parameters")
+        if parameters is None:
             return
-        self.pipeline.connect_circular_beams(**kwargs)
+
+        return dict(
+            diameter = parameters[0],
+            thickness = parameters[1],
+            extra_info = self._get_extra_info(),
+        )
 
     def configure_structure(self):
         self.cross_section_widget._add_icon_and_title()
@@ -52,12 +46,12 @@ class CircularBeamOptions(StructureOptions):
             self.configure_structure()  # if it is invalid try again
             return
 
-        self.cross_section_info = self.cross_section_widget.beam_section_info
+        self.structure_info = self.cross_section_widget.beam_section_info
         self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
-        if self.cross_section_info:
+        if self.structure_info:
             set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
             enable = True
         else:
@@ -74,23 +68,9 @@ class CircularBeamOptions(StructureOptions):
         self.geometry_designer_widget.add_button.setEnabled(enable_add)
         self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
 
-    def get_kwargs(self) -> dict:
-        if self.cross_section_info is None:
-            return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
-            return
-
-        return dict(
-            diameter = parameters[0],
-            thickness = parameters[1],
-            extra_info = self._get_extra_info(),
-        )
-
     def _get_extra_info(self):
         return dict(
             structural_element_type = "beam_1",
-            cross_section_info = deepcopy(self.cross_section_info),
+            cross_section_info = deepcopy(self.structure_info),
             material_info = self.geometry_designer_widget.current_material_info,
         )

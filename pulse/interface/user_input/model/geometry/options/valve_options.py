@@ -17,30 +17,21 @@ from pulse.interface.user_input.model.setup.structural.valves_input import Valve
 
 window_title = "Error"
 class ValveOptions(StructureOptions):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    structure_type = Valve
 
-        self.structure_type = Valve
-        self.valve_info = dict()
-        self.update_permissions()
-    
-    def xyz_callback(self, xyz):
-        kwargs = self.get_kwargs()
-        if kwargs is None:
+    def get_kwargs(self) -> dict:
+        if self.structure_info is None:
             return
-        
-        self.pipeline.dismiss()
-        self.pipeline.clear_structure_selection()
-        self.pipeline.add_valve(xyz, **kwargs)
 
-    def attach_callback(self):
-        kwargs = self.get_kwargs()
-        if kwargs is None:
-            return
-        self.pipeline.connect_valves(**kwargs)
+        return dict(
+            diameter = self.structure_info.get("valve_effective_diameter", 0),
+            flange_outer_diameter = self.structure_info.get("flange_section_parameters", [0])[0],
+            flange_length = self.structure_info.get("flange_length"),
+            thickness = 0,
+            extra_info = self._get_extra_info(),
+        )
 
     def configure_structure(self):
-
         app().main_window.close_dialogs()
         self.valve_input = ValvesInput(render_type="geometry")
         self.load_data_from_pipe_section()
@@ -48,15 +39,15 @@ class ValveOptions(StructureOptions):
         app().main_window.set_input_widget(None)
 
         if not self.valve_input.complete:
-            self.valve_info = dict()
+            self.structure_info = dict()
             return
 
-        self.valve_info = self.valve_input.valve_info
+        self.structure_info = self.valve_input.valve_info
         self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
-        if self.valve_info:
+        if self.structure_info:
             set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
             enable = True
         else:
@@ -74,7 +65,6 @@ class ValveOptions(StructureOptions):
         self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
 
     def load_data_from_pipe_section(self):
-
         outside_diameter = self.cross_section_widget.lineEdit_outside_diameter.text()
         wall_thickness = self.cross_section_widget.lineEdit_wall_thickness.text()
 
@@ -93,22 +83,10 @@ class ValveOptions(StructureOptions):
             message = str(error_log)
             PrintMessageInput([window_title, title, message])
 
-    def get_kwargs(self) -> dict:
-        if self.valve_info is None:
-            return
-
-        return dict(
-            diameter = self.valve_info.get("valve_effective_diameter", 0),
-            flange_outer_diameter = self.valve_info.get("flange_section_parameters", [0])[0],
-            flange_length = self.valve_info.get("flange_length"),
-            thickness = 0,
-            extra_info = self._get_extra_info(),
-        )
-
     def _get_extra_info(self):
         return dict(
             structural_element_type = "valve",
-            valve_info = deepcopy(self.valve_info),
+            valve_info = deepcopy(self.structure_info),
             cross_section_info = {"section_type_label" : "Valve"},
             material_info = self.geometry_designer_widget.current_material_info,
         )

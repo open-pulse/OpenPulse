@@ -10,11 +10,7 @@ from molde.stylesheets import set_qproperty
 
 
 class PointOptions(StructureOptions):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-        self.structure_type = Point
-        self.update_permissions()
+    structure_type = Point
     
     def xyz_callback(self, xyz):
         if len(self.pipeline.selected_points) == 1:

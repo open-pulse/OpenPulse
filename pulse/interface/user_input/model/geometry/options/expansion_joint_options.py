@@ -18,27 +18,17 @@ from pulse.interface.user_input.model.setup.structural.expansion_joint_input imp
 window_title = "Error"
 
 class ExpansionJointOptions(StructureOptions):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    structure_type = ExpansionJoint
 
-        self.structure_type = ExpansionJoint
-        self.expansion_joint_info = dict()
-        self.update_permissions()
-    
-    def xyz_callback(self, xyz):
-        kwargs = self.get_kwargs()
-        if kwargs is None:
+    def get_kwargs(self) -> dict:
+        if self.structure_info is None:
             return
 
-        self.pipeline.dismiss()
-        self.pipeline.clear_structure_selection()
-        self.pipeline.add_expansion_joint(xyz, **kwargs)
-
-    def attach_callback(self):
-        kwargs = self.get_kwargs()
-        if kwargs is None:
-            return
-        self.pipeline.connect_expansion_joints(**kwargs)
+        return dict(
+            diameter = self.structure_info.get("effective_diameter", 0),
+            thickness = 0,
+            extra_info = self._get_extra_info(),
+        )
 
     def configure_structure(self):
         app().main_window.close_dialogs()
@@ -48,15 +38,15 @@ class ExpansionJointOptions(StructureOptions):
         app().main_window.set_input_widget(None)
 
         if not self.expansion_joint_input.complete:
-            self.expansion_joint_info = None
+            self.structure_info = None
             return
 
-        self.expansion_joint_info = self.expansion_joint_input.expansion_joint_info
+        self.structure_info = self.expansion_joint_input.expansion_joint_info
         self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
-        if self.expansion_joint_info:
+        if self.structure_info:
             set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
             enable = True
         else:
@@ -93,19 +83,9 @@ class ExpansionJointOptions(StructureOptions):
             message = str(error_log)
             PrintMessageInput([window_title, title, message])
 
-    def get_kwargs(self) -> dict:
-        if self.expansion_joint_info is None:
-            return
-
-        return dict(
-            diameter = self.expansion_joint_info.get("effective_diameter", 0),
-            thickness = 0,
-            extra_info = self._get_extra_info(),
-        )
-
     def _get_extra_info(self):
         return dict(
             structural_element_type = "expansion_joint",
-            expansion_joint_info = deepcopy(self.expansion_joint_info),
+            expansion_joint_info = deepcopy(self.structure_info),
             material_info = self.geometry_designer_widget.current_material_info,
         )
