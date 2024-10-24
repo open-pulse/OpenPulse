@@ -22,6 +22,26 @@ class SimpleCurve(Structure):
 
     @property
     def center(self):
+        u = self.start.coords() - self.corner.coords()
+        v = self.end.coords() - self.corner.coords()
+        n = np.cross(u, v)
+
+        u /= np.linalg.norm(u)
+        v /= np.linalg.norm(v)
+        n /= np.linalg.norm(n)
+
+        A = np.array([u, v, n], dtype=float)
+        b = np.array(
+            [
+                np.sum(u * self.start.coords()),
+                np.sum(v * self.end.coords()),
+                np.sum(n * self.start.coords()),
+            ],
+            dtype=float,
+        )
+        center_coords = np.linalg.solve(A, b)
+        return Point(*center_coords)
+
         if self.is_colapsed():
             return self.corner
 
