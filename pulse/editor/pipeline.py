@@ -192,6 +192,9 @@ class Pipeline:
         return indexes
 
     # Main Editor
+    def add_structure_deltas(self, structure_type, deltas, **kwargs):
+        return self.main_editor.add_structure_deltas(structure_type, deltas, **kwargs)
+
     def add_pipe(self, deltas, **kwargs):
         return self.main_editor.add_pipe(deltas, **kwargs)
 

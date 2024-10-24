@@ -17,11 +17,8 @@ from pulse.interface.user_input.model.setup.structural.valves_input import Valve
 
 window_title = "Error"
 class ValveOptions(StructureOptions):
-    def __init__(self, geometry_designer_widget: "GeometryDesignerWidget") -> None:
-        super().__init__()
-
-        self.geometry_designer_widget = geometry_designer_widget
-        self.cross_section_widget = self.geometry_designer_widget.cross_section_widget
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
         self.structure_type = Valve
         self.valve_info = dict()

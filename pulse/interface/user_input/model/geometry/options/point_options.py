@@ -10,9 +10,8 @@ from molde.stylesheets import set_qproperty
 
 
 class PointOptions(StructureOptions):
-    def __init__(self, geometry_designer_widget: "GeometryDesignerWidget") -> None:
-        super().__init__()
-        self.geometry_designer_widget = geometry_designer_widget
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
         self.structure_type = Point
         self.update_permissions()

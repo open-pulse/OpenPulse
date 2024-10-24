@@ -10,11 +10,8 @@ from copy import deepcopy
 
 
 class ReducerOptions(StructureOptions):
-    def __init__(self, geometry_designer_widget: "GeometryDesignerWidget") -> None:
-        super().__init__()
-
-        self.geometry_designer_widget = geometry_designer_widget
-        self.cross_section_widget = self.geometry_designer_widget.cross_section_widget
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
         self.structure_type = Reducer
         self.cross_section_info = dict()
