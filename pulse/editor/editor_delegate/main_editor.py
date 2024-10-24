@@ -21,7 +21,7 @@ from pulse.editor.structures import (
 from .editor import Editor
 
 
-t_structure = TypeVar("t_structure", bound=Structure)
+t_structure = TypeVar("t_structure", bound=type[Structure])
 
 
 class MainEditor(Editor):

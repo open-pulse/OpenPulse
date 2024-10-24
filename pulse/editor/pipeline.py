@@ -238,6 +238,9 @@ class Pipeline:
         self.main_editor.recalculate_curvatures()
 
     # Connection Editor
+    def connect_structures(self, structure_type: type[Structure], **kwargs):
+        return self.connection_editor.connect_structure(structure_type, **kwargs)
+
     def connect_pipes(self, **kwargs):
         return self.connection_editor.connect_pipes(**kwargs)
 

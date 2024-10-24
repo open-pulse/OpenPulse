@@ -16,13 +16,6 @@ from pulse import app
 class PipeOptions(StructureOptions):
     structure_type = Pipe
 
-    def attach_callback(self):
-        kwargs = self._get_kwargs()
-        if kwargs is None:
-            return
-        self.pipeline.connect_bent_pipes(**kwargs)
-        self.pipeline.commit()
-
     def configure_structure(self):
         self.cross_section_widget._add_icon_and_title()
         self.cross_section_widget.set_inputs_to_geometry_creator()     

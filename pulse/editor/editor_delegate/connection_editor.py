@@ -1,4 +1,5 @@
 from itertools import pairwise
+from typing import TypeVar
 
 from pulse.editor.structures import (
     CBeam,
@@ -11,12 +12,21 @@ from pulse.editor.structures import (
     Reducer,
     TBeam,
     Valve,
+    Structure
 )
 
 from .editor import Editor
 
+t_structure = TypeVar("t_structure", bound=type[Structure])
+
 
 class ConnectionEditor(Editor):
+    def connect_structure(self, structure_type: t_structure, **kwargs) -> list[t_structure]:
+        if issubclass(structure_type, Pipe):
+            self.connect_bent_pipes(**kwargs)
+        else:
+            self._generic_structure_connection(structure_type, **kwargs)
+
     def connect_pipes(self, **kwargs):
         return self._generic_structure_connection(Pipe, **kwargs)
 

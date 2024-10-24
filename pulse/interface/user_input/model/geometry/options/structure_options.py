@@ -27,7 +27,15 @@ class StructureOptions:
         self.pipeline.add_structure_deltas(self.structure_type, xyz, **kwargs)
 
     def attach_callback(self):
-        pass
+        if self.structure_type is None:
+            return
+
+        kwargs = self._get_kwargs()
+        if kwargs is None:
+            return
+
+        self.pipeline.connect_structures(self.structure_type, **kwargs)
+        self.pipeline.commit()
 
     def configure_structure(self):
         raise NotImplementedError(f"Method configure_structure not implemented on {self.__class__.__name__}")
