@@ -18,7 +18,7 @@ class ReducerOptions(StructureOptions):
         self.update_permissions()
 
     def xyz_callback(self, xyz):
-        kwargs = self._get_kwargs()
+        kwargs = self.get_kwargs()
         if kwargs is None:
             return
 
@@ -27,7 +27,7 @@ class ReducerOptions(StructureOptions):
         self.pipeline.add_reducer_eccentric(xyz, **kwargs)
 
     def attach_callback(self):
-        kwargs = self._get_kwargs()
+        kwargs = self.get_kwargs()
         if kwargs is None:
             return
         self.pipeline.connect_reducer_eccentrics(**kwargs)
@@ -87,7 +87,7 @@ class ReducerOptions(StructureOptions):
         if outside_diameter != "" and wall_thickness != "":
             self.cross_section_widget.lineEdit_outside_diameter_final.setFocus()
 
-    def _get_kwargs(self) -> dict:
+    def get_kwargs(self) -> dict:
         if self.cross_section_info is None:
             return
 

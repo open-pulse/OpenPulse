@@ -22,7 +22,7 @@ class FlangeOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        kwargs = self._get_kwargs()
+        kwargs = self.get_kwargs()
         if kwargs is None:
             return
         
@@ -31,7 +31,7 @@ class FlangeOptions(StructureOptions):
         self.pipeline.add_flange(xyz, **kwargs)
 
     def attach_callback(self):
-        kwargs = self._get_kwargs()
+        kwargs = self.get_kwargs()
         if kwargs is None:
             return
         self.pipeline.connect_flanges(**kwargs)
@@ -73,7 +73,7 @@ class FlangeOptions(StructureOptions):
         self.geometry_designer_widget.add_button.setEnabled(enable_add)
         self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
 
-    def _get_kwargs(self) -> dict:
+    def get_kwargs(self) -> dict:
         if self.cross_section_info is None:
             return
 

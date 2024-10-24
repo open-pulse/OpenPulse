@@ -16,6 +16,21 @@ from pulse import app
 class PipeOptions(StructureOptions):
     structure_type = Pipe
 
+    def get_kwargs(self):
+        if not self.structure_info:
+            return
+
+        parameters = self.structure_info.get("section_parameters")
+        if parameters is None:
+            return
+
+        return dict(
+            diameter = parameters[0],
+            thickness = parameters[1],
+            curvature_radius = self._get_bending_radius(parameters[0]),
+            extra_info = self._get_extra_info(),
+        )
+
     def configure_structure(self):
         self.cross_section_widget._add_icon_and_title()
         self.cross_section_widget.set_inputs_to_geometry_creator()     
@@ -38,7 +53,7 @@ class PipeOptions(StructureOptions):
         self.update_permissions()
 
     def configure_section_of_selected(self):
-        kwargs = self._get_kwargs()
+        kwargs = self.get_kwargs()
         if kwargs is None:
             return
 
@@ -90,21 +105,6 @@ class PipeOptions(StructureOptions):
 
         for lineEdit in self.cross_section_widget.right_variable_pipe_lineEdits:
             lineEdit.setText("")
-
-    def _get_kwargs(self):
-        if not self.structure_info:
-            return
-
-        parameters = self.structure_info.get("section_parameters")
-        if parameters is None:
-            return
-
-        return dict(
-            diameter = parameters[0],
-            thickness = parameters[1],
-            curvature_radius = self._get_bending_radius(parameters[0]),
-            extra_info = self._get_extra_info(),
-        )
 
     def _get_bending_radius(self, diameter):
         geometry_input_widget = app().main_window.geometry_input_wigdet

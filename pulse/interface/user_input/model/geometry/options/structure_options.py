@@ -18,7 +18,7 @@ class StructureOptions:
         if self.structure_type is None:
             return
 
-        kwargs = self._get_kwargs()
+        kwargs = self.get_kwargs()
         if kwargs is None:
             return        
 
@@ -30,7 +30,7 @@ class StructureOptions:
         if self.structure_type is None:
             return
 
-        kwargs = self._get_kwargs()
+        kwargs = self.get_kwargs()
         if kwargs is None:
             return
 
@@ -44,7 +44,7 @@ class StructureOptions:
         if self.structure_type is None:
             return
 
-        kwargs = self._get_kwargs()
+        kwargs = self.get_kwargs()
         if kwargs is None:
             return
 
@@ -58,5 +58,5 @@ class StructureOptions:
     def update_permissions(self):
         pass
 
-    def _get_kwargs(self) -> dict:
-        raise NotImplementedError(f"Method _get_kwargs not implemented on {self.__class__.__name__}")
+    def get_kwargs(self) -> dict:
+        raise NotImplementedError(f"Method get_kwargs not implemented on {self.__class__.__name__}")

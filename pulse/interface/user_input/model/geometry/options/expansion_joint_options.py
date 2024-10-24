@@ -26,7 +26,7 @@ class ExpansionJointOptions(StructureOptions):
         self.update_permissions()
     
     def xyz_callback(self, xyz):
-        kwargs = self._get_kwargs()
+        kwargs = self.get_kwargs()
         if kwargs is None:
             return
 
@@ -35,7 +35,7 @@ class ExpansionJointOptions(StructureOptions):
         self.pipeline.add_expansion_joint(xyz, **kwargs)
 
     def attach_callback(self):
-        kwargs = self._get_kwargs()
+        kwargs = self.get_kwargs()
         if kwargs is None:
             return
         self.pipeline.connect_expansion_joints(**kwargs)
@@ -93,7 +93,7 @@ class ExpansionJointOptions(StructureOptions):
             message = str(error_log)
             PrintMessageInput([window_title, title, message])
 
-    def _get_kwargs(self) -> dict:
+    def get_kwargs(self) -> dict:
         if self.expansion_joint_info is None:
             return
 
