@@ -219,6 +219,7 @@ class GeometryDesignerWidget(QWidget):
 
         structure_name = structure_name.lower().strip()
         self.current_structure_type = self._structure_name_to_class(structure_name)  
+        self.current_options = self._structure_name_to_options(structure_name)
 
         self._show_deltas_mode(True)
         structure_index = self.structure_combobox.currentIndex()
@@ -232,47 +233,10 @@ class GeometryDesignerWidget(QWidget):
         else:
             self.frame_division_options.setEnabled(True)
 
-        if issubclass(self.current_structure_type, Pipe):
-            self.current_options = self.pipe_options
-
-        elif issubclass(self.current_structure_type, Flange):
-            self.current_options = self.flange_options
-
-        elif issubclass(self.current_structure_type, Reducer):
-            self.current_options = self.reducer_options
-
-        elif issubclass(self.current_structure_type, RectangularBeam):
-            self.current_options = self.rectangular_beam_options
-
-        elif issubclass(self.current_structure_type, CircularBeam):
-            self.current_options = self.circular_beam_options
-
-        elif issubclass(self.current_structure_type, TBeam):
-            self.current_options = self.t_beam_options
-
-        elif issubclass(self.current_structure_type, IBeam):
-            self.current_options = self.i_beam_options
-
-        elif issubclass(self.current_structure_type, CBeam):
-            self.current_options = self.c_beam_options
-
-        elif issubclass(self.current_structure_type, ExpansionJoint):
-            self.current_options = self.expansion_joint_options
-
-        elif issubclass(self.current_structure_type, Valve):
-            self.current_options = self.valve_options
-
-        elif issubclass(self.current_structure_type, Point):
+        if self.current_options == self.point_options:
             self._show_deltas_mode(False)
             self._set_xyz_to_selected_point()
-            self.current_options = self.point_options
-
-            # self.pipeline.dismiss()
-            # self.pipeline.clear_structure_selection()
-            # self._set_xyz_to_selected_point()
-            # self.render_widget.update_plot(reset_camera=False)
-
-        if not issubclass(self.current_structure_type, Point):
+        else:
             self.xyz_changed_callback()
 
         self._update_permissions()
@@ -654,6 +618,22 @@ class GeometryDesignerWidget(QWidget):
             "i-beam": IBeam,
             "t-beam": TBeam,
             "c-beam": CBeam,
+        }  # it is a bit cringe, but very understandable and compact
+        return structures.get(structure_name)
+
+    def _structure_name_to_options(self, structure_name: str):
+        structures = {
+            "point": self.point_options,
+            "pipe": self.pipe_options,
+            "flange": self.flange_options,
+            "valve": self.valve_options,
+            "reducer": self.reducer_options,
+            "expansion joint": self.expansion_joint_options,
+            "circular beam": self.circular_beam_options,
+            "rectangular beam": self.rectangular_beam_options,
+            "i-beam": self.i_beam_options,
+            "t-beam": self.t_beam_options,
+            "c-beam": self.c_beam_options,
         }  # it is a bit cringe, but very understandable and compact
         return structures.get(structure_name)
 
