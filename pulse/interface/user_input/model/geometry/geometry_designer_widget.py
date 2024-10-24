@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox, QCheckBox
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
 
@@ -101,11 +101,18 @@ class GeometryDesignerWidget(QWidget):
         self.y_line_edit: QLineEdit
         self.z_line_edit: QLineEdit
         self.bending_radius_line_edit: QLineEdit
+        self.division_dx_line_edit: QLineEdit
+        self.division_dy_line_edit: QLineEdit
+        self.division_dz_line_edit: QLineEdit
 
         # QLabel
         self.dx_label: QLabel
         self.dy_label: QLabel
         self.dz_label: QLabel
+        self.division_dx_label: QLabel
+        self.division_dy_label: QLabel
+        self.division_dz_label: QLabel
+
         self.division_slider_label: QLabel
         self.position_slider_label: QLabel
         self.sizes_coords_label: QLabel
@@ -123,6 +130,9 @@ class GeometryDesignerWidget(QWidget):
 
         # QWidget
         self.empty_widget: QWidget
+
+        #QCheckBox
+        self.invert_origin_checkbox: QCheckBox
     
     def _create_layout(self):
         self.cross_section_widget = CrossSectionWidget(self)
@@ -158,6 +168,10 @@ class GeometryDesignerWidget(QWidget):
         self.division_amount_spinbox.textChanged.connect(self.divisions_spinboxes_callback)
         self.position_slider.valueChanged.connect(self.position_slider_callback)
         self.position_spinbox.textChanged.connect(self.divisions_spinboxes_callback)
+
+        self.division_dx_line_edit.textEdited.connect(self.divisions_spinboxes_callback)
+        self.division_dy_line_edit.textEdited.connect(self.divisions_spinboxes_callback)
+        self.division_dz_line_edit.textEdited.connect(self.divisions_spinboxes_callback)
 
         self.cancel_division_button.clicked.connect(self.cancel_division_callback)
         self.apply_division_button.clicked.connect(self.apply_division_callback)
@@ -454,6 +468,18 @@ class GeometryDesignerWidget(QWidget):
             self.division_slider.blockSignals(True)
             self.division_slider.setValue(value)
             self.division_slider.blockSignals(False)
+        
+        elif division_type == "projection division":
+            try:
+                dx = float(self.division_dx_line_edit.text() or 0)
+                dy = float(self.division_dy_line_edit.text() or 0)
+                dz = float(self.division_dz_line_edit.text() or 0)
+            except:
+                return
+                
+            invert_origin = self.invert_origin_checkbox.isChecked()
+
+            self.pipeline.preview_divide_structures_by_projection(dx, dy, dz, invert_origin)
 
         self.render_widget.update_plot(reset_camera=False)
     

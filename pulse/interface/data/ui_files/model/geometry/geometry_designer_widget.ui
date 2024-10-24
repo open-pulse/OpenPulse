@@ -1296,7 +1296,7 @@
                  </size>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>2</number>
                 </property>
                 <widget class="QWidget" name="page_9">
                  <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -1365,7 +1365,14 @@
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QLineEdit" name="division_dx_line_edit"/>
+                   <widget class="QLineEdit" name="division_dx_line_edit">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="clearButtonEnabled">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
                   </item>
                   <item row="1" column="0">
                    <widget class="QLabel" name="division_dy_label">
@@ -1404,7 +1411,14 @@
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QLineEdit" name="division_dz_line_edit"/>
+                   <widget class="QLineEdit" name="division_dz_line_edit">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="clearButtonEnabled">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
                   </item>
                   <item row="2" column="2">
                    <widget class="QLabel" name="unity_division_dz_label">
@@ -1431,7 +1445,14 @@
                    </widget>
                   </item>
                   <item row="1" column="1">
-                   <widget class="QLineEdit" name="division_dy_line_edit"/>
+                   <widget class="QLineEdit" name="division_dy_line_edit">
+                    <property name="text">
+                     <string/>
+                    </property>
+                    <property name="clearButtonEnabled">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
                   </item>
                   <item row="3" column="1">
                    <widget class="QCheckBox" name="invert_origin_checkbox">
