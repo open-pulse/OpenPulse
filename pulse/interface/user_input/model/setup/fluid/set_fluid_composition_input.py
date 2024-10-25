@@ -74,7 +74,10 @@ class SetFluidCompositionInput(QDialog):
                                 "PRANDTL" : "Prandtl_number",
                                 "TD" : "thermal_diffusivity",
                                 "KV" : "kinematic_viscosity",
-                                "M" : "molar_mass" }
+                                "M" : "molar_mass",
+                                "BS" : "adiabatic_bulk_modulus",
+                                "KKT" : "isothermal_bulk_modulus",
+                                "Z" : "compressibility_factor"  }
 
         self.selected_fluid = ""
         self.unit_temperature = "K"
@@ -493,7 +496,10 @@ class SetFluidCompositionInput(QDialog):
                 
                 if self.compressor_info:
 
-                    for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
+                    for key_prop in self.map_properties.keys():
+
+                        if key_prop in ["PRANDTL", "TD", "KV"]:
+                            continue
 
                         read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                         temperature_K, pressure_Pa, molar_fractions )
@@ -519,7 +525,11 @@ class SetFluidCompositionInput(QDialog):
                         cache_temperatures = [temperature_K]
                         while criteria > 0.001 and count <= 100:
 
-                            for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
+                            for key_prop in self.map_properties.keys():
+
+                                if key_prop in ["PRANDTL", "TD", "KV"]:
+                                    continue
+
                                 read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                                 temperature_K, pressure_Pa, molar_fractions )
 
@@ -546,7 +556,11 @@ class SetFluidCompositionInput(QDialog):
 
                 else:
 
-                    for key_prop in ["D", "CV", "CP", self.isentropic_label, "W", "VIS", "TCX", "M"]:#, "PRANDTL", "TD", "KV"]:
+                    for key_prop in self.map_properties.keys():
+
+                        if key_prop in ["PRANDTL", "TD", "KV"]:
+                            continue
+
                         read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                         temperature_K, pressure_Pa, molar_fractions )
 
@@ -558,9 +572,13 @@ class SetFluidCompositionInput(QDialog):
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
-                self.fluid_properties["impedance"] = round(self.fluid_properties["density"]*self.fluid_properties["speed_of_sound"],6)
+                fluid_density = self.fluid_properties["density"]
+                speed_of_sound = self.fluid_properties["speed_of_sound"]
+                acoustic_impedance = fluid_density*speed_of_sound
+
+                self.fluid_properties["impedance"] = round(acoustic_impedance, 6)
                 self.fluid_setup = [fluids_string, molar_fractions]
-                
+
                 self.process_errors()
                 # if self.process_errors():
                 #     return
