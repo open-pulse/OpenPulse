@@ -97,6 +97,9 @@ class GeometryDesignerWidget(QWidget):
         self.x_line_edit: QLineEdit
         self.y_line_edit: QLineEdit
         self.z_line_edit: QLineEdit
+        self.unity_x_label: QLineEdit
+        self.unity_y_label: QLineEdit
+        self.unity_z_label: QLineEdit
         self.bending_radius_line_edit: QLineEdit
 
         # QLabel
@@ -278,6 +281,17 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
         self._update_information_text()
         self.x_line_edit.setFocus()
+
+    def set_bound_box_sizes_widgets_enabled(self, key: bool):
+        self.dx_label.setEnabled(key)
+        self.dy_label.setEnabled(key)
+        self.dz_label.setEnabled(key)
+        self.x_line_edit.setEnabled(key)
+        self.y_line_edit.setEnabled(key)
+        self.z_line_edit.setEnabled(key)
+        self.unity_x_label.setEnabled(key)
+        self.unity_y_label.setEnabled(key)
+        self.unity_z_label.setEnabled(key)
 
     def show_material_widget_callback(self):
         self.material_widget._initialize()

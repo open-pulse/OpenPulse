@@ -27,6 +27,7 @@ class MeshToolbar(QToolBar):
         font = QFont()
         font.setPointSize(12)
         self.setFont(font)
+        self.setWindowTitle("Mesh toolbar")
 
     def _define_qt_variables(self):
 
@@ -61,12 +62,13 @@ class MeshToolbar(QToolBar):
 
         self.lineEdit_element_size.setAlignment(Qt.AlignCenter)
         self.lineEdit_geometry_tolerance.setAlignment(Qt.AlignCenter)
-        self.lineEdit_element_size.setFixedWidth(70)
-        self.lineEdit_geometry_tolerance.setFixedWidth(70)
+        self.lineEdit_element_size.setFixedSize(70, 28)
+        self.lineEdit_geometry_tolerance.setFixedSize(70, 28)
 
         self.pushButton_generate_mesh.setToolTip("Press to generate the mesh")
         self.pushButton_generate_mesh.setCursor(Qt.PointingHandCursor)
         self.pushButton_generate_mesh.setDisabled(True)
+        self.pushButton_generate_mesh.setFixedSize(120, 30)
 
     def _create_connections(self):
         #
@@ -97,7 +99,7 @@ class MeshToolbar(QToolBar):
         self.adjustSize()
 
     def _configure_appearance(self):
-        self.setMinimumHeight(36)
+        self.setMinimumHeight(40)
         self.setMovable(True)
         self.setFloatable(True)
 
