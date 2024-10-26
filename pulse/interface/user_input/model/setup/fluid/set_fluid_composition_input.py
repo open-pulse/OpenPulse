@@ -456,6 +456,7 @@ class SetFluidCompositionInput(QDialog):
         message = ""
         self.errors = dict()
         self.fluid_setup = list()
+        self.ideal_gas_warning = False
 
         if round(self.remaining_molar_fraction, 6) == 0:
             if self.lineEdit_fluid_name.text() != "":
@@ -572,6 +573,11 @@ class SetFluidCompositionInput(QDialog):
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
+                        if key_prop == "Z":
+                            Z = read.Output[0]
+                            if Z < 0.9 or Z > 1.1:
+                                self.ideal_gas_warning = True
+
                 fluid_density = self.fluid_properties["density"]
                 speed_of_sound = self.fluid_properties["speed_of_sound"]
                 acoustic_impedance = fluid_density*speed_of_sound
@@ -579,26 +585,55 @@ class SetFluidCompositionInput(QDialog):
                 self.fluid_properties["impedance"] = round(acoustic_impedance, 6)
                 self.fluid_setup = [fluids_string, molar_fractions]
 
-                self.process_errors()
-                # if self.process_errors():
-                #     return
+                # self.process_errors()
+                if self.process_errors():
+                    return
 
-                self.complete = True
+                if self.ideal_gas_warning:
+
+                    self.hide()
+
+                    title = "Deviation from ideal gas behavior"
+                    message = f"The gas compressibility factor Z = {round(Z, 6)} exceeds the internal criteria of +/- 10% "
+                    message += "for ideal gases. The real gases could be treated as ideal if the compressibility "
+                    message += " factor tends to the unit."
+
+                    message += "\n\nPress Yes to ignore this warning and get fluid properties or No to cancel."
+
+                    buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
+                    read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+                    if app().main_window.force_close:
+                        self.close()
+                        return
+
+                    if read._cancel:
+                        self.complete = False                        
+                        app().main_window.set_input_widget(self)
+                        return
+
+                    if read._continue:
+                        self.complete = True
+
                 self.close()
-                # self.actions_to_finalize()
+                return
+
             else:
+
                 title = "Additional input required"
                 message = "Define a fluid name at specific input field to proceed."
                 self.lineEdit_fluid_name.setFocus()
 
         else:
-            remaining_molar_fraction = round(100*self.remaining_molar_fraction, 6)
+
             title = "Fluid composition not invalid"
+            remaining_molar_fraction = round(100*self.remaining_molar_fraction, 6)
             message += "The sum of all molar fractions must be equals to the unity. It is recommended "
             message += "to adjust the fluid composition until this requirement is met.\n\n"
             message += f"Remaining molar fraction: {remaining_molar_fraction} %"
 
         if message != "":
+            self.hide()
             PrintMessageInput([window_title_1, title, message])
 
     def process_errors(self):

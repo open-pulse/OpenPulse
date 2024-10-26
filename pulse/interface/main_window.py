@@ -73,6 +73,7 @@ class MainWindow(QMainWindow):
 
         self.dialog = None
         self.input_ui = None
+        self.force_close = False
 
         self.model_setup_widget = None
         self.results_viewer_wigdet = None
@@ -916,6 +917,7 @@ class MainWindow(QMainWindow):
                                     )
 
         if close == QMessageBox.Cancel:
+            self.force_close = False
             return True
 
         elif close == QMessageBox.Save:
@@ -1080,6 +1082,7 @@ class MainWindow(QMainWindow):
             self.dialog.setStyleSheet(self.combined_stylesheet)
 
     def close_dialogs(self):
+        self.force_close = True
         if isinstance(self.dialog, (QDialog, QWidget)):
             self.dialog.close()
             self.set_input_widget(None)
@@ -1105,6 +1108,7 @@ class MainWindow(QMainWindow):
                                         )
 
             if close == QMessageBox.No:
+                self.force_close = False
                 return
 
         # self.user_config.save()
