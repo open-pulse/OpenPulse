@@ -639,6 +639,8 @@ class FluidWidget(QWidget):
 
         self.refprop = SetFluidCompositionInput(compressor_info = self.compressor_info)
 
+        print(f"teste -> {app().main_window.force_close}")
+
         if app().main_window.force_close:
             self.parent_widget.close()
             return True

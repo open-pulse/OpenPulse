@@ -1082,12 +1082,13 @@ class MainWindow(QMainWindow):
             self.dialog.setStyleSheet(self.combined_stylesheet)
 
     def close_dialogs(self):
-        self.force_close = True
         if isinstance(self.dialog, (QDialog, QWidget)):
             self.dialog.close()
             self.set_input_widget(None)
 
     def close_app(self):
+
+        self.force_close = True
         self.close_dialogs()
 
         condition_1 = self.project.save_path is None

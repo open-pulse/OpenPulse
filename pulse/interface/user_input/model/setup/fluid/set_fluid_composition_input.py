@@ -612,9 +612,10 @@ class SetFluidCompositionInput(QDialog):
                         app().main_window.set_input_widget(self)
                         return
 
-                    if read._continue:
-                        self.complete = True
+                    # if read._continue:
+                    #     self.complete = True
 
+                self.complete = True
                 self.close()
                 return
 

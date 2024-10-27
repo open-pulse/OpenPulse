@@ -1955,9 +1955,8 @@ class Preprocessor:
         if len(node_ids) == 2:
 
             coords = list()
-            
-            input_node_id, output_node_id = node_ids 
-            
+            input_node_id, output_node_id = node_ids
+
             int_id1 = self.nodes[input_node_id].global_index
             int_id2 = self.nodes[output_node_id].global_index
 
@@ -1970,16 +1969,15 @@ class Preprocessor:
             coords.append(list(np.round(coords_1, 5)))
             coords.append(list(np.round(coords_2, 5)))
 
-            node_ids = (input_node_id, output_node_id)
-
             if data["element_transfer_data_source"] == "direct_import":
                 a11, a12, a21, a22 = data["values"]
+
             else:
                 P_in, Q_in, P_out, Q_out = data["values"]
-                a11 = Q_in*P_in
-                a12 = Q_in*P_out
-                a21 = Q_out*P_in
-                a22 = Q_out*P_out
+                a11 = Q_out*P_out
+                a12 = Q_out*P_in
+                a21 = Q_in*P_out
+                a22 = Q_in*P_in
 
             Te = np.array([a11, a12, a21, a22], dtype=complex).T
 
