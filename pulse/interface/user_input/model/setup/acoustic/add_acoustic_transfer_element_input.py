@@ -21,7 +21,7 @@ class AddAcousticTransferElementInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/acoustic/add_acoustic_transfer_element_input.ui"
+        ui_path = UI_DIR / "model/setup/acoustic/acoustic_transfer_element_input.ui"
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
@@ -358,13 +358,12 @@ class AddAcousticTransferElementInput(QDialog):
 
         if self.comboBox_transfer_matrices_import_type.currentIndex() == 0:
             data_source = "direct_import"
-            for key in ["P_in", "Q_in", "P_out", "Q_out"]:
+            for key in ["a11", "a12", "a21", "a22"]:
                 table_names.append(aux[key]["table_name"])
 
         else:
-
             data_source = "pressures_and_volume_velocities"
-            for key in ["a11", "a12", "a21", "a22"]:
+            for key in ["P_in", "Q_in", "P_out", "Q_out"]:
                 table_names.append(aux[key]["table_name"])
 
         data = {
