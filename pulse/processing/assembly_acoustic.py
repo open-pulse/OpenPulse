@@ -360,6 +360,50 @@ class AssemblyAcoustic:
 
         return K_link, Kr_link  
 
+    def get_fetm_transfer_matrices(self):
+
+        """
+        This method perform the assembly process of the acoustic FETM link matrices.
+
+        Returns
+        ----------
+        K_link : list
+            List of linked admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+
+        Kr_link : list
+            List of linked admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+        """
+
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
+
+        rows = list()
+        cols = list()
+        data_T = list()
+
+        for (_property, *args), data in self.model.properties.nodal_properties.items():
+
+            if _property == "acoustic_transfer_element":
+
+                et_data = self.preprocessor.get_acoustic_transfer_element_data(args, data)
+                rows.extend(et_data["indexes_i"])
+                cols.extend(et_data["indexes_j"])
+                data_Te = et_data["data_Te"]
+
+                if len(data_T):
+                    data_T = np.c_[data_T, data_Te]
+                else:
+                    data_T = data_Te
+
+        if len(data_T):
+            full_T_link = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof]) for data in data_T]
+        else:
+            full_T_link = [csr_matrix((total_dof, total_dof)) for _ in self.frequencies]
+
+        T_link = [full[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for full in full_T_link]
+        Tr_link = [full[:, self.prescribed_indexes] for full in full_T_link]
+
+        return T_link, Tr_link 
+
     def get_lumped_matrices(self):
         """
         This method perform the assembly process of the acoustic FETM lumped matrices.

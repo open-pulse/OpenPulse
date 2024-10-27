@@ -243,8 +243,6 @@ class SpecificImpedanceInput(QDialog):
         imag_values = np.imag(values)
         data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
 
-        print(table_name, data.shape)
-
         self.properties.add_imported_tables("acoustic", table_name, data)
 
         return table_name, data
@@ -289,6 +287,8 @@ class SpecificImpedanceInput(QDialog):
             f_min = self.frequencies[0]
             f_max = self.frequencies[-1]
             f_step = self.frequencies[1] - self.frequencies[0] 
+
+            app().main_window.config.write_last_folder_path_in_file("imported table folder", path_imported_table)
 
             if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
 
@@ -420,7 +420,6 @@ class SpecificImpedanceInput(QDialog):
 
     def process_table_file_removal(self, table_names : list):
         if table_names:
-            print("process_table_file_removal", table_names)
             for table_name in table_names:
                 self.properties.remove_imported_tables("acoustic", table_name)
             app().pulse_file.write_imported_table_data_in_file()

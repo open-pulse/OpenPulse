@@ -288,6 +288,8 @@ class VolumeVelocityInput(QDialog):
             f_max = self.frequencies[-1]
             f_step = self.frequencies[1] - self.frequencies[0] 
 
+            app().main_window.config.write_last_folder_path_in_file("imported table folder", path_imported_table)
+
             if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
 
                 self.lineEdit_reset(lineEdit)

@@ -82,7 +82,10 @@ class AcousticSolver:
         self.K, self.Kr = self.assembly.get_global_matrices()
         self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices()
         self.K_link, self.Kr_link = self.assembly.get_fetm_link_matrices()
-        self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] for i in range(len(self.frequencies))]
+        self.T_link, self.Tr_link = self.assembly.get_fetm_transfer_matrices()
+
+        # self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] for i in range(len(self.frequencies))]
+        self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] + self.T_link[i] for i in range(len(self.frequencies))]
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis = False):
         """
@@ -130,6 +133,7 @@ class AcousticSolver:
         Kr = [(sparse_matrix.toarray())[self.get_pipe_and_unprescribed_indexes, :] for sparse_matrix in self.Kr]
         Kr_link = [(sparse_matrix.toarray())[self.get_pipe_and_unprescribed_indexes, :] for sparse_matrix in self.Kr_link]
         Kr_lump = [(sparse_matrix.toarray())[self.get_pipe_and_unprescribed_indexes, :] for sparse_matrix in self.Kr_lump]
+        Tr_link = [(sparse_matrix.toarray())[self.get_pipe_and_unprescribed_indexes, :] for sparse_matrix in self.Tr_link]
 
         rows = Kr[0].shape[0]  
         cols = len(self.frequencies)
@@ -148,7 +152,8 @@ class AcousticSolver:
 
             self.array_prescribed_values = np.array(prescribed_values)
             for i in range(cols):
-                volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_link[i] + Kr_lump[i]) * self.array_prescribed_values[:,i], axis=1)
+                # volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_link[i] + Kr_lump[i]) * self.array_prescribed_values[:,i], axis=1)
+                volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_link[i] + Kr_lump[i] + Tr_link[i]) * self.array_prescribed_values[:,i], axis=1)
 
         volume_velocity_combined = volume_velocity.T - volume_velocity_eq
 
