@@ -40,6 +40,18 @@ class StructureOptions:
     def configure_structure(self):
         raise NotImplementedError(f"Method configure_structure not implemented on {self.__class__.__name__}")
 
+    def replace_selection(self):
+        if self.structure_type is None:
+            return
+
+        kwargs = self.get_kwargs()
+        if kwargs is None:
+            return
+
+        self.pipeline.dismiss()
+        self.pipeline.replace_selection_by(self.structure_type, **kwargs)
+        self.pipeline.commit()
+
     def configure_section_of_selected(self):
         if self.structure_type is None:
             return
