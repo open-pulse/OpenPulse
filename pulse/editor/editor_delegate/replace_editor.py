@@ -51,7 +51,7 @@ class ReplaceEditor(Editor):
         return self.replace_selection_by(TBeam, **kwargs)
 
     def replace_selection_by(self, structure_type, **kwargs):
-        for original_structure in self.pipeline.selected_points:
+        for original_structure in self.pipeline.selected_structures:
             self.replace_structure(original_structure, structure_type, **kwargs)
 
     def replace_structure(self, original_structure, structure_type, **kwargs):
