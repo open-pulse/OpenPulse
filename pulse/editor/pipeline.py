@@ -192,6 +192,9 @@ class Pipeline:
         return indexes
 
     # Main Editor
+    def add_structure_deltas(self, structure_type, deltas, **kwargs):
+        return self.main_editor.add_structure_deltas(structure_type, deltas, **kwargs)
+
     def add_pipe(self, deltas, **kwargs):
         return self.main_editor.add_pipe(deltas, **kwargs)
 
@@ -235,6 +238,9 @@ class Pipeline:
         self.main_editor.recalculate_curvatures()
 
     # Connection Editor
+    def connect_structures(self, structure_type: type[Structure], **kwargs):
+        return self.connection_editor.connect_structure(structure_type, **kwargs)
+
     def connect_pipes(self, **kwargs):
         return self.connection_editor.connect_pipes(**kwargs)
 

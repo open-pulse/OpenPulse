@@ -10,30 +10,26 @@ from copy import deepcopy
 
 
 class ReducerOptions(StructureOptions):
-    def __init__(self, geometry_designer_widget: "GeometryDesignerWidget") -> None:
-        super().__init__()
+    structure_type = Reducer
 
-        self.geometry_designer_widget = geometry_designer_widget
-        self.cross_section_widget = self.geometry_designer_widget.cross_section_widget
-
-        self.structure_type = Reducer
-        self.cross_section_info = dict()
-        self.update_permissions()
-
-    def xyz_callback(self, xyz):
-        kwargs = self._get_kwargs()
-        if kwargs is None:
+    def get_kwargs(self) -> dict:
+        if self.structure_info is None:
             return
 
-        self.pipeline.dismiss()
-        self.pipeline.clear_structure_selection()
-        self.pipeline.add_reducer_eccentric(xyz, **kwargs)
-
-    def attach_callback(self):
-        kwargs = self._get_kwargs()
-        if kwargs is None:
+        parameters = self.structure_info.get("section_parameters")
+        if parameters is None:
             return
-        self.pipeline.connect_reducer_eccentrics(**kwargs)
+
+        return dict(
+            initial_diameter = parameters[0],
+            final_diameter = parameters[4],
+            thickness = parameters[1],
+            initial_offset_y = parameters[2],
+            initial_offset_z = parameters[3],
+            final_offset_y = parameters[6],
+            final_offset_z = parameters[7],
+            extra_info = self._get_extra_info(),
+        )
 
     def configure_structure(self):
         self.cross_section_widget._add_icon_and_title()
@@ -52,12 +48,12 @@ class ReducerOptions(StructureOptions):
             self.configure_structure()  # if it is invalid try again
             return
 
-        self.cross_section_info = self.cross_section_widget.pipe_section_info
+        self.structure_info = self.cross_section_widget.pipe_section_info
         self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
-        if self.cross_section_info:
+        if self.structure_info:
             set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
             enable = True
         else:
@@ -90,28 +86,9 @@ class ReducerOptions(StructureOptions):
         if outside_diameter != "" and wall_thickness != "":
             self.cross_section_widget.lineEdit_outside_diameter_final.setFocus()
 
-    def _get_kwargs(self) -> dict:
-        if self.cross_section_info is None:
-            return
-
-        parameters = self.cross_section_info.get("section_parameters")
-        if parameters is None:
-            return
-
-        return dict(
-            initial_diameter = parameters[0],
-            final_diameter = parameters[4],
-            thickness = parameters[1],
-            initial_offset_y = parameters[2],
-            initial_offset_z = parameters[3],
-            final_offset_y = parameters[6],
-            final_offset_z = parameters[7],
-            extra_info = self._get_extra_info(),
-        )
-
     def _get_extra_info(self):
         return dict(
             structural_element_type = "pipe_1",
-            cross_section_info = deepcopy(self.cross_section_info),
+            cross_section_info = deepcopy(self.structure_info),
             material_info = self.geometry_designer_widget.current_material_info,
         )
