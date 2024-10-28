@@ -29,6 +29,13 @@ class LinearStructure(Structure):
     def interpolate(self, t: float):
         # t is the percentage of the structure traveled
         return self.start + t * (self.end - self.start)
+    
+    def interpolate_projection(self, dx: float, dy: float, dz : float, invert_origin : bool):
+        if not invert_origin:
+            point = self.start + [dx, dy, dz]
+        else:
+            point = self.end + [dx, dy, dz]
+        return point
 
     def as_dict(self) -> dict:
         return super().as_dict() | {

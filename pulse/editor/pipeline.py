@@ -352,6 +352,9 @@ class Pipeline:
 
     def preview_divide_structures_evenly(self, divisions=1):
         self.divide_editor.preview_divide_structures_evenly(divisions)
+    
+    def preview_divide_structures_by_projection(self, dx, dy, dz, invert_origin):
+        self.divide_editor.preview_divide_structures_by_projection(dx, dy, dz, invert_origin)
 
     # Common
     def as_dict(self) -> dict:

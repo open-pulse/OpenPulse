@@ -461,11 +461,11 @@ class GeometryDesignerWidget(QWidget):
         self.position_spinbox.setValue(value)
 
     def divisions_spinboxes_callback(self, value):
-        value = int(value)
         division_type = self.division_combobox.currentText().lower()
         self.pipeline.dismiss()
 
         if division_type == "single division":
+            value = int(value)
             self.pipeline.preview_divide_structures(value / 100)
 
             self.position_slider.blockSignals(True)
@@ -474,6 +474,7 @@ class GeometryDesignerWidget(QWidget):
 
 
         elif division_type == "multiple division":
+            value = int(value)
             self.pipeline.preview_divide_structures_evenly(value)
 
             self.division_slider.blockSignals(True)
