@@ -103,7 +103,8 @@ class ModelProperties:
                             "volume_velocity", 
                             "specific_impedance", 
                             "radiation_impedance", 
-                            "compressor_excitation"
+                            "compressor_excitation",
+                            "acoustic_transfer_element"
                            ]
 
         if property in acoustic_labels:
@@ -265,7 +266,7 @@ class ModelProperties:
             if len(key) == 2:
                 existing_property, _ = key
             else:
-                existing_property = key
+                existing_property, *_ = key
 
             if property == existing_property:
                 if key not in keys_to_remove:

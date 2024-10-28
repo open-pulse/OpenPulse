@@ -1,12 +1,13 @@
-from time import time
-import numpy as np
-from math import pi
-from numpy.linalg import norm
-from scipy.sparse import csr_matrix, csc_matrix
 
 from pulse.model.model import Model
 from pulse.model.node import DOF_PER_NODE_ACOUSTIC
 from pulse.model.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
+
+import numpy as np
+from scipy.sparse import csr_matrix, csc_matrix
+from scipy.special import jn_zeros, jv
+from time import time
+
 
 def length_correction_expansion(smaller_diameter, larger_diameter):
     """ This function returns the acoustic length correction due to expansion in the acoustic domain. This discontinuity is characterized by two elements in line with different diameters.
@@ -28,12 +29,21 @@ def length_correction_expansion(smaller_diameter, larger_diameter):
     --------
     length_correction_branch : Length correction due to sidebranch in the acoustic domain.
     """
+
+    jm = jn_zeros(1, 200)
+    r_min = smaller_diameter / 2
     xi = smaller_diameter / larger_diameter
-    if xi <= 0.5:
-        factor = 8 / (3 * pi) * (1 - 1.238 * xi)
-    else:
-        factor = 8 / (3 * pi) * (0.875 * (1 - xi) * (1.371 - xi))
-    return smaller_diameter * factor / 2
+
+    H = (3*np.pi/2) * sum(((jv(1, jm * xi))**2) / (jm * xi * ((jm * jv(0, jm))**2)))
+    delta_L = ((8 * r_min) / (3 * np.pi)) * H
+
+    # proprosed approximation
+    # if xi <= 0.5:
+    #     delta_L = ((8 * r_min) / (3 * np.pi)) * (1 - 1.238 * xi)
+    # else:
+    #     delta_L = ((8 * r_min) / (3 * np.pi)) * (0.875 * (1 - xi) * (1.371 - xi))
+
+    return delta_L
 
 def length_correction_branch(branch_diameter, principal_diameter):
     """ This function returns the acoustic length correction due to sidebranch in the acoustic domain. This discontinuity is characterized by three elements, two with the same diameters in line, and the other with different diameter connected to these two.
@@ -349,6 +359,50 @@ class AssemblyAcoustic:
         Kr_link = [full[:, self.prescribed_indexes] for full in full_K_link]
 
         return K_link, Kr_link  
+
+    def get_fetm_transfer_matrices(self):
+
+        """
+        This method perform the assembly process of the acoustic FETM link matrices.
+
+        Returns
+        ----------
+        K_link : list
+            List of linked admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+
+        Kr_link : list
+            List of linked admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+        """
+
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
+
+        rows = list()
+        cols = list()
+        data_T = list()
+
+        for (_property, *args), data in self.model.properties.nodal_properties.items():
+
+            if _property == "acoustic_transfer_element":
+
+                et_data = self.preprocessor.get_acoustic_transfer_element_data(args, data)
+                rows.extend(et_data["indexes_i"])
+                cols.extend(et_data["indexes_j"])
+                data_Te = et_data["data_Te"]
+
+                if len(data_T):
+                    data_T = np.c_[data_T, data_Te]
+                else:
+                    data_T = data_Te
+
+        if len(data_T):
+            full_T_link = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof]) for data in data_T]
+        else:
+            full_T_link = [csr_matrix((total_dof, total_dof)) for _ in self.frequencies]
+
+        T_link = [full[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for full in full_T_link]
+        Tr_link = [full[:, self.prescribed_indexes] for full in full_T_link]
+
+        return T_link, Tr_link 
 
     def get_lumped_matrices(self):
         """

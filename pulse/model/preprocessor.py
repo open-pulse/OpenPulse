@@ -1949,6 +1949,47 @@ class Preprocessor:
             return data
 
 
+    def get_acoustic_transfer_element_data(self, node_ids: list, data: dict):
+        """
+        """
+        if len(node_ids) == 2:
+
+            coords = list()
+            input_node_id, output_node_id = node_ids
+
+            int_id1 = self.nodes[input_node_id].global_index
+            int_id2 = self.nodes[output_node_id].global_index
+
+            indexes_i = [ int_id1, int_id1, int_id2, int_id2 ] 
+            indexes_j = [ int_id1, int_id2, int_id1, int_id2 ]
+
+            coords_1 = self.nodes[input_node_id].coordinates
+            coords_2 = self.nodes[output_node_id].coordinates
+
+            coords.append(list(np.round(coords_1, 5)))
+            coords.append(list(np.round(coords_2, 5)))
+
+            if data["element_transfer_data_source"] == "direct_import":
+                a11, a12, a21, a22 = data["values"]
+
+            else:
+                P_in, Q_in, P_out, Q_out = data["values"]
+                a11 = Q_out*P_out
+                a12 = Q_out*P_in
+                a21 = Q_in*P_out
+                a22 = Q_in*P_in
+
+            Te = np.array([a11, a12, a21, a22], dtype=complex).T
+
+            data = {
+                    "coords" : coords,
+                    "indexes_i" : indexes_i,
+                    "indexes_j" : indexes_j,
+                    "data_Te" : Te
+                    }
+
+            return data
+
     def process_cross_sections_mapping(self):  
 
         label_etypes = ['pipe_1', 'valve']

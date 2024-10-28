@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-from opps.model import IBeam
+from pulse.editor.structures import IBeam
 
 from molde.stylesheets import set_qproperty
 

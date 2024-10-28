@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-from opps.model import Valve
+from pulse.editor.structures import Valve
 
 from molde.stylesheets import set_qproperty
 
@@ -102,6 +102,8 @@ class ValveOptions(StructureOptions):
 
         return dict(
             diameter = self.valve_info.get("valve_effective_diameter", 0),
+            flange_outer_diameter = self.valve_info.get("flange_section_parameters", [0])[0],
+            flange_length = self.valve_info.get("flange_length"),
             thickness = 0,
             extra_info = self._get_extra_info(),
         )

@@ -1,15 +1,12 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox, QCheckBox
 from PyQt5 import uic
-from PyQt5.QtCore import Qt
 
-from itertools import chain
 import re
 from numbers import Number
 import numpy as np
 import math
-from copy import deepcopy
-from opps.interface.viewer_3d.render_widgets.editor_render_widget import EditorRenderWidget
-from opps.model import (
+from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
+from pulse.editor.structures import (
     Point,
     Pipe,
     Bend,
@@ -50,7 +47,7 @@ from pulse.interface.user_input.model.geometry.options import (
 
 
 class GeometryDesignerWidget(QWidget):
-    def __init__(self, render_widget: EditorRenderWidget, parent=None):
+    def __init__(self, render_widget: GeometryRenderWidget, parent=None):
         super().__init__(parent)
 
         ui_path = UI_DIR / "model/geometry/geometry_designer_widget.ui"
@@ -100,6 +97,9 @@ class GeometryDesignerWidget(QWidget):
         self.x_line_edit: QLineEdit
         self.y_line_edit: QLineEdit
         self.z_line_edit: QLineEdit
+        self.unity_x_label: QLineEdit
+        self.unity_y_label: QLineEdit
+        self.unity_z_label: QLineEdit
         self.bending_radius_line_edit: QLineEdit
         self.division_dx_line_edit: QLineEdit
         self.division_dy_line_edit: QLineEdit
@@ -301,6 +301,17 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
         self._update_information_text()
         self.x_line_edit.setFocus()
+
+    def set_bound_box_sizes_widgets_enabled(self, key: bool):
+        self.dx_label.setEnabled(key)
+        self.dy_label.setEnabled(key)
+        self.dz_label.setEnabled(key)
+        self.x_line_edit.setEnabled(key)
+        self.y_line_edit.setEnabled(key)
+        self.z_line_edit.setEnabled(key)
+        self.unity_x_label.setEnabled(key)
+        self.unity_y_label.setEnabled(key)
+        self.unity_z_label.setEnabled(key)
 
     def show_material_widget_callback(self):
         self.material_widget._initialize()

@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-from opps.model import Flange
+from pulse.editor.structures import Flange
 
 from molde.stylesheets import set_qproperty
 

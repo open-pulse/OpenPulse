@@ -12,19 +12,17 @@ from molde.colors import color_names
 from pulse import *
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
+from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.handler.pcf_file_io import PCFFileIO
+from pulse.interface.menu.model_setup_widget import ModelSetupWidget
+from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
+from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
 from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
-from pulse.interface.others.status_bar import StatusBar
-from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
-from pulse.interface.menu.model_setup_widget import ModelSetupWidget
-from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
-from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.handler.pcf_file_io import PCFFileIO
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
-from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
@@ -33,10 +31,12 @@ from pulse.interface.user_input.project.save_project_data_selector import SavePr
 from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.loading_window import LoadingWindow
+from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
+from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 
 import logging
 import os
-# import qdarktheme
+import qdarktheme
 
 from functools import partial
 from pathlib import Path
@@ -73,6 +73,7 @@ class MainWindow(QMainWindow):
 
         self.dialog = None
         self.input_ui = None
+        self.force_close = False
 
         self.model_setup_widget = None
         self.results_viewer_wigdet = None
@@ -222,7 +223,7 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
         self.splitter.setSizes([100, 400])
-        self.splitter.widget(0).setMinimumWidth(340)
+        self.splitter.widget(0).setMinimumWidth(360)
         self._update_visualization()
 
         self.model_and_analysis_items = self.model_setup_widget.model_setup_items
@@ -588,6 +589,8 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
+        self.splitter.widget(0).setMinimumWidth(420)
+
     def action_model_setup_workspace_callback(self):
 
         self.mesh_toolbar.setDisabled(False)
@@ -601,6 +604,8 @@ class MainWindow(QMainWindow):
 
         self.setup_widgets_stack.setCurrentWidget(self.model_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
+
+        self.splitter.widget(0).setMinimumWidth(360)
 
     def action_results_workspace_callback(self):
 
@@ -854,8 +859,8 @@ class MainWindow(QMainWindow):
             self.icon_color = QColor(color_names.BLUE_4.to_hex())
     
         self.interface_theme = theme
-        stylesheets.set_theme(theme)
-        # qdarktheme.setup_theme(theme, custom_colors=self.custom_colors)
+        # stylesheets.set_theme(theme)
+        qdarktheme.setup_theme(theme, custom_colors=self.custom_colors)
         self.theme_changed.emit(theme)
         
         self.action_set_light_theme.setDisabled(theme == "light")
@@ -912,6 +917,7 @@ class MainWindow(QMainWindow):
                                     )
 
         if close == QMessageBox.Cancel:
+            self.force_close = False
             return True
 
         elif close == QMessageBox.Save:
@@ -1005,7 +1011,6 @@ class MainWindow(QMainWindow):
             return True
 
     def save_project_as_dialog(self):
-
         obj = SaveProjectDataSelector()
         if obj.complete:
 
@@ -1083,6 +1088,7 @@ class MainWindow(QMainWindow):
 
     def close_app(self):
 
+        self.force_close = True
         self.close_dialogs()
 
         condition_1 = self.project.save_path is None
@@ -1103,6 +1109,7 @@ class MainWindow(QMainWindow):
                                         )
 
             if close == QMessageBox.No:
+                self.force_close = False
                 return
 
         # self.user_config.save()

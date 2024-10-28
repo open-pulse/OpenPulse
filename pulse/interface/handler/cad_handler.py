@@ -1,7 +1,9 @@
 import gmsh
-from opps.model.pipe import Pipe
-from opps.model.bend import Bend
-from opps.model.flange import Flange
+from pulse.editor.structures import (
+    Pipe,
+    Bend,
+    Flange
+)
 
 from pulse.tools.utils import m_to_mm, in_to_mm
 import numpy as np

@@ -221,12 +221,11 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         app().main_window.results_widget.show_stress_field(self.selected_index)
 
     def on_click_item(self, item):
-        self.lineEdit_selected_frequency.setText(item.text(0))
+        self.lineEdit_selected_frequency.setText(item.text(1))
         self.update_plot()
 
     def on_doubleclick_item(self, item):
-        self.lineEdit_selected_frequency.setText(item.text(0))
-        self.update_plot()
+        self.on_click_item(item)
 
     def load_frequencies(self):
         for index, frequency in enumerate(self.frequencies):

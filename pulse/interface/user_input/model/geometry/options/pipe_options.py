@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-from opps.model import Pipe, Bend
+from pulse.editor.structures import Pipe, Bend
 
 from molde.stylesheets import set_qproperty
 

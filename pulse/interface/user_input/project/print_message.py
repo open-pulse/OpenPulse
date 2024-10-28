@@ -18,6 +18,8 @@ class PrintMessageInput(QDialog):
         self.auto_close = kwargs.get("auto_close", False)
         self.window_title, self.title, self.message = text_info
 
+        app().main_window.set_input_widget(self)
+
         self._config_window()
         self._define_qt_variables()
         self._create_connections()

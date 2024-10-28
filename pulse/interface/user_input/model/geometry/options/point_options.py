@@ -3,7 +3,7 @@ if TYPE_CHECKING:
     from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 import numpy as np
 
-from opps.model import Point
+from pulse.editor.structures import Point
 
 from .structure_options import StructureOptions
 from molde.stylesheets import set_qproperty

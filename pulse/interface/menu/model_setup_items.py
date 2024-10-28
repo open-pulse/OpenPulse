@@ -53,6 +53,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_child_add_perforated_plate = self.add_item('Add Perforated Plate')
         self.item_child_set_acoustic_element_length_correction = self.add_item('Set Element Length Correction')
         self.item_child_add_compressor_excitation = self.add_item('Add Compressor Excitation')
+        self.item_child_add_acoustic_transfer_element = self.add_item('Add Acoustic Transfer Element')
         self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
         #
         self.top_level_items = [
@@ -91,6 +92,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_child_add_perforated_plate.clicked.connect(self.item_child_add_perforated_plate_callback)
         self.item_child_set_acoustic_element_length_correction.clicked.connect(self.item_child_set_acoustic_element_length_correction_callback)
         self.item_child_add_compressor_excitation.clicked.connect(self.item_child_add_compressor_excitation_callback)
+        self.item_child_add_acoustic_transfer_element.clicked.connect(self.item_child_add_acoustic_transfer_element_callback)
         self.item_child_turn_off_acoustic_elements.clicked.connect(self.item_child_turn_off_acoustic_elements_callback)
         #
         app().main_window.theme_changed.connect(self.set_theme)
@@ -214,6 +216,11 @@ class ModelSetupItems(CommonMenuItems):
         app().main_window.input_ui.turn_off_acoustic_elements()
         app().main_window.set_input_widget(None)
 
+    def item_child_add_acoustic_transfer_element_callback(self):
+        self.configure_render_according_to_inputs("elements")
+        app().main_window.input_ui.add_acoustic_transfer_element()
+        app().main_window.set_input_widget(None)
+
     def item_child_add_compressor_excitation_callback(self):
         self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.add_compressor_excitation()
@@ -280,6 +287,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_child_add_perforated_plate.setDisabled(bool_key)
         self.item_child_set_acoustic_element_length_correction.setDisabled(bool_key)
         self.item_child_add_compressor_excitation.setDisabled(bool_key)
+        self.item_child_add_acoustic_transfer_element.setDisabled(bool_key)
         self.item_child_turn_off_acoustic_elements.setDisabled(bool_key)
  
     def set_theme(self, theme : str):

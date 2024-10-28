@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-from opps.model import CircularBeam
+from pulse.editor.structures import CircularBeam
 
 from molde.stylesheets import set_qproperty
 

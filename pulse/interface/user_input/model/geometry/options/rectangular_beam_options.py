@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-from opps.model import RectangularBeam
+from pulse.editor.structures import RectangularBeam
 
 from molde.stylesheets import set_qproperty
 
