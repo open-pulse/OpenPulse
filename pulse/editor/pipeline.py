@@ -275,6 +275,9 @@ class Pipeline:
         return self.connection_editor.connect_t_beams(**kwargs)
 
     # Replace Editor
+    def replace_selection_by(self, structure_type: type[Structure], **kwargs):
+        return self.replace_editor.replace_selection_by(structure_type, **kwargs) 
+
     def replace_by_pipe(self, **kwargs):
         return self.replace_editor.replace_selection_by(Pipe, **kwargs)
     
