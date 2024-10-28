@@ -1,5 +1,6 @@
 from .point import Point
 from .structure import Structure
+import numpy as np
 
 
 class LinearStructure(Structure):
@@ -32,10 +33,17 @@ class LinearStructure(Structure):
     
     def interpolate_projection(self, dx: float, dy: float, dz : float, invert_origin : bool):
         if not invert_origin:
-            point = self.start + [dx, dy, dz]
+            guide_point = self.start + [dx, dy, dz]
         else:
-            point = self.end + [dx, dy, dz]
-        return point
+            guide_point = self.end + [dx, dy, dz]
+
+        tube_vector = self.end - self.start
+        guide_vector = guide_point - self.start
+
+        projection = np.dot((np.dot(guide_vector, tube_vector) / np.linalg.norm(tube_vector)**2), tube_vector)
+        projection_point = Point(projection[0], projection[1], projection[2])
+
+        return guide_point, projection_point
 
     def as_dict(self) -> dict:
         return super().as_dict() | {
