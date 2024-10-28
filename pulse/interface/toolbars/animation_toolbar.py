@@ -77,7 +77,7 @@ class AnimationToolbar(QToolBar):
         self.phase_slider.setMaximum(360)
 
         # QSpinBox
-        self.spinBox_cycles.setMinimum(1)
+        self.spinBox_cycles.setMinimum(0)
         self.spinBox_cycles.setMaximum(10)
         self.spinBox_cycles.setSingleStep(1)
         self.spinBox_cycles.setValue(app().project.cycles)
