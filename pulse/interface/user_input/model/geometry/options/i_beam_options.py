@@ -62,15 +62,8 @@ class IBeamOptions(StructureOptions):
             set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
             enable = False
 
-        enable_attach = len(self.pipeline.selected_points) >= 2
-        enable_add = len(self.pipeline.staged_structures) + len(self.pipeline.staged_points) >= 1
-        enable_delete = len(self.pipeline.selected_structures) + len(self.pipeline.selected_points) >= 1
-
-        self.geometry_designer_widget.configure_button.setEnabled(True)
         self.geometry_designer_widget.frame_bounding_box_sizes.setEnabled(enable)
-        self.geometry_designer_widget.attach_button.setEnabled(enable_attach)
-        self.geometry_designer_widget.add_button.setEnabled(enable_add)
-        self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
+        super().update_permissions(enable)
 
     def _get_extra_info(self):
         return dict(

@@ -67,8 +67,23 @@ class StructureOptions:
             for k, v in kwargs.items():
                 setattr(structure, k, v)
 
-    def update_permissions(self):
-        pass
+    def update_permissions(self, enable=True):
+        enable_attach = len(self.pipeline.selected_points) >= 2
+        enable_add = (
+            len(self.pipeline.selected_structures)
+            + len(self.pipeline.staged_structures)
+            + len(self.pipeline.staged_points)
+            >= 1
+        )
+        enable_delete = (
+            len(self.pipeline.selected_structures)
+            + len(self.pipeline.selected_points)
+            >= 1
+        )
+        self.geometry_designer_widget.attach_button.setEnabled(enable_attach and enable)
+        self.geometry_designer_widget.add_button.setEnabled(enable_add and enable)
+        self.geometry_designer_widget.delete_button.setEnabled(enable_delete and enable)
+        self.geometry_designer_widget.configure_button.setEnabled(True)
 
     def get_kwargs(self) -> dict:
         raise NotImplementedError(f"Method get_kwargs not implemented on {self.__class__.__name__}")
