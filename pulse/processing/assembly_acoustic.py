@@ -454,10 +454,10 @@ class AssemblyAcoustic:
                 ind_Klump.append(position)
                 admittance = self.get_nodal_admittance(impedance, area_fluid, self.frequencies)
 
-                if data_Klump == []:
-                    data_Klump = admittance
-                else:
+                if len(data_Klump):
                     data_Klump = np.c_[data_Klump, admittance]
+                else:
+                    data_Klump = admittance
 
         if area_fluid is None:
             full_K = [csr_matrix((total_dof, total_dof)) for _ in self.frequencies]
