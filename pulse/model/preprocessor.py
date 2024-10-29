@@ -1975,18 +1975,20 @@ class Preprocessor:
             else:
 
                 P_in, Q_in, P_out, Q_out = data["values"]
+                ones = np.ones_like(P_in, dtype=complex)
+                Hf = P_out / P_in
 
                 if output_node_id > input_node_id:
-                    Hf = P_out / P_in
+                    a11 = ones
+                    a12 = -1/Hf
+                    a21 = -Hf
+                    a22 = ones
+
                 else:
-                    Hf = P_out / P_in
-
-                ones = np.ones_like(Hf, dtype=complex)
-
-                a11 = ones
-                a12 = -1/Hf
-                a21 = -Hf
-                a22 = ones
+                    a11 = -Hf
+                    a12 = ones
+                    a21 = ones
+                    a22 = -1/Hf
 
             Te = np.array([a11, a12, a21, a22], dtype=complex).T
 

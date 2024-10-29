@@ -70,6 +70,7 @@ class AddAcousticTransferElementInput(QDialog):
         self.lineEdit_output_node_id: QLineEdit
         self.lineEdit_selected_id: QLineEdit
         self.lineEdit_spreadsheet_path: QLineEdit
+        self.current_lineEdit = self.lineEdit_output_node_id
 
         # QPushButton
         self.pushButton_attribute: QPushButton
