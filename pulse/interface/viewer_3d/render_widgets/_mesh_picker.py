@@ -13,6 +13,7 @@ from vtkmodules.vtkRenderingCore import (
     vtkAreaPicker,
     vtkCellPicker,
     vtkPropPicker,
+    vtkCoordinate,
 )
 
 from pulse import app
@@ -26,18 +27,27 @@ class MeshPicker:
     def __init__(self, mesh_render_widget: "MeshRenderWidget"):
         self.mesh_render_widget = mesh_render_widget
 
+        self.points_bounds = dict()
         self.nodes_bounds = dict()
         self.line_bounds = dict()
         self.tube_bounds = dict()
 
     def update_bounds(self):
-
         elements = app().project.preprocessor.structural_elements
         nodes = app().project.preprocessor.nodes
+        points = app().project.get_geometry_points()
 
+        # Usually it makes more sense to store the points/nodes
+        # coords instead of bounds, but here, storing the bounds 
+        # make the checks for area selection easier and faster.
+        self.points_bounds.clear()
         self.nodes_bounds.clear()
         self.line_bounds.clear()
         self.tube_bounds.clear()
+
+        for key, point in points.items():
+            x, y, z = point.coordinates
+            self.points_bounds[key] = (x, x, y, y, z, z)
 
         for key, node in nodes.items():
             x, y, z = node.coordinates
@@ -110,11 +120,6 @@ class MeshPicker:
             if extractor.OverallBoundsTest(bound)
         }
 
-        # Add an extra pick on the last corner
-        # element = self.pick_element(x1, y1)
-        # if element >= 0:
-        #     picked_elements.add(element)
-
         return picked_elements
 
     def area_pick_lines(self, x0, y0, x1, y1) -> set[int]:
@@ -138,14 +143,39 @@ class MeshPicker:
         return picked_lines
 
     def pick_node(self, x, y) -> int:
-        points_actor = self.mesh_render_widget.points_actor
-        node = self._pick_cell_property(x, y, "node_index", points_actor)
-        if node >= 0:
-            return node
+        '''
+        This method returns the index of the node that was clicked.
 
-        nodes_actor = self.mesh_render_widget.nodes_actor
-        node = self._pick_cell_property(x, y, "node_index", nodes_actor)
-        return node
+        This task is accomplished by transforming every point from the 
+        world coordinate to view coordinate and checking if the distance
+        to the mouse position is smaller than the size of a point.
+
+        This method is very precise and independent from the screen dimensions.
+        '''
+
+        click = np.array((x, y))
+        renderer = self.mesh_render_widget.renderer
+        coordinate = vtkCoordinate()
+        coordinate.SetCoordinateSystemToWorld()
+
+        def distance_to_click(x, y, z):
+            coordinate.SetValue(x, y, z)
+            view_x, view_y = coordinate.GetComputedViewportValue(renderer)
+            return np.linalg.norm(click - (view_x, view_y))
+        
+        # Note that this approach gets the first node that was 
+        # clicked, not the closest to the mouse click.
+        point_size = 15
+        for i, (x0, x1, y0, y1, z0, z1) in self.points_bounds.items():
+            if distance_to_click(x0, y0, z0) <= (point_size / 2):
+                return i
+
+        node_size = 10
+        for i, (x0, x1, y0, y1, z0, z1) in self.nodes_bounds.items():
+            if distance_to_click(x0, y0, z0) <= (node_size / 2):
+                return i
+
+        return -1
 
     def pick_element(self, x, y) -> int:
         lines_actor = self.mesh_render_widget.lines_actor

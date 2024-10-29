@@ -22,23 +22,25 @@ class SimpleCurve(Structure):
 
     @property
     def center(self):
-        if self.is_colapsed():
-            return self.corner
+        u = self.start.coords() - self.corner.coords()
+        v = self.end.coords() - self.corner.coords()
+        n = np.cross(u, v)
 
-        a_vector = normalize(self.start.coords() - self.corner.coords())
-        b_vector = normalize(self.end.coords() - self.corner.coords())
+        u /= np.linalg.norm(u)
+        v /= np.linalg.norm(v)
+        n /= np.linalg.norm(n)
 
-        if (a_vector == b_vector).all():
-            return self.corner
-
-        if np.dot(a_vector, b_vector) == 1:
-            return self.corner
-
-        sin_angle = np.linalg.norm(a_vector - b_vector) / 2
-        center_distance = self.curvature / sin_angle
-
-        c_vector = normalize(a_vector + b_vector)
-        return Point(*(self.corner.coords() + c_vector * center_distance))
+        A = np.array([u, v, n], dtype=float)
+        b = np.array(
+            [
+                np.sum(u * self.start.coords()),
+                np.sum(v * self.end.coords()),
+                np.sum(n * self.start.coords()),
+            ],
+            dtype=float,
+        )
+        center_coords = np.linalg.solve(A, b)
+        return Point(*center_coords)
 
     def update_corner_from_center(self, center):
         self.auto = False

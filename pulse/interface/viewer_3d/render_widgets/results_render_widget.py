@@ -278,6 +278,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.analysis_mode = AnalysisMode.EMPTY
         self.current_frequency_index = 0
         self.current_phase_step = 0
+        self.clear_cache()
         self.update_plot()
 
     def show_displacement_field(self, frequency_index):
@@ -291,6 +292,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         tmp = get_min_max_resultant_displacements(solution, frequency_index)
         _, self.result_disp_min, self.result_disp_max, self.r_xyz_abs = tmp
 
+        self.clear_cache()
         self.update_plot()
 
     def show_stress_field(self, frequency_index):
@@ -305,6 +307,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         tmp = get_min_max_resultant_displacements(solution, frequency_index)
         _, self.result_disp_min, self.result_disp_max, self.r_xyz_abs = tmp
 
+        self.clear_cache()
         self.update_plot()
 
     def show_pressure_field(self, frequency_index):
@@ -318,6 +321,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         tmp = get_max_min_values_of_pressures(solution, frequency_index)
         self.pressure_min, self.pressure_max = tmp
 
+        self.clear_cache()
         self.update_plot()
 
     def set_tube_actors_transparency(self, transparency):

@@ -1,4 +1,5 @@
 import numpy as np
+from typing import TypeVar
 
 from pulse.editor.structures import (
     Bend,
@@ -14,9 +15,13 @@ from pulse.editor.structures import (
     Structure,
     TBeam,
     Valve,
+    LinearStructure,
 )
 
 from .editor import Editor
+
+
+t_structure = TypeVar("t_structure", bound=type[Structure])
 
 
 class MainEditor(Editor):
@@ -24,9 +29,22 @@ class MainEditor(Editor):
         super().__init__(*args, **kwargs)
 
         self.next_border = list()
+    
+    def add_structure_deltas(self, structure_type: t_structure, deltas: tuple[float, float, float], **kwargs) -> list[t_structure]:
+        if not issubclass(structure_type, Structure):
+            return
+
+        if issubclass(structure_type, Pipe):
+            return self.add_bent_pipe(deltas, **kwargs)
+        
+        elif issubclass(structure_type, Bend):
+            return self.add_bend(**kwargs)
+        
+        elif issubclass(structure_type, LinearStructure):
+            return self._add_generic_linear_structure(structure_type, deltas, **kwargs)
 
     def add_pipe(self, deltas, **kwargs) -> list[Pipe]:
-        return self._add_generic_line_structure(Pipe, deltas, **kwargs)
+        return self._add_generic_linear_structure(Pipe, deltas, **kwargs)
 
     def add_bend(self, curvature_radius: float, allow_dangling=False, **kwargs) -> list[Bend]:
         bends = list()
@@ -77,7 +95,7 @@ class MainEditor(Editor):
         return bends
 
     def add_flange(self, deltas, **kwargs) -> list[Flange]:
-        return self._add_generic_line_structure(Flange, deltas, **kwargs)
+        return self._add_generic_linear_structure(Flange, deltas, **kwargs)
 
     def add_bent_pipe(self, deltas, curvature_radius: float, **kwargs) -> list[Pipe | Bend]:
         pipes = self.add_pipe(deltas, **kwargs)
@@ -92,28 +110,28 @@ class MainEditor(Editor):
         return bends + pipes
 
     def add_expansion_joint(self, deltas, **kwargs) -> list[ExpansionJoint]:
-        return self._add_generic_line_structure(ExpansionJoint, deltas, **kwargs)
+        return self._add_generic_linear_structure(ExpansionJoint, deltas, **kwargs)
 
     def add_valve(self, deltas, **kwargs) -> list[Valve]:
-        return self._add_generic_line_structure(Valve, deltas, **kwargs)
+        return self._add_generic_linear_structure(Valve, deltas, **kwargs)
 
     def add_reducer_eccentric(self, deltas, **kwargs) -> list[Reducer]:
-        return self._add_generic_line_structure(Reducer, deltas, **kwargs)
+        return self._add_generic_linear_structure(Reducer, deltas, **kwargs)
 
     def add_circular_beam(self, deltas, **kwargs) -> list[CircularBeam]:
-        return self._add_generic_line_structure(CircularBeam, deltas, **kwargs)
+        return self._add_generic_linear_structure(CircularBeam, deltas, **kwargs)
 
     def add_rectangular_beam(self, deltas, **kwargs) -> list[RectangularBeam]:
-        return self._add_generic_line_structure(RectangularBeam, deltas, **kwargs)
+        return self._add_generic_linear_structure(RectangularBeam, deltas, **kwargs)
 
     def add_i_beam(self, deltas, **kwargs) -> list[IBeam]:
-        return self._add_generic_line_structure(IBeam, deltas, **kwargs)
+        return self._add_generic_linear_structure(IBeam, deltas, **kwargs)
 
     def add_c_beam(self, deltas, **kwargs) -> list[CBeam]:
-        return self._add_generic_line_structure(CBeam, deltas, **kwargs)
+        return self._add_generic_linear_structure(CBeam, deltas, **kwargs)
 
     def add_t_beam(self, deltas, **kwargs) -> list[TBeam]:
-        return self._add_generic_line_structure(TBeam, deltas, **kwargs)
+        return self._add_generic_linear_structure(TBeam, deltas, **kwargs)
 
     def recalculate_curvatures(self):
         # collapse all curvatures that are in between pipes
@@ -169,7 +187,7 @@ class MainEditor(Editor):
         self.pipeline.remove_structures(to_remove)
         return to_remove
 
-    def _add_generic_line_structure(
+    def _add_generic_linear_structure(
         self, structure_type: type[Structure], deltas: tuple[float, float, float], **kwargs
     ):
         if not np.array(deltas).any():  # all zeros
