@@ -156,18 +156,18 @@ class VolumeVelocityInput(QDialog):
 
     def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):
 
-        stop = False
         title = "Invalid entry to the volume velocity"
 
         if lineEdit_real.text() != "":
             try:
                 real_F = float(lineEdit_real.text())
             except Exception:
+                self.hide()
                 message = "Wrong input for real part of volume velocity."
                 PrintMessageInput([window_title_1, title, message])
                 lineEdit_real.setFocus()
-                stop = True
-                return stop, None
+                app().main_window.set_input_widget(self)
+                return True, None
         else:
             real_F = 0
 
@@ -175,18 +175,26 @@ class VolumeVelocityInput(QDialog):
             try:
                 imag_F = float(lineEdit_imag.text())
             except Exception:
+                self.hide()
                 message = "Wrong input for imaginary part of volume velocity."
                 PrintMessageInput([window_title_1, title, message])
                 lineEdit_imag.setFocus()
-                stop = True
-                return stop, None
+                app().main_window.set_input_widget(self)
+                return True, None
         else:
             imag_F = 0
-        
+
         if real_F == 0 and imag_F == 0:
-            return  stop, None
+            self.hide()
+            message = "You must inform at least one volume velocity " 
+            message += "before confirming the input!"
+            PrintMessageInput([window_title_1, title, message])
+            self.lineEdit_real_value.setFocus()
+            app().main_window.set_input_widget(self)
+            return True, None
+
         else:
-            return stop, real_F + 1j*imag_F
+            return False, real_F + 1j*imag_F
 
     def constant_values_attribution_callback(self):
 
@@ -200,13 +208,6 @@ class VolumeVelocityInput(QDialog):
 
         if stop:
             return
-        
-        if volume_velocity is None:
-            title = "Additional inputs required"
-            message = "You must inform at least one volume velocity " 
-            message += "before confirming the input!"
-            PrintMessageInput([window_title_1, title, message])
-            self.lineEdit_real_value.setFocus()
 
         self.remove_conflicting_excitations(node_ids)
 
