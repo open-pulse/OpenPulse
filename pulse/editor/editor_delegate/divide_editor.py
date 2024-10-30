@@ -16,6 +16,12 @@ class DivideEditor(Editor):
         for structure in self.pipeline.selected_structures:
             self._divide_evenly(structure, divisions)
         self.pipeline.commit()
+    
+    def divide_structures_by_projection(self, dx: float, dy: float, dz: float, invert_origin: bool):
+        for structure in self.pipeline.selected_structures:
+            _, point = self._interpolate_projection(structure, dx, dy, dz, invert_origin)
+            self._divide_on_point(structure, point)
+        self.pipeline.commit()
 
     def preview_divide_structures(self, t: float):
         all_points = []

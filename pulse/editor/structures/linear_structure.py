@@ -41,7 +41,7 @@ class LinearStructure(Structure):
         guide_vector = guide_point - self.start
 
         projection = np.dot((np.dot(guide_vector, tube_vector) / np.linalg.norm(tube_vector)**2), tube_vector)
-        projection_point = Point(projection[0], projection[1], projection[2])
+        projection_point = self.start + projection
 
         return guide_point, projection_point
 

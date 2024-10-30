@@ -510,6 +510,19 @@ class GeometryDesignerWidget(QWidget):
         elif division_type == "multiple division":
             value = self.division_slider.value()
             self.pipeline.divide_structures_evenly(value)
+        
+        elif division_type == "projection division":
+            try:
+                dx = float(self.division_dx_line_edit.text() or 0)
+                dy = float(self.division_dy_line_edit.text() or 0)
+                dz = float(self.division_dz_line_edit.text() or 0)
+            except:
+                return
+
+            invert_origin = self.invert_origin_checkbox.isChecked()
+            
+            self.pipeline.divide_structures_by_projection(dx, dy, dz, invert_origin)
+
 
         self.pipeline.clear_structure_selection()
         self.render_widget.update_plot(reset_camera=False)
