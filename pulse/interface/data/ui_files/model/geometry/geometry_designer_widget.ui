@@ -52,7 +52,7 @@
         <x>0</x>
         <y>0</y>
         <width>418</width>
-        <height>818</height>
+        <height>828</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
@@ -1512,11 +1512,27 @@
   </action>
  </widget>
  <tabstops>
+  <tabstop>unit_combobox</tabstop>
+  <tabstop>structure_combobox</tabstop>
+  <tabstop>configure_button</tabstop>
+  <tabstop>set_material_button</tabstop>
+  <tabstop>bending_options_combobox</tabstop>
+  <tabstop>bending_radius_line_edit</tabstop>
+  <tabstop>x_line_edit</tabstop>
+  <tabstop>y_line_edit</tabstop>
+  <tabstop>z_line_edit</tabstop>
+  <tabstop>frame</tabstop>
   <tabstop>delete_button</tabstop>
   <tabstop>attach_button</tabstop>
   <tabstop>add_button</tabstop>
+  <tabstop>division_combobox</tabstop>
+  <tabstop>division_slider</tabstop>
+  <tabstop>division_amount_spinbox</tabstop>
+  <tabstop>cancel_division_button</tabstop>
+  <tabstop>apply_division_button</tabstop>
   <tabstop>cancel_button</tabstop>
   <tabstop>finalize_button</tabstop>
+  <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources/>
  <connections/>
