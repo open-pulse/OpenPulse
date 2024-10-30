@@ -165,13 +165,15 @@ class GeometryDesignerWidget(QWidget):
 
         self.division_combobox.currentTextChanged.connect(self.division_type_changed_callback)
         self.division_slider.valueChanged.connect(self.division_slider_callback)
-        self.division_amount_spinbox.textChanged.connect(self.divisions_spinboxes_callback)
+        self.division_amount_spinbox.textChanged.connect(self.preview_divisions_callback)
         self.position_slider.valueChanged.connect(self.position_slider_callback)
-        self.position_spinbox.textChanged.connect(self.divisions_spinboxes_callback)
+        self.position_spinbox.textChanged.connect(self.preview_divisions_callback)
 
-        self.division_dx_line_edit.textEdited.connect(self.divisions_spinboxes_callback)
-        self.division_dy_line_edit.textEdited.connect(self.divisions_spinboxes_callback)
-        self.division_dz_line_edit.textEdited.connect(self.divisions_spinboxes_callback)
+        self.division_dx_line_edit.textEdited.connect(self.preview_divisions_callback)
+        self.division_dy_line_edit.textEdited.connect(self.preview_divisions_callback)
+        self.division_dz_line_edit.textEdited.connect(self.preview_divisions_callback)
+        self.invert_origin_checkbox.stateChanged.connect(self.preview_divisions_callback)
+        
 
         self.cancel_division_button.clicked.connect(self.cancel_division_callback)
         self.apply_division_button.clicked.connect(self.apply_division_callback)
@@ -460,7 +462,7 @@ class GeometryDesignerWidget(QWidget):
     def position_slider_callback(self, value):
         self.position_spinbox.setValue(value)
 
-    def divisions_spinboxes_callback(self, value):
+    def preview_divisions_callback(self, value):
         division_type = self.division_combobox.currentText().lower()
         self.pipeline.dismiss()
 
@@ -520,7 +522,7 @@ class GeometryDesignerWidget(QWidget):
                 return
 
             invert_origin = self.invert_origin_checkbox.isChecked()
-            
+
             self.pipeline.divide_structures_by_projection(dx, dy, dz, invert_origin)
 
 
