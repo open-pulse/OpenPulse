@@ -363,15 +363,17 @@ class AssemblyAcoustic:
     def get_fetm_transfer_matrices(self):
 
         """
-        This method perform the assembly process of the acoustic FETM link matrices.
+        This method perform the assembly process of the acoustic FETM transfer matrices.
 
         Returns
         ----------
-        K_link : list
-            List of linked admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+        T_link : list
+            List of linked admittance matrices of the free degree of freedom. Each item of the list is a 
+            sparse csr_matrix that corresponds to one frequency of analysis.
 
-        Kr_link : list
-            List of linked admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+        Tr_link : list
+            List of linked admittance matrices of the prescribed degree of freedom. Each item of the list 
+            is a sparse csr_matrix that corresponds to one frequency of analysis.
         """
 
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)

@@ -76,21 +76,21 @@ def nodes_info_text() -> str:
         key = ("acoustic_pressure", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            ap_values = data["values"]   
+            ap_values = data["values"][0]
             loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Acoustic pressure", ap_values, "P", "Pa")
 
         key = ("volume_velocity", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            vv_values = data["values"]   
+            vv_values = data["values"][0]
             loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Volume velocity", vv_values, "Q", "m³/s")
 
         key = ("specific_impedance", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            si_values = data["values"]   
+            si_values = data["values"][0]
             loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Specific impedance", si_values, "Zs", "kg/m².s")
 
