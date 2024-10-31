@@ -65,7 +65,7 @@ class ReplaceEditor(Editor):
         elif isinstance(original_structure, SimpleCurve) and issubclass(structure_type, Pipe):
             new_structure = self._create_simple_curve(
                 original_structure, 
-                type(original_structure),
+                Bend,
                 **kwargs
             )
         else:
