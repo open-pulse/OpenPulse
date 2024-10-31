@@ -22,6 +22,9 @@ class SimpleCurve(Structure):
 
     @property
     def center(self):
+        if self.is_colapsed():
+            return self.corner.copy()
+
         u = self.start.coords() - self.corner.coords()
         v = self.end.coords() - self.corner.coords()
         n = np.cross(u, v)
