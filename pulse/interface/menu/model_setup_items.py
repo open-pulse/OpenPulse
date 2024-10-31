@@ -211,19 +211,19 @@ class ModelSetupItems(CommonMenuItems):
         app().main_window.input_ui.set_acoustic_element_length_correction()
         app().main_window.set_input_widget(None)
 
-    def item_child_turn_off_acoustic_elements_callback(self):
-        self.configure_render_according_to_inputs("elements")
-        app().main_window.input_ui.turn_off_acoustic_elements()
-        app().main_window.set_input_widget(None)
-
-    def item_child_add_acoustic_transfer_element_callback(self):
-        self.configure_render_according_to_inputs("elements")
-        app().main_window.input_ui.add_acoustic_transfer_element()
-        app().main_window.set_input_widget(None)
-
     def item_child_add_compressor_excitation_callback(self):
         self.configure_render_according_to_inputs("nodes")
         app().main_window.input_ui.add_compressor_excitation()
+        app().main_window.set_input_widget(None)
+
+    def item_child_add_acoustic_transfer_element_callback(self):
+        self.configure_render_according_to_inputs("nodes")
+        app().main_window.input_ui.add_acoustic_transfer_element()
+        app().main_window.set_input_widget(None)
+
+    def item_child_turn_off_acoustic_elements_callback(self):
+        self.configure_render_according_to_inputs("elements")
+        app().main_window.input_ui.turn_off_acoustic_elements()
         app().main_window.set_input_widget(None)
 
     def configure_render_according_to_inputs(self, set_by: str):

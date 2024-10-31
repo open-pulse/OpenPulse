@@ -1969,7 +1969,7 @@ class Preprocessor:
             coords.append(list(np.round(coords_1, 5)))
             coords.append(list(np.round(coords_2, 5)))
 
-            if data["element_transfer_data_source"] == "direct_import":
+            if data["element_transfer_data_source"] == "admittance_matrix":
                 a11, a12, a21, a22 = data["values"]
 
             else:

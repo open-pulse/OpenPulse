@@ -60,7 +60,7 @@ class AddAcousticTransferElementInput(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_transfer_matrices_import_type:  QComboBox
+        self.comboBox_data_type:  QComboBox
 
         # QLabel
         self.label_selection: QLabel
@@ -253,10 +253,10 @@ class AddAcousticTransferElementInput(QDialog):
                 wb = load_workbook(imported_path)
                 sheetnames = wb.sheetnames
 
-                if self.comboBox_transfer_matrices_import_type.currentIndex() == 0:
-                    cols = list(np.arange(9))
-                else:
+                if self.comboBox_data_type.currentIndex() == 0:
                     cols = list(np.arange(3))
+                else:
+                    cols = list(np.arange(9))
 
                 for sheetname in sheetnames:
 
@@ -311,16 +311,13 @@ class AddAcousticTransferElementInput(QDialog):
             if k == 0:
                 self.update_frequency_setup(et_data, path)
 
-            if self.comboBox_transfer_matrices_import_type.currentIndex() == 0:
-                if "element_transfer_data" in sheetaname:                   
-                    if et_data.shape[1] == 9:
-                        e_labels = ["a11", "a12", "a21", "a22"]
-                        for i in range(4):
-                            e_label = e_labels[i]
-                            data_ij = np.array([et_data[:,0], et_data[:,2*i+1], et_data[:,2*i+2]], dtype=float).T
-                            table_name = f"element_transfer_data_{e_label}_nodes_{self.input_node_id}_{self.output_node_id}"
-                            aux[e_label] = {"values" : data_ij,
-                                            "table_name" : table_name}
+            if self.comboBox_data_type.currentIndex() == 1:                 
+                if et_data.shape[1] == 9:
+                    for i, e_label in enumerate(["a11", "a12", "a21", "a22"]):
+                        data_ij = np.array([et_data[:,0], et_data[:,2*i+1], et_data[:,2*i+2]], dtype=float).T
+                        table_name = f"admittance_matrix_data_{e_label}_nodes_{self.input_node_id}_{self.output_node_id}"
+                        aux[e_label] = {"values" : data_ij,
+                                        "table_name" : table_name}
                 else:
                     continue
 
@@ -364,14 +361,14 @@ class AddAcousticTransferElementInput(QDialog):
 
         table_names = list()
 
-        if self.comboBox_transfer_matrices_import_type.currentIndex() == 0:
-            data_source = "direct_import"
-            for key in ["a11", "a12", "a21", "a22"]:
+        if self.comboBox_data_type.currentIndex() == 0:
+            data_source = "transfer_functions"
+            for key in ["H11", "H21", "H12", "H22"]:
                 table_names.append(aux[key]["table_name"])
 
         else:
-            data_source = "from_Vibra"
-            for key in ["H11", "H21", "H12", "H22"]:
+            data_source = "admittance_matrix"
+            for key in ["a11", "a12", "a21", "a22"]:
                 table_names.append(aux[key]["table_name"])
 
         data = {
