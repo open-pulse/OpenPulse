@@ -253,13 +253,18 @@ class AddAcousticTransferElementInput(QDialog):
                 wb = load_workbook(imported_path)
                 sheetnames = wb.sheetnames
 
+                if self.comboBox_transfer_matrices_import_type.currentIndex() == 0:
+                    cols = list(np.arange(9))
+                else:
+                    cols = list(np.arange(3))
+
                 for sheetname in sheetnames:
 
                     sheet_data = read_excel(
                                             imported_path, 
                                             sheet_name = sheetname, 
                                             header = 0, 
-                                            usecols = [0,1,2]
+                                            usecols = cols
                                             ).to_numpy()
 
                     self.element_transfer_data[sheetname] = sheet_data
@@ -312,7 +317,7 @@ class AddAcousticTransferElementInput(QDialog):
                         e_labels = ["a11", "a12", "a21", "a22"]
                         for i in range(4):
                             e_label = e_labels[i]
-                            data_ij = np.array([et_data[:,0], et_data[2*i+1,:], et_data[2*i+3,:]], dtype=float).T
+                            data_ij = np.array([et_data[:,0], et_data[:,2*i+1], et_data[:,2*i+2]], dtype=float).T
                             table_name = f"element_transfer_data_{e_label}_nodes_{self.input_node_id}_{self.output_node_id}"
                             aux[e_label] = {"values" : data_ij,
                                             "table_name" : table_name}
