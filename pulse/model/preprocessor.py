@@ -1977,9 +1977,9 @@ class Preprocessor:
 
                 if output_node_id > input_node_id:
 
-                    _det = (H11*H22 - H21*H12)
-                    a11 =  H22 / _det
-                    a12 = -H12 / _det
+                    _det = -(H11*H22 - H21*H12)
+                    a11 =  -(H22 / _det)
+                    a12 = -(-H12 / _det)
                     a21 = -H21 / _det
                     a22 =  H11 / _det
 

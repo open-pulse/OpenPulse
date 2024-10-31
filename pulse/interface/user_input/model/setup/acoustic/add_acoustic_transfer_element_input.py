@@ -385,10 +385,11 @@ class AddAcousticTransferElementInput(QDialog):
         app().main_window.update_plots(reset_camera=False)
 
     def on_click_item(self, item):
-        input_node_id = item.text(1)
-        output_node_id = item.text(2)
+        input_node_id = int(item.text(1))
+        output_node_id = int(item.text(2))
         self.pushButton_remove.setEnabled(True)
         self.lineEdit_selected_id.setText(f"{input_node_id}-{output_node_id}")
+        app().main_window.set_selection(nodes=(input_node_id, output_node_id))
 
     def on_doubleclick_item(self, item):
         self.on_click_item(item)
@@ -421,6 +422,14 @@ class AddAcousticTransferElementInput(QDialog):
                 self.tabWidget_main.setCurrentIndex(0)
                 self.tabWidget_main.setTabVisible(1, True)
                 return
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.attribute_callback()
+        elif event.key() == Qt.Key_Delete:
+            self.remove_callback()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
