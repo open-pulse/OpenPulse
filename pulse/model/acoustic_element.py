@@ -303,8 +303,11 @@ class AcousticElement:
         kappaLe = kappa_complex * (self.length + length_correction)
         sine = np.sin(kappaLe)
         cossine = np.cos(kappaLe)
-        matrix = ((self.area_fluid*1j/(sine*impedance_complex))*np.array([-cossine, ones, ones, -cossine])).T
+        Zf = impedance_complex / self.area_fluid
 
+        # TODO: check this
+        matrix = ((1j/(Zf*sine))*np.array([-cossine, ones, ones, -cossine])).T
+        
         return matrix
 
     def lrf_thermoviscous_matrix(self, frequencies, length_correction=0):

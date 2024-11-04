@@ -1969,15 +1969,28 @@ class Preprocessor:
             coords.append(list(np.round(coords_1, 5)))
             coords.append(list(np.round(coords_2, 5)))
 
-            if data["element_transfer_data_source"] == "direct_import":
+            if data["element_transfer_data_source"] == "admittance_matrix":
                 a11, a12, a21, a22 = data["values"]
 
             else:
-                P_in, Q_in, P_out, Q_out = data["values"]
-                a11 = Q_out*P_out
-                a12 = Q_out*P_in
-                a21 = Q_in*P_out
-                a22 = Q_in*P_in
+                H11, H21, H12, H22 = data["values"]
+
+                if output_node_id > input_node_id:
+
+                    _det = (H11*H22 - H21*H12)
+                    a11 =  H22 / _det
+                    a12 = -H12 / _det
+                    a21 = -H21 / _det
+                    a22 =  H11 / _det
+
+                else:
+
+                    #TODO: validate this case
+                    _det = (H12*H21 - H11*H22)
+                    a11 =  H12 / _det
+                    a12 = -H22 / _det
+                    a21 = -H11 / _det
+                    a22 =  H21 / _det
 
             Te = np.array([a11, a12, a21, a22], dtype=complex).T
 
@@ -1989,6 +2002,19 @@ class Preprocessor:
                     }
 
             return data
+
+    # Z = Te.reshape(-1,2,2)
+
+    # He = np.array([H11, H12, H21, H22], dtype=complex).T.reshape(-1,2,2)
+    # inv = np.linalg.inv(He)
+
+    # print(f"teste inversa -> {np.max(np.abs(Z - inv))}")
+
+    # q = np.array([1, 0], dtype=float)
+    # rq1 = (H21*q[0] + H22*q[1]) / (H11*q[0] + H12*q[1])               
+    # q = np.array([0, 1], dtype=float)
+    # rq2 = (H21*q[0] + H22*q[1]) / (H11*q[0] + H12*q[1])
+    # print(rq1[:10], rq2[:10])
 
     def process_cross_sections_mapping(self):  
 

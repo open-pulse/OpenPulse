@@ -231,7 +231,8 @@ class Project:
                                 "specific_impedance", 
                                 "radiation_impedance", 
                                 "compressor_excitation",
-                                "psd_acoustic_link"
+                                "psd_acoustic_link",
+                                "acoustic_transfer_element"
                                 ]
 
         for (property, *args) in self.model.properties.nodal_properties.keys():

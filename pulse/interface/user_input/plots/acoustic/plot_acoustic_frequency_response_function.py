@@ -50,7 +50,7 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         # QLineEdit
         self.lineEdit_input_node_id : QLineEdit
         self.lineEdit_output_node_id : QLineEdit
-        self.current_lineEdit = self.lineEdit_input_node_id
+        self.current_lineEdit = self.lineEdit_output_node_id
 
         # QPushButton
         self.pushButton_flip_nodes : QPushButton

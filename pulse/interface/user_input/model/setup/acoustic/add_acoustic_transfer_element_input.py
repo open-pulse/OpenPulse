@@ -60,7 +60,7 @@ class AddAcousticTransferElementInput(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_transfer_matrices_import_type:  QComboBox
+        self.comboBox_data_type:  QComboBox
 
         # QLabel
         self.label_selection: QLabel
@@ -70,6 +70,7 @@ class AddAcousticTransferElementInput(QDialog):
         self.lineEdit_output_node_id: QLineEdit
         self.lineEdit_selected_id: QLineEdit
         self.lineEdit_spreadsheet_path: QLineEdit
+        self.current_lineEdit = self.lineEdit_output_node_id
 
         # QPushButton
         self.pushButton_attribute: QPushButton
@@ -246,11 +247,16 @@ class AddAcousticTransferElementInput(QDialog):
         try:
 
             sufix = Path(imported_path).suffix
-            filename = os.path.basename(imported_path)
+            # filename = os.path.basename(imported_path)
 
             if sufix in [".xls", ".xlsx"]:
                 wb = load_workbook(imported_path)
                 sheetnames = wb.sheetnames
+
+                if self.comboBox_data_type.currentIndex() == 0:
+                    cols = list(np.arange(3))
+                else:
+                    cols = list(np.arange(9))
 
                 for sheetname in sheetnames:
 
@@ -258,7 +264,7 @@ class AddAcousticTransferElementInput(QDialog):
                                             imported_path, 
                                             sheet_name = sheetname, 
                                             header = 0, 
-                                            usecols = [0,1,2]
+                                            usecols = cols
                                             ).to_numpy()
 
                     self.element_transfer_data[sheetname] = sheet_data
@@ -305,40 +311,39 @@ class AddAcousticTransferElementInput(QDialog):
             if k == 0:
                 self.update_frequency_setup(et_data, path)
 
-            if self.comboBox_transfer_matrices_import_type.currentIndex() == 0:
-                if "element_transfer_data" in sheetaname:                   
-                    if et_data.shape[1] == 9:
-                        e_labels = ["a11", "a12", "a21", "a22"]
-                        for i in range(4):
-                            e_label = e_labels[i]
-                            data_ij = np.array([et_data[:,0], et_data[2*i+1,:], et_data[2*i+3,:]], dtype=float).T
-                            table_name = f"element_transfer_data_{e_label}_nodes_{self.input_node_id}_{self.output_node_id}"
-                            aux[e_label] = {"values" : data_ij,
-                                            "table_name" : table_name}
+            if self.comboBox_data_type.currentIndex() == 1:                 
+                if et_data.shape[1] == 9:
+                    for i, e_label in enumerate(["a11", "a12", "a21", "a22"]):
+                        data_ij = np.array([et_data[:,0], et_data[:,2*i+1], et_data[:,2*i+2]], dtype=float).T
+                        table_name = f"admittance_matrix_data_{e_label}_nodes_{self.input_node_id}_{self.output_node_id}"
+                        aux[e_label] = {"values" : data_ij,
+                                        "table_name" : table_name}
                 else:
                     continue
 
             else:
 
-                if "input_pressure" in sheetaname:
-                    table_name = f"et_input_pressure_node_{self.input_node_id}"
-                    aux["P_in"] = {"values" : et_data,
-                                   "table_name" : table_name}
+                linked_nodes = f"{self.input_node_id}_{self.output_node_id}"
 
-                elif "input_vvelocity" in sheetaname:
-                    table_name = f"et_input_volume_velocity_node_{self.input_node_id}"
-                    aux["Q_in"] = {"values" : et_data,
-                                   "table_name" : table_name}
+                if "H11" in sheetaname:
+                    table_name = f"transfer_function_H11_nodes_{linked_nodes}"
+                    aux["H11"] = {"values" : et_data,
+                                  "table_name" : table_name}
 
-                elif "output_pressure" in sheetaname:
-                    table_name = f"et_output_pressure_node_{self.output_node_id}"
-                    aux["P_out"] = {"values" : et_data,
-                                    "table_name" : table_name}
+                elif "H21" in sheetaname:
+                    table_name = f"transfer_function_H21_nodes_{linked_nodes}"
+                    aux["H21"] = {"values" : et_data,
+                                  "table_name" : table_name}
 
-                elif "output_vvelocity" in sheetaname:
-                    table_name = f"et_output_volume_velocity_node_{self.output_node_id}"
-                    aux["Q_out"] = {"values" : et_data,
-                                    "table_name" : table_name}
+                elif "H12" in sheetaname:
+                    table_name = f"transfer_function_H12_nodes_{linked_nodes}"
+                    aux["H12"] = {"values" : et_data,
+                                  "table_name" : table_name}
+
+                elif "H22" in sheetaname:
+                    table_name = f"transfer_function_H22_nodes_{linked_nodes}"
+                    aux["H22"] = {"values" : et_data,
+                                  "table_name" : table_name}
 
                 else:
                     continue
@@ -356,14 +361,14 @@ class AddAcousticTransferElementInput(QDialog):
 
         table_names = list()
 
-        if self.comboBox_transfer_matrices_import_type.currentIndex() == 0:
-            data_source = "direct_import"
-            for key in ["a11", "a12", "a21", "a22"]:
+        if self.comboBox_data_type.currentIndex() == 0:
+            data_source = "transfer_functions"
+            for key in ["H11", "H21", "H12", "H22"]:
                 table_names.append(aux[key]["table_name"])
 
         else:
-            data_source = "pressures_and_volume_velocities"
-            for key in ["P_in", "Q_in", "P_out", "Q_out"]:
+            data_source = "admittance_matrix"
+            for key in ["a11", "a12", "a21", "a22"]:
                 table_names.append(aux[key]["table_name"])
 
         data = {
@@ -379,13 +384,14 @@ class AddAcousticTransferElementInput(QDialog):
         app().pulse_file.write_nodal_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
         self.load_nodal_info()
-        # app().main_window.update_plots(reset_camera=False)
+        app().main_window.update_plots(reset_camera=False)
 
     def on_click_item(self, item):
-        input_node_id = item.text(1)
-        output_node_id = item.text(2)
+        input_node_id = int(item.text(1))
+        output_node_id = int(item.text(2))
         self.pushButton_remove.setEnabled(True)
         self.lineEdit_selected_id.setText(f"{input_node_id}-{output_node_id}")
+        app().main_window.set_selection(nodes=(input_node_id, output_node_id))
 
     def on_doubleclick_item(self, item):
         self.on_click_item(item)
@@ -418,6 +424,14 @@ class AddAcousticTransferElementInput(QDialog):
                 self.tabWidget_main.setCurrentIndex(0)
                 self.tabWidget_main.setTabVisible(1, True)
                 return
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.attribute_callback()
+        elif event.key() == Qt.Key_Delete:
+            self.remove_callback()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False

@@ -48,6 +48,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
     def source(self):
         super().source()
         self._create_psd_acoustic_links()
+        self._create_acoustic_transfer_element()
 
     # def _createSequence(self):
     #     return self.project.get_nodes().values()
@@ -82,6 +83,37 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         self._rotations.InsertNextTuple3(0, 0, 0)
         self._scales.InsertNextTuple3(1, 1, 1)
         self._colors.InsertNextTuple3(0, 250, 250)
+
+    def _create_acoustic_transfer_element(self):
+
+        linkedSymbols = vtkAppendPolyData()
+
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
+            if property == "acoustic_transfer_element":
+
+                coords_a = np.array(data["coords"][:3], dtype=float)
+                coords_b = np.array(data["coords"][3:], dtype=float)
+
+                # divide the value of the coordinates by the scale factor
+                source = vtkLineSource()
+                source.SetPoint1(coords_a / self.scale_factor) 
+                source.SetPoint2(coords_b / self.scale_factor)
+                source.Update()
+                linkedSymbols.AddInputData(source.GetOutput())
+
+        s = vtkSphereSource()
+        s.SetRadius(0)
+
+        linkedSymbols.AddInputData(s.GetOutput())
+        linkedSymbols.Update()
+
+        index = len(self._connections)
+        self._mapper.SetSourceData(index, linkedSymbols.GetOutput())
+        self._sources.InsertNextTuple1(index)
+        self._positions.InsertNextPoint(0, 0, 0)
+        self._rotations.InsertNextTuple3(0, 0, 0)
+        self._scales.InsertNextTuple3(1, 1, 1)
+        self._colors.InsertNextTuple3(230, 110, 230)
 
     def _get_acoustic_pressure_symbol(self):
 
