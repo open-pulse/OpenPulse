@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.model.cross_section import CrossSection
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
 
 from collections import defaultdict
 

@@ -1,7 +1,8 @@
 # fmt: off
 from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
+from pulse.utils.unit_conversion import *
 
 from pulse.editor.structures import (
     Pipe,

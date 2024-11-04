@@ -5,7 +5,7 @@ from pulse.editor.structures import (
     Flange
 )
 
-from pulse.tools.utils import m_to_mm, in_to_mm
+from pulse.utils.unit_conversion import m_to_mm, in_to_mm
 import numpy as np
 
 

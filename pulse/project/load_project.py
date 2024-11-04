@@ -7,7 +7,7 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.perforated_plate import PerforatedPlate
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
 
 from pulse.model.cross_section import CrossSection
 

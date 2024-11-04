@@ -6,7 +6,7 @@ from pulse import app, UI_DIR
 from pulse.model.cross_section import get_beam_section_properties, get_points_to_plot_section
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.utils import check_inputs
+from pulse.utils.interface_utils import check_inputs
 
 import numpy as np
 

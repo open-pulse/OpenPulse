@@ -3,16 +3,22 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.editor.structures import Point
 
+import gmsh
+
 from copy import deepcopy
 from molde.colors import Color, WHITE
 
 class Structure:
     def __init__(self, **kwargs) -> None:
+        self.name: str = "Structure"
         self.color: Color = kwargs.get("color", WHITE)
         self.selected: bool = kwargs.get("selected", False)
         self.staged: bool = kwargs.get("staged", False)
         self.tag: int = kwargs.get("tag", -1)
         self.extra_info: dict = kwargs.get("extra_info", dict())
+
+    def to_gmsh(self):
+        pass
 
     def get_points(self) -> list["Point"]:
         raise NotImplementedError(f'get_points method not implemented in "{type(self).__name__}".')

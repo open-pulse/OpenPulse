@@ -1,6 +1,6 @@
 from pulse import app, SYMBOLS_DIR
 from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
-from pulse.tools.utils import transformation_matrix_3x3
+from pulse.utils.common_utils import transformation_matrix_3x3
 
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -13,7 +13,7 @@ from pulse.interface.viewer_3d.actors.symbols_actor import (
     SymbolTransform,
     loadSymbol,
 )
-from pulse.tools.utils import transformation_matrix_3x3
+from pulse.utils.common_utils import transformation_matrix_3x3
 
 
 class AcousticNodesSymbolsActor(SymbolsActorBase):

@@ -7,7 +7,7 @@ from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData, vtkPolyDataNormals
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
-from pulse.interface.viewer_3d.utils.cell_utils import (
+from pulse.utils.cell_utils import (
     fill_cell_identifier,
     paint_data,
 )

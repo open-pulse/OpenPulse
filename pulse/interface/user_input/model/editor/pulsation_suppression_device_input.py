@@ -10,7 +10,7 @@ from pulse.editor.dual_volume_psd import DualVolumePSD
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.utils import check_inputs
+from pulse.utils.interface_utils import check_inputs
 
 import numpy as np
 

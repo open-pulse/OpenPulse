@@ -1,6 +1,6 @@
 from pulse import app, version
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
 
 from fileboxes import Filebox
 

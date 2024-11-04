@@ -11,7 +11,7 @@ from pulse.model.after_run import AfterRun
 from pulse.model.before_run import BeforeRun
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.processing.acoustic_solver import AcousticSolver
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
 #
 import logging
 from collections import defaultdict

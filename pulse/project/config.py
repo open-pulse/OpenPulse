@@ -1,4 +1,4 @@
-from pulse.tools.utils import get_new_path
+from pulse.utils.common_utils import get_new_path
 
 import os
 import sys

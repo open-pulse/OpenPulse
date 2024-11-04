@@ -2,7 +2,8 @@ from vtkmodules.vtkFiltersSources import vtkCubeSource
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 import numpy as np
 
-from pulse.interface.utils import rotation_matrices, lerp
+from pulse.utils.rotations import rotation_matrices
+from pulse.utils.interpolation import lerp
 
 
 class SectionPlaneActor(vtkActor):

@@ -32,7 +32,7 @@ from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
-from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
+from pulse.utils.interface_utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 
 import logging
 import os

@@ -8,7 +8,7 @@ from pulse.interface.user_input.model.setup.general.color_selector import PickCo
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import SetFluidCompositionInput
-from pulse.tools.utils import get_list_of_values_from_string
+from pulse.utils.common_utils import get_list_of_values_from_string
 
 from pulse.model.properties.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library

@@ -8,7 +8,7 @@ from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import LoadFluidCompositionInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.tools.utils import get_new_path
+from pulse.utils.common_utils import get_new_path
 
 import os
 from pathlib import Path

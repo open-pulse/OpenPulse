@@ -1,6 +1,6 @@
 import numpy as np
 import logging
-from pulse.interface.viewer_3d.utils import cross_section_sources
+from pulse.utils import cross_section_sources
 from vtkmodules.vtkCommonCore import (
     vtkDoubleArray,
     vtkIntArray,
@@ -14,7 +14,7 @@ from vtkmodules.vtkFiltersGeneral import vtkTransformFilter
 from vtkmodules.vtkRenderingCore import vtkActor, vtkGlyph3DMapper
 
 from pulse import app
-from pulse.interface.utils import ColorMode
+from pulse.utils.interface_utils import ColorMode
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 
 

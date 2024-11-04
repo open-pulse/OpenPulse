@@ -3,7 +3,7 @@ from vtkmodules.vtkFiltersCore import vtkAppendPolyData, vtkTubeFilter
 from vtkmodules.vtkFiltersSources import vtkArcSource, vtkDiskSource
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
-from pulse.interface.viewer_3d.utils.cell_utils import paint_data
+from pulse.utils.cell_utils import paint_data
 from pulse.editor.structures import Bend
 
 

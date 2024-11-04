@@ -11,7 +11,8 @@ from pulse.model.perforated_plate import PerforatedPlate
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
 from pulse.interface.user_input.model.setup.structural.valves_input import get_V_linear_distribution
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
+from pulse.utils.unit_conversion import *
 
 from pulse.model.mesh import Mesh
 
