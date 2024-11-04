@@ -1,8 +1,4 @@
-import numpy as np
-
 from molde.colors import PURPLE_7
-
-from .point import Point
 from .simple_curve import SimpleCurve
 
 
