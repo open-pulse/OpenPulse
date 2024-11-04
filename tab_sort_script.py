@@ -56,8 +56,15 @@ def find_widgets(archive_content: str):
 
     widgets_regex = re.compile(r"<widget.*")
     widgets = widgets_regex.findall(archive_content)
-
+    
+    widgets_name_regex = re.compile(r"name=.*")
     widgets_name = list()
+
+    for i in range(len(widgets)):
+        widgets_name += widgets_name_regex.findall(widgets[i])
+        widgets_name[i] = widgets_name[i][6:len(widgets_name[i])-2]
+    
+    return widgets_name
 
 def write_tab_string_in_ui_file(ui_file: Path, old_tab_string: str, new_tab_string: str, arch_content: str):
     arch_content = arch_content.replace(old_tab_string, new_tab_string)
