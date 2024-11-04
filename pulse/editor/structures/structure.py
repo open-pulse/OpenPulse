@@ -6,19 +6,20 @@ if TYPE_CHECKING:
 import gmsh
 
 from copy import deepcopy
+from pulse.utils.text_utils import cammel_to_snake_case
 from molde.colors import Color, WHITE
 
 class Structure:
     def __init__(self, **kwargs) -> None:
-        self.name: str = "Structure"
         self.color: Color = kwargs.get("color", WHITE)
         self.selected: bool = kwargs.get("selected", False)
         self.staged: bool = kwargs.get("staged", False)
         self.tag: int = kwargs.get("tag", -1)
         self.extra_info: dict = kwargs.get("extra_info", dict())
 
-    def to_gmsh(self):
-        pass
+    @classmethod
+    def name(cls):
+        return cammel_to_snake_case(cls.__name__)
 
     def get_points(self) -> list["Point"]:
         raise NotImplementedError(f'get_points method not implemented in "{type(self).__name__}".')
