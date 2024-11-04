@@ -40,7 +40,13 @@ def extract_tabs(ui_file: Path):
 
         return old_tab_string, new_tab_string, arch_content
     
+    old_tab_string_regex = re.compile(r"<resources/>(.|\n)*") 
+    old_tab_string = old_tab_string_regex.search(arch_content).group(0)
+    
     widgets_name = find_widgets(arch_content)
+    new_tab_string = generate_tab_string(widgets_name)
+
+    return old_tab_string, new_tab_string + "\n" + old_tab_string, arch_content
        
 def generate_tab_string(widgets_names: list[str]):
     text = "<tabstops>\n"
@@ -51,9 +57,6 @@ def generate_tab_string(widgets_names: list[str]):
     return text
 
 def find_widgets(archive_content: str):
-    old_string_regex = re.compile(r"<resources/>(.|\n)*") 
-    old_string = old_string_regex.search(archive_content).group(0)
-
     widgets_regex = re.compile(r"<widget.*")
     widgets = widgets_regex.findall(archive_content)
     
