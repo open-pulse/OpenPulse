@@ -6,6 +6,7 @@ from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
 from pulse.utils.cell_utils import paint_data
 from pulse.editor.structures import Elbow, Flange
+from pulse.utils.math_utils import lerp
 
 
 class ElbowActor(vtkActor):
@@ -14,9 +15,6 @@ class ElbowActor(vtkActor):
         self.create_geometry()
 
     def create_geometry(self):
-        def lerp(t, a, b):
-            return a + t * (b - a)
-
         arc_points = 10
         arc_source = vtkArcSource()
         arc_source.SetPoint1(self.elbow.start.coords())
