@@ -1,6 +1,6 @@
 from itertools import pairwise
 
-from pulse.editor.structures import LinearStructure, Point, SimpleCurve, Structure
+from pulse.editor.structures import LinearStructure, Point, Fillet, Structure
 
 from .editor import Editor
 
@@ -42,7 +42,7 @@ class DivideEditor(Editor):
             new_structure.end = original_end
             self.pipeline.add_structure(new_structure)
 
-        elif isinstance(structure, SimpleCurve):
+        elif isinstance(structure, Fillet):
             original_end = structure.end
             center = structure.center
             corner = structure.corner.copy()
@@ -68,7 +68,7 @@ class DivideEditor(Editor):
             return
 
         corner = None
-        if isinstance(structure, SimpleCurve):
+        if isinstance(structure, Fillet):
             corner = structure.corner.copy()
 
         for i, (a, b) in enumerate(pairwise(structures)):
@@ -80,9 +80,9 @@ class DivideEditor(Editor):
                 a.end = point
                 b.start = point
 
-            elif isinstance(structure, SimpleCurve):
-                a: SimpleCurve
-                b: SimpleCurve
+            elif isinstance(structure, Fillet):
+                a: Fillet
+                b: Fillet
                 point = points[i]
 
                 center = a.center
@@ -98,7 +98,7 @@ class DivideEditor(Editor):
             self.pipeline.add_point(corner)
 
     def _interpolate(self, structure: Structure, t: float) -> Point | None:
-        if isinstance(structure, LinearStructure | SimpleCurve):
+        if isinstance(structure, LinearStructure | Fillet):
             return structure.interpolate(t)
 
     def _interpolate_evenly(self, structure: Structure, divisions: int) -> list[Point]:

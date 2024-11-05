@@ -18,7 +18,7 @@ from pulse.editor.structures import (
     TBeam,
     CBeam,
     ExpansionJoint,
-    SimpleCurve,
+    Fillet,
 )
 
 import gmsh
@@ -167,7 +167,7 @@ class GeometryHandler:
                 for line_tag in lines:
                     self.lines_mapping[line_tag] = structure.tag
 
-            elif isinstance(structure, SimpleCurve):
+            elif isinstance(structure, Fillet):
 
                 if structure.is_colapsed():
                     continue

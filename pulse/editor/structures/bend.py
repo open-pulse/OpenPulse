@@ -1,8 +1,8 @@
 from molde.colors import PURPLE_7
-from .simple_curve import SimpleCurve
+from .simple_curve import Fillet
 
 
-class Bend(SimpleCurve):
+class Bend(Fillet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -2,7 +2,7 @@
 
 # Abstract classes
 from .linear_structure import LinearStructure
-from .simple_curve import SimpleCurve
+from .simple_curve import Fillet
 from .structure import Structure
 
 # Normal Clases

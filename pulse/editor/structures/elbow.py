@@ -1,7 +1,7 @@
-from .simple_curve import SimpleCurve
+from .simple_curve import Fillet
 
 
-class Elbow(SimpleCurve):
+class Elbow(Fillet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

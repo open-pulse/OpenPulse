@@ -8,7 +8,7 @@ def normalize(vector):
     return vector / np.linalg.norm(vector)
 
 
-class SimpleCurve(Structure):
+class Fillet(Structure):
     def __init__(self, start: Point, end: Point, corner: Point, curvature_radius: float, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
