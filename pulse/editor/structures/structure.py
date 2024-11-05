@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 import gmsh
 
 from copy import deepcopy
-from pulse.utils.text_utils import cammel_to_snake_case
+from pulse.utils.text_utils import pascal_to_snake_case
 from molde.colors import Color, WHITE
 
 class Structure:
@@ -19,7 +19,7 @@ class Structure:
 
     @classmethod
     def name(cls):
-        return cammel_to_snake_case(cls.__name__)
+        return pascal_to_snake_case(cls.__name__)
 
     def get_points(self) -> list["Point"]:
         raise NotImplementedError(f'get_points method not implemented in "{type(self).__name__}".')

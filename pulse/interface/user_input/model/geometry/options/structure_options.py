@@ -3,6 +3,7 @@ if TYPE_CHECKING:
     from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 
 from pulse import app
+from pulse.utils.text_utils import pascal_to_spaced_case
 
 
 class StructureOptions:
@@ -13,6 +14,12 @@ class StructureOptions:
         self.geometry_designer_widget = geometry_designer_widget
         self.cross_section_widget = self.geometry_designer_widget.cross_section_widget
         self.structure_info = dict()
+
+        print(self.name())
+        
+    @classmethod
+    def name(cls):
+        return pascal_to_spaced_case(cls.__name__)
     
     def xyz_callback(self, xyz: tuple[float, float, float]):
         if self.structure_type is None:
