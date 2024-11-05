@@ -1,4 +1,4 @@
-from .simple_curve import Fillet
+from .fillet import Fillet
 
 
 class Elbow(Fillet):

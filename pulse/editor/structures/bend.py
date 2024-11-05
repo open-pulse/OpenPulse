@@ -1,5 +1,5 @@
 from molde.colors import PURPLE_7
-from .simple_curve import Fillet
+from .fillet import Fillet
 
 
 class Bend(Fillet):
