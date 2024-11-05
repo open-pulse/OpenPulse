@@ -9,6 +9,11 @@ def normalize(vector):
 
 
 class Fillet(Structure):
+    start: Point
+    end: Point
+    corner: Point
+    curvature_radius: float
+
     def __init__(self, start: Point, end: Point, corner: Point, curvature_radius: float, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
