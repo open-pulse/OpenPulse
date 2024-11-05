@@ -20,7 +20,11 @@ class Curve(Structure):
 
     @property
     def center(self) -> Point:
-        pass
+        return Point(1, 1, 0)
+
+    @property
+    def corner(self) -> Point | None:
+        return Point(0, 0, 0)
 
     @property
     def curvature_radius(self) -> Point:
