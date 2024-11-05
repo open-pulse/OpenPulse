@@ -17,6 +17,7 @@ from pulse.editor.structures import (
     IBeam,
     CBeam,
     TBeam,
+    Beam,
     CircularBeam,
     RectangularBeam,
 )
@@ -82,7 +83,7 @@ class GeometryDesignerWidget(QWidget):
         self.frame_division_options: QFrame
         self.create_structure_frame: QFrame
 
-        #QPushButton
+        # QPushButton
         self.add_button: QPushButton
         self.apply_division_button: QPushButton
         self.attach_button: QPushButton
@@ -120,11 +121,36 @@ class GeometryDesignerWidget(QWidget):
 
         # QWidget
         self.empty_widget: QWidget
-    
+
     def _create_layout(self):
         self.cross_section_widget = CrossSectionWidget(self)
         self.material_widget = MaterialInputs(self)
         self.material_widget.hide()
+
+        # Add your newly implemented StructureOptions here 
+        structure_option_types: list[type[StructureOptions]] = [
+            PipeOptions,
+            FlangeOptions,
+            ReducerOptions,
+            RectangularBeamOptions,
+            CircularBeamOptions,
+            TBeamOptions,
+            IBeamOptions,
+            CBeamOptions,
+            ExpansionJointOptions,
+            ValveOptions,
+            PointOptions,
+        ]
+
+        # Initialize the StructureOptions classes
+        self.structure_options: dict[str, StructureOptions] = {
+            option.name(): option(self) for option in structure_option_types
+        }
+
+        # Add the names to the combobox
+        self.structure_combobox.clear()
+        for name in self.structure_options.keys():
+            self.structure_combobox.addItem(name)
 
     def _create_connections(self):
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.cross_section_confirm_callback)
@@ -183,7 +209,7 @@ class GeometryDesignerWidget(QWidget):
         self.current_material_info = None
 
         self.unity_changed_callback("meter")
-        self.structure_type_changed_callback("pipe")
+        self.structure_type_changed_callback(PipeOptions.name())
         self.division_type_changed_callback("single division")
 
     def selection_callback(self):
@@ -216,30 +242,32 @@ class GeometryDesignerWidget(QWidget):
                 label.setText(f"[{unit_label_text}]")
 
     def structure_type_changed_callback(self, structure_name: str):
-        # the previous value before this change
-        if (self.current_structure_type is not None) and issubclass(self.current_structure_type, Point):
+        # If the previous option was PointOptions reset xyz
+        if isinstance(self.current_options, PointOptions):
             self._reset_xyz()
 
-        structure_name = structure_name.lower().strip()
-        self.current_structure_type = self._structure_name_to_class(structure_name)  
-        self.current_options = self._structure_name_to_options(structure_name)
+        # Update the current object based on the name
+        self.current_options = self.structure_options[structure_name]
+        self.current_structure_type = self.current_options.structure_type
 
-        self._show_deltas_mode(True)
-        structure_index = self.structure_combobox.currentIndex()
-        if structure_index == 0:
+        # Only pipes need to bend
+        if isinstance(self.current_options, PipeOptions):
             self.frame_bending_options.setEnabled(True)
         else:
             self.frame_bending_options.setEnabled(False)
 
-        if structure_index in [1, 2, 8, 9, 10]:
-            self.frame_division_options.setEnabled(False)
-        else:
+        # Structures that can be divided
+        if isinstance(self.current_options.structure_type, Pipe | Beam):
             self.frame_division_options.setEnabled(True)
-
-        if self.current_options == self.point_options:
+        else:
+            self.frame_division_options.setEnabled(False)
+        
+        # Points specific configuration
+        if isinstance(self.current_options, PointOptions):
             self._show_deltas_mode(False)
             self._set_xyz_to_selected_point()
         else:
+            self._show_deltas_mode(True)
             self.xyz_changed_callback()
 
         self._update_permissions()
@@ -327,7 +355,7 @@ class GeometryDesignerWidget(QWidget):
             diameter = section_parameters[0]
         except:
             return None
-        
+
         return diameter
 
     def bending_options_changed_callback(self):
@@ -347,7 +375,7 @@ class GeometryDesignerWidget(QWidget):
             return
         except TypeError:
             return
-        
+
         self.current_options.xyz_callback(xyz)
         self._update_permissions()
         self.render_widget.update_plot(reset_camera=True)
@@ -408,7 +436,7 @@ class GeometryDesignerWidget(QWidget):
         self.division_slider.blockSignals(False)
 
         self.render_widget.update_plot(reset_camera=False)
-    
+
     def cancel_division_callback(self):
         self.pipeline.dismiss()
         self.render_widget.update_plot(reset_camera=False)
@@ -555,7 +583,7 @@ class GeometryDesignerWidget(QWidget):
 
     def _reset_xyz(self):
         self._set_xyz("", "", "")
-    
+
     def _set_xyz_to_selected_point(self):
         if len(self.pipeline.selected_points) != 1:
             self._reset_xyz()
@@ -570,13 +598,13 @@ class GeometryDesignerWidget(QWidget):
             y_text = "Length Δy:"
             z_text = "Length Δz:"
             self.sizes_coords_label.setText("Bounding Box Sizes")
-        
+
         else:
             x_text = "Coordinate x:"
             y_text = "Coordinate y:"
             z_text = "Coordinate z:"
             self.sizes_coords_label.setText("Coordinates")
-        
+
         self.dx_label.setText(x_text)
         self.dy_label.setText(y_text)
         self.dz_label.setText(z_text)
@@ -593,11 +621,11 @@ class GeometryDesignerWidget(QWidget):
             self.pipeline.add_isolated_point(xyz)
 
         self.render_widget.update_plot(reset_camera=True)
-    
+
     def _update_material_of_selected_structures(self):
         for structure in self.pipeline.selected_structures:
             structure.extra_info["material_info"] =  self.current_material_info
-    
+
     def _update_bending_radius_of_selected_structures(self):
         if not isinstance(self.current_options, PipeOptions):
             return
@@ -622,38 +650,6 @@ class GeometryDesignerWidget(QWidget):
 
         else:
             return
-
-    def _structure_name_to_class(self, structure_name: str):
-        structures = {
-            "point": Point,
-            "pipe": Pipe,
-            "flange": Flange,
-            "valve": Valve,
-            "expansion joint": ExpansionJoint,
-            "reducer": Reducer,
-            "circular beam": CircularBeam,
-            "rectangular beam": RectangularBeam,
-            "i-beam": IBeam,
-            "t-beam": TBeam,
-            "c-beam": CBeam,
-        }  # it is a bit cringe, but very understandable and compact
-        return structures.get(structure_name)
-
-    def _structure_name_to_options(self, structure_name: str):
-        structures = {
-            "point": self.point_options,
-            "pipe": self.pipe_options,
-            "flange": self.flange_options,
-            "valve": self.valve_options,
-            "reducer": self.reducer_options,
-            "expansion joint": self.expansion_joint_options,
-            "circular beam": self.circular_beam_options,
-            "rectangular beam": self.rectangular_beam_options,
-            "i-beam": self.i_beam_options,
-            "t-beam": self.t_beam_options,
-            "c-beam": self.c_beam_options,
-        }  # it is a bit cringe, but very understandable and compact
-        return structures.get(structure_name)
 
     def _update_information_text(self):
         cross_section_info = getattr(self.current_options, "cross_section_info", None)
@@ -703,9 +699,9 @@ class GeometryDesignerWidget(QWidget):
     def _update_permissions(self):
         if self.current_options is None:
             return
-        
+
         self.current_options.update_permissions()
-        
+
         if self.modified:
             set_qproperty(self.finalize_button, warning=True, status="danger")
         else:
