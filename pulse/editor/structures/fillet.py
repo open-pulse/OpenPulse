@@ -81,8 +81,12 @@ class Fillet(Structure):
     def normalize_values_vector(self, vec_a: np.ndarray, vec_b: np.ndarray):
         '''
         Updates the start and end points of a curve based on the curvature radius
-        and the direction expected for these points according to the corner.
+        and the tangencies of each connection.
         '''
+        # The outward tangency of the curve is in the oposite
+        # direction of the structure connected to it.
+        vec_a, vec_b = -vec_a, -vec_b
+
         sin_angle = np.linalg.norm(vec_a - vec_b) / 2
         angle = np.arcsin(sin_angle)
         corner_distance = np.cos(angle) * self.curvature_radius / np.sin(angle)
