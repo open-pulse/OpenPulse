@@ -190,21 +190,7 @@ class GeometryDesignerWidget(QWidget):
         self.finalize_button.clicked.connect(self.finalize_callback)
 
     def _initialize(self):
-        self.tags = list()
-
-        self.pipe_options = PipeOptions(self)
-        self.flange_options = FlangeOptions(self)
-        self.reducer_options = ReducerOptions(self)
-        self.rectangular_beam_options = RectangularBeamOptions(self)
-        self.circular_beam_options = CircularBeamOptions(self)
-        self.t_beam_options = TBeamOptions(self)
-        self.i_beam_options = IBeamOptions(self)
-        self.c_beam_options = CBeamOptions(self)
-        self.expansion_joint_options = ExpansionJointOptions(self)
-        self.valve_options = ValveOptions(self)
-        self.point_options = PointOptions(self)
-
-        self.current_options: StructureOptions = self.pipe_options
+        self.current_options: StructureOptions | None = None
         self.current_structure_type = None
         self.current_material_info = None
 
