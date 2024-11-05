@@ -19,7 +19,7 @@ class StructureOptions:
         
     @classmethod
     def name(cls):
-        return pascal_to_spaced_case(cls.__name__)
+        return pascal_to_spaced_case(cls.__name__).strip().removesuffix("Options")
     
     def xyz_callback(self, xyz: tuple[float, float, float]):
         if self.structure_type is None:
