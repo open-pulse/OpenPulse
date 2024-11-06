@@ -2,8 +2,6 @@ import numpy as np
 import gmsh
 from typing import Callable
 
-from pulse.editor.structures.structure import dummy_function
-
 from .point import Point
 from .structure import Structure
 
