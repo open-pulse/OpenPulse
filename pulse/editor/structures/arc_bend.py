@@ -1,8 +1,8 @@
 from molde.colors import PURPLE_7
-from .curve import Curve
+from .arc import Arc
 
 
-class ArcBend(Curve):
+class ArcBend(Arc):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

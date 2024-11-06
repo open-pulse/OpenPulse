@@ -17,7 +17,7 @@ from pulse.editor.structures import (
     Valve,
     LinearStructure,
     Fillet,
-    Curve,
+    Arc,
 )
 
 from .editor import Editor
@@ -45,8 +45,8 @@ class MainEditor(Editor):
         elif issubclass(structure_type, LinearStructure):
             return self._add_generic_linear_structure(structure_type, deltas, **kwargs)
         
-        elif issubclass(structure_type, Curve):
-            return self._add_generic_curve(structure_type, deltas, **kwargs)
+        elif issubclass(structure_type, Arc):
+            return self._add_generic_arc(structure_type, deltas, **kwargs)
 
     def add_pipe(self, deltas, **kwargs) -> list[Pipe]:
         return self._add_generic_linear_structure(Pipe, deltas, **kwargs)
@@ -226,9 +226,9 @@ class MainEditor(Editor):
 
         return directions
 
-    def _add_generic_curve(
+    def _add_generic_arc(
             self, 
-            structure_type: type[Curve], 
+            structure_type: type[Arc], 
             deltas: tuple[float, float, float], 
             **kwargs
     ):

@@ -5,7 +5,7 @@ from .structure import Structure
 from pulse.utils.math_utils import normalize
 
 
-class Curve(Structure):
+class Arc(Structure):
     def __init__(self, start: Point, end: Point, mid: Point, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

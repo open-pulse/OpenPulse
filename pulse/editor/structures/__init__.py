@@ -4,7 +4,7 @@
 from .linear_structure import LinearStructure
 from .fillet import Fillet
 from .structure import Structure
-from .curve import Curve
+from .arc import Arc
 
 # Normal Clases
 from .beam import *
