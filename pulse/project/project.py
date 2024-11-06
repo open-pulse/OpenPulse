@@ -70,6 +70,7 @@ class Project:
 
         self.natural_frequencies_acoustic = list()
         self.natural_frequencies_structural = list()
+        self.complex_natural_frequencies_acoustic = list()
 
         self.acoustic_harmonic_solution = None
         self.acoustic_modal_solution = None
@@ -479,6 +480,7 @@ class Project:
         elif self.analysis_id == 4: # Acoustic Modal Analysis
             self.acoustic_solver.modal_analysis(modes = self.modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_acoustic = self.acoustic_solver.natural_frequencies
+            self.complex_natural_frequencies_acoustic = self.acoustic_solver.complex_natural_frequencies
             self.acoustic_solution = self.acoustic_solver.modal_shapes
             # self.structural_modal_solution = self.acoustic_solver.modal_shapes
 
