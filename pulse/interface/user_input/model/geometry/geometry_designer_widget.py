@@ -43,6 +43,7 @@ from pulse.interface.user_input.model.geometry.options import (
     RectangularBeamOptions,
     ExpansionJointOptions,
     ValveOptions,
+    ArcBendOptions,
     PointOptions,
 )
 
@@ -139,6 +140,7 @@ class GeometryDesignerWidget(QWidget):
             CBeamOptions,
             ExpansionJointOptions,
             ValveOptions,
+            ArcBendOptions,
             PointOptions,
         ]
 
