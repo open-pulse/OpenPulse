@@ -6,6 +6,15 @@ from pulse.utils.math_utils import normalize
 
 
 class Arc(Structure):
+    """
+    Abstract class to handle structures represented by arcs inserted at any position. 
+    Arcs are represented as a 3 point arc.
+    """
+
+    start: Point
+    end: Point
+    mid: Point
+
     def __init__(self, start: Point, end: Point, mid: Point, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
