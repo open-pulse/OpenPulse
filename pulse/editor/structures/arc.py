@@ -14,7 +14,7 @@ class Arc(Structure):
         self.mid = mid
 
     @classmethod
-    def from_tangency(cls, start: Point, end: Point, tangency: np.ndarray, *args, **kwargs) -> "Curve":
+    def from_tangency(cls, start: Point, end: Point, tangency: np.ndarray, *args, **kwargs) -> "Arc":
         mid = Point(0, 0, 0)
         return cls(start, end, mid, *args, **kwargs)
 
