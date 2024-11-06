@@ -422,9 +422,12 @@ class AcousticElement:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2)/4
 
-        Ke = self.area_fluid / (rho*length) * np.array([[1,-1],[-1,1]])
-        Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
-        
+        Ke = (self.area_fluid / (rho*length)) * np.array([[ 1,-1],
+                                                          [-1, 1]], dtype=float)
+
+        Me = (self.area_fluid * length / (6*rho*c**2)) * np.array([[2, 1],
+                                                                   [1, 2]], dtype=float)
+
         return Ke, Me
 
     def fetm_link_matrix(self, frequencies):
@@ -836,7 +839,7 @@ class AcousticElement:
         aux_1 = np.r_[aux_1_1, aux_1_2]
         aux_2 = - aux_1 * np.exp( -2j * kr * poly_function(kr))
 
-        return impedance_complex * (1 + aux_2)/(1 - aux_2) +0j
+        return impedance_complex * (1 + aux_2)/(1 - aux_2) + 0j
 
     def flanged_termination_impedance(self, kappa_complex, impedance_complex):
         """
@@ -858,7 +861,7 @@ class AcousticElement:
         """
         radius = self.cross_section.inner_radius
         kr = kappa_complex * radius
-        return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * H1(2*kr)/ kr  ) +0j 
+        return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * H1(2*kr)/ kr  ) + 0j 
 
     def get_radiation_impedance(self, impedance_type: int, frequencies: np.ndarray) -> (np.ndarray | complex):
 

@@ -179,8 +179,8 @@ class ResultsViewerWidget(QWidget):
 
         if set_by == "nodes":
             if not (mesh_data or geometry_data):
-                app().main_window.plot_mesh()
-                # app().main_window.plot_geometry_points()
+                # app().main_window.plot_mesh()
+                app().main_window.plot_geometry_points()
 
         elif set_by == "lines":
             if not (lines or lines_with_cross_sections):

@@ -377,8 +377,12 @@ class ProjectFile:
                     if acoustic_solver.modal_shapes is not None:
                         natural_frequencies = acoustic_solver.natural_frequencies
                         modal_shape = acoustic_solver.modal_shapes
-                        f.create_dataset("modal_acoustic/natural_frequencies", data=natural_frequencies, dtype=float)
-                        f.create_dataset("modal_acoustic/modal_shape", data=modal_shape, dtype=float)
+                        complex_natural_frequencies = acoustic_solver.complex_natural_frequencies 
+                        if isinstance(complex_natural_frequencies, np.ndarray):
+                            f.create_dataset("modal_acoustic/natural_frequencies", data=complex_natural_frequencies, dtype=complex)
+                        else:
+                            f.create_dataset("modal_acoustic/natural_frequencies", data=natural_frequencies, dtype=float)
+                        f.create_dataset("modal_acoustic/modal_shape", data=modal_shape, dtype=complex)
 
                 if analysis_id in [3, 5, 6]:
                     if acoustic_solver.solution is not None:

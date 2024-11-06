@@ -331,7 +331,10 @@ def analysis_info_text(frequency_index: int):
             frequencies = list(project.natural_frequencies_structural)
 
         if project.analysis_type_label == "Acoustic Modal Analysis":
-            frequencies = list(project.natural_frequencies_acoustic)
+            if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
+                frequencies = list(project.complex_natural_frequencies_acoustic)
+            else:
+                frequencies = list(project.natural_frequencies_acoustic)
 
         if frequencies is None:
             return ""
@@ -340,9 +343,18 @@ def analysis_info_text(frequency_index: int):
             return ""
 
         mode = frequency_index + 1
-        frequency = frequencies[frequency_index]
         tree.add_item("Mode", mode)
-        tree.add_item("Natural Frequency", f"{frequency:.2f}", "Hz")
+
+        if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
+            value = frequencies[frequency_index]
+            damping_ratio = -np.real(value) / np.abs(value)
+            damped_frequency = np.abs(value) * np.sqrt(1 - damping_ratio**2)
+            tree.add_item("Damped Natural Frequency", f"{damped_frequency : .4f}", "Hz")
+            tree.add_item("Damping Ratio", f"{damping_ratio : .4e}", "--")
+
+        else:
+            frequency = frequencies[frequency_index]
+            tree.add_item("Natural Frequency", f"{frequency : .4f}", "Hz")
 
     else:
 

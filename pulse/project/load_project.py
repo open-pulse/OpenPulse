@@ -807,7 +807,10 @@ class LoadProject:
 
                 if key == "modal_acoustic":
                     act_modal_analysis = True
-                    app().main_window.project.natural_frequencies_acoustic = data["natural_frequencies"]
+                    if np.iscomplexobj(data["natural_frequencies"]):
+                        app().main_window.project.complex_natural_frequencies_acoustic = data["natural_frequencies"]
+                    else:
+                        app().main_window.project.natural_frequencies_acoustic = data["natural_frequencies"]
                     app().main_window.project.acoustic_solution = data["modal_shape"]
 
                 if key == "modal_structural":
