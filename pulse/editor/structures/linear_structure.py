@@ -1,4 +1,8 @@
 import numpy as np
+import gmsh
+from typing import Callable
+
+from pulse.editor.structures.structure import dummy_function
 
 from .point import Point
 from .structure import Structure
@@ -44,3 +48,13 @@ class LinearStructure(Structure):
             "start": self.start,
             "end": self.end,
         }
+    
+    def add_to_gmsh(
+        self,
+        cad: gmsh.model.occ | gmsh.model.geo = gmsh.model.occ,
+        convert_unit: Callable[[float], float] = lambda x: x,
+    ) -> list[int]:
+
+        start = cad.add_point(*convert_unit(self.start.coords()))
+        end = cad.add_point(*convert_unit(self.end.coords()))
+        return [cad.add_line(start, end)]

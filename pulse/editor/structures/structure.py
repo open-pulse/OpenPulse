@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 if TYPE_CHECKING:
     from pulse.editor.structures import Point
@@ -66,6 +66,13 @@ class Structure:
     def as_vtk(self):
         class_name = type(self).__name__
         raise NotImplementedError(f'as_vtk method not implemented in "{class_name}".')
+
+    def add_to_gmsh(
+        self,
+        cad: gmsh.model.occ | gmsh.model.geo = gmsh.model.occ,
+        convert_unit: Callable[[float], float] = lambda x: x,
+    ) -> list[int]:
+        pass
 
     def __hash__(self) -> int:
         return id(self)
