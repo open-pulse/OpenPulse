@@ -35,6 +35,7 @@ class MaterialInputs(QWidget):
         uic.loadUi(ui_path, self)
 
         self.project = app().project
+        self.properties = app().project.model.properties
 
         self._initialize()
         self.define_qt_variables()
@@ -70,13 +71,14 @@ class MaterialInputs(QWidget):
     def define_qt_variables(self):
 
         # QPushButton
-        self.pushButton_attribute_material : QPushButton
-        self.pushButton_add_column : QPushButton
-        self.pushButton_remove_column : QPushButton
-        self.pushButton_reset_library : QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_add_column: QPushButton
+        self.pushButton_remove_column: QPushButton
+        self.pushButton_reset_library: QPushButton
 
         # QTableWidget
-        self.tableWidget_material_data : QTableWidget
+        self.tableWidget_material_data: QTableWidget
 
     def create_connections(self):
         #
@@ -410,14 +412,32 @@ class MaterialInputs(QWidget):
 
         config = app().pulse_file.read_material_library_from_file()
 
-        if not material.name in config.sections():
+        identifier = str(material.identifier)
+        if not identifier in config.sections():
             return
+        
+        self.reset_material_from_lines([identifier])
+        config.remove_section(identifier)
 
-        config.remove_section(material.name)
         app().pulse_file.write_material_library_in_file(config)
-
-        self.reset_materials_from_bodies_and_surfaces([material.name])
         self.load_data_from_materials_library()
+
+    def reset_material_from_lines(self, material_identifiers: list):
+
+        lines_to_remove_material = list()
+        for line_id, data in self.properties.line_properties.items():
+            if "material_id" in data.keys():
+                material_id = data["material_id"]
+                if material_id in material_identifiers:
+                    app().project.model.preprocessor.set_material_by_lines(line_id, None)
+                    if material_id not in lines_to_remove_material:
+                        lines_to_remove_material.append(line_id)
+
+        for _line_id in lines_to_remove_material:
+            self.properties._remove_line_property("material_id", line_id=_line_id)
+            self.properties._remove_line_property("material", line_id=_line_id)
+
+        app().pulse_file.write_line_properties_in_file()
 
     def new_identifier(self):
         already_used_ids = set()
@@ -483,34 +503,14 @@ class MaterialInputs(QWidget):
 
         config = app().pulse_file.read_material_library_from_file()
 
-        material_names = list()
+        material_identifiers = list()
         for section_cache in sections_cache:
             if section_cache not in config.sections():
-                material_names.append(config_cache[section_cache]["name"])
+                identifier = config_cache[section_cache]["identifier"]
+                material_identifiers.append(int(identifier))
 
-        # self.reset_materials_from_bodies_and_surfaces(material_names)
+        self.reset_material_from_lines(material_identifiers)
         self.load_data_from_materials_library()
-
-    def reset_materials_from_bodies_and_surfaces(self, material_names : list):
-
-        surfaces_to_remove_material = list()
-        volumes_to_remove_material = list()
-
-        for key, data in self.properties.volume_properties.items():
-            property, volume_id = key
-            if property == "material":
-                if isinstance(data, Material):
-                    if data.name in material_names:
-                        volumes_to_remove_material.append(volume_id)
-                        surface_ids = self.model.mesh.surfaces_from_volumes[volume_id]
-                        for surface_id in surface_ids:
-                            surfaces_to_remove_material.append(surface_id)
-
-        for vol_id in volumes_to_remove_material:
-            self.model.properties._remove_volume_property("material", volume_id=vol_id)
-
-        for surf_id in surfaces_to_remove_material:
-            self.model.properties._remove_surface_property("material", surface_id=surf_id)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

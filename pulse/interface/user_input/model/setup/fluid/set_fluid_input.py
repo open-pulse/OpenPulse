@@ -51,7 +51,6 @@ class SetFluidInput(QDialog):
 
     def _initialize(self):
 
-
         self.keep_window_open = True
 
         self.fluid = None
@@ -81,7 +80,8 @@ class SetFluidInput(QDialog):
         self.frame_main_widget.adjustSize()
 
         # QPushButtonget_comboBox_index
-        self.pushButton_attribute_fluid = self.findChild(QPushButton, 'pushButton_attribute_fluid')
+        self.pushButton_attribute = self.findChild(QPushButton, 'pushButton_attribute')
+        self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
         self.pushButton_remove_row = self.fluid_widget.findChild(QPushButton, 'pushButton_remove_row')
 
         # QTableWidget
@@ -98,7 +98,8 @@ class SetFluidInput(QDialog):
         #
         self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
         #
-        self.pushButton_attribute_fluid.clicked.connect(self.fluid_attribution_callback)
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
         #
         # self.tableWidget_fluid_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_fluid_data.currentCellChanged.connect(self.current_cell_changed)
@@ -156,14 +157,16 @@ class SetFluidInput(QDialog):
         if fluid_name != "":
             self.lineEdit_selected_fluid_name.setText(fluid_name)
 
-    def fluid_attribution_callback(self):
+    def attribute_callback(self):
 
         selected_fluid = self.fluid_widget.get_selected_fluid()
 
         if selected_fluid is None:
+            self.hide()
             self.title = "No fluids selected"
             self.message = "Select a fluid in the list before confirming the fluid attribution."
             PrintMessageInput([window_title_1, self.title, self.message])
+            app().main_window.set_input_widget(self)
             return
 
         try:
@@ -186,13 +189,10 @@ class SetFluidInput(QDialog):
             self.properties._set_line_property("fluid_id", selected_fluid.identifier, line_ids)
             self.properties._set_line_property("fluid", selected_fluid, line_ids)
             app().pulse_file.write_line_properties_in_file()
-
-            # geometry_handler = GeometryHandler()
-            # geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
-            # geometry_handler.process_pipeline()
+            app().main_window.update_plots()
 
             self.complete = True
-            self.close()
+            self.pushButton_cancel.setText("Exit")
 
         except Exception as error_log:
             title = "Error detected on fluid list data"
@@ -202,7 +202,7 @@ class SetFluidInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.material_attribution_callback()
+            self.attribute_callback()
         elif event.key() == Qt.Key_Delete:
             self.material_widget.remove_selected_column()
         elif event.key() == Qt.Key_Escape:

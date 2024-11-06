@@ -71,7 +71,8 @@ class SetMaterialInput(QDialog):
         self.scrollArea_table_of_materials.adjustSize()
 
         # QPushButtonget_comboBox_index
-        self.pushButton_attribute_material = self.findChild(QPushButton, 'pushButton_attribute_material')
+        self.pushButton_attribute = self.findChild(QPushButton, 'pushButton_attribute')
+        self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
 
         # QTableWidget
         self.tableWidget_material_data = self.findChild(QTableWidget, 'tableWidget_material_data')
@@ -85,7 +86,8 @@ class SetMaterialInput(QDialog):
         #
         self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
         #
-        self.pushButton_attribute_material.clicked.connect(self.material_attribution_callback)
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
+        self.pushButton_cancel.clicked.connect(self.close)
         #
         # self.tableWidget_material_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_material_data.currentCellChanged.connect(self.current_cell_changed)
@@ -124,13 +126,13 @@ class SetMaterialInput(QDialog):
 
         self.comboBox_attribution_type.blockSignals(False)
 
-    def on_cell_clicked(self, row, col):
-        self.selected_column = col
-        self.update_material_selection()
+    # def on_cell_clicked(self, row, col):
+    #     self.selected_column = col
+    #     self.update_material_selection()
 
-    def on_cell_double_clicked(self, row, col):
-        self.selected_column = col
-        self.material_attribution_callback()
+    # def on_cell_double_clicked(self, row, col):
+    #     self.selected_column = col
+    #     self.attribute_callback()
 
     def current_cell_changed(self, current_row, current_col, previous_row, previous_col):
         self.selected_column = current_col
@@ -150,13 +152,15 @@ class SetMaterialInput(QDialog):
         if material_name != "":
             self.lineEdit_selected_material_name.setText(material_name)
 
-    def material_attribution_callback(self):
+    def attribute_callback(self):
 
         selected_material = self.material_widget.get_selected_material()
         if selected_material is None:
+            self.hide()
             self.title = "No materials selected"
             self.message = "Select a material in the list before confirming the material attribution."
             PrintMessageInput([window_title_1, self.title, self.message])
+            app().main_window.set_input_widget(self)
             return
 
         try:
@@ -183,7 +187,8 @@ class SetMaterialInput(QDialog):
             geometry_handler = GeometryHandler()
             geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
             geometry_handler.process_pipeline()
-            self.close()
+
+            self.pushButton_cancel.setText("Exit")
 
         except Exception as error_log:
             self.title = "Error detected on material list data"
@@ -193,7 +198,7 @@ class SetMaterialInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.material_attribution_callback()
+            self.attribute_callback()
         elif event.key() == Qt.Key_Delete:
             self.material_widget.remove_selected_column()
         elif event.key() == Qt.Key_Escape:

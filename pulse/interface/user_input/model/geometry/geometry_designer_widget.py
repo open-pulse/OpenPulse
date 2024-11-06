@@ -137,7 +137,7 @@ class GeometryDesignerWidget(QWidget):
         self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         self.set_material_button.clicked.connect(self.show_material_widget_callback)
         self.configure_button.clicked.connect(self.configure_structure_callback)
-        self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material_callback)
+        self.material_widget.pushButton_attribute.clicked.connect(self.define_material_callback)
 
         self.x_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
