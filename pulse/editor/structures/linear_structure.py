@@ -6,8 +6,9 @@ from .structure import Structure
 
 class LinearStructure(Structure):
     """
-    Abstract class to handle common stuff to most structures.
-    """    
+    Abstract class to handle structures represented by a stright line.
+    """
+
     start: Point
     end: Point
 
