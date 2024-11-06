@@ -14,13 +14,13 @@ class Curve(Structure):
         self.mid = mid
 
     @classmethod
-    def from_tangency(cls, start: Point, end: Point, tangency: np.ndarray) -> "Curve":
+    def from_tangency(cls, start: Point, end: Point, tangency: np.ndarray, *args, **kwargs) -> "Curve":
         mid = Point(0, 0, 0)
-        return cls(start, end, mid)
+        return cls(start, end, mid, *args, **kwargs)
 
     @property
     def center(self) -> Point:
-        return Point(1, 1, 0)
+        return self.start + [0, 1, 0]
 
     @property
     def corner(self) -> Point | None:
@@ -29,3 +29,20 @@ class Curve(Structure):
     @property
     def curvature_radius(self) -> Point:
         return np.linalg.norm(self.center - self.start)
+
+    def get_points(self):
+        return [
+            self.start,
+            self.end,
+            self.mid,
+        ]
+
+    def replace_point(self, old, new):
+        if self.start == old:
+            self.start = new
+
+        elif self.end == old:
+            self.end = new
+
+        elif self.mid == old:
+            self.mid = new

@@ -17,6 +17,7 @@ from pulse.editor.structures import (
     Valve,
     LinearStructure,
     Fillet,
+    Curve,
 )
 
 from .editor import Editor
@@ -43,6 +44,9 @@ class MainEditor(Editor):
         
         elif issubclass(structure_type, LinearStructure):
             return self._add_generic_linear_structure(structure_type, deltas, **kwargs)
+        
+        elif issubclass(structure_type, Curve):
+            return self._add_generic_curve(structure_type, deltas, **kwargs)
 
     def add_pipe(self, deltas, **kwargs) -> list[Pipe]:
         return self._add_generic_linear_structure(Pipe, deltas, **kwargs)
@@ -188,7 +192,7 @@ class MainEditor(Editor):
         self.pipeline.remove_structures(to_remove)
         return to_remove
 
-    def get_point_tangency(self, point: Point):
+    def get_point_tangency(self, point: Point) -> list[np.ndarray]:
         directions = list()
 
         for structure in self.pipeline.structures_of_type(LinearStructure):
@@ -222,8 +226,37 @@ class MainEditor(Editor):
 
         return directions
 
+    def _add_generic_curve(
+            self, 
+            structure_type: type[Curve], 
+            deltas: tuple[float, float, float], 
+            **kwargs
+    ):
+        if not np.array(deltas).any():  # all zeros
+            return []
+
+        if not self.pipeline.selected_points:
+            self.pipeline.select_last_point()
+
+        structures = list()
+        for point in self.pipeline.selected_points:
+            next_point = Point(*(point.coords() + deltas))
+            self.next_border.append(next_point)
+
+            tangencies = self.get_point_tangency(point)
+            tangency = tangencies[0] if tangencies else np.array([1, 0, 0])
+            structure = structure_type.from_tangency(point, next_point, tangency, **kwargs)
+            
+            self.pipeline.add_structure(structure)
+            structures.append(structure)
+        
+        return structures
+
     def _add_generic_linear_structure(
-        self, structure_type: type[Structure], deltas: tuple[float, float, float], **kwargs
+        self, 
+        structure_type: type[LinearStructure], 
+        deltas: tuple[float, float, float], 
+        **kwargs
     ):
         if not np.array(deltas).any():  # all zeros
             return []
