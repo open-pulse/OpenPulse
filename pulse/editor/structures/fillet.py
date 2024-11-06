@@ -50,6 +50,18 @@ class Fillet(Structure):
         center_coords = np.linalg.solve(A, b)
         return Point(*center_coords)
 
+    @property
+    def arc_length(self):
+        u = self.start.coords() - self.center()
+        v = self.end.coords() - self.center()
+
+        norm_u = np.linalg.norm(u)
+        norm_v = np.linalg.norm(v)
+        cos_alpha = np.dot(u, v) / (norm_u * norm_v)
+
+        average_radius = (norm_u + norm_v) / 2
+        return np.arccos(cos_alpha) * average_radius
+
     def update_corner_from_center(self, center):
         self.auto = False
         a_vector = self.start - center

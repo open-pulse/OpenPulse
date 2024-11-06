@@ -1,3 +1,5 @@
+import numpy as np
+
 from .point import Point
 from .structure import Structure
 
@@ -14,6 +16,10 @@ class LinearStructure(Structure):
 
         self.start = start
         self.end = end
+
+    @property
+    def arc_length(self):
+        return np.linalg.norm(self.end - self.start)
 
     def get_points(self):
         return [

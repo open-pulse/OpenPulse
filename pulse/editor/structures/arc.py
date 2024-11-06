@@ -30,6 +30,18 @@ class Arc(Structure):
     def curvature_radius(self) -> Point:
         return np.linalg.norm(self.center - self.start)
 
+    @property
+    def arc_length(self):
+        u = self.start.coords() - self.center()
+        v = self.end.coords() - self.center()
+
+        norm_u = np.linalg.norm(u)
+        norm_v = np.linalg.norm(v)
+        cos_alpha = np.dot(u, v) / (norm_u * norm_v)
+
+        average_radius = (norm_u + norm_v) / 2
+        return np.arccos(cos_alpha) * average_radius
+
     def get_points(self):
         return [
             self.start,
