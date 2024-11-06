@@ -61,6 +61,50 @@ class GeometryHandler:
         if unit in ["meter", "millimeter", "inch"]:
             self.length_unit = unit
 
+    def get_unit_conversion_function(self):
+        if self.length_unit == "meter":
+            return m_to_mm
+        elif self.length_unit == "inch":
+            return in_to_mm
+        else:
+            return lambda x: x  # A function that returns the input
+
+    def save_valve_internal_lines_if_exists(self, structure: Valve, line_tags: list):
+        valve_info: dict = structure.extra_info["valve_info"]
+        if ("orifice_plate_thickness" in valve_info.keys()) or ("blocking_length" in valve_info.keys()):
+            middle_line_tag = line_tags[len(line_tags) // 2]
+            self.valve_internal_lines[middle_line_tag] = structure.tag                      
+
+    def create_geometry(self, gmsh_gui=False):
+        # TODO this function is currently overriden by the
+        # other with the same name. When it is ready we can
+        # remove the other one.
+
+        gmsh.initialize("", False)
+        gmsh.option.setNumber("General.Terminal",0)
+        gmsh.option.setNumber("General.Verbosity", 0)
+
+        cad = gmsh.model.occ
+        conversion_function = self.get_unit_conversion_function()
+
+        for structure in self.pipeline.structures:
+            line_tags = structure.add_to_gmsh(cad, conversion_function)
+
+            for tag in line_tags:
+                self.lines_mapping[tag] = structure.tag
+
+            if line_tags:
+                self.curve_length[structure.tag] = conversion_function(structure.arc_length)
+
+            if isinstance(structure, Valve):
+                self.save_valve_internal_lines_if_exists()
+
+        cad.synchronize()
+
+        if gmsh_gui:
+            gmsh.option.setNumber('General.FltkColorScheme', 1)
+            gmsh.fltk.run()
+
     def create_geometry(self, gmsh_GUI=False):
 
         gmsh.initialize("", False)
