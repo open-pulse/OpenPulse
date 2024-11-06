@@ -9,6 +9,11 @@ def normalize(vector):
 
 
 class Fillet(Structure):
+    """
+    Abstract class to handle structures represented by arcs that are
+    inserted to smooth corners.
+    """
+
     start: Point
     end: Point
     corner: Point
