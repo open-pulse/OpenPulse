@@ -15,8 +15,6 @@ class StructureOptions:
         self.cross_section_widget = self.geometry_designer_widget.cross_section_widget
         self.structure_info = dict()
 
-        print(self.name())
-        
     @classmethod
     def name(cls):
         return pascal_to_spaced_case(cls.__name__).strip().removesuffix("Options")
