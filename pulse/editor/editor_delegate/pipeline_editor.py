@@ -324,9 +324,6 @@ class PipelineEditor:
 
     def update(self):
         pass
-        # self.pipeline._update_curvatures()
-        # self.pipeline._update_flanges()
-        # self.pipeline._update_points()
 
     def _structure_params(self, structure):
         """

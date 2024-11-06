@@ -9,19 +9,22 @@ def normalize(vector):
 
 
 class SimpleCurve(Structure):
-    def __init__(self, start: Point, end: Point, corner: Point, curvature: float, *args, **kwargs):
+    def __init__(self, start: Point, end: Point, corner: Point, curvature_radius: float, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.start = start
         self.end = end
         self.corner = corner
-        self.curvature = curvature
+        self.curvature_radius = curvature_radius
         self.auto = True
 
         self.center_coords = None
 
     @property
     def center(self):
+        if self.is_colapsed():
+            return self.corner.copy()
+
         u = self.start.coords() - self.corner.coords()
         v = self.end.coords() - self.corner.coords()
         n = np.cross(u, v)
@@ -51,8 +54,8 @@ class SimpleCurve(Structure):
         c_vector = a_vector_normalized + b_vector_normalized
         c_vector_normalized = c_vector / np.linalg.norm(c_vector)
 
-        magic = np.dot(a_vector, b_vector) + self.curvature**2
-        corner_distance = (self.curvature**2) * np.sqrt(2 / magic)
+        magic = np.dot(a_vector, b_vector) + self.curvature_radius**2
+        corner_distance = (self.curvature_radius**2) * np.sqrt(2 / magic)
         corner = center + c_vector_normalized * corner_distance
         self.corner.set_coords(*corner)
 
@@ -71,9 +74,13 @@ class SimpleCurve(Structure):
             self.end = new
 
     def normalize_values_vector(self, vec_a: np.ndarray, vec_b: np.ndarray):
+        '''
+        Updates the start and end points of a curve based on the curvature radius
+        and the direction expected for these points according to the corner.
+        '''
         sin_angle = np.linalg.norm(vec_a - vec_b) / 2
         angle = np.arcsin(sin_angle)
-        corner_distance = np.cos(angle) * self.curvature / np.sin(angle)
+        corner_distance = np.cos(angle) * self.curvature_radius / np.sin(angle)
         self.start.set_coords(*(self.corner.coords() + corner_distance * vec_a))
         self.end.set_coords(*(self.corner.coords() + corner_distance * vec_b))
 
@@ -90,13 +97,13 @@ class SimpleCurve(Structure):
         # t is the percentage of the bend traveled
         guide_point = self.start + t * (self.end - self.start)
         direction = normalize(guide_point - self.center)
-        return self.center + direction * self.curvature
+        return self.center + direction * self.curvature_radius
 
     def as_dict(self) -> dict:
         return super().as_dict() | {
             "start": self.start,
             "end": self.end,
             "corner": self.corner,
-            "curvature": self.curvature,
+            "curvature_radius": self.curvature_radius,
             "auto": self.auto,
         }

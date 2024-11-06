@@ -1,9 +1,6 @@
 from itertools import chain, pairwise
 from typing import Generator, TypeVar
 
-import numpy as np
-import yaml
-
 from pulse.editor.editor_delegate import (
     ConnectionEditor,
     DivideEditor,
@@ -57,18 +54,6 @@ class Pipeline:
         self.selected_points.clear()
         self.selected_structures.clear()
         self.points.append(Point(0, 0, 0))
-
-    def load_file(self, path):
-        with open(path, "r") as file:
-            data = yaml.safe_load(file)
-
-        if data is not None:
-            self.points = data["points"]
-            self.structures = data["structures"]
-
-    def save_file(self, path):
-        with open(path, "w") as file:
-            yaml.safe_dump(self.as_dict(), file, sort_keys=False)
 
     def all_points(self):
         return chain(self.points, self.staged_points)
@@ -275,6 +260,9 @@ class Pipeline:
         return self.connection_editor.connect_t_beams(**kwargs)
 
     # Replace Editor
+    def replace_selection_by(self, structure_type: type[Structure], **kwargs):
+        return self.replace_editor.replace_selection_by(structure_type, **kwargs) 
+
     def replace_by_pipe(self, **kwargs):
         return self.replace_editor.replace_selection_by(Pipe, **kwargs)
     

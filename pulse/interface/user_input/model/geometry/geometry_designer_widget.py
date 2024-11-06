@@ -454,9 +454,13 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
 
     def add_structure_callback(self):
-        self.pipeline.commit()
-        if self.current_structure_type == Point:
-            self.pipeline.clear_point_selection()
+        if (self.pipeline.selected_structures) and not (self.pipeline.staged_structures):
+            self.current_options.replace_selection()
+        else:
+            self.pipeline.commit()
+            if self.current_structure_type == Point:
+                self.pipeline.clear_point_selection()
+
         self.render_widget.update_plot(reset_camera=False)
         self.modified = True
         self._reset_xyz()

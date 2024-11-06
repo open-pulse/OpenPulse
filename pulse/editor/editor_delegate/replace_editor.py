@@ -12,14 +12,15 @@ from pulse.editor.structures import (
     TBeam,
     Valve,
     SimpleCurve,
-    LinearStructure
+    LinearStructure,
+    Bend,
 )
 
 
 class ReplaceEditor(Editor):
     def replace_by_pipe(self, **kwargs):
         return self.replace_selection_by(Pipe, **kwargs)
-    
+
     # def replace_by_bent_pipes(self, curvature_radius, **kwargs):
     #     return self.replace_selection_by(Pipe, **kwargs)
 
@@ -51,20 +52,49 @@ class ReplaceEditor(Editor):
         return self.replace_selection_by(TBeam, **kwargs)
 
     def replace_selection_by(self, structure_type, **kwargs):
-        for original_structure in self.pipeline.selected_points:
+        for original_structure in self.pipeline.selected_structures:
             self.replace_structure(original_structure, structure_type, **kwargs)
 
     def replace_structure(self, original_structure, structure_type, **kwargs):
-        if not isinstance(original_structure, LinearStructure):
+        if isinstance(original_structure, LinearStructure) and issubclass(structure_type, LinearStructure):
+            new_structure = self._create_linear_structure(
+                original_structure, 
+                structure_type, 
+                **kwargs
+            )
+        elif isinstance(original_structure, SimpleCurve) and issubclass(structure_type, Pipe):
+            new_structure = self._create_simple_curve(
+                original_structure, 
+                Bend,
+                **kwargs
+            )
+        else:
             return
 
-        if not issubclass(structure_type, LinearStructure):
-            return
-        
-        new_structure = structure_type(
+        self.pipeline.remove_structure(original_structure, rejoin=False)
+        self.pipeline.add_structure(new_structure)
+
+    def _create_linear_structure(
+        self,
+        original_structure: LinearStructure,
+        structure_type: type[LinearStructure],
+        **kwargs
+    ):
+        return structure_type(
             start=original_structure.start,
             end=original_structure.end,
             **kwargs,
         )
-        self.pipeline.remove_structure(original_structure)
-        self.pipeline.add_structure(new_structure)
+
+    def _create_simple_curve(
+        self, 
+        original_structure: SimpleCurve, 
+        structure_type: type[SimpleCurve], 
+        **kwargs
+    ):
+        return structure_type(
+            start=original_structure.start,
+            end=original_structure.end,
+            corner=original_structure.corner,
+            **kwargs,
+        )
