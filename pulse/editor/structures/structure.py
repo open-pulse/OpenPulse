@@ -11,6 +11,16 @@ from molde.colors import Color, WHITE
 
 
 class Structure:
+    """
+    Abstract class to handle methods and properties common every structure.
+    """
+
+    color: Color
+    selected: bool
+    staged: bool
+    tag: int
+    extra_info: dict
+
     def __init__(self, **kwargs) -> None:
         self.color: Color = kwargs.get("color", WHITE)
         self.selected: bool = kwargs.get("selected", False)
