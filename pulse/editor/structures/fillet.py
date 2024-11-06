@@ -1,4 +1,6 @@
+import gmsh
 import numpy as np
+from typing import Callable
 
 from .point import Point
 from .structure import Structure
@@ -53,12 +55,15 @@ class Fillet(Structure):
             dtype=float,
         )
         center_coords = np.linalg.solve(A, b)
+
+        # Insert here the code from "get_corrected_arc_center_coordinates"
+
         return Point(*center_coords)
 
     @property
     def arc_length(self):
-        u = self.start.coords() - self.center()
-        v = self.end.coords() - self.center()
+        u = self.start.coords() - self.center.coords()
+        v = self.end.coords() - self.center.coords()
 
         norm_u = np.linalg.norm(u)
         norm_v = np.linalg.norm(v)
@@ -133,3 +138,18 @@ class Fillet(Structure):
             "curvature_radius": self.curvature_radius,
             "auto": self.auto,
         }
+
+    def add_to_gmsh(
+        self,
+        cad: gmsh.model.occ | gmsh.model.geo = gmsh.model.occ,
+        convert_unit: Callable[[float], float] = lambda x: x,
+    ) -> list[int]:
+
+        if self.is_colapsed():
+            return []
+
+        start = cad.add_point(*convert_unit(self.start.coords()))
+        end = cad.add_point(*convert_unit(self.end.coords()))
+        middle = cad.add_point(*convert_unit(self.center.coords()))
+        return [cad.add_circle_arc(start, middle, end)]
+        
