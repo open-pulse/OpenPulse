@@ -36,8 +36,13 @@ class Arc(Structure):
 
         n = np.cross(strucutre_vector, tangency)
         v = np.cross(tangency, n)
+
+        if np.allclose(v, [0,0,0]):
+            mid_coords = _start + strucutre_vector / 2
+            mid = Point(*mid_coords)
+            return cls(start, end, mid, *args, **kwargs)
+
         v = v / np.linalg.norm(v)
-        
         theta = np.arccos(np.dot(v, strucutre_vector) / norm_structure_vector)
 
         if theta == 0:
@@ -60,7 +65,7 @@ class Arc(Structure):
         return cls(start, end, mid, *args, **kwargs)
 
     @property
-    def center(self) -> Point:
+    def center(self) -> Point | None:
         v1 = self.start.coords() - self.mid.coords()
         v2 = self.end.coords() - self.mid.coords()
 
@@ -68,8 +73,11 @@ class Arc(Structure):
         v22 = np.dot(v2, v2)
         v12 = np.dot(v1, v2)
 
-        b = (1/(2*(v11*v22 - v12**2)))
+        a = 2 * (v11*v22 - v12**2)
+        if a == 0:
+            return None
 
+        b = (1 / a)
         k1 = b * v22*(v11 - v12)
         k2 = b * v11*(v22 - v12)
 
@@ -86,8 +94,8 @@ class Arc(Structure):
 
     @property
     def arc_length(self):
-        u = self.start.coords() - self.center()
-        v = self.end.coords() - self.center()
+        u = self.start.coords() - self.center.coords()
+        v = self.end.coords() - self.center.coords()
 
         norm_u = np.linalg.norm(u)
         norm_v = np.linalg.norm(v)

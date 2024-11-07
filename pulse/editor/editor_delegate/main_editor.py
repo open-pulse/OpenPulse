@@ -19,6 +19,7 @@ from pulse.editor.structures import (
     Fillet,
     Arc,
 )
+from pulse.utils.math_utils import normalize
 
 from .editor import Editor
 
@@ -208,6 +209,20 @@ class MainEditor(Editor):
             if size:
                 directions.append(vector / size)
 
+
+        for structure in self.pipeline.structures_of_type(Arc):
+            if id(structure.start) == id(point):
+               u = normalize(structure.start.coords() - structure.center.coords())
+            elif id(structure.end) == id(point):
+               u = normalize(structure.end.coords() - structure.center.coords())
+            else:
+                continue
+
+            v = normalize(structure.mid.coords() - structure.center.coords())
+            n = np.cross(v, u)
+            tangency = np.cross(n, u)
+            directions.append(tangency)
+
         for structure in self.pipeline.structures_of_type(Fillet):
             if structure.is_colapsed():
                 continue
@@ -222,7 +237,7 @@ class MainEditor(Editor):
                 continue
 
             if size:
-                directions.append(vector / size)            
+                directions.append(vector / size)
 
         return directions
 
