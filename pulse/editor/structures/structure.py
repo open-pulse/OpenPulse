@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, TypeVar, Self
 
 if TYPE_CHECKING:
     from pulse.editor.structures import Point
@@ -28,16 +28,30 @@ class Structure:
         self.tag: int = kwargs.get("tag", -1)
         self.extra_info: dict = kwargs.get("extra_info", dict())
 
+    @classmethod
+    def load_from_data(cls, data: dict) -> Self:
+        class_name = cls.__name__
+        return NotImplementedError(
+            f'arc_length method not implemented in "{class_name}".'
+        )
+
+    def save_to_data(self) -> dict:
+        class_name = type(self).__name__
+        return NotImplementedError(
+            f'save_to_data method not implemented in "{class_name}".'
+        )
+
+    @classmethod
+    def name(cls):
+        class_name = cls.__name__
+        return pascal_to_snake_case(class_name)
+
     @property
     def arc_length(self) -> float:
         class_name = type(self).__name__
         return NotImplementedError(
             f'arc_length method not implemented in "{class_name}".'
         )
-
-    @classmethod
-    def name(cls):
-        return pascal_to_snake_case(cls.__name__)
 
     def get_points(self) -> list["Point"]:
         class_name = type(self).__name__
