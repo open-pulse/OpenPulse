@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
-from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
+from pulse.interface.user_input.model.setup.material.material_widget import MaterialWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -78,7 +78,7 @@ class SetMaterialInput(QDialog):
         self.tableWidget_material_data = self.findChild(QTableWidget, 'tableWidget_material_data')
 
     def _add_material_input_widget(self):
-        self.material_widget = MaterialInputs()
+        self.material_widget = MaterialWidget()
         self.material_widget.load_data_from_materials_library()
         self.grid_layout.addWidget(self.material_widget)
 

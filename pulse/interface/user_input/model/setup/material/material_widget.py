@@ -27,7 +27,7 @@ def get_color_rgb(color):
     tokens = color.split(',')
     return list(map(int, tokens))
 
-class MaterialInputs(QWidget):
+class MaterialWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -229,9 +229,12 @@ class MaterialInputs(QWidget):
             self.tableWidget_material_data.setColumnCount(current_size - 1)
             return
 
-        material = self.library_materials[selected_column]
+        item = self.tableWidget_material_data.item(1, selected_column)
+        identifier = int(item.text())
+        material = self.library_materials[identifier]
+
         self.remove_material_from_file(material)
-    
+
     def item_changed_callback(self, item : QTableWidgetItem):
 
         self.tableWidget_material_data.blockSignals(True)
@@ -286,7 +289,7 @@ class MaterialInputs(QWidget):
         if not column_name:
             return True
 
-        for material in self.library_materials:
+        for material in self.library_materials.values():
             if material.name == column_name:
                 return True
 
@@ -297,7 +300,7 @@ class MaterialInputs(QWidget):
         item = self.tableWidget_material_data.item(1, column)
 
         already_used_ids = set()
-        for material in self.library_materials:
+        for material in self.library_materials.values():
             already_used_ids.add(material.identifier)
         
         if item.text() == "":
@@ -391,14 +394,10 @@ class MaterialInputs(QWidget):
                 else:
                     material_data[key] = item.text()
 
-            # material_data["identifier"] = self.new_identifier()
-
-            material_name = material_data["name"]
-            if not material_name:
-                return
+            identifier = material_data["identifier"]
 
             config = app().pulse_file.read_material_library_from_file()
-            config[material_name] = material_data
+            config[identifier] = material_data
 
             app().pulse_file.write_material_library_in_file(config)
  
@@ -441,7 +440,7 @@ class MaterialInputs(QWidget):
 
     def new_identifier(self):
         already_used_ids = set()
-        for material in self.library_materials:
+        for material in self.library_materials.values():
             already_used_ids.add(material.identifier)
 
         for i in count(1):

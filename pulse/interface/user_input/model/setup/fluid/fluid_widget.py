@@ -276,9 +276,8 @@ class FluidWidget(QWidget):
         
         item = self.tableWidget_fluid_data.item(1, selected_column)
         identifier = int(item.text())
-        fluid = self.list_of_fluids[identifier]
 
-        return fluid
+        return self.list_of_fluids[identifier]
 
     def add_column(self):
     
@@ -485,7 +484,6 @@ class FluidWidget(QWidget):
                 else:
                     fluid_data[key] = item.text()
             
-            fluid_name = fluid_data["name"]
             identifier = fluid_data["identifier"]
 
             if self.refprop is not None:

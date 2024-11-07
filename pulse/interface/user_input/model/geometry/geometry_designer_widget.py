@@ -27,7 +27,8 @@ from molde.utils import TreeInfo
 from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
-from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
+from pulse.interface.user_input.model.setup.material.material_widget import MaterialWidget
+from pulse.interface.user_input.model.setup.material.set_material_input_simplified import SetMaterialSimplified
 from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
 
 from pulse.interface.user_input.model.geometry.options import (
@@ -123,8 +124,7 @@ class GeometryDesignerWidget(QWidget):
     
     def _create_layout(self):
         self.cross_section_widget = CrossSectionWidget(self)
-        self.material_widget = MaterialInputs(self)
-        self.material_widget.hide()
+        self.material_widget = SetMaterialSimplified()
 
     def _create_connections(self):
         self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.cross_section_confirm_callback)
@@ -137,7 +137,7 @@ class GeometryDesignerWidget(QWidget):
         self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         self.set_material_button.clicked.connect(self.show_material_widget_callback)
         self.configure_button.clicked.connect(self.configure_structure_callback)
-        self.material_widget.pushButton_attribute.clicked.connect(self.define_material_callback)
+        self.material_widget.material_widget.pushButton_attribute.clicked.connect(self.define_material_callback)
 
         self.x_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
@@ -258,10 +258,8 @@ class GeometryDesignerWidget(QWidget):
         self.unity_z_label.setEnabled(key)
 
     def show_material_widget_callback(self):
-        self.material_widget._initialize()
-        self.material_widget._add_icon_and_title()
-        self.material_widget.load_data_from_materials_library()
-        self.material_widget.setVisible(True)
+        self.material_widget.material_widget.load_data_from_materials_library()
+        self.material_widget.exec()
 
     def options_changed_callback(self):
         self._update_permissions()
@@ -269,8 +267,8 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=False)
 
     def define_material_callback(self):
-        self.current_material_info = self.material_widget.get_selected_material_id()
-        self.material_widget.setVisible(False)
+        self.current_material_info = self.material_widget.material_widget.get_selected_material_id()
+        self.material_widget.close()
         self._update_material_of_selected_structures()
         self._update_permissions()
         self._update_information_text()
@@ -668,7 +666,7 @@ class GeometryDesignerWidget(QWidget):
         material = None
         if self.current_material_info is not None:
             material_id = self.current_material_info
-            material = self.material_widget.library_materials[material_id]
+            material = self.material_widget.material_widget.library_materials[material_id]
 
         message = "Active configuration\n\n"
 
