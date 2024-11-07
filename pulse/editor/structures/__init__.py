@@ -18,3 +18,23 @@ from .point import Point
 from .reducer import Reducer
 from .valve import Valve
 from .support import Support
+
+# Dont forget to update this list when a new concrete class is created
+ALL_STRUCTURE_TYPES = [
+    Pipe,
+    Flange,
+    Reducer,
+
+    Bend,
+    Elbow,
+    ArcBend,
+
+    Valve,
+    ExpansionJoint,
+    
+    CircularBeam,
+    RectangularBeam,
+    TBeam,
+    CBeam,
+    IBeam,
+]
