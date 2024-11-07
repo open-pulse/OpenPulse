@@ -39,12 +39,14 @@ class ArcBendActor(vtkActor):
         external_faces_0.SetInputData(arc_source_0.GetOutput())
         external_faces_0.SetNumberOfSides(20)
         external_faces_0.SetRadius(outer_radius)
+        external_faces_0.CappingOn()
         external_faces_0.Update()
 
         external_faces_1 = vtkTubeFilter()
         external_faces_1.SetInputData(arc_source_1.GetOutput())
         external_faces_1.SetNumberOfSides(20)
         external_faces_1.SetRadius(outer_radius)
+        external_faces_1.CappingOn()
         external_faces_1.Update()
 
         append_polydata = vtkAppendPolyData()
