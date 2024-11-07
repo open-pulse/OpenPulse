@@ -1,3 +1,4 @@
+from ..point import Point
 from .beam import Beam
 
 
@@ -28,5 +29,29 @@ class IBeam(Beam):
 
         return IBeamActor(self)
 
-    def __hash__(self) -> int:
-        return id(self)
+    @classmethod
+    def load_from_data(cls, data: dict) -> "IBeam":
+        start = Point(*data["start_coords"])
+        end = Point(*data["end_coords"])
+        section_parameters = data["section_parameters"]
+        structure = IBeam(
+            start,
+            end,
+            height=section_parameters[0],
+            width_1=section_parameters[1],
+            width_2=section_parameters[3],
+            thickness_1=section_parameters[2],
+            thickness_2=section_parameters[4],
+            thickness_3=section_parameters[5],
+        )
+
+        section_info = {
+            "section_parameters": section_parameters,
+            "section_type_label": data["section_type_label"],
+            "section_properties": data["section_properties"],
+        }
+
+        structure.extra_info["cross_section_info"] = section_info
+        structure.extra_info["structural_element_type"] = "beam_1"
+
+        return structure
