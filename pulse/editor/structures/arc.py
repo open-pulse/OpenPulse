@@ -24,12 +24,65 @@ class Arc(Structure):
 
     @classmethod
     def from_tangency(cls, start: Point, end: Point, tangency: np.ndarray, *args, **kwargs) -> "Arc":
-        mid = Point(0, 0, 0)
+        '''
+        https://github.com/hello.world
+        '''
+
+        _start = start.coords()
+        _end = end.coords()
+
+        strucutre_vector = _end - _start
+        norm_structure_vector = np.linalg.norm(strucutre_vector)
+
+        n = np.cross(strucutre_vector, tangency)
+        v = np.cross(tangency, n)
+
+        if np.allclose(v, [0,0,0]):
+            mid_coords = _start + strucutre_vector / 2
+            mid = Point(*mid_coords)
+            return cls(start, end, mid, *args, **kwargs)
+
+        v = v / np.linalg.norm(v)
+        theta = np.arccos(np.dot(v, strucutre_vector) / norm_structure_vector)
+
+        if theta == 0:
+            r = norm_structure_vector / 2
+            center = _start + v * r
+            mid_coords = center + tangency * r
+
+        else:
+            r = norm_structure_vector * np.sin(theta) / np.sin(np.pi - 2 * theta)
+            m = strucutre_vector / 2 + _start
+            center = _start + v * r
+            mid_point_direction = normalize(m - center)
+
+            if np.dot(tangency, strucutre_vector) < 0:
+                mid_point_direction *= -1
+
+            mid_coords = center + mid_point_direction * r
+
+        mid = Point(*mid_coords)
         return cls(start, end, mid, *args, **kwargs)
 
     @property
-    def center(self) -> Point:
-        return self.start + [0, 1, 0]
+    def center(self) -> Point | None:
+        v1 = self.start.coords() - self.mid.coords()
+        v2 = self.end.coords() - self.mid.coords()
+
+        v11 = np.dot(v1, v1)
+        v22 = np.dot(v2, v2)
+        v12 = np.dot(v1, v2)
+
+        a = 2 * (v11*v22 - v12**2)
+        if a == 0:
+            return None
+
+        b = (1 / a)
+        k1 = b * v22*(v11 - v12)
+        k2 = b * v11*(v22 - v12)
+
+        P0 = self.mid.coords() + k1*v1 + k2*v2
+        return Point(*P0)
 
     @property
     def corner(self) -> Point | None:
@@ -41,8 +94,8 @@ class Arc(Structure):
 
     @property
     def arc_length(self):
-        u = self.start.coords() - self.center()
-        v = self.end.coords() - self.center()
+        u = self.start.coords() - self.center.coords()
+        v = self.end.coords() - self.center.coords()
 
         norm_u = np.linalg.norm(u)
         norm_v = np.linalg.norm(v)

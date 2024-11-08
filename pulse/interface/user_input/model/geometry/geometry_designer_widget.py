@@ -131,6 +131,7 @@ class GeometryDesignerWidget(QWidget):
         # Add your newly implemented StructureOptions here 
         structure_option_types: list[type[StructureOptions]] = [
             PipeOptions,
+            ArcBendOptions,
             FlangeOptions,
             ReducerOptions,
             RectangularBeamOptions,
@@ -140,7 +141,6 @@ class GeometryDesignerWidget(QWidget):
             CBeamOptions,
             ExpansionJointOptions,
             ValveOptions,
-            ArcBendOptions,
             PointOptions,
         ]
 

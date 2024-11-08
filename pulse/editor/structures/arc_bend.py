@@ -17,6 +17,6 @@ class ArcBend(Arc):
         }
 
     def as_vtk(self):
-        from pulse.interface.viewer_3d.actors import BendActor
-        # ArcBends also have a center point, so the actor is the same
-        return BendActor(self)
+        from pulse.interface.viewer_3d.actors import ArcBendActor
+
+        return ArcBendActor(self)
