@@ -5,7 +5,9 @@ from collections import deque
 from itertools import pairwise
 
 from molde.colors import PINK_6
+from .point import Point
 from .linear_structure import LinearStructure
+
 
 class Valve(LinearStructure):
     def __init__(self, *args, **kwargs) -> None:
@@ -22,7 +24,7 @@ class Valve(LinearStructure):
             "diameter": self.diameter,
             "thickness": self.thickness,
         }
-    
+
     def as_vtk(self):
         from pulse.interface.viewer_3d.actors import ValveActor
 
@@ -37,7 +39,7 @@ class Valve(LinearStructure):
         valve_info: dict = self.extra_info.get("valve_info")
         if valve_info is None:
             return []
-        
+
         valve_coords = self._process_valve_points(
             convert_unit(self.start.coords()),
             convert_unit(self.end.coords()),
@@ -46,7 +48,7 @@ class Valve(LinearStructure):
 
         point_tags = []
         for x, y, z in valve_coords:
-            tag = cad.add_point(x, y, z)        
+            tag = cad.add_point(x, y, z)
             point_tags.append(tag)
 
         line_tags = []
@@ -56,21 +58,23 @@ class Valve(LinearStructure):
 
         return line_tags
 
-    def _process_valve_points(self, start: np.ndarray, end: np.ndarray, valve_info: dict) -> list[np.ndarray]:
-        '''
+    def _process_valve_points(
+        self, start: np.ndarray, end: np.ndarray, valve_info: dict
+    ) -> list[np.ndarray]:
+        """
         The geometry of a Valve is a bit more complicated.
-        
-        If all the possible points are defined the point 
+
+        If all the possible points are defined the point
         of the valve will look like this:
 
         ```
-        s   ┌──╮      ╭───╮     ╭──┐    
+        s   ┌──╮      ╭───╮     ╭──┐
         t   │  ├──────┤   ├─────┤  │   e
-        a  Ⓐ  Ⓒ     Ⓔ  Ⓕ    Ⓓ  Ⓑ  n 
+        a  Ⓐ  Ⓒ     Ⓔ  Ⓕ    Ⓓ  Ⓑ  n
         r   │  ├──────┤   ├─────┤  │   d
-        t   └──╯      ╰───╯     ╰──┘    
+        t   └──╯      ╰───╯     ╰──┘
         ```
-        '''
+        """
 
         A = start
         B = end
@@ -110,3 +114,30 @@ class Valve(LinearStructure):
         coord_sequence.append(B)
 
         return coord_sequence
+
+    @classmethod
+    def load_from_data(cls, data: dict) -> "Valve":
+        start = Point(*data["start_coords"])
+        end = Point(*data["end_coords"])
+
+        valve_info = data["valve_info"]
+        d_out, t, *_ = valve_info["body_section_parameters"]
+        flange_outer_diameter, *_ = valve_info["flange_section_parameters"]
+        flange_length = valve_info["flange_length"]
+
+        structure = Valve(
+            start,
+            end,
+            diameter=d_out,
+            thickness=t,
+            flange_outer_diameter=flange_outer_diameter,
+            flange_length=flange_length,
+        )
+
+        section_info = {"section_type_label": "Valve"}
+        structure.extra_info["cross_section_info"] = section_info
+
+        structure.extra_info["valve_info"] = valve_info
+        structure.extra_info["structural_element_type"] = "valve"
+
+        return structure
