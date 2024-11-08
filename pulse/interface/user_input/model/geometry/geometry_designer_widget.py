@@ -57,6 +57,7 @@ class GeometryDesignerWidget(QWidget):
         uic.loadUi(ui_path, self)
 
         self.render_widget = render_widget
+        self.has_deleted = False
         self.modified = False
 
         self.project = app().project
@@ -464,6 +465,21 @@ class GeometryDesignerWidget(QWidget):
         self.pipeline.dismiss()
         self.pipeline.delete_selection()
         self.modified = True
+        self.has_deleted = True
+
+        self._reset_xyz()
+        self._update_permissions()
+        self.render_widget.update_plot(reset_camera=False)
+    def delete_selection_callback(self):
+        for structure in self.pipeline.selected_structures:
+            if not isinstance(structure, Point):
+                tag = structure.tag
+                if tag != -1:
+                    app().project.model.properties._remove_line(tag)
+
+        self.pipeline.dismiss()
+        self.pipeline.delete_selection()
+        self.modified = True
 
         self._reset_xyz()
         self._update_permissions()
@@ -484,6 +500,17 @@ class GeometryDesignerWidget(QWidget):
             self.pipeline.clear_point_selection()
         self.render_widget.update_plot(reset_camera=False)
         self.modified = True
+        if self.has_deleted:
+            self.finalize_callback()
+            self.has_deleted = False
+        self._reset_xyz()
+        self._update_permissions()
+    def add_structure_callback(self):
+        self.pipeline.commit()
+        if self.current_structure_type == Point:
+            self.pipeline.clear_point_selection()
+        self.render_widget.update_plot(reset_camera=False)
+        self.modified = True
         self._reset_xyz()
         self._update_permissions()
 
@@ -491,6 +518,28 @@ class GeometryDesignerWidget(QWidget):
         app().main_window.update_plots()
         app().main_window.use_model_setup_workspace()
 
+    def finalize_callback(self):
+        self.modified = False
+        self.pipeline.dismiss()
+
+        geometry_handler = GeometryHandler()
+        geometry_handler.set_pipeline(self.pipeline)
+        geometry_handler.set_length_unit(self.length_unit)
+        geometry_handler.export_model_data_file()
+
+        app().pulse_file.modify_project_attributes(
+            length_unit = self.length_unit,
+            element_size = 0.01, 
+            geometry_tolerance = 1e-6,
+            import_type = 1,
+        )
+
+        self._load_project()
+
+        app().main_window.update_plots()
+        app().main_window.use_model_setup_workspace()
+        app().main_window.plot_lines_with_cross_sections()
+        self.render_widget.set_info_text("")
     def finalize_callback(self):
         self.modified = False
         self.pipeline.dismiss()
