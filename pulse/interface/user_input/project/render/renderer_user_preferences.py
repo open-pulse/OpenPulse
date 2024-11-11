@@ -22,8 +22,7 @@ class RendererUserPreferencesInput(QDialog):
         self.main_window = app().main_window
         self.config = app().config
         self.project = app().project
-
-        # self.opv = app().main_window.opv_widget
+        self.user_preferences = app().user_preferences
 
         self._config_window()
         self._initialize()
@@ -66,7 +65,8 @@ class RendererUserPreferencesInput(QDialog):
         self.slider_transparency : QSlider
 
         # QLineEdit
-        self.lineEdit_background_color : QLineEdit
+        self.lineEdit_renderer_background_color_1 : QLineEdit
+        self.lineEdit_renderer_background_color_2 : QPushButton
         self.lineEdit_font_color : QLineEdit
         self.lineEdit_nodes_color : QLineEdit
         self.lineEdit_lines_color : QLineEdit
@@ -74,7 +74,8 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_elements_transparency : QLineEdit
 
         # QPushButton
-        self.pushButton_background_color : QPushButton
+        self.pushButton_renderer_background_color_1 : QPushButton
+        self.pushButton_renderer_background_color_2 : QPushButton
         self.pushButton_font_color : QPushButton
         self.pushButton_nodes_color : QPushButton
         self.pushButton_lines_color : QPushButton
@@ -86,7 +87,8 @@ class RendererUserPreferencesInput(QDialog):
         #
         self.comboBox_background_theme.currentIndexChanged.connect(self.update_background_color_controls_visibility)
         #
-        self.pushButton_background_color.clicked.connect(self.update_background_color)
+        self.pushButton_renderer_background_color_1.clicked.connect(self.update_renderer_background_color_1)
+        self.pushButton_renderer_background_color_2.clicked.connect(self.update_renderer_background_color_2)
         self.pushButton_font_color.clicked.connect(self.update_font_color)
         self.pushButton_nodes_color.clicked.connect(self.update_nodes_color)
         self.pushButton_lines_color.clicked.connect(self.update_lines_color)
@@ -94,7 +96,7 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_reset_to_default.clicked.connect(self.reset_to_default)
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
         #
-        self.slider_transparency.valueChanged.connect(self.update_transparency_value)
+        # self.slider_transparency.valueChanged.connect(self.update_transparency_value)
         #
         # self.update_slider_transparency()
 
@@ -195,12 +197,21 @@ class RendererUserPreferencesInput(QDialog):
         self.slider_transparency.setValue(int(100*value))
         self.lineEdit_elements_transparency.setText(str(value))
 
-    def update_background_color(self):
+    def update_renderer_background_color_1(self):
         read = PickColorInput(title="Pick the background color")
         if read.complete:
             self.background_color = tuple(read.color)
             str_color = str(self.background_color)[1:-1]
-            self.lineEdit_background_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+            self.lineEdit_renderer_background_color_1.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+            return False
+        return True
+    
+    def update_renderer_background_color_2(self):
+        read = PickColorInput(title="Pick the background color")
+        if read.complete:
+            self.background_color = tuple(read.color)
+            str_color = str(self.background_color)[1:-1]
+            self.lineEdit_renderer_background_color_2.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
             return False
         return True
 
@@ -342,7 +353,7 @@ class RendererUserPreferencesInput(QDialog):
         self.nodes_color = (255,255,63)
         self.lines_color = (255,255,255)
         self.surfaces_color = (255,255,255)
-        self.elements_transparency = 0.8
+        # self.elements_transparency = 0.8
 
         str_color = str(self.bottom_font_color)[1:-1]
         self.lineEdit_font_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")

@@ -194,295 +194,7 @@
          <property name="verticalSpacing">
           <number>4</number>
          </property>
-         <item row="1" column="1">
-          <widget class="QLabel" name="label_10">
-           <property name="minimumSize">
-            <size>
-             <width>160</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>160</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <property name="text">
-            <string>Background color:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLineEdit" name="lineEdit_background_color">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>false</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="4" column="1">
-          <widget class="QLabel" name="label_7">
-           <property name="minimumSize">
-            <size>
-             <width>160</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>160</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <property name="text">
-            <string>Lines color:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QLineEdit" name="lineEdit_lines_color">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>false</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="3">
-          <widget class="QPushButton" name="pushButton_background_color">
-           <property name="minimumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Pick color</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="3">
-          <widget class="QPushButton" name="pushButton_lines_color">
-           <property name="minimumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Pick color</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="3">
-          <widget class="QPushButton" name="pushButton_surfaces_color">
-           <property name="minimumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="text">
-            <string>Pick color</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="2">
-          <widget class="QLineEdit" name="lineEdit_surfaces_color">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>11</pointsize>
-             <weight>75</weight>
-             <italic>false</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QLabel" name="label_8">
-           <property name="minimumSize">
-            <size>
-             <width>160</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>160</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <property name="text">
-            <string>Surfaces color:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
           <widget class="QLabel" name="label_12">
            <property name="minimumSize">
             <size>
@@ -517,7 +229,101 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="2">
+         <item row="6" column="2">
+          <widget class="QLineEdit" name="lineEdit_lines_color">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="3">
+          <widget class="QPushButton" name="pushButton_font_color">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string>Pick color</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLabel" name="label_8">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>Surfaces color:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="2">
           <widget class="QLineEdit" name="lineEdit_font_color">
            <property name="enabled">
             <bool>false</bool>
@@ -551,8 +357,8 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="3">
-          <widget class="QPushButton" name="pushButton_font_color">
+         <item row="1" column="3">
+          <widget class="QPushButton" name="pushButton_renderer_background_color_1">
            <property name="minimumSize">
             <size>
              <width>90</width>
@@ -578,8 +384,8 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
-          <widget class="QLabel" name="label_6">
+         <item row="6" column="1">
+          <widget class="QLabel" name="label_7">
            <property name="minimumSize">
             <size>
              <width>160</width>
@@ -604,14 +410,49 @@
             <enum>QFrame::Raised</enum>
            </property>
            <property name="text">
-            <string>Nodes color:</string>
+            <string>Lines color:</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
-         <item row="3" column="2">
+         <item row="1" column="1">
+          <widget class="QLabel" name="label_10">
+           <property name="minimumSize">
+            <size>
+             <width>170</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>170</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>Renderer background color 1</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
           <widget class="QLineEdit" name="lineEdit_nodes_color">
            <property name="enabled">
             <bool>false</bool>
@@ -645,7 +486,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="3">
+         <item row="5" column="3">
           <widget class="QPushButton" name="pushButton_nodes_color">
            <property name="minimumSize">
             <size>
@@ -675,6 +516,41 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_11">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <weight>50</weight>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>Background theme:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
          <item row="0" column="0">
           <spacer name="horizontalSpacer_3">
            <property name="orientation">
@@ -687,6 +563,39 @@
             </size>
            </property>
           </spacer>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLabel" name="label_6">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>160</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>Nodes color:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
          </item>
          <item row="0" column="3">
           <widget class="QFrame" name="frame_18">
@@ -707,6 +616,50 @@
            </property>
            <property name="frameShadow">
             <enum>QFrame::Raised</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="4">
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="7" column="3">
+          <widget class="QPushButton" name="pushButton_surfaces_color">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string>Pick color</string>
            </property>
           </widget>
          </item>
@@ -746,92 +699,8 @@
            </item>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLabel" name="label_11">
-           <property name="minimumSize">
-            <size>
-             <width>160</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>160</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <property name="text">
-            <string>Background theme:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="6" column="1">
-          <widget class="QLabel" name="label_9">
-           <property name="minimumSize">
-            <size>
-             <width>160</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>160</width>
-             <height>32</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <property name="text">
-            <string>Elements transparency:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="2">
-          <widget class="QLineEdit" name="lineEdit_elements_transparency">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
+         <item row="6" column="3">
+          <widget class="QPushButton" name="pushButton_lines_color">
            <property name="minimumSize">
             <size>
              <width>90</width>
@@ -852,13 +721,16 @@
            <property name="styleSheet">
             <string notr="true"/>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
+           <property name="text">
+            <string>Pick color</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="3">
-          <widget class="QSlider" name="slider_transparency">
+         <item row="7" column="2">
+          <widget class="QLineEdit" name="lineEdit_surfaces_color">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="minimumSize">
             <size>
              <width>90</width>
@@ -871,26 +743,124 @@
              <height>26</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="styleSheet">
-            <string notr="true">color: rgb(0, 0, 255);</string>
+            <string notr="true"/>
            </property>
-           <property name="maximum">
-            <number>100</number>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
-           <property name="value">
-            <number>20</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="invertedAppearance">
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLineEdit" name="lineEdit_renderer_background_color_1">
+           <property name="enabled">
             <bool>false</bool>
            </property>
-           <property name="invertedControls">
-            <bool>false</bool>
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
            </property>
-           <property name="tickPosition">
-            <enum>QSlider::TicksBelow</enum>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>false</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="label">
+           <property name="minimumSize">
+            <size>
+             <width>170</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>170</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Renderer background color 2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QLineEdit" name="lineEdit_renderer_background_color_2">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="3">
+          <widget class="QPushButton" name="pushButton_renderer_background_color_2">
+           <property name="minimumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>90</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Pick color</string>
            </property>
           </widget>
          </item>
@@ -959,37 +929,6 @@
            </property>
           </spacer>
          </item>
-         <item row="0" column="1">
-          <widget class="QCheckBox" name="checkBox_OpenPulse_logo">
-           <property name="minimumSize">
-            <size>
-             <width>160</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>180</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>MS Shell Dlg 2</family>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Show OpenPulse logo</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QCheckBox" name="checkBox_reference_scale">
            <property name="minimumSize">
@@ -1015,6 +954,37 @@
            </property>
            <property name="text">
             <string>Show reference scale</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="checkBox_OpenPulse_logo">
+           <property name="minimumSize">
+            <size>
+             <width>160</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>180</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>MS Shell Dlg 2</family>
+             <pointsize>10</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Show OpenPulse logo</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -1141,8 +1111,8 @@
   <tabstop>checkBox_OpenPulse_logo</tabstop>
   <tabstop>checkBox_reference_scale</tabstop>
   <tabstop>comboBox_background_theme</tabstop>
-  <tabstop>lineEdit_background_color</tabstop>
-  <tabstop>pushButton_background_color</tabstop>
+  <tabstop>lineEdit_renderer_background_color_1</tabstop>
+  <tabstop>pushButton_renderer_background_color_1</tabstop>
   <tabstop>lineEdit_font_color</tabstop>
   <tabstop>pushButton_font_color</tabstop>
   <tabstop>lineEdit_nodes_color</tabstop>
@@ -1151,8 +1121,6 @@
   <tabstop>pushButton_lines_color</tabstop>
   <tabstop>lineEdit_surfaces_color</tabstop>
   <tabstop>pushButton_surfaces_color</tabstop>
-  <tabstop>lineEdit_elements_transparency</tabstop>
-  <tabstop>slider_transparency</tabstop>
   <tabstop>pushButton_reset_to_default</tabstop>
   <tabstop>pushButton_update_settings</tabstop>
  </tabstops>
