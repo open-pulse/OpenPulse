@@ -19,6 +19,8 @@ from pulse.editor.structures import (
     CBeam,
     ExpansionJoint,
     Fillet,
+    Structure,
+    ALL_STRUCTURE_TYPES,
 )
 
 import gmsh
@@ -106,6 +108,7 @@ class GeometryHandler:
             gmsh.fltk.run()
 
     def create_geometry(self, gmsh_GUI=False):
+        # TODO replace this function by the simpler version above
 
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
@@ -322,6 +325,76 @@ class GeometryHandler:
             valve_points["internal_points"] = (E, F)
 
         return valve_points
+    
+    def fix_data_for_backwards_compatibility(self, data: dict):
+        """
+        Older files did not have the structure_name property correctly set,
+        and the needed information to create the structure was inferred in 
+        a confusing way from multiple parameters.
+         
+        This function fixes some of the cases to keep old files working.
+        """
+
+        if data.get("structural_element_type") == "pipe_1" and len(data["section_parameters"]) == 10:
+            data["structure_name"] = "reducer"
+
+        if data.get("structural_element_type") == "beam_1" and data.get("structure_name") == "undefined":
+            type_label: str = data["section_type_label"]
+            data["structure_name"] = type_label.lower().replace(" ", "_").replace("-", "_").replace("section", "beam")
+
+    def create_structure_from_data(self, data: dict) -> Structure:
+        """
+        This function compares data["structure_name"] the name of every structure availabe. 
+        If it matches the structure is created and returned.
+        """
+
+        for structure_type in ALL_STRUCTURE_TYPES:
+            if structure_type.name() == data.get("structure_name"):
+                return structure_type.load_from_data(data)
+        return None
+
+    def process_pipeline(self):
+        """ This method builds structures based on model_data file data.
+        
+        Parameters:
+        -----------
+        structures_data: dictionary
+            
+            a dictionary containing all required data to build the pipeline structures.
+
+        Returns
+        -------
+        pipeline: Pipeline type
+
+            pipeline data to...
+        """
+
+        lines_data: dict[str, dict] = app().pulse_file.read_line_properties_from_file()
+        if not isinstance(lines_data, dict):
+            return
+
+        structures = list()
+        for str_line_id, data in lines_data.items():
+            self.fix_data_for_backwards_compatibility(data)
+            structure = self.create_structure_from_data(data)
+            if structure is None:
+                continue
+        
+            structures.append(structure)
+
+            # Adds common properties to the structure
+            structure.tag = int(str_line_id)
+            if "material_id" in data.keys():
+                structure.extra_info["material_info"] = data['material_id']
+
+        if not structures:
+            return
+
+        self.pipeline.reset()
+        self.pipeline.add_structures(structures)
+        self.pipeline.commit()
+        self.pipeline.merge_coincident_points()
+        app().main_window.update_plots()
 
     def process_pipeline(self):
         """ This method builds structures based on model_data file data.
