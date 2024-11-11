@@ -75,6 +75,7 @@ class GeometryDesignerWidget(QWidget):
         self.structure_combobox: QComboBox
         self.division_combobox: QComboBox
         self.bending_options_combobox: QComboBox
+        self.deltas_combobox: QComboBox
 
         # QFrame
         self.frame_bending_options: QFrame
@@ -101,17 +102,12 @@ class GeometryDesignerWidget(QWidget):
         self.unity_y_label: QLineEdit
         self.unity_z_label: QLineEdit
         self.bending_radius_line_edit: QLineEdit
-        self.division_dx_line_edit: QLineEdit
-        self.division_dy_line_edit: QLineEdit
-        self.division_dz_line_edit: QLineEdit
+        self.deltas_line_edit: QLineEdit
 
         # QLabel
         self.dx_label: QLabel
         self.dy_label: QLabel
         self.dz_label: QLabel
-        self.division_dx_label: QLabel
-        self.division_dy_label: QLabel
-        self.division_dz_label: QLabel
 
         self.division_slider_label: QLabel
         self.position_slider_label: QLabel
@@ -169,9 +165,8 @@ class GeometryDesignerWidget(QWidget):
         self.position_slider.valueChanged.connect(self.position_slider_callback)
         self.position_spinbox.textChanged.connect(self.preview_divisions_callback)
 
-        self.division_dx_line_edit.textEdited.connect(self.preview_divisions_callback)
-        self.division_dy_line_edit.textEdited.connect(self.preview_divisions_callback)
-        self.division_dz_line_edit.textEdited.connect(self.preview_divisions_callback)
+        self.deltas_line_edit.textChanged.connect(self.preview_divisions_callback)
+        self.deltas_combobox.currentIndexChanged.connect(self.preview_divisions_callback)
         self.invert_origin_checkbox.stateChanged.connect(self.preview_divisions_callback)
         
 
@@ -484,13 +479,20 @@ class GeometryDesignerWidget(QWidget):
             self.division_slider.blockSignals(False)
         
         elif division_type == "projection division":
+            dx = 0
+            dy = 0
+            dz = 0
+
             try:
-                dx = float(self.division_dx_line_edit.text() or 0)
-                dy = float(self.division_dy_line_edit.text() or 0)
-                dz = float(self.division_dz_line_edit.text() or 0)
+                if self.deltas_combobox.currentIndex() == 0:
+                    dx = float(self.deltas_line_edit.text() or 0)
+                elif self.deltas_combobox.currentIndex() == 1:
+                    dy = float(self.deltas_line_edit.text() or 0)
+                else:
+                    dz = float(self.deltas_line_edit.text() or 0)
             except:
                 return
-                
+
             invert_origin = self.invert_origin_checkbox.isChecked()
 
             self.pipeline.preview_divide_structures_by_projection(dx, dy, dz, invert_origin)
