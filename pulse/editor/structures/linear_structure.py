@@ -34,12 +34,13 @@ class LinearStructure(Structure):
     def interpolate_projection(self, dx: float, dy: float, dz : float, invert_origin : bool):
         start = self.start
         end = self.end
-        delta = [dx, dy, dz]
+        delta = np.array([dx, dy, dz])
         
         if not invert_origin:
             intermediary_projection_point = start + delta
         else:
-            intermediary_projection_point = end - delta
+            delta = - delta
+            intermediary_projection_point = end + delta
 
         structure_vector = end - start
         intermediary_projection_point = start + delta
