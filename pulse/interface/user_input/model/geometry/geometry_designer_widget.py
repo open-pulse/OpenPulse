@@ -229,7 +229,7 @@ class GeometryDesignerWidget(QWidget):
             if unit_pattern.match(label.text()) is not None:
                 label.setText(f"[{unit_label_text}]")
 
-    def structure_type_changed_callback(self, structure_name: str):
+    def structure_type_changed_callback(self, structure_name: str):        
         # If the previous option was PointOptions reset xyz
         if isinstance(self.current_options, PointOptions):
             self._reset_xyz()
@@ -245,7 +245,7 @@ class GeometryDesignerWidget(QWidget):
             self.frame_bending_options.setEnabled(False)
 
         # Structures that can be divided
-        if isinstance(self.current_options.structure_type, Pipe | Beam):
+        if issubclass(self.current_options.structure_type, Pipe | Beam):
             self.frame_division_options.setEnabled(True)
         else:
             self.frame_division_options.setEnabled(False)
