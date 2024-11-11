@@ -39,11 +39,11 @@ class DivideEditor(Editor):
         self.pipeline.add_points(all_points)
     
     def preview_divide_structures_by_projection(self, dx: float, dy: float, dz: float, invert_origin : bool):
-        guide_point = None
+        intermediary_projection_point = None
         for structure in self.pipeline.selected_structures:
-            guide_point, projection_point = self._interpolate_projection(structure, dx, dy, dz, invert_origin)
-            if guide_point is not None:
-                self.pipeline.add_points([guide_point, projection_point])
+            intermediary_projection_point, projection_point = self._interpolate_projection(structure, dx, dy, dz, invert_origin)
+            if intermediary_projection_point is not None:
+                self.pipeline.add_points([intermediary_projection_point, projection_point])
 
     def _divide_on_point(self, structure: Structure, point: Point):
 

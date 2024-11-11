@@ -32,18 +32,25 @@ class LinearStructure(Structure):
         return self.start + t * (self.end - self.start)
     
     def interpolate_projection(self, dx: float, dy: float, dz : float, invert_origin : bool):
+        start = self.start
+        end = self.end
+        delta = [dx, dy, dz]
+        
         if not invert_origin:
-            guide_point = self.start + [dx, dy, dz]
+            intermediary_projection_point = start + delta
         else:
-            guide_point = self.end + [dx, dy, dz]
+            intermediary_projection_point = end - delta
 
-        tube_vector = self.end - self.start
-        guide_vector = guide_point - self.start
+        structure_vector = end - start
+        intermediary_projection_point = start + delta
+        mid_point = start + (np.dot(delta, structure_vector) / np.linalg.norm(structure_vector)**2) * structure_vector
+        alfa = np.arccos(np.dot(structure_vector / np.linalg.norm(structure_vector), delta / np.linalg.norm(delta))) 
+        projection_length = np.linalg.norm(delta) * np.tan(alfa)
+        normal_vector = np.cross(delta, mid_point - (start + delta)) # (to the plane)
+        projection_point = intermediary_projection_point + np.cross(normal_vector, delta) / np.linalg.norm(np.cross(delta, normal_vector)) * projection_length
 
-        projection = np.dot((np.dot(guide_vector, tube_vector) / np.linalg.norm(tube_vector)**2), tube_vector)
-        projection_point = self.start + projection
-
-        return guide_point, projection_point
+        return intermediary_projection_point, projection_point
+    
 
     def as_dict(self) -> dict:
         return super().as_dict() | {
