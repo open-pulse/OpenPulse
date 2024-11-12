@@ -20,6 +20,7 @@ from pulse.editor.structures import (
     ExpansionJoint,
     Fillet,
     Structure,
+    Arc,
     ALL_STRUCTURE_TYPES,
 )
 
@@ -1147,7 +1148,7 @@ class GeometryHandler:
         data = dict()
         # data["structure name"] = structure.name
 
-        if isinstance(structure, Bend):
+        if isinstance(structure, Fillet):
             data["structure_name"] = structure.name()
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
@@ -1165,6 +1166,12 @@ class GeometryHandler:
             data["structure_name"] = structure.name()
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
+        
+        elif isinstance(structure, Arc):
+            data["structure_name"] = structure.name()
+            data["start_coords"] = get_data(structure.start.coords())
+            data["end_coords"] = get_data(structure.end.coords())
+            data["mid_coords"] = get_data(structure.mid.coords())
 
         return data
 
