@@ -1,4 +1,6 @@
 import numpy as np
+import gmsh
+from typing import Callable
 
 from .point import Point
 from .structure import Structure
@@ -120,3 +122,14 @@ class Arc(Structure):
 
         elif self.mid == old:
             self.mid = new
+
+    def add_to_gmsh(
+        self,
+        cad: gmsh.model.occ | gmsh.model.geo = gmsh.model.occ,
+        convert_unit: Callable[[float], float] = lambda x: x,
+    ) -> list[int]:
+
+        start = cad.add_point(*convert_unit(self.start.coords()))
+        end = cad.add_point(*convert_unit(self.end.coords()))
+        mid = cad.add_point(*convert_unit(self.mid.coords()))
+        return [cad.add_circle_arc(start, mid, end, center=False)]
