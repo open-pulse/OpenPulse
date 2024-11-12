@@ -25,13 +25,20 @@ class RendererUserPreferencesInput(QDialog):
         self.project = app().project
         self.user_preferences = app().user_preferences
 
+        self.renderer_background_color_1 = None
+        self.renderer_background_color_2 = None
+        self.renderer_font_color = None
+        self.nodes_color = None
+        self.lines_color = None
+        self.tubes_color = None
+        self.renderer_font_size = None
+        self.interface_font_size = None
+
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        # self._load_logo_state()
-        # self._load_reference_scale_state()
-        # self._load_color_state()
+        self.load_user_preferences()
         self.exec()
 
     def _config_window(self):
@@ -197,20 +204,28 @@ class RendererUserPreferencesInput(QDialog):
     def update_renderer_background_color_1(self):
         read = PickColorInput(title="Pick the background color")
         if read.complete:
-            background_color = tuple(read.color)
-            str_color = str(background_color)[1:-1]
+            renderer_background_color_1 = tuple(read.color)
+            str_color = str(renderer_background_color_1)[1:-1]
             self.lineEdit_renderer_background_color_1.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
-            self.user_preferences.renderer_background_color_1 = Color(*background_color)
+            self.renderer_background_color_1 = Color(*renderer_background_color_1)
+
+    def update_line_edit_renderer_background_color_1(self):
+        str_color = str(self.user_preferences.renderer_background_color_1.to_rgb())
+        self.lineEdit_renderer_background_color_1.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
     def update_renderer_background_color_2(self):
         read = PickColorInput(title="Pick the background color")
         if read.complete:
-            background_color = tuple(read.color)
-            str_color = str(background_color)[1:-1]
+            renderer_background_color_2 = tuple(read.color)
+            str_color = str(renderer_background_color_2)[1:-1]
             self.lineEdit_renderer_background_color_2.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
-            self.user_preferences.renderer_background_color_2 = Color(*background_color)
+            self.renderer_background_color_2 = Color(*renderer_background_color_2)
+
+    def update_line_edit_renderer_background_color_2(self):
+        str_color = str(self.user_preferences.renderer_background_color_2.to_rgb())
+        self.lineEdit_renderer_background_color_2.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
     
     def update_renderer_font_color(self):
         read = PickColorInput(title="Pick the font color")
@@ -219,7 +234,11 @@ class RendererUserPreferencesInput(QDialog):
             str_color = str(renderer_font_color)[1:-1]
             self.lineEdit_renderer_font_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
-            self.user_preferences.renderer_font_color = Color(*renderer_font_color)
+            self.renderer_font_color = Color(*renderer_font_color)
+
+    def update_line_edit_renderer_font_color(self):
+        str_color = str(self.user_preferences.renderer_font_color.to_rgb())
+        self.lineEdit_renderer_font_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
     def update_nodes_color(self):
         read = PickColorInput(title="Pick the nodes color")
@@ -228,7 +247,11 @@ class RendererUserPreferencesInput(QDialog):
             str_color = str(nodes_color)[1:-1]
             self.lineEdit_nodes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
-            self.user_preferences.nodes_color = Color(*nodes_color)
+            self.nodes_color = Color(*nodes_color)
+        
+    def update_line_edit_nodes_color(self):
+        str_color = str(self.user_preferences.nodes_color.to_rgb())
+        self.lineEdit_nodes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
         
     def update_lines_color(self):
         read = PickColorInput(title="Pick the lines color")
@@ -237,17 +260,24 @@ class RendererUserPreferencesInput(QDialog):
             str_color = str(lines_color)[1:-1]
             self.lineEdit_lines_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
-            self.user_preferences.lines_color = Color(*lines_color)
-        
+            self.lines_color = Color(*lines_color)
+    
+    def update_line_edit_lines_color(self):
+        str_color = str(self.user_preferences.lines_color.to_rgb())
+        self.lineEdit_lines_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
     def update_tubes_color(self):
         read = PickColorInput(title="Pick the surfaces color")
         if read.complete:
             tubes_color = tuple(read.color)
-            str_color = str(self.surfaces_color)[1:-1]
+            str_color = str(tubes_color)[1:-1]
             self.lineEdit_tubes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+           
+            self.tubes_color = Color(*tubes_color)
 
-            self.user_preferences.tubes_color = Color(*tubes_color)
+    def update_line_edit_tubes_color(self):
+        str_color = str(self.user_preferences.tubes_color.to_rgb())
+        self.lineEdit_tubes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
                
     def update_nodes_lines_elements_settings(self):
         return
@@ -258,21 +288,43 @@ class RendererUserPreferencesInput(QDialog):
     
     def update_renderer_font_size(self):
         try:
-            renderer_font_size = int(self.lineEdit_interface_font_size.text())
-            self.user_preferences.renderer_font_size = renderer_font_size
+            self.renderer_font_size = int(self.lineEdit_interface_font_size.text())
+            self.user_preferences.renderer_font_size = self.renderer_font_size
         except:
             pass
             
         
     def update_interface_font_size(self):
         try:
-            interface_font_size = int(self.lineEdit_interface_font_size.text())
-            self.user_preferences.interface_font_size = interface_font_size
+            self.interface_font_size = int(self.lineEdit_interface_font_size.text())
+            self.user_preferences.interface_font_size = self.interface_font_size
         except:
             pass
 
     def confirm_and_update_user_preferences(self):
-        # self.main_window.update()
+        if self.renderer_background_color_1 is not None:
+            self.user_preferences.renderer_background_color_1 = self.renderer_background_color_1
+
+        if self.renderer_background_color_2 is not None:
+            self.user_preferences.renderer_background_color_2 = self.renderer_background_color_2
+
+        if self.renderer_font_color is not None:
+            self.user_preferences.renderer_font_color = self.renderer_font_color
+
+        if self.nodes_color is not None:
+            self.user_preferences.nodes_color = self.nodes_color
+
+        if self.lines_color is not None:
+            self.user_preferences.lines_color = self.lines_color
+
+        if self.tubes_color is not None:
+            self.user_preferences.tubes_color = self.tubes_color
+
+        if self.renderer_font_size is not None:
+            self.user_preferences.renderer_font_size = self.renderer_font_size
+
+        if self.interface_font_size is not None:
+            self.user_preferences.interface_font_size = self.interface_font_size        
 
     def update_renders(self):
         return
@@ -336,9 +388,13 @@ class RendererUserPreferencesInput(QDialog):
 
         self.update_nodes_lines_elements_settings()
 
-    def reset_transparency_value(self):
-        self.slider_transparency.setValue(80)
-        self.update_transparency_value()
+    def load_user_preferences(self):
+        self.update_line_edit_renderer_background_color_1()
+        self.update_line_edit_renderer_background_color_2()
+        self.update_line_edit_renderer_font_color()
+        self.update_line_edit_nodes_color()
+        self.update_line_edit_lines_color()
+        self.update_line_edit_tubes_color()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
