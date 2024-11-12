@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
+from molde.colors import Color
 
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 
@@ -56,7 +57,7 @@ class RendererUserPreferencesInput(QDialog):
         self.checkBox_reference_scale : QCheckBox
 
         # QComboBox
-        self.comboBox_background_theme : QComboBox
+        # self.comboBox_background_theme : QComboBox
 
         # QFrame
         self.frame_background_color : QFrame
@@ -66,48 +67,42 @@ class RendererUserPreferencesInput(QDialog):
 
         # QLineEdit
         self.lineEdit_renderer_background_color_1 : QLineEdit
-        self.lineEdit_renderer_background_color_2 : QPushButton
-        self.lineEdit_font_color : QLineEdit
+        self.lineEdit_renderer_background_color_2 : QLineEdit
+        self.lineEdit_renderer_font_color : QLineEdit
         self.lineEdit_nodes_color : QLineEdit
         self.lineEdit_lines_color : QLineEdit
-        self.lineEdit_surfaces_color : QLineEdit
-        self.lineEdit_elements_transparency : QLineEdit
+        self.lineEdit_tubes_color : QLineEdit
+        self.lineEdit_renderer_font_size: QLineEdit
+        self.lineEdit_interface_font_size: QLineEdit
 
         # QPushButton
         self.pushButton_renderer_background_color_1 : QPushButton
         self.pushButton_renderer_background_color_2 : QPushButton
-        self.pushButton_font_color : QPushButton
+        self.pushButton_renderer_font_color : QPushButton
         self.pushButton_nodes_color : QPushButton
         self.pushButton_lines_color : QPushButton
-        self.pushButton_surfaces_color : QPushButton
+        self.pushButton_tubes_color : QPushButton
         self.pushButton_reset_to_default : QPushButton
         self.pushButton_update_settings : QPushButton
 
     def _create_connections(self):
         #
-        self.comboBox_background_theme.currentIndexChanged.connect(self.update_background_color_controls_visibility)
+        # self.comboBox_background_theme.currentIndexChanged.connect(self.update_background_color_controls_visibility)
         #
         self.pushButton_renderer_background_color_1.clicked.connect(self.update_renderer_background_color_1)
         self.pushButton_renderer_background_color_2.clicked.connect(self.update_renderer_background_color_2)
-        self.pushButton_font_color.clicked.connect(self.update_font_color)
+        self.pushButton_renderer_font_color.clicked.connect(self.update_renderer_font_color)
         self.pushButton_nodes_color.clicked.connect(self.update_nodes_color)
         self.pushButton_lines_color.clicked.connect(self.update_lines_color)
-        self.pushButton_surfaces_color.clicked.connect(self.update_surfaces_color)
+        self.pushButton_tubes_color.clicked.connect(self.update_tubes_color)
         self.pushButton_reset_to_default.clicked.connect(self.reset_to_default)
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
+        self.lineEdit_renderer_font_size.textChanged.connect(self.update_renderer_font_size)
+        self.lineEdit_interface_font_size.textChanged.connect(self.update_interface_font_size)
         #
         # self.slider_transparency.valueChanged.connect(self.update_transparency_value)
         #
         # self.update_slider_transparency()
-
-    def update_background_color_controls_visibility(self):
-        index = self.comboBox_background_theme.currentIndex()
-        if index == 2:
-            _bool = False
-        else:
-            _bool = True
-            self.lineEdit_background_color.setStyleSheet("")
-        self.pushButton_background_color.setDisabled(_bool)
 
     def _load_reference_scale_state(self):
         return
@@ -154,6 +149,7 @@ class RendererUserPreferencesInput(QDialog):
         self.checkBox_OpenPulse_logo.setChecked(self.opv.opvRenderer.add_OpenPulse_logo)
 
     def update_background_color_state(self):
+        return
         index = self.comboBox_background_theme.currentIndex()
         if index == 0:
             self.background_color = "light"
@@ -188,6 +184,7 @@ class RendererUserPreferencesInput(QDialog):
         self.opv.opvAnalysisRenderer.add_openpulse_logo()
 
     def update_transparency_value(self):
+        return
         self.elements_transparency = (self.slider_transparency.value()/100)
         self.lineEdit_elements_transparency.setText(str(self.elements_transparency))
 
@@ -200,91 +197,82 @@ class RendererUserPreferencesInput(QDialog):
     def update_renderer_background_color_1(self):
         read = PickColorInput(title="Pick the background color")
         if read.complete:
-            self.background_color = tuple(read.color)
-            str_color = str(self.background_color)[1:-1]
+            background_color = tuple(read.color)
+            str_color = str(background_color)[1:-1]
             self.lineEdit_renderer_background_color_1.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
-            return False
-        return True
-    
+
+            self.user_preferences.renderer_background_color_1 = Color(*background_color)
+
     def update_renderer_background_color_2(self):
         read = PickColorInput(title="Pick the background color")
         if read.complete:
-            self.background_color = tuple(read.color)
-            str_color = str(self.background_color)[1:-1]
+            background_color = tuple(read.color)
+            str_color = str(background_color)[1:-1]
             self.lineEdit_renderer_background_color_2.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
-            return False
-        return True
 
-    def update_font_color(self):
+            self.user_preferences.renderer_background_color_2 = Color(*background_color)
+    
+    def update_renderer_font_color(self):
         read = PickColorInput(title="Pick the font color")
         if read.complete:
-            self.bottom_font_color = tuple(read.color)
-            str_color = str(self.bottom_font_color)[1:-1]
-            self.lineEdit_font_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
-        else:
-            return
+            renderer_font_color = tuple(read.color)
+            str_color = str(renderer_font_color)[1:-1]
+            self.lineEdit_renderer_font_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+
+            self.user_preferences.renderer_font_color = Color(*renderer_font_color)
 
     def update_nodes_color(self):
         read = PickColorInput(title="Pick the nodes color")
         if read.complete:
-            self.nodes_color = tuple(read.color)
-            str_color = str(self.nodes_color)[1:-1]
+            nodes_color = tuple(read.color)
+            str_color = str(nodes_color)[1:-1]
             self.lineEdit_nodes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
-        else:
-            return 
+
+            self.user_preferences.nodes_color = Color(*nodes_color)
         
     def update_lines_color(self):
         read = PickColorInput(title="Pick the lines color")
         if read.complete:
-            self.lines_color = tuple(read.color)
-            str_color = str(self.lines_color)[1:-1]
+            lines_color = tuple(read.color)
+            str_color = str(lines_color)[1:-1]
             self.lineEdit_lines_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
-        else:
-            return
 
-    def update_surfaces_color(self):
+            self.user_preferences.lines_color = Color(*lines_color)
+        
+
+    def update_tubes_color(self):
         read = PickColorInput(title="Pick the surfaces color")
         if read.complete:
-            self.surfaces_color = tuple(read.color)
+            tubes_color = tuple(read.color)
             str_color = str(self.surfaces_color)[1:-1]
-            self.lineEdit_surfaces_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
-        else:
-            return        
+            self.lineEdit_tubes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
+            self.user_preferences.tubes_color = Color(*tubes_color)
+               
     def update_nodes_lines_elements_settings(self):
         return
         self.opv.opvRenderer.changeNodesColor(self.nodes_color)
         self.opv.opvRenderer.changeLinesColor(self.lines_color)
         self.opv.opvRenderer.changeSurfacesColor(self.surfaces_color)
         self.opv.opvRenderer.changeElementsTransparency(self.elements_transparency)
+    
+    def update_renderer_font_size(self):
+        try:
+            renderer_font_size = int(self.lineEdit_interface_font_size.text())
+            self.user_preferences.renderer_font_size = renderer_font_size
+        except:
+            pass
+            
+        
+    def update_interface_font_size(self):
+        try:
+            interface_font_size = int(self.lineEdit_interface_font_size.text())
+            self.user_preferences.interface_font_size = interface_font_size
+        except:
+            pass
 
     def confirm_and_update_user_preferences(self):
-
-        self.update_logo_state()
-        self.update_background_color_state()
-        self.update_font_color_state()
-        self.update_reference_scale_state()
-        self.update_nodes_lines_elements_settings()
-        self.update_transparency_value()
-
-        return
-
-
-        preferences = { 'interface theme' : self.main_window.interface_theme,
-                        'background color' : str(self.opv.opvRenderer.background_color),
-                        'bottom font color' : str(self.opv.bottom_font_color),
-                        'nodes color' : str(self.opv.opvRenderer.nodes_color),
-                        'lines color' : str(self.opv.opvRenderer.lines_color),
-                        'surfaces color' : str(self.opv.opvRenderer.surfaces_color),
-                        'transparency' : str(self.opv.opvRenderer.elements_transparency),
-                        'openpulse logo' : str(int(self.opv.opvRenderer.add_OpenPulse_logo)),
-                        'Reference scale' : str(int(self.opv.opvRenderer.show_reference_scale)) }
-        
-        self.config.write_user_preferences_in_file(preferences)
-        
-        self.update_renders()
-        self._initialize()
-        # self.close()
+        # self.main_window.update()
 
     def update_renders(self):
         return
@@ -303,28 +291,7 @@ class RendererUserPreferencesInput(QDialog):
             self.main_window.plot_mesh()
 
     def reset_to_default(self):
-        self.reset_logo_state()
-        self.reset_background_color_state()
-        self.reset_font_color_state()
-        self.reset_reference_scale_state()
-        self.reset_nodes_lines_elements_settings()
-        self.reset_transparency_value()
-        return
-
-        preferences = { 'interface theme' : self.main_window.interface_theme,
-                        'background color' : str(self.opv.opvRenderer.background_color),
-                        'bottom font color' : str(self.opv.bottom_font_color),
-                        'nodes color' : str(self.opv.opvRenderer.nodes_color),
-                        'lines color' : str(self.opv.opvRenderer.lines_color),
-                        'surfaces color' : str(self.opv.opvRenderer.surfaces_color),
-                        'transparency' : str(self.opv.opvRenderer.elements_transparency),
-                        'openpulse logo' : str(int(self.opv.opvRenderer.add_OpenPulse_logo)),
-                        'Reference scale' : str(int(self.opv.opvRenderer.show_reference_scale)) }
-
-        self.config.write_user_preferences_in_file(preferences)
-        
-        self.update_renders()
-        self._initialize()
+        self.user_preferences.set_preferences_to_default()
 
     def reset_logo_state(self):
         self.checkBox_OpenPulse_logo.setChecked(True)

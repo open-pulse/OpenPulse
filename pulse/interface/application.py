@@ -29,7 +29,7 @@ class Application(QApplication):
         self.loader = LoadProject()
 
         # user preferences
-        # self.user_preferences = UserPreferences()
+        self.user_preferences = UserPreferences()
 
         # gui
         self.main_window = MainWindow()
