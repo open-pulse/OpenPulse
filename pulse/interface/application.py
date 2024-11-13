@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QApplication
 
 from pulse import ICON_DIR, UI_DIR, TEMP_PROJECT_FILE
 from pulse.interface.main_window import MainWindow
-from pulse.interface.user_preferences import UserPreferences
 from pulse.interface.others.splash_screen import SplashScreen
 
 from pulse.project.config import Config
@@ -27,9 +26,6 @@ class Application(QApplication):
         self.pulse_file = ProjectFile(TEMP_PROJECT_FILE)
         self.project = Project()
         self.loader = LoadProject()
-
-        # user preferences
-        self.user_preferences = UserPreferences()
 
         # gui
         self.main_window = MainWindow()

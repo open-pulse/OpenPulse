@@ -5,6 +5,8 @@ import sys
 import configparser
 from pathlib import Path
 
+from pulse.interface.user_preferences import UserPreferences
+
 class Config:
     def __init__(self):
         self.reset()
@@ -13,6 +15,7 @@ class Config:
         self.recent_projects = dict()
         self.open_last_project = False
         self.config_path = Path().home() / ".pulse_config"
+        self.user_preferences = UserPreferences()
         self.load_config_file()
         self.load_args()
 

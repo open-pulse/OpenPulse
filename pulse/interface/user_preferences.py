@@ -6,9 +6,8 @@ from molde.colors import Color, color_names
 class UserPreferences:
     renderer_background_color_1: Color = color_names.WHITE
     renderer_background_color_2: Color = color_names.WHITE
-    points_color: Color = color_names.WHITE
-    nodes_color: Color = color_names.WHITE
-    lines_color: Color = color_names.WHITE
+    nodes_points_color: Color = Color("#FFB432")
+    lines_color: Color = Color("#5A5A5A")
     tubes_color: Color = color_names.WHITE
     renderer_font_color: Color = color_names.WHITE
     renderer_font_size: int  = 16
@@ -18,11 +17,20 @@ class UserPreferences:
         self.renderer_background_color_1 = Color("#8092A6")
         self.renderer_background_color_2 = Color("#EEF2F3")
         self.renderer_font_color = Color("#111111")
+        self.nodes_points_color = Color("#FFB432")
+        self.lines_color = Color("#5A5A5A")
+        self.tubes_color = color_names.WHITE
+        self.renderer_font_color = color_names.WHITE
     
     def set_dark_theme(self):
         self.renderer_background_color_1 = Color("#0b0f17")
         self.renderer_background_color_2 = Color("#3e424d")
         self.renderer_font_color = Color("#CCCCCC")
+        self.nodes_points_color = Color("#FFB432")
+        self.lines_color = Color("#5A5A5A")
+        self.tubes_color = color_names.WHITE
+        self.renderer_font_color = color_names.WHITE
 
-    def set_preferences_to_default(self):
-        pass
+    def reset_font_size(self):
+        self.renderer_font_size = 16
+        self.interface_font_size = 16

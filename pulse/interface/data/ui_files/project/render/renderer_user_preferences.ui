@@ -656,7 +656,7 @@
           </widget>
          </item>
          <item row="5" column="3">
-          <widget class="QPushButton" name="pushButton_nodes_color">
+          <widget class="QPushButton" name="pushButton_nodes_points_color">
            <property name="minimumSize">
             <size>
              <width>90</width>
@@ -754,7 +754,7 @@
           </widget>
          </item>
          <item row="5" column="2">
-          <widget class="QLineEdit" name="lineEdit_nodes_color">
+          <widget class="QLineEdit" name="lineEdit_nodes_points_color">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -1168,8 +1168,8 @@
   <tabstop>pushButton_renderer_background_color_1</tabstop>
   <tabstop>lineEdit_renderer_font_color</tabstop>
   <tabstop>pushButton_renderer_font_color</tabstop>
-  <tabstop>lineEdit_nodes_color</tabstop>
-  <tabstop>pushButton_nodes_color</tabstop>
+  <tabstop>lineEdit_nodes_points_color</tabstop>
+  <tabstop>pushButton_nodes_points_color</tabstop>
   <tabstop>lineEdit_lines_color</tabstop>
   <tabstop>pushButton_lines_color</tabstop>
   <tabstop>lineEdit_tubes_color</tabstop>

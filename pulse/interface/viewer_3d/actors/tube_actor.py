@@ -37,6 +37,7 @@ class TubeActor(vtkActor):
         super().__init__()
 
         self.project = app().project
+        self.user_preferences = app().main_window.config.user_preferences
         self.model = self.project.model
         self.preprocessor = self.project.preprocessor
         self.elements = self.project.get_structural_elements()
@@ -63,8 +64,10 @@ class TubeActor(vtkActor):
         colors = vtkUnsignedCharArray()
         colors.SetNumberOfComponents(3)
         colors.SetNumberOfTuples(len(visible_elements))
+
         colors.Fill(255)
         colors.SetName("colors")
+
 
         section_index = dict()
         for element in visible_elements.values():
@@ -101,6 +104,8 @@ class TubeActor(vtkActor):
         self.GetProperty().SetSpecular(1.5)
         self.GetProperty().SetSpecularPower(80)
         self.GetProperty().SetSpecularColor(1, 1, 1)
+        
+        self.clear_colors()
 
     def get_element_coordinates(self, element) -> tuple[float, float, float]:
         return element.first_node.coordinates
@@ -188,7 +193,8 @@ class TubeActor(vtkActor):
             self.color_by_fluid()
 
         else:
-            self.set_color((255, 255, 255))
+            tubes_color = self.user_preferences.tubes_color.to_rgb()
+            self.set_color(tubes_color)
 
     def set_color(self, color, elements=None, lines=None):
         # This copy is needed, otherwise the mapper is not updated

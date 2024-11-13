@@ -835,9 +835,11 @@ class MainWindow(QMainWindow):
 
     def action_set_dark_theme_callback(self):
         self.set_theme("dark")
+        self.config.user_preferences.set_dark_theme()
 
     def action_set_light_theme_callback(self):
         self.set_theme("light")
+        self.config.user_preferences.set_light_theme()
     
     def set_theme(self, theme):
         if theme not in ["light", "dark"]:

@@ -12,6 +12,7 @@ class PointsActor(GhostActor):
         super().__init__()
 
         self.points = app().project.get_geometry_points()
+        self.user_preferences = app().main_window.config.user_preferences
         self.hidden_nodes = kwargs.get("hidden_nodes", set())
         self.show_deformed = show_deformed
         self.build()
@@ -40,7 +41,9 @@ class PointsActor(GhostActor):
         mapper = vtkPolyDataMapper()
         mapper.SetInputData(data)
         mapper.SetScalarModeToUseCellData()
-        set_polydata_colors(data, (255, 180, 50))
+        
+        points_color = self.user_preferences.nodes_points_color.to_rgb()
+        set_polydata_colors(data, points_color)
 
         self.SetMapper(mapper)
         self.GetProperty().SetPointSize(15)
