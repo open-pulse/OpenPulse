@@ -42,17 +42,17 @@ class PointsActor(GhostActor):
         mapper.SetInputData(data)
         mapper.SetScalarModeToUseCellData()
         
-        points_color = self.user_preferences.nodes_points_color.to_rgb()
-        set_polydata_colors(data, points_color)
-
         self.SetMapper(mapper)
         self.GetProperty().SetPointSize(15)
         self.GetProperty().RenderPointsAsSpheresOn()
         self.make_ghost()
 
+        self.clear_colors()
+
     def clear_colors(self):
         data = self.GetMapper().GetInput()
-        set_polydata_colors(data, (255, 180, 50))
+        points_color = self.user_preferences.nodes_points_color.to_rgb()
+        set_polydata_colors(data, points_color)
 
     def set_color(self, color, nodes=None):
         data = self.GetMapper().GetInput()
