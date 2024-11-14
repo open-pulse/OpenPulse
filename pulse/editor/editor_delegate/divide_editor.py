@@ -16,6 +16,12 @@ class DivideEditor(Editor):
         for structure in self.pipeline.selected_structures:
             self._divide_evenly(structure, divisions)
         self.pipeline.commit()
+    
+    def divide_structures_by_projection(self, dx: float, dy: float, dz: float, invert_origin: bool):
+        for structure in self.pipeline.selected_structures:
+            point, _ = self._interpolate_projection(structure, dx, dy, dz, invert_origin)
+            self._divide_on_point(structure, point)
+        self.pipeline.commit()
 
     def preview_divide_structures(self, t: float):
         all_points = []
@@ -31,6 +37,13 @@ class DivideEditor(Editor):
             points = self._interpolate_evenly(structure, divisions)
             all_points.extend(points)
         self.pipeline.add_points(all_points)
+    
+    def preview_divide_structures_by_projection(self, dx: float, dy: float, dz: float, invert_origin : bool):
+        intermediary_projection_point = None
+        for structure in self.pipeline.selected_structures:
+            intermediary_projection_point, projection_point = self._interpolate_projection(structure, dx, dy, dz, invert_origin)
+            if intermediary_projection_point is not None:
+                self.pipeline.add_points([intermediary_projection_point, projection_point])
 
     def _divide_on_point(self, structure: Structure, point: Point):
 
@@ -110,3 +123,9 @@ class DivideEditor(Editor):
                 return []
             subdivisions.append(point)
         return subdivisions
+
+    def _interpolate_projection(self, structure: Structure, dx: float, dy: float, dz: float, invert_origin: bool):
+         if isinstance(structure, LinearStructure):
+            return structure.interpolate_projection(dx, dy, dz, invert_origin)
+
+
