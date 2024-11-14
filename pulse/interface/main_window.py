@@ -62,12 +62,13 @@ class MainWindow(QMainWindow):
 
         self.visualization_filter = VisualizationFilter.all_true()
         self.selection_filter = SelectionFilter.all_false()
-
+        
         self.ui_dir = UI_DIR
         self.config = app().config
         self.project = app().project
 
         self._initialize()
+        self.load_user_preferences()
 
     def _initialize(self):
 
@@ -834,12 +835,13 @@ class MainWindow(QMainWindow):
         self.update_theme = True
 
     def action_set_dark_theme_callback(self):
-        self.set_theme("dark")
         self.config.user_preferences.set_dark_theme()
+        self.set_theme("dark")
 
     def action_set_light_theme_callback(self):
-        self.set_theme("light")
         self.config.user_preferences.set_light_theme()
+        self.set_theme("light")
+
     
     def set_theme(self, theme):
         if theme not in ["light", "dark"]:

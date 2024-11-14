@@ -42,7 +42,6 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.create_axes()
         self.create_scale_bar()
-        self.set_theme("light")
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
 
@@ -114,6 +113,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
             self.update_info_text()
 
+        self.update_theme()
         self.update()
 
     def remove_actors(self):
@@ -170,13 +170,47 @@ class MeshRenderWidget(CommonRenderWidget):
             self.structural_elements_symbols_actor,
         ]
         return all([actor is not None for actor in actors])
+    
+    def set_theme(self, *args, **kwargs):
+        """ It's necessary because if this function doesn't exist
+            CommomRenderWidget will call it's own set_theme function in
+            it's constructor """
+                            
+        
+        self.update_theme()
 
-    def set_theme(self, theme):
-        super().set_theme(theme)
-        self.create_logos(theme)
+    def update_theme(self):
+        user_preferences = app().main_window.config.user_preferences
+        bkg_1 = user_preferences.renderer_background_color_1
+        bkg_2 = user_preferences.renderer_background_color_2
+        font_color = user_preferences.renderer_font_color
 
-    def create_logos(self, theme="light"):
-        if theme == "light":
+        if bkg_1 is None:
+            raise ValueError('Missing value "bkg_1"')
+        if bkg_2 is None:
+            raise ValueError('Missing value "bkg_2"')
+        if font_color is None:
+            raise ValueError('Missing value "font_color"')
+
+        self.renderer.GradientBackgroundOn()
+        self.renderer.SetBackground(bkg_1.to_rgb_f())
+        self.renderer.SetBackground2(bkg_2.to_rgb_f())
+
+        if hasattr(self, "text_actor"):
+            self.text_actor.GetTextProperty().SetColor(font_color.to_rgb_f())
+
+        if hasattr(self, "colorbar_actor"):
+            self.colorbar_actor.GetTitleTextProperty().SetColor(font_color.to_rgb_f())
+            self.colorbar_actor.GetLabelTextProperty().SetColor(font_color.to_rgb_f())
+
+        if hasattr(self, "scale_bar_actor"):
+            self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
+            self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
+
+        self.create_logos()
+
+    def create_logos(self):
+        if app().main_window.user_preferences["interface theme"] == "light":
             path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
         else:
             path = ICON_DIR / "logos/OpenPulse_logo_white.png"
