@@ -19,7 +19,7 @@ class DivideEditor(Editor):
     
     def divide_structures_by_projection(self, dx: float, dy: float, dz: float, invert_origin: bool):
         for structure in self.pipeline.selected_structures:
-            _, point = self._interpolate_projection(structure, dx, dy, dz, invert_origin)
+            point, _ = self._interpolate_projection(structure, dx, dy, dz, invert_origin)
             self._divide_on_point(structure, point)
         self.pipeline.commit()
 
@@ -125,7 +125,7 @@ class DivideEditor(Editor):
         return subdivisions
 
     def _interpolate_projection(self, structure: Structure, dx: float, dy: float, dz: float, invert_origin: bool):
-         if isinstance(structure, LinearStructure | SimpleCurve):
+         if isinstance(structure, LinearStructure):
             return structure.interpolate_projection(dx, dy, dz, invert_origin)
 
 

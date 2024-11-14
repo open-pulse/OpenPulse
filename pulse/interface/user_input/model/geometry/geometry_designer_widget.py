@@ -516,10 +516,16 @@ class GeometryDesignerWidget(QWidget):
             self.pipeline.divide_structures_evenly(value)
         
         elif division_type == "projection division":
+            dx = 0
+            dy = 0
+            dz = 0
             try:
-                dx = float(self.division_dx_line_edit.text() or 0)
-                dy = float(self.division_dy_line_edit.text() or 0)
-                dz = float(self.division_dz_line_edit.text() or 0)
+                if self.deltas_combobox.currentIndex() == 0:
+                    dx = float(self.deltas_line_edit.text() or 0)
+                elif self.deltas_combobox.currentIndex() == 1:
+                    dy = float(self.deltas_line_edit.text() or 0)
+                else:
+                    dz = float(self.deltas_line_edit.text() or 0)
             except:
                 return
 
