@@ -462,6 +462,12 @@ class GeometryDesignerWidget(QWidget):
             if value is None:
                 return
 
+            if value < 0:
+                value = abs(value)
+                self.distance_value_line_edit.blockSignals(True)
+                self.distance_value_line_edit.setText(str(value))
+                self.distance_value_line_edit.blockSignals(False)
+
             division_data[direction_index] = value
 
             self.pipeline.preview_divided_structures_by_distance_from_point(selected_point, division_data)
@@ -500,7 +506,14 @@ class GeometryDesignerWidget(QWidget):
             if value is None:
                 return
 
+            if value < 0:
+                value = abs(value)
+                self.distance_value_line_edit.blockSignals(True)
+                self.distance_value_line_edit.setText(str(value))
+                self.distance_value_line_edit.blockSignals(False)
+
             division_data[direction_index] = value
+
             self.pipeline.divide_structures_by_distance_from_point(selected_point, division_data)
 
         self.pipeline.clear_structure_selection()
