@@ -410,7 +410,7 @@
             </font>
            </property>
            <property name="text">
-            <string>px</string>
+            <string>pt</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -425,7 +425,7 @@
             </font>
            </property>
            <property name="text">
-            <string>px</string>
+            <string>pt</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

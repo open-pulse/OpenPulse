@@ -74,8 +74,10 @@ class AnalysisToolbar(QToolBar):
         self.setMovable(True)
         self.setFloatable(True)
 
+        user_preferences = app().main_window.config.user_preferences
+
         font = QFont()
-        font.setPointSize(10)
+        font.setPointSize(user_preferences.interface_font_size)
 
         for widget in self.findChildren((QComboBox, QLabel, QPushButton)):
             widget.setFont(font)

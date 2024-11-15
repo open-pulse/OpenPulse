@@ -41,6 +41,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.mouse_click = (0, 0)
 
         self.create_axes()
+        self.create_logos()
         self.create_scale_bar()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
@@ -207,8 +208,6 @@ class MeshRenderWidget(CommonRenderWidget):
             self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
 
-        self.create_logos()
-
     def create_logos(self):
         if app().main_window.user_preferences["interface theme"] == "light":
             path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
@@ -221,6 +220,18 @@ class MeshRenderWidget(CommonRenderWidget):
         self.open_pulse_logo = self.create_logo(path)
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
+    
+    def enable_open_pulse_logo(self):
+        self.open_pulse_logo.VisibilityOn()
+
+    def disable_open_pulse_logo(self):
+        self.open_pulse_logo.VisibilityOff()
+    
+    def enable_scale_bar(self):
+        self.scale_bar_actor.VisibilityOn()
+
+    def disable_scale_bar(self):
+        self.scale_bar_actor.VisibilityOff()
 
     def click_callback(self, x, y):
         self.mouse_click = x, y

@@ -31,6 +31,7 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.renderer.RemoveAllLights()
 
         self.create_axes()
+        self.create_logos()
         self.create_camera_light(0.1, 0.1)
 
         self._create_connections()
@@ -102,8 +103,6 @@ class GeometryRenderWidget(CommonRenderWidget):
             self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
 
-        self.create_logos()
-
     def create_logos(self):
         if app().main_window.user_preferences["interface theme"] == "light":
             path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
@@ -116,6 +115,12 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.open_pulse_logo = self.create_logo(path)
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
+
+    def enable_open_pulse_logo(self):
+        self.open_pulse_logo.VisibilityOn()
+
+    def disable_open_pulse_logo(self):
+        self.open_pulse_logo.VisibilityOff()
 
     def visualization_changed_callback(self):
         if not self._actor_exists():

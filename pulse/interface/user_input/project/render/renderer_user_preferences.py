@@ -35,7 +35,6 @@ class RendererUserPreferencesInput(QDialog):
         self.interface_font_size = None
 
         self._config_window()
-        self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self.load_user_preferences()
@@ -46,25 +45,10 @@ class RendererUserPreferencesInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
 
-    def _initialize(self):
-        self.cache_setup = list()
-        # self.cache_setup = [self.opv.opvRenderer.background_color,
-        #                     self.opv.bottom_font_color,
-        #                     self.opv.opvRenderer.nodes_color,
-        #                     self.opv.opvRenderer.lines_color,
-        #                     self.opv.opvRenderer.surfaces_color,
-        #                     self.opv.opvRenderer.elements_transparency,
-        #                     self.opv.opvRenderer.add_OpenPulse_logo,
-        #                     self.opv.opvRenderer.show_reference_scale]
-
     def _define_qt_variables(self):
-
         # QCheckBox
         self.checkBox_OpenPulse_logo : QCheckBox
         self.checkBox_reference_scale : QCheckBox
-
-        # QComboBox
-        # self.comboBox_background_theme : QComboBox
 
         # QFrame
         self.frame_background_color : QFrame
@@ -93,9 +77,6 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_update_settings : QPushButton
 
     def _create_connections(self):
-        #
-        # self.comboBox_background_theme.currentIndexChanged.connect(self.update_background_color_controls_visibility)
-        #
         self.pushButton_renderer_background_color_1.clicked.connect(self.update_renderer_background_color_1)
         self.pushButton_renderer_background_color_2.clicked.connect(self.update_renderer_background_color_2)
         self.pushButton_renderer_font_color.clicked.connect(self.update_renderer_font_color)
@@ -106,10 +87,6 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
         self.lineEdit_renderer_font_size.textChanged.connect(self.update_renderer_font_size)
         self.lineEdit_interface_font_size.textChanged.connect(self.update_interface_font_size)
-        #
-        # self.slider_transparency.valueChanged.connect(self.update_transparency_value)
-        #
-        # self.update_slider_transparency()
 
     def update_renderer_background_color_1(self):
         read = PickColorInput(title="Pick the background color")
@@ -199,7 +176,6 @@ class RendererUserPreferencesInput(QDialog):
     def update_line_edit_renderer_font_size(self):
         renderer_font_size = str(self.user_preferences.renderer_font_size)
         self.lineEdit_renderer_font_size.setText(renderer_font_size)
-            
         
     def update_interface_font_size(self):
         try:
@@ -238,6 +214,8 @@ class RendererUserPreferencesInput(QDialog):
             self.user_preferences.interface_font_size = self.interface_font_size
 
         self.main_window.update_plots()
+        self.update_open_pulse_logo_state()
+        self.update_reference_scale_state()
         self.accept()        
 
     def reset_to_default(self):
@@ -247,15 +225,51 @@ class RendererUserPreferencesInput(QDialog):
             self.user_preferences.set_light_theme()
         
         self.user_preferences.reset_font_size()
+        self.reset_logo_state()
+        self.reset_reference_scale_state()
         self.load_user_preferences()
 
     def reset_logo_state(self):
-        self.checkBox_OpenPulse_logo.setChecked(True)
-        self.update_logo_state()
+        self.user_preferences.reset_open_pulse_logo()
+        self.checkBox_OpenPulse_logo.setChecked(1)
 
     def reset_reference_scale_state(self):
-        self.checkBox_reference_scale.setChecked(True)
-        self.update_reference_scale_state()
+        self.user_preferences.reset_reference_scale_bar()
+        self.checkBox_reference_scale.setChecked(1)
+    
+    def update_open_pulse_logo_state(self):
+        if self.checkBox_OpenPulse_logo.isChecked():
+            self.user_preferences.show_open_pulse_logo = True
+            self.main_window.results_widget.enable_open_pulse_logo()
+            self.main_window.geometry_widget.enable_open_pulse_logo()
+            self.main_window.mesh_widget.enable_open_pulse_logo()
+        else:
+            self.user_preferences.show_open_pulse_logo = False
+            self.main_window.results_widget.disable_open_pulse_logo()
+            self.main_window.geometry_widget.disable_open_pulse_logo()
+            self.main_window.mesh_widget.disable_open_pulse_logo()
+
+    def update_show_open_pulse_logo_checkbox(self):
+        if self.user_preferences.show_open_pulse_logo:
+            self.checkBox_OpenPulse_logo.setChecked(1)
+        else:
+            self.checkBox_OpenPulse_logo.setChecked(0)
+
+    def update_reference_scale_state(self):
+        if self.checkBox_reference_scale.isChecked():
+            self.user_preferences.show_reference_scale_bar = True
+            self.main_window.results_widget.enable_scale_bar()
+            self.main_window.mesh_widget.enable_scale_bar()
+        else:
+            self.user_preferences.show_reference_scale_bar = False
+            self.main_window.results_widget.disable_scale_bar()
+            self.main_window.mesh_widget.disable_scale_bar()
+
+    def update_show_reference_scalebar_checkbox(self):
+        if self.user_preferences.show_reference_scale_bar:
+            self.checkBox_reference_scale.setChecked(1)
+        else:
+            self.checkBox_reference_scale.setChecked(0)
 
     def load_user_preferences(self):
         self.update_line_edit_renderer_background_color_1()
@@ -266,6 +280,8 @@ class RendererUserPreferencesInput(QDialog):
         self.update_line_edit_tubes_color()
         self.update_line_edit_renderer_font_size()
         self.update_line_edit_interface_font_size()
+        self.update_show_open_pulse_logo_checkbox()
+        self.update_show_reference_scalebar_checkbox()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

@@ -10,8 +10,10 @@ class UserPreferences:
     lines_color: Color = Color("#5A5A5A")
     tubes_color: Color = color_names.WHITE
     renderer_font_color: Color = color_names.WHITE
-    renderer_font_size: int  = 16
-    interface_font_size: int = 16
+    renderer_font_size: int  = 10
+    interface_font_size: int = 10
+    show_open_pulse_logo : bool = True
+    show_reference_scale_bar: bool = True
 
     def set_light_theme(self):
         self.renderer_background_color_1 = Color("#8092A6")
@@ -32,5 +34,11 @@ class UserPreferences:
         self.renderer_font_color = color_names.WHITE
 
     def reset_font_size(self):
-        self.renderer_font_size = 16
-        self.interface_font_size = 16
+        self.renderer_font_size = 10
+        self.interface_font_size = 10
+    
+    def reset_open_pulse_logo(self):
+        self.show_open_pulse_logo = True
+    
+    def reset_reference_scale_bar(self):
+        self.show_reference_scale_bar = True
