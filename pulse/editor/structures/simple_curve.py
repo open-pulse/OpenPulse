@@ -98,9 +98,6 @@ class SimpleCurve(Structure):
         intermediary_projection_point = self.start + t * (self.end - self.start)
         direction = normalize(intermediary_projection_point - self.center)
         return self.center + direction * self.curvature
-    
-    def interpolate_projection(self, dx: float, dy: float, dz: float, invert_origin: bool):
-        pass
 
     def as_dict(self) -> dict:
         return super().as_dict() | {

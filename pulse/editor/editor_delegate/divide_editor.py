@@ -17,9 +17,9 @@ class DivideEditor(Editor):
             self._divide_evenly(structure, divisions)
         self.pipeline.commit()
     
-    def divide_structures_by_projection(self, dx: float, dy: float, dz: float, invert_origin: bool):
+    def divide_structures_by_distance_from_point(self, selected_point: str, division_data: list):
         for structure in self.pipeline.selected_structures:
-            point, _ = self._interpolate_projection(structure, dx, dy, dz, invert_origin)
+            point = self._process_division_point(structure, selected_point, division_data)
             self._divide_on_point(structure, point)
         self.pipeline.commit()
 
@@ -37,13 +37,12 @@ class DivideEditor(Editor):
             points = self._interpolate_evenly(structure, divisions)
             all_points.extend(points)
         self.pipeline.add_points(all_points)
-    
-    def preview_divide_structures_by_projection(self, dx: float, dy: float, dz: float, invert_origin : bool):
-        intermediary_projection_point = None
+
+    def preview_divided_structures_by_distance_from_point(self, selected_point: str, division_data: list):
         for structure in self.pipeline.selected_structures:
-            intermediary_projection_point, projection_point = self._interpolate_projection(structure, dx, dy, dz, invert_origin)
-            if intermediary_projection_point is not None:
-                self.pipeline.add_points([intermediary_projection_point, projection_point])
+            division_point = self._process_division_point(structure, selected_point, division_data)
+            if division_point is not None:
+                self.pipeline.add_points([division_point])
 
     def _divide_on_point(self, structure: Structure, point: Point):
 
@@ -124,8 +123,6 @@ class DivideEditor(Editor):
             subdivisions.append(point)
         return subdivisions
 
-    def _interpolate_projection(self, structure: Structure, dx: float, dy: float, dz: float, invert_origin: bool):
+    def _process_division_point(self, structure: Structure, selected_point: str, division_data: list):
          if isinstance(structure, LinearStructure):
-            return structure.interpolate_projection(dx, dy, dz, invert_origin)
-
-
+            return structure.get_division_point_from_line(selected_point, division_data)

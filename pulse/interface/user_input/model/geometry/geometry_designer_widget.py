@@ -77,6 +77,8 @@ class GeometryDesignerWidget(QWidget):
         self.division_combobox: QComboBox
         self.bending_options_combobox: QComboBox
         self.deltas_combobox: QComboBox
+        self.selected_point_combo_box: QComboBox
+        self.distance_axis_combo_box: QComboBox
 
         # QFrame
         self.frame_bending_options: QFrame
@@ -104,6 +106,7 @@ class GeometryDesignerWidget(QWidget):
         self.unity_z_label: QLineEdit
         self.bending_radius_line_edit: QLineEdit
         self.deltas_line_edit: QLineEdit
+        self.distance_value_line_edit: QLineEdit
 
         # QLabel
         self.dx_label: QLabel
@@ -165,10 +168,9 @@ class GeometryDesignerWidget(QWidget):
         self.position_slider.valueChanged.connect(self.position_slider_callback)
         self.position_spinbox.textChanged.connect(self.preview_divisions_callback)
 
-        self.deltas_line_edit.textChanged.connect(self.preview_divisions_callback)
-        self.deltas_combobox.currentIndexChanged.connect(self.preview_divisions_callback)
-        self.invert_origin_checkbox.stateChanged.connect(self.preview_divisions_callback)
-        
+        self.distance_value_line_edit.textChanged.connect(self.preview_divisions_callback)
+        self.distance_axis_combo_box.currentIndexChanged.connect(self.preview_divisions_callback)        
+        self.selected_point_combo_box.currentIndexChanged.connect(self.preview_divisions_callback)        
 
         self.cancel_division_button.clicked.connect(self.cancel_division_callback)
         self.apply_division_button.clicked.connect(self.apply_division_callback)
@@ -201,7 +203,7 @@ class GeometryDesignerWidget(QWidget):
 
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback("pipe")
-        self.division_type_changed_callback("single division")
+        self.division_type_changed_callback()
 
     def selection_callback(self):
         if issubclass(self.current_structure_type, Point):
@@ -393,24 +395,28 @@ class GeometryDesignerWidget(QWidget):
         height = self.options_stack_widget.currentWidget().sizeHint().height()
         self.options_stack_widget.setFixedHeight(height)
 
-    def division_type_changed_callback(self, text: str):
-        division_type = text.lower()
+    def division_type_changed_callback(self):
 
-        if division_type == "single division":
+        index = self.division_combobox.currentIndex()
+
+        if index == 0:
             self.options_stack_widget.setCurrentIndex(0)
             self.position_slider.setMinimum(0)
             self.position_slider.setMaximum(100)
             self.position_slider.setValue(50)
 
-        elif division_type == "multiple division":
+        elif index == 1:
             self.options_stack_widget.setCurrentIndex(1)
             self.division_slider.setMinimum(1)
             self.division_slider.setMaximum(10)
             self.division_slider.setValue(1)
-        
-        elif division_type == "projection division":
+
+        elif index == 2:
             self.options_stack_widget.setCurrentIndex(2)
-        
+
+        else:
+            return
+
         self.adjust_stack_widget_height()
 
     def division_slider_callback(self, value):
@@ -420,10 +426,11 @@ class GeometryDesignerWidget(QWidget):
         self.position_spinbox.setValue(value)
 
     def preview_divisions_callback(self, value):
-        division_type = self.division_combobox.currentText().lower()
+        
         self.pipeline.dismiss()
+        index = self.division_combobox.currentIndex()
 
-        if division_type == "single division":
+        if index == 0:
             value = int(value)
             self.pipeline.preview_divide_structures(value / 100)
 
@@ -432,7 +439,7 @@ class GeometryDesignerWidget(QWidget):
             self.position_slider.blockSignals(False)
 
 
-        elif division_type == "multiple division":
+        elif index == 1:
             value = int(value)
             self.pipeline.preview_divide_structures_evenly(value)
 
@@ -440,24 +447,24 @@ class GeometryDesignerWidget(QWidget):
             self.division_slider.setValue(value)
             self.division_slider.blockSignals(False)
         
-        elif division_type == "projection division":
-            dx = 0
-            dy = 0
-            dz = 0
+        elif index == 2:
 
-            try:
-                if self.deltas_combobox.currentIndex() == 0:
-                    dx = float(self.deltas_line_edit.text() or 0)
-                elif self.deltas_combobox.currentIndex() == 1:
-                    dy = float(self.deltas_line_edit.text() or 0)
-                else:
-                    dz = float(self.deltas_line_edit.text() or 0)
-            except:
+            if self.selected_point_combo_box.currentIndex():
+                selected_point = "end_point"
+            else:
+                selected_point = "start_point"
+
+            division_data = [None, None, None, None]
+            direction_index = self.distance_axis_combo_box.currentIndex()
+
+            value = self._eval_number(self.distance_value_line_edit.text())
+
+            if value is None:
                 return
 
-            invert_origin = self.invert_origin_checkbox.isChecked()
+            division_data[direction_index] = value
 
-            self.pipeline.preview_divide_structures_by_projection(dx, dy, dz, invert_origin)
+            self.pipeline.preview_divided_structures_by_distance_from_point(selected_point, division_data)
 
         self.render_widget.update_plot(reset_camera=False)
     
@@ -466,35 +473,35 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=False)
 
     def apply_division_callback(self):
-        self.pipeline.dismiss()
-        division_type = self.division_combobox.currentText().lower()
 
-        if division_type == "single division":
+        self.pipeline.dismiss()
+        index = self.division_combobox.currentIndex()
+
+        if index == 0:
             value = self.position_slider.value()
             self.pipeline.divide_structures(value / 100)
 
-        elif division_type == "multiple division":
+        elif index == 1:
             value = self.division_slider.value()
             self.pipeline.divide_structures_evenly(value)
         
-        elif division_type == "projection division":
-            dx = 0
-            dy = 0
-            dz = 0
-            try:
-                if self.deltas_combobox.currentIndex() == 0:
-                    dx = float(self.deltas_line_edit.text() or 0)
-                elif self.deltas_combobox.currentIndex() == 1:
-                    dy = float(self.deltas_line_edit.text() or 0)
-                else:
-                    dz = float(self.deltas_line_edit.text() or 0)
-            except:
+        elif index == 2:
+
+            if self.selected_point_combo_box.currentIndex():
+                selected_point = "end_point"
+            else:
+                selected_point = "start_point"
+
+            division_data = [None, None, None, None]
+            direction_index = self.distance_axis_combo_box.currentIndex()
+
+            value = self._eval_number(self.distance_value_line_edit.text())
+
+            if value is None:
                 return
 
-            invert_origin = self.invert_origin_checkbox.isChecked()
-
-            self.pipeline.divide_structures_by_projection(dx, dy, dz, invert_origin)
-
+            division_data[direction_index] = value
+            self.pipeline.divide_structures_by_distance_from_point(selected_point, division_data)
 
         self.pipeline.clear_structure_selection()
         self.render_widget.update_plot(reset_camera=False)

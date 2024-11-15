@@ -341,17 +341,17 @@ class Pipeline:
     def divide_structures_evenly(self, divisions=1):
         self.divide_editor.divide_structures_evenly(divisions)
     
-    def divide_structures_by_projection(self, dx, dy, dz, invert_origin):
-        self.divide_editor.divide_structures_by_projection(dx, dy, dz, invert_origin)
+    def divide_structures_by_distance_from_point(self, selected_point, division_data):
+        self.divide_editor.divide_structures_by_distance_from_point(selected_point, division_data)
 
     def preview_divide_structures(self, t=0.5):
         self.divide_editor.preview_divide_structures(t)
 
     def preview_divide_structures_evenly(self, divisions=1):
         self.divide_editor.preview_divide_structures_evenly(divisions)
-    
-    def preview_divide_structures_by_projection(self, dx, dy, dz, invert_origin):
-        self.divide_editor.preview_divide_structures_by_projection(dx, dy, dz, invert_origin)
+
+    def preview_divided_structures_by_distance_from_point(self, selected_point: str, division_data: list):
+        self.divide_editor.preview_divided_structures_by_distance_from_point(selected_point, division_data)
 
     # Common
     def as_dict(self) -> dict:
