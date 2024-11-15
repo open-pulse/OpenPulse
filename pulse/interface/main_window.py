@@ -866,6 +866,7 @@ class MainWindow(QMainWindow):
         
         self.action_set_light_theme.setDisabled(theme == "light")
         self.action_set_dark_theme.setDisabled(theme == "dark")
+        self.action_user_preferences.setDisabled(0)
 
         # paint the icons of every children widget
         widgets = self.findChildren((QAbstractButton, QAction))

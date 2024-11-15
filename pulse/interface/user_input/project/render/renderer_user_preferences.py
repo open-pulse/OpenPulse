@@ -216,6 +216,11 @@ class RendererUserPreferencesInput(QDialog):
         self.main_window.update_plots()
         self.update_open_pulse_logo_state()
         self.update_reference_scale_state()
+
+        self.main_window.action_user_preferences.setDisabled(1)
+        self.main_window.action_set_dark_theme.setDisabled(0)
+        self.main_window.action_set_light_theme.setDisabled(0)
+
         self.accept()        
 
     def reset_to_default(self):
