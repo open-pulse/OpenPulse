@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from pulse.model.compressor_model import CompressorModel
+from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
 
 pi = 3.141592653589
 pi_2 = 1.57079632679489
@@ -30,7 +30,7 @@ def load_default_compressor_setup(crank_angle=0):
                     'isentropic_exponent' : 1.400,
                     'molar_mass' : 2.01568  }
 
-    compressor = CompressorModel(parameters)
+    compressor = ReciprocatingCompressorModel(parameters)
     compressor.set_fluid_properties_and_update_state(   parameters['isentropic_exponent'],
                                                         parameters['molar_mass']   )
 

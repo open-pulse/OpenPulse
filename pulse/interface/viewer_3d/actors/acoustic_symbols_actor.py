@@ -189,7 +189,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if property == "compressor_excitation":
+            if property == "reciprocating_compressor_excitation":
 
                 if data["connection_type"] == "suction":
 
@@ -220,7 +220,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         symbols = list()
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
-            if property == "compressor_excitation":
+            if property == "reciprocating_compressor_excitation":
 
                 if data["connection_type"] == "discharge":
 

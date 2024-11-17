@@ -101,10 +101,15 @@ def nodes_info_text() -> str:
             labels = ["anechoic termination", "unflanged pipe", "flanged pipe"]
             info_text += _acoustic_format("Radiation impedance", labels[impedance_type], "Type", "")
 
-        key = ("compressor_excitation", node_id)
+        key = ("reciprocating_compressor_excitation", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             info_text += compressor_excitation_info_text(data)
+
+        key = ("reciprocating_pump_excitation", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            info_text += pump_excitation_info_text(data)
 
     return info_text
 
@@ -378,6 +383,15 @@ def compressor_excitation_info_text(compressor_data: dict) -> str:
     tree.add_item("Q", "Table of values")
 
     connection_type = compressor_data["connection_type"]
+    tree.add_item("Connection type", connection_type)
+
+    return str(tree)
+
+def pump_excitation_info_text(pump_data: dict) -> str:
+    tree = TreeInfo("Volume velocity due pump excitation")
+    tree.add_item("Q", "Table of values")
+
+    connection_type = pump_data["connection_type"]
     tree.add_item("Connection type", connection_type)
 
     return str(tree)

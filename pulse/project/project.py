@@ -231,7 +231,8 @@ class Project:
                                 "volume_velocity", 
                                 "specific_impedance", 
                                 "radiation_impedance", 
-                                "compressor_excitation",
+                                "reciprocating_compressor_excitation",
+                                "reciprocating_pump_excitation",
                                 "psd_acoustic_link",
                                 "acoustic_transfer_element"
                                 ]

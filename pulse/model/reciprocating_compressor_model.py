@@ -103,7 +103,7 @@ def plot_2_yaxis(data_to_plot, title):
         fig.legend(bbox_to_anchor=(1,1), bbox_transform=ax_1.transAxes)
         plt().show() 
 
-class CompressorModel:
+class ReciprocatingCompressorModel:
 
     '''
     COMPRESSOR MODEL                                     
@@ -1555,7 +1555,7 @@ if __name__ == "__main__":
                     'isentropic_exponent' : 1.400,
                     'molar_mass' : 2.01568 }
 
-    compressor = CompressorModel(parameters)
+    compressor = ReciprocatingCompressorModel(parameters)
     compressor.set_fluid_properties_and_update_state(   parameters['isentropic_exponent'],
                                                         parameters['molar_mass']   )
 

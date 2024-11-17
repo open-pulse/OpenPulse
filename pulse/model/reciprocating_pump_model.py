@@ -137,13 +137,42 @@ class ReciprocatingPumpModel:
         self.r = parameters['stroke'] / 2                               # Length of compressor full stroke [m]
         self.L = parameters['connecting_rod_length']                    # Connecting rod length [m]
         self.rod_diam = parameters['rod_diameter']                      # Rod diameter [m]
-        self.p_ratio = parameters['pressure_ratio']                     # Pressure ratio Pd/Ps
         self.c_HE = parameters['clearance_HE'] / 100                    # Clearance HE volume as percentage of full volume (%)
         self.c_CE = parameters['clearance_CE'] / 100                    # Clearance CE volume as percentage of full volume (%)
         self.crank_angle_1 = parameters['TDC_crank_angle_1']            # Crank angle (degrees) at which piston in the head end chamber is at top dead center
         self.rpm = parameters['rotational_speed']                       # Rotational speed (rpm)
         self.acting_label = parameters['acting_label']                  # Active cylinder(s) key (int)
         self.number_of_cylinders = parameters['number_of_cylinders']    # Number of cylinders
+
+        pressure_at_suction = parameters['pressure_at_suction']              # Pressure at suction
+        pressure_at_discharge = parameters['pressure_at_discharge']          # Pressure at discharge
+        temperature_at_suction = parameters['temperature_at_suction']        # Temperature at suction
+        self.pressure_unit = parameters['pressure_unit']                     # Pressure unit
+        self.temperature_unit = parameters['temperature_unit']               # Temperature unit
+        self.bulk_modulus = parameters['bulk_modulus']                       # Fluid bulk modulus (isentropic or isothermal)
+
+        if "kgf/cm²" in self.pressure_unit:
+            self.p_suc = pressure_at_suction * kgf_cm2_to_Pa
+            self.p_disch = pressure_at_discharge * kgf_cm2_to_Pa
+            
+        elif "bar" in self.pressure_unit:
+            self.p_suc = pressure_at_suction * bar_to_Pa
+            self.p_disch = pressure_at_discharge * bar_to_Pa
+
+        if "(g)" in self.pressure_unit:
+            self.p_suc += 101325
+            self.p_disch += 101325
+
+        self.delta_P = self.p_disch - self.p_suc
+        self.p_ratio = self.p_disch / self.p_suc
+
+        if self.temperature_unit == "°C":
+            self.T_suc = temperature_at_suction + 273.15
+        else:
+            self.T_suc = temperature_at_suction
+
+        self.area_head_end = pi * (self.D**2) / 4
+        self.area_crank_end = pi * ((self.D**2) - (self.rod_diam**2)) / 4
 
         if self.acting_label == 0:
             self.active_cylinder = 'both ends'
@@ -154,31 +183,20 @@ class ReciprocatingPumpModel:
 
         self.tdc_1 = self.crank_angle_1 * pi / 180
 
-        pressure_at_suction = parameters['pressure_at_suction']              # Pressure at suction
-        pressure_at_discharge = parameters['pressure_at_discharge']          # Pressure at discharge
-        temperature_at_suction = parameters['temperature_at_suction']        # Temperature at suction
-        self.pressure_unit = parameters['pressure_unit']                     # Pressure unit
-        self.temperature_unit = parameters['temperature_unit']               # Temperature unit
-        self.bulk_modulus = parameters['bulk_modulus']                       # Fluid bulk modulus (isentropic or isothermal)
+    def set_fluid_properties(self, fluid_data: dict):
+        """ 
+            This method sets the process fluid properties and updates the thermodynamic 
+            fluid properties for suction and discharge states.
 
-        if self.pressure_unit == "kgf/cm²":
-            self.p_suc = pressure_at_suction*kgf_cm2_to_Pa
-            self.p_disch = pressure_at_discharge*kgf_cm2_to_Pa
-        else:
-            self.p_suc = pressure_at_suction*bar_to_Pa
-            self.p_disch = pressure_at_discharge*bar_to_Pa
+        Parameters:
+        -----------
+        isentropic_exponent: float number
+        molar_mass: a float number in kg/kmol units.
+        
+        """
 
-        self.delta_P = self.p_disch - self.p_suc
-
-        if self.temperature_unit == "°C":
-            self.T_suc = temperature_at_suction + 273.15
-        else:
-            self.T_suc = temperature_at_suction
-
-        self.area_head_end = pi * (self.D**2) / 4
-        self.area_crank_end = pi * ((self.D**2) - (self.rod_diam**2)) / 4
-        self.tdc2 = pi / 2
-        self.cap = None
+        self.bulk_modulus = fluid_data.get('bulk_modulus', None)                # Bulk modulus [Pa]
+        # self.density_at_suction = fluid_data.get('density_at_suction', None)    # Density [kg/m³]
 
     def recip_x(self, tdc=None):
         """ This method returns the reciprocating piston position.
@@ -470,6 +488,8 @@ class ReciprocatingPumpModel:
 
     def process_crank_end_volumes_and_pressures(self, tdc=None, export_data=True):
 
+        print(f"Bulk modulus: {round(self.bulk_modulus, 6)} [Pa]")
+
         V0, A, h0 = self.get_clearance_data("CE")
 
         V1 = V0
@@ -682,6 +702,7 @@ class ReciprocatingPumpModel:
             for i in range(self.number_of_cylinders):
 
                 tdc = tdc_base * i
+                # print(f"Top dead center angle {[i]}: {round(tdc, 6)} [rad]")
 
                 if self.active_cylinder == 'both ends':
                     flow_rate += self.flow_crank_end(tdc=tdc)[key]
@@ -763,8 +784,10 @@ class ReciprocatingPumpModel:
             return None, None
         
         freq, flow_rate = self.process_FFT_of_(flow_rate, revolutions)
-        freq = freq[freq <= self.max_frequency]
-        flow_rate = flow_rate[:len(freq)]
+        mask = freq <= self.max_frequency
+
+        freq = freq[mask]
+        flow_rate = flow_rate[mask]
 
         return freq, flow_rate
 
@@ -784,7 +807,7 @@ class ReciprocatingPumpModel:
 
         x_label = "Volume [m³]"
         y_label = f"Pressure [{self.pressure_unit}]"
-        title = "P-V RECIPROCATING COMPRESSOR DIAGRAM"
+        title = "Reciprocating Pump P-V Diagram"
 
         volumes = [volume_HE, volume_CE]
         pressures = [pressure_HE, pressure_CE]
@@ -925,7 +948,7 @@ class ReciprocatingPumpModel:
 
         load_head = pressure_head*self.area_head_end
         load_crank = -pressure_crank*self.area_crank_end
-        rod_pressure_load_time = (load_head + load_crank)/1000
+        rod_pressure_load_time = (load_head + load_crank) / 1000
 
         freq, rod_pressure_load = self.process_FFT_of_(rod_pressure_load_time, revolutions)
         mask = freq <= self.max_frequency

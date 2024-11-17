@@ -27,7 +27,8 @@ from pulse.interface.user_input.model.setup.acoustic.element_length_correction_i
 from pulse.interface.user_input.model.setup.acoustic.turn_off_acoustic_elements_input import TurnOffAcousticElementsInput
 from pulse.interface.user_input.model.setup.acoustic.add_acoustic_transfer_element_input import AddAcousticTransferElementInput
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
-from pulse.interface.user_input.model.setup.acoustic.compressor_model_input import CompressorModelInput
+from pulse.interface.user_input.model.setup.acoustic.reciprocating_compressor_inputs import ReciprocatingCompressorInputs
+from pulse.interface.user_input.model.setup.acoustic.reciprocating_pump_inputs import ReciprocatingPumpInputs
 from pulse.interface.user_input.model.editor.pulsation_suppression_device_input import PulsationSuppressionDeviceInput
 from pulse.interface.user_input.model.criteria.check_pulsation_criteria import CheckAPI618PulsationCriteriaInput
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
@@ -177,8 +178,11 @@ class InputUi:
     def add_acoustic_transfer_element(self):
         self.process_input(AddAcousticTransferElementInput)
 
-    def add_compressor_excitation(self):
-        self.process_input(CompressorModelInput)
+    def add_reciprocating_compressor_excitation(self):
+        self.process_input(ReciprocatingCompressorInputs)
+
+    def add_reciprocating_pump_excitation(self):
+        self.process_input(ReciprocatingPumpInputs)
 
     def pulsation_suppression_device_editor(self):
         self.process_input(PulsationSuppressionDeviceInput)

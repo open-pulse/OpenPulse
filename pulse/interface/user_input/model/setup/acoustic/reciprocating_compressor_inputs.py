@@ -8,8 +8,8 @@ from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFlui
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from pulse.model.compressor_model import CompressorModel
-# from compressors.reciprocating.model import CompressorModel
+from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
+# from compressors.reciprocating.model import ReciprocatingCompressorModel
 
 import numpy as np
 
@@ -20,11 +20,11 @@ psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 
-class CompressorModelInput(QDialog):
+class ReciprocatingCompressorInputs(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/acoustic/compressor_model_input.ui"
+        ui_path = UI_DIR / "model/setup/acoustic/reciprocating_compressor_inputs.ui"
         uic.loadUi(ui_path, self)
 
         app().main_window.set_input_widget(self)
@@ -214,7 +214,7 @@ class CompressorModelInput(QDialog):
                 self.lineEdit_suction_node_id.setFocus()
                 return True
 
-            data = self.properties._get_property("compressor_excitation", node_ids=node_id)
+            data = self.properties._get_property("reciprocating_compressor_excitation", node_ids=node_id)
 
             if data is not None:
                 compressor_info = data["parameters"]
@@ -646,7 +646,7 @@ class CompressorModelInput(QDialog):
         else:
             self.parameters['TDC_crank_angle_2'] = None
 
-        self.compressor = CompressorModel(self.parameters)
+        self.compressor = ReciprocatingCompressorModel(self.parameters)
         self.compressor.number_of_cylinders = self.parameters['number_of_cylinders']
 
         if self.comboBox_suction_pressure_units.currentIndex() == 0:
@@ -749,8 +749,8 @@ class CompressorModelInput(QDialog):
         if index in [0, 1]:
 
             line_suction_node_id = app().project.model.preprocessor.get_line_from_node_id(self.suction_node_id)
-            compressor_info = { "temperature_suction" : self.T_suction,
-                                "pressure_suction" : self.P_suction,
+            compressor_info = { "temperature_at_suction" : self.T_suction,
+                                "suction_pressure" : self.P_suction,
                                 "line_id" : line_suction_node_id[0],
                                 "node_id" : self.suction_node_id,
                                 "pressure_ratio" : self.parameters['pressure_ratio'],
@@ -795,13 +795,13 @@ class CompressorModelInput(QDialog):
                 if self.save_table_values(table_name, freq, in_flow_rate):
                     return
 
-                self.properties._set_nodal_property("compressor_excitation", data, self.suction_node_id)
+                self.properties._set_nodal_property("reciprocating_compressor_excitation", data, self.suction_node_id)
 
         if index in [0, 2]:
 
             line_discharge_node_id = app().project.model.preprocessor.get_line_from_node_id(self.discharge_node_id)
-            compressor_info = { "temperature_suction" : self.T_suction,
-                                "pressure_suction" : self.P_suction,
+            compressor_info = { "temperature_at_suction" : self.T_suction,
+                                "suction_pressure" : self.P_suction,
                                 "line_id" : line_discharge_node_id[0],
                                 "node_id" : self.discharge_node_id,
                                 "pressure_ratio" : self.parameters['pressure_ratio'],
@@ -844,7 +844,7 @@ class CompressorModelInput(QDialog):
             if self.save_table_values(table_name, freq, out_flow_rate):
                 return
 
-            self.properties._set_nodal_property("compressor_excitation", data, self.discharge_node_id)
+            self.properties._set_nodal_property("reciprocating_compressor_excitation", data, self.discharge_node_id)
 
         app().pulse_file.write_nodal_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
@@ -858,13 +858,13 @@ class CompressorModelInput(QDialog):
             app().pulse_file.write_imported_table_data_in_file()
 
     def remove_conflicting_excitations(self, node_id: int):
-        for label in ["acoustic_pressure", "volume_velocity", "compressor_excitation"]:
+        for label in ["acoustic_pressure", "volume_velocity", "reciprocating_compressor_excitation", "reciprocating_pump_excitation"]:
             table_names = self.properties.get_nodal_related_table_names(label, node_id)
             self.properties._remove_nodal_property(label, node_id)
             self.process_table_file_removal(table_names)
 
     def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("compressor_excitation", node_ids)
+        table_names = self.properties.get_nodal_related_table_names("reciprocating_compressor_excitation", node_ids)
         self.process_table_file_removal(table_names)
 
     def remove_callback(self):
@@ -880,7 +880,7 @@ class CompressorModelInput(QDialog):
 
         self.remove_table_files_from_nodes(node_id)
 
-        self.properties._remove_nodal_property("compressor_excitation", node_id)
+        self.properties._remove_nodal_property("reciprocating_compressor_excitation", node_id)
         app().pulse_file.write_nodal_properties_in_file()
 
         self.load_compressor_excitation_info()
@@ -904,7 +904,7 @@ class CompressorModelInput(QDialog):
             node_ids = list()
 
             for (property, *args) in self.properties.nodal_properties.keys():
-                if property == "compressor_excitation":
+                if property == "reciprocating_compressor_excitation":
 
                     node_id = args[0]
                     node_ids.append(node_id)
@@ -912,7 +912,7 @@ class CompressorModelInput(QDialog):
             for node_id in node_ids:
                 self.remove_table_files_from_nodes(node_id)
 
-            self.properties._reset_nodal_property("compressor_excitation")
+            self.properties._reset_nodal_property("reciprocating_compressor_excitation")
             app().pulse_file.write_nodal_properties_in_file()
 
             app().main_window.update_plots()
@@ -923,7 +923,7 @@ class CompressorModelInput(QDialog):
         self.treeWidget_compressor_excitation.clear()
 
         for (property, *args), data in self.properties.nodal_properties.items():
-            if property == "compressor_excitation":
+            if property == "reciprocating_compressor_excitation":
                 
                 node_id = args[0]
                 connection_type = data["connection_type"]
@@ -946,7 +946,7 @@ class CompressorModelInput(QDialog):
         self.pushButton_remove.setDisabled(True)
         self.tabWidget_compressor.setTabVisible(3, False)
         for (property, *_) in self.properties.nodal_properties.keys():
-            if property == "compressor_excitation":
+            if property == "reciprocating_compressor_excitation":
                 self.tabWidget_compressor.setCurrentIndex(0)
                 self.tabWidget_compressor.setTabVisible(3, True)
                 return

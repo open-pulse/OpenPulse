@@ -91,7 +91,7 @@ class ModelProperties:
         self._set_line_property("fluid", fluid, line_ids=line_ids)
 
     def remove_compressor_table_name(self, node_id: int, table_name: str):
-        key = ("compressor_excitation", node_id)
+        key = ("reciprocating_compressor_excitation", node_id)
         if key in self.nodal_properties.keys():
             if table_name in self.nodal_properties[key]["table_names"]:
                 self.nodal_properties[key]["table_names"].remove(table_name)
@@ -103,7 +103,8 @@ class ModelProperties:
                             "volume_velocity", 
                             "specific_impedance", 
                             "radiation_impedance", 
-                            "compressor_excitation",
+                            "reciprocating_compressor_excitation",
+                            "reciprocating_pump_excitation",
                             "acoustic_transfer_element"
                            ]
 

@@ -97,7 +97,7 @@ class SimpleCurve(Structure):
         # t is the percentage of the bend traveled
         intermediary_projection_point = self.start + t * (self.end - self.start)
         direction = normalize(intermediary_projection_point - self.center)
-        return self.center + direction * self.curvature
+        return self.center + direction * self.curvature_radius
 
     def as_dict(self) -> dict:
         return super().as_dict() | {
