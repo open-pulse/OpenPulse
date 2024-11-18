@@ -107,19 +107,14 @@ class Arc(Structure):
         if center is None:
             return 0
         
-        u = normalize(self.start.coords() - self.center.coords())
-        v = normalize(self.end.coords() - self.center.coords())
-        cos_alpha = np.dot(u, v)
+        u = normalize(self.start.coords() - center.coords())
+        v = normalize(self.end.coords() - center.coords())
+        n = np.cross(u, v)
+        angle = np.arccos(np.dot(u, v))
 
-        d0 = np.linalg.norm(self.start.coords() - self.end.coords())
-        d1 = np.linalg.norm(self.start.coords() - self.mid.coords())
-        d2 = np.linalg.norm(self.end.coords() - self.mid.coords())
-
-        minor_angle = (d1 < d0) and (d2 < d0)
-        if not minor_angle:
-            cos_alpha = 1 - cos_alpha
-        
-        return np.arccos(cos_alpha)
+        if np.dot(n, self.normal()) > 0:
+            return angle
+        return 2 * np.pi - angle
 
     def normal(self) -> np.ndarray:
         u = normalize(self.start.coords() - self.mid.coords())
