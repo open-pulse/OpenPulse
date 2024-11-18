@@ -37,13 +37,9 @@ class Fillet(Structure):
         if self.is_colapsed():
             return self.corner.copy()
 
-        u = self.start.coords() - self.corner.coords()
-        v = self.end.coords() - self.corner.coords()
+        u = normalize(self.start.coords() - self.corner.coords())
+        v = normalize(self.end.coords() - self.corner.coords())
         n = np.cross(u, v)
-
-        u /= np.linalg.norm(u)
-        v /= np.linalg.norm(v)
-        n /= np.linalg.norm(n)
 
         A = np.array([u, v, n], dtype=float)
         b = np.array(
@@ -56,9 +52,19 @@ class Fillet(Structure):
         )
         center_coords = np.linalg.solve(A, b)
 
-        # Insert here the code from "get_corrected_arc_center_coordinates"
+        # TODO @vitorslongo please refactor this.
+        # Some variable names are conflicting with the ones above,
+        # and others are being unnecessarily repeated.
+        middle_coords = (self.start.coords() + self.end.coords()) / 2
+        normal_vector = np.cross(self.end.coords() - self.start.coords(), center_coords - self.start.coords())
+        bisector_direction = np.cross(normal_vector, self.end.coords() - self.start.coords())
 
-        return Point(*center_coords)
+        u = center_coords - middle_coords
+        v = bisector_direction
+        projection_uv = (np.dot(u, v) / (np.linalg.norm(v)**2)) * v
+        corrected_center_coords = middle_coords + projection_uv
+
+        return Point(*corrected_center_coords)
 
     @property
     def arc_length(self):
