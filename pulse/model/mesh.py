@@ -184,8 +184,8 @@ class Mesh:
             self.preprocessor.update_number_divisions()
 
         except Exception as log_error:
-
-            print(str(log_error))
+            from traceback import print_exception
+            print_exception(log_error)
 
     def _process_gmsh_lines_mesh_data(self):
         """
