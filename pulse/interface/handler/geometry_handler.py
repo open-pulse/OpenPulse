@@ -100,7 +100,7 @@ class GeometryHandler:
                 self.curve_length[structure.tag] = conversion_function(structure.arc_length)
 
             if isinstance(structure, Valve):
-                self.save_valve_internal_lines_if_exists()
+                self.save_valve_internal_lines_if_exists(structure, line_tags)
 
         cad.synchronize()
 
@@ -108,7 +108,7 @@ class GeometryHandler:
             gmsh.option.setNumber('General.FltkColorScheme', 1)
             gmsh.fltk.run()
 
-    def create_geometry(self, gmsh_GUI=False):
+    def old_create_geometry(self, gmsh_GUI=False):
         # TODO replace this function by the simpler version above
 
         gmsh.initialize("", False)
@@ -369,6 +369,7 @@ class GeometryHandler:
 
             pipeline data to...
         """
+        self.pipeline.reset()
 
         lines_data: dict[str, dict] = app().pulse_file.read_line_properties_from_file()
         if not isinstance(lines_data, dict):
@@ -376,6 +377,7 @@ class GeometryHandler:
 
         structures = list()
         for str_line_id, data in lines_data.items():
+
             self.fix_data_for_backwards_compatibility(data)
             structure = self.create_structure_from_data(data)
             if structure is None:
@@ -391,13 +393,13 @@ class GeometryHandler:
         if not structures:
             return
 
-        self.pipeline.reset()
+        self.pipeline.structures.clear()
         self.pipeline.add_structures(structures)
         self.pipeline.commit()
         self.pipeline.merge_coincident_points()
         app().main_window.update_plots()
 
-    def process_pipeline(self):
+    def old_process_pipeline(self):
         """ This method builds structures based on model_data file data.
         
         Parameters:

@@ -131,5 +131,6 @@ class Arc(Structure):
 
         start = cad.add_point(*convert_unit(self.start.coords()))
         end = cad.add_point(*convert_unit(self.end.coords()))
-        mid = cad.add_point(*convert_unit(self.mid.coords()))
-        return [cad.add_circle_arc(start, mid, end, center=False)]
+        # mid = cad.add_point(*convert_unit(self.mid.coords()))
+        mid = cad.add_point(*convert_unit(self.center.coords()))
+        return [cad.add_circle_arc(start, mid, end, center=True)]
