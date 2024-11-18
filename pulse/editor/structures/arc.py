@@ -87,10 +87,6 @@ class Arc(Structure):
         return Point(*P0)
 
     @property
-    def corner(self) -> Point | None:
-        return Point(0, 0, 0)
-
-    @property
     def curvature_radius(self) -> Point:
         return np.linalg.norm(self.center - self.start)
 
@@ -105,6 +101,30 @@ class Arc(Structure):
 
         average_radius = (norm_u + norm_v) / 2
         return np.arccos(cos_alpha) * average_radius
+
+    def angle(self) -> float:
+        center = self.center
+        if center is None:
+            return 0
+        
+        u = normalize(self.start.coords() - self.center.coords())
+        v = normalize(self.end.coords() - self.center.coords())
+        cos_alpha = np.dot(u, v)
+
+        d0 = np.linalg.norm(self.start.coords() - self.end.coords())
+        d1 = np.linalg.norm(self.start.coords() - self.mid.coords())
+        d2 = np.linalg.norm(self.end.coords() - self.mid.coords())
+
+        minor_angle = (d1 < d0) and (d2 < d0)
+        if not minor_angle:
+            cos_alpha = 1 - cos_alpha
+        
+        return np.arccos(cos_alpha)
+
+    def normal(self) -> np.ndarray:
+        u = normalize(self.start.coords() - self.mid.coords())
+        v = normalize(self.end.coords() - self.mid.coords())
+        return np.cross(v, u)
 
     def get_points(self):
         return [
