@@ -343,7 +343,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="text">
@@ -373,7 +373,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
           </widget>
@@ -397,7 +397,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
           </widget>
@@ -406,7 +406,7 @@
           <widget class="QLabel" name="label_3">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="text">
@@ -421,7 +421,7 @@
           <widget class="QLabel" name="label_5">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="text">
@@ -454,7 +454,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="text">
@@ -481,9 +481,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
-             <bold>false</bold>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="frameShape">
@@ -543,7 +541,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="frameShape">
@@ -644,7 +642,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="styleSheet">
@@ -671,10 +669,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
-             <italic>false</italic>
-             <bold>false</bold>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="styleSheet">
@@ -701,9 +696,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
-             <bold>false</bold>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="frameShape">
@@ -736,7 +729,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="frameShape">
@@ -804,10 +797,7 @@
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>10</pointsize>
-             <weight>50</weight>
-             <italic>false</italic>
-             <bold>false</bold>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="styleSheet">
@@ -834,7 +824,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="frameShape">
@@ -935,7 +925,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="styleSheet">
@@ -962,7 +952,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="text">
@@ -986,7 +976,7 @@
            </property>
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>8</pointsize>
             </font>
            </property>
            <property name="text">
@@ -1087,7 +1077,37 @@
       <property name="spacing">
        <number>4</number>
       </property>
-      <item row="0" column="1">
+      <item row="0" column="2">
+       <widget class="QPushButton" name="pushButton_apply_settings">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>140</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>140</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>8</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
        <widget class="QPushButton" name="pushButton_update_settings">
         <property name="minimumSize">
          <size>
@@ -1103,17 +1123,14 @@
         </property>
         <property name="font">
          <font>
-          <pointsize>10</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
+          <pointsize>8</pointsize>
          </font>
         </property>
         <property name="styleSheet">
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Update settings</string>
+         <string>Ok</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>
@@ -1139,22 +1156,32 @@
         </property>
         <property name="font">
          <font>
-          <pointsize>10</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
+          <pointsize>8</pointsize>
          </font>
         </property>
         <property name="styleSheet">
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Reset to default</string>
+         <string>Reset</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>
         </property>
        </widget>
+      </item>
+      <item row="0" column="1">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>

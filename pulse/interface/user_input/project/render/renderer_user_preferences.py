@@ -75,6 +75,7 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_tubes_color : QPushButton
         self.pushButton_reset_to_default : QPushButton
         self.pushButton_update_settings : QPushButton
+        self.pushButton_apply_settings: QPushButton
 
     def _create_connections(self):
         self.pushButton_renderer_background_color_1.clicked.connect(self.update_renderer_background_color_1)
@@ -85,8 +86,10 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_tubes_color.clicked.connect(self.update_tubes_color)
         self.pushButton_reset_to_default.clicked.connect(self.reset_to_default)
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
+        self.pushButton_apply_settings.clicked.connect(self.apply_user_preferences)
         self.lineEdit_renderer_font_size.textChanged.connect(self.update_renderer_font_size)
         self.lineEdit_interface_font_size.textChanged.connect(self.update_interface_font_size)
+        
 
     def update_renderer_background_color_1(self):
         read = PickColorInput(title="Pick the background color")
@@ -188,7 +191,8 @@ class RendererUserPreferencesInput(QDialog):
         interface_font_size = str(self.user_preferences.interface_font_size)
         self.lineEdit_interface_font_size.setText(interface_font_size)
 
-    def confirm_and_update_user_preferences(self):
+    
+    def apply_user_preferences(self):
         if self.renderer_background_color_1 is not None:
             self.user_preferences.renderer_background_color_1 = self.renderer_background_color_1
 
@@ -213,15 +217,16 @@ class RendererUserPreferencesInput(QDialog):
         if self.interface_font_size is not None:
             self.user_preferences.interface_font_size = self.interface_font_size
 
+        self.update_settings()
+
+    def confirm_and_update_user_preferences(self):
+        self.apply_user_preferences()
+        self.accept()
+    
+    def update_settings(self):
         self.main_window.update_plots()
         self.update_open_pulse_logo_state()
         self.update_reference_scale_state()
-
-        self.main_window.action_user_preferences.setDisabled(1)
-        self.main_window.action_set_dark_theme.setDisabled(0)
-        self.main_window.action_set_light_theme.setDisabled(0)
-
-        self.accept()        
 
     def reset_to_default(self):
         if self.main_window.user_preferences["interface theme"] == "dark":
@@ -233,6 +238,8 @@ class RendererUserPreferencesInput(QDialog):
         self.reset_logo_state()
         self.reset_reference_scale_state()
         self.load_user_preferences()
+
+        self.update_settings()
 
     def reset_logo_state(self):
         self.user_preferences.reset_open_pulse_logo()

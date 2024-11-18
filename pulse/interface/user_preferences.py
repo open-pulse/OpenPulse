@@ -22,7 +22,7 @@ class UserPreferences:
         self.nodes_points_color = Color("#FFB432")
         self.lines_color = Color("#5A5A5A")
         self.tubes_color = color_names.WHITE
-        self.renderer_font_color = color_names.WHITE
+        self.renderer_font_color = color_names.BLACK
     
     def set_dark_theme(self):
         self.renderer_background_color_1 = Color("#0b0f17")
