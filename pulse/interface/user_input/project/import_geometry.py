@@ -20,7 +20,6 @@ class ImportGeometry():
         app().main_window.set_input_widget(self)
 
         self.main_window = app().main_window
-        self.config = app().config
 
         self._initialize()
         self.import_geometry()

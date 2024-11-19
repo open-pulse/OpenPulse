@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QLineEdit, QPushButton, QRadioButton, QSlider, QTabWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -21,8 +21,6 @@ class RendererUserPreferencesInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self.main_window = app().main_window
-        self.config = app().config
-        self.project = app().project
         self.user_preferences = app().config.user_preferences
 
         self.renderer_background_color_1 = None
@@ -224,6 +222,11 @@ class RendererUserPreferencesInput(QDialog):
         self.accept()
     
     def update_settings(self):
+        font = QFont()
+        font.setPointSize(self.user_preferences.interface_font_size)
+
+        app().setFont(font, "QWidget")
+
         self.main_window.update_plots()
         self.update_open_pulse_logo_state()
         self.update_reference_scale_state()
@@ -234,12 +237,23 @@ class RendererUserPreferencesInput(QDialog):
         else:
             self.user_preferences.set_light_theme()
         
+        self.reset_attributes()
         self.user_preferences.reset_font_size()
         self.reset_logo_state()
         self.reset_reference_scale_state()
         self.load_user_preferences()
 
         self.update_settings()
+    
+    def reset_attributes(self):
+        self.renderer_background_color_1 = None
+        self.renderer_background_color_2 = None
+        self.renderer_font_color = None
+        self.nodes_points_color = None
+        self.lines_color = None
+        self.tubes_color = None
+        self.renderer_font_size = None
+        self.interface_font_size = None
 
     def reset_logo_state(self):
         self.user_preferences.reset_open_pulse_logo()
