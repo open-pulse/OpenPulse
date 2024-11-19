@@ -698,7 +698,7 @@ class GeometryDesignerWidget(QWidget):
             if not isinstance(structure, Bend):
                 pass
             bending_radius = self.pipe_options._get_bending_radius(structure.diameter)
-            structure.curvature = bending_radius
+            structure.curvature_radius = bending_radius
 
         self.pipeline.recalculate_curvatures()
 

@@ -51,7 +51,7 @@ class LinearStructure(Structure):
                 Z = Zo +  c * t
 
             For a given distance dX between the reference point X_start and X we have dX = |X - X_start|, therefore
-            if we interested in t >= 0 once dX >= 0 we get from the parametric relation:
+            if we are interested in t >= 0 once dX >= 0 we get from the parametric relation:
 
                 dX = |X - X_start| = |a| * t
                 t = dX / |a|.

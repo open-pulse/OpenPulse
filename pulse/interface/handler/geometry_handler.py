@@ -1041,7 +1041,7 @@ class GeometryHandler:
                 data["center_coords"] = get_data(structure.center_coords)
 
             data["corner_coords"] = get_data(structure.corner.coords())
-            data["curvature_radius"] = np.round(structure.curvature, 8)
+            data["curvature_radius"] = np.round(structure.curvature_radius, 8)
 
         elif isinstance(structure, Pipe | Beam | Reducer | Flange | Valve | ExpansionJoint):
             data["structure_name"] = self.get_structure_name(structure)

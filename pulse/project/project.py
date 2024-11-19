@@ -109,7 +109,8 @@ class Project:
     def load_project(self):
 
         logging.info("Loading project data [30%]")
-        app().loader.load_project_data()
+        if app().loader.load_project_data():
+            return
 
         logging.info("Processing geometry and mesh [50%]")
         self.initial_load_project_actions()
@@ -128,7 +129,9 @@ class Project:
         app().pulse_file.remove_nodal_properties_from_project_file()
 
         if app().pulse_file.check_pipeline_data():
-            app().loader.load_project_data()
+            if app().loader.load_project_data():
+                return
+
             self.process_geometry_and_mesh()
             app().loader.load_mesh_dependent_properties()
 
@@ -231,7 +234,8 @@ class Project:
                                 "volume_velocity", 
                                 "specific_impedance", 
                                 "radiation_impedance", 
-                                "compressor_excitation",
+                                "reciprocating_compressor_excitation",
+                                "reciprocating_pump_excitation",
                                 "psd_acoustic_link",
                                 "acoustic_transfer_element"
                                 ]

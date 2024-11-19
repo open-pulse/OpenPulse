@@ -684,7 +684,7 @@ class AssemblyAcoustic:
         volume_velocity = np.zeros([len(self.frequencies), total_dof], dtype=complex)
 
         for (property, *args), data in self.model.properties.nodal_properties.items():
-            if property in ["volume_velocity", "compressor_excitation"]:
+            if property in ["volume_velocity", "reciprocating_compressor_excitation", "reciprocating_pump_excitation"]:
 
                 node_id = args[0]
                 node = self.preprocessor.nodes[node_id]
