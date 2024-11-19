@@ -21,11 +21,11 @@ def load_default_reciprocating_pump_setup(crank_angle: 0.):
                   'rotational_speed' : 178,
                   'number_of_cylinders' : 1,
                   'acting_label' : 0,
-                  'pressure_at_suction' : 2.18 + 1.01325,
-                  'pressure_at_discharge' : 322.18 + 1.01325,
+                  'pressure_at_suction' : 2.18,
+                  'pressure_at_discharge' : 322.18,
                   'temperature_at_suction' : 45,
                   'temperature_at_discharge' : 45,
-                  'pressure_unit' : "bar",
+                  'pressure_unit' : "bar (g)",
                   'temperature_unit' : "°C",
                   'bulk_modulus' : 2541031616.236133
                   }
