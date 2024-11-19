@@ -50,6 +50,10 @@ class LoadProject:
         #
         self.load_fluids_library()
         self.load_materials_library()
+
+        if self.check_line_properties():
+            return True
+
         self.load_cross_sections_from_file()
         #
         self.load_lines_properties()
@@ -182,6 +186,20 @@ class LoadProject:
                                 )
             
             self.library_materials[identifier] = material
+
+    
+    def check_line_properties(self):
+
+        line_properties = app().pulse_file.read_line_properties_from_file()
+        if line_properties is None:
+            return True
+        elif isinstance(line_properties, dict):
+            if len(line_properties) == 0:
+                return True
+            else:
+                return False
+        else:
+            return False
 
 
     def load_cross_sections_from_file(self):
