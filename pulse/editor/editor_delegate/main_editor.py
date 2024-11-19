@@ -211,6 +211,21 @@ class MainEditor(Editor):
 
 
         for structure in self.pipeline.structures_of_type(Arc):
+            center = structure.center 
+            if center is None:
+                if id(structure.start) == id(point):
+                    vector = point.coords() - structure.end.coords()
+                    size = np.linalg.norm(vector)
+                elif id(structure.end) == id(point):
+                    vector = point.coords() - structure.start.coords()
+                    size = np.linalg.norm(vector)
+                else:
+                    continue
+
+                if size:
+                    directions.append(vector / size)
+                continue
+
             if id(structure.start) == id(point):
                u = normalize(structure.start.coords() - structure.center.coords())
             elif id(structure.end) == id(point):
