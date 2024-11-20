@@ -780,7 +780,7 @@ class ReciprocatingCompressorModel:
         f_ce = np.sum(self.mass_flow_crank_end())/N
         return f_he + f_ce
 
-    def process_sum_of_volumetric_flow_rate(self, key, capacity=None, smooth_data=False):
+    def process_sum_of_volumetric_flow_rate(self, key: str, capacity=None, smooth_data=False):
         try:
 
             if self.active_cylinder == 'both ends':

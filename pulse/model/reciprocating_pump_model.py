@@ -21,7 +21,7 @@ def plt():
 
 def plot(x, y, x_label, y_label, title, label="", _absolute=False):
 
-    # plt().ion()
+    plt().ion()
 
     fig = plt().figure(figsize=[8,6])
     ax_ = fig.add_subplot(1,1,1)
@@ -38,7 +38,7 @@ def plot(x, y, x_label, y_label, title, label="", _absolute=False):
 
 def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):
 
-    # plt().ion()
+    plt().ion()
 
     fig = plt().figure(figsize=[8,6])
     ax_ = fig.add_subplot(1,1,1)
@@ -693,7 +693,7 @@ class ReciprocatingPumpModel:
         f_ce = np.sum(self.mass_flow_crank_end())/N
         return f_he + f_ce
 
-    def process_sum_of_volumetric_flow_rate(self, key: str, smooth_data: False):
+    def process_sum_of_volumetric_flow_rate(self, key: str, smooth_data=False):
 
         try:
 
