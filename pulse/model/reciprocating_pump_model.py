@@ -1,5 +1,6 @@
 import numpy as np
 from pathlib import Path
+from scipy.signal import butter, filtfilt
 import os
 
 kgf_cm2_to_Pa = 9.80665e4
@@ -692,7 +693,7 @@ class ReciprocatingPumpModel:
         f_ce = np.sum(self.mass_flow_crank_end())/N
         return f_he + f_ce
 
-    def process_sum_of_volumetric_flow_rate(self, key: str):
+    def process_sum_of_volumetric_flow_rate(self, key: str, smooth_data: False):
 
         try:
 
@@ -717,6 +718,17 @@ class ReciprocatingPumpModel:
         except Exception as error:
             print(str(error))
             return None
+        
+        if smooth_data:
+    
+            N = len(flow_rate)
+            fs = N * (self.rpm / 60)
+
+            flow_rate_ext = np.append(flow_rate[:-1], flow_rate)
+            flow_rate_ext = np.append(flow_rate_ext, flow_rate[1:])
+
+            b, a = butter(1, fs/15, btype='low', fs=fs,  output='ba')
+            flow_rate = filtfilt(b, a, flow_rate_ext)[N-1 : 2*N-1]
 
         return flow_rate
 

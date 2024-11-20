@@ -1,10 +1,12 @@
-import os
-import pytest
-import numpy as np
-import matplotlib.pyplot as plt
-from pathlib import Path
 
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
+
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+
+from pathlib import Path
+from scipy import signal
 
 pi = 3.141592653589
 
@@ -108,15 +110,23 @@ def test_suction_flow_rate():
 
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
-    reciprocating_pump.number_points = 1023
+    reciprocating_pump.number_points = 1024
 
-    flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('in_flow')
+    flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('in_flow', smooth_data=False)
     if flow_rate is None:
         return
 
     N = len(flow_rate)
     angles = np.linspace(0, 2*pi, N)
-    
+
+    # fs = N * (reciprocating_pump.rpm / 60)
+
+    # flow_rate_ext = np.append(flow_rate[:-1], flow_rate)
+    # flow_rate_ext = np.append(flow_rate_ext, flow_rate[1:])
+
+    # b, a = signal.butter(1, fs/15, btype='low', fs=fs,  output='ba')
+    # flow_rate = signal.filtfilt(b, a, flow_rate_ext)[N-1 : 2*N-1]
+
     x_label = "Angle [rad]"
     y_label = "Volume [m³/s]"
     title = "Volumetric flow rate at suction"
@@ -139,9 +149,9 @@ def test_discharge_flow_rate():
 
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
-    reciprocating_pump.number_points = 1023
+    reciprocating_pump.number_points = 1024
 
-    flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('out_flow')
+    flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('out_flow', smooth_data=False)
     if flow_rate is None:
         return
 

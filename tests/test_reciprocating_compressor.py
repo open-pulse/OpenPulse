@@ -1,10 +1,12 @@
-import os
-import pytest
-import numpy as np
-import matplotlib.pyplot as plt
-from pathlib import Path
 
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
+
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+
+from pathlib import Path
+from scipy import signal
 
 pi = 3.141592653589
 
@@ -106,13 +108,13 @@ def test_PV_diagram(print_log=True, export_data=True):
 
 
 def test_suction_flow_rate():
-    return
+    # return
     
     crank_angle = 0
-    compressor = load_default_compressor_setup(crank_angle = crank_angle)
-    compressor.number_points = 1023
+    reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
+    reciprocating_compressor.number_points = 1023
 
-    flow_rate = compressor.process_sum_of_volumetric_flow_rate('in_flow')
+    flow_rate = reciprocating_compressor.process_sum_of_volumetric_flow_rate('in_flow', smooth_data=False)
     if flow_rate is None:
         return
 
@@ -137,13 +139,13 @@ def test_suction_flow_rate():
 
 
 def test_discharge_flow_rate():
-    return
+    # return
     
     crank_angle = 0
-    compressor = load_default_compressor_setup(crank_angle = crank_angle)
-    compressor.number_points = 1023
+    reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
+    reciprocating_compressor.number_points = 1023
 
-    flow_rate = compressor.process_sum_of_volumetric_flow_rate('out_flow')
+    flow_rate = reciprocating_compressor.process_sum_of_volumetric_flow_rate('out_flow', smooth_data=False)
     if flow_rate is None:
         return
 

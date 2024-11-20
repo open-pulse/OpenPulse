@@ -1,6 +1,8 @@
 import numpy as np
-from pathlib import Path
 import os
+
+from pathlib import Path
+from scipy.signal import butter, filtfilt
 
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
@@ -778,7 +780,7 @@ class ReciprocatingCompressorModel:
         f_ce = np.sum(self.mass_flow_crank_end())/N
         return f_he + f_ce
 
-    def process_sum_of_volumetric_flow_rate(self, key, capacity=None):
+    def process_sum_of_volumetric_flow_rate(self, key, capacity=None, smooth_data=False):
         try:
 
             if self.active_cylinder == 'both ends':
@@ -811,6 +813,17 @@ class ReciprocatingCompressorModel:
         except Exception as error:
             print(str(error))
             return None
+
+        if smooth_data:
+    
+            N = len(flow_rate)
+            fs = N * (self.rpm / 60)
+
+            flow_rate_ext = np.append(flow_rate[:-1], flow_rate)
+            flow_rate_ext = np.append(flow_rate_ext, flow_rate[1:])
+
+            b, a = butter(1, fs/15, btype='low', fs=fs,  output='ba')
+            flow_rate = filtfilt(b, a, flow_rate_ext)[N-1 : 2*N-1]
 
         return flow_rate
 
