@@ -83,6 +83,9 @@ class GeometryHandler:
         # other with the same name. When it is ready we can
         # remove the other one.
 
+        if gmsh.is_initialized():
+            gmsh.finalize()
+    
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
