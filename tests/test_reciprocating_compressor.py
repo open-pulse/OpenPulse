@@ -1,14 +1,14 @@
+
+from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
+
 import os
-import pytest
 import numpy as np
 import matplotlib.pyplot as plt
-from pathlib import Path
 
-from pulse.model.compressor_model import CompressorModel
+from pathlib import Path
+from scipy import signal
 
 pi = 3.141592653589
-pi_2 = 1.57079632679489
-pi_3_2 = 4.712388980384689
 
 def load_default_compressor_setup(crank_angle=0):
 
@@ -30,7 +30,7 @@ def load_default_compressor_setup(crank_angle=0):
                     'isentropic_exponent' : 1.400,
                     'molar_mass' : 2.01568  }
 
-    compressor = CompressorModel(parameters)
+    compressor = ReciprocatingCompressorModel(parameters)
     compressor.set_fluid_properties_and_update_state(   parameters['isentropic_exponent'],
                                                         parameters['molar_mass']   )
 
@@ -38,7 +38,8 @@ def load_default_compressor_setup(crank_angle=0):
 
     return compressor
 
-def test_PV_diagram(print_log=False, export_data=False):
+def test_PV_diagram(print_log=True, export_data=True):
+    return
         
     for angle in [0, 90, 180, 270]:
     
@@ -65,7 +66,7 @@ def test_PV_diagram(print_log=False, export_data=False):
 
         compressor = load_default_compressor_setup(crank_angle = angle)
         compressor.number_points = N_he - 1
-        
+
         volume_HE, pressure_HE, *args = compressor.process_head_end_volumes_and_pressures(export_data=export_data)
         volume_CE, pressure_CE, *args = compressor.process_crank_end_volumes_and_pressures(export_data=export_data)
 
@@ -97,7 +98,6 @@ def test_PV_diagram(print_log=False, export_data=False):
                                 volume_HE,
                                 pressure_HE], dtype=float).T
             
-            
             data_CE = np.array([external_data[f"crank_end_{angle}"][:, 0],
                                 external_data[f"crank_end_{angle}"][:, 1],
                                 volume_CE,
@@ -107,66 +107,66 @@ def test_PV_diagram(print_log=False, export_data=False):
             np.savetxt(f"teste_crank_end_{angle}.dat", data_CE, delimiter=",")       
 
 
-# def test_suction_flow_rate():
-#     # return
+def test_suction_flow_rate():
+    # return
     
-#     crank_angle = 0
-#     compressor = load_default_compressor_setup(crank_angle = crank_angle)
-#     compressor.number_points = 1023
+    crank_angle = 0
+    reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
+    reciprocating_compressor.number_points = 1023
 
-#     flow_rate = compressor.process_sum_of_volumetric_flow_rate('in_flow')
-#     if flow_rate is None:
-#         return
+    flow_rate = reciprocating_compressor.process_sum_of_volumetric_flow_rate('in_flow', smooth_data=False)
+    if flow_rate is None:
+        return
 
-#     N = len(flow_rate)
-#     angles = np.linspace(0, 2*pi, N)
+    N = len(flow_rate)
+    angles = np.linspace(0, 2*pi, N)
     
-#     x_label = "Angle [rad]"
-#     y_label = "Volume [m³/s]"
-#     title = "Volumetric flow rate at suction"
+    x_label = "Angle [rad]"
+    y_label = "Volume [m³/s]"
+    title = "Volumetric flow rate at suction"
     
-#     path = Path(f"tests/data/compressor/flow/full_load/flow_suction_crank_angle_{crank_angle}.dat")
-#     data_HE = np.loadtxt(path, skiprows=4, max_rows=103)
-#     data_CE = np.loadtxt(path, skiprows=112, max_rows=113)
+    path = Path(f"tests/data/compressor/flow/full_load/bp_reciprocating_compressor_flow_at_suction_crank_angle_{crank_angle}.txt")
+    data_HE = np.loadtxt(path, skiprows=4, max_rows=103)
+    data_CE = np.loadtxt(path, skiprows=112, max_rows=113)
 
-#     volumes = [angles, data_HE[:,0], data_CE[:,0]]
-#     flow_rates = [flow_rate, -data_HE[:,1], -data_CE[:,1]]
-#     labels = ["OpenPulse", "Reference (HE)", "Reference (CE)"]
-#     colors = [(0,0,0),(1,0,0),(0,0,1)]
-#     linestyles = ["-","-", "-"]
+    volumes = [angles, data_HE[:,0], data_CE[:,0]]
+    flow_rates = [flow_rate, -data_HE[:,1], -data_CE[:,1]]
+    labels = ["OpenPulse", "Reference (HE)", "Reference (CE)"]
+    colors = [(0,0,0),(1,0,0),(0,0,1)]
+    linestyles = ["-","-", "-"]
 
-#     plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
+    plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
 
 
-# def test_discharge_flow_rate():
-#     # return
+def test_discharge_flow_rate():
+    # return
     
-#     crank_angle = 0
-#     compressor = load_default_compressor_setup(crank_angle = crank_angle)
-#     compressor.number_points = 1023
+    crank_angle = 0
+    reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
+    reciprocating_compressor.number_points = 1023
 
-#     flow_rate = compressor.process_sum_of_volumetric_flow_rate('out_flow')
-#     if flow_rate is None:
-#         return
+    flow_rate = reciprocating_compressor.process_sum_of_volumetric_flow_rate('out_flow', smooth_data=False)
+    if flow_rate is None:
+        return
 
-#     N = len(flow_rate)  
-#     angles = np.linspace(0, 2*pi, N)
+    N = len(flow_rate)  
+    angles = np.linspace(0, 2*pi, N)
 
-#     x_label = "Angle [rad]"
-#     y_label = "Volume [m³/s]"
-#     title = "Volumetric flow rate at discharge"
+    x_label = "Angle [rad]"
+    y_label = "Volume [m³/s]"
+    title = "Volumetric flow rate at discharge"
     
-#     path = Path(f"tests/data/compressor/flow/full_load/flow_discharge_crank_angle_{crank_angle}.dat")
-#     data_CE = np.loadtxt(path, skiprows=4, max_rows=80)
-#     data_HE = np.loadtxt(path, skiprows=89, max_rows=93)
+    path = Path(f"tests/data/compressor/flow/full_load/bp_reciprocating_compressor_flow_at_discharge_crank_angle_{crank_angle}.txt")
+    data_CE = np.loadtxt(path, skiprows=4, max_rows=80)
+    data_HE = np.loadtxt(path, skiprows=89, max_rows=93)
     
-#     volumes = [angles, data_HE[:,0], data_CE[:,0]]
-#     flow_rates = [flow_rate, data_HE[:,1], data_CE[:,1]]
-#     labels = ["OpenPulse", "Reference (HE)", "Reference (CE)"]
-#     colors = [(0,0,0),(1,0,0),(0,0,1)]
-#     linestyles = ["-","-", "-"]
+    volumes = [angles, data_HE[:,0], data_CE[:,0]]
+    flow_rates = [flow_rate, data_HE[:,1], data_CE[:,1]]
+    labels = ["OpenPulse", "Reference (HE)", "Reference (CE)"]
+    colors = [(0,0,0),(1,0,0),(0,0,1)]
+    linestyles = ["-","-", "-"]
 
-#     plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
+    plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
 
 
 def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):

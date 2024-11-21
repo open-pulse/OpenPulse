@@ -550,6 +550,10 @@ class AssemblyAcoustic:
                     impedance_type = data["impedance_type"]
                     elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
 
+                    if impedance_type in [1, 2] and self.model.project.analysis_id == 4:
+                        # TODO: show a message after the solution has been finished
+                        continue
+
                     if len(elements) == 1:
                         element = elements[0]
                         rho = element.fluid.density
@@ -558,8 +562,8 @@ class AssemblyAcoustic:
 
                 ind_Clump.append(position)
                 Z = self.get_array_of_values(impedance, self.frequencies)
-                rho = 1
-                Ce = rho * area_fluid / Z
+
+                Ce = area_fluid / Z
 
                 if len(data_Clump):
                     data_Clump = np.c_[data_Clump, Ce]
@@ -680,7 +684,7 @@ class AssemblyAcoustic:
         volume_velocity = np.zeros([len(self.frequencies), total_dof], dtype=complex)
 
         for (property, *args), data in self.model.properties.nodal_properties.items():
-            if property in ["volume_velocity", "compressor_excitation"]:
+            if property in ["volume_velocity", "reciprocating_compressor_excitation", "reciprocating_pump_excitation"]:
 
                 node_id = args[0]
                 node = self.preprocessor.nodes[node_id]

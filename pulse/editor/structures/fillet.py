@@ -132,8 +132,8 @@ class Fillet(Structure):
 
     def interpolate(self, t: float):
         # t is the percentage of the bend traveled
-        guide_point = self.start + t * (self.end - self.start)
-        direction = normalize(guide_point - self.center)
+        intermediary_projection_point = self.start + t * (self.end - self.start)
+        direction = normalize(intermediary_projection_point - self.center)
         return self.center + direction * self.curvature_radius
 
     def as_dict(self) -> dict:

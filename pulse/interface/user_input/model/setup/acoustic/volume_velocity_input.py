@@ -405,7 +405,7 @@ class VolumeVelocityInput(QDialog):
             node_ids = [node_ids]
 
         for node_id in node_ids:
-            for label in ["acoustic_pressure", "compressor_excitation", "volume_velocity"]:
+            for label in ["acoustic_pressure", "reciprocating_compressor_excitation", "reciprocating_pump_excitation", "volume_velocity"]:
                 table_names = self.properties.get_nodal_related_table_names(label, node_id)
 
                 self.properties._remove_nodal_property(label, node_id)

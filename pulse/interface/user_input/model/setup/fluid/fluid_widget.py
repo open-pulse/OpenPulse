@@ -37,7 +37,8 @@ class FluidWidget(QWidget):
         uic.loadUi(ui_path, self)
 
         self.parent_widget = kwargs.get("parent_widget", None)
-        self.compressor_info = kwargs.get("compressor_info", dict())
+        self.recip_compressor_info = kwargs.get("recip_compressor_info", dict())
+        self.recip_pump_info = kwargs.get("recip_pump_info", dict())
 
         self.main_window = app().main_window
         self.project = app().project
@@ -77,19 +78,21 @@ class FluidWidget(QWidget):
     def _define_qt_variables(self):
 
         # QPushButton
-        self.pushButton_add_column : QPushButton
-        self.pushButton_attribute_fluid : QPushButton
-        self.pushButton_refprop : QPushButton
-        self.pushButton_remove_column : QPushButton
-        self.pushButton_reset_library : QPushButton
+        self.pushButton_add_column: QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_refprop: QPushButton
+        self.pushButton_remove_column: QPushButton
+        self.pushButton_reset_library: QPushButton
 
         # QTableWidget
-        self.tableWidget_fluid_data : QTableWidget
+        self.tableWidget_fluid_data: QTableWidget
         self.tableWidget_fluid_data.setStyleSheet("")
 
     def _create_connections(self):
         #
         self.pushButton_add_column.clicked.connect(self.add_column)
+        # self.pushButton_cancel.clicked.connect(self.close_window)
         self.pushButton_refprop.clicked.connect(self.call_refprop_interface)
         self.pushButton_remove_column.clicked.connect(self.remove_selected_column)
         self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
@@ -274,9 +277,8 @@ class FluidWidget(QWidget):
         
         item = self.tableWidget_fluid_data.item(1, selected_column)
         identifier = int(item.text())
-        fluid = self.list_of_fluids[identifier]
 
-        return fluid
+        return self.list_of_fluids[identifier]
 
     def add_column(self):
     
@@ -483,7 +485,6 @@ class FluidWidget(QWidget):
                 else:
                     fluid_data[key] = item.text()
             
-            fluid_name = fluid_data["name"]
             identifier = fluid_data["identifier"]
 
             if self.refprop is not None:
@@ -520,19 +521,17 @@ class FluidWidget(QWidget):
 
     def reset_fluid_from_lines(self, fluid_identifiers: list):
 
-        for line_id, data in app().project.model.properties.line_properties.items():
-            if "fluid_id" in data.keys():
-                if data["fluid_id"] in fluid_identifiers:
-                    app().project.model.preprocessor.set_fluid_by_lines(line_id, None)
-
         lines_to_remove_fluid = list()
         for line_id, data in self.properties.line_properties.items():
             if "fluid_id" in data.keys():
-                if isinstance(data, Fluid):
-                    if data["fluid_id"] in fluid_identifiers:
+                fluid_id = data["fluid_id"]
+                if fluid_id in fluid_identifiers:
+                    app().project.model.preprocessor.set_fluid_by_lines(line_id, None)
+                    if fluid_id not in lines_to_remove_fluid:
                         lines_to_remove_fluid.append(line_id)
 
         for _line_id in lines_to_remove_fluid:
+            self.properties._remove_line_property("fluid_id", line_id=_line_id)
             self.properties._remove_line_property("fluid", line_id=_line_id)
 
         app().pulse_file.write_line_properties_in_file()
@@ -551,7 +550,8 @@ class FluidWidget(QWidget):
 
             selected_fluid = self.fluid_name_to_refprop_data[fluid_name]
             self.refprop = SetFluidCompositionInput(selected_fluid_to_edit = selected_fluid, 
-                                                    compressor_info = self.compressor_info)
+                                                    recip_compressor_info = self.recip_compressor_info,
+                                                    recip_pump_info = self.recip_pump_info)
 
             if not self.refprop.complete:
                 app().main_window.set_input_widget(self.parent_widget)
@@ -637,9 +637,8 @@ class FluidWidget(QWidget):
         if isinstance(self.parent_widget, QDialog):
             self.parent_widget.hide()
 
-        self.refprop = SetFluidCompositionInput(compressor_info = self.compressor_info)
-
-        print(f"teste -> {app().main_window.force_close}")
+        self.refprop = SetFluidCompositionInput(recip_compressor_info = self.recip_compressor_info,
+                                                recip_pump_info = self.recip_pump_info)
 
         if app().main_window.force_close:
             self.parent_widget.close()
@@ -697,13 +696,13 @@ class FluidWidget(QWidget):
         else:
             self.refprop = None
 
-    def load_compressor_info(self):
+    def load_recip_compressor_info(self):
 
-        if self.compressor_info:
+        if self.recip_compressor_info:
 
             if isinstance(self.parent_widget, QDialog):
 
-                line_id = self.compressor_info['line_id']
+                line_id = self.recip_compressor_info['line_id']
                 app().main_window.set_selection(lines=[line_id])
 
                 # self.parent_widget.lineEdit_selected_id.setText(str(line_id))
@@ -718,10 +717,36 @@ class FluidWidget(QWidget):
                     fluid_name = self.fluid_data_refprop["name"]
                     self.parent_widget.lineEdit_selected_fluid_name.setText(fluid_name)
 
-                print(self.compressor_info['connection_type'])
+                print(self.recip_compressor_info['connection_type'])
 
-                connection_type = self.compressor_info['connection_type']
-                title = f"Set a fluid thermodynamic state at the compressor {connection_type}"
+                connection_type = self.recip_compressor_info['connection_type']
+                title = f"Set a fluid for the reciprocating compressor ({connection_type})"
+
+                self.parent_widget.setWindowTitle(title)
+
+    def load_recip_pump_info(self):
+
+        if self.recip_pump_info:
+
+            if isinstance(self.parent_widget, QDialog):
+
+                line_id = self.recip_pump_info['line_id']
+                app().main_window.set_selection(lines=[line_id])
+
+                # self.parent_widget.lineEdit_selected_id.setText(str(line_id))
+                # self.parent_widget.comboBox_attribution_type.setCurrentIndex(1)
+                # # self.parent_widget.selection_callback()
+                # self.parent_widget.lineEdit_selected_id.setDisabled(True)
+
+                column = self.tableWidget_fluid_data.columnCount()
+                self.tableWidget_fluid_data.selectColumn(column-1)
+
+                if self.fluid_data_refprop:
+                    fluid_name = self.fluid_data_refprop["name"]
+                    self.parent_widget.lineEdit_selected_fluid_name.setText(fluid_name)
+
+                connection_type = self.recip_pump_info['connection_type']
+                title = f"Set a fluid for the reciprocating pump ({connection_type})"
 
                 self.parent_widget.setWindowTitle(title)
 
@@ -740,11 +765,17 @@ class FluidWidget(QWidget):
             pressure_lineEdit.setDisabled(True)
 
     def update_compressor_info(self):
-        if self.compressor_info:
+        if self.recip_compressor_info:
             if self.refprop is not None:
                 if self.refprop.complete:
-                    self.compressor_info["temperature (discharge)"] = round(self.fluid_data_refprop["temperature"], 4)
-                    self.compressor_info["molar_mass"] = self.fluid_data_refprop["molar_mass"]
+                    self.recip_compressor_info["temperature (discharge)"] = round(self.fluid_data_refprop["temperature"], 4)
+                    self.recip_compressor_info["molar_mass"] = self.fluid_data_refprop["molar_mass"]
+
+    # def close_window(self):
+    #     if isinstance(self.parent_widget, QDialog):
+    #         self.parent_widget.close()
+    #     else:
+    #         self.close()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

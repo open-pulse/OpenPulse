@@ -5,7 +5,7 @@ from pulse.model.line import Line
 from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.model.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.model.structural_element import StructuralElement, NODES_PER_ELEMENT
-from pulse.model.compressor_model import CompressorModel
+from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
 from pulse.model.perforated_plate import PerforatedPlate
 
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
@@ -1740,9 +1740,9 @@ class Preprocessor:
                 list_parameters.append(parameter)
 
         if 'cylinder label' in parameters.keys():
-            CompressorModel(list_parameters, active_cyl=parameters['cylinder label'])
+            ReciprocatingCompressorModel(list_parameters, active_cyl=parameters['cylinder label'])
         else:
-            CompressorModel(list_parameters)
+            ReciprocatingCompressorModel(list_parameters)
 
     def get_gdofs_from_nodes(self, node_id1, node_id2):
         """

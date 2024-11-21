@@ -151,11 +151,22 @@ class AddAcousticTransferElementInput(QDialog):
             return
 
         if os.path.exists(path):
-            self.import_element_transfer_data(path)
 
-            if self.element_transfer_data:
-                self.process_acoustic_element_transfer_data(path)
-                self.actions_to_finalize()
+            try:
+
+                self.import_element_transfer_data(path)
+
+                if self.element_transfer_data:
+                    self.process_acoustic_element_transfer_data(path)
+                    self.actions_to_finalize()
+
+            except Exception as error_log:
+                self.hide()
+                title = "Invalid data imported"
+                message = "An invalid data has been imported to the acoustic transfer element. "
+                message += "Check the acoustic element transfer data type and modify it if necessary."
+                PrintMessageInput([window_title_1, title, message])
+                return
 
     def remove_table_files_from_nodes(self, node_id : list):
         table_names = self.properties.get_nodal_related_table_names("acoustic_transfer_element", node_id)
@@ -178,7 +189,6 @@ class AddAcousticTransferElementInput(QDialog):
             self.properties._remove_nodal_property("acoustic_transfer_element", node_ids)
 
             self.actions_to_finalize()
-            # self.close()
 
     def reset_callback(self):
 
@@ -200,9 +210,7 @@ class AddAcousticTransferElementInput(QDialog):
                         self.remove_table_files_from_nodes(args)                    
 
                 self.properties._reset_nodal_property("acoustic_transfer_element")
-
                 self.actions_to_finalize()
-                # self.close()
 
     def search_callback(self):
 
@@ -243,37 +251,27 @@ class AddAcousticTransferElementInput(QDialog):
         from openpyxl import load_workbook
 
         self.element_transfer_data.clear()
+        sufix = Path(imported_path).suffix
 
-        try:
+        if sufix in [".xls", ".xlsx"]:
+            wb = load_workbook(imported_path)
+            sheetnames = wb.sheetnames
 
-            sufix = Path(imported_path).suffix
-            # filename = os.path.basename(imported_path)
+            if self.comboBox_data_type.currentIndex() == 0:
+                cols = list(np.arange(3))
+            else:
+                cols = list(np.arange(9))
 
-            if sufix in [".xls", ".xlsx"]:
-                wb = load_workbook(imported_path)
-                sheetnames = wb.sheetnames
+            for sheetname in sheetnames:
 
-                if self.comboBox_data_type.currentIndex() == 0:
-                    cols = list(np.arange(3))
-                else:
-                    cols = list(np.arange(9))
+                sheet_data = read_excel(
+                                        imported_path, 
+                                        sheet_name = sheetname, 
+                                        header = 0, 
+                                        usecols = cols
+                                        ).to_numpy()
 
-                for sheetname in sheetnames:
-
-                    sheet_data = read_excel(
-                                            imported_path, 
-                                            sheet_name = sheetname, 
-                                            header = 0, 
-                                            usecols = cols
-                                            ).to_numpy()
-
-                    self.element_transfer_data[sheetname] = sheet_data
-
-        except Exception as log_error:
-            title = "Error while loading data from file"
-            message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
-            return
+                self.element_transfer_data[sheetname] = sheet_data
         
     def update_frequency_setup(self, values: np.ndarray, path: str):
 
@@ -306,47 +304,45 @@ class AddAcousticTransferElementInput(QDialog):
 
         aux = dict()
         table_names = list()
-        for k, (sheetaname, et_data) in enumerate(self.element_transfer_data.items()):
+        linked_nodes = f"{self.input_node_id}_{self.output_node_id}"
+
+        self.aij_labels = ["a11", "a21", "a12", "a22"]
+        self.hij_labels = ["h11", "h21", "h12", "h22"]
+
+        for k, (sheetname, et_data) in enumerate(self.element_transfer_data.items()):
 
             if k == 0:
                 self.update_frequency_setup(et_data, path)
 
             if self.comboBox_data_type.currentIndex() == 1:                 
                 if et_data.shape[1] == 9:
-                    for i, e_label in enumerate(["a11", "a12", "a21", "a22"]):
+                    for i, aij_label in enumerate(self.aij_labels):
                         data_ij = np.array([et_data[:,0], et_data[:,2*i+1], et_data[:,2*i+2]], dtype=float).T
-                        table_name = f"admittance_matrix_data_{e_label}_nodes_{self.input_node_id}_{self.output_node_id}"
-                        aux[e_label] = {"values" : data_ij,
-                                        "table_name" : table_name}
-                else:
-                    continue
+                        table_name = f"admittance_matrix_data_{aij_label}_nodes_{linked_nodes}"
+                        aux[aij_label] = {
+                                          "values" : data_ij,
+                                          "table_name" : table_name
+                                          }
+
+                elif et_data.shape[1] in [3, 4]:
+                    for aij_abel in self.aij_labels:
+                        if aij_abel in sheetname:
+                            table_name = f"admittance_matrix_data_{aij_abel}_nodes_{linked_nodes}"
+                            aux[aij_abel] = {
+                                             "values" : data_ij,
+                                             "table_name" : table_name
+                                             }
+                            break
 
             else:
 
-                linked_nodes = f"{self.input_node_id}_{self.output_node_id}"
-
-                if "H11" in sheetaname:
-                    table_name = f"transfer_function_H11_nodes_{linked_nodes}"
-                    aux["H11"] = {"values" : et_data,
-                                  "table_name" : table_name}
-
-                elif "H21" in sheetaname:
-                    table_name = f"transfer_function_H21_nodes_{linked_nodes}"
-                    aux["H21"] = {"values" : et_data,
-                                  "table_name" : table_name}
-
-                elif "H12" in sheetaname:
-                    table_name = f"transfer_function_H12_nodes_{linked_nodes}"
-                    aux["H12"] = {"values" : et_data,
-                                  "table_name" : table_name}
-
-                elif "H22" in sheetaname:
-                    table_name = f"transfer_function_H22_nodes_{linked_nodes}"
-                    aux["H22"] = {"values" : et_data,
-                                  "table_name" : table_name}
-
-                else:
-                    continue
+                for hij_label in self.hij_labels:
+                    if hij_label in sheetname:
+                        table_name = f"transfer_function_{hij_label}_nodes_{linked_nodes}"
+                        aux[hij_label] = {
+                                          "values" : et_data,
+                                          "table_name" : table_name
+                                          }
 
         for _data in aux.values():
             values = _data["values"]
@@ -363,12 +359,12 @@ class AddAcousticTransferElementInput(QDialog):
 
         if self.comboBox_data_type.currentIndex() == 0:
             data_source = "transfer_functions"
-            for key in ["H11", "H21", "H12", "H22"]:
+            for key in self.hij_labels:
                 table_names.append(aux[key]["table_name"])
 
         else:
             data_source = "admittance_matrix"
-            for key in ["a11", "a12", "a21", "a22"]:
+            for key in self.aij_labels:
                 table_names.append(aux[key]["table_name"])
 
         data = {
@@ -385,6 +381,7 @@ class AddAcousticTransferElementInput(QDialog):
         app().pulse_file.write_imported_table_data_in_file()
         self.load_nodal_info()
         app().main_window.update_plots(reset_camera=False)
+        self.pushButton_cancel.setText("Exit")
 
     def on_click_item(self, item):
         input_node_id = int(item.text(1))

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox
+from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox, QCheckBox
 from PyQt5 import uic
 
 import re
@@ -28,7 +28,8 @@ from molde.utils import TreeInfo
 from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
-from pulse.interface.user_input.model.setup.material.material_widget import MaterialInputs
+from pulse.interface.user_input.model.setup.material.material_widget import MaterialWidget
+from pulse.interface.user_input.model.setup.material.set_material_input_simplified import SetMaterialSimplified
 from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
 
 from pulse.interface.user_input.model.geometry.options import (
@@ -77,6 +78,9 @@ class GeometryDesignerWidget(QWidget):
         self.structure_combobox: QComboBox
         self.division_combobox: QComboBox
         self.bending_options_combobox: QComboBox
+        self.deltas_combobox: QComboBox
+        self.selected_point_combo_box: QComboBox
+        self.distance_axis_combo_box: QComboBox
 
         # QFrame
         self.frame_bending_options: QFrame
@@ -103,19 +107,25 @@ class GeometryDesignerWidget(QWidget):
         self.unity_y_label: QLineEdit
         self.unity_z_label: QLineEdit
         self.bending_radius_line_edit: QLineEdit
+        self.deltas_line_edit: QLineEdit
+        self.distance_value_line_edit: QLineEdit
 
         # QLabel
         self.dx_label: QLabel
         self.dy_label: QLabel
         self.dz_label: QLabel
+
         self.division_slider_label: QLabel
+        self.position_slider_label: QLabel
         self.sizes_coords_label: QLabel
 
         # QSlider
         self.division_slider: QSlider
+        self.position_slider: QSlider
 
         # QSpinBox
         self.division_amount_spinbox: QSpinBox
+        self.position_spinbox: QSpinBox
 
         # QStackedWidget
         self.options_stack_widget: QStackedWidget
@@ -125,8 +135,7 @@ class GeometryDesignerWidget(QWidget):
 
     def _create_layout(self):
         self.cross_section_widget = CrossSectionWidget(self)
-        self.material_widget = MaterialInputs(self)
-        self.material_widget.hide()
+        self.material_widget = SetMaterialSimplified()
 
         # Add your newly implemented StructureOptions here 
         structure_option_types: list[type[StructureOptions]] = [
@@ -165,7 +174,7 @@ class GeometryDesignerWidget(QWidget):
         self.structure_combobox.currentTextChanged.connect(self.structure_type_changed_callback)
         self.set_material_button.clicked.connect(self.show_material_widget_callback)
         self.configure_button.clicked.connect(self.configure_structure_callback)
-        self.material_widget.pushButton_attribute_material.clicked.connect(self.define_material_callback)
+        self.material_widget.material_widget.pushButton_attribute.clicked.connect(self.define_material_callback)
 
         self.x_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
@@ -180,7 +189,14 @@ class GeometryDesignerWidget(QWidget):
 
         self.division_combobox.currentTextChanged.connect(self.division_type_changed_callback)
         self.division_slider.valueChanged.connect(self.division_slider_callback)
-        self.division_amount_spinbox.textChanged.connect(self.division_amount_spinbox_callback)
+        self.division_amount_spinbox.textChanged.connect(self.preview_divisions_callback)
+        self.position_slider.valueChanged.connect(self.position_slider_callback)
+        self.position_spinbox.textChanged.connect(self.preview_divisions_callback)
+
+        self.distance_value_line_edit.textChanged.connect(self.preview_divisions_callback)
+        self.distance_axis_combo_box.currentIndexChanged.connect(self.preview_divisions_callback)        
+        self.selected_point_combo_box.currentIndexChanged.connect(self.preview_divisions_callback)        
+
         self.cancel_division_button.clicked.connect(self.cancel_division_callback)
         self.apply_division_button.clicked.connect(self.apply_division_callback)
 
@@ -198,7 +214,7 @@ class GeometryDesignerWidget(QWidget):
 
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback(PipeOptions.name())
-        self.division_type_changed_callback("single division")
+        self.division_type_changed_callback()
 
     def selection_callback(self):
         if issubclass(self.current_structure_type, Point):
@@ -274,10 +290,8 @@ class GeometryDesignerWidget(QWidget):
         self.unity_z_label.setEnabled(key)
 
     def show_material_widget_callback(self):
-        self.material_widget._initialize()
-        self.material_widget._add_icon_and_title()
-        self.material_widget.load_data_from_materials_library()
-        self.material_widget.setVisible(True)
+        self.material_widget.material_widget.load_data_from_materials_library()
+        self.material_widget.exec()
 
     def options_changed_callback(self):
         self._update_permissions()
@@ -285,8 +299,8 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=False)
 
     def define_material_callback(self):
-        self.current_material_info = self.material_widget.get_selected_material_id()
-        self.material_widget.setVisible(False)
+        self.current_material_info = self.material_widget.material_widget.get_selected_material_id()
+        self.material_widget.close()
         self._update_material_of_selected_structures()
         self._update_permissions()
         self._update_information_text()
@@ -389,39 +403,87 @@ class GeometryDesignerWidget(QWidget):
         self.x_line_edit.blockSignals(False)
         self.y_line_edit.blockSignals(False)
         self.z_line_edit.blockSignals(False)
+    
+    def adjust_stack_widget_height(self):
+        height = self.options_stack_widget.currentWidget().sizeHint().height()
+        self.options_stack_widget.setFixedHeight(height)
 
-    def division_type_changed_callback(self, text: str):
-        division_type = text.lower()
+    def division_type_changed_callback(self):
 
-        if division_type == "single division":
-            self.division_slider.setMinimum(0)
-            self.division_slider.setMaximum(100)
-            self.division_slider.setValue(50)
-            self.division_slider_label.setText("Position:")
+        index = self.division_combobox.currentIndex()
 
-        elif division_type == "multiple division":
+        if index == 0:
+            self.options_stack_widget.setCurrentIndex(0)
+            self.position_slider.setMinimum(0)
+            self.position_slider.setMaximum(100)
+            self.position_slider.setValue(50)
+
+        elif index == 1:
+            self.options_stack_widget.setCurrentIndex(1)
             self.division_slider.setMinimum(1)
             self.division_slider.setMaximum(10)
             self.division_slider.setValue(1)
-            self.division_slider_label.setText("Divisions:")
+
+        elif index == 2:
+            self.options_stack_widget.setCurrentIndex(2)
+
+        else:
+            return
+
+        self.adjust_stack_widget_height()
 
     def division_slider_callback(self, value):
         self.division_amount_spinbox.setValue(value)
 
-    def division_amount_spinbox_callback(self, value):
-        value = int(value)
-        division_type = self.division_combobox.currentText().lower()
-        self.pipeline.dismiss()
+    def position_slider_callback(self, value):
+        self.position_spinbox.setValue(value)
 
-        if division_type == "single division":
+    def preview_divisions_callback(self, value):
+        
+        self.pipeline.dismiss()
+        index = self.division_combobox.currentIndex()
+
+        if index == 0:
+            value = int(value)
             self.pipeline.preview_divide_structures(value / 100)
 
-        elif division_type == "multiple division":
+            self.position_slider.blockSignals(True)
+            self.position_slider.setValue(value)
+            self.position_slider.blockSignals(False)
+
+
+        elif index == 1:
+            value = int(value)
             self.pipeline.preview_divide_structures_evenly(value)
 
-        self.division_slider.blockSignals(True)
-        self.division_slider.setValue(value)
-        self.division_slider.blockSignals(False)
+            self.division_slider.blockSignals(True)
+            self.division_slider.setValue(value)
+            self.division_slider.blockSignals(False)
+        
+        elif index == 2:
+
+            if self.selected_point_combo_box.currentIndex():
+                selected_point = "end_point"
+            else:
+                selected_point = "start_point"
+
+            division_data = [None, None, None, None]
+            direction_index = self.distance_axis_combo_box.currentIndex()
+
+            value = self._eval_number(self.distance_value_line_edit.text())
+
+            if value is None:
+                return
+
+            if value < 0:
+                value = abs(value)
+                self.distance_value_line_edit.blockSignals(True)
+                self.distance_value_line_edit.setText(str(value))
+                self.distance_value_line_edit.blockSignals(False)
+
+            division_data[direction_index] = value
+
+            self.pipeline.preview_divided_structures_by_distance_from_point(selected_point, division_data)
 
         self.render_widget.update_plot(reset_camera=False)
 
@@ -430,15 +492,42 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget.update_plot(reset_camera=False)
 
     def apply_division_callback(self):
-        self.pipeline.dismiss()
-        value = self.division_slider.value()
-        division_type = self.division_combobox.currentText().lower()
 
-        if division_type == "single division":
+        self.pipeline.dismiss()
+        index = self.division_combobox.currentIndex()
+
+        if index == 0:
+            value = self.position_slider.value()
             self.pipeline.divide_structures(value / 100)
 
-        elif division_type == "multiple division":
+        elif index == 1:
+            value = self.division_slider.value()
             self.pipeline.divide_structures_evenly(value)
+        
+        elif index == 2:
+
+            if self.selected_point_combo_box.currentIndex():
+                selected_point = "end_point"
+            else:
+                selected_point = "start_point"
+
+            division_data = [None, None, None, None]
+            direction_index = self.distance_axis_combo_box.currentIndex()
+
+            value = self._eval_number(self.distance_value_line_edit.text())
+
+            if value is None:
+                return
+
+            if value < 0:
+                value = abs(value)
+                self.distance_value_line_edit.blockSignals(True)
+                self.distance_value_line_edit.setText(str(value))
+                self.distance_value_line_edit.blockSignals(False)
+
+            division_data[direction_index] = value
+
+            self.pipeline.divide_structures_by_distance_from_point(selected_point, division_data)
 
         self.pipeline.clear_structure_selection()
         self.render_widget.update_plot(reset_camera=False)
@@ -654,7 +743,7 @@ class GeometryDesignerWidget(QWidget):
         material = None
         if self.current_material_info is not None:
             material_id = self.current_material_info
-            material = self.material_widget.library_materials[material_id]
+            material = self.material_widget.material_widget.library_materials[material_id]
 
         message = "Active configuration\n\n"
 

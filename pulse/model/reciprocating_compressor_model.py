@@ -1,6 +1,8 @@
 import numpy as np
-from pathlib import Path
 import os
+
+from pathlib import Path
+from scipy.signal import butter, filtfilt
 
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
@@ -103,7 +105,7 @@ def plot_2_yaxis(data_to_plot, title):
         fig.legend(bbox_to_anchor=(1,1), bbox_transform=ax_1.transAxes)
         plt().show() 
 
-class CompressorModel:
+class ReciprocatingCompressorModel:
 
     '''
     COMPRESSOR MODEL                                     
@@ -129,21 +131,20 @@ class CompressorModel:
         self.max_frequency = kwargs.get('max_frequency', 300)
         self.number_of_cylinders = kwargs.get('number_of_cylinders', 1)
 
-
     def _load_compressor_parameters(self, parameters):
         """
         """
-        self.D = parameters['bore_diameter']                    # Cylinder bore diameter [m]
-        self.r = parameters['stroke']/2                         # Length of compressor full stroke [m]
-        self.L = parameters['connecting_rod_length']            # Connecting rod length [m]
-        self.rod_diam = parameters['rod_diameter']              # Rod diameter [m]
-        self.p_ratio = parameters['pressure_ratio']             # Compressor pressure ratio Pd/Ps
-        self.c_HE = parameters['clearance_HE']/100            # Clearance HE volume as percentage of full volume (%)
-        self.c_CE = parameters['clearance_CE']/100            # Clearance CE volume as percentage of full volume (%)
-        self.crank_angle_1 = parameters['TDC_crank_angle_1']    # Crank angle (degrees) at which piston in the head end chamber is at top dead center
-        self.rpm = parameters['rotational_speed']               # Compressor rotation speed (rpm)
-        self.capacity = parameters['capacity']/100              # Capacity of compression stage (%)
-        self.acting_label = parameters['acting_label']          # Active cylinder(s) key (int)
+        self.D = parameters['bore_diameter']                        # Cylinder bore diameter [m]
+        self.r = parameters['stroke']/2                             # Length of compressor full stroke [m]
+        self.L = parameters['connecting_rod_length']                # Connecting rod length [m]
+        self.rod_diam = parameters['rod_diameter']                  # Rod diameter [m]
+        self.p_ratio = parameters['pressure_ratio']                 # Compressor pressure ratio Pd/Ps
+        self.c_HE = parameters['clearance_HE'] / 100                # Clearance HE volume as percentage of full volume (%)
+        self.c_CE = parameters['clearance_CE'] / 100                # Clearance CE volume as percentage of full volume (%)
+        self.crank_angle_1 = parameters['TDC_crank_angle_1']        # Crank angle (degrees) at which piston in the head end chamber is at top dead center
+        self.rpm = parameters['rotational_speed']                   # Compressor rotation speed (rpm)
+        self.capacity = parameters['capacity'] / 100                # Capacity of compression stage (%)
+        self.acting_label = parameters['acting_label']              # Active cylinder(s) key (int)
 
         if self.acting_label == 0:
             self.active_cylinder = 'both ends'
@@ -152,7 +153,7 @@ class CompressorModel:
         elif self.acting_label == 2:
             self.active_cylinder = 'crank end'
 
-        self.tdc1 = self.crank_angle_1*pi/180
+        self.tdc_1 = self.crank_angle_1 * pi / 180
 
         pressure_at_suction = parameters['pressure_at_suction']              # Pressure at suction
         temperature_at_suction = parameters['temperature_at_suction']        # Temperature at suction
@@ -163,22 +164,22 @@ class CompressorModel:
             self.p_suc = pressure_at_suction*kgf_cm2_to_Pa
         else:
             self.p_suc = pressure_at_suction*bar_to_Pa
-        
+
         if self.temperature_unit == "°C":
             self.T_suc = temperature_at_suction + 273.15
         else:
             self.T_suc = temperature_at_suction
 
-        self.p_disc = self.p_ratio*self.p_suc
+        self.p_disc = self.p_ratio * self.p_suc
 
-        self.area_head_end = pi*(self.D**2)/4
-        self.area_crank_end = pi*((self.D**2)-(self.rod_diam**2))/4
-        self.tdc2 = pi/2
+        self.area_head_end = pi * (self.D**2) / 4
+        self.area_crank_end = pi * ((self.D**2) - (self.rod_diam**2)) / 4
+
+        self.tdc_2 = self.tdc_1 + pi / 2
         self.cap = None
 
         self.set_fluid_properties_and_update_state(parameters['isentropic_exponent'],
                                                    parameters['molar_mass'])
-
 
     def set_fluid_properties_and_update_state(self, isentropic_exponent, molar_mass):
         """ 
@@ -195,13 +196,14 @@ class CompressorModel:
         self.k = isentropic_exponent            # Compressed gas isentropic exponent
         self.molar_mass = molar_mass            # Molar mass [kg/kmol]
 
-        self.vr = (self.p_suc)**(-1/self.k)     # Volume ratio considering isentropic compression
-        self.Ru = 8314.4621                     # Universal ideal gas constant [J/kmol.K]
-        self.R = self.Ru/self.molar_mass        # Gas constant [J/kg.K]
-        self.rho_suc = self.p_suc/(self.R*self.T_suc)
+        self.vr = (self.p_suc)**(-1/self.k)         # Volume ratio considering isentropic compression
+        self.Ru = 8314.4621                         # Universal ideal gas constant [J/kmol.K]
+        self.R = self.Ru / self.molar_mass          # Gas constant [J/kg.K]
 
-        self.T_disc = (self.T_suc)*(self.p_ratio**((self.k-1)/self.k))
-        self.rho_disc = (self.p_suc*self.p_ratio)/(self.R*self.T_disc)
+        self.rho_suc = self.p_suc / (self.R * self.T_suc)
+
+        self.T_disc = (self.T_suc) * (self.p_ratio**((self.k-1)/self.k))
+        self.rho_disc = (self.p_suc * self.p_ratio) / (self.R * self.T_disc)
 
     def recip_x(self, tdc=None):
         """ This method returns the reciprocating piston position.
@@ -214,9 +216,11 @@ class CompressorModel:
         ----------
         x: array of float numbers relative to piston position.
         """
+
         N = self.number_points + 1
-        if tdc == None:
-            tdc = self.tdc1
+        if tdc is None:
+            tdc = self.tdc_1
+
         r = self.r
         l = self.L
         x_max = l + r
@@ -236,9 +240,11 @@ class CompressorModel:
         ----------
         v: array of float numbers relative to piston velocity.
         """
+
         N = self.number_points + 1
-        if tdc == None:
-            tdc = self.tdc1
+        if tdc is None:
+            tdc = self.tdc_1
+
         r = self.r
         l = self.L
         theta = np.linspace(0, 2*pi, N)
@@ -271,7 +277,7 @@ class CompressorModel:
         V4 = V3*(1/self.p_ratio)**(1/self.k)
 
         if tdc is None:
-            tdc = self.tdc1
+            tdc = self.tdc_1
 
         if acting_label == "HE":
             v_piston = self.recip_v(tdc=tdc)
@@ -371,7 +377,7 @@ class CompressorModel:
         #     capacity = self.cap
 
         if tdc is None:
-            tdc = self.tdc1
+            tdc = self.tdc_1
 
         v_piston = self.recip_v(tdc=tdc)
         theta, x_piston = self.recip_x(tdc=tdc)
@@ -401,7 +407,6 @@ class CompressorModel:
         valves_info = dict()
         open_suc = np.zeros(N, dtype=bool)
         open_disc = np.zeros(N, dtype=bool)
-        message = ""
 
         # print(f"Capacity (head end): {capacity}")
         stage_log = f"Capacity (head end) = {capacity}\n\n"
@@ -545,7 +550,7 @@ class CompressorModel:
         #     capacity = self.cap
 
         if tdc is None:
-            tdc = self.tdc1
+            tdc = self.tdc_1
 
         v_piston = -self.recip_v(tdc=tdc)
         theta, x_piston = self.recip_x(tdc=tdc)
@@ -717,7 +722,7 @@ class CompressorModel:
         if valves_info is None:
             return None
 
-        v_piston = self.recip_v()
+        v_piston = self.recip_v(tdc=tdc)
         #
         N = len(v_piston)
         flow_in = np.zeros(N, dtype=float)
@@ -741,7 +746,7 @@ class CompressorModel:
         if valves_info is None:
             return None
 
-        v_piston = -self.recip_v()
+        v_piston = -self.recip_v(tdc=tdc)
         #
         N = len(v_piston)
         flow_in = np.zeros(N, dtype=float)
@@ -775,39 +780,50 @@ class CompressorModel:
         f_ce = np.sum(self.mass_flow_crank_end())/N
         return f_he + f_ce
 
-    def process_sum_of_volumetric_flow_rate(self, key, capacity=None):
+    def process_sum_of_volumetric_flow_rate(self, key: str, capacity=None, smooth_data=False):
         try:
 
             if self.active_cylinder == 'both ends':
 
                 if self.number_of_cylinders == 1:
-                    flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key]
-                    flow_rate += self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
+                    flow_rate = self.flow_crank_end(tdc=self.tdc_1, capacity=capacity)[key]
+                    flow_rate += self.flow_head_end(tdc=self.tdc_1, capacity=capacity)[key]
                 else:
-                    flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key]
-                    flow_rate += self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
-                    flow_rate += self.flow_crank_end(tdc=self.tdc2, capacity=capacity)[key] 
-                    flow_rate += self.flow_head_end(tdc=self.tdc2, capacity=capacity)[key]
+                    flow_rate = self.flow_crank_end(tdc=self.tdc_1, capacity=capacity)[key]
+                    flow_rate += self.flow_head_end(tdc=self.tdc_1, capacity=capacity)[key]
+                    flow_rate += self.flow_crank_end(tdc=self.tdc_2, capacity=capacity)[key] 
+                    flow_rate += self.flow_head_end(tdc=self.tdc_2, capacity=capacity)[key]
 
             elif self.active_cylinder == 'head end':
 
                 if self.number_of_cylinders == 1:
-                    flow_rate = self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
+                    flow_rate = self.flow_head_end(tdc=self.tdc_1, capacity=capacity)[key]
                 else:
-                    flow_rate = self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
-                    flow_rate += self.flow_head_end(tdc=self.tdc2, capacity=capacity)[key]
+                    flow_rate = self.flow_head_end(tdc=self.tdc_1, capacity=capacity)[key]
+                    flow_rate += self.flow_head_end(tdc=self.tdc_2, capacity=capacity)[key]
 
             elif self.active_cylinder == 'crank end':
 
                 if self.number_of_cylinders == 1:
-                    flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key]
+                    flow_rate = self.flow_crank_end(tdc=self.tdc_1, capacity=capacity)[key]
                 else:
-                    flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key]
-                    flow_rate += self.flow_crank_end(tdc=self.tdc2, capacity=capacity)[key]
+                    flow_rate = self.flow_crank_end(tdc=self.tdc_1, capacity=capacity)[key]
+                    flow_rate += self.flow_crank_end(tdc=self.tdc_2, capacity=capacity)[key]
 
         except Exception as error:
             print(str(error))
             return None
+
+        if smooth_data:
+    
+            N = len(flow_rate)
+            fs = N * (self.rpm / 60)
+
+            flow_rate_ext = np.append(flow_rate[:-1], flow_rate)
+            flow_rate_ext = np.append(flow_rate_ext, flow_rate[1:])
+
+            b, a = butter(1, fs/15, btype='low', fs=fs,  output='ba')
+            flow_rate = filtfilt(b, a, flow_rate_ext)[N-1 : 2*N-1]
 
         return flow_rate
 
@@ -1140,10 +1156,10 @@ class CompressorModel:
         
         plot(time, rod_pressure_load_time, x_label, y_label, title, _absolute=True) 
 
-    def plot_piston_position_and_velocity(self, domain="time"):
+    def plot_piston_position_and_velocity(self, tdc=None, domain="time"):
 
-        _, x = self.recip_x()
-        v = self.recip_v()
+        _, x = self.recip_x(tdc=tdc)
+        v = self.recip_v(tdc=tdc)
         Trev = 60/self.rpm
         N = len(x)
 
@@ -1315,7 +1331,7 @@ class CompressorModel:
     #     # ang = np.linspace(0, 2*pi, N)
 
     #     if tdc is None:
-    #         tdc = self.tdc1
+    #         tdc = self.tdc_1
                 
     #     if capacity is None:
     #         if self.cap is None:
@@ -1552,7 +1568,7 @@ if __name__ == "__main__":
                     'isentropic_exponent' : 1.400,
                     'molar_mass' : 2.01568 }
 
-    compressor = CompressorModel(parameters)
+    compressor = ReciprocatingCompressorModel(parameters)
     compressor.set_fluid_properties_and_update_state(   parameters['isentropic_exponent'],
                                                         parameters['molar_mass']   )
 
@@ -1562,6 +1578,10 @@ if __name__ == "__main__":
     # rho_suc = cylinder.rho_suc
     # compressor.plot_rod_pressure_load_frequency(6)
     # compressor.plot_PV_diagram_head_end()
+    # compressor.plot_PV_diagram_crank_end()
+    # compressor.plot_PV_diagram_both_ends()
+
+    compressor.plot_volumetric_flow_rate_at_discharge_time()
 
     # mass_in = compressor.get_in_mass_flow()
     # mass_out = compressor.get_out_mass_flow()

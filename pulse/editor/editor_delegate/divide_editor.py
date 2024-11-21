@@ -16,6 +16,12 @@ class DivideEditor(Editor):
         for structure in self.pipeline.selected_structures:
             self._divide_evenly(structure, divisions)
         self.pipeline.commit()
+    
+    def divide_structures_by_distance_from_point(self, selected_point: str, division_data: list):
+        for structure in self.pipeline.selected_structures:
+            point = self._process_division_point(structure, selected_point, division_data)
+            self._divide_on_point(structure, point)
+        self.pipeline.commit()
 
     def preview_divide_structures(self, t: float):
         all_points = []
@@ -31,6 +37,12 @@ class DivideEditor(Editor):
             points = self._interpolate_evenly(structure, divisions)
             all_points.extend(points)
         self.pipeline.add_points(all_points)
+
+    def preview_divided_structures_by_distance_from_point(self, selected_point: str, division_data: list):
+        for structure in self.pipeline.selected_structures:
+            division_point = self._process_division_point(structure, selected_point, division_data)
+            if division_point is not None:
+                self.pipeline.add_points([division_point])
 
     def _divide_on_point(self, structure: Structure, point: Point):
 
@@ -110,3 +122,7 @@ class DivideEditor(Editor):
                 return []
             subdivisions.append(point)
         return subdivisions
+
+    def _process_division_point(self, structure: Structure, selected_point: str, division_data: list):
+         if isinstance(structure, LinearStructure):
+            return structure.get_division_point_from_line(selected_point, division_data)
