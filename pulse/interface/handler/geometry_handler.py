@@ -105,6 +105,7 @@ class GeometryHandler:
             if isinstance(structure, Valve):
                 self.save_valve_internal_lines_if_exists(structure, line_tags)
 
+        cad.remove_all_duplicates()
         cad.synchronize()
 
         if gmsh_gui:
