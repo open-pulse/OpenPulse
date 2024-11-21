@@ -43,6 +43,14 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                 self._get_compressor_discharge_symbol(),
                 loadSymbol(SYMBOLS_DIR / "acoustic/compressor_discharge.obj"),
             ),
+                        (
+                self._get_pump_suction_symbol(),
+                loadSymbol(SYMBOLS_DIR / "acoustic/pump_suction.obj"),
+            ),
+            (
+                self._get_pump_discharge_symbol(),
+                loadSymbol(SYMBOLS_DIR / "acoustic/pump_discharge.obj"),
+            ),
         ]
 
     def source(self):
@@ -201,7 +209,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
                     if len(_elements) == 1:
                         element = _elements[0]
-                        rot = self.get_compressor_symbol_rotation(element, node)
+                        rot = self.get_reciprocating_machine_symbol_rotation(element, node)
 
                         if element.cross_section is not None:
                             diameter = element.cross_section.outer_diameter
@@ -231,7 +239,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
                     if len(_elements) == 1:
                         element = _elements[0]
-                        rot = self.get_compressor_symbol_rotation(element, node)
+                        rot = self.get_reciprocating_machine_symbol_rotation(element, node)
 
                         if element.cross_section is not None:
                             diameter = element.cross_section.outer_diameter
@@ -241,19 +249,87 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
         return symbols  
 
-    def get_compressor_symbol_rotation(self, element, node):
+    def _get_pump_suction_symbol(self):
+
+        src = 13
+        rot = (0, 0, 0)
+        scl = (1, 1, 1)
+        col = (10, 10, 255)
+
+        symbols = list()
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
+
+            if property == "reciprocating_pump_excitation":
+
+                if data["connection_type"] == "suction":
+
+                    pos = data["coords"]
+                    node_id = args[0]
+                    node = app().project.preprocessor.nodes[node_id]
+
+                    _elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+
+                    if len(_elements) == 1:
+                        element = _elements[0]
+                        rot = self.get_reciprocating_machine_symbol_rotation(element, node)
+
+                        if element.cross_section is not None:
+                            diameter = element.cross_section.outer_diameter
+                            factor = (3 * diameter / 0.2) / self.scale_factor
+                            scl = (factor, factor, factor)
+                            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+        return symbols
+
+    def _get_pump_discharge_symbol(self):
+
+        src = 14
+        scl = (1, 1, 1)
+        col = (255, 10, 10)
+
+        symbols = list()
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
+
+            if property == "reciprocating_pump_excitation":
+
+                if data["connection_type"] == "discharge":
+
+                    pos = data["coords"]
+                    node_id = args[0]
+                    node = app().project.preprocessor.nodes[node_id]
+                    _elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+
+                    if len(_elements) == 1:
+                        element = _elements[0]
+                        rot = self.get_reciprocating_machine_symbol_rotation(element, node)
+                        print(rot)
+
+                        if element.cross_section is not None:
+                            diameter = element.cross_section.outer_diameter
+                            factor = (3 * diameter / 0.2) / self.scale_factor
+                            scl = (factor, factor, factor)
+                            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+        return symbols
+
+    def get_reciprocating_machine_symbol_rotation(self, element, node):
         if element.first_node == node:
             return element.section_rotation_xyz_undeformed
 
         else:
+
             rot_1 = transformation_matrix_3x3(-1, 0, 0)
             rot_2 = transformation_matrix_3x3(
-                element.delta_x, element.delta_y, element.delta_z
-            )
+                                              element.delta_x, 
+                                              element.delta_y, 
+                                              element.delta_z
+                                              )
+
             mat_rot = rot_1 @ rot_2
             r = Rotation.from_matrix(mat_rot)
             rotations = -r.as_euler("zxy", degrees=True)
             rotations_xyz = np.array([rotations[1], rotations[2], rotations[0]]).T
+
             return rotations_xyz
 
 
