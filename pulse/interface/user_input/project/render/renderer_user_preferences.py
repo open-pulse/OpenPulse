@@ -169,7 +169,7 @@ class RendererUserPreferencesInput(QDialog):
     
     def update_renderer_font_size(self):
         try:
-            self.renderer_font_size = int(self.lineEdit_interface_font_size.text())
+            self.renderer_font_size = int(self.lineEdit_renderer_font_size.text())
             self.user_preferences.renderer_font_size = self.renderer_font_size
         except:
             pass
@@ -227,9 +227,10 @@ class RendererUserPreferencesInput(QDialog):
 
         app().setFont(font, "QWidget")
 
-        self.main_window.update_plots()
         self.update_open_pulse_logo_state()
         self.update_reference_scale_state()
+        self.update_renderers_font_size()
+        self.main_window.update_plots()
 
     def reset_to_default(self):
         if self.main_window.user_preferences["interface theme"] == "dark":
@@ -296,6 +297,11 @@ class RendererUserPreferencesInput(QDialog):
             self.checkBox_reference_scale.setChecked(1)
         else:
             self.checkBox_reference_scale.setChecked(0)
+        
+    def update_renderers_font_size(self):
+        self.main_window.geometry_widget.update_renderer_font_size()
+        self.main_window.mesh_widget.update_renderer_font_size()
+        self.main_window.results_widget.update_renderer_font_size()
 
     def load_user_preferences(self):
         self.update_line_edit_renderer_background_color_1()

@@ -102,6 +102,13 @@ class GeometryRenderWidget(CommonRenderWidget):
         if hasattr(self, "scale_bar_actor"):
             self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
+        
+    def update_renderer_font_size(self):
+        user_preferences = app().main_window.config.user_preferences
+        font_size_px = int(user_preferences.renderer_font_size * 4/3)
+
+        info_text_property = self.text_actor.GetTextProperty()
+        info_text_property.SetFontSize(font_size_px)
 
     def create_logos(self):
         if app().main_window.user_preferences["interface theme"] == "light":
