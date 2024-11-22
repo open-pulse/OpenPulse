@@ -20,8 +20,9 @@ class SetFluidInput(QDialog):
         uic.loadUi(ui_path, self)
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
+
+        self.state_properties = kwargs.get("state_properties", dict())
         self.recip_compressor_info = kwargs.get("recip_compressor_info", dict())
-        self.recip_pump_info = kwargs.get("recip_pump_info", dict())
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
@@ -35,18 +36,17 @@ class SetFluidInput(QDialog):
     
         self.selection_callback()
 
-        if self.recip_compressor_info or self.recip_pump_info:
+        # if self.recip_compressor_info:
+        if self.state_properties:
 
             if self.fluid_widget.call_refprop_interface():
                 return
             
             app().main_window.set_input_widget(self)
+            self.fluid_widget.load_state_properties_info()
 
-            if self.recip_compressor_info:
-                self.load_recip_compressor_info()
-
-            elif self.recip_pump_info:
-                self.load_recip_pump_info()
+            # if self.recip_compressor_info:
+            #     self.load_recip_compressor_info()
 
         while self.keep_window_open:
             self.exec()
@@ -99,15 +99,12 @@ class SetFluidInput(QDialog):
 
         self.fluid_widget = FluidWidget(parent_widget=self, 
                                         recip_compressor_info=self.recip_compressor_info,
-                                        recip_pump_info = self.recip_pump_info)
+                                        state_properties = self.state_properties)
 
         self.grid_layout.addWidget(self.fluid_widget)
 
-    def load_recip_compressor_info(self):
-        self.fluid_widget.load_recip_compressor_info()
-
-    def load_recip_pump_info(self):
-        self.fluid_widget.load_recip_pump_info()
+    # def load_recip_compressor_info(self):
+    #     self.fluid_widget.load_recip_compressor_info()
 
     def _create_connections(self):
         #
@@ -207,7 +204,8 @@ class SetFluidInput(QDialog):
             app().main_window.update_plots()
 
             self.complete = True
-            if self.recip_compressor_info or self.recip_pump_info:
+            # if self.recip_compressor_info or self.recip_pump_info:
+            if self.state_properties:
                 self.close()
 
             self.pushButton_cancel.setText("Exit")

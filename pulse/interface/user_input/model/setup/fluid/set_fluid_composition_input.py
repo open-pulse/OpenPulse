@@ -23,10 +23,10 @@ class SetFluidCompositionInput(QDialog):
         ui_path = UI_DIR / "model/setup/fluid/set_fluid_composition_input.ui"
         uic.loadUi(ui_path, self)
 
-        self.selected_fluid_to_edit = kwargs.get("selected_fluid_to_edit", None)
-
+        self.state_properties = kwargs.get("state_properties", dict())
         self.recip_compressor_info = kwargs.get("recip_compressor_info", dict())
-        self.recip_pump_info = kwargs.get("recip_pump_info", dict())
+
+        self.selected_fluid_to_edit = kwargs.get("selected_fluid_to_edit", None)
 
         self.project = app().project
         app().main_window.set_input_widget(self)
@@ -37,11 +37,8 @@ class SetFluidCompositionInput(QDialog):
         self._create_connections()
         self._config_widgets()
 
-        if self.recip_compressor_info:
-            self.check_recip_machine_inputs(self.recip_compressor_info)
-
-        elif self.recip_pump_info:
-            self.check_recip_machine_inputs(self.recip_pump_info)
+        if self.state_properties:
+            self.check_state_properties(self.state_properties)
 
         self.update_remainig_composition()
         if self.default_library_gases():
@@ -62,8 +59,10 @@ class SetFluidCompositionInput(QDialog):
     def _initialize(self):
 
         self.selected_row = None
+        self.reciprocating_machine = None
 
         self.keep_window_open = True
+        self.check_ideal_gas = True
         self.temp_file_path = ""
 
         # self.isentropic_label = "ISENK"   # isentropic exponent (real gas)
@@ -110,7 +109,6 @@ class SetFluidCompositionInput(QDialog):
         self.label_spacing : QLabel
 
         # QLineEdit
-        self.lineEdit_composition : QLineEdit
         self.lineEdit_fluid_name : QLineEdit
         self.lineEdit_temperature : QLineEdit
         self.lineEdit_pressure : QLineEdit
@@ -153,59 +151,126 @@ class SetFluidCompositionInput(QDialog):
         self.label_suction.setVisible(False)
         self.label_spacing.setVisible(False)
         #
-        self.lineEdit_composition.setFixedHeight(28)
         self.lineEdit_pressure_disch.setVisible(False)
         self.lineEdit_temperature_disch.setVisible(False)
 
-    def check_recip_machine_inputs(self, recip_machine_info: dict):
+    def check_state_properties(self, state_properties: dict):
 
         self.comboBox_temperature_units.setDisabled(True)
         self.comboBox_pressure_units.setDisabled(True)
         self.comboBox_temperature_units.setCurrentIndex(0)
 
-        self.label_discharge.setVisible(True)
-        self.label_suction.setVisible(True)
-        self.label_spacing.setVisible(True)
+        self.reciprocating_machine = state_properties.get("source", None)
+        self.check_ideal_gas = state_properties.get("check_ideal_gas", True)
 
-        self.lineEdit_pressure_disch.setVisible(True)
-        self.lineEdit_temperature_disch.setVisible(True)
-        self.lineEdit_temperature.setDisabled(True)
-        self.lineEdit_temperature_disch.setDisabled(True)
-        self.lineEdit_pressure.setDisabled(True)
-        self.lineEdit_pressure_disch.setDisabled(True)
+        if self.reciprocating_machine is None:
 
-        self.connection_type = recip_machine_info['connection_type']
-        self.T_suction = recip_machine_info[f'temperature_at_suction']
-        self.P_suction = recip_machine_info[f'suction_pressure']
+            pressure = state_properties.get("pressure", None)
+            temperature = state_properties.get("temperature", None)
 
-        if self.connection_type == "suction":
-            self.lineEdit_pressure_disch.setVisible(False)
-            self.lineEdit_temperature_disch.setVisible(False)
-            self.label_discharge.setVisible(False)
+            if isinstance(temperature, (int | float)):
+                self.lineEdit_temperature.setText(str(round(temperature, 4)))
 
-        if 'suction_pressure' in recip_machine_info.keys():
-            self.lineEdit_temperature.setText(str(round(self.T_suction, 4)))
-            self.lineEdit_pressure.setText(str(round(self.P_suction, 2)))
-
-        if 'pressure_ratio' in recip_machine_info.keys():
-            self.p_ratio =  recip_machine_info['pressure_ratio']
-            self.P_discharge = self.p_ratio * self.P_suction
-
-        elif 'discharge_pressure' in recip_machine_info.keys():
-            self.P_discharge = recip_machine_info['discharge_pressure']
-            self.lineEdit_pressure_disch.setText(str(round(self.P_discharge, 2)))
-
-        if 'temperature_at_discharge' in recip_machine_info.keys():
-            self.T_discharge = recip_machine_info[f'temperature_at_discharge']
-            self.lineEdit_temperature_disch.setText(str(round(self.T_discharge, 4)))
+            if isinstance(pressure, (int | float)):
+                self.lineEdit_pressure.setText(f"{pressure : 2.8e}")
 
         else:
 
-            tool_tip = "The temperature at discharge will be "
-            tool_tip += "calculated after the fluid definition."
+            self.label_discharge.setVisible(True)
+            self.label_suction.setVisible(True)
+            self.label_spacing.setVisible(True)
 
-            self.lineEdit_temperature_disch.setText("---")
-            self.lineEdit_temperature_disch.setToolTip(tool_tip)
+            self.lineEdit_temperature.setDisabled(True)
+            self.lineEdit_pressure.setDisabled(True)
+
+            self.lineEdit_pressure_disch.setVisible(True)
+            self.lineEdit_pressure_disch.setDisabled(True)
+
+            self.lineEdit_temperature_disch.setVisible(True)
+            self.lineEdit_temperature_disch.setDisabled(True)
+
+            self.connection_type = state_properties['connection_type']
+            self.T_suction = state_properties[f'temperature_at_suction']
+            self.P_suction = state_properties[f'suction_pressure']
+
+            if self.connection_type == "suction":
+                self.lineEdit_pressure_disch.setVisible(False)
+                self.lineEdit_temperature_disch.setVisible(False)
+                self.label_discharge.setVisible(False)
+
+            if 'suction_pressure' in state_properties.keys():
+                self.lineEdit_temperature.setText(str(round(self.T_suction, 4)))
+                self.lineEdit_pressure.setText(str(round(self.P_suction, 2)))
+
+            if 'pressure_ratio' in state_properties.keys():
+                self.p_ratio =  state_properties['pressure_ratio']
+                self.P_discharge = self.p_ratio * self.P_suction
+
+            elif 'discharge_pressure' in state_properties.keys():
+                self.P_discharge = state_properties['discharge_pressure']
+                self.lineEdit_pressure_disch.setText(str(round(self.P_discharge, 2)))
+
+            if 'temperature_at_discharge' in state_properties.keys():
+                self.T_discharge = state_properties[f'temperature_at_discharge']
+                self.lineEdit_temperature_disch.setText(str(round(self.T_discharge, 4)))
+
+            else:
+
+                tool_tip = "The temperature at discharge will be "
+                tool_tip += "calculated after the fluid definition."
+
+                self.lineEdit_temperature_disch.setText("---")
+                self.lineEdit_temperature_disch.setToolTip(tool_tip)
+
+    # def check_recip_machine_inputs(self, recip_machine_info: dict):
+
+    #     self.comboBox_temperature_units.setDisabled(True)
+    #     self.comboBox_pressure_units.setDisabled(True)
+    #     self.comboBox_temperature_units.setCurrentIndex(0)
+
+    #     self.label_discharge.setVisible(True)
+    #     self.label_suction.setVisible(True)
+    #     self.label_spacing.setVisible(True)
+
+    #     self.lineEdit_pressure_disch.setVisible(True)
+    #     self.lineEdit_temperature_disch.setVisible(True)
+    #     self.lineEdit_temperature.setDisabled(True)
+    #     self.lineEdit_temperature_disch.setDisabled(True)
+    #     self.lineEdit_pressure.setDisabled(True)
+    #     self.lineEdit_pressure_disch.setDisabled(True)
+
+    #     self.connection_type = recip_machine_info['connection_type']
+    #     self.T_suction = recip_machine_info[f'temperature_at_suction']
+    #     self.P_suction = recip_machine_info[f'suction_pressure']
+
+    #     if self.connection_type == "suction":
+    #         self.lineEdit_pressure_disch.setVisible(False)
+    #         self.lineEdit_temperature_disch.setVisible(False)
+    #         self.label_discharge.setVisible(False)
+
+    #     if 'suction_pressure' in recip_machine_info.keys():
+    #         self.lineEdit_temperature.setText(str(round(self.T_suction, 4)))
+    #         self.lineEdit_pressure.setText(str(round(self.P_suction, 2)))
+
+    #     if 'pressure_ratio' in recip_machine_info.keys():
+    #         self.p_ratio =  recip_machine_info['pressure_ratio']
+    #         self.P_discharge = self.p_ratio * self.P_suction
+
+    #     elif 'discharge_pressure' in recip_machine_info.keys():
+    #         self.P_discharge = recip_machine_info['discharge_pressure']
+    #         self.lineEdit_pressure_disch.setText(str(round(self.P_discharge, 2)))
+
+    #     if 'temperature_at_discharge' in recip_machine_info.keys():
+    #         self.T_discharge = recip_machine_info[f'temperature_at_discharge']
+    #         self.lineEdit_temperature_disch.setText(str(round(self.T_discharge, 4)))
+
+    #     else:
+
+    #         tool_tip = "The temperature at discharge will be "
+    #         tool_tip += "calculated after the fluid definition."
+
+    #         self.lineEdit_temperature_disch.setText("---")
+    #         self.lineEdit_temperature_disch.setToolTip(tool_tip)
 
     def update_selected_fluid(self):
 
@@ -270,9 +335,11 @@ class SetFluidCompositionInput(QDialog):
             if self.recip_compressor_info:
                 temperature_K = self.T_suction
                 pressure_Pa = self.P_suction
-                self.get_specific_fluid_property(   self.isentropic_label,
-                                                    temperature_K,
-                                                    pressure_Pa   )
+                self.get_specific_fluid_property(   
+                                                 self.isentropic_label,
+                                                 temperature_K,
+                                                 pressure_Pa   
+                                                 )
 
     def remaining_composition_highlight(self, value):
         if value >= 0:
@@ -388,7 +455,6 @@ class SetFluidCompositionInput(QDialog):
                 self.add_molar_fraction_to_cell(row, molar_fraction = str(molar_fraction))
 
         self.label_selected_fluid.setText("")
-        self.lineEdit_composition.setText("")
         self.tableWidget_new_fluid.blockSignals(False)
 
     def check_composition_input(self, fluid_name, composition):
@@ -449,24 +515,19 @@ class SetFluidCompositionInput(QDialog):
     def add_molar_fraction_to_cell(self, row, molar_fraction=None):
 
         if molar_fraction is None:
-            if self.lineEdit_composition.text() == "":
-                self.tableWidget_new_fluid.setItem(row, 1, QTableWidgetItem())
-                self.tableWidget_new_fluid.item(row, 1).setTextAlignment(Qt.AlignCenter)
-                return True
+            self.tableWidget_new_fluid.setItem(row, 1, QTableWidgetItem())
+            self.tableWidget_new_fluid.item(row, 1).setTextAlignment(Qt.AlignCenter)
+            return True
 
         try:
 
-            if molar_fraction is None:
-                molar_fraction = self.lineEdit_composition.text()
-
-            molar_fraction = molar_fraction.replace(",", ".")
-            self.tableWidget_new_fluid.setItem(row, 1, QTableWidgetItem(molar_fraction))
-            self.tableWidget_new_fluid.item(row, 1).setTextAlignment(Qt.AlignCenter)
-            self.lineEdit_composition.setText("")
+            if isinstance(molar_fraction, str):
+                molar_fraction = molar_fraction.replace(",", ".")
+                self.tableWidget_new_fluid.setItem(row, 1, QTableWidgetItem(molar_fraction))
+                self.tableWidget_new_fluid.item(row, 1).setTextAlignment(Qt.AlignCenter)
 
         except:
-            self.lineEdit_composition.setText("")
-            self.lineEdit_composition.setFocus()
+            self.tableWidget_new_fluid.item(row, 1).setSelected(True)
             return True
 
     def get_fluid_properties(self):
@@ -609,7 +670,7 @@ class SetFluidCompositionInput(QDialog):
                 if self.process_errors():
                     return
 
-                if self.ideal_gas_warning and not self.recip_pump_info:
+                if self.ideal_gas_warning and self.check_ideal_gas:
 
                     self.hide()
 
@@ -708,15 +769,15 @@ class SetFluidCompositionInput(QDialog):
         return value
 
     def get_temperature_and_pressure_SI_units(self):
-
-        if self.recip_pump_info:
-            if self.recip_pump_info["connection_type"] == "suction":
-                temperature_K = self.recip_pump_info["temperature_at_suction"]
-                pressure_Pa = self.recip_pump_info["suction_pressure"]
+        
+        if self.reciprocating_machine == "reciprocating_pump":
+            if self.state_properties["connection_type"] == "suction":
+                temperature_K = self.state_properties["temperature_at_suction"]
+                pressure_Pa = self.state_properties["suction_pressure"]
 
             else:
-                temperature_K = self.recip_pump_info["temperature_at_discharge"]
-                pressure_Pa = self.recip_pump_info["discharge_pressure"]
+                temperature_K = self.state_properties["temperature_at_discharge"]
+                pressure_Pa = self.state_properties["discharge_pressure"]
 
             return [temperature_K, pressure_Pa]
 

@@ -29,6 +29,7 @@ from pulse.interface.user_input.model.setup.acoustic.add_acoustic_transfer_eleme
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.interface.user_input.model.setup.acoustic.reciprocating_compressor_inputs import ReciprocatingCompressorInputs
 from pulse.interface.user_input.model.setup.acoustic.reciprocating_pump_inputs import ReciprocatingPumpInputs
+from pulse.interface.user_input.model.setup.acoustic.pulsation_damper_calculator_inputs import PulsationDamperCalculatorInputs
 from pulse.interface.user_input.model.editor.pulsation_suppression_device_input import PulsationSuppressionDeviceInput
 from pulse.interface.user_input.model.criteria.check_pulsation_criteria import CheckAPI618PulsationCriteriaInput
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
@@ -186,6 +187,9 @@ class InputUi:
 
     def pulsation_suppression_device_editor(self):
         self.process_input(PulsationSuppressionDeviceInput)
+
+    def pulsation_damper_calculator(self):
+        self.process_input(PulsationDamperCalculatorInputs)
 
     def analysis_setup(self):
 

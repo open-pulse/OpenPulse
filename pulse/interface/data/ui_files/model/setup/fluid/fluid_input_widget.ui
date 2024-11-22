@@ -232,6 +232,11 @@
         </row>
         <row>
          <property name="text">
+          <string>Bulk modulus [Pa]</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
           <string>Molar mass [kg/kmol]</string>
          </property>
         </row>

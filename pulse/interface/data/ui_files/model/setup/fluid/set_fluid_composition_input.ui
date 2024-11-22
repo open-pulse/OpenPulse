@@ -448,7 +448,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>100</width>
+                <width>180</width>
                 <height>28</height>
                </size>
               </property>
@@ -538,7 +538,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>100</width>
+                <width>180</width>
                 <height>28</height>
                </size>
               </property>
@@ -708,7 +708,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>100</width>
+                <width>180</width>
                 <height>28</height>
                </size>
               </property>
@@ -744,7 +744,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>100</width>
+                <width>180</width>
                 <height>28</height>
                </size>
               </property>
@@ -1208,63 +1208,7 @@ fraction [%]</string>
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
                </property>
-               <layout class="QGridLayout" name="gridLayout_19">
-                <item row="0" column="0">
-                 <widget class="QLabel" name="label_6">
-                  <property name="minimumSize">
-                   <size>
-                    <width>120</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>120</width>
-                    <height>26</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <pointsize>10</pointsize>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>Molar fraction [%]</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLineEdit" name="lineEdit_composition">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>120</width>
-                    <height>28</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>120</width>
-                    <height>28</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <layout class="QGridLayout" name="gridLayout_19"/>
               </widget>
              </item>
              <item row="0" column="0">
@@ -1408,7 +1352,6 @@ fraction [%]</string>
   <tabstop>lineEdit_pressure_disch</tabstop>
   <tabstop>comboBox_pressure_units</tabstop>
   <tabstop>tableWidget_new_fluid</tabstop>
-  <tabstop>lineEdit_composition</tabstop>
   <tabstop>pushButton_add_gas</tabstop>
   <tabstop>pushButton_remove_gas</tabstop>
   <tabstop>pushButton_load_composition</tabstop>

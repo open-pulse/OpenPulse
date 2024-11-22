@@ -20,7 +20,7 @@ from os.path import exists
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-COLOR_ROW = 11
+COLOR_ROW = 12
 
 def get_color_rgb(color):
     color = color.replace(" ", "")
@@ -37,8 +37,6 @@ class FluidWidget(QWidget):
         uic.loadUi(ui_path, self)
 
         self.parent_widget = kwargs.get("parent_widget", None)
-        self.recip_compressor_info = kwargs.get("recip_compressor_info", dict())
-        self.recip_pump_info = kwargs.get("recip_pump_info", dict())
 
         self.main_window = app().main_window
         self.project = app().project
@@ -47,6 +45,8 @@ class FluidWidget(QWidget):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._load_state_properties(**kwargs)
+
         self.load_data_from_fluids_library()
 
     def _initialize(self):
@@ -71,6 +71,7 @@ class FluidWidget(QWidget):
                                 "thermal_conductivity",
                                 "specific_heat_Cp",
                                 "dynamic_viscosity",
+                                "bulk_modulus",
                                 "molar_mass",
                                 "color"
                                 ]
@@ -92,7 +93,6 @@ class FluidWidget(QWidget):
     def _create_connections(self):
         #
         self.pushButton_add_column.clicked.connect(self.add_column)
-        # self.pushButton_cancel.clicked.connect(self.close_window)
         self.pushButton_refprop.clicked.connect(self.call_refprop_interface)
         self.pushButton_remove_column.clicked.connect(self.remove_selected_column)
         self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
@@ -101,29 +101,10 @@ class FluidWidget(QWidget):
         self.tableWidget_fluid_data.itemChanged.connect(self.item_changed_callback)
         self.tableWidget_fluid_data.cellDoubleClicked.connect(self.cell_double_clicked_callback)
 
-    def config_table_of_fluid_data(self):
-        return
-        header = [
-            'Name',
-            'Density \n[kg/m³]',
-            'Elasticity \nmodulus [GPa]',
-            'Poisson',
-            'Thermal expansion \ncoefficient [m/mK]',
-            'Color',
-        ]
-        
-        self.tableWidget_fluid_data.setColumnCount(len(header))
-        self.tableWidget_fluid_data.setHorizontalHeaderLabels(header)
-        self.tableWidget_fluid_data.setSelectionBehavior(1)
-        self.tableWidget_fluid_data.resizeColumnsToContents()
+    def _load_state_properties(self, **kwargs):
+        self.state_properties = kwargs.get("state_properties", dict())
+        self.recip_compressor_info = kwargs.get("recip_compressor_info", dict())
 
-        self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(0)
-        self.tableWidget_fluid_data.horizontalHeader().setStretchLastSection(True)
-
-        for j, width in enumerate([140, 80, 120, 80, 140, 40]):
-            self.tableWidget_fluid_data.horizontalHeader().resizeSection(j, width)
-            self.tableWidget_fluid_data.horizontalHeaderItem(j).setTextAlignment(Qt.AlignCenter)
-    
     def load_data_from_fluids_library(self):
 
         if not exists(TEMP_PROJECT_FILE):
@@ -229,7 +210,6 @@ class FluidWidget(QWidget):
 
     def update_table(self):
 
-        self.config_table_of_fluid_data()
         self.tableWidget_fluid_data.clearContents()
         self.tableWidget_fluid_data.blockSignals(True)
         self.tableWidget_fluid_data.setRowCount(COLOR_ROW + 1)
@@ -241,14 +221,15 @@ class FluidWidget(QWidget):
                 self.tableWidget_fluid_data.setItem( 0, j, QTableWidgetItem(str(fluid.name)))
                 self.tableWidget_fluid_data.setItem( 1, j, QTableWidgetItem(str(fluid.identifier)))
                 self.tableWidget_fluid_data.setItem( 2, j, QTableWidgetItem(str(fluid.temperature)))
-                self.tableWidget_fluid_data.setItem( 3, j, QTableWidgetItem(str(fluid.pressure)))
+                self.tableWidget_fluid_data.setItem( 3, j, QTableWidgetItem(f"{fluid.pressure : .8e}"))
                 self.tableWidget_fluid_data.setItem( 4, j, QTableWidgetItem(str(fluid.density)))
                 self.tableWidget_fluid_data.setItem( 5, j, QTableWidgetItem(str(fluid.speed_of_sound)))
                 self.tableWidget_fluid_data.setItem( 6, j, QTableWidgetItem(str(fluid.isentropic_exponent)))
-                self.tableWidget_fluid_data.setItem( 7, j, QTableWidgetItem(f"{fluid.thermal_conductivity : .4e}"))
+                self.tableWidget_fluid_data.setItem( 7, j, QTableWidgetItem(f"{fluid.thermal_conductivity : .8e}"))
                 self.tableWidget_fluid_data.setItem( 8, j, QTableWidgetItem(str(fluid.specific_heat_Cp)))
-                self.tableWidget_fluid_data.setItem( 9, j, QTableWidgetItem(f"{fluid.dynamic_viscosity : .4e}"))
-                self.tableWidget_fluid_data.setItem(10, j, QTableWidgetItem(str(fluid.molar_mass)))
+                self.tableWidget_fluid_data.setItem( 9, j, QTableWidgetItem(f"{fluid.dynamic_viscosity : .8e}"))
+                self.tableWidget_fluid_data.setItem(10, j, QTableWidgetItem(f"{fluid.bulk_modulus : .8e}"))
+                self.tableWidget_fluid_data.setItem(11, j, QTableWidgetItem(str(fluid.molar_mass)))
 
                 item = QTableWidgetItem()
                 item.setBackground(QColor(*fluid.color))
@@ -429,7 +410,7 @@ class FluidWidget(QWidget):
         row = item.row()
         if row == COLOR_ROW:
             return
-        
+
         prop_labels = {
                         2 : "temperature", 
                         3 : "pressure",
@@ -439,8 +420,9 @@ class FluidWidget(QWidget):
                         7 : "thermal_conductivity",
                         8 : "specific_heat_Cp",
                         9 : "dynamic_viscosity",
-                       10 : "molar_mass"
-                    }
+                       10 : "bulk_modulus",
+                       11 : "molar_mass"
+                      }
 
         if row not in prop_labels.keys():
             return True
@@ -551,7 +533,7 @@ class FluidWidget(QWidget):
             selected_fluid = self.fluid_name_to_refprop_data[fluid_name]
             self.refprop = SetFluidCompositionInput(selected_fluid_to_edit = selected_fluid, 
                                                     recip_compressor_info = self.recip_compressor_info,
-                                                    recip_pump_info = self.recip_pump_info)
+                                                    state_properties = self.state_properties)
 
             if not self.refprop.complete:
                 app().main_window.set_input_widget(self.parent_widget)
@@ -638,7 +620,7 @@ class FluidWidget(QWidget):
             self.parent_widget.hide()
 
         self.refprop = SetFluidCompositionInput(recip_compressor_info = self.recip_compressor_info,
-                                                recip_pump_info = self.recip_pump_info)
+                                                state_properties = self.state_properties)
 
         if app().main_window.force_close:
             self.parent_widget.close()
@@ -679,10 +661,11 @@ class FluidWidget(QWidget):
                     data = self.fluid_data_refprop[key]
                     if isinstance(data, float):
 
-                        if key in ["pressure", "thermal_conductivity", "dynamic_viscosity"]:
-                            _data = f"{data : .6e}"
+                        if key in ["pressure", "thermal_conductivity", "dynamic_viscosity", "bulk_modulus"]:
+                            print(key, data)
+                            _data = f"{data : .8e}"
                         else:
-                            _data = f"{data : .6f}"
+                            _data = f"{data : .8f}"
 
                     elif isinstance(data, str):
                         _data = data
@@ -696,73 +679,56 @@ class FluidWidget(QWidget):
         else:
             self.refprop = None
 
-    def load_recip_compressor_info(self):
+    def load_state_properties_info(self):
 
-        if self.recip_compressor_info:
+        if self.state_properties:
 
-            if isinstance(self.parent_widget, QDialog):
-
-                line_id = self.recip_compressor_info['line_id']
-                app().main_window.set_selection(lines=[line_id])
-
-                # self.parent_widget.lineEdit_selected_id.setText(str(line_id))
-                # self.parent_widget.comboBox_attribution_type.setCurrentIndex(1)
-                # # self.parent_widget.selection_callback()
-                # self.parent_widget.lineEdit_selected_id.setDisabled(True)
-
-                column = self.tableWidget_fluid_data.columnCount()
-                self.tableWidget_fluid_data.selectColumn(column-1)
-
-                if self.fluid_data_refprop:
-                    fluid_name = self.fluid_data_refprop["name"]
-                    self.parent_widget.lineEdit_selected_fluid_name.setText(fluid_name)
-
-                print(self.recip_compressor_info['connection_type'])
-
-                connection_type = self.recip_compressor_info['connection_type']
+            source = self.state_properties.get("source", None)
+            if source is None:
+                return
+            
+            elif source == "reciprocating pump":
+                title = f"Set a fluid for the reciprocating pump ({connection_type})"
+            
+            elif source == "reciprocating compressor":
                 title = f"Set a fluid for the reciprocating compressor ({connection_type})"
 
-                self.parent_widget.setWindowTitle(title)
-
-    def load_recip_pump_info(self):
-
-        if self.recip_pump_info:
-
             if isinstance(self.parent_widget, QDialog):
 
-                line_id = self.recip_pump_info['line_id']
-                app().main_window.set_selection(lines=[line_id])
+                line_id = self.state_properties.get("line_id", None)
+                if isinstance(line_id, int):
+                    app().main_window.set_selection(lines=[line_id])
 
-                # self.parent_widget.lineEdit_selected_id.setText(str(line_id))
-                # self.parent_widget.comboBox_attribution_type.setCurrentIndex(1)
-                # # self.parent_widget.selection_callback()
-                # self.parent_widget.lineEdit_selected_id.setDisabled(True)
+                    column = self.tableWidget_fluid_data.columnCount()
+                    self.tableWidget_fluid_data.selectColumn(column-1)
 
-                column = self.tableWidget_fluid_data.columnCount()
-                self.tableWidget_fluid_data.selectColumn(column-1)
+                    if self.fluid_data_refprop:
+                        fluid_name = self.fluid_data_refprop["name"]
+                        self.parent_widget.lineEdit_selected_fluid_name.setText(fluid_name)
 
-                if self.fluid_data_refprop:
-                    fluid_name = self.fluid_data_refprop["name"]
-                    self.parent_widget.lineEdit_selected_fluid_name.setText(fluid_name)
+                    connection_type = self.state_properties['connection_type']
+                    self.parent_widget.setWindowTitle(title)
 
-                connection_type = self.recip_pump_info['connection_type']
-                title = f"Set a fluid for the reciprocating pump ({connection_type})"
+    # def load_recip_compressor_info(self):
 
-                self.parent_widget.setWindowTitle(title)
+    #     if self.recip_compressor_info:
 
-    def update_compressor_fluid_temperature_and_pressure(self):
-        return
+    #         if isinstance(self.parent_widget, QDialog):
 
-        temperature_lineEdits = [self.lineEdit_temperature, self.lineEdit_temperature_rp]
-        pressure_lineEdits = [self.lineEdit_pressure, self.lineEdit_pressure_rp]
+    #             line_id = self.recip_compressor_info['line_id']
+    #             app().main_window.set_selection(lines=[line_id])
 
-        for temperature_lineEdit in temperature_lineEdits:
-            temperature_lineEdit.setText(str(round(self.temperature_comp,4)))
-            temperature_lineEdit.setDisabled(True)
+    #             column = self.tableWidget_fluid_data.columnCount()
+    #             self.tableWidget_fluid_data.selectColumn(column-1)
 
-        for pressure_lineEdit in pressure_lineEdits:
-            pressure_lineEdit.setText(str(round(self.pressure_comp,4)))
-            pressure_lineEdit.setDisabled(True)
+    #             if self.fluid_data_refprop:
+    #                 fluid_name = self.fluid_data_refprop["name"]
+    #                 self.parent_widget.lineEdit_selected_fluid_name.setText(fluid_name)
+
+    #             connection_type = self.recip_compressor_info['connection_type']
+    #             title = f"Set a fluid for the reciprocating compressor ({connection_type})"
+
+    #             self.parent_widget.setWindowTitle(title)
 
     def update_compressor_info(self):
         if self.recip_compressor_info:

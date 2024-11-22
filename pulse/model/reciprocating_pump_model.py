@@ -1190,7 +1190,7 @@ if __name__ == "__main__":
                     'temperature_at_suction' : 45,
                     'pressure_unit' : "bar",
                     'temperature_unit' : "°C",
-                    'bulk_modulus' : 2.1e9
+                    'bulk_modulus' : 2541031616.236133
                     }
 
     pump = ReciprocatingPumpModel(parameters)
