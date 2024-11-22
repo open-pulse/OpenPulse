@@ -21,6 +21,7 @@ class RendererUserPreferencesInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self.main_window = app().main_window
+        self.config2 = app().config2
         self.user_preferences = app().config.user_preferences
 
         self.renderer_background_color_1 = None
@@ -215,6 +216,7 @@ class RendererUserPreferencesInput(QDialog):
         if self.interface_font_size is not None:
             self.user_preferences.interface_font_size = self.interface_font_size
 
+        self.config2.write_config_file()
         self.update_settings()
 
     def confirm_and_update_user_preferences(self):

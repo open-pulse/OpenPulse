@@ -823,16 +823,10 @@ class MainWindow(QMainWindow):
         pass
 
     def load_user_preferences(self):
-        self.update_theme = False
-        self.user_preferences = self.config.get_user_preferences()
-        if "interface theme" in self.user_preferences:
-            if self.user_preferences["interface theme"] == "dark":
-                self.action_set_dark_theme_callback()
-            else:
-                self.action_set_light_theme_callback()
-        else:
+        if self.config.user_preferences.interface_theme == "dark":
             self.action_set_dark_theme_callback()
-        self.update_theme = True
+        else:
+            self.action_set_light_theme_callback()
 
     def action_set_dark_theme_callback(self):
         self.config.user_preferences.set_dark_theme()
@@ -873,16 +867,15 @@ class MainWindow(QMainWindow):
         icons.change_icon_color_for_widgets(widgets, self.icon_color)
 
     def update_themes_in_file(self, theme):
-        if self.update_theme:
-            self.user_preferences = self.config.get_user_preferences()
-            self.user_preferences["interface theme"] = theme
-            self.user_preferences["background color"] = theme
-            if theme == "dark":
-                self.user_preferences["bottom font color"] = (255, 255, 255)
-            else:
-                self.user_preferences["bottom font color"] = (0, 0, 0)
-            self.config.write_user_preferences_in_file(self.user_preferences)
-            # self.blah.set_user_interface_preferences(self.user_preferences)
+        self.user_preferences = self.config.get_user_preferences()
+        self.user_preferences["interface theme"] = theme
+        self.user_preferences["background color"] = theme
+        if theme == "dark":
+            self.user_preferences["bottom font color"] = (255, 255, 255)
+        else:
+            self.user_preferences["bottom font color"] = (0, 0, 0)
+        self.config.write_user_preferences_in_file(self.user_preferences)
+        # self.blah.set_user_interface_preferences(self.user_preferences)
 
     def savePNG_call(self):
 

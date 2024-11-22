@@ -6,6 +6,7 @@ from pulse.interface.main_window import MainWindow
 from pulse.interface.others.splash_screen import SplashScreen
 
 from pulse.project.config import Config
+from pulse.project.config2 import Config2
 from pulse.project.project import Project
 from pulse.project.load_project import LoadProject
 from pulse.interface.file.project_file import ProjectFile
@@ -29,4 +30,5 @@ class Application(QApplication):
 
         # gui
         self.main_window = MainWindow()
+        self.config2 = Config2()
         self.main_window.configure_window()
