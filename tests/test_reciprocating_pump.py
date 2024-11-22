@@ -10,7 +10,7 @@ from scipy import signal
 
 pi = 3.141592653589
 
-def load_default_reciprocating_pump_setup(crank_angle: 0.):
+def load_default_reciprocating_pump_setup(crank_angle = 0):
 
     parameters = {  
                   'bore_diameter' : 0.105,
@@ -149,11 +149,25 @@ def test_discharge_flow_rate():
 
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
-    reciprocating_pump.number_points = 1024
+    reciprocating_pump.number_points = 3600
 
     flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('out_flow', smooth_data=False)
     if flow_rate is None:
         return
+
+    f_rot = reciprocating_pump.rpm / 60
+    N = reciprocating_pump.number_points
+
+    V_pos = flow_rate - np.average(flow_rate)
+    mask = V_pos <= 0
+    V_pos[mask] = np.zeros(sum(mask), dtype=float)
+    dt = 1/ (f_rot * (N - 1))
+
+    dVt = np.trapz(V_pos, dx=dt)
+
+    dV = dVt / reciprocating_pump.number_of_cylinders
+
+    print(dV)
 
     N = len(flow_rate)  
     angles = np.linspace(0, 2*pi, N)

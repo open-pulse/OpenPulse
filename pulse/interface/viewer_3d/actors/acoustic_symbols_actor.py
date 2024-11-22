@@ -302,7 +302,6 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                     if len(_elements) == 1:
                         element = _elements[0]
                         rot = self.get_reciprocating_machine_symbol_rotation(element, node)
-                        print(rot)
 
                         if element.cross_section is not None:
                             diameter = element.cross_section.outer_diameter

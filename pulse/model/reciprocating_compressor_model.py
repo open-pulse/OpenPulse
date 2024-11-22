@@ -500,8 +500,9 @@ class ReciprocatingCompressorModel:
 
         if export_data:
 
-            fname = f"temporary_data\PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log = f"temporary_data\log_info_head_end_{self.crank_angle_1}_cap_{capacity}.txt"
+            fname = f"temporary_data\\PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
+            fname_log = f"temporary_data\\log_info_head_end_{self.crank_angle_1}_cap_{capacity}.txt"
+
             if not os.path.exists(os.path.dirname(fname)):
                 os.mkdir("temporary_data")
 
@@ -510,8 +511,8 @@ class ReciprocatingCompressorModel:
             header += f"V2 = {V2}\n"
             header += f"V3 = {V3}\n"
             header += f"V4 = {V4}\n"
-            indexes = np.arange(N)
 
+            indexes = np.arange(N)
             data = np.array([   indexes,
                                 time,
                                 angle,
@@ -676,16 +677,18 @@ class ReciprocatingCompressorModel:
 
         if export_data:
 
-            fname = f"temporary_data\PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log = f"temporary_data\log_info_crank_end_{self.crank_angle_1}_cap_{capacity}.txt"
+            fname = f"temporary_data\\PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
+            fname_log = f"temporary_data\\log_info_crank_end_{self.crank_angle_1}_cap_{capacity}.txt"
+
             if not os.path.exists(os.path.dirname(fname)):
                 os.mkdir("temporary_data")
-            
+
             header = "Index, Time [s], Angle [deg], Velocity [m/s], Volumes [m³], Pressures [Pa], Suction valve open [bool], Discharge valve open [bool]\n\n"
             header += f"V1 = {V1}\n"
             header += f"V2 = {V2}\n"
             header += f"V3 = {V3}\n"
             header += f"V4 = {V4}\n"
+
             indexes = np.arange(N)
             data = np.array([   indexes,
                                 time,

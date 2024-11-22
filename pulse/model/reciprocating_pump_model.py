@@ -196,7 +196,7 @@ class ReciprocatingPumpModel:
         
         """
 
-        self.bulk_modulus = fluid_data.get('bulk_modulus', None)                # Bulk modulus [Pa]
+        self.bulk_modulus = fluid_data.get('bulk_modulus', None)                  # Bulk modulus [Pa]
         # self.density_at_suction = fluid_data.get('density_at_suction', None)    # Density [kg/m³]
 
     def recip_x(self, tdc=None):
@@ -458,8 +458,9 @@ class ReciprocatingPumpModel:
 
         if export_data:
 
-            fname = f"temporary_data\PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log = f"temporary_data\log_info_head_end_{self.crank_angle_1}.txt"
+            fname = f"temporary_data\\PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
+            fname_log = f"temporary_data\\log_info_head_end_{self.crank_angle_1}.txt"
+
             if not os.path.exists(os.path.dirname(fname)):
                 os.mkdir("temporary_data")
 
@@ -468,8 +469,8 @@ class ReciprocatingPumpModel:
             header += f"V2 = {V2}\n"
             header += f"V3 = {V3}\n"
             header += f"V4 = {V4}\n"
-            indexes = np.arange(N)
 
+            indexes = np.arange(N)
             data = np.array([   indexes,
                                 time,
                                 angle,
@@ -489,7 +490,7 @@ class ReciprocatingPumpModel:
 
     def process_crank_end_volumes_and_pressures(self, tdc=None, export_data=True):
 
-        print(f"Bulk modulus: {round(self.bulk_modulus, 6)} [Pa]")
+        # print(f"Bulk modulus: {round(self.bulk_modulus, 6)} [Pa]")
 
         V0, A, h0 = self.get_clearance_data("CE")
 
@@ -586,8 +587,9 @@ class ReciprocatingPumpModel:
 
         if export_data:
 
-            fname = f"temporary_data\PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log = f"temporary_data\log_info_crank_end_{self.crank_angle_1}.txt"
+            fname = f"temporary_data\\PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
+            fname_log = f"temporary_data\\log_info_crank_end_{self.crank_angle_1}.txt"
+
             if not os.path.exists(os.path.dirname(fname)):
                 os.mkdir("temporary_data")
             
@@ -596,6 +598,7 @@ class ReciprocatingPumpModel:
             header += f"V2 = {V2}\n"
             header += f"V3 = {V3}\n"
             header += f"V4 = {V4}\n"
+
             indexes = np.arange(N)
             data = np.array([   indexes,
                                 time,
@@ -632,19 +635,27 @@ class ReciprocatingPumpModel:
             return None
 
         v_piston = self.recip_v(tdc=tdc)
+        _, x_piston = self.recip_x(tdc=tdc)
+
+        V0, A, h0 = self.get_clearance_data('HE')
         #
         N = len(v_piston)
         flow_in = np.zeros(N, dtype=float)
         flow_out = np.zeros(N, dtype=float)
 
+        # print(f'Volume: {self.area_head_end * self.r * 2}')
+
         for i, v in enumerate(v_piston):
+        # for i, x_i in enumerate(x_piston):
 
             if valves_info["open suction"][i]:
                 flow_in[i] = v * self.area_head_end
+                # flow_in[i] = (h0 - x_i) * self.area_head_end
 
             if valves_info["open discharge"][i]:
                 flow_out[i] = v * self.area_head_end
-        
+                # flow_out[i] = (h0 - x_i) * self.area_head_end
+
         output_data = dict()
         output_data["in_flow"] = flow_in
         output_data["out_flow"] = flow_out
@@ -676,6 +687,25 @@ class ReciprocatingPumpModel:
         output_data["out_flow"] = flow_out
 
         return output_data
+    
+    def get_pump_fluctuating_volume(self):
+
+        flow_rate = self.process_sum_of_volumetric_flow_rate('out_flow')
+        if flow_rate is None:
+            return
+
+        f_rot = self.rpm / 60
+        N = self.number_points
+
+        V_pos = flow_rate - np.average(flow_rate)
+        mask = V_pos <= 0
+        V_pos[mask] = np.zeros(sum(mask), dtype=float)
+        dt = 1/ (f_rot * (N - 1))
+
+        # fluctuating volume per piston / plunger in one cycle
+        dV = np.trapz(V_pos, dx=dt) / self.number_of_cylinders
+
+        return dV
 
     def mass_flow_crank_end(self):
         vf = self.flow_crank_end()
@@ -1146,8 +1176,8 @@ if __name__ == "__main__":
     parameters = {  
                     'bore_diameter' : 0.105,
                     'stroke' : 0.205,
-                    'connecting_rod_length' : 0.50,
-                    'rod_diameter' : 0.045,
+                    'connecting_rod_length' : 0.40,
+                    'rod_diameter' : 0.05,
                     'pressure_ratio' : 1.90788804,
                     'clearance_HE' : 15.8,
                     'clearance_CE' : 18.39,
