@@ -234,6 +234,7 @@ class MaterialWidget(QWidget):
         material = self.library_materials[identifier]
 
         self.remove_material_from_file(material)
+        self.pushButton_cancel.setText("Exit")
 
     def item_changed_callback(self, item : QTableWidgetItem):
 
@@ -400,7 +401,8 @@ class MaterialWidget(QWidget):
             config[identifier] = material_data
 
             app().pulse_file.write_material_library_in_file(config)
- 
+            self.pushButton_cancel.setText("Exit")
+
         except Exception as error_log:
             title = "Error while writing material data in file"
             message = str(error_log)
@@ -415,28 +417,29 @@ class MaterialWidget(QWidget):
         if not identifier in config.sections():
             return
         
-        self.reset_material_from_lines([identifier])
+        self.reset_material_from_lines(int(identifier))
         config.remove_section(identifier)
 
         app().pulse_file.write_material_library_in_file(config)
         self.load_data_from_materials_library()
 
-    def reset_material_from_lines(self, material_identifiers: list):
+    def reset_material_from_lines(self, material_identifiers: (list | int)):
 
         lines_to_remove_material = list()
         for line_id, data in self.properties.line_properties.items():
             if "material_id" in data.keys():
                 material_id = data["material_id"]
                 if material_id in material_identifiers:
-                    app().project.model.preprocessor.set_material_by_lines(line_id, None)
-                    if material_id not in lines_to_remove_material:
+                    if line_id not in lines_to_remove_material:
                         lines_to_remove_material.append(line_id)
 
         for _line_id in lines_to_remove_material:
             self.properties._remove_line_property("material_id", line_id=_line_id)
             self.properties._remove_line_property("material", line_id=_line_id)
+            app().project.model.preprocessor.set_material_by_lines(line_id, None)
 
         app().pulse_file.write_line_properties_in_file()
+        app().main_window.set_selection()
 
     def new_identifier(self):
         already_used_ids = set()
@@ -487,6 +490,7 @@ class MaterialWidget(QWidget):
     def reset_library_callback(self):
         if self.get_confirmation_to_proceed():
             self.reset_library_to_default()
+            self.pushButton_cancel.setText("Exit")
             return True
         return False
 
