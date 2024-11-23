@@ -65,6 +65,7 @@ class MainWindow(QMainWindow):
         
         self.ui_dir = UI_DIR
         self.config = app().config
+        self.config2 = app().config2
         self.project = app().project
 
         self._initialize()
@@ -823,25 +824,30 @@ class MainWindow(QMainWindow):
         pass
 
     def load_user_preferences(self):
-        if self.config.user_preferences.interface_theme == "dark":
-            self.action_set_dark_theme_callback()
-        else:
-            self.action_set_light_theme_callback()
+        self.config2.load_config_file()
+        self.set_theme()
 
     def action_set_dark_theme_callback(self):
-        self.config.user_preferences.set_dark_theme()
-        self.set_theme("dark")
+        self.config2.user_preferences.set_dark_theme()
+        self.set_theme()
+        app().config2.write_config_file()
+
+        self.update_plots()
 
     def action_set_light_theme_callback(self):
-        self.config.user_preferences.set_light_theme()
-        self.set_theme("light")
+        self.config2.user_preferences.set_light_theme()
+        self.set_theme()
+        app().config2.write_config_file()
+        
+        self.update_plots()
 
+    def set_theme(self):
+        theme = self.config2.user_preferences.interface_theme
+
+        # if theme not in ["light", "dark"]:
+        #     return
     
-    def set_theme(self, theme):
-        if theme not in ["light", "dark"]:
-            return
-    
-        self.update_themes_in_file(theme)
+        # self.update_themes_in_file()
         if self.interface_theme == theme:
             return
 
@@ -853,7 +859,7 @@ class MainWindow(QMainWindow):
         elif theme == "light":
             self.icon_color = QColor(color_names.BLUE_4.to_hex())
     
-        self.interface_theme = theme
+        # self.interface_theme = theme
         # stylesheets.set_theme(theme)
         qdarktheme.setup_theme(theme, custom_colors=self.custom_colors)
         self.theme_changed.emit(theme)
@@ -866,16 +872,16 @@ class MainWindow(QMainWindow):
         widgets = self.findChildren((QAbstractButton, QAction))
         icons.change_icon_color_for_widgets(widgets, self.icon_color)
 
-    def update_themes_in_file(self, theme):
-        self.user_preferences = self.config.get_user_preferences()
-        self.user_preferences["interface theme"] = theme
-        self.user_preferences["background color"] = theme
-        if theme == "dark":
-            self.user_preferences["bottom font color"] = (255, 255, 255)
-        else:
-            self.user_preferences["bottom font color"] = (0, 0, 0)
-        self.config.write_user_preferences_in_file(self.user_preferences)
-        # self.blah.set_user_interface_preferences(self.user_preferences)
+    # def update_themes_in_file(self, theme):
+    #     # self.user_preferences = self.config.get_user_preferences()
+    #     # self.user_preferences["interface theme"] = theme
+    #     # self.user_preferences["background color"] = theme
+    #     # if theme == "dark":
+    #     #     self.user_preferences["bottom font color"] = (255, 255, 255)
+    #     # else:
+    #     #     self.user_preferences["bottom font color"] = (0, 0, 0)
+    #     # self.config.write_user_preferences_in_file(self.user_preferences)
+    #     # self.blah.set_user_interface_preferences(self.user_preferences)
 
     def savePNG_call(self):
 

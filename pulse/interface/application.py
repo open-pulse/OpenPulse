@@ -29,6 +29,6 @@ class Application(QApplication):
         self.loader = LoadProject()
 
         # gui
-        self.main_window = MainWindow()
         self.config2 = Config2()
+        self.main_window = MainWindow()
         self.main_window.configure_window()

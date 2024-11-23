@@ -11,7 +11,7 @@ class ElementLinesActor(GhostActor):
         super().__init__()
 
         self.project = app().project
-        self.user_preferences = app().main_window.config.user_preferences
+        self.user_preferences = app().main_window.config2.user_preferences
         self.preprocessor = self.project.preprocessor
         self.elements = self.project.get_structural_elements()
         self.hidden_elements = kwargs.get("hidden_elements", set())

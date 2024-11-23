@@ -22,7 +22,7 @@ class RendererUserPreferencesInput(QDialog):
 
         self.main_window = app().main_window
         self.config2 = app().config2
-        self.user_preferences = app().config.user_preferences
+        self.user_preferences = app().config2.user_preferences
 
         self.renderer_background_color_1 = None
         self.renderer_background_color_2 = None
@@ -235,7 +235,7 @@ class RendererUserPreferencesInput(QDialog):
         self.main_window.update_plots()
 
     def reset_to_default(self):
-        if self.main_window.user_preferences["interface theme"] == "dark":
+        if self.main_window.config2.user_preferences.interface_theme == "dark":
             self.user_preferences.set_dark_theme()
         else:
             self.user_preferences.set_light_theme()

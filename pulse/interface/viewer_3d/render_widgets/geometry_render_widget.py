@@ -76,7 +76,7 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.update_theme()
 
     def update_theme(self):
-        user_preferences = app().main_window.config.user_preferences
+        user_preferences = app().main_window.config2.user_preferences
         bkg_1 = user_preferences.renderer_background_color_1
         bkg_2 = user_preferences.renderer_background_color_2
         font_color = user_preferences.renderer_font_color
@@ -104,14 +104,14 @@ class GeometryRenderWidget(CommonRenderWidget):
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
         
     def update_renderer_font_size(self):
-        user_preferences = app().main_window.config.user_preferences
+        user_preferences = app().main_window.config2.user_preferences
         font_size_px = int(user_preferences.renderer_font_size * 4/3)
 
         info_text_property = self.text_actor.GetTextProperty()
         info_text_property.SetFontSize(font_size_px)
 
     def create_logos(self):
-        if app().main_window.user_preferences["interface theme"] == "light":
+        if app().main_window.config2.user_preferences.interface_theme == "light":
             path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
         else:
             path = ICON_DIR / "logos/OpenPulse_logo_white.png"

@@ -3,16 +3,16 @@ import json
 
 from pulse import app
 
+from pulse.interface.user_preferences import UserPreferences
 from molde.colors import Color
 
 class Config2:
     
     def __init__(self):
         self.config_path = Path().home() / "pulse_config.json"
-        self.user_preferences = app().main_window.config.user_preferences
+        self.user_preferences = UserPreferences()
 
         self.load_config_file()
-    
 
     def load_config_file(self):
         try:

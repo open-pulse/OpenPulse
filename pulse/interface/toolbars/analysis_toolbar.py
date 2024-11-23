@@ -74,7 +74,7 @@ class AnalysisToolbar(QToolBar):
         self.setMovable(True)
         self.setFloatable(True)
 
-        user_preferences = app().main_window.config.user_preferences
+        user_preferences = app().main_window.config2.user_preferences
 
         font = QFont()
         font.setPointSize(user_preferences.interface_font_size)

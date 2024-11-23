@@ -10,7 +10,7 @@ class EditorPointsActor(GhostActor):
     def __init__(self):
         super().__init__()
         self.points = app().project.pipeline.points
-        self.user_preferences = app().main_window.config.user_preferences
+        self.user_preferences = app().main_window.config2.user_preferences
         self.build()
 
     def build(self):

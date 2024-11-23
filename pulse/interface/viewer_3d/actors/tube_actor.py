@@ -37,7 +37,7 @@ class TubeActor(vtkActor):
         super().__init__()
 
         self.project = app().project
-        self.user_preferences = app().main_window.config.user_preferences
+        self.user_preferences = app().main_window.config2.user_preferences
         self.model = self.project.model
         self.preprocessor = self.project.preprocessor
         self.elements = self.project.get_structural_elements()
