@@ -35,11 +35,6 @@ class SetFluidInput(QDialog):
         self.selection_callback()
 
         if self.state_properties:
-
-            # if self.fluid_widget.call_refprop_interface():
-            #     return
-
-            # app().main_window.set_input_widget(self)
             self.fluid_widget.load_state_properties_info()
 
         while self.keep_window_open:

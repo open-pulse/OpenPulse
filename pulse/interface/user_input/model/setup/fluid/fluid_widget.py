@@ -551,6 +551,7 @@ class FluidWidget(QWidget):
 
         already_used_ids = set()
         for fluid in self.list_of_fluids.values():
+            fluid: Fluid
             already_used_ids.add(fluid.identifier)
 
         for i in count(1):
@@ -678,6 +679,7 @@ class FluidWidget(QWidget):
             self.add_fluid_to_file(selected_column)
             self.tableWidget_fluid_data.blockSignals(False)
             self.load_data_from_fluids_library()
+            self.load_state_properties_info()
 
         else:
             self.refprop = None
@@ -696,12 +698,10 @@ class FluidWidget(QWidget):
                 if isinstance(line_id, int):
 
                     app().main_window.set_selection(lines=[line_id])
-                    column = self.tableWidget_fluid_data.columnCount()
-                    self.tableWidget_fluid_data.selectColumn(column-1)
 
                     if self.fluid_data_refprop:
-                        fluid_name = self.fluid_data_refprop["name"]
-                        self.parent_widget.lineEdit_selected_fluid_name.setText(fluid_name)
+                        column = self.tableWidget_fluid_data.columnCount()
+                        self.tableWidget_fluid_data.selectColumn(column - 1)
 
                     connection_type = self.state_properties['connection_type']
                     if source == "reciprocating_pump":
@@ -711,19 +711,6 @@ class FluidWidget(QWidget):
                         title = f"Set a fluid for the reciprocating compressor ({connection_type})"
 
                     self.parent_widget.setWindowTitle(title)
-
-    # def update_compressor_info(self):
-    #     if self.state_properties:
-    #         if self.refprop is not None:
-    #             if self.refprop.complete:
-    #                 self.state_properties["temperature (discharge)"] = round(self.fluid_data_refprop["temperature"], 4)
-    #                 self.state_properties["molar_mass"] = self.fluid_data_refprop["molar_mass"]
-
-    # def close_window(self):
-    #     if isinstance(self.parent_widget, QDialog):
-    #         self.parent_widget.close()
-    #     else:
-    #         self.close()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
