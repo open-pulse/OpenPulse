@@ -216,7 +216,7 @@ class ReciprocatingPumpInputs(QDialog):
 
             data = self.properties._get_property("reciprocating_pump_excitation", node_ids=node_id)
 
-            if data is not None:
+            if isinstance(data, dict):
                 self.update_pump_inputs(data)
 
     def tab_event_callback(self):
@@ -244,6 +244,7 @@ class ReciprocatingPumpInputs(QDialog):
 
     def update_compressing_cylinders_setup(self):
 
+        self.lineEdit_rod_diameter.setDisabled(False)
         self.pushButton_plot_PV_diagram_head_end.setDisabled(False)
         self.pushButton_plot_PV_diagram_crank_end.setDisabled(False)
         self.pushButton_plot_pressure_head_end_angle.setDisabled(False)
@@ -252,18 +253,22 @@ class ReciprocatingPumpInputs(QDialog):
         self.pushButton_plot_volume_crank_end_angle.setDisabled(False)
 
         if self.comboBox_cylinder_acting.currentIndex() == 1:
+            self.lineEdit_rod_diameter.setText("")
+            self.lineEdit_rod_diameter.setDisabled(True)
             self.pushButton_plot_PV_diagram_crank_end.setDisabled(True)
+            self.pushButton_plot_PV_diagram_both_ends.setDisabled(False)
             self.pushButton_plot_pressure_crank_end_angle.setDisabled(True)
             self.pushButton_plot_volume_crank_end_angle.setDisabled(True)
 
-        if self.comboBox_cylinder_acting.currentIndex() == 2:
+        elif self.comboBox_cylinder_acting.currentIndex() == 2:
             self.pushButton_plot_PV_diagram_head_end.setDisabled(True)
+            self.pushButton_plot_PV_diagram_both_ends.setDisabled(False)
             self.pushButton_plot_pressure_head_end_angle.setDisabled(True)
             self.pushButton_plot_volume_head_end_angle.setDisabled(True)
 
-    def get_state_properties(self):
+    def get_state_properties(self, check_all_entries: bool):
 
-        if self.check_all_parameters():
+        if self.check_all_parameters(check_all_entries = check_all_entries):
             return None
 
         if self.comboBox_connection_type.currentIndex() == 0:
@@ -283,7 +288,7 @@ class ReciprocatingPumpInputs(QDialog):
 
     def get_fluid_callback(self):
 
-        state_properties = self.get_state_properties()
+        state_properties = self.get_state_properties(False)
 
         if state_properties:
             self.hide()
@@ -304,7 +309,7 @@ class ReciprocatingPumpInputs(QDialog):
                 self.comboBox_fluid_data_source.setCurrentIndex(0)
 
             self.lineEdit_selected_fluid.setText(self.selected_fluid.name)
-            self.lineEdit_bulk_modulus.setText(f"{self.selected_fluid.bulk_modulus : 2.8e}")
+            self.lineEdit_bulk_modulus.setText(f"{self.selected_fluid.bulk_modulus : .8e}")
 
     def change_aquisition_parameters_controls(self, _bool):
         self.pushButton_process_aquisition_parameters.setDisabled(_bool)
@@ -312,14 +317,18 @@ class ReciprocatingPumpInputs(QDialog):
         self.spinBox_number_of_points.setDisabled(_bool)
         self.comboBox_frequency_resolution.setDisabled(_bool)
 
-    def get_aquisition_parameters(self, recip_pump_info):
+    def get_aquisition_parameters(self, parameters: dict):
+
         frequencies = app().project.model.frequencies
-        rotational_speed = recip_pump_info["rotational_speed"]
+        rotational_speed = parameters["rotational_speed"]
+
         f_min = frequencies[0]
         f_max = frequencies[-1]
         df = frequencies[1] - frequencies[0]
+
         N_rev = int((1 / df) / (60 / rotational_speed))
         self.N_rev = N_rev
+
         return f_min, f_max, df, N_rev
 
     def update_pump_inputs(self, data: dict):
@@ -361,7 +370,7 @@ class ReciprocatingPumpInputs(QDialog):
 
         if "bulk_modulus" in parameters.keys():
             bulk_modulus = parameters["bulk_modulus"]
-            self.lineEdit_bulk_modulus.setText(f"{bulk_modulus : 2.8e}")
+            self.lineEdit_bulk_modulus.setText(f"{bulk_modulus : .8e}")
 
         if "pressure_at_suction" in parameters.keys():
             self.lineEdit_suction_pressure.setText(str(parameters["pressure_at_suction"]))
@@ -497,7 +506,7 @@ class ReciprocatingPumpInputs(QDialog):
             return True
         return False
 
-    def check_all_parameters(self):
+    def check_all_parameters(self, check_all_entries=True):
 
         self.parameters = dict()
 
@@ -545,11 +554,12 @@ class ReciprocatingPumpInputs(QDialog):
         else:
             self.parameters['rotational_speed'] = self.value
 
-        if self.check_input_parameters(self.lineEdit_bulk_modulus, "Bulk modulus"):
-            self.lineEdit_bulk_modulus.setFocus()
-            return True
-        else:
-            self.parameters['bulk_modulus'] = self.value
+        if check_all_entries:
+            if self.check_input_parameters(self.lineEdit_bulk_modulus, "Bulk modulus"):
+                self.lineEdit_bulk_modulus.setFocus()
+                return True
+            else:
+                self.parameters['bulk_modulus'] = self.value
 
         if self.check_input_parameters(self.lineEdit_suction_pressure, "Suction pressure"):
             self.lineEdit_suction_pressure.setFocus()
@@ -585,7 +595,8 @@ class ReciprocatingPumpInputs(QDialog):
         self.parameters['number_of_cylinders'] = self.number_of_cylinders
         self.parameters['acting_label'] = self.comboBox_cylinder_acting.currentIndex()
 
-        self.pump_model = ReciprocatingPumpModel(self.parameters)
+        if check_all_entries:
+            self.pump_model = ReciprocatingPumpModel(self.parameters)
 
         if "kgf/cm²" in unit_label:
             self.p_suction = self.parameters['pressure_at_suction'] * kgf_cm2_to_Pa
@@ -609,7 +620,7 @@ class ReciprocatingPumpInputs(QDialog):
 
         elif self.comboBox_temperature_units.currentIndex() == 1:
             self.T_suction = self.parameters['temperature_at_suction']
-            self.T_discharge = self.parameters['temperature_at_discharge'] + 273.15
+            self.T_discharge = self.parameters['temperature_at_discharge']
 
         return False
 
@@ -696,112 +707,80 @@ class ReciprocatingPumpInputs(QDialog):
 
         self.process_aquisition_parameters()
 
-        index = self.comboBox_connection_type.currentIndex()
-        if index in [0]:
+        if self.comboBox_connection_type.currentIndex() == 0:
+            flow_label = "in_flow"
+            connection_type = "suction"
+            node_id = self.suction_node_id
 
-            line_suction_node_id = app().project.model.preprocessor.get_line_from_node_id(self.suction_node_id)
-            recip_pump_info = { 
-                               "temperature_at_suction" : self.T_suction,
-                               "suction_pressure" : self.p_suction,
-                               "line_id" : line_suction_node_id[0],
-                               "node_id" : self.suction_node_id,
-                               "connection_type" : "suction",
-                               "source" : "reciprocating_pump"
-                               }
+        else:
+            flow_label = "out_flow"
+            connection_type = "discharge"
+            node_id = self.discharge_node_id
 
-            self.hide()
-            read = SetFluidInput(state_properties = recip_pump_info)
-            if not read.complete:
-                return
+        line_id = app().project.model.preprocessor.get_line_from_node_id(node_id)
 
+        recip_pump_info = { 
+                            "temperature_at_suction" : self.T_suction,
+                            "suction_pressure" : self.p_suction,
+                            "line_id" : line_id[0],
+                            "node_id" : node_id,
+                            "connection_type" : connection_type,
+                            "source" : "reciprocating_pump",
+                            "check_ideal_gas" : False
+                            }
+
+        if connection_type == "discharge":
+            recip_pump_info["temperature_at_discharge"] = self.T_discharge
+            recip_pump_info["discharge_discharge"] = self.p_discharge
+
+        self.hide()
+        read = SetFluidInput(state_properties = recip_pump_info)
+        if not read.complete:
+            return
+
+        else:
+            if read.fluid_widget.refprop is not None:
+                if read.fluid_widget.refprop.complete:
+                    self.parameters["bulk_modulus"] = round(read.fluid_widget.fluid_data_refprop["adiabatic_bulk_modulus"], 6)
+                    self.parameters['fluid_properties_source'] = "refprop"
             else:
-                if read.fluid_widget.refprop is not None:
-                    if read.fluid_widget.refprop.complete:
-                        self.parameters["bulk_modulus"] = round(read.fluid_widget.fluid_data_refprop["adiabatic_bulk_modulus"], 6)
-                        self.parameters['fluid_properties_source'] = "refprop"
-                else:
-                    self.parameters['fluid_properties_source'] = "user-defined"
+                self.parameters['fluid_properties_source'] = "user-defined"
 
-                self.parameters['points_per_revolution'] = self.pump_model.number_points
-                self.pump_model.bulk_modulus = self.parameters["bulk_modulus"]
+            self.parameters['points_per_revolution'] = self.pump_model.number_points
+            self.pump_model.bulk_modulus = self.parameters["bulk_modulus"]
 
-                freq, in_flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
+            freq, in_flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
 
-                table_name = f"pump_excitation_suction_node_{self.suction_node_id}"
-                
-                node = app().project.model.preprocessor.nodes[self.suction_node_id]
-                coords = list(np.round(node.coordinates, 5))
+            table_name = f"pump_excitation_{connection_type}_node_{node_id}"
 
-                data = {
-                        "coords" : coords,
-                        "connection_type" : "suction",
-                        "table_names" : [table_name],
-                        "parameters" : self.parameters
-                        }
-
-                self.remove_conflicting_excitations(self.suction_node_id)
-
-                if self.save_table_values(table_name, freq, in_flow_rate):
-                    return
-
-                self.properties._set_nodal_property("reciprocating_pump_excitation", data, self.suction_node_id)
-
-        if index in [1]:
-
-            line_discharge_node_id = app().project.model.preprocessor.get_line_from_node_id(self.discharge_node_id)
-            recip_pump_info = {
-                               "temperature_at_suction" : self.T_suction,
-                               "suction_pressure" : self.p_suction,
-                               "temperature_at_discharge" : self.T_discharge,
-                               "discharge_pressure" : self.p_discharge,
-                               "line_id" : line_discharge_node_id[0],
-                               "node_id" : self.discharge_node_id,
-                               "connection_type" : "discharge",
-                               "source" : "reciprocating_pump"
-                               }
-
-            self.hide()
-            read = SetFluidInput(state_properties = recip_pump_info)
-
-            if not read.complete:
-                return
-
-            else:
-                if read.fluid_widget.refprop is not None:
-                    if read.fluid_widget.refprop.complete:
-                        self.parameters["bulk_modulus"] = round(read.fluid_widget.fluid_data_refprop["adiabatic_bulk_modulus"], 6)
-                        self.parameters['fluid_properties_source'] = "refprop"
-                else:
-                    self.parameters['fluid_properties_source'] = "user-defined"
-
-                self.parameters['points_per_revolution'] = self.pump_model.number_points
-                self.pump_model.bulk_modulus = self.parameters["bulk_modulus"]
-
-            freq, out_flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, 'out_flow') 
-
-            table_name = f"pump_excitation_discharge_node_{self.discharge_node_id}"
-
-            node = app().project.model.preprocessor.nodes[self.discharge_node_id]
+            node = app().project.model.preprocessor.nodes[node_id]
             coords = list(np.round(node.coordinates, 5))
 
             data = {
                     "coords" : coords,
-                    "connection_type" : "discharge",
+                    "connection_type" : connection_type,
                     "table_names" : [table_name],
                     "parameters" : self.parameters
                     }
 
-            self.remove_conflicting_excitations(self.discharge_node_id)
+            self.remove_conflicting_excitations(node_id)
 
-            if self.save_table_values(table_name, freq, out_flow_rate):
+            if self.save_table_values(table_name, freq, in_flow_rate):
                 return
 
-            self.properties._set_nodal_property("reciprocating_pump_excitation", data, self.discharge_node_id)
+            self.properties._set_nodal_property("reciprocating_pump_excitation", data, node_id)
 
+            app().pulse_file.write_imported_table_data_in_file()
+
+            self.load_reciprocating_pump_excitation_info()
+            self.actions_to_finalize()
+
+    def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
-        app().pulse_file.write_imported_table_data_in_file()
+        app().main_window.set_selection()
         app().main_window.update_plots()
-        self.close()
+        self.load_reciprocating_pump_excitation_info()
+        self.pushButton_cancel.setText("Exit")
 
     def process_table_file_removal(self, table_names: list):
         for table_name in table_names:
@@ -833,10 +812,9 @@ class ReciprocatingPumpInputs(QDialog):
         self.remove_table_files_from_nodes(node_id)
 
         self.properties._remove_nodal_property("reciprocating_pump_excitation", node_id)
-        app().pulse_file.write_nodal_properties_in_file()
 
         self.load_reciprocating_pump_excitation_info()
-        app().main_window.update_plots()
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -865,10 +843,8 @@ class ReciprocatingPumpInputs(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("reciprocating_pump_excitation")
-            app().pulse_file.write_nodal_properties_in_file()
-
-            app().main_window.update_plots()
-            self.close()
+            self.load_reciprocating_pump_excitation_info()
+            self.actions_to_finalize()
 
     def load_reciprocating_pump_excitation_info(self):
 
@@ -908,7 +884,7 @@ class ReciprocatingPumpInputs(QDialog):
         self.hide()
         PulsationDamperCalculatorInputs(
                                         fluctuating_volume = self.process_fluctuating_volume(),
-                                        state_properties = self.get_state_properties()
+                                        state_properties = self.get_state_properties(True)
                                         )
         app().main_window.set_input_widget(self)
 

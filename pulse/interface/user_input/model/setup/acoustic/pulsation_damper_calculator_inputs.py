@@ -107,7 +107,7 @@ class PulsationDamperCalculatorInputs(QDialog):
         self.fluid_dialog = SetFluidInputSimplified(state_properties = self.state_properties)
         self.fluid_dialog.fluid_widget.pushButton_attribute.setText("Select fluid")
         self.fluid_dialog.pushButton_attribute.clicked.connect(self.get_selected_fluid)
-        self.fluid_dialog.exec()
+        self.fluid_dialog.exec_and_keep_window_open()
         app().main_window.set_input_widget(self)
 
     def get_selected_fluid(self):
@@ -147,7 +147,7 @@ class PulsationDamperCalculatorInputs(QDialog):
 
         dV = kwargs.get('fluctuating_volume', None)
         if isinstance(dV, (float | int)):
-            self.lineEdit_fluctuating_volume.setText(f"{dV : 2.8e}")
+            self.lineEdit_fluctuating_volume.setText(f"{dV : .8e}")
 
         self.state_properties = kwargs.get("state_properties", dict())
         if self.state_properties:
@@ -195,7 +195,7 @@ class PulsationDamperCalculatorInputs(QDialog):
             elif pu_index == 7:
                 pressure_value = pressure_Pa_g / 1
 
-            self.lineEdit_pressure.setText(f"{pressure_value : 2.8e}")
+            self.lineEdit_pressure.setText(f"{pressure_value : .8e}")
 
     def update_volume_unit_callback(self):
 
@@ -237,8 +237,8 @@ class PulsationDamperCalculatorInputs(QDialog):
             V0 = V0 * 1e3
             Vm = Vm * 1e6
 
-        self.lineEdit_effective_volume.setText(f"{V0 : 2.8e}")
-        self.lineEdit_volume_at_average_pressure.setText(f"{Vm : 2.8e}")
+        self.lineEdit_effective_volume.setText(f"{V0 : .8e}")
+        self.lineEdit_volume_at_average_pressure.setText(f"{Vm : .8e}")
 
     def attribute_callback(self):
         pass

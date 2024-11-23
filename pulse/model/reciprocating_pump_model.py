@@ -128,7 +128,6 @@ class ReciprocatingPumpModel:
         self._load_compressor_parameters(parameters)
         self.number_points = kwargs.get('number_points', 1000)
         self.max_frequency = kwargs.get('max_frequency', 300)
-        # self.number_of_cylinders = kwargs.get('number_of_cylinders', 1)
 
 
     def _load_compressor_parameters(self, parameters):
