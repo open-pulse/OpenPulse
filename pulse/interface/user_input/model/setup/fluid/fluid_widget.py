@@ -279,12 +279,62 @@ class FluidWidget(QWidget):
             self.tableWidget_fluid_data.setItem(i, last_col, item)
             self.tableWidget_fluid_data.item(i, last_col).setTextAlignment(Qt.AlignCenter)
 
+        self.load_pressure_and_temperature_from_state_properties(last_col)
+
         self.tableWidget_fluid_data.selectColumn(last_col)
         first_item = self.tableWidget_fluid_data.item(0, last_col)
         if self.refprop is None:
             self.tableWidget_fluid_data.editItem(first_item)
 
         self.tableWidget_fluid_data.blockSignals(False)
+
+    def load_pressure_and_temperature_from_state_properties(self, last_col: int):
+
+        self.state_properties: dict
+
+        if self.state_properties:
+
+            pressure = None
+            temperature = None
+
+            source = self.state_properties.get("source", None)
+            if source is None:
+                temperature = self.state_properties.get("temperature", "")
+                pressure = self.state_properties.get("pressure", "")
+
+            elif source == "reciprocating_pump":
+
+                if self.state_properties["connection_type"] == "discharge":
+                    temperature = self.state_properties["temperature_at_discharge"]
+                    pressure = self.state_properties["discharge_pressure"]
+
+                else:
+                    temperature = self.state_properties["temperature_at_suction"]
+                    pressure = self.state_properties["suction_pressure"]
+
+            elif source == "reciprocating_compressor":
+
+                if self.state_properties["connection_type"] == "discharge":
+                    T_suction = self.state_properties["temperature_at_suction"]
+                    pressure_ratio = self.state_properties["pressure_ratio"]
+                    suction_pressure = self.state_properties["suction_pressure"]
+                    pressure = pressure_ratio * suction_pressure
+
+                    gamma = self.state_properties.get('isentropic_exponent', None)
+                    if isinstance(gamma, float):
+                        temperature = T_suction * (pressure_ratio**((gamma-1)/gamma))
+
+                else:
+                    temperature = self.state_properties["temperature_at_suction"]
+                    pressure = self.state_properties["suction_pressure"]
+
+            if isinstance(temperature, (float | int)):
+                self.tableWidget_fluid_data.setItem(2, last_col, QTableWidgetItem(f"{temperature : .6f}"))
+                self.tableWidget_fluid_data.item(2, last_col).setTextAlignment(Qt.AlignCenter)
+
+            if isinstance(pressure, (float | int)):
+                self.tableWidget_fluid_data.setItem(3, last_col, QTableWidgetItem(f"{pressure : .8e}"))
+                self.tableWidget_fluid_data.item(3, last_col).setTextAlignment(Qt.AlignCenter)
 
     def remove_selected_column(self):
 

@@ -66,8 +66,8 @@ class ReciprocatingCompressorInputs(QDialog):
         self.comboBox_cylinder_acting: QComboBox
         self.comboBox_frequency_resolution: QComboBox
         self.comboBox_stage: QComboBox
-        self.comboBox_suction_pressure_units: QComboBox
-        self.comboBox_suction_temperature_units: QComboBox
+        self.comboBox_pressure_unit: QComboBox
+        self.comboBox_temperature_unit: QComboBox
         self.comboBox_fluid_data_source: QComboBox
 
         # QLabel
@@ -75,7 +75,11 @@ class ReciprocatingCompressorInputs(QDialog):
         self.label_molar_mass_unit: QLabel
         self.label_isentropic_exp: QLabel
         self.label_isentropic_exp_unit: QLabel
-
+        self.label_suction_pressure_unit: QLabel
+        self.label_discharge_pressure_unit: QLabel
+        self.label_suction_temperature_unit: QLabel
+        self.label_discharge_temperature_unit: QLabel
+        
         # QLineEdit
         self.lineEdit_selected_node_id: QLineEdit
         self.lineEdit_frequency_resolution: QLineEdit
@@ -91,7 +95,9 @@ class ReciprocatingCompressorInputs(QDialog):
         self.lineEdit_isentropic_exponent: QLineEdit
         self.lineEdit_molar_mass: QLineEdit
         self.lineEdit_pressure_at_suction: QLineEdit
+        self.lineEdit_pressure_at_discharge: QLineEdit
         self.lineEdit_temperature_at_suction: QLineEdit
+        self.lineEdit_temperature_at_discharge: QLineEdit
         self.lineEdit_selected_id: QLineEdit
         self.lineEdit_connection_type: QLineEdit
         self.lineEdit_selected_fluid: QLineEdit
@@ -137,8 +143,8 @@ class ReciprocatingCompressorInputs(QDialog):
     def _config_widget(self):
         self.treeWidget_compressor_excitation.setColumnWidth(0, 100)
         # self.treeWidget_compressor_excitation.setColumnWidth(1, 140)
-        self.treeWidget_compressor_excitation.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_compressor_excitation.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        for i in range(2):
+            self.treeWidget_compressor_excitation.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _create_connections(self):
         #
@@ -146,6 +152,13 @@ class ReciprocatingCompressorInputs(QDialog):
         self.comboBox_fluid_data_source.currentIndexChanged.connect(self.fluid_data_source_callback)
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
         self.comboBox_stage.currentIndexChanged.connect(self.comboBox_event_stage)
+        self.comboBox_pressure_unit.currentIndexChanged.connect(self.pressure_unit_callback)
+        self.comboBox_temperature_unit.currentIndexChanged.connect(self.temperature_unit_callback)
+        #
+        self.lineEdit_isentropic_exponent.textChanged.connect(self.update_state_properties_at_discharge)
+        self.lineEdit_pressure_at_suction.textChanged.connect(self.update_state_properties_at_discharge)
+        self.lineEdit_pressure_ratio.textChanged.connect(self.update_state_properties_at_discharge)
+        self.lineEdit_temperature_at_suction.textChanged.connect(self.update_state_properties_at_discharge)
         #
         self.pushButton_plot_PV_diagram_head_end.clicked.connect(self.plot_PV_diagram_head_end)
         self.pushButton_plot_PV_diagram_crank_end.clicked.connect(self.plot_PV_diagram_crank_end)
@@ -181,7 +194,8 @@ class ReciprocatingCompressorInputs(QDialog):
         #
         self.comboBox_event_stage()
         self.update_compressing_cylinders_setup()
-        self.spinBox_event_number_of_cylinders()     
+        self.spinBox_event_number_of_cylinders()
+        self.update_state_properties_at_discharge()
 
     def fluid_data_source_callback(self):
 
@@ -297,7 +311,7 @@ class ReciprocatingCompressorInputs(QDialog):
             p_ratio = self.parameters['pressure_ratio']
             gamma = self.parameters.get("isentropic_exponent", 1.4)
 
-            temperature = self.T_suction * (p_ratio**((gamma - 1) / gamma))
+            temperature = self.T_suction * (p_ratio**((gamma-1)/gamma))
 
         state_properties = {
                             "pressure" : pressure,
@@ -331,7 +345,7 @@ class ReciprocatingCompressorInputs(QDialog):
 
             self.lineEdit_selected_fluid.setText(self.selected_fluid.name)
             self.lineEdit_isentropic_exponent.setText(f"{self.selected_fluid.isentropic_exponent : .6f}")
-            self.lineEdit_molar_mass.setText(f"{self.selected_fluid.molar_mass : .4f}")
+            self.lineEdit_molar_mass.setText(f"{self.selected_fluid.molar_mass : .6f}")
 
     def change_aquisition_parameters_controls(self, _bool):
         self.pushButton_process_aquisition_parameters.setDisabled(_bool)
@@ -409,7 +423,7 @@ class ReciprocatingCompressorInputs(QDialog):
         if "pressure_unit" in parameters.keys():
             for i, p_unit in enumerate(pressure_units):
                 if p_unit in parameters["pressure_unit"]:
-                    self.comboBox_suction_pressure_units.setCurrentIndex(i)
+                    self.comboBox_pressure_unit.setCurrentIndex(i)
 
         if "temperature_at_suction" in parameters.keys():
             self.lineEdit_temperature_at_suction.setText(str(parameters["temperature_at_suction"]))
@@ -418,7 +432,7 @@ class ReciprocatingCompressorInputs(QDialog):
         if "temperature_unit" in parameters.keys():
             for i, p_unit in enumerate(temperature_units):
                 if p_unit in parameters["temperature_unit"]:
-                    self.comboBox_suction_temperature_units.setCurrentIndex(i)
+                    self.comboBox_temperature_unit.setCurrentIndex(i)
 
         if "acting_label" in parameters.keys():
             acting_labels = ["both_ends", "crank_end", "head_end"]
@@ -449,8 +463,8 @@ class ReciprocatingCompressorInputs(QDialog):
     def reset_entries(self):
         self.comboBox_cylinder_acting.setCurrentIndex(0)
         self.comboBox_stage.setCurrentIndex(0)
-        self.comboBox_suction_pressure_units.setCurrentIndex(0)
-        self.comboBox_suction_temperature_units.setCurrentIndex(1)
+        self.comboBox_pressure_unit.setCurrentIndex(0)
+        self.comboBox_temperature_unit.setCurrentIndex(1)
         self.lineEdit_bore_diameter.setText("")
         self.lineEdit_stroke.setText("")
         self.lineEdit_connecting_rod_length.setText("")
@@ -564,11 +578,12 @@ class ReciprocatingCompressorInputs(QDialog):
         else:
             self.parameters['connecting_rod_length'] = self.value
 
-        if self.check_input_parameters(self.lineEdit_rod_diameter, "Rod diameter"):
-            self.lineEdit_rod_diameter.setFocus()
-            return True
-        else:
-            self.parameters['rod_diameter'] = self.value
+        if self.comboBox_cylinder_acting.currentIndex() in [0, 2]:
+            if self.check_input_parameters(self.lineEdit_rod_diameter, "Rod diameter"):
+                self.lineEdit_rod_diameter.setFocus()
+                return True
+            else:
+                self.parameters['rod_diameter'] = self.value
 
         if self.check_input_parameters(self.lineEdit_pressure_ratio, "Pressure ratio"):
             self.lineEdit_pressure_ratio.setFocus()
@@ -619,7 +634,7 @@ class ReciprocatingCompressorInputs(QDialog):
             self.parameters['pressure_at_discharge'] = self.parameters['pressure_ratio'] * self.parameters['pressure_at_suction']
 
         # unit_labels = ["kgf/cm² (a)", "bar (a)", "kPa (a)", "Pa (a)", "kgf/cm² (g)", "bar (g)", "kPa (g)", "Pa (g)"]
-        pressure_unit = self.comboBox_suction_pressure_units.currentText()
+        pressure_unit = self.comboBox_pressure_unit.currentText()
         self.parameters['pressure_unit'] = pressure_unit
 
         if self.check_input_parameters(self.lineEdit_temperature_at_suction, "Temperature at suction"):
@@ -629,7 +644,7 @@ class ReciprocatingCompressorInputs(QDialog):
             self.parameters['temperature_at_suction'] = self.value
 
         # unit_labels = ["°C", "K"]
-        temperature_unit = self.comboBox_suction_temperature_units.currentText()
+        temperature_unit = self.comboBox_temperature_unit.currentText()
         self.parameters['temperature_unit'] = temperature_unit
 
         self.parameters['compression_stage'] = self.compression_stage_index
@@ -750,6 +765,38 @@ class ReciprocatingCompressorInputs(QDialog):
 
         app().pulse_file.write_analysis_setup_in_file(analysis_setup)
 
+    def update_state_properties_at_discharge(self):
+
+        try:
+
+            suction_pressure = float(self.lineEdit_pressure_at_suction.text())
+            pressure_ratio = float(self.lineEdit_pressure_ratio.text())
+            gamma = float(self.lineEdit_isentropic_exponent.text())
+            discharge_pressure = pressure_ratio * suction_pressure
+
+            if self.comboBox_pressure_unit.currentIndex() in [3, 7]:
+                self.lineEdit_pressure_at_discharge.setText(f"{discharge_pressure : .8e}")
+            else:
+                self.lineEdit_pressure_at_discharge.setText(f"{discharge_pressure : .6f}")
+
+        except:
+            return
+
+        try:
+
+            suction_temperature = float(self.lineEdit_temperature_at_suction.text())
+            if self.comboBox_temperature_unit.currentIndex() == 1:
+                suction_temperature += 273.15
+
+            discharge_temperature = suction_temperature * (pressure_ratio**((gamma-1)/gamma))
+            if self.comboBox_temperature_unit.currentIndex() == 1:
+                discharge_temperature -= 273.15
+
+            self.lineEdit_temperature_at_discharge.setText(f"{discharge_temperature : .6f}")
+
+        except:
+            return
+
     def attribute_callback(self):
 
         if self.check_input_nodes():
@@ -777,8 +824,9 @@ class ReciprocatingCompressorInputs(QDialog):
                             "suction_pressure" : self.P_suction,
                             "line_id" : line_id[0],
                             "node_id" : node_id,
-                            "pressure_ratio" : self.parameters['pressure_ratio'],
                             "connection_type" : connection_type,
+                            "isentropic_exponent" : self.parameters.get('isentropic_exponent', None),
+                            "pressure_ratio" : self.parameters['pressure_ratio'],
                             "source" : "reciprocating_compressor",
                             "check_ideal_gas" : True
                             }
@@ -957,6 +1005,16 @@ class ReciprocatingCompressorInputs(QDialog):
         list_stage_labels = ['stage_1', 'stage_2', 'stage_3'] 
         self.compression_stage_label = list_stage_labels[self.currentIndex_stage]
         self.compression_stage_index = self.currentIndex_stage + 1
+
+    def pressure_unit_callback(self):
+        unit_label = self.comboBox_pressure_unit.currentText()
+        self.label_suction_pressure_unit.setText(f"[{unit_label}]")
+        self.label_discharge_pressure_unit.setText(f"[{unit_label}]")
+
+    def temperature_unit_callback(self):
+        unit_label = self.comboBox_temperature_unit.currentText()
+        self.label_suction_temperature_unit.setText(f"[{unit_label}]")
+        self.label_discharge_temperature_unit.setText(f"[{unit_label}]")
 
     def plot_PV_diagram_head_end(self):
         if self.check_all_parameters():

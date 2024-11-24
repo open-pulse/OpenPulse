@@ -272,10 +272,10 @@ class ReciprocatingPumpInputs(QDialog):
             return None
 
         if self.comboBox_connection_type.currentIndex() == 0:
-            pressure = self.p_suction
+            pressure = self.P_suction
             temperature = self.T_suction
         else:
-            pressure = self.p_discharge
+            pressure = self.P_discharge
             temperature = self.T_discharge
 
         state_properties = {
@@ -528,12 +528,13 @@ class ReciprocatingPumpInputs(QDialog):
         else:
             self.parameters['connecting_rod_length'] = self.value
 
-        if self.check_input_parameters(self.lineEdit_rod_diameter, "Rod diameter"):
-            self.lineEdit_rod_diameter.setFocus()
-            return True
-        else:
-            self.parameters['rod_diameter'] = self.value
-    
+        if self.comboBox_cylinder_acting.currentIndex() in [0, 2]:
+            if self.check_input_parameters(self.lineEdit_rod_diameter, "Rod diameter"):
+                self.lineEdit_rod_diameter.setFocus()
+                return True
+            else:
+                self.parameters['rod_diameter'] = self.value
+
         if self.check_input_parameters(self.lineEdit_clearance_head_end, "Clearance (HE)"):
             self.lineEdit_clearance_head_end.setFocus()
             return True
@@ -599,20 +600,20 @@ class ReciprocatingPumpInputs(QDialog):
             self.pump_model = ReciprocatingPumpModel(self.parameters)
 
         if "kgf/cm²" in unit_label:
-            self.p_suction = self.parameters['pressure_at_suction'] * kgf_cm2_to_Pa
-            self.p_discharge = self.parameters['pressure_at_discharge'] * kgf_cm2_to_Pa
+            self.P_suction = self.parameters['pressure_at_suction'] * kgf_cm2_to_Pa
+            self.P_discharge = self.parameters['pressure_at_discharge'] * kgf_cm2_to_Pa
             
         elif "bar" in unit_label:
-            self.p_suction = self.parameters['pressure_at_suction'] * bar_to_Pa
-            self.p_discharge = self.parameters['pressure_at_discharge'] * bar_to_Pa
+            self.P_suction = self.parameters['pressure_at_suction'] * bar_to_Pa
+            self.P_discharge = self.parameters['pressure_at_discharge'] * bar_to_Pa
 
         elif "kPa" in unit_label:
-            self.p_suction = self.parameters['pressure_at_suction'] * 1e3
-            self.p_discharge = self.parameters['pressure_at_discharge'] * 1e3
+            self.P_suction = self.parameters['pressure_at_suction'] * 1e3
+            self.P_discharge = self.parameters['pressure_at_discharge'] * 1e3
 
         if "(g)" in unit_label:
-            self.p_suction += 101325
-            self.p_discharge += 101325
+            self.P_suction += 101325
+            self.P_discharge += 101325
 
         if self.comboBox_temperature_units.currentIndex() == 0:
             self.T_suction = self.parameters['temperature_at_suction'] + 273.15
@@ -720,18 +721,16 @@ class ReciprocatingPumpInputs(QDialog):
         line_id = app().project.model.preprocessor.get_line_from_node_id(node_id)
 
         recip_pump_info = { 
-                            "temperature_at_suction" : self.T_suction,
-                            "suction_pressure" : self.p_suction,
-                            "line_id" : line_id[0],
                             "node_id" : node_id,
+                            "line_id" : line_id[0],
                             "connection_type" : connection_type,
+                            "temperature_at_suction" : self.T_suction,
+                            "suction_pressure" : self.P_suction,
+                            "temperature_at_discharge" : self.T_discharge,
+                            "discharge_pressure" : self.P_discharge,
                             "source" : "reciprocating_pump",
                             "check_ideal_gas" : False
                             }
-
-        if connection_type == "discharge":
-            recip_pump_info["temperature_at_discharge"] = self.T_discharge
-            recip_pump_info["discharge_discharge"] = self.p_discharge
 
         self.hide()
         read = SetFluidInput(state_properties = recip_pump_info)

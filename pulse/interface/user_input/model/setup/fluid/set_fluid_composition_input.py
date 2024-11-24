@@ -197,8 +197,8 @@ class SetFluidCompositionInput(QDialog):
                 self.label_discharge.setVisible(False)
 
             if 'suction_pressure' in state_properties.keys():
-                self.lineEdit_temperature.setText(str(round(self.T_suction, 4)))
-                self.lineEdit_pressure.setText(str(round(self.P_suction, 2)))
+                self.lineEdit_temperature.setText(f"{self.T_suction : .4f}")
+                self.lineEdit_pressure.setText(f"{self.P_suction : .8e}")
 
             if 'pressure_ratio' in state_properties.keys():
                 self.p_ratio =  state_properties['pressure_ratio']
@@ -207,11 +207,11 @@ class SetFluidCompositionInput(QDialog):
             elif 'discharge_pressure' in state_properties.keys():
                 self.P_discharge = state_properties['discharge_pressure']
 
-            self.lineEdit_pressure_disch.setText(str(round(self.P_discharge, 2)))
+            self.lineEdit_pressure_disch.setText(f"{self.P_discharge : .8e}")
 
             if 'temperature_at_discharge' in state_properties.keys():
                 self.T_discharge = state_properties[f'temperature_at_discharge']
-                self.lineEdit_temperature_disch.setText(str(round(self.T_discharge, 4)))
+                self.lineEdit_temperature_disch.setText(f"{self.T_discharge : .4f}")
 
             else:
 

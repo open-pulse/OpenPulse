@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>734</height>
+    <width>500</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -350,9 +350,9 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>-233</y>
-                  <width>539</width>
-                  <height>784</height>
+                  <y>0</y>
+                  <width>449</width>
+                  <height>920</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_11">
@@ -373,6 +373,18 @@
                  </property>
                  <item row="0" column="0">
                   <widget class="QFrame" name="frame_all_parameters">
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                    </property>
@@ -395,6 +407,672 @@
                     <property name="spacing">
                      <number>6</number>
                     </property>
+                    <item row="21" column="2">
+                     <widget class="QLineEdit" name="lineEdit_isentropic_exponent">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::StrongFocus</enum>
+                      </property>
+                      <property name="text">
+                       <string>1.4</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="0">
+                     <spacer name="horizontalSpacer_11">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="0" column="4">
+                     <spacer name="horizontalSpacer_10">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="22" column="3">
+                     <widget class="QLabel" name="label_molar_mass_unit">
+                      <property name="minimumSize">
+                       <size>
+                        <width>72</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>72</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[kg/kmol]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="21" column="1">
+                     <widget class="QLabel" name="label_isentropic_exp">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Isentropic exponent (C&lt;span style=&quot; vertical-align:sub;&quot;&gt;p&lt;/span&gt;/C&lt;span style=&quot; vertical-align:sub;&quot;&gt;v&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QLabel" name="label_10">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Selected node ID:</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="19" column="1">
+                     <widget class="QLabel" name="label_molar_mass_3">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Selected working fluid:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="19" column="3">
+                     <widget class="QPushButton" name="pushButton_get_fluid">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
+                      <property name="text">
+                       <string>Get fluid</string>
+                      </property>
+                      <property name="autoDefault">
+                       <bool>false</bool>
+                      </property>
+                      <property name="default">
+                       <bool>true</bool>
+                      </property>
+                      <property name="flat">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="16" column="1">
+                     <widget class="QLabel" name="label_33">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Capacity:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="18" column="2">
+                     <widget class="QComboBox" name="comboBox_fluid_data_source">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="currentIndex">
+                       <number>1</number>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>RefProp</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>User-defined</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                    <item row="19" column="2">
+                     <widget class="QLineEdit" name="lineEdit_selected_fluid">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::StrongFocus</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="18" column="1">
+                     <widget class="QLabel" name="label_molar_mass_2">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Fluid data source:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="20" column="1" colspan="3">
+                     <widget class="Line" name="line_2">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>12</height>
+                       </size>
+                      </property>
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="27" column="1">
+                     <widget class="QLabel" name="label_44">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Suction temperature:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="14" column="1">
+                     <widget class="QLabel" name="label_43">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;TDC crank angle (#2):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="24" column="1">
+                     <widget class="QLabel" name="label_42">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Suction pressure:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="1">
+                     <widget class="QLabel" name="label_48">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Active cylinder setup:</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="3">
+                     <widget class="QPushButton" name="pushButton_reset_entries">
+                      <property name="minimumSize">
+                       <size>
+                        <width>40</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="toolTip">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset entries&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="icon">
+                       <iconset>
+                        <normaloff>../../../../icons/common/broom.png</normaloff>../../../../icons/common/broom.png</iconset>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>22</width>
+                        <height>22</height>
+                       </size>
+                      </property>
+                      <property name="autoDefault">
+                       <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLabel" name="label_9">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Connection type:</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="16" column="3">
+                     <widget class="QLabel" name="label_47">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[%]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="3">
+                     <widget class="QLabel" name="label_14">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QLabel" name="label_8">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Compression stage:</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="13" column="2">
+                     <widget class="QSpinBox" name="spinBox_tdc1_crank_angle">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="maximum">
+                       <number>270</number>
+                      </property>
+                      <property name="singleStep">
+                       <number>90</number>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="5" column="3">
                      <widget class="QLabel" name="label_13">
                       <property name="minimumSize">
@@ -488,18 +1166,18 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="8" column="2">
-                     <widget class="QLineEdit" name="lineEdit_rod_diameter">
+                    <item row="6" column="2">
+                     <widget class="QLineEdit" name="lineEdit_stroke">
                       <property name="minimumSize">
                        <size>
-                        <width>110</width>
-                        <height>26</height>
+                        <width>100</width>
+                        <height>28</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
-                        <height>26</height>
+                        <width>120</width>
+                        <height>28</height>
                        </size>
                       </property>
                       <property name="font">
@@ -511,41 +1189,10 @@
                        <enum>Qt::StrongFocus</enum>
                       </property>
                       <property name="text">
-                       <string>0.135</string>
+                       <string>0.33</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="6" column="1">
-                     <widget class="QLabel" name="label_21">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Stroke:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -580,18 +1227,49 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="6" column="2">
-                     <widget class="QLineEdit" name="lineEdit_stroke">
+                    <item row="6" column="1">
+                     <widget class="QLabel" name="label_21">
                       <property name="minimumSize">
                        <size>
-                        <width>110</width>
+                        <width>0</width>
                         <height>28</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
+                        <width>16777215</width>
                         <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Stroke:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="2">
+                     <widget class="QLineEdit" name="lineEdit_rod_diameter">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>26</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>26</height>
                        </size>
                       </property>
                       <property name="font">
@@ -603,7 +1281,7 @@
                        <enum>Qt::StrongFocus</enum>
                       </property>
                       <property name="text">
-                       <string>0.33</string>
+                       <string>0.135</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -645,13 +1323,13 @@
                      <widget class="QLineEdit" name="lineEdit_rotational_speed">
                       <property name="minimumSize">
                        <size>
-                        <width>110</width>
+                        <width>100</width>
                         <height>28</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
@@ -671,8 +1349,71 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="2">
-                     <widget class="QSpinBox" name="spinBox_number_of_cylinders">
+                    <item row="22" column="2">
+                     <widget class="QLineEdit" name="lineEdit_molar_mass">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::StrongFocus</enum>
+                      </property>
+                      <property name="text">
+                       <string>2.0158</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="2">
+                     <widget class="QLineEdit" name="lineEdit_selected_node_id">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="1">
+                     <widget class="QLabel" name="label_20">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -681,7 +1422,161 @@
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Cylinder bore diameter:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="2">
+                     <widget class="QComboBox" name="comboBox_connection_type">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string> Suction</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string> Discharge</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                    <item row="7" column="2">
+                     <widget class="QLineEdit" name="lineEdit_connecting_rod_length">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::StrongFocus</enum>
+                      </property>
+                      <property name="text">
+                       <string>1.25</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="10" column="1">
+                     <widget class="QLabel" name="label_27">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Clearance (HE):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="13" column="3">
+                     <widget class="QLabel" name="label_32">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[degree]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="16" column="2">
+                     <widget class="QSpinBox" name="spinBox_capacity">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
@@ -694,30 +1589,30 @@
                        <set>Qt::AlignCenter</set>
                       </property>
                       <property name="minimum">
-                       <number>1</number>
+                       <number>20</number>
                       </property>
                       <property name="maximum">
-                       <number>2</number>
+                       <number>100</number>
                       </property>
                       <property name="singleStep">
                        <number>1</number>
                       </property>
                       <property name="value">
-                       <number>1</number>
+                       <number>100</number>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="2">
-                     <widget class="QComboBox" name="comboBox_stage">
+                    <item row="11" column="2">
+                     <widget class="QLineEdit" name="lineEdit_clearance_crank_end">
                       <property name="minimumSize">
                        <size>
-                        <width>0</width>
+                        <width>100</width>
                         <height>28</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
@@ -726,25 +1621,19 @@
                         <pointsize>10</pointsize>
                        </font>
                       </property>
-                      <item>
-                       <property name="text">
-                        <string> First stage</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string> Second stage</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string> Third stage</string>
-                       </property>
-                      </item>
+                      <property name="focusPolicy">
+                       <enum>Qt::StrongFocus</enum>
+                      </property>
+                      <property name="text">
+                       <string>18.39</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
                      </widget>
                     </item>
-                    <item row="3" column="2">
-                     <widget class="QComboBox" name="comboBox_cylinder_acting">
+                    <item row="7" column="3">
+                     <widget class="QLabel" name="label_15">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -753,7 +1642,193 @@
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="7" column="1">
+                     <widget class="QLabel" name="label_22">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Connecting rod length:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="25" column="3">
+                     <widget class="QLabel" name="label_discharge_pressure_unit">
+                      <property name="minimumSize">
+                       <size>
+                        <width>72</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>72</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[kgf/cm² (a)]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="26" column="1">
+                     <widget class="QLabel" name="label_52">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Temprature unit:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="27" column="3">
+                     <widget class="QLabel" name="label_suction_temperature_unit">
+                      <property name="minimumSize">
+                       <size>
+                        <width>72</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>72</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[ºC]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="28" column="1">
+                     <widget class="QLabel" name="label_53">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Discharge temperature:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="2">
+                     <widget class="QComboBox" name="comboBox_cylinder_acting">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
@@ -779,34 +1854,75 @@
                       </item>
                      </widget>
                     </item>
-                    <item row="4" column="1">
-                     <widget class="QLabel" name="label_46">
+                    <item row="2" column="2">
+                     <widget class="QComboBox" name="comboBox_stage">
                       <property name="minimumSize">
                        <size>
-                        <width>0</width>
+                        <width>100</width>
                         <height>28</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>16777215</width>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
                       <property name="font">
                        <font>
-                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
                        </font>
                       </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Number of cylinders:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      <item>
+                       <property name="text">
+                        <string> First stage</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string> Second stage</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string> Third stage</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                    <item row="4" column="2">
+                     <widget class="QSpinBox" name="spinBox_number_of_cylinders">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="minimum">
+                       <number>1</number>
+                      </property>
+                      <property name="maximum">
+                       <number>2</number>
+                      </property>
+                      <property name="singleStep">
+                       <number>1</number>
+                      </property>
+                      <property name="value">
+                       <number>1</number>
                       </property>
                      </widget>
                     </item>
@@ -841,17 +1957,79 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="23" column="2">
-                     <widget class="QLineEdit" name="lineEdit_pressure_at_suction">
+                    <item row="4" column="1">
+                     <widget class="QLabel" name="label_46">
                       <property name="minimumSize">
                        <size>
-                        <width>110</width>
+                        <width>0</width>
                         <height>28</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Number of cylinders:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="25" column="1">
+                     <widget class="QLabel" name="label_51">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Discharge pressure:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="28" column="2">
+                     <widget class="QLineEdit" name="lineEdit_temperature_at_discharge">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
@@ -864,24 +2042,86 @@
                        <enum>Qt::StrongFocus</enum>
                       </property>
                       <property name="text">
-                       <string>19.65</string>
+                       <string>--</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
-                    <item row="24" column="2">
-                     <widget class="QLineEdit" name="lineEdit_temperature_at_suction">
+                    <item row="28" column="3">
+                     <widget class="QLabel" name="label_discharge_temperature_unit">
                       <property name="minimumSize">
                        <size>
-                        <width>110</width>
+                        <width>72</width>
                         <height>28</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
+                        <width>72</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[ºC]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="24" column="3">
+                     <widget class="QLabel" name="label_suction_pressure_unit">
+                      <property name="minimumSize">
+                       <size>
+                        <width>72</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>72</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[kgf/cm² (a)]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="26" column="2">
+                     <widget class="QComboBox" name="comboBox_temperature_unit">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
@@ -890,15 +2130,19 @@
                         <pointsize>10</pointsize>
                        </font>
                       </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
+                      <property name="currentIndex">
+                       <number>1</number>
                       </property>
-                      <property name="text">
-                       <string>45</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
+                      <item>
+                       <property name="text">
+                        <string>K</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>°C</string>
+                       </property>
+                      </item>
                      </widget>
                     </item>
                     <item row="8" column="3">
@@ -963,6 +2207,66 @@
                       </property>
                      </widget>
                     </item>
+                    <item row="27" column="2">
+                     <widget class="QLineEdit" name="lineEdit_temperature_at_suction">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::StrongFocus</enum>
+                      </property>
+                      <property name="text">
+                       <string>45</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="24" column="2">
+                     <widget class="QLineEdit" name="lineEdit_pressure_at_suction">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::StrongFocus</enum>
+                      </property>
+                      <property name="text">
+                       <string>19.65</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="8" column="1">
                      <widget class="QLabel" name="label_23">
                       <property name="minimumSize">
@@ -998,13 +2302,13 @@
                      <widget class="QLineEdit" name="lineEdit_clearance_head_end">
                       <property name="minimumSize">
                        <size>
-                        <width>110</width>
+                        <width>100</width>
                         <height>28</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
@@ -1018,33 +2322,6 @@
                       </property>
                       <property name="text">
                        <string>15.80</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="2">
-                     <widget class="QLineEdit" name="lineEdit_bore_diameter">
-                      <property name="minimumSize">
-                       <size>
-                        <width>110</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>140</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>0.78</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -1082,17 +2359,44 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="14" column="2">
-                     <widget class="QSpinBox" name="spinBox_tdc2_crank_angle">
+                    <item row="5" column="2">
+                     <widget class="QLineEdit" name="lineEdit_bore_diameter">
                       <property name="minimumSize">
                        <size>
-                        <width>0</width>
+                        <width>100</width>
                         <height>28</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>0.78</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="14" column="2">
+                     <widget class="QSpinBox" name="spinBox_tdc2_crank_angle">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
@@ -1178,13 +2482,13 @@
                      <widget class="QLineEdit" name="lineEdit_pressure_ratio">
                       <property name="minimumSize">
                        <size>
-                        <width>110</width>
+                        <width>100</width>
                         <height>28</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>140</width>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
@@ -1204,1051 +2508,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="3">
-                     <widget class="QPushButton" name="pushButton_reset_entries">
-                      <property name="minimumSize">
-                       <size>
-                        <width>40</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>40</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="toolTip">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset entries&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="icon">
-                       <iconset>
-                        <normaloff>../../../../icons/common/broom.png</normaloff>../../../../icons/common/broom.png</iconset>
-                      </property>
-                      <property name="iconSize">
-                       <size>
-                        <width>22</width>
-                        <height>22</height>
-                       </size>
-                      </property>
-                      <property name="autoDefault">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QLabel" name="label_9">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Connection type:</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="1">
-                     <widget class="QLabel" name="label_48">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Active cylinder setup:</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="16" column="3">
-                     <widget class="QLabel" name="label_47">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[%]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QLabel" name="label_8">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Compression stage:</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="6" column="3">
-                     <widget class="QLabel" name="label_14">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="13" column="2">
-                     <widget class="QSpinBox" name="spinBox_tdc1_crank_angle">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>140</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                      <property name="maximum">
-                       <number>270</number>
-                      </property>
-                      <property name="singleStep">
-                       <number>90</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="24" column="3">
-                     <widget class="QComboBox" name="comboBox_suction_temperature_units">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="currentIndex">
-                       <number>1</number>
-                      </property>
-                      <item>
-                       <property name="text">
-                        <string>K</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>°C</string>
-                       </property>
-                      </item>
-                     </widget>
-                    </item>
-                    <item row="14" column="1">
-                     <widget class="QLabel" name="label_43">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;TDC crank angle (#2):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="23" column="1">
-                     <widget class="QLabel" name="label_42">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Pressure at suction:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="24" column="1">
-                     <widget class="QLabel" name="label_44">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Temperature at suction:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="13" column="3">
-                     <widget class="QLabel" name="label_32">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[degree]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="7" column="2">
-                     <widget class="QLineEdit" name="lineEdit_connecting_rod_length">
-                      <property name="minimumSize">
-                       <size>
-                        <width>110</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>140</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
-                      </property>
-                      <property name="text">
-                       <string>1.25</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="10" column="1">
-                     <widget class="QLabel" name="label_27">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Clearance (HE):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="7" column="1">
-                     <widget class="QLabel" name="label_22">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Connecting rod length:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="16" column="2">
-                     <widget class="QSpinBox" name="spinBox_capacity">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>140</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                      <property name="minimum">
-                       <number>20</number>
-                      </property>
-                      <property name="maximum">
-                       <number>100</number>
-                      </property>
-                      <property name="singleStep">
-                       <number>1</number>
-                      </property>
-                      <property name="value">
-                       <number>100</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="11" column="2">
-                     <widget class="QLineEdit" name="lineEdit_clearance_crank_end">
-                      <property name="minimumSize">
-                       <size>
-                        <width>110</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>140</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
-                      </property>
-                      <property name="text">
-                       <string>18.39</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="7" column="3">
-                     <widget class="QLabel" name="label_15">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="1">
-                     <widget class="QLabel" name="label_20">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Cylinder bore diameter:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="22" column="2">
-                     <widget class="QLineEdit" name="lineEdit_molar_mass">
-                      <property name="minimumSize">
-                       <size>
-                        <width>110</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>140</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
-                      </property>
-                      <property name="text">
-                       <string>2.0158</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="2">
-                     <widget class="QLineEdit" name="lineEdit_selected_node_id">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>140</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::ClickFocus</enum>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true"/>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="2">
-                     <widget class="QComboBox" name="comboBox_connection_type">
-                      <property name="minimumSize">
-                       <size>
-                        <width>140</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <item>
-                       <property name="text">
-                        <string> Suction</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string> Discharge</string>
-                       </property>
-                      </item>
-                     </widget>
-                    </item>
-                    <item row="21" column="1">
-                     <widget class="QLabel" name="label_isentropic_exp">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Isentropic exponent (C&lt;span style=&quot; vertical-align:sub;&quot;&gt;p&lt;/span&gt;/C&lt;span style=&quot; vertical-align:sub;&quot;&gt;v&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="0">
-                     <spacer name="horizontalSpacer_11">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item row="21" column="2">
-                     <widget class="QLineEdit" name="lineEdit_isentropic_exponent">
-                      <property name="minimumSize">
-                       <size>
-                        <width>110</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>140</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
-                      </property>
-                      <property name="text">
-                       <string>1.4</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="4">
-                     <spacer name="horizontalSpacer_10">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item row="22" column="3">
-                     <widget class="QLabel" name="label_molar_mass_unit">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[kg/kmol]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="1">
-                     <widget class="QLabel" name="label_10">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>Selected node ID:</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="16" column="1">
-                     <widget class="QLabel" name="label_33">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Capacity:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="19" column="1">
-                     <widget class="QLabel" name="label_molar_mass_3">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Selected working fluid:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="19" column="3">
-                     <widget class="QPushButton" name="pushButton_get_fluid">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true"/>
-                      </property>
-                      <property name="text">
-                       <string>Get fluid</string>
-                      </property>
-                      <property name="autoDefault">
-                       <bool>false</bool>
-                      </property>
-                      <property name="default">
-                       <bool>true</bool>
-                      </property>
-                      <property name="flat">
-                       <bool>false</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="19" column="2">
-                     <widget class="QLineEdit" name="lineEdit_selected_fluid">
-                      <property name="enabled">
-                       <bool>false</bool>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>110</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>140</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="18" column="1">
-                     <widget class="QLabel" name="label_molar_mass_2">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <weight>50</weight>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="text">
-                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Fluid data source:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="18" column="2">
-                     <widget class="QComboBox" name="comboBox_fluid_data_source">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <pointsize>10</pointsize>
-                       </font>
-                      </property>
-                      <property name="currentIndex">
-                       <number>1</number>
-                      </property>
-                      <item>
-                       <property name="text">
-                        <string>RefProp</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>User-defined</string>
-                       </property>
-                      </item>
-                     </widget>
-                    </item>
-                    <item row="20" column="1" colspan="3">
-                     <widget class="Line" name="line_2">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>12</height>
-                       </size>
-                      </property>
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="17" column="1" colspan="3">
                      <widget class="Line" name="line">
                       <property name="minimumSize">
@@ -2262,8 +2521,41 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="23" column="3">
-                     <widget class="QComboBox" name="comboBox_suction_pressure_units">
+                    <item row="25" column="2">
+                     <widget class="QLineEdit" name="lineEdit_pressure_at_discharge">
+                      <property name="enabled">
+                       <bool>false</bool>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <pointsize>10</pointsize>
+                       </font>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::StrongFocus</enum>
+                      </property>
+                      <property name="text">
+                       <string>37.49</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="23" column="1">
+                     <widget class="QLabel" name="label_50">
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -2273,6 +2565,37 @@
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Pressure unit:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="23" column="2">
+                     <widget class="QComboBox" name="comboBox_pressure_unit">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
                         <height>28</height>
                        </size>
                       </property>
@@ -3791,7 +4114,6 @@ at suction</string>
   <tabstop>lineEdit_molar_mass</tabstop>
   <tabstop>lineEdit_pressure_at_suction</tabstop>
   <tabstop>lineEdit_temperature_at_suction</tabstop>
-  <tabstop>comboBox_suction_temperature_units</tabstop>
   <tabstop>pushButton_cancel</tabstop>
   <tabstop>pushButton_confirm</tabstop>
   <tabstop>spinBox_number_of_points</tabstop>

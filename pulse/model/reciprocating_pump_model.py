@@ -130,13 +130,13 @@ class ReciprocatingPumpModel:
         self.max_frequency = kwargs.get('max_frequency', 300)
 
 
-    def _load_compressor_parameters(self, parameters):
+    def _load_compressor_parameters(self, parameters: dict):
         """
         """
         self.D = parameters['bore_diameter']                            # Cylinder bore diameter [m]
         self.r = parameters['stroke'] / 2                               # Length of compressor full stroke [m]
         self.L = parameters['connecting_rod_length']                    # Connecting rod length [m]
-        self.rod_diam = parameters['rod_diameter']                      # Rod diameter [m]
+        self.rod_diam = parameters.get('rod_diameter', 0)               # Rod diameter [m]
         self.c_HE = parameters['clearance_HE'] / 100                    # Clearance HE volume as percentage of full volume (%)
         self.c_CE = parameters['clearance_CE'] / 100                    # Clearance CE volume as percentage of full volume (%)
         self.crank_angle_1 = parameters['TDC_crank_angle_1']            # Crank angle (degrees) at which piston in the head end chamber is at top dead center
