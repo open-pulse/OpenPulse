@@ -728,16 +728,20 @@ class ReciprocatingPumpInputs(QDialog):
                             "suction_pressure" : self.P_suction,
                             "temperature_at_discharge" : self.T_discharge,
                             "discharge_pressure" : self.P_discharge,
+                            "bulk_modulus" : self.parameters.get('bulk_modulus', None),
                             "source" : "reciprocating_pump",
                             "check_ideal_gas" : False
                             }
 
         self.hide()
         read = SetFluidInput(state_properties = recip_pump_info)
+        app().main_window.set_input_widget(self)
+
         if not read.complete:
             return
 
         else:
+
             if read.fluid_widget.refprop is not None:
                 if read.fluid_widget.refprop.complete:
                     self.parameters["bulk_modulus"] = round(read.fluid_widget.fluid_data_refprop["adiabatic_bulk_modulus"], 6)

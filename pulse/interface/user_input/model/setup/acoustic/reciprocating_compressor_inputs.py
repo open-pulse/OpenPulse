@@ -833,6 +833,7 @@ class ReciprocatingCompressorInputs(QDialog):
 
         self.hide()
         read = SetFluidInput(state_properties = compressor_info)
+        app().main_window.set_input_widget(self)
 
         if not read.complete:
             return

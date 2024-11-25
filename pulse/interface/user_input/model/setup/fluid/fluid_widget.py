@@ -14,6 +14,7 @@ from pulse.model.properties.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library
 
 from itertools import count
+from numbers import Number
 from os.path import exists
 
 
@@ -297,12 +298,18 @@ class FluidWidget(QWidget):
             pressure = None
             temperature = None
 
+            gamma = None
+            bulk_modulus = None
+
             source = self.state_properties.get("source", None)
             if source is None:
+
                 temperature = self.state_properties.get("temperature", "")
                 pressure = self.state_properties.get("pressure", "")
 
             elif source == "reciprocating_pump":
+                
+                bulk_modulus = self.state_properties.get('bulk_modulus', None)
 
                 if self.state_properties["connection_type"] == "discharge":
                     temperature = self.state_properties["temperature_at_discharge"]
@@ -314,27 +321,36 @@ class FluidWidget(QWidget):
 
             elif source == "reciprocating_compressor":
 
+                gamma = self.state_properties.get('isentropic_exponent', None)
+
                 if self.state_properties["connection_type"] == "discharge":
                     T_suction = self.state_properties["temperature_at_suction"]
                     pressure_ratio = self.state_properties["pressure_ratio"]
                     suction_pressure = self.state_properties["suction_pressure"]
                     pressure = pressure_ratio * suction_pressure
 
-                    gamma = self.state_properties.get('isentropic_exponent', None)
-                    if isinstance(gamma, float):
+                    if isinstance(gamma, Number):
                         temperature = T_suction * (pressure_ratio**((gamma-1)/gamma))
 
                 else:
                     temperature = self.state_properties["temperature_at_suction"]
                     pressure = self.state_properties["suction_pressure"]
 
-            if isinstance(temperature, (float | int)):
+            if isinstance(temperature, Number):
                 self.tableWidget_fluid_data.setItem(2, last_col, QTableWidgetItem(f"{temperature : .6f}"))
                 self.tableWidget_fluid_data.item(2, last_col).setTextAlignment(Qt.AlignCenter)
 
-            if isinstance(pressure, (float | int)):
+            if isinstance(pressure, Number):
                 self.tableWidget_fluid_data.setItem(3, last_col, QTableWidgetItem(f"{pressure : .8e}"))
                 self.tableWidget_fluid_data.item(3, last_col).setTextAlignment(Qt.AlignCenter)
+
+            if isinstance(gamma, Number):
+                self.tableWidget_fluid_data.setItem(6, last_col, QTableWidgetItem(f"{gamma : .6f}"))
+                self.tableWidget_fluid_data.item(6, last_col).setTextAlignment(Qt.AlignCenter)
+
+            if isinstance(bulk_modulus, Number):
+                self.tableWidget_fluid_data.setItem(10, last_col, QTableWidgetItem(f"{bulk_modulus : .8e}"))
+                self.tableWidget_fluid_data.item(6, last_col).setTextAlignment(Qt.AlignCenter)
 
     def remove_selected_column(self):
 
