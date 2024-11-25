@@ -59,17 +59,17 @@
       <property name="spacing">
        <number>4</number>
       </property>
-      <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton_attribute_fluid">
+      <item row="0" column="1">
+       <widget class="QPushButton" name="pushButton_attribute">
         <property name="minimumSize">
          <size>
-          <width>160</width>
+          <width>120</width>
           <height>32</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>160</width>
+          <width>120</width>
           <height>32</height>
          </size>
         </property>
@@ -89,7 +89,44 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Attribute fluid</string>
+         <string>Attribute</string>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="pushButton_cancel">
+        <property name="minimumSize">
+         <size>
+          <width>120</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>120</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Confirm material attribution&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Cancel</string>
         </property>
         <property name="default">
          <bool>true</bool>
@@ -191,6 +228,11 @@
         <row>
          <property name="text">
           <string>Dynamic viscosity [Ns/m²]</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>Bulk modulus [Pa]</string>
          </property>
         </row>
         <row>
@@ -428,7 +470,7 @@
   <tabstop>pushButton_add_column</tabstop>
   <tabstop>pushButton_remove_column</tabstop>
   <tabstop>tableWidget_fluid_data</tabstop>
-  <tabstop>pushButton_attribute_fluid</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
  </tabstops>
  <resources/>
  <connections/>

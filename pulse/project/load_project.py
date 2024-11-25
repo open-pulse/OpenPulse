@@ -50,6 +50,10 @@ class LoadProject:
         #
         self.load_fluids_library()
         self.load_materials_library()
+
+        if self.check_line_properties():
+            return True
+
         self.load_cross_sections_from_file()
         #
         self.load_lines_properties()
@@ -182,6 +186,20 @@ class LoadProject:
                                 )
             
             self.library_materials[identifier] = material
+
+    
+    def check_line_properties(self):
+
+        line_properties = app().pulse_file.read_line_properties_from_file()
+        if line_properties is None:
+            return True
+        elif isinstance(line_properties, dict):
+            if len(line_properties) == 0:
+                return True
+            else:
+                return False
+        else:
+            return False
 
 
     def load_cross_sections_from_file(self):
@@ -807,7 +825,10 @@ class LoadProject:
 
                 if key == "modal_acoustic":
                     act_modal_analysis = True
-                    app().main_window.project.natural_frequencies_acoustic = data["natural_frequencies"]
+                    if np.iscomplexobj(data["natural_frequencies"]):
+                        app().main_window.project.complex_natural_frequencies_acoustic = data["natural_frequencies"]
+                    else:
+                        app().main_window.project.natural_frequencies_acoustic = data["natural_frequencies"]
                     app().main_window.project.acoustic_solution = data["modal_shape"]
 
                 if key == "modal_structural":

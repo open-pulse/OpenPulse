@@ -303,8 +303,11 @@ class AcousticElement:
         kappaLe = kappa_complex * (self.length + length_correction)
         sine = np.sin(kappaLe)
         cossine = np.cos(kappaLe)
-        matrix = ((self.area_fluid*1j/(sine*impedance_complex))*np.array([-cossine, ones, ones, -cossine])).T
+        Zf = impedance_complex / self.area_fluid
 
+        # TODO: check this
+        matrix = ((1j/(Zf*sine))*np.array([-cossine, ones, ones, -cossine])).T
+        
         return matrix
 
     def lrf_thermoviscous_matrix(self, frequencies, length_correction=0):
@@ -419,9 +422,12 @@ class AcousticElement:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2)/4
 
-        Ke = self.area_fluid / (rho*length) * np.array([[1,-1],[-1,1]])
-        Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
-        
+        Ke = (self.area_fluid / (rho*length)) * np.array([[ 1,-1],
+                                                          [-1, 1]], dtype=float)
+
+        Me = (self.area_fluid * length / (6*rho*c**2)) * np.array([[2, 1],
+                                                                   [1, 2]], dtype=float)
+
         return Ke, Me
 
     def fetm_link_matrix(self, frequencies):
@@ -491,7 +497,7 @@ class AcousticElement:
         
         return Ke.flatten(), Me.flatten()
 
-    def get_fetm_damping_data(self, frequencies):
+    def get_fetm_damping_data(self, frequencies: np.ndarray):
         """
         This method returns wavenumber and fluid impedance for the FETM 1D theory according to 
         the element's damping model (element type). The damping models compatible with FETM 1D 
@@ -510,11 +516,15 @@ class AcousticElement:
         z : complex-array
             Complex impedance. This array have the same structure of the frequencies array.
         """
-        omega = 2 * pi * frequencies
+
         c0 = self.speed_of_sound_corrected()
         rho_0 = self.fluid.density
-        kappa_real = omega/c0
+
+        omega = 2 * pi * frequencies
+        kappa_real = omega / c0
+
         radius = self.cross_section.inner_diameter / 2
+
         if self.element_type == 'undamped':
             aux = np.real(kappa_real * radius) > 1.84118
             if np.any(aux):
@@ -833,7 +843,7 @@ class AcousticElement:
         aux_1 = np.r_[aux_1_1, aux_1_2]
         aux_2 = - aux_1 * np.exp( -2j * kr * poly_function(kr))
 
-        return impedance_complex * (1 + aux_2)/(1 - aux_2) +0j
+        return impedance_complex * (1 + aux_2)/(1 - aux_2) + 0j
 
     def flanged_termination_impedance(self, kappa_complex, impedance_complex):
         """
@@ -855,9 +865,9 @@ class AcousticElement:
         """
         radius = self.cross_section.inner_radius
         kr = kappa_complex * radius
-        return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * H1(2*kr)/ kr  ) +0j 
+        return impedance_complex * (1 - jv(1, 2 * kr) / kr  + 1j * H1(2 * kr) / kr  ) + 0j 
 
-    def get_radiation_impedance(self, impedance_type: int, frequencies: np.ndarray) -> (np.ndarray | complex):
+    def get_radiation_impedance(self, impedance_type: int, frequencies: np.ndarray | None) -> (np.ndarray | complex):
 
         """
         This method returns the radiation impedance attributed to the element node termination 
@@ -880,6 +890,8 @@ class AcousticElement:
         array
             Radiation impedance. The array has the same length as frequencies parameter.
         """
+        if frequencies is None:
+            frequencies = np.array([0], dtype=float)
 
         if self.element_type in ['undamped mean flow','peters','howe']:
             k, z, M = self.get_fetm_mean_flow_damping_data(frequencies)
@@ -893,7 +905,6 @@ class AcousticElement:
             kappa_complex, impedance_complex = self.get_fetm_thermoviscous_damping_data(frequencies)
 
         if impedance_type == 0:
-
             return impedance_complex + 0j
 
         elif impedance_type == 1:

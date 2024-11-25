@@ -5,7 +5,7 @@ from pulse.model.line import Line
 from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.model.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.model.structural_element import StructuralElement, NODES_PER_ELEMENT
-from pulse.model.compressor_model import CompressorModel
+from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
 from pulse.model.perforated_plate import PerforatedPlate
 
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
@@ -1739,9 +1739,9 @@ class Preprocessor:
                 list_parameters.append(parameter)
 
         if 'cylinder label' in parameters.keys():
-            CompressorModel(list_parameters, active_cyl=parameters['cylinder label'])
+            ReciprocatingCompressorModel(list_parameters, active_cyl=parameters['cylinder label'])
         else:
-            CompressorModel(list_parameters)
+            ReciprocatingCompressorModel(list_parameters)
 
     def get_gdofs_from_nodes(self, node_id1, node_id2):
         """
@@ -1969,26 +1969,28 @@ class Preprocessor:
             coords.append(list(np.round(coords_1, 5)))
             coords.append(list(np.round(coords_2, 5)))
 
-            if data["element_transfer_data_source"] == "direct_import":
+            if data["element_transfer_data_source"] == "admittance_matrix":
                 a11, a12, a21, a22 = data["values"]
 
             else:
-
-                P_in, Q_in, P_out, Q_out = data["values"]
-                ones = np.ones_like(P_in, dtype=complex)
-                Hf = P_out / P_in
+                H11, H21, H12, H22 = data["values"]
 
                 if output_node_id > input_node_id:
-                    a11 = ones
-                    a12 = -1/Hf
-                    a21 = -Hf
-                    a22 = ones
+
+                    _det = (H11*H22 - H21*H12)
+                    a11 =  H22 / _det
+                    a12 = -H12 / _det
+                    a21 = -H21 / _det
+                    a22 =  H11 / _det
 
                 else:
-                    a11 = -Hf
-                    a12 = ones
-                    a21 = ones
-                    a22 = -1/Hf
+
+                    #TODO: validate this case
+                    _det = (H12*H21 - H11*H22)
+                    a11 =  H12 / _det
+                    a12 = -H22 / _det
+                    a21 = -H11 / _det
+                    a22 =  H21 / _det
 
             Te = np.array([a11, a12, a21, a22], dtype=complex).T
 
@@ -2000,6 +2002,19 @@ class Preprocessor:
                     }
 
             return data
+
+    # Z = Te.reshape(-1,2,2)
+
+    # He = np.array([H11, H12, H21, H22], dtype=complex).T.reshape(-1,2,2)
+    # inv = np.linalg.inv(He)
+
+    # print(f"teste inversa -> {np.max(np.abs(Z - inv))}")
+
+    # q = np.array([1, 0], dtype=float)
+    # rq1 = (H21*q[0] + H22*q[1]) / (H11*q[0] + H12*q[1])               
+    # q = np.array([0, 1], dtype=float)
+    # rq2 = (H21*q[0] + H22*q[1]) / (H11*q[0] + H12*q[1])
+    # print(rq1[:10], rq2[:10])
 
     def process_cross_sections_mapping(self):  
 

@@ -88,7 +88,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         if len(selected_nodes) == 1:
 
             node_id = selected_nodes[0]
-            compressor_data = self.properties._get_property("compressor_excitation", node_ids=node_id)
+            compressor_data = self.properties._get_property("reciprocating_compressor_excitation", node_ids=node_id)
 
             if isinstance(compressor_data, dict):
                 self.pushButton_plot_unfiltered_criteria.setDisabled(False)
@@ -124,7 +124,7 @@ class CheckAPI618PulsationCriteriaInput(QWidget):
         self.lineEdit_speed_of_sound.setText("")
 
     def get_existing_compressor_info(self, node_id: int):
-        comp_data = self.properties._get_property("compressor_excitation", node_ids=node_id)
+        comp_data = self.properties._get_property("reciprocating_compressor_excitation", node_ids=node_id)
         if isinstance(comp_data, dict):
             self.update_compressor_data(comp_data)
 

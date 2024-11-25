@@ -76,21 +76,21 @@ def nodes_info_text() -> str:
         key = ("acoustic_pressure", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            ap_values = data["values"]   
+            ap_values = data["values"][0]
             loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Acoustic pressure", ap_values, "P", "Pa")
 
         key = ("volume_velocity", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            vv_values = data["values"]   
+            vv_values = data["values"][0]
             loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Volume velocity", vv_values, "Q", "m³/s")
 
         key = ("specific_impedance", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            si_values = data["values"]   
+            si_values = data["values"][0]
             loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Specific impedance", si_values, "Zs", "kg/m².s")
 
@@ -101,10 +101,15 @@ def nodes_info_text() -> str:
             labels = ["anechoic termination", "unflanged pipe", "flanged pipe"]
             info_text += _acoustic_format("Radiation impedance", labels[impedance_type], "Type", "")
 
-        key = ("compressor_excitation", node_id)
+        key = ("reciprocating_compressor_excitation", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             info_text += compressor_excitation_info_text(data)
+
+        key = ("reciprocating_pump_excitation", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            info_text += pump_excitation_info_text(data)
 
     return info_text
 
@@ -183,6 +188,7 @@ def lines_info_text() -> str:
         if fluid is not None:
             info_text += fluid_info_text(fluid)
 
+
         properties = app().project.model.properties
         cross_section = properties._get_property("cross_section", line_id=line_id)
         structural_element_type = properties._get_property("structural_element_type", line_id=line_id)
@@ -220,11 +226,13 @@ def fluid_info_text(fluid) -> str:
     if fluid.temperature:
         tree.add_item("Temperature", round(fluid.temperature, 4), "K")
     if fluid.pressure:
-        tree.add_item("Pressure", round(fluid.pressure, 4), "Pa")
+        tree.add_item("Pressure", f"{fluid.pressure : .8e}", "Pa")
     if fluid.density:
         tree.add_item("Density", round(fluid.density, 4), "kg/m³")
     if fluid.speed_of_sound:
         tree.add_item("Speed of sound", round(fluid.speed_of_sound, 4), "m/s")
+    if fluid.bulk_modulus:
+        tree.add_item("Bulk modulus", f"{fluid.bulk_modulus : .8e}", "Pa")
     if fluid.molar_mass:
         tree.add_item("Molar mass", round(fluid.molar_mass, 4), "kg/kmol")
     return str(tree)
@@ -331,7 +339,10 @@ def analysis_info_text(frequency_index: int):
             frequencies = list(project.natural_frequencies_structural)
 
         if project.analysis_type_label == "Acoustic Modal Analysis":
-            frequencies = list(project.natural_frequencies_acoustic)
+            if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
+                frequencies = list(project.complex_natural_frequencies_acoustic)
+            else:
+                frequencies = list(project.natural_frequencies_acoustic)
 
         if frequencies is None:
             return ""
@@ -340,9 +351,18 @@ def analysis_info_text(frequency_index: int):
             return ""
 
         mode = frequency_index + 1
-        frequency = frequencies[frequency_index]
         tree.add_item("Mode", mode)
-        tree.add_item("Natural Frequency", f"{frequency:.2f}", "Hz")
+
+        if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
+            value = frequencies[frequency_index]
+            damping_ratio = -np.real(value) / np.abs(value)
+            damped_frequency = np.abs(value) * np.sqrt(1 - damping_ratio**2)
+            tree.add_item("Damped Natural Frequency", f"{damped_frequency : .4f}", "Hz")
+            tree.add_item("Damping Ratio", f"{damping_ratio : .4e}", "--")
+
+        else:
+            frequency = frequencies[frequency_index]
+            tree.add_item("Natural Frequency", f"{frequency : .4f}", "Hz")
 
     else:
 
@@ -366,6 +386,15 @@ def compressor_excitation_info_text(compressor_data: dict) -> str:
     tree.add_item("Q", "Table of values")
 
     connection_type = compressor_data["connection_type"]
+    tree.add_item("Connection type", connection_type)
+
+    return str(tree)
+
+def pump_excitation_info_text(pump_data: dict) -> str:
+    tree = TreeInfo("Volume velocity due pump excitation")
+    tree.add_item("Q", "Table of values")
+
+    connection_type = pump_data["connection_type"]
     tree.add_item("Connection type", connection_type)
 
     return str(tree)
