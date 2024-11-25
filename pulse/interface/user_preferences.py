@@ -11,7 +11,7 @@ class UserPreferences:
     lines_color: Color = Color("#5A5A5A")
     tubes_color: Color = color_names.WHITE
     renderer_font_color: Color = color_names.WHITE
-    renderer_font_size: int  = 10
+    renderer_font_size: int  = 12
     interface_font_size: int = 10
     show_open_pulse_logo : bool = True
     show_reference_scale_bar: bool = True
@@ -37,7 +37,7 @@ class UserPreferences:
         self.renderer_font_color = color_names.WHITE
 
     def reset_font_size(self):
-        self.renderer_font_size = 10
+        self.renderer_font_size = 12
         self.interface_font_size = 10
     
     def reset_open_pulse_logo(self):

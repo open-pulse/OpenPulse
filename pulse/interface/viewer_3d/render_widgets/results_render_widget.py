@@ -84,6 +84,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.create_scale_bar()
         self.create_logos()
         self.create_color_bar()
+        self.update_renderer_font_size()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
 

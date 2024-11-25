@@ -227,7 +227,7 @@ class RendererUserPreferencesInput(QDialog):
         font = QFont()
         font.setPointSize(self.user_preferences.interface_font_size)
 
-        app().setFont(font, "QWidget")
+        # app().setFont(font, "QWidget")
 
         self.update_open_pulse_logo_state()
         self.update_reference_scale_state()
@@ -302,8 +302,8 @@ class RendererUserPreferencesInput(QDialog):
         
     def update_renderers_font_size(self):
         self.main_window.geometry_widget.update_renderer_font_size()
-        self.main_window.mesh_widget.update_renderer_font_size()
         self.main_window.results_widget.update_renderer_font_size()
+        self.main_window.mesh_widget.update_renderer_font_size()
 
     def load_user_preferences(self):
         self.update_line_edit_renderer_background_color_1()

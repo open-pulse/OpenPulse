@@ -43,6 +43,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.create_axes()
         self.create_logos()
         self.create_scale_bar()
+        self.update_renderer_font_size()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
 
@@ -222,7 +223,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
     
     def update_renderer_font_size(self):
-        user_preferences = app().main_window.config.user_preferences
+        user_preferences = app().main_window.config2.user_preferences
         font_size_px = int(user_preferences.renderer_font_size * 4/3)
 
         info_text_property = self.text_actor.GetTextProperty()

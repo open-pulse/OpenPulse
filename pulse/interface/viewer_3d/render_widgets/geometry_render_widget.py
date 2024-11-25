@@ -34,6 +34,7 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.create_logos()
         self.create_camera_light(0.1, 0.1)
 
+        self.update_renderer_font_size()
         self._create_connections()
         self.update_plot()
     

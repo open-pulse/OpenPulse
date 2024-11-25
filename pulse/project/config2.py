@@ -27,7 +27,7 @@ class Config2:
                 self.user_preferences.tubes_color = Color(*user_preferences["tubes_color"])
                 self.user_preferences.renderer_font_color = Color(*user_preferences["renderer_font_color"])
                 self.user_preferences.renderer_font_size = user_preferences["renderer_font_size"]
-                self.user_preferences.interface_font_size = user_preferences["renderer_font_size"]
+                self.user_preferences.interface_font_size = user_preferences["interface_font_size"]
                 self.user_preferences.show_open_pulse_logo = user_preferences["show_open_pulse_logo"]
                 self.user_preferences.show_reference_scale_bar = user_preferences["show_reference_scale_bar"]
 
@@ -49,5 +49,43 @@ class Config2:
             "show_reference_scale_bar" : self.user_preferences.show_reference_scale_bar
         }
 
+        self.write_data_in_file(data)
+
+    def add_recent_file(self, recent_file: str):
+        data = self.get_config_data()
+
+        recents_files = self.get_recents_files()
+        recents_files.append(recent_file)
+
+        data["recents_files"] = list()
+        for file in recents_files:
+            if file not in data["recents_files"]:
+                data["recents_files"].append(file)
+            else:
+                data["recents_files"].remove(file)
+                data["recents_files"].insert(0, file)
+        self.write_data_in_file(data)
+        
+    def get_recents_files(self) -> list[str]:
+        data = self.get_config_data()
+
+        recents_files = list()
+        if "recents_files" not in data.keys():
+            return recents_files
+        
+        for file in data["recents_files"]:
+            recents_files.append(file)
+        
+        return recents_files
+    
+    def get_most_recent_project(self) -> str:
+        data = self.get_config_data()
+        return data["recents_files"][0]
+    
+    def get_config_data(self) -> dict:
+        with open(self.config_path, "r") as file:
+            return json.load(file)
+    
+    def write_data_in_file(self, data: dict):
         with open(self.config_path, "w") as file:
             json.dump(data, file, indent=2)

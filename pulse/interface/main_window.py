@@ -482,7 +482,7 @@ class MainWindow(QMainWindow):
         self.mesh_toolbar.pushButton_generate_mesh.setDisabled(True)
 
         if self.config.open_last_project and self.config.have_recent_projects():
-            self.open_project(self.config.getMostRecentProjectDir())
+            self.open_project(self.config2.get_most_recent_project())
 
         elif self.get_started():
             self.action_front_view_callback()
@@ -957,6 +957,7 @@ class MainWindow(QMainWindow):
             if project_path is not None:
 
                 app().config.add_recent_file(project_path)
+                app().config2.add_recent_file(str(project_path))
                 app().config.write_last_folder_path_in_file("project folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
 
@@ -1054,6 +1055,7 @@ class MainWindow(QMainWindow):
             logging.info("Saving the project data... [20%]")
             app().pulse_file.write_thumbnail()
             app().config.add_recent_file(path)
+            app().config2.add_recent_file(str(path))
 
             logging.info("Saving the project data... [40%]")
             app().config.write_last_folder_path_in_file("project folder", path)

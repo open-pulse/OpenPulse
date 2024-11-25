@@ -100,7 +100,7 @@ class GetStartedInput(QDialog):
             self.project_buttons[i].setVisible(False)
             self.project_path_labels[i].setVisible(False)
 
-        recents = app().config.get_recent_files()
+        recents = app().config2.get_recents_files()
 
         for i, project_path in enumerate(recents):
             if i <= 4:
