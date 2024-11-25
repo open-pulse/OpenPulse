@@ -375,7 +375,10 @@ class ReciprocatingPumpInputs(QDialog):
         if "pressure_at_suction" in parameters.keys():
             self.lineEdit_suction_pressure.setText(str(parameters["pressure_at_suction"]))
 
-        pressure_units = ["kgf/cm² (a)", "bar (a)", "kgf/cm² (g)", "bar (g)"]
+        if "pressure_at_discharge" in parameters.keys():
+            self.lineEdit_discharge_pressure.setText(str(parameters["pressure_at_discharge"]))
+
+        pressure_units = ["kgf/cm² (a)", "bar (a)", "kPa (a)", "Pa (a)", "kgf/cm² (g)", "bar (g)", "kPa (g)", "Pa (g)"]
         if "pressure_unit" in parameters.keys():
             for i, p_unit in enumerate(pressure_units):
                 if p_unit in parameters["pressure_unit"]:
@@ -383,6 +386,9 @@ class ReciprocatingPumpInputs(QDialog):
 
         if "temperature_at_suction" in parameters.keys():
             self.lineEdit_suction_temperature.setText(str(parameters["temperature_at_suction"]))
+
+        if "temperature_at_discharge" in parameters.keys():
+            self.lineEdit_discharge_temperature.setText(str(parameters["temperature_at_discharge"]))
 
         temperature_units = ["°C", "K"]
         if "temperature_unit" in parameters.keys():

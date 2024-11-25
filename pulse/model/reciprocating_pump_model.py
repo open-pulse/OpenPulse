@@ -133,6 +133,7 @@ class ReciprocatingPumpModel:
     def _load_compressor_parameters(self, parameters: dict):
         """
         """
+
         self.D = parameters['bore_diameter']                            # Cylinder bore diameter [m]
         self.r = parameters['stroke'] / 2                               # Length of compressor full stroke [m]
         self.L = parameters['connecting_rod_length']                    # Connecting rod length [m]
@@ -152,19 +153,27 @@ class ReciprocatingPumpModel:
         self.bulk_modulus = parameters['bulk_modulus']                       # Fluid bulk modulus (isentropic or isothermal)
 
         if "kgf/cm²" in self.pressure_unit:
-            self.p_suc = pressure_at_suction * kgf_cm2_to_Pa
-            self.p_disch = pressure_at_discharge * kgf_cm2_to_Pa
+            self.P_suc = pressure_at_suction * kgf_cm2_to_Pa
+            self.P_discharge = pressure_at_discharge * kgf_cm2_to_Pa
             
         elif "bar" in self.pressure_unit:
-            self.p_suc = pressure_at_suction * bar_to_Pa
-            self.p_disch = pressure_at_discharge * bar_to_Pa
+            self.P_suc = pressure_at_suction * bar_to_Pa
+            self.P_discharge = pressure_at_discharge * bar_to_Pa
+
+        elif "kPa" in self.pressure_unit:
+            self.P_suc = pressure_at_suction * 1e3
+            self.P_discharge = pressure_at_discharge * 1e3
+
+        else:
+            self.P_suc = pressure_at_suction
+            self.P_discharge = pressure_at_discharge
 
         if "(g)" in self.pressure_unit:
-            self.p_suc += 101325
-            self.p_disch += 101325
+            self.P_suc += 101325
+            self.P_discharge += 101325
 
-        self.delta_P = self.p_disch - self.p_suc
-        self.p_ratio = self.p_disch / self.p_suc
+        self.delta_P = self.P_discharge - self.P_suc
+        self.p_ratio = self.P_discharge / self.P_suc
 
         if self.temperature_unit == "°C":
             self.T_suc = temperature_at_suction + 273.15
@@ -399,7 +408,7 @@ class ReciprocatingPumpModel:
 
             if (round(V3, 12) >= round(V_i, 12) >= round(V4, 12)) and (round(v_piston[i], 8) >= 0):  
 
-                P_i = self.p_suc + self.bulk_modulus * (1 - V_i / V3)
+                P_i = self.P_suc + self.bulk_modulus * (1 - V_i / V3)
                 
                 if round(V_i, 12) == round(V4, 12):
                     open_disc[i] = True
@@ -415,7 +424,7 @@ class ReciprocatingPumpModel:
 
             if (round(V4,8) > round(V_i,8) >= round(V1,8)) and (round(v_piston[i],8) >= 0):
 
-                P_i = self.p_disch
+                P_i = self.P_discharge
                 open_disc[i] = True
 
                 pressures[i] = P_i
@@ -430,7 +439,7 @@ class ReciprocatingPumpModel:
 
             if (round(V1, 12) <= round(V_i, 12) <= round(V2, 12)) and (round(v_piston[i], 8) <= 0):
     
-                P_i = self.p_disch + self.bulk_modulus * (1 - V_i / V1)
+                P_i = self.P_discharge + self.bulk_modulus * (1 - V_i / V1)
 
                 if round(V_i, 12) == round(V2, 12):
                     open_suc[i] = True
@@ -445,7 +454,7 @@ class ReciprocatingPumpModel:
             V_i = volumes[i]
 
             if (V2 < round(V_i,8) <= round(V3,8)) and (round(v_piston[i],8) <= 0):
-                P_i = self.p_suc
+                P_i = self.P_suc
                 open_suc[i] = True
 
                 pressures[i] = P_i
@@ -528,7 +537,7 @@ class ReciprocatingPumpModel:
 
             if (round(V3, 12) >= round(V_i, 12) >= round(V4, 12)) and (round(v_piston[i], 8) >= 0):  
 
-                P_i = self.p_suc + self.bulk_modulus * (1 - V_i / V3)
+                P_i = self.P_suc + self.bulk_modulus * (1 - V_i / V3)
                 
                 if round(V_i, 12) == round(V4, 12):
                     open_disc[i] = True
@@ -544,7 +553,7 @@ class ReciprocatingPumpModel:
 
             if (round(V4,8) > round(V_i,8) >= round(V1,8)) and (round(v_piston[i],8) >= 0):
 
-                P_i = self.p_disch
+                P_i = self.P_discharge
                 open_disc[i] = True
 
                 pressures[i] = P_i
@@ -559,7 +568,7 @@ class ReciprocatingPumpModel:
 
             if (round(V1, 12) <= round(V_i, 12) <= round(V2, 12)) and (round(v_piston[i], 8) <= 0):
     
-                P_i = self.p_disch + self.bulk_modulus * (1 - V_i / V1)
+                P_i = self.P_discharge + self.bulk_modulus * (1 - V_i / V1)
 
                 if round(V_i, 12) == round(V2, 12):
                     open_suc[i] = True
@@ -574,7 +583,7 @@ class ReciprocatingPumpModel:
             V_i = volumes[i]
 
             if (V2 < round(V_i,8) <= round(V3,8)) and (round(v_piston[i],8) <= 0):
-                P_i = self.p_suc
+                P_i = self.P_suc
                 open_suc[i] = True
 
                 pressures[i] = P_i
