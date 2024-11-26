@@ -5,16 +5,17 @@ from molde.colors import Color, color_names
 @dataclass
 class UserPreferences:
     interface_theme = "light"
-    renderer_background_color_1: Color = color_names.WHITE
-    renderer_background_color_2: Color = color_names.WHITE
+    renderer_background_color_1: Color =  Color("#8092A6")
+    renderer_background_color_2: Color = Color("#EEF2F3")
     nodes_points_color: Color = Color("#FFB432")
     lines_color: Color = Color("#5A5A5A")
     tubes_color: Color = color_names.WHITE
-    renderer_font_color: Color = color_names.WHITE
+    renderer_font_color: Color = color_names.BLACK
     renderer_font_size: int  = 12
     interface_font_size: int = 10
     show_open_pulse_logo : bool = True
     show_reference_scale_bar: bool = True
+    color_map = "jet"
 
     def set_light_theme(self):
         self.interface_theme = "light"

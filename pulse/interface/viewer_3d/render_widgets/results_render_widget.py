@@ -78,8 +78,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.mouse_click = (0, 0)
 
         self.analysis_mode = AnalysisMode.EMPTY
-        self.colormap = "viridis"
-
+        self.colormap = app().config2.user_preferences.color_map
         self.create_axes()
         self.create_scale_bar()
         self.create_logos()
@@ -195,8 +194,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.set_tube_actors_transparency(self.transparency)
 
     def set_colormap(self, colormap):
+        app().config2.user_preferences.color_map = colormap
         self.colormap = colormap
         self.update_plot()
+
+        app().config2.update_config_file()
 
     def cache_animation_frames(self):
         self._animation_current_frequency = self.current_frequency_index

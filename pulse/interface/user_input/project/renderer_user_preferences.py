@@ -216,7 +216,7 @@ class RendererUserPreferencesInput(QDialog):
         if self.interface_font_size is not None:
             self.user_preferences.interface_font_size = self.interface_font_size
 
-        self.config2.write_config_file()
+        self.config2.update_config_file()
         self.update_settings()
 
     def confirm_and_update_user_preferences(self):

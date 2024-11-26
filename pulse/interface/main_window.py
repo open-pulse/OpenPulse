@@ -831,14 +831,14 @@ class MainWindow(QMainWindow):
     def action_set_dark_theme_callback(self):
         self.config2.user_preferences.set_dark_theme()
         self.set_theme()
-        app().config2.write_config_file()
+        app().config2.update_config_file()
 
         self.update_plots()
 
     def action_set_light_theme_callback(self):
         self.config2.user_preferences.set_light_theme()
         self.set_theme()
-        app().config2.write_config_file()
+        app().config2.update_config_file()
         
         self.update_plots()
 
