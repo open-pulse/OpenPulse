@@ -95,8 +95,6 @@ class SetFluidCompositionInput(QDialog):
         # QComboBox
         self.comboBox_temperature_units : QComboBox
         self.comboBox_pressure_units : QComboBox
-        self.comboBox_temperature_units_test : QComboBox
-        self.comboBox_pressure_units_test : QComboBox
 
         # QLabel
         self.label_selected_fluid : QLabel
@@ -756,24 +754,27 @@ class SetFluidCompositionInput(QDialog):
         if _pressure_value is None:
             return None
 
-        pu_index = self.comboBox_pressure_units.currentIndex()
-        if pu_index == 1: # kPa
+        pressure_unit = self.comboBox_pressure_units.currentText()
+        if "kPa" in pressure_unit:
             _pressure_value *= 1e3
 
-        elif pu_index == 2: # atm
+        elif "atm" in pressure_unit:
             _pressure_value *= 101325
 
-        elif pu_index == 3: # bar
+        elif "bar" in pressure_unit:
             _pressure_value *= 1e5
 
-        elif pu_index == 4: # kgf/cm²
+        elif "kgf/cm²" in pressure_unit:
             _pressure_value *= 9.80665e4
 
-        elif pu_index == 5: # psi
+        elif "psi" in pressure_unit:
             _pressure_value *= 6.89475729e3
 
-        elif pu_index == 6: # ksi
+        elif "ksi" in pressure_unit:
             _pressure_value *= 6.89475729e6
+
+        if "(g)" in pressure_unit:
+            _pressure_value += 101325
 
         if _pressure_value < 0:
             title = "Invalid entry to the pressure"

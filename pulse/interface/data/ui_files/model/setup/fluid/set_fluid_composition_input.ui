@@ -493,37 +493,72 @@
               </property>
               <item>
                <property name="text">
-                <string> Pa</string>
+                <string> Pa (a)</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string> kPa</string>
+                <string> kPa (a)</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string> atm</string>
+                <string> atm (a)</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string> bar</string>
+                <string> bar (a)</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string> kgf/cm²</string>
+                <string> kgf/cm² (a)</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string> psi</string>
+                <string> psi (a)</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string> ksi</string>
+                <string> ksi (a)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string> Pa (g)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string> kPa (g)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string> atm (g)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string> bar (g)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string> kgf/cm² (g)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string> psi (g)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string> ksi (g)</string>
                </property>
               </item>
              </widget>
