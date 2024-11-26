@@ -51,11 +51,11 @@ class Config2:
 
         self.write_data_in_file(data)
 
-    def add_recent_file(self, recent_file: str):
+    def add_recent_file(self, recent_file: str | Path):
         data = self.get_config_data()
 
-        recents_files = self.get_recents_files()
-        recents_files.append(recent_file)
+        recents_files = [str(file) for file in self.get_recents_files()]
+        recents_files.append(str(recent_file))
 
         data["recents_files"] = list()
         for file in recents_files:
@@ -66,7 +66,7 @@ class Config2:
                 data["recents_files"].insert(0, file)
         self.write_data_in_file(data)
         
-    def get_recents_files(self) -> list[str]:
+    def get_recents_files(self) -> list[Path]:
         data = self.get_config_data()
 
         recents_files = list()
@@ -74,14 +74,42 @@ class Config2:
             return recents_files
         
         for file in data["recents_files"]:
-            recents_files.append(file)
+            recents_files.append(Path(file))
         
         return recents_files
     
     def get_most_recent_project(self) -> str:
         data = self.get_config_data()
         return data["recents_files"][0]
+
+    def write_last_folder_path_in_file(self, label: str, file_path: str):
+        data = self.get_config_data()
+        path = str(Path(file_path).parent)
+
+        key = f"last_{label}"
+        if "last_paths" in data.keys():
+            data["last_paths"][key] = path
+        else:
+            data["last_paths"] = {key : path}
+        
+        self.write_data_in_file(data)
+
+        
+    def get_last_folder_for(self, label: str) -> str | None:
+        data = self.get_config_data()
+
+        if "last_paths" in data.keys():
+            key = f"last_{label}"
+            return data["last_paths"].get(key)
+        
+        return None
     
+    def write_refprop_path_in_file(self, path: str):
+        pass
+
+    def get_refprop_path_from_file(self):
+        pass
+
     def get_config_data(self) -> dict:
         with open(self.config_path, "r") as file:
             return json.load(file)
