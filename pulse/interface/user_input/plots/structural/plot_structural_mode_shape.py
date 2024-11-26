@@ -108,8 +108,7 @@ class PlotStructuralModeShape(QWidget):
 
     def load_user_preference_colormap(self):
         try:
-            app().main_window.load_user_preferences()
-            colormap = app().main_window.user_preferences["colormap"]
+            colormap = app().config2.user_preferences.color_map
             if colormap in self.colormaps:
                 index = self.colormaps.index(colormap)
                 self.comboBox_colormaps.setCurrentIndex(index)

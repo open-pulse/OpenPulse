@@ -86,6 +86,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.update_renderer_font_size()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
+        self.update_plot()
 
     def _create_connections(self):
         self.left_clicked.connect(self.click_callback)
@@ -194,11 +195,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.set_tube_actors_transparency(self.transparency)
 
     def set_colormap(self, colormap):
-        app().config2.user_preferences.color_map = colormap
         self.colormap = colormap
-        self.update_plot()
-
+        app().config2.user_preferences.color_map = colormap
         app().config2.update_config_file()
+        self.update_plot()    
 
     def cache_animation_frames(self):
         self._animation_current_frequency = self.current_frequency_index
