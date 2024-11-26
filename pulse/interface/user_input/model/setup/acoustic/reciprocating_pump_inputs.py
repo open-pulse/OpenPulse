@@ -7,6 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
 from pulse.interface.user_input.model.setup.acoustic.pulsation_damper_calculator_inputs import PulsationDamperCalculatorInputs
+from pulse.interface.user_input.plots.general.xy_plot import XYPlot
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
@@ -115,8 +116,9 @@ class ReciprocatingPumpInputs(QDialog):
         self.pushButton_plot_volume_head_end_angle: QPushButton
         self.pushButton_plot_pressure_crank_end_angle: QPushButton
         self.pushButton_plot_volume_crank_end_angle: QPushButton
-        self.pushButton_process_aquisition_parameters: QPushButton
         self.pushButton_process_fluctuating_volume: QPushButton
+        self.pushButton_process_aquisition_parameters: QPushButton
+        self.pushButton_plot_fluctuating_volume: QPushButton
         self.pushButton_pulsation_damper_calculator: QPushButton
         self.pushButton_cancel: QPushButton
         self.pushButton_confirm: QPushButton
@@ -165,6 +167,7 @@ class ReciprocatingPumpInputs(QDialog):
         self.pushButton_plot_volume_head_end_angle.clicked.connect(self.plot_volume_head_end_angle)
         self.pushButton_plot_pressure_crank_end_angle.clicked.connect(self.plot_pressure_crank_end_angle)
         self.pushButton_plot_volume_crank_end_angle.clicked.connect(self.plot_volume_crank_end_angle)
+        self.pushButton_plot_fluctuating_volume.clicked.connect(self.plot_integral_fluctuating_volume)
         self.pushButton_process_aquisition_parameters.clicked.connect(self.process_aquisition_parameters)
         self.pushButton_process_fluctuating_volume.clicked.connect(self.process_fluctuating_volume)
         self.pushButton_pulsation_damper_calculator.clicked.connect(self.pulsation_damper_calculator_callback)
@@ -898,13 +901,20 @@ class ReciprocatingPumpInputs(QDialog):
         app().main_window.set_input_widget(self)
 
     def process_fluctuating_volume(self):
+
         if self.check_all_parameters():
             return
-        N = self.spinBox_number_of_points.value()
-        self.pump_model.number_points = N
-        fluctuating_volume = self.pump_model.get_pump_fluctuating_volume()
+
+        if self.comboBox_connection_type.currentIndex() == 0:
+            flow_label = "in_flow"
+        else:
+            flow_label = "out_flow"
+
+        self.pump_model.number_points = self.spinBox_number_of_points.value()
+        fluctuating_volume, _ = self.pump_model.get_pump_fluctuating_volume(flow_label)
         str_fluctuating_volume = f"{fluctuating_volume : 0.8e}"
         self.lineEdit_fluctuating_volume.setText(str_fluctuating_volume)
+
         return fluctuating_volume
 
     def spinBox_event_number_of_points(self):
@@ -922,12 +932,54 @@ class ReciprocatingPumpInputs(QDialog):
         if self.aquisition_parameters_processed:
             self.process_aquisition_parameters()
 
+    def initialize_xy_plotter(self):
+
+
+        legends = [f'Target: {self.target*100}%', "Pressure residues", "Delta pressure residues"]
+
+
+
+        # self.xy_plot.show()
+
     def plot_PV_diagram_head_end(self):
+
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
+
         self.pump_model.plot_PV_diagram_head_end()
+
+        #TODO: check axes limits
+        # volume_HE, pressure_HE, _ = self.pump_model.process_head_end_volumes_and_pressures()
+
+        # if volume_HE is None:
+        #     return
+
+        # if self.pump_model.pressure_unit == "kgf/cm²":
+        #     pressure_HE /= kgf_cm2_to_Pa
+        # else:
+        #     pressure_HE /= bar_to_Pa
+
+        # x_label = "Volume [m³]"
+        # y_label = f"Pressure [{self.pump_model.pressure_unit}]"
+        # title = "P-V diagram (head end)"
+
+        # plots_config = {
+        #                 "number_of_plots" : 1,
+        #                 "x_label" : x_label,
+        #                 "y_label" : y_label,
+        #                 "colors" : [(0,0,0), (0,0,1), (1,0,0)],
+        #                 "line_styles" : ["--", "-", "-"],
+        #                 "markers" : [None, "o", "o"],
+        #                 "legends" : ["head end"],
+        #                 "title" : title
+        #                 }
+
+        # self.xy_plot = XYPlot(plots_config, dialog=self)
+        # self.xy_plot.set_plot_data(volume_HE, pressure_HE, 0, "auto")
+        # self.xy_plot.show()
 
     def plot_PV_diagram_crank_end(self):
         if self.check_all_parameters():
@@ -1034,7 +1086,24 @@ class ReciprocatingPumpInputs(QDialog):
         self.pump_model.number_points = N
         self.pump_model.plot_crank_end_volume_vs_angle()
         return
+    
+    def plot_integral_fluctuating_volume(self):
 
+        if self.check_all_parameters():
+            return
+
+        N = self.spinBox_number_of_points.value()
+        self.pump_model.number_points = N
+
+        if self.comboBox_connection_type.currentIndex() == 0:
+            flow_label = "in_flow"
+        else:
+            flow_label = "out_flow"
+
+        self.pump_model.plot_fluctuating_volume(flow_label)
+
+        return
+    
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()

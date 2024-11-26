@@ -53,7 +53,6 @@ from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response 
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunction
 from pulse.interface.user_input.plots.acoustic.plot_transmission_loss import PlotTransmissionLoss
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure import PlotAcousticDeltaPressure
-from pulse.interface.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from pulse.interface.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
 from pulse.interface.user_input.project.render.renderer_user_preferences import RendererUserPreferencesInput
@@ -320,10 +319,6 @@ class InputUi:
                 return None
             else:
                 return self.process_input(PlotTransmissionLoss)
-
-    def plot_perforated_plate_convergence_data(self):
-        if self.project.perforated_plate_data_log:
-            self.process_input(PlotPerforatedPlateConvergenceData)
     
     def check_api618_pulsation_criteria(self):
         return self.process_input(CheckAPI618PulsationCriteriaInput)

@@ -23,16 +23,18 @@ def plot(x, y, x_label, y_label, title, label="", _absolute=False):
 
     plt().ion()
 
-    fig = plt().figure(figsize=[8,6])
+    fig = plt().figure(figsize=[10, 6])
     ax_ = fig.add_subplot(1,1,1)
 
     if _absolute:
         y = np.abs(y)
 
-    ax_.plot(x, y, color=[1,0,0], linewidth = 2, label = label)
-    ax_.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_title(title, fontsize = 12, fontweight = 'bold')
+    ax_.plot(x, y, color=[0,0,1], linewidth = 1, label = label)
+
+    ax_.set_xlabel(x_label, fontsize = 11)#, fontweight = 'bold')
+    ax_.set_ylabel(y_label, fontsize = 11)#, fontweight = 'bold')
+    ax_.set_title(title, fontsize = 12)#, fontweight = 'bold')
+
     plt().grid()
     plt().show() 
 
@@ -40,15 +42,16 @@ def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):
 
     plt().ion()
 
-    fig = plt().figure(figsize=[8,6])
+    fig = plt().figure(figsize=[10, 6])
     ax_ = fig.add_subplot(1,1,1)
 
     for i, label in enumerate(labels): 
-        ax_.plot(x[i], y[i], color=colors[i], linewidth=2, linestyle=linestyles[i], label=label)
-    
-    ax_.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_title(title, fontsize = 12, fontweight = 'bold')
+        ax_.plot(x[i], y[i], color=colors[i], linewidth=1, linestyle=linestyles[i], label=label)
+
+    ax_.set_xlabel(x_label, fontsize = 11)#, fontweight = 'bold')
+    ax_.set_ylabel(y_label, fontsize = 11)#, fontweight = 'bold')
+    ax_.set_title(title, fontsize = 12)#, fontweight = 'bold')
+
     plt().legend()
     plt().grid()
     plt().show() 
@@ -56,7 +59,7 @@ def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):
 def plot_2_yaxis(data_to_plot, title):
 
     plt().ion()
-    fig = plt().figure(figsize=[8,6])
+    fig = plt().figure(figsize=[10, 6])
     ax_1 = fig.add_subplot(1,1,1)
     ax_2 = ax_1.twinx()
     
@@ -84,17 +87,17 @@ def plot_2_yaxis(data_to_plot, title):
             if "linestyle" in data.keys():
                 linestyle = data["linestyle"]
 
-            ax_1.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
+            ax_1.set_xlabel(x_label, fontsize = 11)#, fontweight = 'bold')
             plots = []
             legends = []
             if axis_ == "left":
                 plot_1, = ax_1.plot(x_data, y_data, color=color, linewidth=linewidth, linestyle=linestyle, label=legend_label)
-                ax_1.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
+                ax_1.set_ylabel(y_label, fontsize = 11)#, fontweight = 'bold')
                 plots.append(plot_1)
                 legends.append(legend_label)
             else:
                 plot_2, = ax_2.plot(x_data, y_data, color=color, linewidth=linewidth, linestyle=linestyle, label=legend_label)
-                ax_2.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
+                ax_2.set_ylabel(y_label, fontsize = 11)#, fontweight = 'bold')
                 plots.append(plot_2)
                 legends.append(legend_label)
 
@@ -696,24 +699,27 @@ class ReciprocatingPumpModel:
 
         return output_data
     
-    def get_pump_fluctuating_volume(self):
+    def get_pump_fluctuating_volume(self, flow_label: str):
 
-        flow_rate = self.process_sum_of_volumetric_flow_rate('out_flow')
+        flow_rate = self.process_sum_of_volumetric_flow_rate(flow_label)
         if flow_rate is None:
             return
 
         f_rot = self.rpm / 60
         N = self.number_points
 
-        V_pos = flow_rate - np.average(flow_rate)
-        mask = V_pos <= 0
-        V_pos[mask] = np.zeros(sum(mask), dtype=float)
-        dt = 1/ (f_rot * (N - 1))
+        pos_flow = flow_rate - np.average(flow_rate)
+        if flow_label == "in_flow":
+            pos_flow *= -1
+
+        mask = pos_flow <= 0
+        pos_flow[mask] = np.zeros(sum(mask), dtype=float)
+        dt = 1 / (f_rot * (N - 1))
 
         # fluctuating volume per piston / plunger in one cycle
-        dV = np.trapz(V_pos, dx=dt) / self.number_of_cylinders
+        dV = np.trapz(pos_flow, dx=dt) / self.number_of_cylinders
 
-        return dV
+        return dV, pos_flow
 
     def mass_flow_crank_end(self):
         vf = self.flow_crank_end()
@@ -926,7 +932,7 @@ class ReciprocatingPumpModel:
         y_data = [pressure_HE, pressure_CE]
         labels = ["Head End", "Crank End"]
         title = "PRESSURES vs TIME PLOT"
-        colors = [(1,0,0),(0,0,1)]
+        colors = [(1,0,0), (0,0,1)]
         linestyles = ["-","--"]
 
         plot2(x_data, y_data, x_label, y_label, title, labels, colors, linestyles)
@@ -946,7 +952,7 @@ class ReciprocatingPumpModel:
         y_data = [volume_HE, volume_CE]
         labels = ["Head End", "Crank End"]
         title = "PRESSURES vs TIME PLOT"
-        colors = [(1,0,0),(0,0,1)]
+        colors = [(1,0,0), (0,0,1)]
         linestyles = ["-","--"]
 
         plot2(x_data, y_data, x_label, y_label, title, labels, colors, linestyles)
@@ -980,7 +986,7 @@ class ReciprocatingPumpModel:
         avg_flow_rate = np.average(flow_rate)
         print(f"Average flow rate at discharge: {round(avg_flow_rate, 6)} [m³/h]")
 
-        Trev = 60/self.rpm
+        Trev = 60 / self.rpm
         N = len(flow_rate)
 
         time = np.linspace(0, Trev, N)
@@ -990,6 +996,42 @@ class ReciprocatingPumpModel:
         y_label = "Volume [m³/s]"
         title = "Volumetric flow rate at discharge"
         plot(time, flow_rate, x_label, y_label, title)
+
+    def plot_fluctuating_volume(self, flow_label: str):
+
+        flow_rate = self.process_sum_of_volumetric_flow_rate(flow_label)
+        if flow_rate is None:
+            return
+
+        T_rev = 60 / self.rpm
+        N = len(flow_rate)
+        dt = T_rev / (N - 1)
+        time = np.linspace(0, T_rev, N)
+
+        pos_dV = flow_rate - np.average(flow_rate)
+
+        if flow_label == "in_flow":
+            pos_dV *= -1
+
+        mask = pos_dV <= 0
+        pos_dV[mask] = np.zeros(sum(mask), dtype=float)
+
+        # fluctuating volume per piston / plunger in one cycle
+        
+        dV = np.trapz(pos_dV, dx=dt) / self.number_of_cylinders
+
+        if flow_label == "in_flow":
+            pos_dV *= -1
+
+        x_label = "Time [s]"
+        y_label = "Fluctuating volume [m³]"
+
+        if flow_label == "out_flow":
+            title = f"Pump fluctuating volume at discharge"# - dV = {dV : .6e} m³"
+        else:
+            title = f"Pump fluctuating volume at suction"# - dV = {dV : .6e} m³"
+
+        plot(time, pos_dV, x_label, y_label, title)
 
     def plot_rod_pressure_load_frequency(self, revolutions):
 

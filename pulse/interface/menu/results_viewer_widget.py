@@ -143,8 +143,6 @@ class ResultsViewerWidget(QWidget):
 
     def plot_perforated_plate_convergence_data(self):
         app().project.acoustic_solver.xy_plot.show()
-        # widget = app().main_window.input_ui.plot_perforated_plate_convergence_data()
-        # self.add_widget(widget)
 
     def add_pulsation_criteria_widget(self):
         self.configure_render_according_to_plot_type("nodes")
