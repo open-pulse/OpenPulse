@@ -284,7 +284,6 @@ class Config:
 
     def write_last_folder_path_in_file(self, label : str, file_path : str):
         try:
-
             _path = os.path.dirname(file_path)
             config = configparser.ConfigParser()
             config.read(self.config_path)

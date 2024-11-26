@@ -321,7 +321,7 @@ class MainWindow(QMainWindow):
 
     def export_geometry(self):
 
-        last_path = app().config.get_last_folder_for("exported geometry folder")
+        last_path = app().config2.get_last_folder_for("exported_geometry_folder")
         if last_path is None:
             last_path = str(Path().home())
 
@@ -482,10 +482,7 @@ class MainWindow(QMainWindow):
         # t0 = time()
         self.mesh_toolbar.pushButton_generate_mesh.setDisabled(True)
 
-        if self.config.open_last_project and self.config.have_recent_projects():
-            self.open_project(self.config2.get_most_recent_project())
-
-        elif self.get_started():
+        if self.get_started():
             self.action_front_view_callback()
             # self._update_recent_projects()
 
@@ -501,7 +498,7 @@ class MainWindow(QMainWindow):
             self.menu_recent.removeAction(action)
 
         self.menu_actions = list()
-        for path in reversed(self.config.get_recent_files()):
+        for path in reversed(self.config2.get_recents_files()):
             if not path.exists():
                 continue
     
@@ -889,7 +886,7 @@ class MainWindow(QMainWindow):
 
     def savePNG_call(self):
 
-        last_path = app().config.get_last_folder_for("exported image folder")
+        last_path = app().config2.get_last_folder_for("exported_image_folder")
         if last_path is None:
             last_path = str(Path().home())
 
@@ -960,9 +957,9 @@ class MainWindow(QMainWindow):
 
             if project_path is not None:
 
-                app().config.add_recent_file(project_path)
-                app().config2.add_recent_file(str(project_path))
-                app().config.write_last_folder_path_in_file("project folder", project_path)
+                # app().config.add_recent_file(project_path)
+                app().config2.add_recent_file(project_path)
+                app().config2.write_last_folder_path_in_file("project_folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
 
                 if app().loader.check_file_version():
@@ -994,7 +991,8 @@ class MainWindow(QMainWindow):
 
     def open_project_dialog(self):
 
-        last_path = app().config.get_last_folder_for("project folder")
+        last_path = app().config2.get_last_folder_for("project_folder")
+    
         if last_path is None:
             last_path = str(Path().home())
 
@@ -1020,7 +1018,7 @@ class MainWindow(QMainWindow):
         obj = SaveProjectDataSelector()
         if obj.complete:
 
-            last_path = app().config.get_last_folder_for("project folder")
+            last_path = app().config2.get_last_folder_for("project_folder")
             if last_path is None:
                 last_path = str(Path.home())
 
@@ -1058,11 +1056,11 @@ class MainWindow(QMainWindow):
 
             logging.info("Saving the project data... [20%]")
             app().pulse_file.write_thumbnail()
-            app().config.add_recent_file(path)
-            app().config2.add_recent_file(str(path))
+            # app().config.add_recent_file(path)
+            app().config2.add_recent_file(path)
 
             logging.info("Saving the project data... [40%]")
-            app().config.write_last_folder_path_in_file("project folder", path)
+            app().config2.write_last_folder_path_in_file("project_folder", path)
 
             logging.info("Saving the project data... [75%]")
             # self.project_menu.update_recents_menu()

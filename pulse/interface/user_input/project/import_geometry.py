@@ -29,7 +29,7 @@ class ImportGeometry():
 
     def import_geometry(self):
 
-        last_path = app().config.get_last_folder_for("geometry folder")
+        last_path = app().config2.get_last_folder_for("geometry_folder")
         if last_path is None:
             last_path = str(Path().home())
 
@@ -41,8 +41,8 @@ class ImportGeometry():
 
         if not check:
             return
-        
-        app().main_window.config.write_last_folder_path_in_file("geometry folder", geometry_path)
+
+        app().main_window.config2.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
         filename = os.path.basename(geometry_path)
         app().pulse_file.modify_project_attributes(import_type = 0, geometry_filename = filename)

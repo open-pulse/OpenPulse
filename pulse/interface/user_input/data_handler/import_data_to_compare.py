@@ -101,7 +101,7 @@ class ImportDataToCompare(QDialog):
 
     def choose_path_to_import_results(self):
 
-        path = app().config.get_last_folder_for("imported data folder")
+        path = app().config2.get_last_folder_for("imported_data_folder")
         if path is None:
             folder_path = os.path.expanduser("~")
         else:
@@ -115,7 +115,7 @@ class ImportDataToCompare(QDialog):
         if not check:
             return
 
-        app().config.write_last_folder_path_in_file("imported data folder", imported_path)
+        app().config2.write_last_folder_path_in_file("imported_data_folder", imported_path)
 
         self.import_name = os.path.basename(imported_path)
         self.lineEdit_import_results_path.setText(imported_path)
