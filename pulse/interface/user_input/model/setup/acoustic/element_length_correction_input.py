@@ -264,10 +264,10 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
     def actions_to_finalize(self):
         app().pulse_file.write_element_properties_in_file()
-        app().main_window.update_plots()
-        self.lineEdit_element_id.setText("")
+        app().main_window.set_selection()
         self.load_elements_info()
-        # self.close()
+        self.lineEdit_element_id.setText("")
+        self.pushButton_cancel.setText("Exit")
 
     def maps_correction_type_to_elements(self):
 
