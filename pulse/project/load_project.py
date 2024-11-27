@@ -562,6 +562,19 @@ class LoadProject:
         return psd_lines
 
 
+    def get_pulsation_damper_related_lines(self):
+
+        pulsation_damper_lines = defaultdict(list)
+        for line_id, data in self.properties.line_properties.items():
+
+            data: dict
+            if "pulsation_damper_name" in data.keys():
+                pulsation_damper_name = data["pulsation_damper_name"]
+                pulsation_damper_lines[pulsation_damper_name].append(line_id)
+
+        return pulsation_damper_lines
+
+
     def get_cross_sections_from_file(self):
         """ This method returns a dictionary of already applied cross-sections.
         """
