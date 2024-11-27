@@ -32,7 +32,7 @@ class Config2:
                 self.user_preferences.show_reference_scale_bar = user_preferences["show_reference_scale_bar"]
                 self.user_preferences.color_map = user_preferences["color_map"]
 
-        except FileNotFoundError:
+        except:
             self._write_config_file()
     
     def _write_config_file(self):
