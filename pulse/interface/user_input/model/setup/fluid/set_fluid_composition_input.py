@@ -926,7 +926,7 @@ class SetFluidCompositionInput(QDialog):
 
         if refProp_path is None:
             try:
-                refProp_path = app().config.get_refprop_path_from_file()
+                refProp_path = app().config2.get_refprop_path_from_file()
             except:
                 pass
 
@@ -943,7 +943,7 @@ class SetFluidCompositionInput(QDialog):
             if os.path.exists(folder_path):
 
                 if os.path.basename(folder_path) in ["REFPROP", "Refprop", "refprop"]:
-                    app().config.write_refprop_path_in_file(folder_path)
+                    app().config2.write_refprop_path_in_file(folder_path)
                     refProp_path = folder_path
 
                 else:

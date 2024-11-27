@@ -13,6 +13,7 @@ class Config2:
         self.user_preferences = UserPreferences()
 
         self.load_config_file()
+        self.write_refprop_path_in_file("sapooooooooooooooooooooo")
 
     def load_config_file(self):
         try:
@@ -113,7 +114,6 @@ class Config2:
             data["last_paths"] = {key : path}
         
         self.write_data_in_file(data)
-
         
     def get_last_folder_for(self, label: str) -> str | None:
         data = self.get_config_data()
@@ -125,10 +125,18 @@ class Config2:
         return None
     
     def write_refprop_path_in_file(self, path: str):
-        pass
+        data = self.get_config_data()
+        data["refprop_path"] = path
 
-    def get_refprop_path_from_file(self):
-        pass
+        self.write_data_in_file(data)
+
+    def get_refprop_path_from_file(self) -> str | None:
+        data = self.get_config_data()
+
+        if "refprop_path" in data.keys():
+            return data["refprop_path"]
+    
+        return None
 
     def get_config_data(self) -> dict:
         with open(self.config_path, "r") as file:
