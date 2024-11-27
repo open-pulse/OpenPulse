@@ -65,10 +65,10 @@ class ReciprocatingPumpInputs(QDialog):
         # QComboBox
         self.comboBox_connection_type: QComboBox
         self.comboBox_cylinder_acting: QComboBox
+        self.comboBox_fluid_data_source: QComboBox
         self.comboBox_frequency_resolution: QComboBox
         self.comboBox_pressure_units: QComboBox
         self.comboBox_temperature_units: QComboBox
-        self.comboBox_fluid_data_source: QComboBox
 
         # QLabel
         self.label_molar_mass: QLabel

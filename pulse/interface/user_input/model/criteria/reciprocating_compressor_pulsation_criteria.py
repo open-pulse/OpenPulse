@@ -16,7 +16,7 @@ window_title_2 = "Warning"
 psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
 
-class CheckAPI618PulsationCriteriaInput(QWidget):
+class ReciprocatingCompressorPulsationCriteriaInput(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

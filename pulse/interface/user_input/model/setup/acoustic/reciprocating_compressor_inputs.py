@@ -64,11 +64,11 @@ class ReciprocatingCompressorInputs(QDialog):
         # QComboBox
         self.comboBox_connection_type: QComboBox
         self.comboBox_cylinder_acting: QComboBox
+        self.comboBox_fluid_data_source: QComboBox
         self.comboBox_frequency_resolution: QComboBox
         self.comboBox_stage: QComboBox
-        self.comboBox_pressure_unit: QComboBox
-        self.comboBox_temperature_unit: QComboBox
-        self.comboBox_fluid_data_source: QComboBox
+        self.comboBox_pressure_units: QComboBox
+        self.comboBox_temperature_units: QComboBox
 
         # QLabel
         self.label_molar_mass: QLabel
@@ -151,8 +151,8 @@ class ReciprocatingCompressorInputs(QDialog):
         self.comboBox_fluid_data_source.currentIndexChanged.connect(self.fluid_data_source_callback)
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
         self.comboBox_stage.currentIndexChanged.connect(self.comboBox_event_stage)
-        self.comboBox_pressure_unit.currentIndexChanged.connect(self.pressure_unit_callback)
-        self.comboBox_temperature_unit.currentIndexChanged.connect(self.temperature_unit_callback)
+        self.comboBox_pressure_units.currentIndexChanged.connect(self.pressure_unit_callback)
+        self.comboBox_temperature_units.currentIndexChanged.connect(self.temperature_unit_callback)
         #
         self.lineEdit_isentropic_exponent.textChanged.connect(self.update_state_properties_at_discharge)
         self.lineEdit_pressure_at_suction.textChanged.connect(self.update_state_properties_at_discharge)
@@ -422,7 +422,7 @@ class ReciprocatingCompressorInputs(QDialog):
         if "pressure_unit" in parameters.keys():
             for i, p_unit in enumerate(pressure_units):
                 if p_unit in parameters["pressure_unit"]:
-                    self.comboBox_pressure_unit.setCurrentIndex(i)
+                    self.comboBox_pressure_units.setCurrentIndex(i)
 
         if "temperature_at_suction" in parameters.keys():
             self.lineEdit_temperature_at_suction.setText(str(parameters["temperature_at_suction"]))
@@ -431,7 +431,7 @@ class ReciprocatingCompressorInputs(QDialog):
         if "temperature_unit" in parameters.keys():
             for i, p_unit in enumerate(temperature_units):
                 if p_unit in parameters["temperature_unit"]:
-                    self.comboBox_temperature_unit.setCurrentIndex(i)
+                    self.comboBox_temperature_units.setCurrentIndex(i)
 
         if "acting_label" in parameters.keys():
             acting_labels = ["both_ends", "crank_end", "head_end"]
@@ -462,8 +462,8 @@ class ReciprocatingCompressorInputs(QDialog):
     def reset_entries(self):
         self.comboBox_cylinder_acting.setCurrentIndex(0)
         self.comboBox_stage.setCurrentIndex(0)
-        self.comboBox_pressure_unit.setCurrentIndex(0)
-        self.comboBox_temperature_unit.setCurrentIndex(1)
+        self.comboBox_pressure_units.setCurrentIndex(0)
+        self.comboBox_temperature_units.setCurrentIndex(1)
         self.lineEdit_bore_diameter.setText("")
         self.lineEdit_stroke.setText("")
         self.lineEdit_connecting_rod_length.setText("")
@@ -633,7 +633,7 @@ class ReciprocatingCompressorInputs(QDialog):
             self.parameters['pressure_at_discharge'] = self.parameters['pressure_ratio'] * self.parameters['pressure_at_suction']
 
         # unit_labels = ["kgf/cm² (a)", "bar (a)", "kPa (a)", "Pa (a)", "kgf/cm² (g)", "bar (g)", "kPa (g)", "Pa (g)"]
-        pressure_unit = self.comboBox_pressure_unit.currentText()
+        pressure_unit = self.comboBox_pressure_units.currentText()
         self.parameters['pressure_unit'] = pressure_unit
 
         if self.check_input_parameters(self.lineEdit_temperature_at_suction, "Temperature at suction"):
@@ -643,7 +643,7 @@ class ReciprocatingCompressorInputs(QDialog):
             self.parameters['temperature_at_suction'] = self.value
 
         # unit_labels = ["°C", "K"]
-        temperature_unit = self.comboBox_temperature_unit.currentText()
+        temperature_unit = self.comboBox_temperature_units.currentText()
         self.parameters['temperature_unit'] = temperature_unit
 
         self.parameters['compression_stage'] = self.compression_stage_index
@@ -773,7 +773,7 @@ class ReciprocatingCompressorInputs(QDialog):
             gamma = float(self.lineEdit_isentropic_exponent.text())
             discharge_pressure = pressure_ratio * suction_pressure
 
-            if self.comboBox_pressure_unit.currentIndex() in [3, 7]:
+            if self.comboBox_pressure_units.currentIndex() in [3, 7]:
                 self.lineEdit_pressure_at_discharge.setText(f"{discharge_pressure : .8e}")
             else:
                 self.lineEdit_pressure_at_discharge.setText(f"{discharge_pressure : .6f}")
@@ -784,11 +784,11 @@ class ReciprocatingCompressorInputs(QDialog):
         try:
 
             suction_temperature = float(self.lineEdit_temperature_at_suction.text())
-            if self.comboBox_temperature_unit.currentIndex() == 1:
+            if self.comboBox_temperature_units.currentIndex() == 1:
                 suction_temperature += 273.15
 
             discharge_temperature = suction_temperature * (pressure_ratio**((gamma-1)/gamma))
-            if self.comboBox_temperature_unit.currentIndex() == 1:
+            if self.comboBox_temperature_units.currentIndex() == 1:
                 discharge_temperature -= 273.15
 
             self.lineEdit_temperature_at_discharge.setText(f"{discharge_temperature : .6f}")
@@ -1007,12 +1007,12 @@ class ReciprocatingCompressorInputs(QDialog):
         self.compression_stage_index = self.currentIndex_stage + 1
 
     def pressure_unit_callback(self):
-        unit_label = self.comboBox_pressure_unit.currentText()
+        unit_label = self.comboBox_pressure_units.currentText()
         self.label_suction_pressure_unit.setText(f"[{unit_label}]")
         self.label_discharge_pressure_unit.setText(f"[{unit_label}]")
 
     def temperature_unit_callback(self):
-        unit_label = self.comboBox_temperature_unit.currentText()
+        unit_label = self.comboBox_temperature_units.currentText()
         self.label_suction_temperature_unit.setText(f"[{unit_label}]")
         self.label_discharge_temperature_unit.setText(f"[{unit_label}]")
 
