@@ -613,9 +613,9 @@ class SetFluidCompositionInput(QDialog):
                 self.fluid_properties["impedance"] = round(acoustic_impedance, 6)
                 self.fluid_setup = [fluids_string, molar_fractions]
 
-                # self.process_errors()
-                if self.process_errors():
-                    return
+                self.process_errors()
+                # if self.process_errors():
+                #     return
 
                 if self.ideal_gas_warning and self.check_ideal_gas:
 

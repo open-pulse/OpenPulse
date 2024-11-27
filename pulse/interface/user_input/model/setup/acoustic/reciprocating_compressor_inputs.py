@@ -98,7 +98,6 @@ class ReciprocatingCompressorInputs(QDialog):
         self.lineEdit_pressure_at_discharge: QLineEdit
         self.lineEdit_temperature_at_suction: QLineEdit
         self.lineEdit_temperature_at_discharge: QLineEdit
-        self.lineEdit_selected_id: QLineEdit
         self.lineEdit_connection_type: QLineEdit
         self.lineEdit_selected_fluid: QLineEdit
 
@@ -231,11 +230,11 @@ class ReciprocatingCompressorInputs(QDialog):
 
     def tab_event_callback(self):
 
-        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_node_id.setText("")
         self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
 
-        if self.tabWidget_compressor.currentIndex() == 3:
+        if self.tabWidget_compressor.currentIndex() == 2:
             self.pushButton_cancel.setDisabled(True)
             self.pushButton_confirm.setDisabled(True)
         else:
@@ -899,14 +898,14 @@ class ReciprocatingCompressorInputs(QDialog):
 
     def remove_callback(self):
 
-        if self.lineEdit_selected_id.text() == "":   
+        if self.lineEdit_selected_node_id.text() == "":   
             title = "Empty node selection"
             message = "You should to select a node from the list "
             message += "to proceed with the removal."
             PrintMessageInput([window_title_2, title, message])
             return
             
-        node_id = int(self.lineEdit_selected_id.text())
+        node_id = int(self.lineEdit_selected_node_id.text())
 
         self.remove_table_files_from_nodes(node_id)
 
@@ -966,12 +965,12 @@ class ReciprocatingCompressorInputs(QDialog):
         self.update_tabs_visibility()
 
     def on_click_item(self, item):
-        self.lineEdit_selected_id.setText(item.text(0))
+        self.lineEdit_selected_node_id.setText(item.text(0))
         self.lineEdit_connection_type.setText(item.text(1))
         self.pushButton_remove.setDisabled(False)
 
     def update_tabs_visibility(self):
-        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_node_id.setText("")
         self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
         self.tabWidget_compressor.setTabVisible(3, False)
