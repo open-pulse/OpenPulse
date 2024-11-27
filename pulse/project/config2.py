@@ -78,10 +78,13 @@ class Config2:
         if len(recents_files) == 5:
             recents_files.pop()
 
+        if str(recent_file) in recents_files:
+            recents_files.remove(str(recent_file))
+
         recents_files.insert(0, str(recent_file))
 
         data["recents_files"] = recents_files
-        
+
         self.write_data_in_file(data)
         
     def get_recents_files(self) -> list[Path]:
