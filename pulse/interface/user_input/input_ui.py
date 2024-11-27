@@ -29,8 +29,9 @@ from pulse.interface.user_input.model.setup.acoustic.add_acoustic_transfer_eleme
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.interface.user_input.model.setup.acoustic.reciprocating_compressor_inputs import ReciprocatingCompressorInputs
 from pulse.interface.user_input.model.setup.acoustic.reciprocating_pump_inputs import ReciprocatingPumpInputs
-from pulse.interface.user_input.model.setup.acoustic.pulsation_damper_calculator_inputs import PulsationDamperCalculatorInputs
-from pulse.interface.user_input.model.editor.pulsation_suppression_device_input import PulsationSuppressionDeviceInput
+#
+from pulse.interface.user_input.model.editor.pulsation_damper_editor_inputs import PulsationDamperEditorInputs
+from pulse.interface.user_input.model.editor.pulsation_suppression_device_inputs import PulsationSuppressionDeviceInputs
 from pulse.interface.user_input.model.criteria.reciprocating_compressor_pulsation_criteria import ReciprocatingCompressorPulsationCriteriaInput
 from pulse.interface.user_input.model.criteria.reciprocating_pump_pulsation_criteria import ReciprocatingPumpPulsationCriteriaInput
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
@@ -186,10 +187,10 @@ class InputUi:
         self.process_input(ReciprocatingPumpInputs)
 
     def pulsation_suppression_device_editor(self):
-        self.process_input(PulsationSuppressionDeviceInput)
+        self.process_input(PulsationSuppressionDeviceInputs)
 
-    def pulsation_damper_calculator(self):
-        self.process_input(PulsationDamperCalculatorInputs)
+    def pulsation_damper_editor(self):
+        self.process_input(PulsationDamperEditorInputs)
 
     def analysis_setup(self):
 

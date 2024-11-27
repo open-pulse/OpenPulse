@@ -18,7 +18,7 @@ import numpy as np
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PulsationSuppressionDeviceInput(QDialog):
+class PulsationSuppressionDeviceInputs(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
