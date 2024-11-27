@@ -13,7 +13,6 @@ class Config2:
         self.user_preferences = UserPreferences()
 
         self.load_config_file()
-        self.write_refprop_path_in_file("sapooooooooooooooooooooo")
 
     def load_config_file(self):
         try:
@@ -76,15 +75,13 @@ class Config2:
         data = self.get_config_data()
 
         recents_files = [str(file) for file in self.get_recents_files()]
-        recents_files.append(str(recent_file))
+        if len(recents_files) == 5:
+            recents_files.pop()
 
-        data["recents_files"] = list()
-        for file in recents_files:
-            if file not in data["recents_files"]:
-                data["recents_files"].append(file)
-            else:
-                data["recents_files"].remove(file)
-                data["recents_files"].insert(0, file)
+        recents_files.insert(0, str(recent_file))
+
+        data["recents_files"] = recents_files
+        
         self.write_data_in_file(data)
         
     def get_recents_files(self) -> list[Path]:
