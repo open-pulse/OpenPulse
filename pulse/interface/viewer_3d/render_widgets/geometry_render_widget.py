@@ -34,7 +34,7 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.create_logos()
         self.create_camera_light(0.1, 0.1)
     
-        self.update_renderer_font_size()
+        self.apply_user_preferences()
         self._create_connections()
         self.update_plot()
     
@@ -104,12 +104,23 @@ class GeometryRenderWidget(CommonRenderWidget):
             self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
         
+    def apply_user_preferences(self):
+        self.update_open_pulse_logo_visibility()
+        self.update_renderer_font_size()
+        
     def update_renderer_font_size(self):
         user_preferences = app().main_window.config2.user_preferences
         font_size_px = int(user_preferences.renderer_font_size * 4/3)
 
         info_text_property = self.text_actor.GetTextProperty()
         info_text_property.SetFontSize(font_size_px)
+    
+    def update_open_pulse_logo_visibility(self):
+        user_preferences = app().main_window.config2.user_preferences
+        if user_preferences.show_open_pulse_logo:
+            self.enable_open_pulse_logo()
+        else:
+            self.disable_open_pulse_logo()
 
     def create_logos(self):
         if app().main_window.config2.user_preferences.interface_theme == "light":

@@ -43,7 +43,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.create_axes()
         self.create_logos()
         self.create_scale_bar()
-        self.update_renderer_font_size()
+        self.apply_user_preferences()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
 
@@ -222,6 +222,11 @@ class MeshRenderWidget(CommonRenderWidget):
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
     
+    def apply_user_preferences(self):
+        self.update_open_pulse_logo_visibility()
+        self.update_scale_bar_visibility()
+        self.update_renderer_font_size()
+
     def update_renderer_font_size(self):
         user_preferences = app().main_window.config2.user_preferences
         font_size_px = int(user_preferences.renderer_font_size * 4/3)
@@ -233,12 +238,28 @@ class MeshRenderWidget(CommonRenderWidget):
         scale_bar_label_property = self.scale_bar_actor.GetLegendLabelProperty()
         scale_bar_title_property.SetFontSize(font_size_px)
         scale_bar_label_property.SetFontSize(font_size_px)
+    
+    def update_open_pulse_logo_visibility(self):
+        user_preferences = app().config2.user_preferences
+
+        if user_preferences.show_open_pulse_logo:
+            self.enable_open_pulse_logo()
+        else:
+            self.disable_open_pulse_logo()
 
     def enable_open_pulse_logo(self):
         self.open_pulse_logo.VisibilityOn()
 
     def disable_open_pulse_logo(self):
         self.open_pulse_logo.VisibilityOff()
+    
+    def update_scale_bar_visibility(self):
+        user_preferences = app().config2.user_preferences
+
+        if user_preferences.show_reference_scale_bar:
+            self.enable_scale_bar()
+        else:
+            self.disable_scale_bar()
     
     def enable_scale_bar(self):
         self.scale_bar_actor.VisibilityOn()
