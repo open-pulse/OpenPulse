@@ -28,6 +28,8 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+
+        app().main_window.set_selection()
         self.selection_callback()
 
     def _initialize(self):
@@ -69,7 +71,9 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
+
         selected_nodes = selected_nodes = app().main_window.list_selected_nodes()
+
         if selected_nodes:
             node_id = selected_nodes[0]
             self.current_lineEdit.setText(str(node_id))
@@ -168,10 +172,21 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
                                     "linestyle" : "-"  
                                     }
 
+    def alternate_node_id_input_fields(self):
+
+        if self.current_lineEdit == self.lineEdit_input_node_id:
+            self.current_lineEdit = self.lineEdit_output_node_id
+        else:
+            self.current_lineEdit = self.lineEdit_input_node_id
+
+        self.current_lineEdit.setFocus()
+
     def keyPressEvent(self, event):
+
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.call_plotter()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
+
+        elif event.key() in [Qt.Key_Up, Qt.Key_Down]:
+            self.alternate_node_id_input_fields()
 
 # fmt: on
