@@ -74,13 +74,14 @@ class Config2:
     def add_recent_file(self, recent_file: str | Path):
         data = self.get_config_data()
 
-        recent_files = [str(file) for file in self.get_recent_files()]
-        if len(recent_files) == 5:
+        recent_files = self.get_recent_files()
+        if len(recent_files) == 5 and Path(recent_file) not in recent_files:
             recent_files.pop()
 
-        if str(recent_file) in recent_files:
-            recent_files.remove(str(recent_file))
+        if Path(recent_file) in recent_files:
+            recent_files.remove(Path(recent_file))
 
+        recent_files = [str(file) for file in recent_files]
         recent_files.insert(0, str(recent_file))
 
         data["recent_files"] = recent_files
