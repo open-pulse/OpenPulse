@@ -350,7 +350,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>-384</y>
+                  <y>-353</y>
                   <width>439</width>
                   <height>938</height>
                  </rect>
@@ -1849,7 +1849,7 @@
                      </widget>
                     </item>
                     <item row="5" column="2">
-                     <widget class="QComboBox" name="comboBox_pressure_unit">
+                     <widget class="QComboBox" name="comboBox_pressure_units">
                       <property name="minimumSize">
                        <size>
                         <width>120</width>
