@@ -20,7 +20,7 @@ class PCFFileIO:
         but for now it will be like this just in order to make the bosses happy =)
         '''
 
-        last_path = app().config2.get_last_folder_for("pcf_folder")
+        last_path = app().config.get_last_folder_for("pcf_folder")
 
         if last_path is None:
             last_path = str(Path().home())
@@ -105,7 +105,7 @@ class PCFFileIO:
 
     def export_pcf(self):
 
-        last_path = app().config2.get_last_folder_for("exported_pcf_folder")
+        last_path = app().config.get_last_folder_for("exported_pcf_folder")
         if last_path is None:
             last_path = str(Path().home())
 

@@ -68,7 +68,7 @@ class LoadFluidCompositionInput(QDialog):
 
     def search_button_callback(self):
 
-        last_path = app().config2.get_last_folder_for("fluid_composition_folder")
+        last_path = app().config.get_last_folder_for("fluid_composition_folder")
         if last_path is None:
             last_path = str(Path().home())
 
@@ -82,7 +82,7 @@ class LoadFluidCompositionInput(QDialog):
         if not check:
             return
         
-        app().config2.write_last_folder_path_in_file("fluid_composition_folder", self.file_path)
+        app().config.write_last_folder_path_in_file("fluid_composition_folder", self.file_path)
                                                     
 
         self.lineEdit_file_path.setText(self.file_path)

@@ -23,12 +23,12 @@ class Application(QApplication):
         self.processEvents()
 
         # global params
-        self.config = Config()
+        # self.config = Config()
+        self.config = Config2()
         self.pulse_file = ProjectFile(TEMP_PROJECT_FILE)
         self.project = Project()
         self.loader = LoadProject()
 
         # gui
-        self.config2 = Config2()
         self.main_window = MainWindow()
         self.main_window.configure_window()

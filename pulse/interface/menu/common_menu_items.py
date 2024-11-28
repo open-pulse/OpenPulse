@@ -46,7 +46,7 @@ class CommonMenuItems(QTreeWidget):
         return item
 
     def _config_tree(self):
-        user_preferences = app().main_window.config2.user_preferences
+        user_preferences = app().main_window.config.user_preferences
 
         self.font_item = QFont()
         self.font_item.setPointSize(user_preferences.interface_font_size)

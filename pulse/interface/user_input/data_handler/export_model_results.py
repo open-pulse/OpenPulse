@@ -79,7 +79,7 @@ class ExportModelResults(QFileDialog):
 
         caption = "Export the model results"
 
-        path = app().config2.get_last_folder_for("export_data_folder")
+        path = app().config.get_last_folder_for("export_data_folder")
         if path is None:
             directory_path = os.path.expanduser("~")
         else:
@@ -98,7 +98,7 @@ class ExportModelResults(QFileDialog):
         if not check:
             return
 
-        app().config2.write_last_folder_path_in_file("export_data_folder", file_path)
+        app().config.write_last_folder_path_in_file("export_data_folder", file_path)
 
         sufix = Path(file_path).suffix      
         if sufix == ".xlsx":

@@ -516,7 +516,7 @@ class ElasticNodalLinksInput(QDialog):
 
             else:
 
-                last_path = app().main_window.config2.get_last_folder_for("imported_table_folder")
+                last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
                 if last_path is None:
                     last_path = str(Path().home())
 
@@ -551,7 +551,7 @@ class ElasticNodalLinksInput(QDialog):
             f_max = self.frequencies[-1]
             f_step = self.frequencies[1] - self.frequencies[0] 
         
-            app().main_window.config2.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
+            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
             if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
 

@@ -64,8 +64,7 @@ class MainWindow(QMainWindow):
         self.selection_filter = SelectionFilter.all_false()
         
         self.ui_dir = UI_DIR
-        self.config = app().config
-        self.config2 = app().config2
+        self.config= app().config
         self.project = app().project
 
         self._initialize()
@@ -321,7 +320,7 @@ class MainWindow(QMainWindow):
 
     def export_geometry(self):
 
-        last_path = app().config2.get_last_folder_for("exported_geometry_folder")
+        last_path = self.config.get_last_folder_for("exported_geometry_folder")
         if last_path is None:
             last_path = str(Path().home())
 
@@ -498,7 +497,7 @@ class MainWindow(QMainWindow):
             self.menu_recent.removeAction(action)
 
         self.menu_actions = list()
-        for path in reversed(self.config2.get_recent_files()):
+        for path in reversed(self.config.get_recent_files()):
             if not path.exists():
                 continue
     
@@ -825,25 +824,25 @@ class MainWindow(QMainWindow):
         pass
 
     def load_user_preferences(self):
-        self.config2.load_config_file()
+        self.config.load_config_file()
         self.set_theme()
 
     def action_set_dark_theme_callback(self):
-        self.config2.user_preferences.set_dark_theme()
+        self.config.user_preferences.set_dark_theme()
         self.set_theme()
-        app().config2.update_config_file()
+        self.config.update_config_file()
 
         self.update_plots()
 
     def action_set_light_theme_callback(self):
-        self.config2.user_preferences.set_light_theme()
+        self.config.user_preferences.set_light_theme()
         self.set_theme()
-        app().config2.update_config_file()
+        self.config.update_config_file()
         
         self.update_plots()
 
     def set_theme(self):
-        theme = self.config2.user_preferences.interface_theme
+        theme = self.config.user_preferences.interface_theme
 
         # if theme not in ["light", "dark"]:
         #     return
@@ -873,20 +872,9 @@ class MainWindow(QMainWindow):
         widgets = self.findChildren((QAbstractButton, QAction))
         icons.change_icon_color_for_widgets(widgets, self.icon_color)
 
-    # def update_themes_in_file(self, theme):
-    #     # self.user_preferences = self.config.get_user_preferences()
-    #     # self.user_preferences["interface theme"] = theme
-    #     # self.user_preferences["background color"] = theme
-    #     # if theme == "dark":
-    #     #     self.user_preferences["bottom font color"] = (255, 255, 255)
-    #     # else:
-    #     #     self.user_preferences["bottom font color"] = (0, 0, 0)
-    #     # self.config.write_user_preferences_in_file(self.user_preferences)
-    #     # self.blah.set_user_interface_preferences(self.user_preferences)
-
     def savePNG_call(self):
 
-        last_path = app().config2.get_last_folder_for("exported_image_folder")
+        last_path = self.config.get_last_folder_for("exported_image_folder")
         if last_path is None:
             last_path = str(Path().home())
 
@@ -958,8 +946,8 @@ class MainWindow(QMainWindow):
             if project_path is not None:
 
             
-                app().config2.add_recent_file(project_path)
-                app().config2.write_last_folder_path_in_file("project_folder", project_path)
+                self.config.add_recent_file(project_path)
+                self.config.write_last_folder_path_in_file("project_folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
 
                 if app().loader.check_file_version():
@@ -991,7 +979,7 @@ class MainWindow(QMainWindow):
 
     def open_project_dialog(self):
 
-        last_path = app().config2.get_last_folder_for("project_folder")
+        last_path = self.config.get_last_folder_for("project_folder")
     
         if last_path is None:
             last_path = str(Path().home())
@@ -1018,7 +1006,7 @@ class MainWindow(QMainWindow):
         obj = SaveProjectDataSelector()
         if obj.complete:
 
-            last_path = app().config2.get_last_folder_for("project_folder")
+            last_path = self.config.get_last_folder_for("project_folder")
             if last_path is None:
                 last_path = str(Path.home())
 
@@ -1056,10 +1044,10 @@ class MainWindow(QMainWindow):
 
             logging.info("Saving the project data... [20%]")
             app().pulse_file.write_thumbnail()
-            app().config2.add_recent_file(path)
+            self.config.add_recent_file(path)
 
             logging.info("Saving the project data... [40%]")
-            app().config2.write_last_folder_path_in_file("project_folder", path)
+            self.config.write_last_folder_path_in_file("project_folder", path)
 
             logging.info("Saving the project data... [75%]")
             # self.project_menu.update_recents_menu()

@@ -21,8 +21,8 @@ class RendererUserPreferencesInput(QDialog):
         app().main_window.set_input_widget(self)
 
         self.main_window = app().main_window
-        self.config2 = app().config2
-        self.user_preferences = app().config2.user_preferences
+        self.config = app().config
+        self.user_preferences = app().config.user_preferences
 
         self.renderer_background_color_1 = None
         self.renderer_background_color_2 = None
@@ -217,7 +217,7 @@ class RendererUserPreferencesInput(QDialog):
             self.user_preferences.interface_font_size = self.interface_font_size
 
         self.update_settings()
-        self.config2.update_config_file()
+        self.config.update_config_file()
 
     def confirm_and_update_user_preferences(self):
         self.apply_user_preferences()
@@ -235,7 +235,7 @@ class RendererUserPreferencesInput(QDialog):
         self.main_window.update_plots()
 
     def reset_to_default(self):
-        if self.main_window.config2.user_preferences.interface_theme == "dark":
+        if self.main_window.config.user_preferences.interface_theme == "dark":
             self.user_preferences.set_dark_theme()
         else:
             self.user_preferences.set_light_theme()

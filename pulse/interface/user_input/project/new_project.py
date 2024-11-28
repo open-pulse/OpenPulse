@@ -102,7 +102,7 @@ class NewProjectInput(QDialog):
     def import_geometry(self):
 
         self.hide()
-        last_geometry_file = app().main_window.config2.get_last_folder_for("geometry_folder")
+        last_geometry_file = app().main_window.config.get_last_folder_for("geometry_folder")
 
         if last_geometry_file is None:
             suggested_path = str(Path().home())
@@ -119,7 +119,7 @@ class NewProjectInput(QDialog):
         if check:
             self.lineEdit_geometry_path.setText(geometry_path)
 
-            app().main_window.config2.write_last_folder_path_in_file("geometry_folder", geometry_path)
+            app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
     def check_project_inputs(self):
         

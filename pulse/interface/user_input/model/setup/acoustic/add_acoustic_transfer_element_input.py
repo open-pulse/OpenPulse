@@ -214,7 +214,7 @@ class AddAcousticTransferElementInput(QDialog):
 
     def search_callback(self):
 
-        last_path = app().main_window.config2.get_last_folder_for("imported_table_folder")
+        last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
         if last_path is None:
             last_path = str(Path().home())
 
@@ -230,7 +230,7 @@ class AddAcousticTransferElementInput(QDialog):
 
         self.lineEdit_spreadsheet_path.setText(path)
     
-        app().main_window.config2.write_last_folder_path_in_file("imported_table_folder", path)
+        app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path)
 
     def check_inputs(self):
 

@@ -21,7 +21,7 @@ class GetStartedInput(QDialog):
         # app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 
-        self.config = app().main_window.config2
+        self.config = app().main_window.config
         
         self._initialize()
         self._load_icons()
@@ -100,7 +100,7 @@ class GetStartedInput(QDialog):
             self.project_buttons[i].setVisible(False)
             self.project_path_labels[i].setVisible(False)
 
-        recents = app().config2.get_recent_files()
+        recents = app().config.get_recent_files()
 
         for i, project_path in enumerate(recents):
             if i <= 4:
