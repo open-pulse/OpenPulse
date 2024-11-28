@@ -114,8 +114,6 @@ class Config2:
         data["recent_files"] = list()
 
         self.write_data_in_file(data)
-    
-    def write_colormap_in_file(self, colormap: str)
 
     def write_last_folder_path_in_file(self, label: str, file_path: str):
         data = self.get_config_data()

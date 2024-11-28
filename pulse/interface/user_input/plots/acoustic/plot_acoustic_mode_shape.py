@@ -124,7 +124,6 @@ class PlotAcousticModeShape(QWidget):
     def update_colormap_type(self):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
-        app().config.write_colormap_in_file(colormap)
         app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
 

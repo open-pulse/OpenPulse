@@ -125,9 +125,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
     def update_colormap_type(self):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
-        app().config.write_colormap_in_file(colormap)
         app().main_window.results_widget.set_colormap(colormap)
-        app().config.user_preferences.color_map = colormap
         app().config.update_config_file()
         self.update_plot()
 
