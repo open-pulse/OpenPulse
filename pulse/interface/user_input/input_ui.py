@@ -34,6 +34,7 @@ from pulse.interface.user_input.model.editor.pulsation_damper_editor_inputs impo
 from pulse.interface.user_input.model.editor.pulsation_suppression_device_inputs import PulsationSuppressionDeviceInputs
 from pulse.interface.user_input.model.criteria.reciprocating_compressor_pulsation_criteria import ReciprocatingCompressorPulsationCriteriaInput
 from pulse.interface.user_input.model.criteria.reciprocating_pump_pulsation_criteria import ReciprocatingPumpPulsationCriteriaInput
+from pulse.interface.user_input.model.criteria.reciprocating_pump_inlet_pressure_criteria import ReciprocatingPumpInletPressureCriteriaInput
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
 #
 from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
@@ -327,6 +328,9 @@ class InputUi:
 
     def reciprocating_pump_pulsation_criteria(self):
         return self.process_input(ReciprocatingPumpPulsationCriteriaInput)
+
+    def reciprocating_pump_inlet_pressure_criteria(self):
+        return self.process_input(ReciprocatingPumpInletPressureCriteriaInput)
 
     def shaking_forces_criteria(self):
         return self.process_input(ShakingForcesCriteriaInput)

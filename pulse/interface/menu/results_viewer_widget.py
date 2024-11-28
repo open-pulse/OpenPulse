@@ -78,6 +78,9 @@ class ResultsViewerWidget(QWidget):
         self.results_viewer_items.item_child_reciprocating_pump_pulsation_criteria.clicked.connect(
             self.add_reciprocating_pump_pulsation_criteria_widget)
         
+        self.results_viewer_items.item_child_reciprocating_pump_inlet_pressure_criteria.clicked.connect(
+            self.add_reciprocating_pump_inlet_pressure_criteria_widget)
+
         self.results_viewer_items.item_child_shaking_forces_criteria.clicked.connect(self.add_shaking_forces_criteria_widget)
 
     def update_visibility_items(self):
@@ -155,6 +158,11 @@ class ResultsViewerWidget(QWidget):
     def add_reciprocating_pump_pulsation_criteria_widget(self):
         self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.reciprocating_pump_pulsation_criteria()
+        self.add_widget(widget)
+
+    def add_reciprocating_pump_inlet_pressure_criteria_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
+        widget = app().main_window.input_ui.reciprocating_pump_inlet_pressure_criteria()
         self.add_widget(widget)
 
     def add_shaking_forces_criteria_widget(self):
