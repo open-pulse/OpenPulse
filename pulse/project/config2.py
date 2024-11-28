@@ -74,34 +74,46 @@ class Config2:
     def add_recent_file(self, recent_file: str | Path):
         data = self.get_config_data()
 
-        recents_files = [str(file) for file in self.get_recents_files()]
-        if len(recents_files) == 5:
-            recents_files.pop()
+        recent_files = [str(file) for file in self.get_recent_files()]
+        if len(recent_files) == 5:
+            recent_files.pop()
 
-        if str(recent_file) in recents_files:
-            recents_files.remove(str(recent_file))
+        if str(recent_file) in recent_files:
+            recent_files.remove(str(recent_file))
 
-        recents_files.insert(0, str(recent_file))
+        recent_files.insert(0, str(recent_file))
 
-        data["recents_files"] = recents_files
+        data["recent_files"] = recent_files
 
         self.write_data_in_file(data)
         
-    def get_recents_files(self) -> list[Path]:
+    def get_recent_files(self) -> list[Path]:
         data = self.get_config_data()
 
-        recents_files = list()
-        if "recents_files" not in data.keys():
-            return recents_files
+        recent_files = list()
+        if "recent_files" not in data.keys():
+            return recent_files
         
-        for file in data["recents_files"]:
-            recents_files.append(Path(file))
+        for file in data["recent_files"]:
+            recent_files.append(Path(file))
         
-        return recents_files
+        return recent_files
     
     def get_most_recent_project(self) -> str:
         data = self.get_config_data()
-        return data["recents_files"][0]
+        return data["recent_files"][0]
+
+    def remove_path_from_config_file(self, path: str | Path):
+        data = self.get_config_data()
+        data["recent_files"].remove(str(path))
+
+        self.write_data_in_file(data)
+        
+    def reset_recent_projects(self):
+        data = self.get_config_data()
+        data["recent_files"] = list()
+
+        self.write_data_in_file(data)
 
     def write_last_folder_path_in_file(self, label: str, file_path: str):
         data = self.get_config_data()

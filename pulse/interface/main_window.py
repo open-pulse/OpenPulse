@@ -498,7 +498,7 @@ class MainWindow(QMainWindow):
             self.menu_recent.removeAction(action)
 
         self.menu_actions = list()
-        for path in reversed(self.config2.get_recents_files()):
+        for path in reversed(self.config2.get_recent_files()):
             if not path.exists():
                 continue
     
@@ -957,7 +957,7 @@ class MainWindow(QMainWindow):
 
             if project_path is not None:
 
-                # app().config.add_recent_file(project_path)
+            
                 app().config2.add_recent_file(project_path)
                 app().config2.write_last_folder_path_in_file("project_folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
@@ -1056,7 +1056,6 @@ class MainWindow(QMainWindow):
 
             logging.info("Saving the project data... [20%]")
             app().pulse_file.write_thumbnail()
-            # app().config.add_recent_file(path)
             app().config2.add_recent_file(path)
 
             logging.info("Saving the project data... [40%]")
