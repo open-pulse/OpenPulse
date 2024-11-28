@@ -65,11 +65,14 @@ class PulsationDamper:
         self.damper_volume = device_data["damper_volume"]
         self.gas_volume = device_data["gas_volume"]
 
-        self.damper_outside_diameter = device_data["damper_outside_diameter"]
-        self.wall_thickness = device_data["wall_thickness"]
-        
-        if "neck_outside_diameter" in device_data.keys():
-            self.neck_outside_diameter = device_data["neck_outside_diameter"]
+        self.outside_diameter_liquid = device_data["outside_diameter_liquid"]
+        self.wall_thickness_liquid = device_data["wall_thickness_liquid"]
+
+        self.outside_diameter_gas = device_data["outside_diameter_gas"]
+        self.wall_thickness_gas = device_data["wall_thickness_gas"]
+
+        if "outside_diameter_neck" in device_data.keys():
+            self.outside_diameter_neck = device_data["outside_diameter_neck"]
 
         if "neck_height" in device_data.keys():
             self.neck_height = device_data["neck_height"]
@@ -79,16 +82,19 @@ class PulsationDamper:
 
     def process_damper_heights(self):
 
-        d_in = self.damper_outside_diameter - 2*self.wall_thickness
-        area = (np.pi / 4) * (d_in**2) 
+        liq_d_in = self.outside_diameter_liquid - 2*self.wall_thickness_liquid
+        liq_area = (np.pi / 4) * (liq_d_in**2) 
 
-        self.liquid_height = (self.damper_volume - self.gas_volume) / area
-        self.gas_height = self.gas_volume / area
+        gas_d_in = self.outside_diameter_gas - 2*self.wall_thickness_gas
+        gas_area = (np.pi / 4) * (gas_d_in**2) 
+
+        self.liquid_height = (self.damper_volume - self.gas_volume) / liq_area
+        self.gas_height = self.gas_volume / gas_area
 
     def get_section_parameters(self):
-        self.liquid_section_data = [self.damper_outside_diameter, self.wall_thickness, 0, 0, 0, 0]
-        self.gas_section_data = [self.damper_outside_diameter, self.wall_thickness, 0, 0, 0, 0]
-        self.neck_section_data = [self.neck_outside_diameter, self.wall_thickness, 0, 0, 0, 0]
+        self.liquid_section_data = [self.outside_diameter_liquid, self.wall_thickness_liquid, 0, 0, 0, 0]
+        self.gas_section_data = [self.outside_diameter_gas, self.wall_thickness_gas, 0, 0, 0, 0]
+        self.neck_section_data = [self.outside_diameter_neck, self.wall_thickness_liquid, 0, 0, 0, 0]
 
     def get_axial_axial_segment_data(self):
 

@@ -68,6 +68,7 @@ class PulsationDamperEditorInputs(QDialog):
         self.comboBox_volume_unit: QComboBox
         self.comboBox_pressure_units: QComboBox
         self.comboBox_temperature_units: QComboBox
+        self.comboBox_volume_sections: QComboBox
 
         # QLabel
         self.label_damper_volume_unit: QLabel
@@ -80,9 +81,11 @@ class PulsationDamperEditorInputs(QDialog):
         self.lineEdit_connecting_coord_z: QLineEdit
         self.lineEdit_damper_volume: QLineEdit
         self.lineEdit_gas_volume: QLineEdit
-        self.lineEdit_outside_diameter: QLineEdit
-        self.lineEdit_wall_thickness: QLineEdit
-        self.lineEdit_neck_outside_diameter: QLineEdit
+        self.lineEdit_outside_diameter_liquid: QLineEdit
+        self.lineEdit_wall_thickness_liquid: QLineEdit
+        self.lineEdit_outside_diameter_gas: QLineEdit
+        self.lineEdit_wall_thickness_gas: QLineEdit
+        self.lineEdit_outside_diameter_neck: QLineEdit
         self.lineEdit_neck_height: QLineEdit
         self.lineEdit_polytropic_exponent: QLineEdit
         self.lineEdit_gas_pressure: QLineEdit
@@ -109,6 +112,7 @@ class PulsationDamperEditorInputs(QDialog):
 
     def _create_connections(self):
         #
+        self.comboBox_volume_sections.currentIndexChanged.connect(self.volume_sections_callback)
         self.comboBox_volume_unit.currentIndexChanged.connect(self.update_volume_unit_callback)
         self.comboBox_pressure_units.currentIndexChanged.connect(self.load_state_properties)
         self.comboBox_temperature_units.currentIndexChanged.connect(self.load_state_properties)
@@ -126,6 +130,8 @@ class PulsationDamperEditorInputs(QDialog):
         self.treeWidget_pulsation_damper_info.itemDoubleClicked.connect(self.on_double_click_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+        #
+        self.volume_sections_callback()
 
     def selection_callback(self):
 
@@ -294,6 +300,18 @@ class PulsationDamperEditorInputs(QDialog):
         self.label_damper_volume_unit.setText(f"[{unit_label}]")
         self.label_gas_volume_unit.setText(f"[{unit_label}]")
 
+    def volume_sections_callback(self):
+
+        index = self.comboBox_volume_sections.currentIndex()
+        self.lineEdit_outside_diameter_gas.setEnabled(bool(index))
+        self.lineEdit_wall_thickness_gas.setEnabled(bool(index))
+
+        if index == 0:
+            outside_diameter = self.lineEdit_outside_diameter_liquid.text()
+            wall_thickness = self.lineEdit_wall_thickness_liquid.text()
+            self.lineEdit_outside_diameter_gas.setText(outside_diameter)
+            self.lineEdit_wall_thickness_gas.setText(wall_thickness)
+
     def check_connecting_coords(self):
 
         coord_x = check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", only_positive=False)
@@ -330,29 +348,41 @@ class PulsationDamperEditorInputs(QDialog):
 
     def check_geometric_entries(self):
 
-        damper_outside_diameter = check_inputs(self.lineEdit_outside_diameter, "'outside diameter'", only_positive=False)
-        if damper_outside_diameter is None:
-            self.lineEdit_outside_diameter.setFocus()
+        outside_diameter_liquid = check_inputs(self.lineEdit_outside_diameter_liquid, "'outside diameter (liquid)'", only_positive=False)
+        if outside_diameter_liquid is None:
+            self.lineEdit_outside_diameter_liquid.setFocus()
             return True
 
-        wall_thickness = check_inputs(self.lineEdit_wall_thickness, "'wall thickness'", only_positive=False)
-        if wall_thickness is None:
-            self.lineEdit_wall_thickness.setFocus()
+        wall_thickness_liquid = check_inputs(self.lineEdit_wall_thickness_liquid, "'wall thickness (liquid)'", only_positive=False)
+        if wall_thickness_liquid is None:
+            self.lineEdit_wall_thickness_liquid.setFocus()
             return True
 
-        neck_outside_diameter = check_inputs(self.lineEdit_neck_outside_diameter, "'outside diameter'", only_positive=False)
-        if neck_outside_diameter is None:
-            self.lineEdit_neck_outside_diameter.setFocus()
+        outside_diameter_gas = check_inputs(self.lineEdit_outside_diameter_gas, "'outside diameter (gas)'", only_positive=False)
+        if outside_diameter_gas is None:
+            self.lineEdit_outside_diameter_gas.setFocus()
             return True
 
-        neck_height = check_inputs(self.lineEdit_neck_height, "'outside diameter'", only_positive=False)
+        wall_thickness_gas = check_inputs(self.lineEdit_wall_thickness_gas, "'wall thickness (gas)'", only_positive=False)
+        if wall_thickness_gas is None:
+            self.lineEdit_wall_thickness_gas.setFocus()
+            return True
+
+        outside_diameter_neck = check_inputs(self.lineEdit_outside_diameter_neck, "'outside diameter (neck)'", only_positive=False)
+        if outside_diameter_neck is None:
+            self.lineEdit_outside_diameter_neck.setFocus()
+            return True
+
+        neck_height = check_inputs(self.lineEdit_neck_height, "'neck heght'", only_positive=False)
         if neck_height is None:
             self.lineEdit_neck_height.setFocus()
             return True
-        
-        self._pulsation_damper_data["damper_outside_diameter"] = damper_outside_diameter
-        self._pulsation_damper_data["wall_thickness"] = wall_thickness
-        self._pulsation_damper_data["neck_outside_diameter"] = neck_outside_diameter
+
+        self._pulsation_damper_data["outside_diameter_liquid"] = outside_diameter_liquid
+        self._pulsation_damper_data["wall_thickness_liquid"] = wall_thickness_liquid
+        self._pulsation_damper_data["outside_diameter_gas"] = outside_diameter_gas
+        self._pulsation_damper_data["wall_thickness_gas"] = wall_thickness_gas
+        self._pulsation_damper_data["outside_diameter_neck"] = outside_diameter_neck
         self._pulsation_damper_data["neck_height"] = neck_height
 
     def check_fluids(self):
