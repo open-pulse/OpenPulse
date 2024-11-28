@@ -780,10 +780,6 @@ class ReciprocatingPumpInputs(QDialog):
                 return
 
             self.properties._set_nodal_property("reciprocating_pump_excitation", data, node_id)
-
-            app().pulse_file.write_imported_table_data_in_file()
-
-            self.load_reciprocating_pump_excitation_info()
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
@@ -823,8 +819,6 @@ class ReciprocatingPumpInputs(QDialog):
         self.remove_table_files_from_nodes(node_id)
 
         self.properties._remove_nodal_property("reciprocating_pump_excitation", node_id)
-
-        self.load_reciprocating_pump_excitation_info()
         self.actions_to_finalize()
 
     def reset_callback(self):
@@ -854,7 +848,6 @@ class ReciprocatingPumpInputs(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("reciprocating_pump_excitation")
-            self.load_reciprocating_pump_excitation_info()
             self.actions_to_finalize()
 
     def load_reciprocating_pump_excitation_info(self):

@@ -869,12 +869,11 @@ class ReciprocatingCompressorInputs(QDialog):
                 return
 
             self.properties._set_nodal_property("reciprocating_compressor_excitation", data, node_id)
-
-            app().pulse_file.write_imported_table_data_in_file()
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
+        app().pulse_file.write_imported_table_data_in_file()
         app().main_window.set_selection()
         app().main_window.update_plots()
         self.load_compressor_excitation_info()
@@ -910,9 +909,6 @@ class ReciprocatingCompressorInputs(QDialog):
         self.remove_table_files_from_nodes(node_id)
 
         self.properties._remove_nodal_property("reciprocating_compressor_excitation", node_id)
-        app().pulse_file.write_nodal_properties_in_file()
-
-        self.load_compressor_excitation_info()
         self.actions_to_finalize()
 
     def reset_callback(self):
@@ -942,8 +938,6 @@ class ReciprocatingCompressorInputs(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("reciprocating_compressor_excitation")
-            app().pulse_file.write_nodal_properties_in_file()
-
             self.actions_to_finalize()
 
     def load_compressor_excitation_info(self):

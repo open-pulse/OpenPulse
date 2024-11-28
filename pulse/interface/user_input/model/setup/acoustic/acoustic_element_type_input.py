@@ -260,18 +260,22 @@ class AcousticElementTypeInput(QDialog):
         flow_effects = self.checkBox_flow_effects.isChecked()
         element_type_index = self.comboBox_element_type.currentIndex()
         if element_type_index == 1 and not flow_effects:
+
             lineEdit = self.lineEdit_proportional_damping.text()
             if self.check_input_parameters(lineEdit, "Proportional damping"):
                 return
             proportional_damping = self.value
+
         else:
             proportional_damping = None
 
         if flow_effects:
+
             lineEdit = self.lineEdit_vol_flow.text()
             if self.check_input_parameters(lineEdit, "Volume flow rate"):
                 return
             vol_flow = self.value
+
         else:
             vol_flow = None
 
@@ -304,19 +308,18 @@ class AcousticElementTypeInput(QDialog):
         if proportional_damping is None:
             for line_id in line_ids:
                 app().project.model.properties._remove_line_property("proportional_damping", line_id)
+
         else:
             app().project.model.properties._set_line_property("proportional_damping", proportional_damping, line_ids)
 
         if vol_flow is None:
             for line_id in line_ids:
                 app().project.model.properties._remove_line_property("volume_flow", line_id)
+
         else:
             app().project.model.properties._set_line_property("volume_flow", vol_flow, line_ids)
 
-        app().pulse_file.write_line_properties_in_file()
-
-        self.complete = True
-        self.close()
+        self.actions_to_finalize()
 
     def remove_callback(self):
         pass
@@ -344,10 +347,13 @@ class AcousticElementTypeInput(QDialog):
                     app().project.model.properties._remove_line_property("proportional_damping", line_id)
                     app().project.model.properties._remove_line_property("volume_flow", line_id)
 
-            app().pulse_file.write_line_properties_in_file()
+            self.actions_to_finalize()
 
-            self.complete = True
-            self.close()
+    def actions_to_finalize(self):
+        app().pulse_file.write_line_properties_in_file()
+        self.pushButton_cancel.setText("Exit")
+        self.complete = True
+        self.close()
 
     def on_click_item(self, item):
         self.comboBox_selection.setCurrentIndex(1)
