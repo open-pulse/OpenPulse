@@ -408,7 +408,7 @@ class ReciprocatingPumpInputs(QDialog):
         if "points_per_revolution" in parameters.keys():
             self.spinBox_number_of_points.setValue(int(parameters["points_per_revolution"]))
 
-        f_min, f_max, f_step, N_rev = self.get_aquisition_parameters(parameters)
+        _, f_max, f_step, N_rev = self.get_aquisition_parameters(parameters)
         self.lineEdit_number_of_revolutions.setText(str(N_rev))
         self.spinBox_max_frequency.setValue(int(f_max))
         self.lineEdit_frequency_resolution.setText(str(round(f_step, 6)))
@@ -760,7 +760,7 @@ class ReciprocatingPumpInputs(QDialog):
             self.parameters['points_per_revolution'] = self.pump_model.number_points
             self.pump_model.bulk_modulus = self.parameters["bulk_modulus"]
 
-            freq, in_flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
+            freq, flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
 
             table_name = f"pump_excitation_{connection_type}_node_{node_id}"
 
@@ -776,7 +776,7 @@ class ReciprocatingPumpInputs(QDialog):
 
             self.remove_conflicting_excitations(node_id)
 
-            if self.save_table_values(table_name, freq, in_flow_rate):
+            if self.save_table_values(table_name, freq, flow_rate):
                 return
 
             self.properties._set_nodal_property("reciprocating_pump_excitation", data, node_id)
@@ -784,6 +784,7 @@ class ReciprocatingPumpInputs(QDialog):
 
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
+        app().pulse_file.write_imported_table_data_in_file()
         app().main_window.set_selection()
         app().main_window.update_plots()
         self.load_reciprocating_pump_excitation_info()
@@ -792,8 +793,8 @@ class ReciprocatingPumpInputs(QDialog):
     def process_table_file_removal(self, table_names: list):
         for table_name in table_names:
             self.properties.remove_imported_tables("acoustic", table_name)
-        if table_names:
-            app().pulse_file.write_imported_table_data_in_file()
+        # if table_names:
+        #     app().pulse_file.write_imported_table_data_in_file()
 
     def remove_conflicting_excitations(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "reciprocating_pump_excitation", "reciprocating_compressor_excitation"]:

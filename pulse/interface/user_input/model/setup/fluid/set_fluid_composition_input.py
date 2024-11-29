@@ -527,7 +527,7 @@ class SetFluidCompositionInput(QDialog):
 
                     for key_prop in self.map_properties.keys():
 
-                        if key_prop in ["PRANDTL", "TD", "KV"]:
+                        if key_prop in ["PRANDTL", "TD", "KV", "QMASS", "QMOLE"]:
                             continue
 
                         read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 

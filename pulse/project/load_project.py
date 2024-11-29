@@ -135,7 +135,18 @@ class LoadProject:
             else:
                 molar_mass = None
 
-            fluid = Fluid(  name = name,
+            if 'adiabatic_bulk_modulus' in keys:
+                adiabatic_bulk_modulus = float(section['adiabatic_bulk_modulus'])
+            else:
+                adiabatic_bulk_modulus = None
+
+            if 'vapor_pressure' in keys:
+                vapor_pressure = float(section['vapor_pressure'])
+            else:
+                vapor_pressure = None
+
+            fluid = Fluid(  
+                            name = name,
                             density = density,
                             speed_of_sound = speed_of_sound,
                             color =  color,
@@ -146,8 +157,11 @@ class LoadProject:
                             dynamic_viscosity = dynamic_viscosity,
                             temperature = temperature,
                             pressure = pressure,
-                            molar_mass = molar_mass  )
-            
+                            molar_mass = molar_mass,
+                            adiabatic_bulk_modulus = adiabatic_bulk_modulus,
+                            vapor_pressure = vapor_pressure
+                          )
+
             self.library_fluids[identifier] = fluid
 
 

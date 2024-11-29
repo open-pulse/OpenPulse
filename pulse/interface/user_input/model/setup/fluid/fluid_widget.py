@@ -183,7 +183,18 @@ class FluidWidget(QWidget):
             else:
                 molar_mass = None
 
-            fluid = Fluid(  name = name,
+            if 'adiabatic_bulk_modulus' in keys:
+                adiabatic_bulk_modulus = float(section['adiabatic_bulk_modulus'])
+            else:
+                adiabatic_bulk_modulus = None
+
+            if 'vapor_pressure' in keys:
+                vapor_pressure = float(section['vapor_pressure'])
+            else:
+                vapor_pressure = None
+
+            fluid = Fluid(  
+                            name = name,
                             density = density,
                             speed_of_sound = speed_of_sound,
                             color =  color,
@@ -194,7 +205,10 @@ class FluidWidget(QWidget):
                             dynamic_viscosity = dynamic_viscosity,
                             temperature = temperature,
                             pressure = pressure,
-                            molar_mass = molar_mass  )
+                            molar_mass = molar_mass,
+                            adiabatic_bulk_modulus = adiabatic_bulk_modulus,
+                            vapor_pressure = vapor_pressure
+                          )
 
             self.list_of_fluids[identifier] = fluid
 
@@ -536,10 +550,14 @@ class FluidWidget(QWidget):
             identifier = fluid_data["identifier"]
 
             if self.refprop is not None:
+
                 [key_mixture, molar_fractions] = self.fluid_setup
+
                 fluid_data['key mixture'] = key_mixture
                 fluid_data['molar fractions'] = molar_fractions
                 fluid_data["molar_mass"] = round(self.fluid_data_refprop["molar_mass"], 6)
+                fluid_data["adiabatic_bulk_modulus"] = self.fluid_data_refprop["adiabatic_bulk_modulus"]
+                fluid_data["vapor_pressure"] = self.fluid_data_refprop["vapor_pressure"]
 
             config = app().pulse_file.read_fluid_library_from_file()
             config[identifier] = fluid_data
