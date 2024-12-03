@@ -12,7 +12,7 @@ from pulse.editor.pulsation_damper import PulsationDamper
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 
-from pulse.interface.utils import check_inputs
+from pulse.utils.interface_utils import check_inputs
 
 import numpy as np
 
