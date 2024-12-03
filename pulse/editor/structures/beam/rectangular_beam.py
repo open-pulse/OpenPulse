@@ -37,6 +37,8 @@ class RectangularBeam(Beam):
             height=section_parameters[1],
             thickness_width=(section_parameters[0] - section_parameters[2]) / 2,
             thickness_height=(section_parameters[0] - section_parameters[3]) / 2,
+            offset_y=section_parameters[4],
+            offset_z=section_parameters[5],
         )
 
         section_info = {
