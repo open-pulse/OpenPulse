@@ -20,8 +20,6 @@ class LinearStructure(Structure):
 
         self.start = start
         self.end = end
-        self.offset_y = kwargs.get("offset_y", 0)
-        self.offset_z = kwargs.get("offset_z", 0)
 
     @property
     def arc_length(self):
