@@ -37,6 +37,8 @@ class TBeam(Beam):
             width=section_parameters[1],
             thickness_1=section_parameters[2],
             thickness_2=section_parameters[3],
+            offset_y=section_parameters[4],
+            offset_z=section_parameters[5],
         )
 
         section_info = {

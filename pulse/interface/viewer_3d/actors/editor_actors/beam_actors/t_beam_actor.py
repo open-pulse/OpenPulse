@@ -21,6 +21,8 @@ class TBeamActor(vtkActor):
             self.beam.width,
             self.beam.thickness_1,
             self.beam.thickness_2,
+            offset_y=self.beam.offset_y,
+            offset_z=self.beam.offset_z,
         )
 
         data = align_vtk_geometry(source, self.beam.start.coords(), vector, angle=self.beam.angle)

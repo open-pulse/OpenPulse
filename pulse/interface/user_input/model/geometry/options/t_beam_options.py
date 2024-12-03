@@ -29,6 +29,8 @@ class TBeamOptions(StructureOptions):
             width = parameters[1],
             thickness_1 = parameters[2],
             thickness_2 = parameters[3],
+            offset_y=parameters[4],
+            offset_z=parameters[5],
             extra_info = self._get_extra_info(),
         )
 
