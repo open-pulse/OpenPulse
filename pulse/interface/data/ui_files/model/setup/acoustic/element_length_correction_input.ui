@@ -454,6 +454,11 @@
                  <height>26</height>
                 </size>
                </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the element length correction type&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>

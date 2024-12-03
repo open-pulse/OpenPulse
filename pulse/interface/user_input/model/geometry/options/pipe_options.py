@@ -74,7 +74,7 @@ class PipeOptions(StructureOptions):
             set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
             enable = False
 
-        self.geometry_designer_widget.frame_bounding_box_sizes.setEnabled(enable)
+        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
         super().update_permissions(enable)
 
     def load_data_from_reducer_section(self):

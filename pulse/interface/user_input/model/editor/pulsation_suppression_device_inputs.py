@@ -18,7 +18,7 @@ import numpy as np
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PulsationSuppressionDeviceInput(QDialog):
+class PulsationSuppressionDeviceInputs(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
@@ -333,15 +333,16 @@ class PulsationSuppressionDeviceInput(QDialog):
             self.pushButton_create_psd.setDisabled(True)
 
     def on_click_item(self, item):
-        self.lineEdit_selection.setText(item.text(0))
+
         self.pushButton_remove.setDisabled(False)
+        self.lineEdit_selection.setText(item.text(0))
+
         if item.text(0) in self.psds_lines.keys():
             device_lines = self.psds_lines[item.text(0)]
             app().main_window.set_selection(lines = device_lines)
 
     def on_double_click_item(self, item):
         self.on_click_item(item)
-        # TODO: get detailed information about selected PSD
 
     def update_the_rotation_angle(self):
         index = self.comboBox_main_axis.currentIndex()
@@ -969,8 +970,8 @@ class PulsationSuppressionDeviceInput(QDialog):
 
         self.hide()
 
-        title = "PSDs resetting requested"
-        message = "Would you to remove the all Pulsation Suppression Devices from model?"
+        title = "Pulsation Suppression Devices resetting"
+        message = "Would you like to remove all the created Pulsation Suppression Devices from the model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Proceed"}
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)

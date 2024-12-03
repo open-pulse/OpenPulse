@@ -135,7 +135,18 @@ class LoadProject:
             else:
                 molar_mass = None
 
-            fluid = Fluid(  name = name,
+            if 'adiabatic_bulk_modulus' in keys:
+                adiabatic_bulk_modulus = float(section['adiabatic_bulk_modulus'])
+            else:
+                adiabatic_bulk_modulus = None
+
+            if 'vapor_pressure' in keys:
+                vapor_pressure = float(section['vapor_pressure'])
+            else:
+                vapor_pressure = None
+
+            fluid = Fluid(  
+                            name = name,
                             density = density,
                             speed_of_sound = speed_of_sound,
                             color =  color,
@@ -146,8 +157,11 @@ class LoadProject:
                             dynamic_viscosity = dynamic_viscosity,
                             temperature = temperature,
                             pressure = pressure,
-                            molar_mass = molar_mass  )
-            
+                            molar_mass = molar_mass,
+                            adiabatic_bulk_modulus = adiabatic_bulk_modulus,
+                            vapor_pressure = vapor_pressure
+                          )
+
             self.library_fluids[identifier] = fluid
 
 
@@ -560,6 +574,19 @@ class LoadProject:
                 psd_lines[psd_name].append(line_id)
 
         return psd_lines
+
+
+    def get_pulsation_damper_related_lines(self):
+
+        pulsation_damper_lines = defaultdict(list)
+        for line_id, data in self.properties.line_properties.items():
+
+            data: dict
+            if "pulsation_damper_name" in data.keys():
+                pulsation_damper_name = data["pulsation_damper_name"]
+                pulsation_damper_lines[pulsation_damper_name].append(line_id)
+
+        return pulsation_damper_lines
 
 
     def get_cross_sections_from_file(self):

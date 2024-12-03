@@ -228,7 +228,6 @@ class VolumeVelocityInput(QDialog):
             self.properties._set_nodal_property("volume_velocity", data, node_id)
 
         self.actions_to_finalize()
-        # self.close()
 
         print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
 
@@ -260,9 +259,9 @@ class VolumeVelocityInput(QDialog):
 
                 caption = f"Choose a table to import the volume velocity"
                 path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
-                                                                                                caption, 
-                                                                                                last_path, 
-                                                                                                'Table File (*.csv; *.dat; *.txt)'
+                                                                                              caption, 
+                                                                                              last_path, 
+                                                                                              'Table File (*.csv; *.dat; *.txt)'
                                                                                               )
 
                 if not check:
@@ -365,11 +364,7 @@ class VolumeVelocityInput(QDialog):
 
                 self.properties._set_nodal_property("volume_velocity", data, node_id)
 
-            # self.process_table_file_removal(table_names)
-
             self.actions_to_finalize()
-            # self.close()
-            app().pulse_file.write_imported_table_data_in_file()
 
             print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
 
@@ -434,9 +429,7 @@ class VolumeVelocityInput(QDialog):
 
             self.remove_table_files_from_nodes(node_ids[0])
             self.properties._remove_nodal_property("volume_velocity", node_ids[0])
-
             self.actions_to_finalize()
-            # self.close()
 
     def reset_callback(self):
 
@@ -462,14 +455,14 @@ class VolumeVelocityInput(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("volume_velocity")
-
             self.actions_to_finalize()
-            # self.close()
 
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
-        self.load_nodes_info()
+        app().pulse_file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera=False)
+        self.load_nodes_info()
+        self.pushButton_cancel.setText("Exit")
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.setText("")

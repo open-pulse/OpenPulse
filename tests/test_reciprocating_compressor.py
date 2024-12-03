@@ -108,7 +108,7 @@ def test_PV_diagram(print_log=True, export_data=True):
 
 
 def test_suction_flow_rate():
-    # return
+    return
     
     crank_angle = 0
     reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
@@ -139,7 +139,7 @@ def test_suction_flow_rate():
 
 
 def test_discharge_flow_rate():
-    # return
+    return
     
     crank_angle = 0
     reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)

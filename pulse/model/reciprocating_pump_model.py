@@ -23,16 +23,18 @@ def plot(x, y, x_label, y_label, title, label="", _absolute=False):
 
     plt().ion()
 
-    fig = plt().figure(figsize=[8,6])
+    fig = plt().figure(figsize=[10, 6])
     ax_ = fig.add_subplot(1,1,1)
 
     if _absolute:
         y = np.abs(y)
 
-    ax_.plot(x, y, color=[1,0,0], linewidth = 2, label = label)
-    ax_.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_title(title, fontsize = 12, fontweight = 'bold')
+    ax_.plot(x, y, color=[0,0,1], linewidth = 1, label = label)
+
+    ax_.set_xlabel(x_label, fontsize = 11)#, fontweight = 'bold')
+    ax_.set_ylabel(y_label, fontsize = 11)#, fontweight = 'bold')
+    ax_.set_title(title, fontsize = 12)#, fontweight = 'bold')
+
     plt().grid()
     plt().show() 
 
@@ -40,15 +42,16 @@ def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):
 
     plt().ion()
 
-    fig = plt().figure(figsize=[8,6])
+    fig = plt().figure(figsize=[10, 6])
     ax_ = fig.add_subplot(1,1,1)
 
     for i, label in enumerate(labels): 
-        ax_.plot(x[i], y[i], color=colors[i], linewidth=2, linestyle=linestyles[i], label=label)
-    
-    ax_.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
-    ax_.set_title(title, fontsize = 12, fontweight = 'bold')
+        ax_.plot(x[i], y[i], color=colors[i], linewidth=1, linestyle=linestyles[i], label=label)
+
+    ax_.set_xlabel(x_label, fontsize = 11)#, fontweight = 'bold')
+    ax_.set_ylabel(y_label, fontsize = 11)#, fontweight = 'bold')
+    ax_.set_title(title, fontsize = 12)#, fontweight = 'bold')
+
     plt().legend()
     plt().grid()
     plt().show() 
@@ -56,7 +59,7 @@ def plot2(x, y, x_label, y_label, title, labels, colors, linestyles):
 def plot_2_yaxis(data_to_plot, title):
 
     plt().ion()
-    fig = plt().figure(figsize=[8,6])
+    fig = plt().figure(figsize=[10, 6])
     ax_1 = fig.add_subplot(1,1,1)
     ax_2 = ax_1.twinx()
     
@@ -84,17 +87,17 @@ def plot_2_yaxis(data_to_plot, title):
             if "linestyle" in data.keys():
                 linestyle = data["linestyle"]
 
-            ax_1.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
+            ax_1.set_xlabel(x_label, fontsize = 11)#, fontweight = 'bold')
             plots = []
             legends = []
             if axis_ == "left":
                 plot_1, = ax_1.plot(x_data, y_data, color=color, linewidth=linewidth, linestyle=linestyle, label=legend_label)
-                ax_1.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
+                ax_1.set_ylabel(y_label, fontsize = 11)#, fontweight = 'bold')
                 plots.append(plot_1)
                 legends.append(legend_label)
             else:
                 plot_2, = ax_2.plot(x_data, y_data, color=color, linewidth=linewidth, linestyle=linestyle, label=legend_label)
-                ax_2.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
+                ax_2.set_ylabel(y_label, fontsize = 11)#, fontweight = 'bold')
                 plots.append(plot_2)
                 legends.append(legend_label)
 
@@ -128,16 +131,16 @@ class ReciprocatingPumpModel:
         self._load_compressor_parameters(parameters)
         self.number_points = kwargs.get('number_points', 1000)
         self.max_frequency = kwargs.get('max_frequency', 300)
-        # self.number_of_cylinders = kwargs.get('number_of_cylinders', 1)
 
 
-    def _load_compressor_parameters(self, parameters):
+    def _load_compressor_parameters(self, parameters: dict):
         """
         """
+
         self.D = parameters['bore_diameter']                            # Cylinder bore diameter [m]
         self.r = parameters['stroke'] / 2                               # Length of compressor full stroke [m]
         self.L = parameters['connecting_rod_length']                    # Connecting rod length [m]
-        self.rod_diam = parameters['rod_diameter']                      # Rod diameter [m]
+        self.rod_diam = parameters.get('rod_diameter', 0)               # Rod diameter [m]
         self.c_HE = parameters['clearance_HE'] / 100                    # Clearance HE volume as percentage of full volume (%)
         self.c_CE = parameters['clearance_CE'] / 100                    # Clearance CE volume as percentage of full volume (%)
         self.crank_angle_1 = parameters['TDC_crank_angle_1']            # Crank angle (degrees) at which piston in the head end chamber is at top dead center
@@ -153,19 +156,27 @@ class ReciprocatingPumpModel:
         self.bulk_modulus = parameters['bulk_modulus']                       # Fluid bulk modulus (isentropic or isothermal)
 
         if "kgf/cm²" in self.pressure_unit:
-            self.p_suc = pressure_at_suction * kgf_cm2_to_Pa
-            self.p_disch = pressure_at_discharge * kgf_cm2_to_Pa
+            self.P_suc = pressure_at_suction * kgf_cm2_to_Pa
+            self.P_discharge = pressure_at_discharge * kgf_cm2_to_Pa
             
         elif "bar" in self.pressure_unit:
-            self.p_suc = pressure_at_suction * bar_to_Pa
-            self.p_disch = pressure_at_discharge * bar_to_Pa
+            self.P_suc = pressure_at_suction * bar_to_Pa
+            self.P_discharge = pressure_at_discharge * bar_to_Pa
+
+        elif "kPa" in self.pressure_unit:
+            self.P_suc = pressure_at_suction * 1e3
+            self.P_discharge = pressure_at_discharge * 1e3
+
+        else:
+            self.P_suc = pressure_at_suction
+            self.P_discharge = pressure_at_discharge
 
         if "(g)" in self.pressure_unit:
-            self.p_suc += 101325
-            self.p_disch += 101325
+            self.P_suc += 101325
+            self.P_discharge += 101325
 
-        self.delta_P = self.p_disch - self.p_suc
-        self.p_ratio = self.p_disch / self.p_suc
+        self.delta_P = self.P_discharge - self.P_suc
+        self.p_ratio = self.P_discharge / self.P_suc
 
         if self.temperature_unit == "°C":
             self.T_suc = temperature_at_suction + 273.15
@@ -196,7 +207,7 @@ class ReciprocatingPumpModel:
         
         """
 
-        self.bulk_modulus = fluid_data.get('bulk_modulus', None)                # Bulk modulus [Pa]
+        self.bulk_modulus = fluid_data.get('bulk_modulus', None)                  # Bulk modulus [Pa]
         # self.density_at_suction = fluid_data.get('density_at_suction', None)    # Density [kg/m³]
 
     def recip_x(self, tdc=None):
@@ -400,7 +411,7 @@ class ReciprocatingPumpModel:
 
             if (round(V3, 12) >= round(V_i, 12) >= round(V4, 12)) and (round(v_piston[i], 8) >= 0):  
 
-                P_i = self.p_suc + self.bulk_modulus * (1 - V_i / V3)
+                P_i = self.P_suc + self.bulk_modulus * (1 - V_i / V3)
                 
                 if round(V_i, 12) == round(V4, 12):
                     open_disc[i] = True
@@ -416,7 +427,7 @@ class ReciprocatingPumpModel:
 
             if (round(V4,8) > round(V_i,8) >= round(V1,8)) and (round(v_piston[i],8) >= 0):
 
-                P_i = self.p_disch
+                P_i = self.P_discharge
                 open_disc[i] = True
 
                 pressures[i] = P_i
@@ -431,7 +442,7 @@ class ReciprocatingPumpModel:
 
             if (round(V1, 12) <= round(V_i, 12) <= round(V2, 12)) and (round(v_piston[i], 8) <= 0):
     
-                P_i = self.p_disch + self.bulk_modulus * (1 - V_i / V1)
+                P_i = self.P_discharge + self.bulk_modulus * (1 - V_i / V1)
 
                 if round(V_i, 12) == round(V2, 12):
                     open_suc[i] = True
@@ -446,7 +457,7 @@ class ReciprocatingPumpModel:
             V_i = volumes[i]
 
             if (V2 < round(V_i,8) <= round(V3,8)) and (round(v_piston[i],8) <= 0):
-                P_i = self.p_suc
+                P_i = self.P_suc
                 open_suc[i] = True
 
                 pressures[i] = P_i
@@ -458,8 +469,9 @@ class ReciprocatingPumpModel:
 
         if export_data:
 
-            fname = f"temporary_data\PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log = f"temporary_data\log_info_head_end_{self.crank_angle_1}.txt"
+            fname = f"temporary_data\\PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
+            fname_log = f"temporary_data\\log_info_head_end_{self.crank_angle_1}.txt"
+
             if not os.path.exists(os.path.dirname(fname)):
                 os.mkdir("temporary_data")
 
@@ -468,8 +480,8 @@ class ReciprocatingPumpModel:
             header += f"V2 = {V2}\n"
             header += f"V3 = {V3}\n"
             header += f"V4 = {V4}\n"
-            indexes = np.arange(N)
 
+            indexes = np.arange(N)
             data = np.array([   indexes,
                                 time,
                                 angle,
@@ -489,7 +501,7 @@ class ReciprocatingPumpModel:
 
     def process_crank_end_volumes_and_pressures(self, tdc=None, export_data=True):
 
-        print(f"Bulk modulus: {round(self.bulk_modulus, 6)} [Pa]")
+        # print(f"Bulk modulus: {round(self.bulk_modulus, 6)} [Pa]")
 
         V0, A, h0 = self.get_clearance_data("CE")
 
@@ -528,7 +540,7 @@ class ReciprocatingPumpModel:
 
             if (round(V3, 12) >= round(V_i, 12) >= round(V4, 12)) and (round(v_piston[i], 8) >= 0):  
 
-                P_i = self.p_suc + self.bulk_modulus * (1 - V_i / V3)
+                P_i = self.P_suc + self.bulk_modulus * (1 - V_i / V3)
                 
                 if round(V_i, 12) == round(V4, 12):
                     open_disc[i] = True
@@ -544,7 +556,7 @@ class ReciprocatingPumpModel:
 
             if (round(V4,8) > round(V_i,8) >= round(V1,8)) and (round(v_piston[i],8) >= 0):
 
-                P_i = self.p_disch
+                P_i = self.P_discharge
                 open_disc[i] = True
 
                 pressures[i] = P_i
@@ -559,7 +571,7 @@ class ReciprocatingPumpModel:
 
             if (round(V1, 12) <= round(V_i, 12) <= round(V2, 12)) and (round(v_piston[i], 8) <= 0):
     
-                P_i = self.p_disch + self.bulk_modulus * (1 - V_i / V1)
+                P_i = self.P_discharge + self.bulk_modulus * (1 - V_i / V1)
 
                 if round(V_i, 12) == round(V2, 12):
                     open_suc[i] = True
@@ -574,7 +586,7 @@ class ReciprocatingPumpModel:
             V_i = volumes[i]
 
             if (V2 < round(V_i,8) <= round(V3,8)) and (round(v_piston[i],8) <= 0):
-                P_i = self.p_suc
+                P_i = self.P_suc
                 open_suc[i] = True
 
                 pressures[i] = P_i
@@ -586,8 +598,9 @@ class ReciprocatingPumpModel:
 
         if export_data:
 
-            fname = f"temporary_data\PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log = f"temporary_data\log_info_crank_end_{self.crank_angle_1}.txt"
+            fname = f"temporary_data\\PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
+            fname_log = f"temporary_data\\log_info_crank_end_{self.crank_angle_1}.txt"
+
             if not os.path.exists(os.path.dirname(fname)):
                 os.mkdir("temporary_data")
             
@@ -596,6 +609,7 @@ class ReciprocatingPumpModel:
             header += f"V2 = {V2}\n"
             header += f"V3 = {V3}\n"
             header += f"V4 = {V4}\n"
+
             indexes = np.arange(N)
             data = np.array([   indexes,
                                 time,
@@ -632,19 +646,27 @@ class ReciprocatingPumpModel:
             return None
 
         v_piston = self.recip_v(tdc=tdc)
+        _, x_piston = self.recip_x(tdc=tdc)
+
+        V0, A, h0 = self.get_clearance_data('HE')
         #
         N = len(v_piston)
         flow_in = np.zeros(N, dtype=float)
         flow_out = np.zeros(N, dtype=float)
 
+        # print(f'Volume: {self.area_head_end * self.r * 2}')
+
         for i, v in enumerate(v_piston):
+        # for i, x_i in enumerate(x_piston):
 
             if valves_info["open suction"][i]:
                 flow_in[i] = v * self.area_head_end
+                # flow_in[i] = (h0 - x_i) * self.area_head_end
 
             if valves_info["open discharge"][i]:
                 flow_out[i] = v * self.area_head_end
-        
+                # flow_out[i] = (h0 - x_i) * self.area_head_end
+
         output_data = dict()
         output_data["in_flow"] = flow_in
         output_data["out_flow"] = flow_out
@@ -676,6 +698,28 @@ class ReciprocatingPumpModel:
         output_data["out_flow"] = flow_out
 
         return output_data
+    
+    def get_pump_fluctuating_volume(self, flow_label: str):
+
+        flow_rate = self.process_sum_of_volumetric_flow_rate(flow_label)
+        if flow_rate is None:
+            return
+
+        f_rot = self.rpm / 60
+        N = self.number_points
+
+        pos_flow = flow_rate - np.average(flow_rate)
+        if flow_label == "in_flow":
+            pos_flow *= -1
+
+        mask = pos_flow <= 0
+        pos_flow[mask] = np.zeros(sum(mask), dtype=float)
+        dt = 1 / (f_rot * (N - 1))
+
+        # fluctuating volume per piston / plunger in one cycle
+        dV = np.trapz(pos_flow, dx=dt) / self.number_of_cylinders
+
+        return dV, pos_flow
 
     def mass_flow_crank_end(self):
         vf = self.flow_crank_end()
@@ -888,7 +932,7 @@ class ReciprocatingPumpModel:
         y_data = [pressure_HE, pressure_CE]
         labels = ["Head End", "Crank End"]
         title = "PRESSURES vs TIME PLOT"
-        colors = [(1,0,0),(0,0,1)]
+        colors = [(1,0,0), (0,0,1)]
         linestyles = ["-","--"]
 
         plot2(x_data, y_data, x_label, y_label, title, labels, colors, linestyles)
@@ -908,7 +952,7 @@ class ReciprocatingPumpModel:
         y_data = [volume_HE, volume_CE]
         labels = ["Head End", "Crank End"]
         title = "PRESSURES vs TIME PLOT"
-        colors = [(1,0,0),(0,0,1)]
+        colors = [(1,0,0), (0,0,1)]
         linestyles = ["-","--"]
 
         plot2(x_data, y_data, x_label, y_label, title, labels, colors, linestyles)
@@ -942,7 +986,7 @@ class ReciprocatingPumpModel:
         avg_flow_rate = np.average(flow_rate)
         print(f"Average flow rate at discharge: {round(avg_flow_rate, 6)} [m³/h]")
 
-        Trev = 60/self.rpm
+        Trev = 60 / self.rpm
         N = len(flow_rate)
 
         time = np.linspace(0, Trev, N)
@@ -952,6 +996,42 @@ class ReciprocatingPumpModel:
         y_label = "Volume [m³/s]"
         title = "Volumetric flow rate at discharge"
         plot(time, flow_rate, x_label, y_label, title)
+
+    def plot_fluctuating_volume(self, flow_label: str):
+
+        flow_rate = self.process_sum_of_volumetric_flow_rate(flow_label)
+        if flow_rate is None:
+            return
+
+        T_rev = 60 / self.rpm
+        N = len(flow_rate)
+        dt = T_rev / (N - 1)
+        time = np.linspace(0, T_rev, N)
+
+        pos_dV = flow_rate - np.average(flow_rate)
+
+        if flow_label == "in_flow":
+            pos_dV *= -1
+
+        mask = pos_dV <= 0
+        pos_dV[mask] = np.zeros(sum(mask), dtype=float)
+
+        # fluctuating volume per piston / plunger in one cycle
+        
+        dV = np.trapz(pos_dV, dx=dt) / self.number_of_cylinders
+
+        if flow_label == "in_flow":
+            pos_dV *= -1
+
+        x_label = "Time [s]"
+        y_label = "Fluctuating volume [m³]"
+
+        if flow_label == "out_flow":
+            title = f"Pump fluctuating volume at discharge"# - dV = {dV : .6e} m³"
+        else:
+            title = f"Pump fluctuating volume at suction"# - dV = {dV : .6e} m³"
+
+        plot(time, pos_dV, x_label, y_label, title)
 
     def plot_rod_pressure_load_frequency(self, revolutions):
 
@@ -1146,8 +1226,8 @@ if __name__ == "__main__":
     parameters = {  
                     'bore_diameter' : 0.105,
                     'stroke' : 0.205,
-                    'connecting_rod_length' : 0.50,
-                    'rod_diameter' : 0.045,
+                    'connecting_rod_length' : 0.40,
+                    'rod_diameter' : 0.05,
                     'pressure_ratio' : 1.90788804,
                     'clearance_HE' : 15.8,
                     'clearance_CE' : 18.39,
@@ -1160,7 +1240,7 @@ if __name__ == "__main__":
                     'temperature_at_suction' : 45,
                     'pressure_unit' : "bar",
                     'temperature_unit' : "°C",
-                    'bulk_modulus' : 2.1e9
+                    'bulk_modulus' : 2541031616.236133
                     }
 
     pump = ReciprocatingPumpModel(parameters)

@@ -87,7 +87,7 @@ class StructureOptions:
         )
         self.geometry_designer_widget.attach_button.setEnabled(enable_attach and enable)
         self.geometry_designer_widget.add_button.setEnabled(enable_add and enable)
-        self.geometry_designer_widget.delete_button.setEnabled(enable_delete and enable)
+        self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
         self.geometry_designer_widget.configure_button.setEnabled(True)
 
     def get_kwargs(self) -> dict:

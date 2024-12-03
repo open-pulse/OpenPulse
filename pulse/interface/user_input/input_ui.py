@@ -29,8 +29,12 @@ from pulse.interface.user_input.model.setup.acoustic.add_acoustic_transfer_eleme
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.interface.user_input.model.setup.acoustic.reciprocating_compressor_inputs import ReciprocatingCompressorInputs
 from pulse.interface.user_input.model.setup.acoustic.reciprocating_pump_inputs import ReciprocatingPumpInputs
-from pulse.interface.user_input.model.editor.pulsation_suppression_device_input import PulsationSuppressionDeviceInput
-from pulse.interface.user_input.model.criteria.check_pulsation_criteria import CheckAPI618PulsationCriteriaInput
+#
+from pulse.interface.user_input.model.editor.pulsation_damper_editor_inputs import PulsationDamperEditorInputs
+from pulse.interface.user_input.model.editor.pulsation_suppression_device_inputs import PulsationSuppressionDeviceInputs
+from pulse.interface.user_input.model.criteria.reciprocating_compressor_pulsation_criteria import ReciprocatingCompressorPulsationCriteriaInput
+from pulse.interface.user_input.model.criteria.reciprocating_pump_pulsation_criteria import ReciprocatingPumpPulsationCriteriaInput
+from pulse.interface.user_input.model.criteria.reciprocating_pump_inlet_pressure_criteria import ReciprocatingPumpInletPressureCriteriaInput
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
 #
 from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
@@ -52,7 +56,6 @@ from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response 
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunction
 from pulse.interface.user_input.plots.acoustic.plot_transmission_loss import PlotTransmissionLoss
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure import PlotAcousticDeltaPressure
-from pulse.interface.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from pulse.interface.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
 from pulse.interface.user_input.project.render.renderer_user_preferences import RendererUserPreferencesInput
@@ -185,7 +188,10 @@ class InputUi:
         self.process_input(ReciprocatingPumpInputs)
 
     def pulsation_suppression_device_editor(self):
-        self.process_input(PulsationSuppressionDeviceInput)
+        self.process_input(PulsationSuppressionDeviceInputs)
+
+    def pulsation_damper_editor(self):
+        self.process_input(PulsationDamperEditorInputs)
 
     def analysis_setup(self):
 
@@ -317,12 +323,14 @@ class InputUi:
             else:
                 return self.process_input(PlotTransmissionLoss)
 
-    def plot_perforated_plate_convergence_data(self):
-        if self.project.perforated_plate_data_log:
-            self.process_input(PlotPerforatedPlateConvergenceData)
-    
-    def check_api618_pulsation_criteria(self):
-        return self.process_input(CheckAPI618PulsationCriteriaInput)
+    def reciprocating_compressor_pulsation_criteria(self):
+        return self.process_input(ReciprocatingCompressorPulsationCriteriaInput)
+
+    def reciprocating_pump_pulsation_criteria(self):
+        return self.process_input(ReciprocatingPumpPulsationCriteriaInput)
+
+    def reciprocating_pump_inlet_pressure_criteria(self):
+        return self.process_input(ReciprocatingPumpInletPressureCriteriaInput)
 
     def shaking_forces_criteria(self):
         return self.process_input(ShakingForcesCriteriaInput)

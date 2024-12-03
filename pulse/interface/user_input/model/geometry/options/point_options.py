@@ -38,7 +38,7 @@ class PointOptions(StructureOptions):
     def update_permissions(self):
         set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
         self.geometry_designer_widget.configure_button.setEnabled(False)
-        self.geometry_designer_widget.frame_bounding_box_sizes.setEnabled(True)
+        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(True)
         self.geometry_designer_widget.attach_button.setEnabled(True)
         self.geometry_designer_widget.add_button.setEnabled(True)
         self.geometry_designer_widget.delete_button.setEnabled(True)

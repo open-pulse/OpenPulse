@@ -188,6 +188,7 @@ def lines_info_text() -> str:
         if fluid is not None:
             info_text += fluid_info_text(fluid)
 
+
         properties = app().project.model.properties
         cross_section = properties._get_property("cross_section", line_id=line_id)
         structural_element_type = properties._get_property("structural_element_type", line_id=line_id)
@@ -225,11 +226,13 @@ def fluid_info_text(fluid) -> str:
     if fluid.temperature:
         tree.add_item("Temperature", round(fluid.temperature, 4), "K")
     if fluid.pressure:
-        tree.add_item("Pressure", round(fluid.pressure, 4), "Pa")
+        tree.add_item("Pressure", f"{fluid.pressure : .8e}", "Pa")
     if fluid.density:
         tree.add_item("Density", round(fluid.density, 4), "kg/m³")
     if fluid.speed_of_sound:
         tree.add_item("Speed of sound", round(fluid.speed_of_sound, 4), "m/s")
+    if fluid.bulk_modulus:
+        tree.add_item("Bulk modulus", f"{fluid.bulk_modulus : .8e}", "Pa")
     if fluid.molar_mass:
         tree.add_item("Molar mass", round(fluid.molar_mass, 4), "kg/kmol")
     return str(tree)

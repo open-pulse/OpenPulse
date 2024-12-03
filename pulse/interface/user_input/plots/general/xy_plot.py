@@ -1,6 +1,6 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QToolButton, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QDialog, QToolButton, QVBoxLayout, QWidget
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -28,7 +28,7 @@ class MplCanvas(FigureCanvasQTAgg):
 
 class XYPlot(QWidget):
 
-    def __init__(self, plot_config: dict):
+    def __init__(self, plot_config: dict, **kwargs):
         super().__init__()
 
         ui_path = UI_DIR / "plots/graphs/plot_xy_widget.ui"
@@ -36,6 +36,8 @@ class XYPlot(QWidget):
 
         app().main_window.set_input_widget(self)
         app().main_window.theme_changed.connect(self.paint_toolbar_icons)
+
+        self.dialog = kwargs.get("dialog", None)
 
         self.number_of_plots = plot_config.get("number_of_plots", 1)
         self.x_label = plot_config.get("x_label", "")
@@ -78,12 +80,12 @@ class XYPlot(QWidget):
             plot_i, = self.results_plot.ax_left.plot(
                                                      [], 
                                                      [], 
-                                                     color=self.colors[i], 
-                                                     linewidth=1, 
-                                                     linestyle=self.line_styles[i], 
-                                                     marker=self.markers[i], 
-                                                     markersize=5, 
-                                                     markerfacecolor=self.colors[i]
+                                                     color = self.colors[i], 
+                                                     linewidth = 1, 
+                                                     linestyle = self.line_styles[i], 
+                                                     marker = self.markers[i], 
+                                                     markersize = 5, 
+                                                     markerfacecolor = self.colors[i]
                                                      )
 
             self.plots.append(plot_i)
@@ -97,13 +99,26 @@ class XYPlot(QWidget):
         self.results_plot.ax_left.set_title(self.title)
         self.results_plot.ax_left.legend(self.plots, self.legends, loc="upper right")
 
-    def set_plot_data(self, x_data, y_data, plot_index, axes_limits):
+    def set_plot_data(self, x_data, y_data, plot_index: int, axes_limits: (list | tuple | str)):
+
         self.plots[plot_index].set_data(x_data, y_data)
-        xlim, ylim = axes_limits
+
+        if isinstance(axes_limits, (list | tuple)):
+            xlim, ylim = axes_limits
+
+        else:
+            xlim = (0.9 * min(x_data), 1.1 * max(x_data))
+            ylim = (0.9 * min(y_data), 1.1 * max(y_data))
+
+            # self.results_plot.ax_left.autoscale()
+            # self.results_plot.ax_left.autoscale_view()
+
         if xlim[0] != xlim[1]:
             self.results_plot.ax_left.set_xlim(*xlim)
+    
         if ylim[0] != ylim[1]:
             self.results_plot.ax_left.set_ylim(*ylim)
+
         self.results_plot.draw()
 
     def paint_toolbar_for_current_mpl(self, toolbar, mpl_plot):
@@ -122,6 +137,11 @@ class XYPlot(QWidget):
         for toolbar in self.findChildren(NavigationToolbar2QT):
             buttons = toolbar.findChildren(QToolButton)
             icons.change_icon_color_for_widgets(buttons, color)
+
+    def closeEvent(self, a0):
+        if isinstance(self.dialog, QDialog):
+            app().main_window.set_input_widget(self.dialog)
+        return super().closeEvent(a0)
 
     # def create_convergence_plots(self):
 
