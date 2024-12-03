@@ -43,6 +43,8 @@ class IBeam(Beam):
             thickness_1=section_parameters[2],
             thickness_2=section_parameters[4],
             thickness_3=section_parameters[5],
+            offset_y=section_parameters[6],
+            offset_z=section_parameters[7],
         )
 
         section_info = {

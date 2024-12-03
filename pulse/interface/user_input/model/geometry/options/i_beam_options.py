@@ -31,6 +31,8 @@ class IBeamOptions(StructureOptions):
             thickness_1 = parameters[2],
             thickness_2 = parameters[4],
             thickness_3 = parameters[5],
+            offset_y=parameters[6],
+            offset_z=parameters[7],
             extra_info = self._get_extra_info(),
         )
 
