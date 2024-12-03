@@ -15,7 +15,7 @@ class PipeActor(vtkActor):
     def create_geometry(self):
         vector = self.pipe.end.coords() - self.pipe.start.coords()
         length = np.linalg.norm(vector)
-        source = closed_pipe_data(length, self.pipe.diameter)
+        source = closed_pipe_data(length, self.pipe.diameter, self.pipe.offset_y, self.pipe.offset_z)
 
         data = align_vtk_geometry(source, self.pipe.start.coords(), vector)
         paint_data(data, self.pipe.color.to_rgb())

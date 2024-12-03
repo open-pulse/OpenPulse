@@ -33,6 +33,8 @@ class Pipe(LinearStructure):
             end,
             diameter=section_parameters[0],
             thickness=section_parameters[1],
+            offset_y=section_parameters[2],
+            offset_z=section_parameters[3],
         )
         section_info = {
             "section_type_label": data["section_type_label"],
