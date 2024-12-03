@@ -27,6 +27,8 @@ class FlangeOptions(StructureOptions):
         return dict(
             diameter = parameters[0],
             thickness = parameters[1],
+            offset_y = parameters[2],
+            offset_z = parameters[3],
             extra_info = self._get_extra_info(),
         )
 

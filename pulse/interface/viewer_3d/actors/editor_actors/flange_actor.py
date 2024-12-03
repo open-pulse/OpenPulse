@@ -15,7 +15,13 @@ class FlangeActor(vtkActor):
     def create_geometry(self):
         vector = self.flange.end.coords() - self.flange.start.coords()
         length = np.linalg.norm(vector)
-        source = flange_data(length, self.flange.diameter, self.flange.thickness)
+        source = flange_data(
+            length,
+            self.flange.diameter,
+            self.flange.thickness,
+            offset_y = self.flange.offset_y,
+            offset_z = self.flange.offset_z,
+        )
 
         data = align_vtk_geometry(source, self.flange.start.coords(), vector)
         paint_data(data, self.flange.color.to_rgb())

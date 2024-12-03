@@ -12,6 +12,9 @@ class Flange(LinearStructure):
         # a default thickness in the presentation
         self.diameter = kwargs.get("diameter", 0.1 + 0.02)
         self.thickness = kwargs.get("thickness", 0.01 + 0.02)
+        self.offset_y = kwargs.get("offset_y", 0)
+        self.offset_z = kwargs.get("offset_z", 0)
+
         self.color = GREEN_7
 
     def as_dict(self) -> dict:
@@ -35,6 +38,8 @@ class Flange(LinearStructure):
             end,
             diameter = section_parameters[0],
             thickness = section_parameters[1],
+            offset_y = section_parameters[2],
+            offset_z = section_parameters[3],
         )
         section_info = {
             "section_type_label" : data["section_type_label"],
