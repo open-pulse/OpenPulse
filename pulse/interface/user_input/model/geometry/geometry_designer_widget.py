@@ -381,6 +381,7 @@ class GeometryDesignerWidget(QWidget):
         x0, y0 = 0, 0
         x1, y1 = w, h
         need_to_fit = False
+        border = int(max(w, h) * 0.1)
 
         for point in chain(self.pipeline.staged_points, self.pipeline.selected_points):
             coordinate.SetValue(*point)
@@ -395,6 +396,16 @@ class GeometryDesignerWidget(QWidget):
             
         if not need_to_fit:
             return
+        
+        if x0 < 0:
+            x0 -= border
+        elif x1 > w:
+            x1 += border
+        
+        if y0 < 0:
+            y0 -= border
+        elif y1 > h:
+            y1 += border
         
         dx = (x1 + x0 - w) / 2
         dy = (y1 + y0 - h) / 2
