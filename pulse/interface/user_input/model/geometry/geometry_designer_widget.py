@@ -423,6 +423,13 @@ class GeometryDesignerWidget(QWidget):
         renderer.ZoomToBoxUsingViewAngle(rect)
     
     def move_viewport(self, dx, dy):
+        '''
+        Moves the viewport in view coordinates by some amount of pixels.
+
+        Further explanations on this link:
+        https://github.com/open-pulse/OpenPulse/blob/5f7bd4719527383b2d3ea078e5f29f214f35128d/doc/code_explanation/move_viewport.pdf
+        '''
+
         renderer = self.render_widget.renderer
         camera = renderer.GetActiveCamera()
         width, heigth = renderer.GetSize()
