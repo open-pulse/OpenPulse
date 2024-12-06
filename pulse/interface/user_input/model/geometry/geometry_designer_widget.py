@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox, QCheckBox
 from PyQt5 import uic
 
-from vtkmodules.vtkRenderingCore import vtkCoordinate
+from vtkmodules.vtkRenderingCore import vtkCoordinate, vtkCamera
 from vtkmodules.vtkCommonDataModel import vtkRecti
 
 import re
@@ -52,6 +52,7 @@ class GeometryDesignerWidget(QWidget):
 
         self.render_widget = render_widget
         self.modified = False
+        self.tmp_camera = None
 
         self.project = app().project
         self.pipeline = self.project.pipeline
@@ -209,6 +210,21 @@ class GeometryDesignerWidget(QWidget):
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback(PipeOptions.name())
         self.division_type_changed_callback()
+
+    def save_tmp_camera(self):
+        camera = self.render_widget.renderer.GetActiveCamera()
+        if self.tmp_camera is None:
+            self.tmp_camera = vtkCamera()
+        self.tmp_camera.DeepCopy(camera)
+
+    def load_tmp_camera(self):
+        if self.tmp_camera is not None:
+            camera = self.render_widget.renderer.GetActiveCamera()
+            camera.DeepCopy(self.tmp_camera)
+            camera.Modified()
+    
+    def clear_tmp_camera(self):
+        self.tmp_camera = None
 
     def selection_callback(self):
         if issubclass(self.current_structure_type, Point):
