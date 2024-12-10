@@ -644,7 +644,7 @@ class PulsationDamperEditorInputs(QDialog):
             self.lineEdit_damper_label.setFocus()
 
             title = "Invalid input"
-            message = "The typed 'damper label' has already been applied to other Pulsation Damper. "
+            message = f"The typed damper label '{damper_label}' has already been applied to other Pulsation Damper. "
             message += "You should enter a different label to proceed with the Pulsation Damper configuration."
 
         if message != "":
@@ -725,10 +725,12 @@ class PulsationDamperEditorInputs(QDialog):
         self.pushButton_cancel.setText("Exit")
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
-            self.close()
-        elif event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.create_pulsation_damper_callback()
+        elif event.key() == Qt.Key_Delete:
+            self.remove_callback()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
