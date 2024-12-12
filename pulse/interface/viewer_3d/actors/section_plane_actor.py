@@ -8,7 +8,7 @@ from pulse.utils.math_utils import lerp
 
 class SectionPlaneActor(vtkActor):
     def __init__(self, bounds):
-        self.bounds = bounds
+        self._bounds = bounds
         self.create_geometry()
         self.configure_appearance()
 
@@ -30,11 +30,11 @@ class SectionPlaneActor(vtkActor):
         self.GetProperty().LightingOff()
 
     def configure_section_plane(self, position, orientation):
-        x = lerp(self.bounds[0], self.bounds[1], position[0] / 100)
-        y = lerp(self.bounds[2], self.bounds[3], position[1] / 100)
-        z = lerp(self.bounds[4], self.bounds[5], position[2] / 100)
+        x = lerp(self._bounds[0], self._bounds[1], position[0] / 100)
+        y = lerp(self._bounds[2], self._bounds[3], position[1] / 100)
+        z = lerp(self._bounds[4], self._bounds[5], position[2] / 100)
 
-        x0, x1, y0, y1, z0, z1 = self.bounds
+        x0, x1, y0, y1, z0, z1 = self._bounds
         size = np.max(np.abs([x1 - x0, y1 - y0, z1 - z0]))
 
         self.SetPosition(x, y, z)
@@ -51,7 +51,7 @@ class SectionPlaneActor(vtkActor):
         return normal[:3]
 
     def calculate_xyz_position(self, position):
-        x = lerp(self.bounds[0], self.bounds[1], position[0] / 100)
-        y = lerp(self.bounds[2], self.bounds[3], position[1] / 100)
-        z = lerp(self.bounds[4], self.bounds[5], position[2] / 100)
+        x = lerp(self._bounds[0], self._bounds[1], position[0] / 100)
+        y = lerp(self._bounds[2], self._bounds[3], position[1] / 100)
+        z = lerp(self._bounds[4], self._bounds[5], position[2] / 100)
         return x, y, z
