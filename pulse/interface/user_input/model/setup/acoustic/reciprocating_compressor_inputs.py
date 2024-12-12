@@ -229,10 +229,10 @@ class ReciprocatingCompressorInputs(QDialog):
                 self.update_compressor_inputs(data)
 
     def tab_event_callback(self):
-
-        self.lineEdit_selected_node_id.setText("")
-        self.lineEdit_connection_type.setText("")
+        # self.lineEdit_selected_surface_id.setText("")
+        # self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
+        return
 
         if self.tabWidget_compressor.currentIndex() == 2:
             self.pushButton_cancel.setDisabled(True)
@@ -897,19 +897,13 @@ class ReciprocatingCompressorInputs(QDialog):
 
     def remove_callback(self):
 
-        if self.lineEdit_selected_node_id.text() == "":   
-            title = "Empty node selection"
-            message = "You should to select a node from the list "
-            message += "to proceed with the removal."
-            PrintMessageInput([window_title_2, title, message])
-            return
-            
-        node_id = int(self.lineEdit_selected_node_id.text())
+        if self.lineEdit_selected_node_id.text() != "":   
 
-        self.remove_table_files_from_nodes(node_id)
+            node_id = int(self.lineEdit_selected_node_id.text())
+            self.remove_table_files_from_nodes(node_id)
 
-        self.properties._remove_nodal_property("reciprocating_compressor_excitation", node_id)
-        self.actions_to_finalize()
+            self.properties._remove_nodal_property("reciprocating_compressor_excitation", node_id)
+            self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -1126,6 +1120,8 @@ class ReciprocatingCompressorInputs(QDialog):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()
+        elif event.key() == Qt.Key_Enter:
+            self.remove_callback()
         if event.key() == Qt.Key_Escape:
             self.close()
 

@@ -350,7 +350,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>-353</y>
+                  <y>0</y>
                   <width>439</width>
                   <height>938</height>
                  </rect>
@@ -2709,8 +2709,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>448</width>
-                  <height>512</height>
+                  <width>460</width>
+                  <height>566</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_18">
@@ -2803,7 +2803,7 @@
                        <enum>Qt::LeftToRight</enum>
                       </property>
                       <property name="currentIndex">
-                       <number>3</number>
+                       <number>4</number>
                       </property>
                       <item>
                        <property name="text">
@@ -2864,7 +2864,7 @@
                        <number>10</number>
                       </property>
                       <property name="value">
-                       <number>400</number>
+                       <number>600</number>
                       </property>
                      </widget>
                     </item>

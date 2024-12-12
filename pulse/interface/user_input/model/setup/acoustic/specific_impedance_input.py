@@ -156,8 +156,12 @@ class SpecificImpedanceInput(QDialog):
         title = "Invalid entry to the specific impedace"
 
         if lineEdit_real.text() != "":
+
+            _str_real = lineEdit_real.text()
+            str_real = _str_real.replace(",", ".")
+
             try:
-                real_F = float(lineEdit_real.text())
+                real_F = float(str_real)
             except Exception:
                 self.hide()
                 message = "Wrong input for real part of specific impedace."
@@ -169,8 +173,12 @@ class SpecificImpedanceInput(QDialog):
             real_F = 0
 
         if lineEdit_imag.text() != "":
+
+            _str_imag = lineEdit_imag.text()
+            str_imag = _str_imag.replace(",", ".")
+
             try:
-                imag_F = float(lineEdit_imag.text())
+                imag_F = float(str_imag)
             except Exception:
                 self.hide()
                 message = "Wrong input for imaginary part of specific impedace."

@@ -222,12 +222,12 @@ class ReciprocatingPumpInputs(QDialog):
                 self.update_pump_inputs(data)
 
     def tab_event_callback(self):
-
-        self.lineEdit_selected_node_id.setText("")
-        self.lineEdit_connection_type.setText("")
+        # self.lineEdit_selected_surface_id.setText("")
+        # self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
+        return
 
-        if self.tabWidget_main.currentIndex() == 2:
+        if self.tabWidget_compressor.currentIndex() == 2:
             self.pushButton_cancel.setDisabled(True)
             self.pushButton_confirm.setDisabled(True)
         else:
@@ -1100,7 +1100,9 @@ class ReciprocatingPumpInputs(QDialog):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()
-        if event.key() == Qt.Key_Escape:
+        elif event.key() == Qt.Key_Delete:
+            self.remove_callback()
+        elif event.key() == Qt.Key_Escape:
             self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
