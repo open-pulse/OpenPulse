@@ -170,7 +170,7 @@ class Mesh:
         try:
 
             gmsh.model.mesh.generate(3)
-            # gmsh.model.mesh.removeDuplicateNodes()
+            gmsh.model.mesh.removeDuplicateNodes()
 
             node_indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
             _, element_indexes, connectivity = gmsh.model.mesh.getElements()
