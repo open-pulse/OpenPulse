@@ -18,7 +18,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.10"
 PyQt5 = "^5.15.9"
-vtk = "^9.2.6"
+vtk = "^9.4.0"
 numpy = "^2.1.2"
 scipy = "^1.11.2"
 matplotlib = "^3.7.2"
@@ -26,7 +26,7 @@ gmsh = "^4.13.1"
 ctREFPROP = "^0.10.2"
 pandas = "^2.1.0"
 openpyxl = "^3.1.2"
-h5py = "^3.9.0"
+h5py = "^3.12.1"
 compressors = {git = "https://github.com/MOPT-UFSC/Compressors"}
 molde = {git = "https://github.com/andrefpf/molde"}
 pypardiso-mopt = {git = "https://github.com/MOPT-UFSC/PyPardiso"}
