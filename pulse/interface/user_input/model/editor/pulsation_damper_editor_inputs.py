@@ -37,6 +37,7 @@ class PulsationDamperEditorInputs(QDialog):
 
         self.load_pulsation_damper_info()
         self.selection_callback()
+        self.update_pulsation_damper_label()
 
         while self.keep_window_open:
             self.exec()
@@ -117,6 +118,9 @@ class PulsationDamperEditorInputs(QDialog):
         self.comboBox_pressure_units.currentIndexChanged.connect(self.load_state_properties)
         self.comboBox_temperature_units.currentIndexChanged.connect(self.load_state_properties)
         #
+        self.lineEdit_outside_diameter_liquid.textEdited.connect(self.update_sections_info_callback)
+        self.lineEdit_wall_thickness_liquid.textEdited.connect(self.update_sections_info_callback)
+        #
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_create.clicked.connect(self.create_pulsation_damper_callback)
         self.pushButton_get_gas_fluid.clicked.connect(self.get_gas_fluid_callback)
@@ -153,6 +157,30 @@ class PulsationDamperEditorInputs(QDialog):
                 return
 
             self.selected_material = material
+
+    def update_sections_info_callback(self):
+
+        if self.comboBox_volume_sections.currentIndex() == 0:
+
+            try:
+
+                _outside_diameter = self.lineEdit_outside_diameter_liquid.text()
+                _outside_diameter = _outside_diameter.replace(",", ".")
+                float(_outside_diameter)
+                self.lineEdit_outside_diameter_gas.setText(_outside_diameter)
+
+            except:
+                self.lineEdit_outside_diameter_gas.setText("")
+
+            try:
+
+                _wall_thickness = self.lineEdit_wall_thickness_liquid.text()
+                _wall_thickness = _wall_thickness.replace(",", ".")
+                float(_wall_thickness)
+                self.lineEdit_wall_thickness_gas.setText(_wall_thickness)
+
+            except:
+                self.lineEdit_wall_thickness_gas.setText("")
 
     def load_fluid_properties(self, fluid: Fluid):
 
@@ -343,8 +371,19 @@ class PulsationDamperEditorInputs(QDialog):
             self.lineEdit_gas_volume.setFocus()
             return True
         
-        self._pulsation_damper_data["damper_volume"] = damper_volume
-        self._pulsation_damper_data["gas_volume"] = gas_volume
+        unit_label = self.comboBox_volume_unit.currentText()
+
+        if unit_label == " cubic centimeters":
+            volume_unit_factor = 1e-6
+
+        elif unit_label == " liters":
+            volume_unit_factor = 1e-3
+
+        else:
+            volume_unit_factor = 1
+
+        self._pulsation_damper_data["damper_volume"] = damper_volume * volume_unit_factor
+        self._pulsation_damper_data["gas_volume"] = gas_volume * volume_unit_factor
 
     def check_geometric_entries(self):
 
@@ -630,6 +669,24 @@ class PulsationDamperEditorInputs(QDialog):
             self.tabWidget_main.setCurrentIndex(0)
             self.tabWidget_main.setTabVisible(1, False)
 
+    def update_pulsation_damper_label(self):
+
+        damper_label = self.lineEdit_damper_label.text()
+        if damper_label in self.damper_data.keys():
+
+            sufix = 0
+            max_iter = 100
+            _damper_label = damper_label
+
+            while _damper_label in self.damper_data.keys() and sufix < max_iter:
+                sufix += 1
+                _damper_label = damper_label + f"_{sufix}"
+
+        if _damper_label in self.damper_data.keys():
+            _damper_label = ""
+
+        self.lineEdit_damper_label.setText(_damper_label)
+
     def check_pulsation_damper_label(self):
 
         message = ""
@@ -641,11 +698,8 @@ class PulsationDamperEditorInputs(QDialog):
             message = "Enter a damper label to proceed."
 
         elif damper_label in self.damper_data.keys():
-            self.lineEdit_damper_label.setFocus()
-
-            title = "Invalid input"
-            message = f"The typed damper label '{damper_label}' has already been applied to other Pulsation Damper. "
-            message += "You should enter a different label to proceed with the Pulsation Damper configuration."
+            self.update_pulsation_damper_label()
+            damper_label = self.lineEdit_damper_label.text()
 
         if message != "":
             self.hide()
