@@ -879,7 +879,6 @@ class PerforatedPlateInput(QDialog):
                                         "x_label" : "Frequency [Hz]",
                                         "y_label" : "Dimensionless impedance",
                                         "title" : title,
-                                        "data_type" : "dimensionless impedance",
                                         "legend" : legend_label,
                                         "unit" : "--",
                                         "color" : (0,0,255),

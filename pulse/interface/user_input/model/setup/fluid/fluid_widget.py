@@ -557,7 +557,9 @@ class FluidWidget(QWidget):
                 fluid_data['molar fractions'] = molar_fractions
                 fluid_data["molar_mass"] = round(self.fluid_data_refprop["molar_mass"], 6)
                 fluid_data["adiabatic_bulk_modulus"] = self.fluid_data_refprop["adiabatic_bulk_modulus"]
-                fluid_data["vapor_pressure"] = self.fluid_data_refprop["vapor_pressure"]
+
+                if "vapor_pressure" in self.fluid_data_refprop.keys():
+                    fluid_data["vapor_pressure"] = self.fluid_data_refprop["vapor_pressure"]
 
             config = app().pulse_file.read_fluid_library_from_file()
             config[identifier] = fluid_data

@@ -534,10 +534,13 @@ class SetFluidCompositionInput(QDialog):
                                                         temperature_K, pressure_Pa, molar_fractions )
 
                         if read.herr:
-                            self.errors[self.map_properties[key_prop]] = read.herr
+                            if key_prop ==  "ANC-TP":
+                                continue
+                            else:
+                                self.errors[self.map_properties[key_prop]] = read.herr
 
                         if key_prop == "M":
-                            self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]
+                            self.fluid_properties[self.map_properties[key_prop]] = read.Output[0] * 1e3
 
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
@@ -564,10 +567,13 @@ class SetFluidCompositionInput(QDialog):
                                                                 temperature_K, pressure_Pa, molar_fractions )
 
                                 if read.herr:
-                                    self.errors[self.map_properties[key_prop]] = read.herr
+                                    if key_prop ==  "ANC-TP":
+                                        continue
+                                    else:
+                                        self.errors[self.map_properties[key_prop]] = read.herr
 
                                 if key_prop == "M":
-                                    self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]   
+                                    self.fluid_properties[self.map_properties[key_prop]] = read.Output[0] * 1e3
 
                                 else:
                                     self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
@@ -600,10 +606,13 @@ class SetFluidCompositionInput(QDialog):
                                                         temperature_K, pressure_Pa, molar_fractions )
 
                         if read.herr:
-                            self.errors[self.map_properties[key_prop]] = read.herr
+                            if key_prop ==  "ANC-TP":
+                                continue
+                            else:
+                                self.errors[self.map_properties[key_prop]] = read.herr
 
                         if key_prop == "M":
-                            self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]
+                            self.fluid_properties[self.map_properties[key_prop]] = read.Output[0] * 1e3
 
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]

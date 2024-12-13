@@ -140,7 +140,7 @@ class ReciprocatingPumpPulsationCriteriaInput(QWidget):
 
             legend_label = "Pulsation criteria"
 
-            key = ("criteria", (node_id))
+            key = ("pulsation_criteria", (node_id))
 
             self.model_results[key] = { 
                                         "x_data" : freq,
@@ -154,7 +154,7 @@ class ReciprocatingPumpPulsationCriteriaInput(QWidget):
                                         "color" : [1,0,0],
                                         "linestyle" : "-"  
                                     }
-            
+
             self.plotter = FrequencyResponsePlotter()
             self.plotter._set_model_results_data_to_plot(self.model_results)
 

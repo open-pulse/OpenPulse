@@ -155,13 +155,13 @@ class ReciprocatingCompressorPulsationCriteriaInput(QWidget):
         # change to peak-to-peak pressure
         acoustic_pressure = 2 * self.get_acoustic_pressure(node_id)
         self.absolute_line_pressure = self.get_line_pressure()
-        avg_ratio = acoustic_pressure/self.absolute_line_pressure
+        avg_ratio = acoustic_pressure / self.absolute_line_pressure
 
         self.model_results = dict()
         self.title = "Maximum Allowable Compressor Cylinder Flange Pressure Pulsation"
         legend_label = "Acoustic pressure at node {}".format(node_id)
 
-        key = ("ratio", (node_id))
+        key = ("pressure_ratio", (node_id))
 
         self.model_results[key] = { 
                                     "x_data" : self.frequencies,
@@ -182,7 +182,7 @@ class ReciprocatingCompressorPulsationCriteriaInput(QWidget):
 
         legend_label = "Unfiltered criteria: {}%".format(round(self.unfiltered_criteria,2))
 
-        key = ("criteria", (node_id))
+        key = ("unfiltered_criteria", (node_id))
 
         self.model_results[key] = {  
                                     "x_data" : self.frequencies,
@@ -208,13 +208,13 @@ class ReciprocatingCompressorPulsationCriteriaInput(QWidget):
 
         self.absolute_line_pressure = self.get_line_pressure()
         acoustic_pressure = 2 * self.get_acoustic_pressure(node_id)
-        pulsation_ratio = acoustic_pressure/self.absolute_line_pressure
+        pulsation_ratio = acoustic_pressure / self.absolute_line_pressure
 
         self.model_results = dict()
         self.title = "Maximum Allowable Pulsation Limits at and Beyond Line-side\n Connections of Pulsation Suppression Devices"       
         legend_label = "Acoustic pressure at node {}".format(node_id)
 
-        key = ("ratio", (node_id))
+        key = ("pressure_ratio", (node_id))
 
         self.model_results[key] = { 
                                     "x_data" : self.frequencies,
@@ -232,13 +232,13 @@ class ReciprocatingCompressorPulsationCriteriaInput(QWidget):
         df = 0.2
         f_max = self.frequencies[-1]
         freq = np.arange(df, f_max + df, df)
-        
+
         speed_of_sound, line_pressure, inner_diameter = self.get_line_properties()
-        P_1 = 400*((speed_of_sound/(350 * line_pressure * inner_diameter * freq))**(1/2))
-        
+        P_1 = 400 * ((speed_of_sound / (350 * line_pressure * inner_diameter * freq))**(1/2))
+
         legend_label = "Filtered criteria"
 
-        key = ("criteria", (node_id))
+        key = ("filtered_criteria", (node_id))
 
         self.model_results[key] = { 
                                     "x_data" : freq,

@@ -64,7 +64,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
         self.lineEdit_temperature: QLineEdit
         #
         self.lineEdit_fluid_name.setDisabled(True)
-        self.lineEdit_vapor_pressure.setDisabled(True)
+        # self.lineEdit_vapor_pressure.setDisabled(True)
         self.lineEdit_temperature.setDisabled(True)
 
         # QPushButton
@@ -81,7 +81,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
 
     def selection_callback(self):
 
-        self.reset_input_fields()
+        # self.reset_input_fields()
 
         selected_nodes = app().main_window.list_selected_nodes()
         line_ids = self.preprocessor.get_line_from_node_id(selected_nodes)
@@ -125,11 +125,11 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
         if len(node_ids) == 1:
 
             node_id = node_ids[0]
-            acoustic_pressure = (1 / 1000) * self.get_acoustic_pressure(node_id)
+            acoustic_pressure = self.get_acoustic_pressure(node_id)
 
             N = len(acoustic_pressure)
 
-            # process the inverse Fourier transform of one-sided spectrum
+            # processes the inverse Fourier transform of the one-sided spectrum
             pressure_time = np.fft.irfft(acoustic_pressure) * (N - 1)
             pressure_time -= np.average(pressure_time)
 
@@ -150,11 +150,14 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
 
             key = ("acoustic_pressure", (node_id))
 
-            line_pressure = fluid.pressure / 1e3
+            line_pressure = fluid.pressure
+            vapor_pressure = self.get_pressure_in_Pa()
+
+            pressure_kPa = (pressure_time + line_pressure) / 1e3
 
             self.model_results[key] = { 
                                         "x_data" : time,
-                                        "y_data" : pressure_time + line_pressure,
+                                        "y_data" : pressure_kPa,
                                         "x_label" : "Time [s]",
                                         "y_label" : "Pressure",
                                         "title" : title,
@@ -166,11 +169,11 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
                                     }
 
             # minimum inlet pressure levels in kPa
-            P_min = ((fluid.vapor_pressure + 0.03 * fluid.pressure) / 1e3) + 0.01
+            P_min = ((vapor_pressure + 0.03 * line_pressure) / 1e3) + 0.01
 
             legend_label = "Inlet pressure criteria"
 
-            key = ("criteria", (node_id))
+            key = ("pressure_criteria", (node_id))
 
             self.model_results[key] = { 
                                         "x_data" : time,
@@ -212,11 +215,23 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
 
             self.lineEdit_temperature.setText(f"{temperature : .4f}")
 
-            pressure_unit = self.comboBox_pressure_units.currentText()
             vapor_pressure_Pa = fluid.vapor_pressure
 
             if vapor_pressure_Pa is None:
+                if self.lineEdit_vapor_pressure.text() != "":
+
+                    try:
+                        _vapor_pressure = self.lineEdit_vapor_pressure.text().replace(",", ".")
+                        vapor_pressure = float(_vapor_pressure)
+                        self.lineEdit_vapor_pressure.setText(_vapor_pressure)
+
+                    except:
+                        self.lineEdit_vapor_pressure.setText("")
+                        return
+
                 return
+
+            pressure_unit = self.comboBox_pressure_units.currentText()
 
             if "(g)" in pressure_unit:
                 vapor_pressure_Pa -= 101325
@@ -243,6 +258,37 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
                 str_pressure = f"{vapor_pressure : .6f}"
 
             self.lineEdit_vapor_pressure.setText(str_pressure)
+
+    def get_pressure_in_Pa(self):
+
+        pressure_unit = self.comboBox_pressure_units.currentText()
+
+        try:
+            _vapor_pressure = self.lineEdit_vapor_pressure.text().replace(",", ".")
+            vapor_pressure = float(_vapor_pressure)
+            self.lineEdit_vapor_pressure.setText(_vapor_pressure)
+        except:
+            return None, None
+
+        if "kgf/cm²" in pressure_unit:
+            vapor_pressure_Pa = vapor_pressure * 9.80665e4
+
+        elif "bar" in pressure_unit:
+            vapor_pressure_Pa = vapor_pressure * 1e5
+
+        elif "atm" in pressure_unit:
+            vapor_pressure_Pa = vapor_pressure * 101325
+
+        elif "kPa" in pressure_unit:
+            vapor_pressure_Pa = vapor_pressure * 1e3
+
+        else:
+            vapor_pressure_Pa = vapor_pressure
+
+        if "(g)" in pressure_unit:
+            vapor_pressure_Pa += 101325
+
+        return vapor_pressure_Pa
 
     def reset_input_fields(self):
         self.lineEdit_selected_id.setText("")

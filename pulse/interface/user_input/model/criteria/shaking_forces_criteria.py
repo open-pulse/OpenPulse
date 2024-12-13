@@ -189,7 +189,6 @@ class ShakingForcesCriteriaInput(QWidget):
                                         "x_label" : "Frequency [Hz]",
                                         "y_label" : "Acoustic pressures ratio",
                                         "title" : title,
-                                        "data_type" : "acoustic pressures ratio",
                                         "legend" : legend_label,
                                         "unit" : self.unit_label,
                                         "color" : self.get_color(k),
