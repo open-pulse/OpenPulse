@@ -8,9 +8,6 @@ from molde.colors import Color
 
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 
-
-# TODO - update this class for new renders
-
 class RendererUserPreferencesInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -31,7 +28,6 @@ class RendererUserPreferencesInput(QDialog):
         self.lines_color = None
         self.tubes_color = None
         self.renderer_font_size = None
-        self.interface_font_size = None
 
         self._config_window()
         self._define_qt_variables()
@@ -63,7 +59,6 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_lines_color : QLineEdit
         self.lineEdit_tubes_color : QLineEdit
         self.lineEdit_renderer_font_size: QLineEdit
-        self.lineEdit_interface_font_size: QLineEdit
 
         # QPushButton
         self.pushButton_renderer_background_color_1 : QPushButton
@@ -87,7 +82,6 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
         self.pushButton_apply_settings.clicked.connect(self.apply_user_preferences)
         self.lineEdit_renderer_font_size.textChanged.connect(self.update_renderer_font_size)
-        self.lineEdit_interface_font_size.textChanged.connect(self.update_interface_font_size)
         
     def update_renderer_background_color_1(self):
         read = PickColorInput(title="Pick the background color")
@@ -177,19 +171,7 @@ class RendererUserPreferencesInput(QDialog):
     def update_line_edit_renderer_font_size(self):
         renderer_font_size = str(self.user_preferences.renderer_font_size)
         self.lineEdit_renderer_font_size.setText(renderer_font_size)
-        
-    def update_interface_font_size(self):
-        try:
-            self.interface_font_size = int(self.lineEdit_interface_font_size.text())
-            self.user_preferences.interface_font_size = self.interface_font_size
-        except:
-            pass
-    
-    def update_line_edit_interface_font_size(self):
-        interface_font_size = str(self.user_preferences.interface_font_size)
-        self.lineEdit_interface_font_size.setText(interface_font_size)
 
-    
     def apply_user_preferences(self):
         if self.renderer_background_color_1 is not None:
             self.user_preferences.renderer_background_color_1 = self.renderer_background_color_1
@@ -212,9 +194,6 @@ class RendererUserPreferencesInput(QDialog):
         if self.renderer_font_size is not None:
             self.user_preferences.renderer_font_size = self.renderer_font_size
 
-        if self.interface_font_size is not None:
-            self.user_preferences.interface_font_size = self.interface_font_size
-
         self.update_settings()
         self.config.update_config_file()
 
@@ -223,11 +202,6 @@ class RendererUserPreferencesInput(QDialog):
         self.accept()
     
     def update_settings(self):
-        font = QFont()
-        font.setPointSize(self.user_preferences.interface_font_size)
-
-        app().setFont(font, "QWidget")
-
         self.update_open_pulse_logo_state()
         self.update_reference_scale_state()
         self.update_renderers_font_size()
@@ -255,7 +229,6 @@ class RendererUserPreferencesInput(QDialog):
         self.lines_color = None
         self.tubes_color = None
         self.renderer_font_size = None
-        self.interface_font_size = None
 
     def reset_logo_state(self):
         self.user_preferences.reset_open_pulse_logo()
@@ -312,7 +285,6 @@ class RendererUserPreferencesInput(QDialog):
         self.update_line_edit_lines_color()
         self.update_line_edit_tubes_color()
         self.update_line_edit_renderer_font_size()
-        self.update_line_edit_interface_font_size()
         self.update_show_open_pulse_logo_checkbox()
         self.update_show_reference_scalebar_checkbox()
 

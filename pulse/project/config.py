@@ -1,8 +1,6 @@
 from pathlib import Path
 import json
 
-from pulse import app
-
 from pulse.interface.user_preferences import UserPreferences
 from molde.colors import Color
 
@@ -27,7 +25,6 @@ class Config:
                 self.user_preferences.tubes_color = Color(*user_preferences["tubes_color"])
                 self.user_preferences.renderer_font_color = Color(*user_preferences["renderer_font_color"])
                 self.user_preferences.renderer_font_size = user_preferences["renderer_font_size"]
-                self.user_preferences.interface_font_size = user_preferences["interface_font_size"]
                 self.user_preferences.show_open_pulse_logo = user_preferences["show_open_pulse_logo"]
                 self.user_preferences.show_reference_scale_bar = user_preferences["show_reference_scale_bar"]
                 self.user_preferences.color_map = user_preferences["color_map"]
@@ -45,7 +42,6 @@ class Config:
         "tubes_color" : self.user_preferences.tubes_color.to_rgb(),
         "renderer_font_color" : self.user_preferences.renderer_font_color.to_rgb(),
         "renderer_font_size" : self.user_preferences.renderer_font_size,
-        "interface_font_size" : self.user_preferences.interface_font_size,
         "show_open_pulse_logo" : self.user_preferences.show_open_pulse_logo,
         "show_reference_scale_bar" : self.user_preferences.show_reference_scale_bar,
         "color_map" : self.user_preferences.color_map
@@ -64,7 +60,6 @@ class Config:
         data["tubes_color"] = self.user_preferences.tubes_color.to_rgb()
         data["renderer_font_color"] = self.user_preferences.renderer_font_color.to_rgb()
         data["renderer_font_size"] = self.user_preferences.renderer_font_size
-        data["interface_font_size"] = self.user_preferences.interface_font_size
         data["show_open_pulse_logo"] = self.user_preferences.show_open_pulse_logo
         data["show_reference_scale_bar"] = self.user_preferences.show_reference_scale_bar
         data["color_map"] = self.user_preferences.color_map

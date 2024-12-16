@@ -6,8 +6,6 @@ from pathlib import Path
 from pulse.interface.formatters.icons import *
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
 
-from pulse import app
-
 
 class CommonMenuItems(QTreeWidget):
     """Common Menu Items
@@ -46,10 +44,9 @@ class CommonMenuItems(QTreeWidget):
         return item
 
     def _config_tree(self):
-        user_preferences = app().main_window.config.user_preferences
 
         self.font_item = QFont()
-        self.font_item.setPointSize(user_preferences.interface_font_size)
+        self.font_item.setPointSize(10)
 
         self.setHeaderHidden(True)
         self.setTabKeyNavigation(True)

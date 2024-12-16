@@ -137,10 +137,8 @@ class AnimationToolbar(QToolBar):
         self.setMovable(True)
         self.setFloatable(True)
 
-
-        user_preferences = app().main_window.config.user_preferences
         font = QFont()
-        font.setPointSize(user_preferences.interface_font_size)
+        font.setPointSize(10)
 
         for widget in self.findChildren((QLabel, QPushButton, QSpinBox)):
             widget.setFont(font)
