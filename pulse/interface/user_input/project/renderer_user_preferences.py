@@ -89,7 +89,6 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_renderer_font_size.textChanged.connect(self.update_renderer_font_size)
         self.lineEdit_interface_font_size.textChanged.connect(self.update_interface_font_size)
         
-
     def update_renderer_background_color_1(self):
         read = PickColorInput(title="Pick the background color")
         if read.complete:
@@ -227,7 +226,7 @@ class RendererUserPreferencesInput(QDialog):
         font = QFont()
         font.setPointSize(self.user_preferences.interface_font_size)
 
-        # app().setFont(font, "QWidget")
+        app().setFont(font, "QWidget")
 
         self.update_open_pulse_logo_state()
         self.update_reference_scale_state()
