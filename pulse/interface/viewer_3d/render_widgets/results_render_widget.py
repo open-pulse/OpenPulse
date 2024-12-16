@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import QApplication
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 from pulse import ICON_DIR, app
-from pulse.interface.utils import rotation_matrices
 from pulse.interface.viewer_3d.actors import (
     SectionPlaneActor,
     ElementLinesActor,

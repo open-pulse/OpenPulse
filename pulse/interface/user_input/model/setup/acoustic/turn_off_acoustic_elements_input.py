@@ -116,7 +116,6 @@ class TurnOffAcousticElementsInput(QDialog):
         self.lineEdit_element_id.setDisabled(bool(index))
         self.pushButton_remove.setDisabled(True)
 
-
     def attribute_callback(self):
 
         lineEdit = self.lineEdit_element_id.text()
@@ -142,9 +141,7 @@ class TurnOffAcousticElementsInput(QDialog):
 
             self.properties._set_element_property("acoustic_element_turned_off", data, element_ids=element_id)
 
-        app().pulse_file.write_element_properties_in_file()
-        self.load_elements_info()
-        # self.close()
+        self.actions_to_finalize()
 
     def remove_callback(self):
 
@@ -160,11 +157,7 @@ class TurnOffAcousticElementsInput(QDialog):
             
             self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
             self.lineEdit_element_id.setText("")
-
-            app().pulse_file.write_element_properties_in_file()
-            app().main_window.update_plots()
-            self.load_elements_info()
-            # self.close()
+            self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -191,11 +184,13 @@ class TurnOffAcousticElementsInput(QDialog):
                         self.properties._remove_element_property("acoustic_element_turned_off", element_id)
 
                     self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
+                    self.actions_to_finalize()
 
-                    app().pulse_file.write_element_properties_in_file()
-                    app().main_window.update_plots()
-                    self.load_elements_info()
-                    # self.close()
+    def actions_to_finalize(self):
+        app().pulse_file.write_element_properties_in_file()
+        app().main_window.update_plots()
+        self.load_elements_info()
+        self.pushButton_cancel.setText("Exit")
 
     def load_elements_info(self):
 

@@ -317,8 +317,8 @@ def reducer_data(
     return append_polydata.GetOutput()
 
 
-def flange_data(length, outside_diameter, thickness, n_bolts=8):
-    pipe = pipe_data(length, outside_diameter, thickness)
+def flange_data(length, outside_diameter, thickness, n_bolts=8, offset_y=0, offset_z=0):
+    pipe = closed_pipe_data(length, outside_diameter, offset_y, offset_z)
     append_polydata = vtkAppendPolyData()
     append_polydata.AddInputData(pipe)
     bolt_radius = outside_diameter / 25
@@ -329,9 +329,9 @@ def flange_data(length, outside_diameter, thickness, n_bolts=8):
         bolt.SetHeight(length + bolt_radius * 2)
         bolt.SetRadius(bolt_radius)
         bolt.SetCenter(
-            (outside_diameter - bolt_radius * 4) * np.sin(angle) / 2,
+            offset_y + (outside_diameter - bolt_radius * 4) * np.sin(angle) / 2,
             length / 2,
-            (outside_diameter - bolt_radius * 4) * np.cos(angle) / 2,
+            offset_z + (outside_diameter - bolt_radius * 4) * np.cos(angle) / 2,
         )
         bolt.Update()
         append_polydata.AddInputData(bolt.GetOutput())

@@ -1,6 +1,6 @@
 from pulse import app, version
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
 
 from fileboxes import Filebox
 
@@ -45,6 +45,7 @@ class ProjectFile:
         self.imported_table_data_filename = "imported_tables_data.hdf5"
         self.results_data_filename = "results_data.hdf5"
         self.psd_info_filename = "psd_info.json"
+        self.pulsation_damper_info_filename = "pulsation_damper_info.json"
         self.valve_info_filename = "valve_info.json"
 
         self.thumbnail_filename = "thumbnail.png"
@@ -152,6 +153,16 @@ class ProjectFile:
 
     def read_psd_data_from_file(self):
         return self.filebox.read(self.psd_info_filename)
+
+    def write_pulsation_damper_data_in_file(self, damper_data: dict):
+        if damper_data:
+            self.filebox.write(self.pulsation_damper_info_filename, damper_data)
+        else:
+            self.filebox.remove(self.pulsation_damper_info_filename)
+        app().main_window.project_data_modified = True
+
+    def read_pulsation_damper_data_from_file(self):
+        return self.filebox.read(self.pulsation_damper_info_filename)
 
     def write_valve_info_in_file(self, valve_info: dict):
         if valve_info:

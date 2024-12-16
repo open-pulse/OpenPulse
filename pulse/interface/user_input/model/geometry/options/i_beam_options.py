@@ -31,6 +31,8 @@ class IBeamOptions(StructureOptions):
             thickness_1 = parameters[2],
             thickness_2 = parameters[4],
             thickness_3 = parameters[5],
+            offset_y=parameters[6],
+            offset_z=parameters[7],
             extra_info = self._get_extra_info(),
         )
 
@@ -62,7 +64,7 @@ class IBeamOptions(StructureOptions):
             set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
             enable = False
 
-        self.geometry_designer_widget.frame_bounding_box_sizes.setEnabled(enable)
+        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
         super().update_permissions(enable)
 
     def _get_extra_info(self):

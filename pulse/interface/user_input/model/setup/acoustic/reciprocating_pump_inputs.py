@@ -7,6 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
 from pulse.interface.user_input.model.setup.acoustic.pulsation_damper_calculator_inputs import PulsationDamperCalculatorInputs
+from pulse.interface.user_input.plots.general.xy_plot import XYPlot
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
@@ -64,10 +65,10 @@ class ReciprocatingPumpInputs(QDialog):
         # QComboBox
         self.comboBox_connection_type: QComboBox
         self.comboBox_cylinder_acting: QComboBox
+        self.comboBox_fluid_data_source: QComboBox
         self.comboBox_frequency_resolution: QComboBox
         self.comboBox_pressure_units: QComboBox
         self.comboBox_temperature_units: QComboBox
-        self.comboBox_fluid_data_source: QComboBox
 
         # QLabel
         self.label_molar_mass: QLabel
@@ -97,7 +98,6 @@ class ReciprocatingPumpInputs(QDialog):
         self.lineEdit_suction_temperature: QLineEdit
         self.lineEdit_discharge_temperature: QLineEdit
         self.lineEdit_connection_type: QLineEdit
-        self.lineEdit_selected_id: QLineEdit
         self.lineEdit_fluctuating_volume: QLineEdit
 
         # QPushButton
@@ -115,8 +115,9 @@ class ReciprocatingPumpInputs(QDialog):
         self.pushButton_plot_volume_head_end_angle: QPushButton
         self.pushButton_plot_pressure_crank_end_angle: QPushButton
         self.pushButton_plot_volume_crank_end_angle: QPushButton
-        self.pushButton_process_aquisition_parameters: QPushButton
         self.pushButton_process_fluctuating_volume: QPushButton
+        self.pushButton_process_aquisition_parameters: QPushButton
+        self.pushButton_plot_fluctuating_volume: QPushButton
         self.pushButton_pulsation_damper_calculator: QPushButton
         self.pushButton_cancel: QPushButton
         self.pushButton_confirm: QPushButton
@@ -165,6 +166,7 @@ class ReciprocatingPumpInputs(QDialog):
         self.pushButton_plot_volume_head_end_angle.clicked.connect(self.plot_volume_head_end_angle)
         self.pushButton_plot_pressure_crank_end_angle.clicked.connect(self.plot_pressure_crank_end_angle)
         self.pushButton_plot_volume_crank_end_angle.clicked.connect(self.plot_volume_crank_end_angle)
+        self.pushButton_plot_fluctuating_volume.clicked.connect(self.plot_integral_fluctuating_volume)
         self.pushButton_process_aquisition_parameters.clicked.connect(self.process_aquisition_parameters)
         self.pushButton_process_fluctuating_volume.clicked.connect(self.process_fluctuating_volume)
         self.pushButton_pulsation_damper_calculator.clicked.connect(self.pulsation_damper_calculator_callback)
@@ -220,12 +222,12 @@ class ReciprocatingPumpInputs(QDialog):
                 self.update_pump_inputs(data)
 
     def tab_event_callback(self):
-
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_connection_type.setText("")
+        # self.lineEdit_selected_surface_id.setText("")
+        # self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
+        return
 
-        if self.tabWidget_main.currentIndex() == 3:
+        if self.tabWidget_compressor.currentIndex() == 2:
             self.pushButton_cancel.setDisabled(True)
             self.pushButton_confirm.setDisabled(True)
         else:
@@ -375,7 +377,10 @@ class ReciprocatingPumpInputs(QDialog):
         if "pressure_at_suction" in parameters.keys():
             self.lineEdit_suction_pressure.setText(str(parameters["pressure_at_suction"]))
 
-        pressure_units = ["kgf/cm² (a)", "bar (a)", "kgf/cm² (g)", "bar (g)"]
+        if "pressure_at_discharge" in parameters.keys():
+            self.lineEdit_discharge_pressure.setText(str(parameters["pressure_at_discharge"]))
+
+        pressure_units = ["kgf/cm² (a)", "bar (a)", "kPa (a)", "Pa (a)", "kgf/cm² (g)", "bar (g)", "kPa (g)", "Pa (g)"]
         if "pressure_unit" in parameters.keys():
             for i, p_unit in enumerate(pressure_units):
                 if p_unit in parameters["pressure_unit"]:
@@ -383,6 +388,9 @@ class ReciprocatingPumpInputs(QDialog):
 
         if "temperature_at_suction" in parameters.keys():
             self.lineEdit_suction_temperature.setText(str(parameters["temperature_at_suction"]))
+
+        if "temperature_at_discharge" in parameters.keys():
+            self.lineEdit_discharge_temperature.setText(str(parameters["temperature_at_discharge"]))
 
         temperature_units = ["°C", "K"]
         if "temperature_unit" in parameters.keys():
@@ -400,7 +408,7 @@ class ReciprocatingPumpInputs(QDialog):
         if "points_per_revolution" in parameters.keys():
             self.spinBox_number_of_points.setValue(int(parameters["points_per_revolution"]))
 
-        f_min, f_max, f_step, N_rev = self.get_aquisition_parameters(parameters)
+        _, f_max, f_step, N_rev = self.get_aquisition_parameters(parameters)
         self.lineEdit_number_of_revolutions.setText(str(N_rev))
         self.spinBox_max_frequency.setValue(int(f_max))
         self.lineEdit_frequency_resolution.setText(str(round(f_step, 6)))
@@ -752,7 +760,7 @@ class ReciprocatingPumpInputs(QDialog):
             self.parameters['points_per_revolution'] = self.pump_model.number_points
             self.pump_model.bulk_modulus = self.parameters["bulk_modulus"]
 
-            freq, in_flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
+            freq, flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
 
             table_name = f"pump_excitation_{connection_type}_node_{node_id}"
 
@@ -768,18 +776,15 @@ class ReciprocatingPumpInputs(QDialog):
 
             self.remove_conflicting_excitations(node_id)
 
-            if self.save_table_values(table_name, freq, in_flow_rate):
+            if self.save_table_values(table_name, freq, flow_rate):
                 return
 
             self.properties._set_nodal_property("reciprocating_pump_excitation", data, node_id)
-
-            app().pulse_file.write_imported_table_data_in_file()
-
-            self.load_reciprocating_pump_excitation_info()
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
+        app().pulse_file.write_imported_table_data_in_file()
         app().main_window.set_selection()
         app().main_window.update_plots()
         self.load_reciprocating_pump_excitation_info()
@@ -788,8 +793,8 @@ class ReciprocatingPumpInputs(QDialog):
     def process_table_file_removal(self, table_names: list):
         for table_name in table_names:
             self.properties.remove_imported_tables("acoustic", table_name)
-        if table_names:
-            app().pulse_file.write_imported_table_data_in_file()
+        # if table_names:
+        #     app().pulse_file.write_imported_table_data_in_file()
 
     def remove_conflicting_excitations(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "reciprocating_pump_excitation", "reciprocating_compressor_excitation"]:
@@ -803,20 +808,18 @@ class ReciprocatingPumpInputs(QDialog):
 
     def remove_callback(self):
 
-        if self.lineEdit_selected_id.text() == "":   
+        if self.lineEdit_selected_node_id.text() == "":   
             title = "Empty node selection"
             message = "You should to select a node from the list "
             message += "to proceed with the removal."
             PrintMessageInput([window_title_2, title, message])
             return
             
-        node_id = int(self.lineEdit_selected_id.text())
+        node_id = int(self.lineEdit_selected_node_id.text())
 
         self.remove_table_files_from_nodes(node_id)
 
         self.properties._remove_nodal_property("reciprocating_pump_excitation", node_id)
-
-        self.load_reciprocating_pump_excitation_info()
         self.actions_to_finalize()
 
     def reset_callback(self):
@@ -846,7 +849,6 @@ class ReciprocatingPumpInputs(QDialog):
                 self.remove_table_files_from_nodes(node_id)
 
             self.properties._reset_nodal_property("reciprocating_pump_excitation")
-            self.load_reciprocating_pump_excitation_info()
             self.actions_to_finalize()
 
     def load_reciprocating_pump_excitation_info(self):
@@ -867,12 +869,12 @@ class ReciprocatingPumpInputs(QDialog):
         self.update_tabs_visibility()
 
     def on_click_item(self, item):
-        self.lineEdit_selected_id.setText(item.text(0))
+        self.lineEdit_selected_node_id.setText(item.text(0))
         self.lineEdit_connection_type.setText(item.text(1))
         self.pushButton_remove.setDisabled(False)
 
     def update_tabs_visibility(self):
-        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_node_id.setText("")
         self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
         self.tabWidget_main.setTabVisible(3, False)
@@ -892,13 +894,20 @@ class ReciprocatingPumpInputs(QDialog):
         app().main_window.set_input_widget(self)
 
     def process_fluctuating_volume(self):
+
         if self.check_all_parameters():
             return
-        N = self.spinBox_number_of_points.value()
-        self.pump_model.number_points = N
-        fluctuating_volume = self.pump_model.get_pump_fluctuating_volume()
+
+        if self.comboBox_connection_type.currentIndex() == 0:
+            flow_label = "in_flow"
+        else:
+            flow_label = "out_flow"
+
+        self.pump_model.number_points = self.spinBox_number_of_points.value()
+        fluctuating_volume, _ = self.pump_model.get_pump_fluctuating_volume(flow_label)
         str_fluctuating_volume = f"{fluctuating_volume : 0.8e}"
         self.lineEdit_fluctuating_volume.setText(str_fluctuating_volume)
+
         return fluctuating_volume
 
     def spinBox_event_number_of_points(self):
@@ -916,12 +925,54 @@ class ReciprocatingPumpInputs(QDialog):
         if self.aquisition_parameters_processed:
             self.process_aquisition_parameters()
 
+    def initialize_xy_plotter(self):
+
+
+        legends = [f'Target: {self.target*100}%', "Pressure residues", "Delta pressure residues"]
+
+
+
+        # self.xy_plot.show()
+
     def plot_PV_diagram_head_end(self):
+
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
+
         self.pump_model.plot_PV_diagram_head_end()
+
+        #TODO: check axes limits
+        # volume_HE, pressure_HE, _ = self.pump_model.process_head_end_volumes_and_pressures()
+
+        # if volume_HE is None:
+        #     return
+
+        # if self.pump_model.pressure_unit == "kgf/cm²":
+        #     pressure_HE /= kgf_cm2_to_Pa
+        # else:
+        #     pressure_HE /= bar_to_Pa
+
+        # x_label = "Volume [m³]"
+        # y_label = f"Pressure [{self.pump_model.pressure_unit}]"
+        # title = "P-V diagram (head end)"
+
+        # plots_config = {
+        #                 "number_of_plots" : 1,
+        #                 "x_label" : x_label,
+        #                 "y_label" : y_label,
+        #                 "colors" : [(0,0,0), (0,0,1), (1,0,0)],
+        #                 "line_styles" : ["--", "-", "-"],
+        #                 "markers" : [None, "o", "o"],
+        #                 "legends" : ["head end"],
+        #                 "title" : title
+        #                 }
+
+        # self.xy_plot = XYPlot(plots_config, dialog=self)
+        # self.xy_plot.set_plot_data(volume_HE, pressure_HE, 0, "auto")
+        # self.xy_plot.show()
 
     def plot_PV_diagram_crank_end(self):
         if self.check_all_parameters():
@@ -1028,11 +1079,30 @@ class ReciprocatingPumpInputs(QDialog):
         self.pump_model.number_points = N
         self.pump_model.plot_crank_end_volume_vs_angle()
         return
+    
+    def plot_integral_fluctuating_volume(self):
 
+        if self.check_all_parameters():
+            return
+
+        N = self.spinBox_number_of_points.value()
+        self.pump_model.number_points = N
+
+        if self.comboBox_connection_type.currentIndex() == 0:
+            flow_label = "in_flow"
+        else:
+            flow_label = "out_flow"
+
+        self.pump_model.plot_fluctuating_volume(flow_label)
+
+        return
+    
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()
-        if event.key() == Qt.Key_Escape:
+        elif event.key() == Qt.Key_Delete:
+            self.remove_callback()
+        elif event.key() == Qt.Key_Escape:
             self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:

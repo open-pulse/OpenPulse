@@ -28,6 +28,8 @@ class RectangularBeamOptions(StructureOptions):
             width = parameters[0],
             height = parameters[1],
             thickness = (parameters[0] - parameters[2]) / 2,
+            offset_y=parameters[4],
+            offset_z=parameters[5],
             extra_info = self._get_extra_info(),
         )
 
@@ -59,7 +61,7 @@ class RectangularBeamOptions(StructureOptions):
             set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
             enable = False
 
-        self.geometry_designer_widget.frame_bounding_box_sizes.setEnabled(enable)
+        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
         super().update_permissions(enable)
 
     def _get_extra_info(self):

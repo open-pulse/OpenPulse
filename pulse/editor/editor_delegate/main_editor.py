@@ -16,7 +16,10 @@ from pulse.editor.structures import (
     TBeam,
     Valve,
     LinearStructure,
+    Fillet,
+    Arc,
 )
+from pulse.utils.math_utils import normalize
 
 from .editor import Editor
 
@@ -42,6 +45,9 @@ class MainEditor(Editor):
         
         elif issubclass(structure_type, LinearStructure):
             return self._add_generic_linear_structure(structure_type, deltas, **kwargs)
+        
+        elif issubclass(structure_type, Arc):
+            return self._add_generic_arc(structure_type, deltas, **kwargs)
 
     def add_pipe(self, deltas, **kwargs) -> list[Pipe]:
         return self._add_generic_linear_structure(Pipe, deltas, **kwargs)
@@ -136,8 +142,8 @@ class MainEditor(Editor):
     def recalculate_curvatures(self):
         # collapse all curvatures that are in between pipes
         for bend in self.pipeline.structures_of_type(Bend):
-            a_vectors = self._get_point_vectors(bend.start)
-            b_vectors = self._get_point_vectors(bend.end)
+            a_vectors = self.get_point_tangency(bend.start)
+            b_vectors = self.get_point_tangency(bend.end)
 
             if (not a_vectors) or (not b_vectors):
                 continue
@@ -151,8 +157,8 @@ class MainEditor(Editor):
             if not bend.auto:
                 continue
 
-            a_vectors = self._get_point_vectors(bend.start)
-            b_vectors = self._get_point_vectors(bend.end)
+            a_vectors = self.get_point_tangency(bend.start)
+            b_vectors = self.get_point_tangency(bend.end)
 
             if (not a_vectors) or (not b_vectors):
                 continue
@@ -187,8 +193,100 @@ class MainEditor(Editor):
         self.pipeline.remove_structures(to_remove)
         return to_remove
 
+    def get_point_tangency(self, point: Point) -> list[np.ndarray]:
+        directions = list()
+
+        for structure in self.pipeline.structures_of_type(LinearStructure):
+            if id(structure.start) == id(point):
+                vector = point.coords() - structure.end.coords()
+                size = np.linalg.norm(vector)
+            elif id(structure.end) == id(point):
+                vector = point.coords() - structure.start.coords()
+                size = np.linalg.norm(vector)
+            else:
+                continue
+
+            if size:
+                directions.append(vector / size)
+
+
+        for structure in self.pipeline.structures_of_type(Arc):
+            center = structure.center 
+            if center is None:
+                if id(structure.start) == id(point):
+                    vector = point.coords() - structure.end.coords()
+                    size = np.linalg.norm(vector)
+                elif id(structure.end) == id(point):
+                    vector = point.coords() - structure.start.coords()
+                    size = np.linalg.norm(vector)
+                else:
+                    continue
+
+                if size:
+                    directions.append(vector / size)
+                continue
+
+            if id(structure.start) == id(point):
+               u = normalize(structure.start.coords() - structure.center.coords())
+            elif id(structure.end) == id(point):
+               u = normalize(structure.end.coords() - structure.center.coords())
+            else:
+                continue
+
+            v = normalize(structure.mid.coords() - structure.center.coords())
+            n = np.cross(v, u)
+            tangency = np.cross(n, u)
+            directions.append(tangency)
+
+        for structure in self.pipeline.structures_of_type(Fillet):
+            if structure.is_colapsed():
+                continue
+            
+            if id(structure.start) == id(point):
+                vector = structure.end.coords() - structure.corner.coords()
+                size = np.linalg.norm(vector)
+            elif id(structure.end) == id(point):
+                vector = structure.start.coords() - point.coords()
+                size = np.linalg.norm(vector)
+            else:
+                continue
+
+            if size:
+                directions.append(vector / size)
+
+        return directions
+
+    def _add_generic_arc(
+            self, 
+            structure_type: type[Arc], 
+            deltas: tuple[float, float, float], 
+            **kwargs
+    ):
+        if not np.array(deltas).any():  # all zeros
+            return []
+
+        if not self.pipeline.selected_points:
+            self.pipeline.select_last_point()
+
+        structures = list()
+        for point in self.pipeline.selected_points:
+            next_point = Point(*(point.coords() + deltas))
+            self.next_border.append(next_point)
+
+            tangencies = self.get_point_tangency(point)
+            tangency = tangencies[0] if tangencies else np.array([1, 0, 0])
+            structure = structure_type.from_tangency(point, next_point, tangency, **kwargs)
+            
+            self.pipeline.add_structure(structure)
+            structures.append(structure)
+        
+        return structures
+
     def _add_generic_linear_structure(
-        self, structure_type: type[Structure], deltas: tuple[float, float, float], **kwargs
+        self, 
+        structure_type: type[LinearStructure], 
+        deltas: tuple[float, float, float], 
+        **kwargs
     ):
         if not np.array(deltas).any():  # all zeros
             return []
@@ -224,7 +322,7 @@ class MainEditor(Editor):
                 bend.colapse()
 
     def _get_bend_vectors(self, point: Point):
-        directions = self._get_point_vectors(point)
+        directions = self.get_point_tangency(point)
 
         if len(directions) == 0:
             vec_a = np.array([-1, 0, 0])
@@ -244,25 +342,3 @@ class MainEditor(Editor):
             dangling = False
 
         return vec_a, vec_b, dangling
-
-    def _get_point_vectors(self, point: Point):
-        directions = list()
-
-        pipe_like_structure = Pipe | Flange | Reducer | ExpansionJoint | Valve
-        for structure in self.pipeline.structures_of_type(pipe_like_structure):
-            if not point in structure.get_points():
-                continue
-
-            if id(structure.start) == id(point):
-                vector = structure.end.coords() - point.coords()
-                size = np.linalg.norm(vector)
-            elif id(structure.end) == id(point):
-                vector = structure.start.coords() - point.coords()
-                size = np.linalg.norm(vector)
-            else:
-                continue
-
-            if size:
-                directions.append(vector / size)
-
-        return directions

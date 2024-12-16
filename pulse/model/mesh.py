@@ -2,7 +2,8 @@
 from pulse.model.line import Line
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
+from pulse.utils.unit_conversion import *
 
 import os
 import gmsh 
@@ -183,8 +184,8 @@ class Mesh:
             self.preprocessor.update_number_divisions()
 
         except Exception as log_error:
-
-            print(str(log_error))
+            from traceback import print_exception
+            print_exception(log_error)
 
     def _process_gmsh_lines_mesh_data(self):
         """

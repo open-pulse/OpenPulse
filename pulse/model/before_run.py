@@ -2,7 +2,7 @@
 
 from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import mm_to_m
+from pulse.utils.unit_conversion import mm_to_m
 
 import numpy as np
 from collections import defaultdict

@@ -72,9 +72,15 @@ class ResultsViewerWidget(QWidget):
         self.results_viewer_items.item_child_plot_perforated_plate_convergence_data.clicked.connect(
             self.plot_perforated_plate_convergence_data)
         
-        self.results_viewer_items.item_child_check_pulsation_criteria.clicked.connect(
-            self.add_pulsation_criteria_widget)
+        self.results_viewer_items.item_child_reciprocating_compressor_pulsation_criteria.clicked.connect(
+            self.add_reciprocating_compressor_pulsation_criteria_widget)
         
+        self.results_viewer_items.item_child_reciprocating_pump_pulsation_criteria.clicked.connect(
+            self.add_reciprocating_pump_pulsation_criteria_widget)
+        
+        self.results_viewer_items.item_child_reciprocating_pump_inlet_pressure_criteria.clicked.connect(
+            self.add_reciprocating_pump_inlet_pressure_criteria_widget)
+
         self.results_viewer_items.item_child_shaking_forces_criteria.clicked.connect(self.add_shaking_forces_criteria_widget)
 
     def update_visibility_items(self):
@@ -143,12 +149,20 @@ class ResultsViewerWidget(QWidget):
 
     def plot_perforated_plate_convergence_data(self):
         app().project.acoustic_solver.xy_plot.show()
-        # widget = app().main_window.input_ui.plot_perforated_plate_convergence_data()
-        # self.add_widget(widget)
 
-    def add_pulsation_criteria_widget(self):
+    def add_reciprocating_compressor_pulsation_criteria_widget(self):
         self.configure_render_according_to_plot_type("nodes")
-        widget = app().main_window.input_ui.check_api618_pulsation_criteria()
+        widget = app().main_window.input_ui.reciprocating_compressor_pulsation_criteria()
+        self.add_widget(widget)
+
+    def add_reciprocating_pump_pulsation_criteria_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
+        widget = app().main_window.input_ui.reciprocating_pump_pulsation_criteria()
+        self.add_widget(widget)
+
+    def add_reciprocating_pump_inlet_pressure_criteria_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
+        widget = app().main_window.input_ui.reciprocating_pump_inlet_pressure_criteria()
         self.add_widget(widget)
 
     def add_shaking_forces_criteria_widget(self):

@@ -1,11 +1,9 @@
 import numpy as np
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
-from pulse.interface.viewer_3d.utils.cell_utils import paint_data
-from pulse.interface.viewer_3d.utils.cross_section_sources import (
-    rectangular_beam_data,
-)
-from pulse.interface.viewer_3d.utils.rotations import align_vtk_geometry
+from pulse.utils.cell_utils import paint_data
+from pulse.utils.cross_section_sources import rectangular_beam_data
+from pulse.utils.rotations import align_vtk_geometry
 from pulse.editor.structures import RectangularBeam
 
 
@@ -18,8 +16,13 @@ class RectangularBeamActor(vtkActor):
         vector = self.beam.end.coords() - self.beam.start.coords()
         length = np.linalg.norm(vector)
         source = rectangular_beam_data(
-            length, self.beam.width, self.beam.height, 
-            self.beam.thickness_width, self.beam.thickness_width,
+            length,
+            self.beam.width,
+            self.beam.height, 
+            self.beam.thickness_width,
+            self.beam.thickness_width,
+            offset_y=self.beam.offset_y,
+            offset_z=self.beam.offset_z,
         )
 
         data = align_vtk_geometry(source, self.beam.start.coords(), vector, angle=self.beam.angle)

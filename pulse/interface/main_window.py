@@ -32,7 +32,7 @@ from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
-from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
+from pulse.utils.interface_utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 
 import logging
 import os
@@ -151,7 +151,7 @@ class MainWindow(QMainWindow):
         self.action_export_piping: QAction
         self.action_user_preferences: QAction
         self.action_pulsation_suppression_device_editor: QAction
-        self.action_pulsation_damper_calculator: QAction
+        self.action_pulsation_damper_editor: QAction
         self.action_section_plane: QAction
         self.action_exit: QAction
 
@@ -660,8 +660,8 @@ class MainWindow(QMainWindow):
     def action_pulsation_suppression_device_editor_callback(self):
         self.input_ui.pulsation_suppression_device_editor()
 
-    def action_pulsation_damper_calculator_callback(self):
-        self.input_ui.pulsation_damper_calculator()
+    def action_pulsation_damper_editor_callback(self):
+        self.input_ui.pulsation_damper_editor()
 
     def action_plot_lines_callback(self):
         if not self.action_model_setup_workspace.isChecked():

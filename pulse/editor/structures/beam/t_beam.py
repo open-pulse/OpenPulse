@@ -1,3 +1,4 @@
+from ..point import Point
 from .beam import Beam
 
 
@@ -24,5 +25,29 @@ class TBeam(Beam):
 
         return TBeamActor(self)
 
-    def __hash__(self) -> int:
-        return id(self)
+    @classmethod
+    def load_from_data(cls, data: dict) -> "TBeam":
+        start = Point(*data["start_coords"])
+        end = Point(*data["end_coords"])
+        section_parameters = data["section_parameters"]
+        structure = TBeam(
+            start,
+            end,
+            height=section_parameters[0],
+            width=section_parameters[1],
+            thickness_1=section_parameters[2],
+            thickness_2=section_parameters[3],
+            offset_y=section_parameters[4],
+            offset_z=section_parameters[5],
+        )
+
+        section_info = {
+            "section_parameters": section_parameters,
+            "section_type_label": data["section_type_label"],
+            "section_properties": data["section_properties"],
+        }
+
+        structure.extra_info["cross_section_info"] = section_info
+        structure.extra_info["structural_element_type"] = "beam_1"
+
+        return structure

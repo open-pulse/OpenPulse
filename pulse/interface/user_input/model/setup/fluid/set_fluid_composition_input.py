@@ -8,7 +8,7 @@ from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import LoadFluidCompositionInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.tools.utils import get_new_path
+from pulse.utils.common_utils import get_new_path
 
 import os
 from pathlib import Path
@@ -66,7 +66,8 @@ class SetFluidCompositionInput(QDialog):
         # self.isentropic_label = "ISENK"   # isentropic exponent (real gas)
         self.isentropic_label = "CP/CV"     # isentropic expansion coefficient (ideal gas)
 
-        self.map_properties = { "D" : "density",
+        self.map_properties = { 
+                                "D" : "density",
                                 "CP" : "specific_heat_Cp",
                                 "CV" : "specific_heat_Cv",
                                 self.isentropic_label : "isentropic_exponent",
@@ -79,7 +80,11 @@ class SetFluidCompositionInput(QDialog):
                                 "M" : "molar_mass",
                                 "BS" : "adiabatic_bulk_modulus",
                                 "KKT" : "isothermal_bulk_modulus",
-                                "Z" : "compressibility_factor"  }
+                                "Z" : "compressibility_factor",
+                                "ANC-TP" : "vapor_pressure",
+                                "QMASS" : "quality_mass",
+                                "QMOLE" : "quality_mole",
+                               }
 
         self.selected_fluid = ""
         self.unit_temperature = "K"
@@ -95,8 +100,6 @@ class SetFluidCompositionInput(QDialog):
         # QComboBox
         self.comboBox_temperature_units : QComboBox
         self.comboBox_pressure_units : QComboBox
-        self.comboBox_temperature_units_test : QComboBox
-        self.comboBox_pressure_units_test : QComboBox
 
         # QLabel
         self.label_selected_fluid : QLabel
@@ -494,6 +497,7 @@ class SetFluidCompositionInput(QDialog):
 
                 fluids_string = ""
                 molar_fractions = list()
+
                 for composition_data in self.fluid_to_composition.values():
 
                     if len(composition_data) != 3:
@@ -523,22 +527,26 @@ class SetFluidCompositionInput(QDialog):
 
                     for key_prop in self.map_properties.keys():
 
-                        if key_prop in ["PRANDTL", "TD", "KV"]:
+                        if key_prop in ["PRANDTL", "TD", "KV", "QMASS", "QMOLE"]:
                             continue
 
                         read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                         temperature_K, pressure_Pa, molar_fractions )
 
                         if read.herr:
-                            self.errors[self.map_properties[key_prop]] = read.herr
-                        
+                            if key_prop ==  "ANC-TP":
+                                continue
+                            else:
+                                self.errors[self.map_properties[key_prop]] = read.herr
+
                         if key_prop == "M":
-                            self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]   
+                            self.fluid_properties[self.map_properties[key_prop]] = read.Output[0] * 1e3
+
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
                             if key_prop == self.isentropic_label:
                                 self.k = read.Output[0] 
-                    
+
                     self.T_discharge = (self.T_suction)*(self.p_ratio**((self.k-1)/self.k))
                     self.lineEdit_temperature_disch.setText(str(round(self.T_discharge, 4)))
                     temperature_K = self.T_discharge
@@ -552,28 +560,30 @@ class SetFluidCompositionInput(QDialog):
 
                             for key_prop in self.map_properties.keys():
 
-                                if key_prop in ["PRANDTL", "TD", "KV"]:
+                                if key_prop in ["PRANDTL", "TD", "KV", "QMASS", "QMOLE"]:
                                     continue
 
                                 read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                                 temperature_K, pressure_Pa, molar_fractions )
 
                                 if read.herr:
-                                    self.errors[self.map_properties[key_prop]] = read.herr
-                                
+                                    if key_prop ==  "ANC-TP":
+                                        continue
+                                    else:
+                                        self.errors[self.map_properties[key_prop]] = read.herr
+
                                 if key_prop == "M":
-                                    self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]   
+                                    self.fluid_properties[self.map_properties[key_prop]] = read.Output[0] * 1e3
+
                                 else:
                                     self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
                                 if key_prop == self.isentropic_label:
                                     k_iter = read.Output[0]
-                            
-                            
+
                             # evaluate the temperature assuming isentropic compression
                             temperature_K_iter = self.T_suction*(self.p_ratio**((k_iter-1)/k_iter))
 
-                            #
                             cache_temperatures.append(temperature_K_iter)
                             criteria = abs(cache_temperatures[-1]-cache_temperatures[-2])/((cache_temperatures[-1]+cache_temperatures[-2])/2)
 
@@ -582,24 +592,28 @@ class SetFluidCompositionInput(QDialog):
 
                             count += 1
                             # print(count, k_iter, cache_temperatures[-1], cache_temperatures[-2], criteria)
-                        
+
                         self.fluid_properties["pressure"] = pressure_Pa
 
                 else:
 
                     for key_prop in self.map_properties.keys():
 
-                        if key_prop in ["PRANDTL", "TD", "KV"]:
+                        if key_prop in ["PRANDTL", "TD", "KV", "QMASS", "QMOLE"]:
                             continue
 
                         read = self.refprop.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
                                                         temperature_K, pressure_Pa, molar_fractions )
 
                         if read.herr:
-                            self.errors[self.map_properties[key_prop]] = read.herr
-                        
+                            if key_prop ==  "ANC-TP":
+                                continue
+                            else:
+                                self.errors[self.map_properties[key_prop]] = read.herr
+
                         if key_prop == "M":
-                            self.fluid_properties[self.map_properties[key_prop]] = 1000*read.Output[0]
+                            self.fluid_properties[self.map_properties[key_prop]] = read.Output[0] * 1e3
+
                         else:
                             self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
@@ -615,9 +629,9 @@ class SetFluidCompositionInput(QDialog):
                 self.fluid_properties["impedance"] = round(acoustic_impedance, 6)
                 self.fluid_setup = [fluids_string, molar_fractions]
 
-                # self.process_errors()
-                if self.process_errors():
-                    return
+                self.process_errors()
+                # if self.process_errors():
+                #     return
 
                 if self.ideal_gas_warning and self.check_ideal_gas:
 
@@ -756,24 +770,27 @@ class SetFluidCompositionInput(QDialog):
         if _pressure_value is None:
             return None
 
-        pu_index = self.comboBox_pressure_units.currentIndex()
-        if pu_index == 1: # kPa
+        pressure_unit = self.comboBox_pressure_units.currentText()
+        if "kPa" in pressure_unit:
             _pressure_value *= 1e3
 
-        elif pu_index == 2: # atm
+        elif "atm" in pressure_unit:
             _pressure_value *= 101325
 
-        elif pu_index == 3: # bar
+        elif "bar" in pressure_unit:
             _pressure_value *= 1e5
 
-        elif pu_index == 4: # kgf/cm²
+        elif "kgf/cm²" in pressure_unit:
             _pressure_value *= 9.80665e4
 
-        elif pu_index == 5: # psi
+        elif "psi" in pressure_unit:
             _pressure_value *= 6.89475729e3
 
-        elif pu_index == 6: # ksi
+        elif "ksi" in pressure_unit:
             _pressure_value *= 6.89475729e6
+
+        if "(g)" in pressure_unit:
+            _pressure_value += 101325
 
         if _pressure_value < 0:
             title = "Invalid entry to the pressure"

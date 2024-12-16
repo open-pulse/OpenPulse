@@ -11,7 +11,7 @@ from pulse.editor.structures import (
     Reducer,
     TBeam,
     Valve,
-    SimpleCurve,
+    Fillet,
     LinearStructure,
     Bend,
 )
@@ -62,7 +62,7 @@ class ReplaceEditor(Editor):
                 structure_type, 
                 **kwargs
             )
-        elif isinstance(original_structure, SimpleCurve) and issubclass(structure_type, Pipe):
+        elif isinstance(original_structure, Fillet) and issubclass(structure_type, Pipe):
             new_structure = self._create_simple_curve(
                 original_structure, 
                 Bend,
@@ -88,8 +88,8 @@ class ReplaceEditor(Editor):
 
     def _create_simple_curve(
         self, 
-        original_structure: SimpleCurve, 
-        structure_type: type[SimpleCurve], 
+        original_structure: Fillet, 
+        structure_type: type[Fillet], 
         **kwargs
     ):
         return structure_type(

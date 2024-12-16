@@ -11,7 +11,7 @@ from pulse.model.after_run import AfterRun
 from pulse.model.before_run import BeforeRun
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.processing.acoustic_solver import AcousticSolver
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
 #
 import logging
 from collections import defaultdict
@@ -101,6 +101,9 @@ class Project:
                 return False
 
         except Exception as log_error:
+            from traceback import print_exception
+            print_exception(log_error)
+
             title = "Error while processing initial load project actions"
             message = str(log_error)
             PrintMessageInput([window_title, title, message])

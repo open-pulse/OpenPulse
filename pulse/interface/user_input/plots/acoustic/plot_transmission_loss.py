@@ -29,6 +29,8 @@ class PlotTransmissionLoss(QWidget):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+
+        app().main_window.set_selection()
         self.selection_callback()
         self.update_flip_buttons()
 
@@ -82,7 +84,9 @@ class PlotTransmissionLoss(QWidget):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
+
         selected_nodes = app().main_window.list_selected_nodes()
+
         if len(selected_nodes) == 1:
             self.current_lineEdit.setText(str(selected_nodes[0]))
 
@@ -221,8 +225,8 @@ class PlotTransmissionLoss(QWidget):
 
         d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_id)
         d_out, rho_out, c0_out = self.get_minor_outer_diameter_from_node(self.output_node_id)
-        A_in = np.pi*(d_in**2)/4
-        A_out = np.pi*(d_out**2)/4
+        A_in = np.pi * (d_in**2) / 4
+        A_out = np.pi * (d_out**2) / 4
 
         # the zero_shift constant is summed to avoid zero values either in P_input2 or P_output2 variables
         zero_shift = 1e-12
@@ -234,18 +238,19 @@ class PlotTransmissionLoss(QWidget):
             ## Howard, Carl Q. and Cazzolato, Benjamin S. Acoustic Analyses Using MATLAB® and ANSYS®. pags. 74 and 75. 2014.
   
             Q = self.input_volume_velocity
+
             u_n = Q / A_in
-            P_in = u_n*rho_in*c0_in / 2
-            # P_out += zero_shift
+            P_in = u_n * rho_in * c0_in / 2
 
-            # Prms_in2 = (P_in/np.sqrt(2))**2
-            # Prms_out2 = np.real(P_out*np.conjugate(P_out))/2 + zero_shift
+            I_in = ((P_in / np.sqrt(2))**2) / (rho_in * c0_in)
+            I_out = (np.real(P_out * np.conjugate(P_out)) / 2) / (rho_out * c0_out)
 
-            # W_in = 10*np.log10(Prms_in2*A_in/(rho_in*c0_in))
-            # W_out = 10*np.log10(Prms_out2*A_out/(rho_out*c0_out))
-            # TL = W_in - W_out
+            W_in = 10 * np.log10(I_in * A_in)
+            W_out = 10 * np.log10(I_out * A_out)
 
-            TL = 20*np.log10(P_in/P_out) + 20*np.log10(A_in/A_out)
+            TL = W_in - W_out
+
+            # TL = 20*np.log10(P_in/P_out) + 20*np.log10(A_in/A_out)
 
             return TL
 
@@ -295,8 +300,19 @@ class PlotTransmissionLoss(QWidget):
         self.exporter = ExportModelResults()
         self.exporter._set_data_to_export(self.model_results)
 
+    def alternate_node_id_input_fields(self):
+
+        if self.current_lineEdit == self.lineEdit_input_node_id:
+            self.current_lineEdit = self.lineEdit_output_node_id
+        else:
+            self.current_lineEdit = self.lineEdit_input_node_id
+
+        self.current_lineEdit.setFocus()
+
     def keyPressEvent(self, event):
+
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.call_plotter()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
+
+        elif event.key() in [Qt.Key_Up, Qt.Key_Down]:
+            self.alternate_node_id_input_fields()

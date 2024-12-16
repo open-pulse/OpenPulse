@@ -1,4 +1,6 @@
+import gmsh
 import numpy as np
+from typing import Callable
 
 from .point import Point
 from .structure import Structure
@@ -8,7 +10,17 @@ def normalize(vector):
     return vector / np.linalg.norm(vector)
 
 
-class SimpleCurve(Structure):
+class Fillet(Structure):
+    """
+    Abstract class to handle structures represented by arcs that are
+    inserted to smooth corners.
+    """
+
+    start: Point
+    end: Point
+    corner: Point
+    curvature_radius: float
+
     def __init__(self, start: Point, end: Point, corner: Point, curvature_radius: float, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -25,13 +37,9 @@ class SimpleCurve(Structure):
         if self.is_colapsed():
             return self.corner.copy()
 
-        u = self.start.coords() - self.corner.coords()
-        v = self.end.coords() - self.corner.coords()
+        u = normalize(self.start.coords() - self.corner.coords())
+        v = normalize(self.end.coords() - self.corner.coords())
         n = np.cross(u, v)
-
-        u /= np.linalg.norm(u)
-        v /= np.linalg.norm(v)
-        n /= np.linalg.norm(n)
 
         A = np.array([u, v, n], dtype=float)
         b = np.array(
@@ -43,7 +51,32 @@ class SimpleCurve(Structure):
             dtype=float,
         )
         center_coords = np.linalg.solve(A, b)
-        return Point(*center_coords)
+
+        # TODO @vitorslongo please refactor this.
+        # Some variable names are conflicting with the ones above,
+        # and others are being unnecessarily repeated.
+        middle_coords = (self.start.coords() + self.end.coords()) / 2
+        normal_vector = np.cross(self.end.coords() - self.start.coords(), center_coords - self.start.coords())
+        bisector_direction = np.cross(normal_vector, self.end.coords() - self.start.coords())
+
+        u = center_coords - middle_coords
+        v = bisector_direction
+        projection_uv = (np.dot(u, v) / (np.linalg.norm(v)**2)) * v
+        corrected_center_coords = middle_coords + projection_uv
+
+        return Point(*corrected_center_coords)
+
+    @property
+    def arc_length(self):
+        u = self.start.coords() - self.center.coords()
+        v = self.end.coords() - self.center.coords()
+
+        norm_u = np.linalg.norm(u)
+        norm_v = np.linalg.norm(v)
+        cos_alpha = np.dot(u, v) / (norm_u * norm_v)
+
+        average_radius = (norm_u + norm_v) / 2
+        return np.arccos(cos_alpha) * average_radius
 
     def update_corner_from_center(self, center):
         self.auto = False
@@ -76,8 +109,12 @@ class SimpleCurve(Structure):
     def normalize_values_vector(self, vec_a: np.ndarray, vec_b: np.ndarray):
         '''
         Updates the start and end points of a curve based on the curvature radius
-        and the direction expected for these points according to the corner.
+        and the tangencies of each connection.
         '''
+        # The outward tangency of the curve is in the oposite
+        # direction of the structure connected to it.
+        vec_a, vec_b = -vec_a, -vec_b
+
         sin_angle = np.linalg.norm(vec_a - vec_b) / 2
         angle = np.arcsin(sin_angle)
         corner_distance = np.cos(angle) * self.curvature_radius / np.sin(angle)
@@ -107,3 +144,18 @@ class SimpleCurve(Structure):
             "curvature_radius": self.curvature_radius,
             "auto": self.auto,
         }
+
+    def add_to_gmsh(
+        self,
+        cad: gmsh.model.occ | gmsh.model.geo = gmsh.model.occ,
+        convert_unit: Callable[[float], float] = lambda x: x,
+    ) -> list[int]:
+
+        if self.is_colapsed():
+            return []
+
+        start = cad.add_point(*convert_unit(self.start.coords()))
+        end = cad.add_point(*convert_unit(self.end.coords()))
+        middle = cad.add_point(*convert_unit(self.center.coords()))
+        return [cad.add_circle_arc(start, middle, end)]
+        

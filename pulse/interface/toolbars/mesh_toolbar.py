@@ -5,7 +5,7 @@ from PyQt5.QtGui import QColor, QIcon, QKeyEvent, QFont
 from pulse import app
 from pulse.interface.toolbars.mesh_updater import MeshUpdater
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.utils import check_inputs
+from pulse.utils.interface_utils import check_inputs
 
 class MeshToolbar(QToolBar):
     def __init__(self):

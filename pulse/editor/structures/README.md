@@ -2,8 +2,8 @@
 classDiagram
 
 Structure <|-- LinearStructure
-Structure <|-- SimpleCurve
-Structure <|-- UCurve
+Structure <|-- Fillet
+Structure <|-- Curve
 
 LinearStructure <|-- Pipe
 LinearStructure <|-- Reducer
@@ -18,11 +18,11 @@ Beam <|-- TBeam
 Beam <|-- CircularBeam
 Beam <|-- RectangularBeam
 
-SimpleCurve <|-- Bend
-SimpleCurve <|-- Elbow
+Fillet <|-- Bend
+Fillet <|-- Elbow
 
-UCurve <|-- UBend
-UCurve <|-- UElbow
+Curve <|-- UBend
+Curve <|-- UElbow
 
 class Structure {
     color: Color
@@ -50,7 +50,7 @@ class LinearStructure {
     interpolate(t: float) -> Point
 }
 
-class SimpleCurve {
+class Fillet {
     start: Point
     end: Point
     corner: Point

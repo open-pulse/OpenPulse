@@ -50,3 +50,36 @@ def align_vtk_geometry(geometry: vtkPolyData, start: np.ndarray, vector: np.ndar
     transform_filter.Update()
 
     return transform_filter.GetOutput()
+
+def rotation_matrices(ax, ay, az):
+    sin = np.sin([ax, ay, az])
+    cos = np.cos([ax, ay, az])
+
+    rx = np.array(
+        [
+            [1, 0, 0, 0],
+            [0, cos[0], -sin[0], 0],
+            [0, sin[0], cos[0], 0],
+            [0, 0, 0, 1],
+        ]
+    )
+
+    ry = np.array(
+        [
+            [cos[1], 0, sin[1], 0],
+            [0, 1, 0, 0],
+            [-sin[1], 0, cos[1], 0],
+            [0, 0, 0, 1],
+        ]
+    )
+
+    rz = np.array(
+        [
+            [cos[2], -sin[2], 0, 0],
+            [sin[2], cos[2], 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+        ]
+    )
+
+    return rx, ry, rz

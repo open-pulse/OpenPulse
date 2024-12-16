@@ -6,9 +6,9 @@ if TYPE_CHECKING:
 import numpy as np
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
-from pulse.interface.viewer_3d.utils.cell_utils import paint_data
-from pulse.interface.viewer_3d.utils.cross_section_sources import valve_data
-from pulse.interface.viewer_3d.utils.rotations import align_vtk_geometry
+from pulse.utils.cell_utils import paint_data
+from pulse.utils.cross_section_sources import valve_data
+from pulse.utils.rotations import align_vtk_geometry
 
 
 class ValveActor(vtkActor):

@@ -1,3 +1,7 @@
+import numpy as np
+import gmsh
+from typing import Callable
+
 from .point import Point
 from .structure import Structure
 import numpy as np
@@ -5,14 +9,21 @@ import numpy as np
 
 class LinearStructure(Structure):
     """
-    Abstract class to handle common stuff to most structures.
+    Abstract class to handle structures represented by a stright line.
     """
+
+    start: Point
+    end: Point
 
     def __init__(self, start: Point, end: Point, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.start = start
         self.end = end
+
+    @property
+    def arc_length(self):
+        return np.linalg.norm(self.end - self.start)
 
     def get_points(self):
         return [
@@ -103,3 +114,13 @@ class LinearStructure(Structure):
             "start": self.start,
             "end": self.end,
         }
+    
+    def add_to_gmsh(
+        self,
+        cad: gmsh.model.occ | gmsh.model.geo = gmsh.model.occ,
+        convert_unit: Callable[[float], float] = lambda x: x,
+    ) -> list[int]:
+
+        start = cad.add_point(*convert_unit(self.start.coords()))
+        end = cad.add_point(*convert_unit(self.end.coords()))
+        return [cad.add_line(start, end)]

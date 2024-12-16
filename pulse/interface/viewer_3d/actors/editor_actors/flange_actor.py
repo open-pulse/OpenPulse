@@ -1,9 +1,9 @@
 import numpy as np
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
-from pulse.interface.viewer_3d.utils.cell_utils import paint_data
-from pulse.interface.viewer_3d.utils.cross_section_sources import flange_data
-from pulse.interface.viewer_3d.utils.rotations import align_vtk_geometry
+from pulse.utils.cell_utils import paint_data
+from pulse.utils.cross_section_sources import flange_data
+from pulse.utils.rotations import align_vtk_geometry
 from pulse.editor.structures import Flange
 
 
@@ -15,7 +15,13 @@ class FlangeActor(vtkActor):
     def create_geometry(self):
         vector = self.flange.end.coords() - self.flange.start.coords()
         length = np.linalg.norm(vector)
-        source = flange_data(length, self.flange.diameter, self.flange.thickness)
+        source = flange_data(
+            length,
+            self.flange.diameter,
+            self.flange.thickness,
+            offset_y = self.flange.offset_y,
+            offset_z = self.flange.offset_z,
+        )
 
         data = align_vtk_geometry(source, self.flange.start.coords(), vector)
         paint_data(data, self.flange.color.to_rgb())

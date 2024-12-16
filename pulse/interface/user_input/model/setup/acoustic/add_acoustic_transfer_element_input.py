@@ -48,11 +48,6 @@ class AddAcousticTransferElementInput(QDialog):
     def _initialize(self):
 
         self.keep_window_open = True
-
-        self.type_label = None
-        self.dkey = None
-        self.log_removal = True
-
         self.element_transfer_data = dict()
 
         self.before_run = app().project.get_pre_solution_model_checks()
@@ -125,6 +120,7 @@ class AddAcousticTransferElementInput(QDialog):
 
         filter = Filter(widget)
         widget.installEventFilter(filter)
+
         return filter.clicked
 
     def lineEdit_1_clicked(self):
@@ -187,7 +183,6 @@ class AddAcousticTransferElementInput(QDialog):
 
             self.remove_table_files_from_nodes(node_ids)
             self.properties._remove_nodal_property("acoustic_transfer_element", node_ids)
-
             self.actions_to_finalize()
 
     def reset_callback(self):
@@ -380,8 +375,8 @@ class AddAcousticTransferElementInput(QDialog):
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
         app().pulse_file.write_imported_table_data_in_file()
-        self.load_nodal_info()
         app().main_window.update_plots(reset_camera=False)
+        self.load_nodal_info()
         self.pushButton_cancel.setText("Exit")
 
     def on_click_item(self, item):
