@@ -682,10 +682,12 @@ class PulsationDamperEditorInputs(QDialog):
                 sufix += 1
                 _damper_label = damper_label + f"_{sufix}"
 
-        if _damper_label in self.damper_data.keys():
-            _damper_label = ""
+            if _damper_label in self.damper_data.keys():
+                damper_label = ""
+            else:
+                damper_label = _damper_label
 
-        self.lineEdit_damper_label.setText(_damper_label)
+        self.lineEdit_damper_label.setText(damper_label)
 
     def check_pulsation_damper_label(self):
 
