@@ -119,7 +119,7 @@ class ShakingForcesCriteriaInput(QWidget):
         F_x = pressure_loads[0] + pressure_loads[6]
         F_y = pressure_loads[1] + pressure_loads[7]
         F_z = pressure_loads[2] + pressure_loads[8]
-        F_res = (F_x**2 + F_y** + F_z**2)**(1/2)
+        F_res = (F_x**2 + F_y**2 + F_z**2)**(1/2)
 
         shaking_forces = {
                           "F_x" : F_x,
