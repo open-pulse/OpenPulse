@@ -209,8 +209,10 @@ class AcousticSolver:
 
         if np.sum(C[0]):
 
-            ones = eye(self.assembly.total_dof, dtype=complex, format="csr")
-            zeros = csr_matrix((self.assembly.total_dof, self.assembly.total_dof), dtype=complex)
+            N_t = len(self.assembly.unprescribed_indexes)
+
+            ones = eye(N_t, dtype=complex, format="csr")
+            zeros = csr_matrix((N_t, N_t), dtype=complex)
 
             ## Reference - book
             # A = bmat([[ C[0], M_add], 
@@ -325,7 +327,8 @@ class AcousticSolver:
 
             for i, freq in enumerate(self.frequencies):
 
-                logging.info(f"Solution step {i+1} and frequency {freq} [{i}/{len(self.frequencies)}]")
+                logging.info(f"Solution step {i+1} and frequency {freq : .3f} Hz [{i+1}/{len(self.frequencies)}]")
+
                 solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
 
                 if self.stop_processing():

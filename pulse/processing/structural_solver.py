@@ -310,10 +310,11 @@ class StructuralSolver:
         solution = np.zeros((rows, cols), dtype=complex)
         
         for i, freq in enumerate(self.frequencies):
-            logging.info(f"Solution step {i+1} and frequency {freq} [{i}/{len(self.frequencies)}]")
+
+            logging.info(f"Solution step {i+1} and frequency {freq : .3f} Hz [{i+1}/{len(self.frequencies)}]")
 
             omega = 2*np.pi*freq
-            
+
             # F_K = (self.K + self.K_lump[i])
             # F_M =  (-(omega**2))*(self.M + self.M_lump[i])
             # F_C = 1j*(( betaH + omega*betaV )*self.K + ( alphaH + omega*alphaV )*self.M)
