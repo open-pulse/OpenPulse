@@ -71,7 +71,7 @@ class AcousticElement:
     index : int
         Element index.
 
-    element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full'], optional
+    element_type : str, ['undamped', 'proportional', 'wide_duct', 'LRF_fluid_equivalent', 'LRF_full'], optional
         Element type
         Default is 'undamped'.
 
@@ -266,10 +266,10 @@ class AcousticElement:
                 self.area_fluid = pi*(d**2) / 4
 
         self.reset()
-        if self.element_type in ['undamped mean flow','peters','howe']:
+        if self.element_type in ['undamped_mean_flow','peters','howe']:
             return self.fetm_mean_flow_matrix(frequencies, length_correction)
 
-        elif self.element_type in ['undamped','proportional','wide-duct','LRF fluid equivalent']:
+        elif self.element_type in ['undamped', 'proportional', 'wide_duct','LRF_fluid_equivalent']:
             return self.fetm_matrix(frequencies, length_correction)
 
         elif self.element_type == 'LRF full':
@@ -543,7 +543,7 @@ class AcousticElement:
                 self.max_valid_freq = np.min(frequencies[aux])
             return kappa_complex, impedance_complex
 
-        elif self.element_type == 'wide-duct':
+        elif self.element_type == 'wide_duct':
             nu = self.fluid.kinematic_viscosity
             pr = self.fluid.prandtl
             gamma = self.fluid.isentropic_exponent
@@ -574,7 +574,7 @@ class AcousticElement:
             impedance_complex = rho_0*c0*const
             return kappa_complex, impedance_complex
 
-        elif self.element_type == 'LRF fluid equivalent':
+        elif self.element_type == 'LRF_fluid_equivalent':
             nu = self.fluid.kinematic_viscosity
             gamma = self.fluid.isentropic_exponent
             alpha = self.fluid.thermal_diffusivity
@@ -606,13 +606,15 @@ class AcousticElement:
             return kappa_complex, impedance_complex
 
     def get_fetm_mean_flow_damping_data(self, frequencies):
+
         omega = 2 * pi * frequencies
         c0 = self.speed_of_sound_corrected()
         rho_0 = self.fluid.density
         kappa_real = omega/c0
         di = self.cross_section.inner_diameter
         radius = di / 2
-        if self.element_type == 'undamped mean flow':
+
+        if self.element_type == 'undamped_mean_flow':
             aux = np.real(kappa_real*(1-self.mach**2) * radius) > 1.84118
             if np.any(aux):
                 self.flag_plane_wave = True
@@ -893,12 +895,12 @@ class AcousticElement:
         if frequencies is None:
             frequencies = np.array([0], dtype=float)
 
-        if self.element_type in ['undamped mean flow','peters','howe']:
+        if self.element_type in ['undamped_mean_flow', 'peters', 'howe']:
             k, z, M = self.get_fetm_mean_flow_damping_data(frequencies)
             kappa_complex = k
             impedance_complex = z * (1 - M**2)
 
-        elif self.element_type in ['undamped','proportional','wide-duct','LRF fluid equivalent']:
+        elif self.element_type in ['undamped', 'proportional', 'wide_duct', 'LRF_fluid_equivalent']:
             kappa_complex, impedance_complex = self.get_fetm_damping_data(frequencies)
 
         elif self.element_type == 'LRF full':

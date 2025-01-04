@@ -684,7 +684,7 @@ viscous</string>
               </property>
               <property name="font">
                <font>
-                <pointsize>11</pointsize>
+                <pointsize>10</pointsize>
                 <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>
@@ -714,7 +714,7 @@ viscous</string>
               </property>
               <property name="font">
                <font>
-                <pointsize>11</pointsize>
+                <pointsize>10</pointsize>
                 <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>
@@ -837,7 +837,7 @@ hysteretic</string>
               </property>
               <property name="font">
                <font>
-                <pointsize>11</pointsize>
+                <pointsize>10</pointsize>
                 <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>
@@ -867,7 +867,7 @@ hysteretic</string>
               </property>
               <property name="font">
                <font>
-                <pointsize>11</pointsize>
+                <pointsize>10</pointsize>
                 <weight>50</weight>
                 <italic>false</italic>
                 <bold>false</bold>

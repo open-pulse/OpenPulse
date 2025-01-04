@@ -823,7 +823,7 @@ class Preprocessor:
         elements : list
             Acoustic elements indexes.
             
-        element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
+        element_type : str, ['undamped', 'proportional', 'wide_duct', 'LRF_fluid_equivalent', 'LRF_full']
             Acoustic element type to be attributed to the listed elements.
             
         proportional_damping : float, optional
@@ -1117,7 +1117,7 @@ class Preprocessor:
         line : list
             Entities tag.
             
-        element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
+        element_type : str, ['undamped', 'proportional', 'wide_duct', 'LRF_fluid_equivalent', 'LRF_full']
             Acoustic element type to be attributed to the listed elements.
             
         proportional_damping : float, optional
@@ -2180,10 +2180,10 @@ class Preprocessor:
         """" This method returns """
         acoustic_etype_to_number_elements = {   'undamped' : 0, 
                                                 'proportional' : 0, 
-                                                'wide-duct' : 0, 
-                                                'LRF fluid equivalent' : 0, 
-                                                'LRF full' : 0, 
-                                                'undamped mean flow' : 0, 
+                                                'wide_duct' : 0, 
+                                                'LRF_fluid_equivalent' : 0, 
+                                                'LRF_full' : 0, 
+                                                'undamped_mean_flow' : 0, 
                                                 'howe' : 0, 
                                                 'peters' : 0, 
                                                 None : 0    }

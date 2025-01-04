@@ -135,13 +135,21 @@ class AcousticElementTypeInput(QDialog):
                         self.lineEdit_proportional_damping.setText(str(proportional_damping))
                         self.lineEdit_proportional_damping.setDisabled(False)
 
+                elif element_type == "undamped":
+                    self.comboBox_element_type.setCurrentIndex(0)
+
+                elif element_type == "wide_duct":
+                    self.comboBox_element_type.setCurrentIndex(2)
+
+                elif element_type == "LRF_fluid_equivalent":
+                    self.comboBox_element_type.setCurrentIndex(3)
+
+                elif element_type == "LRF_full":
+                    self.comboBox_element_type.setCurrentIndex(4)
+
                 else:
 
-                    if element_type == "undamped":
-                        self.comboBox_element_type.setCurrentIndex(0)
-                        return
-
-                    mf_element_types = ["undamped mean flow", "peters", "howe"]
+                    mf_element_types = ["undamped_mean_flow", "peters", "howe"]
 
                     if element_type in mf_element_types:
 
@@ -187,7 +195,7 @@ class AcousticElementTypeInput(QDialog):
 
         if self.checkBox_flow_effects.isChecked():
             if element_type_index == 0:
-                self.element_type = 'undamped mean flow'
+                self.element_type = 'undamped_mean_flow'
             elif element_type_index == 1:
                 self.element_type = 'peters'
             elif element_type_index == 2:
@@ -201,11 +209,11 @@ class AcousticElementTypeInput(QDialog):
                 self.label_proportional_damping.setDisabled(False)
                 self.lineEdit_proportional_damping.setDisabled(False)
             elif element_type_index == 2:
-                self.element_type = 'wide-duct'
+                self.element_type = 'wide_duct'
             elif element_type_index == 3:
-                self.element_type = 'LRF fluid equivalent'
+                self.element_type = 'LRF_fluid_equivalent'
             elif element_type_index == 4:
-                self.element_type = 'LRF full'
+                self.element_type = 'LRF_full'
 
     def checkBoxEvent_flow_effects(self):
 
@@ -219,7 +227,7 @@ class AcousticElementTypeInput(QDialog):
             list_items = ["Undamped mean flow", "Peters", "Howe"]    
         else:
             list_items = ["Undamped", "Proportional", "Wide-duct", "LRF fluid equivalent", "LRF full"]
-        
+
         self.comboBox_element_type.addItems(list_items)
 
     def check_input_parameters(self, parameter: str, label: str, _float=True):
@@ -422,7 +430,7 @@ class AcousticElementTypeInput(QDialog):
                 if key == "proportional":
                     header_labels.append("Proportional damping")
 
-                elif key in ["undamped mean flow", "peters", "howe"]:
+                elif key in ["undamped_mean_flow", "peters", "howe"]:
                     header_labels.append("Volume mean flow")
 
                 data = dict()
@@ -441,7 +449,7 @@ class AcousticElementTypeInput(QDialog):
                                 continue
                             element_data.append(damping)
     
-                        elif key in ["undamped mean flow", "peters", "howe"]:
+                        elif key in ["undamped_mean_flow", "peters", "howe"]:
                             vol_flow = self.properties._get_property("volume_flow", line_id=line_id)
                             if vol_flow is None:
                                 continue

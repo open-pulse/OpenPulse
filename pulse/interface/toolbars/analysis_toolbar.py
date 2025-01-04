@@ -140,14 +140,14 @@ class AnalysisToolbar(QToolBar):
         # QPushButton
         self.pushButton_configure_analysis.setFixedSize(50, 30)
         self.pushButton_configure_analysis.setIcon(self.settings_icon)
-        self.pushButton_configure_analysis.setIconSize(QSize(20,20))
+        self.pushButton_configure_analysis.setIconSize(QSize(20, 20))
         self.pushButton_configure_analysis.setCursor(Qt.PointingHandCursor)
         self.pushButton_configure_analysis.setToolTip("Configure the analysis")
         # self.pushButton_configure_analysis.setCheckable(True)
 
-        self.pushButton_run_analysis.setFixedSize(50, 28)
+        self.pushButton_run_analysis.setFixedSize(50, 30)
         self.pushButton_run_analysis.setIcon(self.solution_icon)
-        self.pushButton_run_analysis.setIconSize(QSize(20,20))
+        self.pushButton_run_analysis.setIconSize(QSize(20, 20))
         self.pushButton_run_analysis.setCursor(Qt.PointingHandCursor)
         self.pushButton_run_analysis.setToolTip("Run the analysis")
         # self.pushButton_run_analysis.setCheckable(True)
