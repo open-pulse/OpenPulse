@@ -36,7 +36,6 @@ from pulse.utils.interface_utils import Workspace, VisualizationFilter, Selectio
 
 import logging
 import os
-import qdarktheme
 
 from functools import partial
 from pathlib import Path
@@ -859,9 +858,8 @@ class MainWindow(QMainWindow):
         elif theme == "light":
             self.icon_color = QColor(color_names.BLUE_4.to_hex())
     
-        # self.interface_theme = theme
-        # stylesheets.set_theme(theme)
-        qdarktheme.setup_theme(theme, custom_colors=self.custom_colors)
+        self.interface_theme = theme
+        stylesheets.set_theme(theme)
         self.theme_changed.emit(theme)
         
         self.action_set_light_theme.setDisabled(theme == "light")

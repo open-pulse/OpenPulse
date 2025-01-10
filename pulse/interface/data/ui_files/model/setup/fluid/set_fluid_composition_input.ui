@@ -415,13 +415,13 @@
              <widget class="QComboBox" name="comboBox_temperature_units">
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>100</width>
                 <height>28</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>100</width>
                 <height>28</height>
                </size>
               </property>
@@ -668,13 +668,13 @@
              <widget class="QComboBox" name="comboBox_pressure_units">
               <property name="minimumSize">
                <size>
-                <width>80</width>
+                <width>100</width>
                 <height>28</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>80</width>
+                <width>100</width>
                 <height>28</height>
                </size>
               </property>
