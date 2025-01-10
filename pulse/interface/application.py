@@ -10,19 +10,6 @@ from pulse.project.project import Project
 from pulse.project.load_project import LoadProject
 from pulse.interface.file.project_file import ProjectFile
 
-from dataclasses import dataclass
-
-from molde import Color
-
-@dataclass
-class InterfacePreferences:
-    font_size : int
-    background_color: Color
-    icons_color: Color
-    renderer_background: Color
-    points_color: Color
-    
-
 class Application(QApplication):
     selection_changed = pyqtSignal()
 
@@ -35,6 +22,7 @@ class Application(QApplication):
         self.processEvents()
 
         # global params
+        # self.config = Config()
         self.config = Config()
         self.pulse_file = ProjectFile(TEMP_PROJECT_FILE)
         self.project = Project()

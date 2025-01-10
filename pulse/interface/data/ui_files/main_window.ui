@@ -475,6 +475,10 @@
    </property>
   </action>
   <action name="action_user_preferences">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/common/user_preferences_icon.png</normaloff>../icons/common/user_preferences_icon.png</iconset>
+   </property>
    <property name="text">
     <string>User Preferences</string>
    </property>

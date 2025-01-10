@@ -58,7 +58,7 @@ from pulse.interface.user_input.plots.acoustic.plot_transmission_loss import Plo
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure import PlotAcousticDeltaPressure
 #
 from pulse.interface.user_input.plots.structural.plot_cross_section_input import PlotCrossSectionInput
-from pulse.interface.user_input.project.render.renderer_user_preferences import RendererUserPreferencesInput
+from pulse.interface.user_input.project.renderer_user_preferences import RendererUserPreferencesInput
 from pulse.interface.user_input.model.info.structural_model_info import StructuralModelInfo
 from pulse.interface.user_input.model.info.acoustic_model_Info import AcousticModelInfo
 from pulse.interface.user_input.model.criteria.check_beam_criteria_input import CheckBeamCriteriaInput
