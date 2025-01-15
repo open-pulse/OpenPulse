@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCloseEvent
 from PyQt5 import uic
@@ -111,6 +111,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.pushButton_create_psd : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
+        self.pushButton_preview : QPushButton
 
         # QSpinBox
         self.spinBox_pipe1_rotation_angle : QDoubleSpinBox
@@ -139,6 +140,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.pushButton_create_psd.clicked.connect(self.create_psd_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_preview.clicked.connect(self.preview_callback)
         #
         self.spinBox_volumes_spacing.valueChanged.connect(self.volumes_spacing_callback)
         #
@@ -163,6 +165,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def _config_widgets(self):
         #
+        self.preview_callback()
         self.lineEdit_device_label.setFocus()
         self.lineEdit_selection.setDisabled(True)
         self.pushButton_remove.setDisabled(True)
@@ -991,6 +994,10 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.actions_to_finalize()
             app().main_window.update_plots()
 
+    def preview_callback(self):
+        self.preview = QWidget()
+        self.preview.show()
+
     def load_psd_info(self):
 
         self.treeWidget_psd_info.clear()
@@ -1049,4 +1056,5 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        self.preview.close()
         return super().closeEvent(a0)
