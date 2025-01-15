@@ -11,6 +11,7 @@ from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.interface_utils import check_inputs
+from pulse.interface.viewer_3d.render_widgets.psd_preview_render_widget import PSDPreviewRenderWidget
 
 import numpy as np
 
@@ -995,8 +996,9 @@ class PulsationSuppressionDeviceInputs(QDialog):
             app().main_window.update_plots()
 
     def preview_callback(self):
-        self.preview = QWidget()
+        self.preview = PSDPreviewRenderWidget()
         self.preview.show()
+
 
     def load_psd_info(self):
 
