@@ -27,6 +27,11 @@ class StructureOptions:
         if kwargs is None:
             return        
 
+        if self.pipeline.staged_structures or self.pipeline.staged_points:
+            self.geometry_designer_widget.load_tmp_camera()
+        else:
+            self.geometry_designer_widget.save_tmp_camera()
+
         self.pipeline.dismiss()
         self.pipeline.clear_structure_selection()
         self.pipeline.add_structure_deltas(self.structure_type, xyz, **kwargs)

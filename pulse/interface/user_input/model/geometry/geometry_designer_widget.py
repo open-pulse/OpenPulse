@@ -1,26 +1,14 @@
 from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox, QCheckBox
 from PyQt5 import uic
 
+from vtkmodules.vtkRenderingCore import vtkCoordinate, vtkCamera
+from vtkmodules.vtkCommonDataModel import vtkRecti
+
 import re
+from itertools import chain
 from numbers import Number
 import numpy as np
 import math
-from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
-from pulse.editor.structures import (
-    Point,
-    Pipe,
-    Bend,
-    Flange,
-    ExpansionJoint,
-    Valve,
-    Reducer,
-    IBeam,
-    CBeam,
-    TBeam,
-    Beam,
-    CircularBeam,
-    RectangularBeam,
-)
 
 from molde.stylesheets import set_qproperty
 from molde.utils import TreeInfo
@@ -28,9 +16,15 @@ from molde.utils import TreeInfo
 from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
-from pulse.interface.user_input.model.setup.material.material_widget import MaterialWidget
 from pulse.interface.user_input.model.setup.material.set_material_input_simplified import SetMaterialSimplified
 from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
+from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
+from pulse.editor.structures import (
+    Point,
+    Pipe,
+    Bend,
+    Beam,
+)
 
 from pulse.interface.user_input.model.geometry.options import (
     StructureOptions,
@@ -58,6 +52,7 @@ class GeometryDesignerWidget(QWidget):
 
         self.render_widget = render_widget
         self.modified = False
+        self.tmp_camera = None
 
         self.project = app().project
         self.pipeline = self.project.pipeline
@@ -215,6 +210,21 @@ class GeometryDesignerWidget(QWidget):
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback(PipeOptions.name())
         self.division_type_changed_callback()
+
+    def save_tmp_camera(self):
+        camera = self.render_widget.renderer.GetActiveCamera()
+        if self.tmp_camera is None:
+            self.tmp_camera = vtkCamera()
+        self.tmp_camera.DeepCopy(camera)
+
+    def load_tmp_camera(self):
+        if self.tmp_camera is not None:
+            camera = self.render_widget.renderer.GetActiveCamera()
+            camera.DeepCopy(self.tmp_camera)
+            camera.Modified()
+    
+    def clear_tmp_camera(self):
+        self.tmp_camera = None
 
     def selection_callback(self):
         if issubclass(self.current_structure_type, Point):
@@ -374,7 +384,88 @@ class GeometryDesignerWidget(QWidget):
 
         self.current_options.xyz_callback(xyz)
         self._update_permissions()
-        self.render_widget.update_plot(reset_camera=True)
+        self.render_widget.update_plot(reset_camera=False)
+        self.update_zoom_to_fit_new_points()
+        self.render_widget.update()
+
+    def update_zoom_to_fit_new_points(self):
+        renderer = self.render_widget.renderer
+        coordinate = vtkCoordinate()
+        coordinate.SetCoordinateSystemToWorld()
+
+        w, h = renderer.GetSize()
+        need_to_fit = False
+        border = int(max(w, h) * 0.1)
+        
+        # Starts with a rectangle the size of the viewport,
+        # and make it grow according to selected/staged points
+        # that are outside of it.
+        x0, y0 = 0, 0
+        x1, y1 = w, h
+        for point in chain(self.pipeline.staged_points, self.pipeline.selected_points):
+            # Project 3D world coordinates to 2D viewport coordinates
+            coordinate.SetValue(*point)
+            view_x, view_y = coordinate.GetComputedViewportValue(renderer)
+
+            if not renderer.IsInViewport(view_x, view_y):
+                x0 = min(x0, view_x)
+                x1 = max(x1, view_x)
+                y0 = min(y0, view_y)
+                y1 = max(y1, view_y)
+                need_to_fit = True
+            
+        if not need_to_fit:
+            return
+
+        # Adds a bit of space between the new 
+        # points and the border of the screen. 
+        if x0 < 0:
+            x0 -= border
+        elif x1 > w:
+            x1 += border
+        
+        if y0 < 0:
+            y0 -= border
+        elif y1 > h:
+            y1 += border
+
+        dx = (x1 + x0 - w) / 2
+        dy = (y1 + y0 - h) / 2
+        self.move_viewport(dx, dy)
+
+        # This function changes the zoom around the center.
+        # That's why we needed to move the viewport.
+        rect = vtkRecti(x0, y0, x1-x0, y1-y0)
+        renderer.ZoomToBoxUsingViewAngle(rect)
+    
+    def move_viewport(self, dx, dy):
+        '''
+        Moves the viewport in view coordinates by some amount of pixels.
+
+        Further explanations on this link:
+        https://github.com/open-pulse/OpenPulse/blob/5f7bd4719527383b2d3ea078e5f29f214f35128d/doc/code_explanation/move_viewport.pdf
+        '''
+
+        renderer = self.render_widget.renderer
+        camera = renderer.GetActiveCamera()
+        width, heigth = renderer.GetSize()
+
+        if camera.GetParallelProjection():
+            view_height = 2 * camera.GetParallelScale()
+        else:
+            correction = camera.GetDistance()
+            view_height = 2 * correction * np.tan(0.5 * camera.GetViewAngle() / 57.296)
+        scale = view_height / heigth
+
+        focal_point = np.array(camera.GetFocalPoint())
+        camera_position = np.array(camera.GetPosition())
+        camera_up = np.array(camera.GetViewUp())
+        camera_in = np.array(camera.GetDirectionOfProjection())
+        camera_right = np.cross(camera_in, camera_up)
+
+        camera_displacement = scale * (camera_right * dx + camera_up * dy)
+        camera.SetPosition(camera_position + camera_displacement)
+        camera.SetFocalPoint(focal_point + camera_displacement)
 
     def xyz_apply_evaluation_callback(self):
         self.x_line_edit.blockSignals(True)
