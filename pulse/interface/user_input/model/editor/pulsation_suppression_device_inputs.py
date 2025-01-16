@@ -32,6 +32,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
 
+
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -166,7 +167,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def _config_widgets(self):
         #
-        self.preview_callback()
         self.lineEdit_device_label.setFocus()
         self.lineEdit_selection.setDisabled(True)
         self.pushButton_remove.setDisabled(True)
@@ -996,8 +996,18 @@ class PulsationSuppressionDeviceInputs(QDialog):
             app().main_window.update_plots()
 
     def preview_callback(self):
-        self.preview = PSDPreviewRenderWidget()
-        self.preview.show()
+        print("funcao preview foi chamada")
+        
+        if not hasattr(PSDPreviewRenderWidget(), 'preview'):
+            self.preview = PSDPreviewRenderWidget()
+            self.preview.show()
+
+        self.check_psd_inputs()
+        self.preview.build_device_preview(self._psd_data)
+       
+
+        
+        # self.preview.build_filter(self.device_data)
 
 
     def load_psd_info(self):
@@ -1058,5 +1068,5 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
-        self.preview.close()
+        # self.preview.close()
         return super().closeEvent(a0)
