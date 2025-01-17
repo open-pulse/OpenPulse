@@ -1,12 +1,13 @@
-from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSignal, QEvent, QObject, Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QLineEdit, QPushButton, QWidget
+from PySide6.QtCore import Signal, QEvent, QObject, Qt
 
 from pulse import app, UI_DIR
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+
+from molde import load_ui
+
 
 class PlotAcousticDeltaPressure(QWidget):
     def __init__(self, *args, **kwargs):
@@ -15,7 +16,7 @@ class PlotAcousticDeltaPressure(QWidget):
         main_window = app().main_window
 
         ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_delta_pressures.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
         self.project = app().project
@@ -75,7 +76,7 @@ class PlotAcousticDeltaPressure(QWidget):
 
     def clickable(self, widget):
         class Filter(QObject):
-            clicked = pyqtSignal()
+            clicked = Signal()
 
             def eventFilter(self, obj, event):
                 if obj == widget and event.type() == QEvent.MouseButtonRelease and obj.rect().contains(event.pos()):

@@ -1,9 +1,8 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCloseEvent
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
 
 from pulse import app, UI_DIR
 # from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -11,6 +10,8 @@ from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input impo
 from pulse.model.cross_section import CrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+
+from molde import load_ui
 
 import numpy as np
 from collections import defaultdict
@@ -23,7 +24,7 @@ class ValvesInput(QDialog):
         super().__init__(*args)
 
         ui_path = UI_DIR / "model/setup/structural/valve_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         self.render_type = kwargs.get("render_type", "model")
 

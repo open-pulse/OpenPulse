@@ -1,11 +1,12 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QCheckBox, QDialog, QLineEdit, QPushButton
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCloseEvent
-from PyQt5 import uic
+from PySide6.QtWidgets import QCheckBox, QDialog, QLineEdit, QPushButton
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
 
 from pulse import app, UI_DIR, TEMP_PROJECT_FILE
+
+from molde import load_ui
 
 import os
 
@@ -18,7 +19,7 @@ class SaveProjectDataSelector(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "project/save_project_data_selector.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         main_window = app().main_window
         main_window.set_input_widget(self)

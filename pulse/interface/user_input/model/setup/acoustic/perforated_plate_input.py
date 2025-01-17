@@ -1,9 +1,8 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
@@ -11,6 +10,8 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
+
+from molde import load_ui
 
 import os
 import numpy as np
@@ -25,7 +26,7 @@ class PerforatedPlateInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/acoustic/perforated_plate_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         self.valve_element_ids = kwargs.get("valve_element_ids", list())
 

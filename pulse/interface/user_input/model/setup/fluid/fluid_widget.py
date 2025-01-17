@@ -1,7 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetItem, QWidget
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetItem, QWidget
+from PySide6.QtGui import QColor
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR, TEMP_PROJECT_FILE
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
@@ -12,6 +11,8 @@ from pulse.utils.common_utils import get_list_of_values_from_string
 
 from pulse.model.properties.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library
+
+from molde import load_ui
 
 from itertools import count
 from numbers import Number

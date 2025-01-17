@@ -1,6 +1,6 @@
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
-from PyQt5.QtWidgets import QAction, QApplication
-from PyQt5.QtGui import QImage, QIcon
+from PySide6.QtWidgets import QAction, QApplication
+from PySide6.QtGui import QImage, QIcon
 
 import io
 

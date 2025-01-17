@@ -1,13 +1,11 @@
-from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QTabWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QTabWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-import numpy as np
+from molde import load_ui
 
 window_title = "Error"
 
@@ -44,7 +42,7 @@ class AnalysisSetupInput(QDialog):
         else:
             return
 
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
 

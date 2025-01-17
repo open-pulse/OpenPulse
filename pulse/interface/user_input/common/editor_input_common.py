@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QWidget, QLabel, QPushButton, QComboBox, QLineEdit, QFrame
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QWidget, QLabel, QPushButton
+
+from molde import load_ui
 
 from dataclasses import dataclass
 
@@ -16,7 +16,7 @@ class EditorInputCommon(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         ui_path = UI_DIR / "common/editor_input_common.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
         self._define_qt_variables()
         self._create_connections()
 

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (
+from PySide6.QtWidgets import (
     QWidget,
     QFrame,
     QLabel,
@@ -8,18 +8,18 @@ from PyQt5.QtWidgets import (
     QTreeWidget,
     QComboBox,
 )
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
 
-from pulse import app, UI_DIR
+from pulse import UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
 
 
 class ExpansionJointWidget(QWidget):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         ui_path = UI_DIR / "model/setup/structural/expansion_joint_widget.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         self._define_qt_variables()
         self._create_connections()

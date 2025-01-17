@@ -1,12 +1,11 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialWidget
-from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -17,7 +16,7 @@ class SetMaterialSimplified(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/material/set_material_simplified.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         self.main_window = app().main_window
         self.main_window.set_input_widget(self)

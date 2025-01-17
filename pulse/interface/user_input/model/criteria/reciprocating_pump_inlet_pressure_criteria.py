@@ -1,12 +1,11 @@
-from PyQt5.QtWidgets import QComboBox, QLabel, QLineEdit, QPushButton, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QLabel, QLineEdit, QPushButton, QWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
 
 from pulse.model.properties.fluid import Fluid
 
@@ -23,7 +22,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "criterias/reciprocating_pump_inlet_pressure_criteria_widget.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
         self.project = app().project

@@ -1,5 +1,5 @@
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtCore import Signal
+from PySide6.QtWidgets import QApplication
 
 from pulse import ICON_DIR, UI_DIR, TEMP_PROJECT_FILE
 from pulse.interface.main_window import MainWindow
@@ -11,7 +11,7 @@ from pulse.project.load_project import LoadProject
 from pulse.interface.file.project_file import ProjectFile
 
 class Application(QApplication):
-    selection_changed = pyqtSignal()
+    selection_changed = Signal()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

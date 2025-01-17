@@ -1,13 +1,12 @@
-from PyQt5.QtWidgets import QCheckBox, QLineEdit, QPushButton, QWidget
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QCheckBox, QLineEdit, QPushButton, QWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
+
+from molde import load_ui
 
 import logging
 import numpy as np
@@ -20,7 +19,7 @@ class ShakingForcesCriteriaInput(QWidget):
         super().__init__()
 
         ui_path = UI_DIR / "plots/results/acoustic/plot_shaking_forces.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
 

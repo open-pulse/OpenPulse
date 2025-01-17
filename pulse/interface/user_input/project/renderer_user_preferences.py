@@ -1,19 +1,20 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QComboBox, QFrame, QLineEdit, QPushButton, QRadioButton, QSlider, QTabWidget
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QCheckBox, QFrame, QLineEdit, QPushButton, QSlider
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
-from molde.colors import Color
 
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
+
+from molde import load_ui
+from molde.colors import Color
+
 
 class RendererUserPreferencesInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "project/render/renderer_user_preferences.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
 

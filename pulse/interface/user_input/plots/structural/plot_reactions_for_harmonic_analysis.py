@@ -1,12 +1,12 @@
-from PyQt5.QtWidgets import QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.postprocessing.plot_structural_data import get_reactions
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+
+from molde import load_ui
 
 import numpy as np
 
@@ -15,7 +15,7 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/results/structural/get_reactions_for_harmonic_analysis.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
         self.project = app().project

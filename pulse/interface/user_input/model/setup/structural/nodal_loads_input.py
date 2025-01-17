@@ -1,14 +1,15 @@
 #fmt: off
 
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent, QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent, QIcon
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+
+from molde import load_ui
 
 import os
 import numpy as np
@@ -21,7 +22,7 @@ class NodalLoadsInput(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/structural/set_nodal_loads_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties

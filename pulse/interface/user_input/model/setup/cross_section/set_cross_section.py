@@ -1,13 +1,14 @@
-from PyQt5.QtWidgets import QAction, QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent, QAction
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.model.cross_section import CrossSection
 from pulse.utils.common_utils import *
+
+from molde import load_ui
 
 from collections import defaultdict
 
@@ -18,7 +19,7 @@ class SetCrossSectionInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/cross_section/set_cross_section.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         self.pipe_to_beam = kwargs.get("pipe_to_beam", False)
         self.beam_to_pipe = kwargs.get("beam_to_pipe", False)

@@ -1,7 +1,6 @@
-from PyQt5.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem, QWidget
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem, QWidget
+from PySide6.QtGui import QColor
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR, TEMP_PROJECT_FILE
 
@@ -11,6 +10,8 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 
 from pulse.libraries.default_libraries import default_material_library
 from pulse.model.properties.material import Material
+
+from molde import load_ui
 
 from itertools import count
 import os
@@ -32,7 +33,7 @@ class MaterialWidget(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/material/material_input_widget.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         self.project = app().project
         self.properties = app().project.model.properties

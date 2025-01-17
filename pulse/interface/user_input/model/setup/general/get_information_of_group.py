@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+
+from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -14,7 +15,7 @@ class GetInformationOfGroup(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/info/get_group_information.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         self.group_label = kwargs.get("group_label", "")
         self.selection_label = kwargs.get("selection_label", "")

@@ -1,13 +1,14 @@
-from PyQt5.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QPushButton, QRadioButton, QSpinBox, QVBoxLayout, QToolButton, QWidget
-from PyQt5.QtGui import QCloseEvent, QColor
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QPushButton, QRadioButton, QSpinBox, QVBoxLayout, QToolButton, QWidget
+from PySide6.QtGui import QCloseEvent, QColor
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.data_handler.import_data_to_compare import ImportDataToCompare
 from pulse.interface.user_input.plots.general.advanced_cursor import AdvancedCursor
+
+from molde import load_ui
 
 import numpy as np
 

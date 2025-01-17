@@ -1,13 +1,13 @@
-from PyQt5.QtWidgets import QCheckBox, QComboBox, QLineEdit, QPushButton, QRadioButton, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QCheckBox, QComboBox, QLineEdit, QPushButton, QWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
+
+from molde import load_ui
 
 import logging
 import numpy as np
@@ -17,7 +17,7 @@ class PlotStressesForHarmonicAnalysis(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/results/structural/get_stresses_for_harmonic_analysis.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
 
