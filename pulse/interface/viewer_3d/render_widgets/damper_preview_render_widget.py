@@ -45,26 +45,38 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
             tube.SetRadius(section_data[0] / 2)
             tube.SetNumberOfSides(50)
             tube.CappingOn()
+
             tube.Update()
 
-            damper.AddInputData(tube.GetOutput())
-            damper.Update()
-            
+            if segment_label == "gas_filled":
 
-            sphere = vtkSphereSource()
-            sphere.SetCenter(*connection_point)
-            sphere.SetRadius(device_data["outside_diameter_neck"] / 4)
-            sphere.Update()
+                liquid_filled_tube_mapper = vtkPolyDataMapper()
+                liquid_filled_tube_mapper.SetInputData(tube.GetOutput())
+                liquid_filled_tube_actor = vtkActor()
+                liquid_filled_tube_actor.SetMapper(liquid_filled_tube_mapper)
+                liquid_filled_tube_actor.GetProperty().SetColor(0.5176470588235295, 0.6666666666666666, 1)
+                self.add_actors(liquid_filled_tube_actor)
 
-            sphere_mapper = vtkPolyDataMapper()
-            sphere_mapper.SetInputData(sphere.GetOutput())
+            else:
+                
+                damper.AddInputData(tube.GetOutput())
+                damper.Update()
+                
 
-            sphere_actor = vtkActor()
-            sphere_actor.SetMapper(sphere_mapper)
+        sphere = vtkSphereSource()
+        sphere.SetCenter(*connection_point)
+        sphere.SetRadius(device_data["outside_diameter_neck"] / 4)
+        sphere.Update()
 
-            sphere_actor.GetProperty().SetColor(1, 0, 0) 
+        sphere_mapper = vtkPolyDataMapper()
+        sphere_mapper.SetInputData(sphere.GetOutput())
 
-            self.add_actors(sphere_actor)
+        sphere_actor = vtkActor()
+        sphere_actor.SetMapper(sphere_mapper)
+
+        sphere_actor.GetProperty().SetColor(1, 0, 0) 
+
+        self.add_actors(sphere_actor)
 
         mapper = vtkPolyDataMapper()
         damper_actor = vtkActor()
