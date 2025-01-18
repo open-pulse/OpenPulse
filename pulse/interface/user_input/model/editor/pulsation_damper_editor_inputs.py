@@ -11,6 +11,7 @@ from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified imp
 from pulse.editor.pulsation_damper import PulsationDamper
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
+from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget import DamperPreviewRenderWidget
 
 from pulse.utils.interface_utils import check_inputs
 
@@ -104,6 +105,7 @@ class PulsationDamperEditorInputs(QDialog):
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_reset_entries: QPushButton
+        self.pushButton_preview : QPushButton
 
         # QTabWidget
         self.tabWidget_main: QTabWidget
@@ -127,6 +129,8 @@ class PulsationDamperEditorInputs(QDialog):
         self.pushButton_get_liquid_fluid.clicked.connect(self.get_liquid_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_preview.clicked.connect(self.preview_callback)
+
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
@@ -458,6 +462,16 @@ class PulsationDamperEditorInputs(QDialog):
 
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
+
+    def preview_callback(self):
+
+        if self.check_pulsation_damper_inputs():
+            pass
+
+        else:
+            self.preview = DamperPreviewRenderWidget()
+            self.preview.build_device_preview(self._pulsation_damper_data)
+            self.preview.show()
 
     def create_pulsation_damper_callback(self):
 

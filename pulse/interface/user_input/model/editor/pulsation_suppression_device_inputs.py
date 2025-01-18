@@ -1062,5 +1062,4 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
-        self.preview.close()
         return super().closeEvent(a0)

@@ -364,7 +364,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -425,7 +429,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -486,7 +494,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -513,7 +525,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -543,7 +559,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -635,8 +655,10 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                         <weight>50</weight>
+                        <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
@@ -770,7 +792,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -797,8 +823,10 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                         <weight>50</weight>
+                        <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
@@ -888,7 +916,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <item>
@@ -924,7 +956,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="currentIndex">
@@ -989,7 +1025,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1019,8 +1059,10 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                         <weight>50</weight>
+                        <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
@@ -1048,7 +1090,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <item>
@@ -1141,7 +1187,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1202,7 +1252,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="currentIndex">
@@ -1287,7 +1341,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1360,7 +1418,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1424,7 +1486,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1548,7 +1614,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1578,7 +1648,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <item>
@@ -1640,7 +1714,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="currentIndex">
@@ -1735,7 +1813,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1765,6 +1847,7 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
@@ -1835,7 +1918,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="currentIndex">
@@ -1934,7 +2021,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1964,6 +2055,7 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
@@ -2221,6 +2313,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>9</pointsize>
                     <weight>50</weight>
                     <italic>false</italic>
@@ -2331,7 +2424,11 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <italic>false</italic>
+                    <bold>false</bold>
                    </font>
                   </property>
                   <property name="styleSheet">
@@ -2364,7 +2461,11 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <italic>false</italic>
+                    <bold>false</bold>
                    </font>
                   </property>
                   <property name="styleSheet">
@@ -2796,7 +2897,7 @@
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="0" column="1">
+      <item row="0" column="2">
        <widget class="QPushButton" name="pushButton_create">
         <property name="minimumSize">
          <size>
@@ -2862,6 +2963,39 @@
         </property>
         <property name="text">
          <string>Cancel</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="pushButton_preview">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Preview</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>
