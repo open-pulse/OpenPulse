@@ -86,15 +86,21 @@ jobs:
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
         with:
           path: pulse.iss
-          options: /O"dist" /F"open-pulse-setup-x64"
+          options: /O"dist" /F"open-pulse-windows-installer-x64"
 
       - name: Rename file
         run: |
-          mv dist/OpenPulse.exe dist/open-pulse-windows-x64.exe
+          mv dist/OpenPulse dist/open-pulse-windows-x64
+
       - uses: actions/upload-artifact@v4
         with:
           name: openpulse-windows
-          path: dist/open-pulse-windows-x64.exe
+          path: dist/open-pulse-windows-x64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: openpulse-windows-installer
+          path: dist/open-pulse-windows-installer-x64.exe
 
   build-linux:
     runs-on: ubuntu-latest
@@ -120,8 +126,8 @@ jobs:
           poetry run pyinstaller pulse.spec
       - name: Rename file
         run: |
-          mv dist/OpenPulse dist/open-pulse-linux-x64.so
+          mv dist/OpenPulse dist/open-pulse-linux-x64
       - uses: actions/upload-artifact@v4
         with:
           name: openpulse-linux
-          path: dist/open-pulse-linux-x64.so
+          path: dist/open-pulse-linux-x64
