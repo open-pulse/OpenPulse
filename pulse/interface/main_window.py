@@ -9,7 +9,9 @@ from molde.render_widgets import CommonRenderWidget
 from molde import stylesheets
 from molde.colors import color_names
 
+# TODO: remove this import
 from pulse import *
+
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.handler.geometry_handler import GeometryHandler
