@@ -79,9 +79,14 @@ jobs:
       - name: Run Pyinstaller
         run: |
           poetry run pyinstaller openpulse.spec
-      - name: Run InnoSetup
-        run: |
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /O"dist" /F"open-pulse-setup-x64" "pulse.iss"
+      # - name: Run InnoSetup
+      #   run: |
+      #     & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /O"dist" /F"open-pulse-setup-x64" "pulse.iss"
+      - name: Compile .iss to .exe Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: pulse.iss
+          options: /O"dist" /F"open-pulse-setup-x64"
 
       - name: Rename file
         run: |
