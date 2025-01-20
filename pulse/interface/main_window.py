@@ -1,4 +1,4 @@
-# fmt: off
+import sys
 
 from PyQt5.QtWidgets import QAbstractButton, QAction, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
@@ -269,10 +269,11 @@ class MainWindow(QMainWindow):
         dt = time() - t0
         print(f"Time to process D: {round(dt, 6)} [s]")
 
-        if not self.is_temporary_folder_empty():
+        if len(sys.argv) > 1:
+            self.open_project(Path(sys.argv[1]))
+
+        elif not self.is_temporary_folder_empty():
             self.recovery_dialog()
-        else:
-            self.load_recent_project()
  
     def create_temporary_folder(self):
         create_new_folder(USER_PATH, "temp_pulse")
@@ -1136,5 +1137,3 @@ def create_new_folder(path : Path, folder_name : str) -> Path:
     folder_path = path / folder_name
     folder_path.mkdir(exist_ok=True)
     return folder_path
-
-# fmt: on
