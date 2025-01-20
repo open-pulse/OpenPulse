@@ -55,7 +55,7 @@ jobs:
           asset_content_type: application/zip                        
 
       - name: upload release windows installer
-        id: upload-windows
+        id: upload-windows-installer
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
