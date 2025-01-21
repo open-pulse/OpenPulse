@@ -99,7 +99,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
 
     def update_plot(self, reset_camera=False):
-
         self.remove_actors()
         self.mesh_picker.update_bounds()
         project = app().project
@@ -108,63 +107,24 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             return
 
         try:
-
-            # Default behavior
-            self.colorbar_actor.VisibilityOn()
-            deformed = False
-    
-            unit_label = ""
-            analysis_id = project.analysis_id
-
-            # update the data according to the current analysis
-            if self.analysis_mode == AnalysisMode.DISPLACEMENT:
-
-                if analysis_id in [0, 1, 5, 6, 7]:
-                    unit_label = "Unit: [m]"
-                elif analysis_id in [2]:
-                    unit_label = "Unit: [--]"
-
-                deformed = True
-                color_table = self._compute_displacement_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
-
-            elif self.analysis_mode == AnalysisMode.STRESS:
-
-                if analysis_id in [0, 1, 5, 6, 7]:
-                    unit_label = "Unit: [Pa]"
-
-                deformed = True
-                color_table = self._compute_stress_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
-
-            elif self.analysis_mode == AnalysisMode.PRESURE:
-
-                if analysis_id in [3, 5, 6]:
-                    unit_label = "Unit: [Pa]"
-                elif analysis_id in [4]:
-                    unit_label = "Unit: [--]"
-
-                color_table = self._compute_pressure_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
-
-            else:
-                # Empty color table
-                color_table = ColorTable([], [0, 0], self.colormap)
-                self.colorbar_actor.VisibilityOff()
-
+            color_table = self._compute_correspondent_field()
+            unit_label = self._get_unit_label()
         except Exception as error_log:
-            print(str(error_log))
+            logging.error(str(error_log))
             return
+        
+        if self.analysis_mode == AnalysisMode.EMPTY:
+            self.colorbar_actor.VisibilityOff()
+        else:
+            self.colorbar_actor.VisibilityOn()
 
+        show_deformed = self.analysis_mode in [AnalysisMode.DISPLACEMENT, AnalysisMode.STRESS]
         acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
 
-        self.lines_actor = ElementLinesActor(show_deformed=deformed)
-        self.nodes_actor = NodesActor(show_deformed=deformed)
-        self.points_actor = PointsActor(show_deformed=deformed)
-        self.tubes_actor = TubeActorResults(show_deformed=deformed, acoustic_plot=acoustic_plot)
+        self.lines_actor = ElementLinesActor(show_deformed=show_deformed)
+        self.nodes_actor = NodesActor(show_deformed=show_deformed)
+        self.points_actor = PointsActor(show_deformed=show_deformed)
+        self.tubes_actor = TubeActorResults(show_deformed=show_deformed, acoustic_plot=acoustic_plot)
         self.plane_actor = SectionPlaneActor(self.tubes_actor.GetBounds())
         self.plane_actor.VisibilityOff()
 
@@ -193,6 +153,37 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         # It needs to appear after the update to work propperly
         self.set_tube_actors_transparency(self.transparency)
 
+    def _compute_correspondent_field(self):
+        if self.analysis_mode == AnalysisMode.DISPLACEMENT:
+            return self._compute_displacement_field(
+                self.current_frequency_index, 
+                self.current_phase_step,
+            )
+        elif self.analysis_mode == AnalysisMode.STRESS:
+            return self._compute_stress_field(
+                self.current_frequency_index, 
+                self.current_phase_step,
+            )
+        elif self.analysis_mode == AnalysisMode.PRESURE:
+            return self._compute_pressure_field(
+                self.current_frequency_index, 
+                self.current_phase_step,
+            )
+        else:
+            # Empty color table
+            return ColorTable([], [0, 0], self.colormap)
+
+    def _get_unit_label(self):
+        analysis_id = app().project.analysis_id
+        if (self.analysis_mode == AnalysisMode.DISPLACEMENT) and (analysis_id in [0, 1, 5, 6, 7]):
+            return "Unit: [m]"
+        elif (self.analysis_mode == AnalysisMode.STRESS) and (analysis_id in [0, 1, 5, 6, 7]):
+            return "Unit: [Pa]"
+        elif (self.analysis_mode == AnalysisMode.PRESURE) and (analysis_id in [3, 5, 6]):
+            return "Unit: [Pa]"
+        else:
+            return "Unit: [--]"
+
     def set_colormap(self, colormap):
         self.colormap = colormap
         app().config.user_preferences.color_map = colormap
@@ -212,12 +203,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
     def cache_frame(self, frame):
         with self.update_lock:
             d_theta = 2 * np.pi / self._animation_total_frames
-            phase_step = frame * d_theta
-            self.current_phase_step = phase_step
+            self.current_phase_step = frame * d_theta
 
-            self.update_plot()
+            color_table = self._compute_correspondent_field()
+            self.tubes_actor.recalculate_positions()
+            self.tubes_actor.set_color_table(color_table)
+            
             cached = vtkPolyData()
-            cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
+            cached.DeepCopy(self.tubes_actor.data)
             self._animation_cached_data[frame] = cached
 
     def stop_animation(self):
