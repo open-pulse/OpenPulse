@@ -274,6 +274,9 @@ class MainWindow(QMainWindow):
 
         elif not self.is_temporary_folder_empty():
             self.recovery_dialog()
+        
+        else:
+            self.load_recent_project()
  
     def create_temporary_folder(self):
         create_new_folder(USER_PATH, "temp_pulse")
