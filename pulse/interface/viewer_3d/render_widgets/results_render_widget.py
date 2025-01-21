@@ -202,19 +202,23 @@ class ResultsRenderWidget(AnimatedRenderWidget):
     def cache_animation_frames(self):
         self._animation_current_frequency = self.current_frequency_index
         self._animation_color_map = self.colormap
+        
+        for frame in range(self._animation_total_frames):
+            logging.info(f"Caching animation frames [{frame}/{self._animation_total_frames}]")
+            self.cache_frame(frame)
 
-        with self.update_lock:
-            for frame in range(self._animation_total_frames):
-                logging.info(f"Caching animation frames [{frame}/{self._animation_total_frames}]")
-                d_theta = 2 * np.pi / self._animation_total_frames
-                phase_step = frame * d_theta
-                self.current_phase_step = phase_step
-
-                self.update_plot()
-                cached = vtkPolyData()
-                cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
-                self._animation_cached_data[frame] = cached
         self._animation_current_cycle = 0
+
+    def cache_frame(self, frame):
+        with self.update_lock:
+            d_theta = 2 * np.pi / self._animation_total_frames
+            phase_step = frame * d_theta
+            self.current_phase_step = phase_step
+
+            self.update_plot()
+            cached = vtkPolyData()
+            cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
+            self._animation_cached_data[frame] = cached
 
     def stop_animation(self):
         # Do the things defined in the mother class 
@@ -241,23 +245,16 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if not self._animation_cached_data:
             LoadingWindow(self.cache_animation_frames).run()
 
-        if frame in self._animation_cached_data:
-            logging.info(f"Rendering animation frame [{frame}/{self._animation_total_frames}]")
-            cached = self._animation_cached_data[frame]
-            self.tubes_actor.GetMapper().SetInputData(cached)
-            self.update()
-        else:
+        if frame not in self._animation_cached_data:
             # It will only enter here if something wrong happened
             # in the function that caches the frames
             logging.warn(f"Cache miss on update_animation function for frame {frame}")
-            d_theta = 2 * np.pi / self._animation_total_frames
-            phase_step = frame * d_theta
-            self.current_phase_step = phase_step
+            self.cache_frame(frame)
 
-            self.update_plot()
-            cached = vtkPolyData()
-            cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
-            self._animation_cached_data[frame] = cached
+        logging.info(f"Rendering animation frame [{frame}/{self._animation_total_frames}]")
+        cached = self._animation_cached_data[frame]
+        self.tubes_actor.GetMapper().SetInputData(cached)
+        self.update()
 
     def visualization_changed_callback(self, update=True):
         if not self._actor_exists():
@@ -270,6 +267,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.tubes_actor.SetVisibility(visualization.tubes)
         opacity = 0.9 if visualization.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
+
         if update:
             self.update()
 
