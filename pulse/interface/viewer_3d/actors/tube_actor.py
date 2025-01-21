@@ -45,34 +45,36 @@ class TubeActor(vtkActor):
         self.build()
 
     def build(self):
-        visible_elements = {
+        self.visible_elements = {
             i: e for i, e in self.elements.items() if (i not in self.hidden_elements)
         }
-        self._key_index = {j: i for i, j in enumerate(visible_elements.keys())}
+        self._key_index = {j: i for i, j in enumerate(self.visible_elements.keys())}
 
         data = vtkPolyData()
         mapper = vtkGlyph3DMapper()
 
         points = vtkPoints()
+        points.SetNumberOfPoints(len(self.visible_elements))
+
         sources = vtkIntArray()
         sources.SetName("sources")
 
         rotations = vtkDoubleArray()
+        rotations.SetNumberOfTuples(3 * len(self.visible_elements))
         rotations.SetNumberOfComponents(3)
         rotations.SetName("rotations")
 
         colors = vtkUnsignedCharArray()
         colors.SetNumberOfComponents(3)
-        colors.SetNumberOfTuples(len(visible_elements))
+        colors.SetNumberOfTuples(len(self.visible_elements))
 
         colors.Fill(255)
         colors.SetName("colors")
 
-
         section_index = dict()
-        for element in visible_elements.values():
-            points.InsertNextPoint(self.get_element_coordinates(element))
-            rotations.InsertNextTuple(self.get_element_rotations(element))
+        for i, element in enumerate(self.visible_elements.values()):
+            points.SetPoint(i, self.get_element_coordinates(element))
+            rotations.SetTuple(i, self.get_element_rotations(element))
 
             key = self._hash_element_section(element)
             if key not in section_index:
@@ -86,6 +88,7 @@ class TubeActor(vtkActor):
         data.GetPointData().AddArray(sources)
         data.GetPointData().AddArray(rotations)
         data.GetPointData().SetScalars(colors)
+        self.data = data
 
         mapper.SetInputData(data)
         mapper.SourceIndexingOn()
@@ -106,6 +109,14 @@ class TubeActor(vtkActor):
         self.GetProperty().SetSpecularColor(1, 1, 1)
         
         self.clear_colors()
+
+    def recalculate_positions(self):
+        points: vtkPoints = self.data.GetPoints()
+        rotations: vtkDoubleArray = self.data.GetPointData().GetArray("rotations")
+
+        for i, element in enumerate(self.visible_elements.values()):
+            points.SetPoint(i, self.get_element_coordinates(element))
+            rotations.SetTuple(i, self.get_element_rotations(element))
 
     def get_element_coordinates(self, element) -> tuple[float, float, float]:
         return element.first_node.coordinates
@@ -177,11 +188,11 @@ class TubeActor(vtkActor):
     
     def _get_tube_sides(self):
         if len(self.elements) > 100_000:
-            return 10
+            return 8
         elif len(self.elements) > 10_000:
-            return 20
+            return 12
         else:
-            return 30
+            return 32
 
     def clear_colors(self):
         color_mode = app().main_window.visualization_filter.color_mode
