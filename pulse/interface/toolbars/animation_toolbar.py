@@ -95,7 +95,7 @@ class AnimationToolbar(QToolBar):
 
     def _create_connections(self):
         #
-        self.phase_slider.valueChanged.connect(self.slider_callback)
+        self.phase_slider.sliderReleased.connect(self.slider_callback)
         #
         self.pushButton_animate.clicked.connect(self.process_animation)
         self.pushButton_export.clicked.connect(self.export_animation_to_file)
