@@ -1,7 +1,9 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+from vtk import vtkRenderer
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
@@ -30,6 +32,12 @@ class PulsationDamperEditorInputs(QDialog):
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
+
+        # self.preview = DamperPreviewRenderWidget()
+        # self.vtkWidget = QVTKRenderWindowInteractor(self.preview)
+        # self.renderer = vtkRenderer()
+        # self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
+
 
         self._config_window()
         self._initialize()
@@ -112,6 +120,9 @@ class PulsationDamperEditorInputs(QDialog):
 
         # QTreeWidget
         self.treeWidget_pulsation_damper_info: QTreeWidget
+
+        # Qwidget
+        self.preview_widget : DamperPreviewRenderWidget
 
     def _create_connections(self):
         #
@@ -469,9 +480,9 @@ class PulsationDamperEditorInputs(QDialog):
             pass
 
         else:
-            self.preview = DamperPreviewRenderWidget()
-            self.preview.build_device_preview(self._pulsation_damper_data)
-            self.preview.show()
+            self.preview_widget.build_device_preview(self._pulsation_damper_data)
+            self.preview_widget.update()
+
 
     def create_pulsation_damper_callback(self):
 

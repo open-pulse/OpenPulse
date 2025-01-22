@@ -126,6 +126,9 @@ class PulsationSuppressionDeviceInputs(QDialog):
         # QTreeWidget
         self.treeWidget_psd_info : QTreeWidget
 
+        # QWidget
+        self.preview_widget : PSDPreviewRenderWidget
+
     def _create_connections(self):
         #
         self.comboBox_main_axis.currentIndexChanged.connect(self.update_the_rotation_angle)
@@ -999,10 +1002,10 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         if self.check_psd_inputs():
             pass
+        
         else:
-            self.preview = PSDPreviewRenderWidget()
-            self.preview.build_device_preview(self._psd_data)
-            self.preview.show()
+            self.preview_widget.build_device_preview(self._psd_data)
+            self.preview_widget.update()
 
     def load_psd_info(self):
 
