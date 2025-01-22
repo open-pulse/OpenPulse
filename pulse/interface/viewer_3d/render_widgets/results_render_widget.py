@@ -118,7 +118,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         else:
             self.colorbar_actor.VisibilityOn()
 
-        show_deformed = self.analysis_mode in [AnalysisMode.DISPLACEMENT, AnalysisMode.STRESS]
+        show_deformed = self._analysis_has_deformation()
         acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
 
         self.lines_actor = ElementLinesActor(show_deformed=show_deformed)
@@ -183,6 +183,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             return "Unit: [Pa]"
         else:
             return "Unit: [--]"
+
+    def _analysis_has_deformation(self):
+        return self.analysis_mode in [AnalysisMode.DISPLACEMENT, AnalysisMode.STRESS]
 
     def set_colormap(self, colormap):
         self.colormap = colormap
