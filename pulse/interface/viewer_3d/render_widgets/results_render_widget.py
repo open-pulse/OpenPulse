@@ -209,8 +209,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.current_phase_step = frame * d_theta
 
             color_table = self._compute_correspondent_field()
-            self.tubes_actor.recalculate_positions()
             self.tubes_actor.set_color_table(color_table)
+
+            if self._analysis_has_deformation():
+                self.tubes_actor.recalculate_positions()
             
             cached = vtkPolyData()
             cached.DeepCopy(self.tubes_actor.data)
