@@ -19,10 +19,10 @@ class ColorTable(vtkLookupTable):
         self.colormap = colormap
 
         if isinstance(data, dict):
-            self.valueVector = list(data.values())
+            self.value_vector = list(data.values())
             self.dictData = data
         else:
-            self.valueVector = data
+            self.value_vector = data
 
         self.SetTableRange(self.min_value, self.max_value)
         self.set_colormap(self.colormap)
@@ -80,7 +80,7 @@ class ColorTable(vtkLookupTable):
         self.Build()
 
     def is_empty(self):
-        return len(self.valueVector) == 0
+        return len(self.value_vector) == 0
 
     def distance_to(self, cord1, cord2):
         return np.linalg.norm(cord1 - cord2)
@@ -89,7 +89,7 @@ class ColorTable(vtkLookupTable):
         if self.is_empty():
             return [255, 255, 255]
 
-        value = self.valueVector[node.global_index]
+        value = self.value_vector[node.global_index]
         color_temp = [255, 255, 255]
         self.GetColor(value, color_temp)
         color_temp = [int(i * 255) for i in color_temp]
@@ -118,10 +118,10 @@ class ColorTable(vtkLookupTable):
             elif element.turned_off:
                 return [255, 255, 255]
             else:
-                value = (self.valueVector[key1] + self.valueVector[key2]) / 2
+                value = (self.value_vector[key1] + self.value_vector[key2]) / 2
 
         else:
-            value = (self.valueVector[key1] + self.valueVector[key2]) / 2
+            value = (self.value_vector[key1] + self.value_vector[key2]) / 2
 
         self.GetColor(value, color_temp)
         color_temp = [int(i * 255) for i in color_temp]
