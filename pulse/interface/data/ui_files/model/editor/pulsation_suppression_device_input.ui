@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1074</width>
+    <width>1131</width>
     <height>663</height>
    </rect>
   </property>
@@ -96,7 +96,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>552</width>
+               <width>570</width>
                <height>688</height>
               </rect>
              </property>
@@ -2494,7 +2494,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Puslation supression device preview:</string>
+       <string>Pulsation supression device preview:</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>

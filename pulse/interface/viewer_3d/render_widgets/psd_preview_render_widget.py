@@ -12,22 +12,20 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.main_window = app().main_window
-
-        # It is better for an editor to have parallel projection
         self.renderer.GetActiveCamera().SetParallelProjection(True)
         self.renderer.RemoveAllLights()
 
         self.create_axes()
         self.create_camera_light(0.1, 0.1)
 
-    
         self.update_plot()
 
     def update_plot(self):
         self.update()
 
     def build_device_preview(self, device_data):
+    
+        self.renderer.RemoveAllViewProps()
 
         if "volume #2 parameters" in device_data.keys():
             device = DualVolumePSD(device_data)
@@ -83,8 +81,14 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
 
         self.add_actors(filter_actor)
 
-
-
+    def config_view(self):
+        camera = self.renderer.GetActiveCamera()
+        camera.SetPosition(1, 1, 1)
+        camera.SetFocalPoint(0, 0, 0) 
+        self.renderer.ResetCamera()
+        self.renderer.ResetCameraClippingRange()        
+        self.renderer.ResetCameraScreenSpace()
+            
 
 
 

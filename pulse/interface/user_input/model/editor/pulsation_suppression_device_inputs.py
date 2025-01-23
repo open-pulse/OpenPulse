@@ -1005,6 +1005,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         
         else:
             self.preview_widget.build_device_preview(self._psd_data)
+            self.preview_widget.config_view()
             self.preview_widget.update()
 
     def load_psd_info(self):

@@ -481,6 +481,7 @@ class PulsationDamperEditorInputs(QDialog):
 
         else:
             self.preview_widget.build_device_preview(self._pulsation_damper_data)
+            self.preview_widget.config_view()
             self.preview_widget.update()
 
 

@@ -27,6 +27,9 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
         self.update()
 
     def build_device_preview(self, device_data):
+
+        self.renderer.RemoveAllViewProps()
+
         device = PulsationDamper(device_data)
         device.process_segment_data()
 
@@ -85,4 +88,13 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
         damper_actor.SetMapper(mapper)
 
         self.add_actors(damper_actor)
+
+    def config_view(self):
+        camera = self.renderer.GetActiveCamera()
+        camera.SetPosition(1, 1, 1)
+        camera.SetFocalPoint(0, 0, 0) 
+        self.renderer.ResetCamera()
+        self.renderer.ResetCameraClippingRange()        
+        self.renderer.ResetCameraScreenSpace()
+
 
