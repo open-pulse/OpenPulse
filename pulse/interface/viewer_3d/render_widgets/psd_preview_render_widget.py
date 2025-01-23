@@ -126,6 +126,9 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
 
     def set_theme(self, *args, **kwargs):
         self.update_theme()
+
+    def close_preview(self):
+        self.render_interactor.Finalize()
         
 
 

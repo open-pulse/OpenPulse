@@ -723,6 +723,8 @@ class PulsationSuppressionDeviceInputs(QDialog):
         return list(np.array(np.round(values, 6), dtype=float))
 
     def create_psd_callback(self):
+        
+        self.preview_widget.close_preview()
 
         stop, psd_label = self.check_psd_label()
         if stop:
@@ -1066,4 +1068,5 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        self.preview_widget.close_preview()
         return super().closeEvent(a0)

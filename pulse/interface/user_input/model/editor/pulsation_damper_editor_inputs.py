@@ -487,6 +487,8 @@ class PulsationDamperEditorInputs(QDialog):
 
     def create_pulsation_damper_callback(self):
 
+        self.preview_widget.close_preview()
+
         stop, damper_label = self.check_pulsation_damper_label()
         if stop:
             return
@@ -816,6 +818,7 @@ class PulsationDamperEditorInputs(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        self.preview_widget.close_preview()
         return super().closeEvent(a0)
     
     # def calculate_effective_volume(self):
