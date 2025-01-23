@@ -23,7 +23,9 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
     
         self.update_plot()
 
-        self.update_theme()
+        self.main_window.theme_changed.connect(self.set_theme)
+
+
 
     def update_plot(self):
         self.update()
@@ -127,5 +129,8 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
             self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
 
+    def close_render(self):
+        self.render_interactor
 
-
+    def set_theme(self, *args, **kwargs):
+        self.update_theme()

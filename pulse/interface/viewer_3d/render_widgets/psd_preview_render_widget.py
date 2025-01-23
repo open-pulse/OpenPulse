@@ -24,6 +24,8 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
 
         self.update_theme()
 
+        self.main_window.theme_changed.connect(self.set_theme)
+
     def update_plot(self):
         self.update()
 
@@ -121,6 +123,10 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
             self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
 
+
+    def set_theme(self, *args, **kwargs):
+        self.update_theme()
+        
 
 
 
