@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1044</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -856,6 +856,15 @@
   <action name="action_pulsation_damper_editor">
    <property name="text">
     <string>Pulsation damper editor</string>
+   </property>
+  </action>
+  <action name="actionTeste">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/common/broom.png</normaloff>../icons/common/broom.png</iconset>
+   </property>
+   <property name="text">
+    <string>Teste</string>
    </property>
   </action>
  </widget>
