@@ -71,6 +71,23 @@ In the same folder, enter the following command in the terminal:
 ```
 poetry run python pulse
 ```
+
+## Creating a Windows installer (for maintainers)
+
+First you need to install InnoSetup with the following command:
+```
+winget install -e --id JRSoftware.InnoSetup
+```
+You may also need to add it to your Windows path.
+
+Then, run the following commands (these may take a while):
+```
+poetry run pyinstaller pulse.spec --noconfirm
+ISCC.exe /O"dist" /F"open-pulse-setup-x64" "pulse.iss"
+```
+Your installer will appear inside the `dist` folder, named as `open-pulse-setup-x64`.
+
+
       
 ## Documentation
 - You can read the API reference [here](https://open-pulse.readthedocs.io/en/latest/index.html).

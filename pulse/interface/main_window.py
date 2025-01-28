@@ -1,4 +1,4 @@
-# fmt: off
+import sys
 
 from PyQt5.QtWidgets import QAbstractButton, QAction, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
@@ -9,7 +9,9 @@ from molde.render_widgets import CommonRenderWidget
 from molde import stylesheets
 from molde.colors import color_names
 
+# TODO: remove this import
 from pulse import *
+
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -267,8 +269,12 @@ class MainWindow(QMainWindow):
         dt = time() - t0
         print(f"Time to process D: {round(dt, 6)} [s]")
 
-        if not self.is_temporary_folder_empty():
+        if len(sys.argv) > 1:
+            self.open_project(Path(sys.argv[1]))
+
+        elif not self.is_temporary_folder_empty():
             self.recovery_dialog()
+        
         else:
             self.load_recent_project()
  
@@ -1134,5 +1140,3 @@ def create_new_folder(path : Path, folder_name : str) -> Path:
     folder_path = path / folder_name
     folder_path.mkdir(exist_ok=True)
     return folder_path
-
-# fmt: on
