@@ -63,7 +63,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
     def _create_psd_acoustic_links(self):
 
-        linkedSymbols = vtkAppendPolyData()
+        self.linked_symbols = vtkAppendPolyData()
 
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
             if property == "psd_acoustic_link":
@@ -76,16 +76,16 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                 source.SetPoint1(coords_a / self.scale_factor) 
                 source.SetPoint2(coords_b / self.scale_factor)
                 source.Update()
-                linkedSymbols.AddInputData(source.GetOutput())
+                self.linked_symbols.AddInputData(source.GetOutput())
         
         s = vtkSphereSource()
         s.SetRadius(0)
 
-        linkedSymbols.AddInputData(s.GetOutput())
-        linkedSymbols.Update()
+        self.linked_symbols.AddInputData(s.GetOutput())
+        self.linked_symbols.Update()
 
         index = len(self._connections)
-        self._mapper.SetSourceData(index, linkedSymbols.GetOutput())
+        self._mapper.SetSourceData(index, self.linked_symbols.GetOutput())
         self._sources.InsertNextTuple1(index)
         self._positions.InsertNextPoint(0, 0, 0)
         self._rotations.InsertNextTuple3(0, 0, 0)
@@ -93,8 +93,6 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         self._colors.InsertNextTuple3(0, 250, 250)
 
     def _create_acoustic_transfer_element(self):
-
-        linkedSymbols = vtkAppendPolyData()
 
         for (property, *args), data in app().project.model.properties.nodal_properties.items():
             if property == "acoustic_transfer_element":
@@ -107,16 +105,16 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
                 source.SetPoint1(coords_a / self.scale_factor) 
                 source.SetPoint2(coords_b / self.scale_factor)
                 source.Update()
-                linkedSymbols.AddInputData(source.GetOutput())
+                self.linked_symbols.AddInputData(source.GetOutput())
 
         s = vtkSphereSource()
         s.SetRadius(0)
 
-        linkedSymbols.AddInputData(s.GetOutput())
-        linkedSymbols.Update()
+        self.linked_symbols.AddInputData(s.GetOutput())
+        self.linked_symbols.Update()
 
         index = len(self._connections)
-        self._mapper.SetSourceData(index, linkedSymbols.GetOutput())
+        self._mapper.SetSourceData(index, self.linked_symbols.GetOutput())
         self._sources.InsertNextTuple1(index)
         self._positions.InsertNextPoint(0, 0, 0)
         self._rotations.InsertNextTuple3(0, 0, 0)
