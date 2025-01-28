@@ -49,7 +49,7 @@ class GeometryDesignerWidget(QWidget):
         super().__init__(parent)
 
         ui_path = UI_DIR / "model/geometry/geometry_designer_widget.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.render_widget = render_widget
         self.modified = False

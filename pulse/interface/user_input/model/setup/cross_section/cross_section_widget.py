@@ -19,7 +19,7 @@ class CrossSectionWidget(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/cross_section/cross_section_widget.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self._initialize()
         self._define_qt_variables()

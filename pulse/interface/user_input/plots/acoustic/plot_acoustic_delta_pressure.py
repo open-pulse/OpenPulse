@@ -16,7 +16,7 @@ class PlotAcousticDeltaPressure(QWidget):
         main_window = app().main_window
 
         ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_delta_pressures.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.project = app().project

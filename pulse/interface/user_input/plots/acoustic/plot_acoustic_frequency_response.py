@@ -16,7 +16,7 @@ class PlotAcousticFrequencyResponse(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_frequency_response.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.project = app().project

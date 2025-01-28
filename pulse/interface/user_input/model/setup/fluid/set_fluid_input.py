@@ -18,7 +18,7 @@ class SetFluidInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/fluid/set_fluid_input.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
         self.state_properties = kwargs.get("state_properties", dict())

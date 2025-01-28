@@ -24,7 +24,7 @@ class ValvesInput(QDialog):
         super().__init__(*args)
 
         ui_path = UI_DIR / "model/setup/structural/valve_input.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.render_type = kwargs.get("render_type", "model")
 

@@ -15,7 +15,7 @@ class GetStandardCrossSection(QDialog):
         super(GetStandardCrossSection, self).__init__()
         
         ui_path = UI_DIR / "model/setup/structural/standard_cross_section_input.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         section_data = kwargs.get("section_data", None)
 

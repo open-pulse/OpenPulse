@@ -18,7 +18,7 @@ class StructuralModalAnalysisInput(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "analysis/structural/modal_analysis.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
 

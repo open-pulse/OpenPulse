@@ -14,7 +14,7 @@ class PrintMessageInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "messages/print_message.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.auto_close = kwargs.get("auto_close", False)
         self.window_title, self.title, self.message = text_info

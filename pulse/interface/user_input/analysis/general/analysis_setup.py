@@ -42,7 +42,7 @@ class AnalysisSetupInput(QDialog):
         else:
             return
 
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
 

@@ -29,7 +29,7 @@ class MeshInputCommon(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         ui_path = UI_DIR / "common/mesh_input_common.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.filter = MeshInputFilter()
         self.item_indexes = dict()

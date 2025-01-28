@@ -16,7 +16,7 @@ class EditorInputCommon(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         ui_path = UI_DIR / "common/editor_input_common.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
         self._define_qt_variables()
         self._create_connections()
 

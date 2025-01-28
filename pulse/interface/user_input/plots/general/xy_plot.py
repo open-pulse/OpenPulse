@@ -33,7 +33,7 @@ class XYPlot(QWidget):
         super().__init__()
 
         ui_path = UI_DIR / "plots/graphs/plot_xy_widget.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         app().main_window.theme_changed.connect(self.paint_toolbar_icons)

@@ -11,7 +11,7 @@ class GeometryEditorHelp(QDialog):
         super().__init__(parent)
         
         ui_path = UI_DIR / "model/geometry/help/geometry_editor_help.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.main_window = app().main_window
         self.project = app().project

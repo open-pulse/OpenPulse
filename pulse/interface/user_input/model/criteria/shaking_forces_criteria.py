@@ -19,7 +19,7 @@ class ShakingForcesCriteriaInput(QWidget):
         super().__init__()
 
         ui_path = UI_DIR / "plots/results/acoustic/plot_shaking_forces.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
 

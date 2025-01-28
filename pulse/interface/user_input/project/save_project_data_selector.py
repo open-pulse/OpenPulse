@@ -19,7 +19,7 @@ class SaveProjectDataSelector(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "project/save_project_data_selector.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         main_window = app().main_window
         main_window.set_input_widget(self)

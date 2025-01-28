@@ -19,7 +19,7 @@ class SetCrossSectionInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/cross_section/set_cross_section.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.pipe_to_beam = kwargs.get("pipe_to_beam", False)
         self.beam_to_pipe = kwargs.get("beam_to_pipe", False)

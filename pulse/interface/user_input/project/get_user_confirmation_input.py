@@ -12,7 +12,7 @@ class GetUserConfirmationInput(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "messages/get_user_confirmation.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.title = title
         self.message = message

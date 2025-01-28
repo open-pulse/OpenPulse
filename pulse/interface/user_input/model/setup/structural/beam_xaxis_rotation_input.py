@@ -22,7 +22,7 @@ class BeamXaxisRotationInput(QDialog):
         super().__init__(*args, **kwargs)
         
         ui_path = UI_DIR / "model/setup/structural/xaxis_beam_rotation_input.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
 

@@ -22,7 +22,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "criterias/reciprocating_pump_inlet_pressure_criteria_widget.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.project = app().project

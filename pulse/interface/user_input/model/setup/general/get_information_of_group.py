@@ -15,7 +15,7 @@ class GetInformationOfGroup(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/info/get_group_information.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.group_label = kwargs.get("group_label", "")
         self.selection_label = kwargs.get("selection_label", "")

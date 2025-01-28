@@ -865,7 +865,7 @@ vtk = "^9.3.1"
 type = "git"
 url = "https://github.com/andrefpf/molde"
 reference = "update_dependencies"
-resolved_reference = "60d00ce057a59667250841b832aab40f8a336e63"
+resolved_reference = "f399a2e9a2f2dc1917696d18fc07490b9794db06"
 
 [[package]]
 name = "moviepy"

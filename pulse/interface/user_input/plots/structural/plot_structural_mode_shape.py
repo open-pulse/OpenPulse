@@ -15,7 +15,7 @@ class PlotStructuralModeShape(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/results/structural/plot_structural_mode_shape.ui"
-        load_ui(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self._config_window()
         self._initialize()

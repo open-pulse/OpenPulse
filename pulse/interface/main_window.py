@@ -1,8 +1,8 @@
 # fmt: off
 
 from PySide6.QtWidgets import QAbstractButton, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
-from PySide6.QtCore import Qt, Signal, QEvent, QPoint, QDir
-from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction, QIcon
+from PySide6.QtCore import Qt, Signal, QEvent, QPoint
+from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
 
 from molde.render_widgets import CommonRenderWidget
 from molde import stylesheets
@@ -53,7 +53,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         ui_path = UI_DIR / 'main_window.ui'
-        load_ui(ui_path, self, QDir(ICON_DIR))
+        load_ui(ui_path, self, UI_DIR)
 
         self.selected_nodes = set()
         self.selected_lines = set()
