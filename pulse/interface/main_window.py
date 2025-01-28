@@ -67,7 +67,6 @@ class MainWindow(QMainWindow):
         self.project = app().project
 
         self._initialize()
-        self.load_user_preferences()
 
     def _initialize(self):
 
