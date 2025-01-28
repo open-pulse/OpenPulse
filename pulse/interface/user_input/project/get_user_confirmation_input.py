@@ -18,6 +18,8 @@ class GetUserConfirmationInput(QDialog):
         self.buttons_config = buttons_config
         self.window_title = kwargs.get('window_title', f'OpenPulse v{version()}')
 
+        app().main_window.set_input_widget(self)
+
         self._config_window()
         self._reset_variables()
         self._define_qt_variables()
@@ -34,7 +36,6 @@ class GetUserConfirmationInput(QDialog):
         self.setWindowTitle(self.window_title)
 
     def _reset_variables(self):
-        self._stop = True
         self._continue = False
         self._cancel = True
 
@@ -80,11 +81,10 @@ class GetUserConfirmationInput(QDialog):
     def right_callback(self):
         self._cancel = False
         self._continue = True
-        # self._stop = False
         self.close()
 
     def left_callback(self):
-        self._cancel = True
-        self._continue = False
-        # self._stop = True
         self.close()
+    
+    def closeEvent(self, a0):
+        return super().closeEvent(a0)

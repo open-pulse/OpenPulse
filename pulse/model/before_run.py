@@ -2,7 +2,7 @@
 
 from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import mm_to_m
+from pulse.utils.unit_conversion import mm_to_m
 
 import numpy as np
 from collections import defaultdict
@@ -240,7 +240,7 @@ class BeforeRun:
         lines_without_fluids = list()
         for element in self.acoustic_elements.values():
             line_id = self.model.mesh.line_from_element[element.index]
-            if element.element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
+            if element.element_type in ['wide_duct', 'LRF_fluid_equivalent', 'LRF_full']:
                 if 'pipe_' in self.structural_elements[element.index].element_type:
                     _list = [   element.fluid.isentropic_exponent, element.fluid.thermal_conductivity, 
                                 element.fluid.specific_heat_Cp, element.fluid.dynamic_viscosity   ]
@@ -271,48 +271,33 @@ class BeforeRun:
             Default is False.
         """
 
-        self.is_there_loads = False
-        self.is_there_prescribed_dofs = False
-        self.acoustic_pressure = False
-        self.volume_velocity = False
-        self.compressor_excitation = False
+        self.acoustic_excitation = False
+        self.structural_excitation = False
             
         if structural:               
             if self.preprocessor.stress_stiffening_enabled:
-                self.is_there_loads = True
+                self.structural_excitation = True
                 return
 
-            for (property, *args) in self.properties.nodal_properties.keys():
+            for (property, *args), data in self.properties.nodal_properties.items():
                 if property == "nodal_loads":
-                    self.is_there_loads = True
+                    self.structural_excitation = True
                     return
 
-            for (property, *args), data in self.properties.nodal_properties.items():
-                data: dict
                 if property == "prescribed_dofs":
                     if "table_names" in data.keys():
-                        self.is_there_prescribed_dofs = True
+                        self.structural_excitation = True
 
                     elif "values" in data.keys():
                         values = data["values"]
                         if sum([complex(0) if value is None else value for value in values]) != complex(0):
-                            self.is_there_prescribed_dofs = True
+                            self.structural_excitation = True
                             return
 
         if acoustic or coupled:
             for (property, *args) in self.properties.nodal_properties.keys():
-                if property == "acoustic_pressure":
-                    self.acoustic_pressure = True
-                    return
-
-            for (property, *args) in self.properties.nodal_properties.keys():
-                if property == "volume_velocity":
-                    self.volume_velocity = True
-                    return
-
-            for (property, *args) in self.properties.nodal_properties.keys():
-                if property == "compressor_excitation":
-                    self.compressor_excitation = True
+                if property in ["acoustic_pressure", "volume_velocity", "reciprocating_compressor_excitation", "reciprocating_pump_excitation"]:
+                    self.acoustic_excitation = True
                     return
 
     def check_all_acoustic_criteria(self):
@@ -404,7 +389,8 @@ class BeforeRun:
         structural_message = "You should to apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis."
         #
         acoustic_message = "Enter a nodal acoustic excitation to proceed with the Harmonic Analysis processing. "
-        acoustic_message += "\n\nAvailable acoustic excitations: acoustic pressure; compressor excitation; volume velocity."
+        acoustic_message += "\n\nAvailable acoustic excitations: acoustic pressure, volume velocity, "
+        acoustic_message += "reciprocating compressor excitation, and reciprocating pump excitation."
 
         if analysis_id == 2:
 
@@ -436,6 +422,7 @@ class BeforeRun:
                 return True
 
         elif analysis_id == 4:
+
             lines_without_materials = self.check_material_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
             lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
@@ -476,6 +463,7 @@ class BeforeRun:
                 return True
 
         elif analysis_id == 0 or analysis_id == 1:
+
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             self.check_nodes_attributes(structural=True)
 
@@ -504,10 +492,9 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
-            elif not self.is_there_loads:
-                if not self.is_there_prescribed_dofs:
-                    PrintMessageInput([window_title_1, title, structural_message])
-                    return True
+            elif not self.structural_excitation:
+                PrintMessageInput([window_title_1, title, structural_message])
+                return True
 
         elif analysis_id == 3:
 
@@ -552,10 +539,7 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
-            elif sum([  self.acoustic_pressure, 
-                        self.volume_velocity, 
-                        self.compressor_excitation  ]) == 0:
-
+            elif not self.acoustic_excitation:
                 PrintMessageInput([window_title_1, title, acoustic_message])
                 return True
 
@@ -603,13 +587,10 @@ class BeforeRun:
                 PrintMessageInput([window_title_1, title, cross_section_message])
                 return True
 
-            elif sum([  self.acoustic_pressure, 
-                        self.volume_velocity, 
-                        self.compressor_excitation  ]) == 0:
-
+            elif not self.acoustic_excitation:
                 PrintMessageInput([window_title_1, title, acoustic_message])
                 return True
-    
+
     def check_cross_section_in_lines_and_elements(self, data):
 
         line_ids = list()

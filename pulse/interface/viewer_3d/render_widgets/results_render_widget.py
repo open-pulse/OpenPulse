@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import QApplication
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 from pulse import ICON_DIR, app
-from pulse.interface.utils import rotation_matrices
 from pulse.interface.viewer_3d.actors import (
     SectionPlaneActor,
     ElementLinesActor,
@@ -78,14 +77,15 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.mouse_click = (0, 0)
 
         self.analysis_mode = AnalysisMode.EMPTY
-        self.colormap = "viridis"
-
+        self.colormap = app().config.user_preferences.color_map
         self.create_axes()
         self.create_scale_bar()
+        self.create_logos()
         self.create_color_bar()
-        self.set_theme("light")
+        self.apply_user_preferences()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
+        self.update_plot()
 
     def _create_connections(self):
         self.left_clicked.connect(self.click_callback)
@@ -187,6 +187,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             self.renderer.ResetCamera()
 
         self.update_info_text()
+        self.update_theme()
         self.update()
 
         # It needs to appear after the update to work propperly
@@ -194,7 +195,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def set_colormap(self, colormap):
         self.colormap = colormap
-        self.update_plot()
+        app().config.user_preferences.color_map = colormap
+        app().config.update_config_file()
+        self.update_plot()    
 
     def cache_animation_frames(self):
         self._animation_current_frequency = self.current_frequency_index
@@ -278,6 +281,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.analysis_mode = AnalysisMode.EMPTY
         self.current_frequency_index = 0
         self.current_phase_step = 0
+        self.clear_cache()
         self.update_plot()
 
     def show_displacement_field(self, frequency_index):
@@ -291,6 +295,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         tmp = get_min_max_resultant_displacements(solution, frequency_index)
         _, self.result_disp_min, self.result_disp_max, self.r_xyz_abs = tmp
 
+        self.clear_cache()
         self.update_plot()
 
     def show_stress_field(self, frequency_index):
@@ -305,6 +310,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         tmp = get_min_max_resultant_displacements(solution, frequency_index)
         _, self.result_disp_min, self.result_disp_max, self.r_xyz_abs = tmp
 
+        self.clear_cache()
         self.update_plot()
 
     def show_pressure_field(self, frequency_index):
@@ -318,6 +324,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         tmp = get_max_min_values_of_pressures(solution, frequency_index)
         self.pressure_min, self.pressure_max = tmp
 
+        self.clear_cache()
         self.update_plot()
 
     def set_tube_actors_transparency(self, transparency):
@@ -326,12 +333,43 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.tubes_actor.GetProperty().SetOpacity(opacity)
         self.update()
 
-    def set_theme(self, theme):
-        super().set_theme(theme)
-        self.create_logos(theme)
+    def set_theme(self, *args, **kwargs):
+        """ It's necessary because if this function doesn't exist
+            CommomRenderWidget will call it's own set_theme function in
+            it's constructor """
 
-    def create_logos(self, theme="light"):
-        if theme == "light":
+        self.update_theme()
+
+    def update_theme(self):
+        user_preferences = app().main_window.config.user_preferences
+        bkg_1 = user_preferences.renderer_background_color_1
+        bkg_2 = user_preferences.renderer_background_color_2
+        font_color = user_preferences.renderer_font_color
+
+        if bkg_1 is None:
+            raise ValueError('Missing value "bkg_1"')
+        if bkg_2 is None:
+            raise ValueError('Missing value "bkg_2"')
+        if font_color is None:
+            raise ValueError('Missing value "font_color"')
+
+        self.renderer.GradientBackgroundOn()
+        self.renderer.SetBackground(bkg_1.to_rgb_f())
+        self.renderer.SetBackground2(bkg_2.to_rgb_f())
+
+        if hasattr(self, "text_actor"):
+            self.text_actor.GetTextProperty().SetColor(font_color.to_rgb_f())
+
+        if hasattr(self, "colorbar_actor"):
+            self.colorbar_actor.GetTitleTextProperty().SetColor(font_color.to_rgb_f())
+            self.colorbar_actor.GetLabelTextProperty().SetColor(font_color.to_rgb_f())
+
+        if hasattr(self, "scale_bar_actor"):
+            self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
+            self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
+
+    def create_logos(self):
+        if app().main_window.config.user_preferences.interface_theme == "light":
             path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
         else:
             path = ICON_DIR / "logos/OpenPulse_logo_white.png"
@@ -342,6 +380,51 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.open_pulse_logo = self.create_logo(path)
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
+    
+    def apply_user_preferences(self):
+        self.update_open_pulse_logo_visibility()
+        self.update_scale_bar_visibility()
+        self.update_renderer_font_size()
+
+    def update_renderer_font_size(self):
+        user_preferences = app().main_window.config.user_preferences
+        font_size_px = int(user_preferences.renderer_font_size * 4/3)
+
+        info_text_property = self.text_actor.GetTextProperty()
+        info_text_property.SetFontSize(font_size_px)
+
+        scale_bar_title_property = self.scale_bar_actor.GetLegendTitleProperty()
+        scale_bar_label_property = self.scale_bar_actor.GetLegendLabelProperty()
+        scale_bar_title_property.SetFontSize(font_size_px)
+        scale_bar_label_property.SetFontSize(font_size_px)
+    
+    def update_open_pulse_logo_visibility(self):
+        user_preferences = app().config.user_preferences
+
+        if user_preferences.show_open_pulse_logo:
+            self.enable_open_pulse_logo()
+        else:
+            self.disable_open_pulse_logo()
+    
+    def enable_open_pulse_logo(self):
+        self.open_pulse_logo.VisibilityOn()
+
+    def disable_open_pulse_logo(self):
+        self.open_pulse_logo.VisibilityOff()
+    
+    def update_scale_bar_visibility(self):
+        user_preferences = app().config.user_preferences
+
+        if user_preferences.show_reference_scale_bar:
+            self.enable_scale_bar()
+        else:
+            self.disable_scale_bar()
+    
+    def enable_scale_bar(self):
+        self.scale_bar_actor.VisibilityOn()
+
+    def disable_scale_bar(self):
+        self.scale_bar_actor.VisibilityOff()
 
     def click_callback(self, x, y):
         self.mouse_click = x, y
@@ -400,8 +483,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             nodes=picked_nodes,
             lines=picked_lines,
             elements=picked_elements,
-            join=ctrl_pressed | shift_pressed,
-            remove=alt_pressed,
+            join=ctrl_pressed or shift_pressed,
+            remove=ctrl_pressed or alt_pressed,
         )
 
     def update_selection(self):

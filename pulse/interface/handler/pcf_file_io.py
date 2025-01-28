@@ -1,7 +1,7 @@
 
-from opps.io.pcf.pcf_exporter import PCFExporter
-from opps.io.pcf.pcf_handler import PCFHandler
-from opps.model import Pipe, Bend, Flange, Reducer, ExpansionJoint, Valve
+from pulse.interface.handler.pcf_exporter import PCFExporter
+from pulse.interface.handler.pcf_handler import PCFHandler
+from pulse.editor.structures import Pipe, Bend, Flange, Reducer, ExpansionJoint, Valve
 
 from pulse import app
 
@@ -20,7 +20,8 @@ class PCFFileIO:
         but for now it will be like this just in order to make the bosses happy =)
         '''
 
-        last_path = app().config.get_last_folder_for("pcf folder")
+        last_path = app().config.get_last_folder_for("pcf_folder")
+
         if last_path is None:
             last_path = str(Path().home())
 
@@ -104,7 +105,7 @@ class PCFFileIO:
 
     def export_pcf(self):
 
-        last_path = app().config.get_last_folder_for("exported pcf folder")
+        last_path = app().config.get_last_folder_for("exported_pcf_folder")
         if last_path is None:
             last_path = str(Path().home())
 

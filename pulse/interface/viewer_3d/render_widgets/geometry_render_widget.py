@@ -18,6 +18,7 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.set_interactor_style(BoxSelectionInteractorStyle())
 
         self.pipeline = app().project.pipeline
+        self.main_window = app().main_window
 
         self.open_pulse_logo = None
         self.pipeline_actor = None
@@ -29,16 +30,18 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.renderer.GetActiveCamera().SetParallelProjection(True)
         self.renderer.RemoveAllLights()
 
-        self.set_theme("light")
         self.create_axes()
+        self.create_logos()
         self.create_camera_light(0.1, 0.1)
-
+    
+        self.apply_user_preferences()
         self._create_connections()
         self.update_plot()
     
     def _create_connections(self):
         self.left_clicked.connect(self.click_callback)
         self.left_released.connect(self.selection_callback)
+        app().main_window.theme_changed.connect(self.set_theme)
         app().main_window.visualization_changed.connect(
             self.visualization_changed_callback
         )
@@ -62,14 +65,65 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.visualization_changed_callback()
         if reset_camera:
             self.renderer.ResetCamera()
+
+        self.update_theme()
         self.update()
 
-    def set_theme(self, theme):
-        super().set_theme(theme)
-        self.create_logos(theme)
+    def set_theme(self, *args, **kwargs):
+        """ It's necessary because if this function doesn't exist
+            CommomRenderWidget will call it's own set_theme function in
+            it's constructor """
+        
+        self.update_theme()
 
-    def create_logos(self, theme="light"):
-        if theme == "light":
+    def update_theme(self):
+        user_preferences = app().main_window.config.user_preferences
+        bkg_1 = user_preferences.renderer_background_color_1
+        bkg_2 = user_preferences.renderer_background_color_2
+        font_color = user_preferences.renderer_font_color
+
+        if bkg_1 is None:
+            raise ValueError('Missing value "bkg_1"')
+        if bkg_2 is None:
+            raise ValueError('Missing value "bkg_2"')
+        if font_color is None:
+            raise ValueError('Missing value "font_color"')
+
+        self.renderer.GradientBackgroundOn()
+        self.renderer.SetBackground(bkg_1.to_rgb_f())
+        self.renderer.SetBackground2(bkg_2.to_rgb_f())
+
+        if hasattr(self, "text_actor"):
+            self.text_actor.GetTextProperty().SetColor(font_color.to_rgb_f())
+
+        if hasattr(self, "colorbar_actor"):
+            self.colorbar_actor.GetTitleTextProperty().SetColor(font_color.to_rgb_f())
+            self.colorbar_actor.GetLabelTextProperty().SetColor(font_color.to_rgb_f())
+
+        if hasattr(self, "scale_bar_actor"):
+            self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
+            self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
+        
+    def apply_user_preferences(self):
+        self.update_open_pulse_logo_visibility()
+        self.update_renderer_font_size()
+        
+    def update_renderer_font_size(self):
+        user_preferences = app().main_window.config.user_preferences
+        font_size_px = int(user_preferences.renderer_font_size * 4/3)
+
+        info_text_property = self.text_actor.GetTextProperty()
+        info_text_property.SetFontSize(font_size_px)
+    
+    def update_open_pulse_logo_visibility(self):
+        user_preferences = app().main_window.config.user_preferences
+        if user_preferences.show_open_pulse_logo:
+            self.enable_open_pulse_logo()
+        else:
+            self.disable_open_pulse_logo()
+
+    def create_logos(self):
+        if app().main_window.config.user_preferences.interface_theme == "light":
             path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
         else:
             path = ICON_DIR / "logos/OpenPulse_logo_white.png"
@@ -80,6 +134,12 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.open_pulse_logo = self.create_logo(path)
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
+
+    def enable_open_pulse_logo(self):
+        self.open_pulse_logo.VisibilityOn()
+
+    def disable_open_pulse_logo(self):
+        self.open_pulse_logo.VisibilityOff()
 
     def visualization_changed_callback(self):
         if not self._actor_exists():
@@ -123,8 +183,8 @@ class GeometryRenderWidget(CommonRenderWidget):
         shift_pressed = bool(modifiers & Qt.ShiftModifier)
         alt_pressed = bool(modifiers & Qt.AltModifier)
 
-        join = ctrl_pressed | shift_pressed
-        remove = alt_pressed
+        join = ctrl_pressed or shift_pressed
+        remove = ctrl_pressed or alt_pressed
 
         if not (join or remove):
             self.pipeline.clear_selection()

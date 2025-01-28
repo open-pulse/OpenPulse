@@ -132,9 +132,9 @@ class AnalysisSetupInput(QDialog):
 
         if f_step != 0:
 
-            self.lineEdit_fmin.setText(str(f_min))
-            self.lineEdit_fmax.setText(str(f_max))
-            self.lineEdit_fstep.setText(str(f_step))
+            self.lineEdit_fmin.setText(str(round(f_min, 6)))
+            self.lineEdit_fmax.setText(str(round(f_max, 6)))
+            self.lineEdit_fstep.setText(str(round(f_step, 6)))
 
             if app().project.model.properties.check_if_there_are_tables_at_the_model():
                 self.lineEdit_fmin.setDisabled(True)
@@ -214,6 +214,8 @@ class AnalysisSetupInput(QDialog):
         analysis_setup["global_damping"] = global_damping
         self.model.set_global_damping(analysis_setup)
 
+        # from time import time
+
         if app().project.model.properties.check_if_there_are_tables_at_the_model():
             self.frequencies = self.model.frequencies
         else:
@@ -222,11 +224,16 @@ class AnalysisSetupInput(QDialog):
         if self.analysis_id in [1, 6]:
             analysis_setup["modes"] = number_of_modes
 
+        # t0 = time()
         app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        # dt = time() - t0
+
         app().main_window.analysis_toolbar.pushButton_run_analysis.setEnabled(True)
 
         self.complete = True
         self.close()
+
+        # print(f"Elapsed time: {dt} [s]")
 
         return False
 

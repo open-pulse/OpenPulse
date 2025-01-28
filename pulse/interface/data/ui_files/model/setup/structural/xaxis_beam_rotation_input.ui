@@ -182,7 +182,7 @@
          </font>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab_setup">
          <attribute name="title">
@@ -551,6 +551,12 @@
                <property name="text">
                 <string>Attribute</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -577,6 +583,9 @@
                </property>
                <property name="text">
                 <string>Cancel</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -728,6 +737,12 @@
                <property name="text">
                 <string>Remove</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -754,6 +769,9 @@
                </property>
                <property name="text">
                 <string>Reset</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -959,6 +977,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_selection</tabstop>
+  <tabstop>tabWidget_xaxis_rotation_angle</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+  <tabstop>treeWidget_xaxis_rotation_angle</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

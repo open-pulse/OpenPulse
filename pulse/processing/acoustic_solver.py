@@ -4,7 +4,8 @@ from pulse.processing.assembly_acoustic import AssemblyAcoustic
 
 import numpy as np
 from numpy.linalg import norm
-from scipy.sparse.linalg import eigs, spsolve
+from scipy.sparse import csr_matrix, bmat, eye, block_array
+from scipy.sparse.linalg import eigs, eigsh, spsolve, inv
 
 import logging
 
@@ -49,9 +50,10 @@ class AcousticSolver:
 
     def _initialize(self):
 
-        self.natural_frequencies = None
-        self.modal_shapes = None
         self.solution = None
+        self.modal_shapes = None
+        self.natural_frequencies = None
+        self.complex_natural_frequencies = None
 
         self.convergence_data_log = None
 
@@ -82,7 +84,10 @@ class AcousticSolver:
         self.K, self.Kr = self.assembly.get_global_matrices()
         self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices()
         self.K_link, self.Kr_link = self.assembly.get_fetm_link_matrices()
-        self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] for i in range(len(self.frequencies))]
+        self.T_link, self.Tr_link = self.assembly.get_fetm_transfer_matrices()
+
+        # self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] for i in range(len(self.frequencies))]
+        self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] + self.T_link[i] for i in range(len(self.frequencies))]
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis = False):
         """
@@ -130,6 +135,7 @@ class AcousticSolver:
         Kr = [(sparse_matrix.toarray())[self.get_pipe_and_unprescribed_indexes, :] for sparse_matrix in self.Kr]
         Kr_link = [(sparse_matrix.toarray())[self.get_pipe_and_unprescribed_indexes, :] for sparse_matrix in self.Kr_link]
         Kr_lump = [(sparse_matrix.toarray())[self.get_pipe_and_unprescribed_indexes, :] for sparse_matrix in self.Kr_lump]
+        Tr_link = [(sparse_matrix.toarray())[self.get_pipe_and_unprescribed_indexes, :] for sparse_matrix in self.Tr_link]
 
         rows = Kr[0].shape[0]  
         cols = len(self.frequencies)
@@ -148,7 +154,8 @@ class AcousticSolver:
 
             self.array_prescribed_values = np.array(prescribed_values)
             for i in range(cols):
-                volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_link[i] + Kr_lump[i]) * self.array_prescribed_values[:,i], axis=1)
+                # volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_link[i] + Kr_lump[i]) * self.array_prescribed_values[:,i], axis=1)
+                volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_link[i] + Kr_lump[i] + Tr_link[i]) * self.array_prescribed_values[:,i], axis=1)
 
         volume_velocity_combined = volume_velocity.T - volume_velocity_eq
 
@@ -189,26 +196,88 @@ class AcousticSolver:
 
         modes = kwargs.get("modes", 40)
         which = kwargs.get("which", "LM")
-        sigma_factor = kwargs.get("sigma_factor", 1e-2)
+        sigma_factor = kwargs.get("sigma_factor", 1e-4)
 
         self.warning_modal_prescribed_pressures = ""
 
         K, M = self.assembly.get_global_matrices_modal()
         K_link, M_link = self.assembly.get_link_global_matrices_modal()
+        C, _ = self.assembly.get_lumped_matrices_for_FEM()
 
         K_add = K + K_link
         M_add = M + M_link
 
-        eigen_values, eigen_vectors = eigs(K_add, M=M_add, k=modes, which=which, sigma=sigma_factor)
+        if np.sum(C[0]):
 
-        positive_real = np.absolute(np.real(eigen_values))
-        natural_frequencies = np.sqrt(positive_real) / (2 * np.pi)
+            N_t = len(self.assembly.unprescribed_indexes)
 
-        index_order = np.argsort(natural_frequencies)
-        natural_frequencies = natural_frequencies[index_order]
-        modal_shapes = eigen_vectors[:, index_order]
+            ones = eye(N_t, dtype=complex, format="csr")
+            zeros = csr_matrix((N_t, N_t), dtype=complex)
+
+            ## Reference - book
+            # A = bmat([[ C[0], M_add], 
+            #         [M_add,  None]], format="csr", dtype=complex)
+
+            # B = bmat([[K_add,   None], 
+            #         [ None, -M_add]], format="csr", dtype=complex)            
+
+            ## As Ans-theory
+            # A = bmat([  [ C[0], -M_add], 
+            #             [ ones,  zeros]  ], format="csr", dtype=complex)
+
+            # B = bmat([  [K_add, zeros], 
+            #             [zeros,  ones]  ], format="csr", dtype=complex)
+
+            # from scipy.linalg import eig
+            # eigen_values, eigen_vectors = eig(B.toarray(), b=A.toarray())
+            # eigen_values, eigen_vectors = eigs(B, M=A, k=modes, which=which, sigma=sigma_factor)
+
+            inv_M = inv(M_add.tocsc()).tocsr()
+            
+            AA = bmat([ [zeros, ones],
+                        [-inv_M@K_add, -inv_M@C[0]]])
+    
+            eigen_values, eigen_vectors = eigs(AA, k=modes, which=which, sigma=sigma_factor)
+
+            N_dofs = int(eigen_vectors.shape[0] / 2)
+
+            mask = np.imag(eigen_values) > 0
+            _eigen_values = eigen_values[mask]
+            _eigen_vectors = eigen_vectors[:, mask]
+
+            Wn = np.abs(_eigen_values)
+            natural_frequencies = Wn / (2 * np.pi)
+            damping_ratio = -np.real(_eigen_values) / Wn
+
+            index_order = np.argsort(natural_frequencies)
+
+            damping_ratio = damping_ratio[index_order]
+            natural_frequencies = natural_frequencies[index_order]
+            complex_natural_frequencies = _eigen_values[index_order] / (2 * np.pi)
+            modal_shapes = _eigen_vectors[:N_dofs, index_order]
+
+            mask_dmp = np.round(np.abs(damping_ratio), 6) < 1
+
+            damping_ratio = damping_ratio[mask_dmp]
+            natural_frequencies = natural_frequencies[mask_dmp]
+            modal_shapes = modal_shapes[:, mask_dmp]
+            self.complex_natural_frequencies = complex_natural_frequencies[mask_dmp]
+
+            # print(np.array([natural_frequencies, damping_ratio]).T[:10])
+            # print(eigen_values[:10])
+
+        else:
+
+            eigen_values, eigen_vectors = eigs(K_add, M=M_add, k=modes, which=which, sigma=sigma_factor)
+
+            Wn_2 = np.absolute(np.real(eigen_values))
+            natural_frequencies = np.sqrt(Wn_2) / (2 * np.pi)
+
+            index_order = np.argsort(natural_frequencies)
+            modal_shapes = eigen_vectors[:, index_order]
 
         modal_shapes = self._reinsert_prescribed_dofs(modal_shapes, modal_analysis=True)
+
         for value in self.prescribed_values:
             if value is not None:
                 if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
@@ -220,7 +289,9 @@ class AcousticSolver:
             return None, None
 
         self.natural_frequencies = natural_frequencies
-        self.modal_shapes = np.real(modal_shapes)
+
+        self.modal_shapes = modal_shapes
+        # self.modal_shapes = np.real(modal_shapes)
 
         return natural_frequencies, modal_shapes
 
@@ -256,7 +327,8 @@ class AcousticSolver:
 
             for i, freq in enumerate(self.frequencies):
 
-                logging.info(f"Solution step {i+1} and frequency {freq} [{i}/{len(self.frequencies)}]")
+                logging.info(f"Solution step {i+1} and frequency {freq : .3f} Hz [{i+1}/{len(self.frequencies)}]")
+
                 solution[:, i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
 
                 if self.stop_processing():

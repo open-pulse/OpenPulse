@@ -5,13 +5,14 @@ from pulse.model.line import Line
 from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.model.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.model.structural_element import StructuralElement, NODES_PER_ELEMENT
-from pulse.model.compressor_model import CompressorModel
+from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
 from pulse.model.perforated_plate import PerforatedPlate
 
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
 from pulse.interface.user_input.model.setup.structural.valves_input import get_V_linear_distribution
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
+from pulse.utils.unit_conversion import *
 
 from pulse.model.mesh import Mesh
 
@@ -822,7 +823,7 @@ class Preprocessor:
         elements : list
             Acoustic elements indexes.
             
-        element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
+        element_type : str, ['undamped', 'proportional', 'wide_duct', 'LRF_fluid_equivalent', 'LRF_full']
             Acoustic element type to be attributed to the listed elements.
             
         proportional_damping : float, optional
@@ -1116,7 +1117,7 @@ class Preprocessor:
         line : list
             Entities tag.
             
-        element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
+        element_type : str, ['undamped', 'proportional', 'wide_duct', 'LRF_fluid_equivalent', 'LRF_full']
             Acoustic element type to be attributed to the listed elements.
             
         proportional_damping : float, optional
@@ -1739,9 +1740,9 @@ class Preprocessor:
                 list_parameters.append(parameter)
 
         if 'cylinder label' in parameters.keys():
-            CompressorModel(list_parameters, active_cyl=parameters['cylinder label'])
+            ReciprocatingCompressorModel(list_parameters, active_cyl=parameters['cylinder label'])
         else:
-            CompressorModel(list_parameters)
+            ReciprocatingCompressorModel(list_parameters)
 
     def get_gdofs_from_nodes(self, node_id1, node_id2):
         """
@@ -1949,6 +1950,73 @@ class Preprocessor:
             return data
 
 
+    def get_acoustic_transfer_element_data(self, node_ids: list, data: dict):
+        """
+        """
+        if len(node_ids) == 2:
+
+            coords = list()
+            input_node_id, output_node_id = node_ids
+
+            int_id1 = self.nodes[input_node_id].global_index
+            int_id2 = self.nodes[output_node_id].global_index
+
+            indexes_i = [ int_id1, int_id1, int_id2, int_id2 ] 
+            indexes_j = [ int_id1, int_id2, int_id1, int_id2 ]
+
+            coords_1 = self.nodes[input_node_id].coordinates
+            coords_2 = self.nodes[output_node_id].coordinates
+
+            coords.append(list(np.round(coords_1, 5)))
+            coords.append(list(np.round(coords_2, 5)))
+
+            if data["element_transfer_data_source"] == "admittance_matrix":
+                a11, a12, a21, a22 = data["values"]
+
+            else:
+                H11, H21, H12, H22 = data["values"]
+
+                if output_node_id > input_node_id:
+
+                    _det = (H11*H22 - H21*H12)
+                    a11 =  H22 / _det
+                    a12 = -H12 / _det
+                    a21 = -H21 / _det
+                    a22 =  H11 / _det
+
+                else:
+
+                    #TODO: validate this case
+                    _det = (H12*H21 - H11*H22)
+                    a11 =  H12 / _det
+                    a12 = -H22 / _det
+                    a21 = -H11 / _det
+                    a22 =  H21 / _det
+
+            Te = np.array([a11, a12, a21, a22], dtype=complex).T
+
+            data = {
+                    "coords" : coords,
+                    "indexes_i" : indexes_i,
+                    "indexes_j" : indexes_j,
+                    "data_Te" : Te
+                    }
+
+            return data
+
+    # Z = Te.reshape(-1,2,2)
+
+    # He = np.array([H11, H12, H21, H22], dtype=complex).T.reshape(-1,2,2)
+    # inv = np.linalg.inv(He)
+
+    # print(f"teste inversa -> {np.max(np.abs(Z - inv))}")
+
+    # q = np.array([1, 0], dtype=float)
+    # rq1 = (H21*q[0] + H22*q[1]) / (H11*q[0] + H12*q[1])               
+    # q = np.array([0, 1], dtype=float)
+    # rq2 = (H21*q[0] + H22*q[1]) / (H11*q[0] + H12*q[1])
+    # print(rq1[:10], rq2[:10])
+
     def process_cross_sections_mapping(self):  
 
         label_etypes = ['pipe_1', 'valve']
@@ -2112,10 +2180,10 @@ class Preprocessor:
         """" This method returns """
         acoustic_etype_to_number_elements = {   'undamped' : 0, 
                                                 'proportional' : 0, 
-                                                'wide-duct' : 0, 
-                                                'LRF fluid equivalent' : 0, 
-                                                'LRF full' : 0, 
-                                                'undamped mean flow' : 0, 
+                                                'wide_duct' : 0, 
+                                                'LRF_fluid_equivalent' : 0, 
+                                                'LRF_full' : 0, 
+                                                'undamped_mean_flow' : 0, 
                                                 'howe' : 0, 
                                                 'peters' : 0, 
                                                 None : 0    }

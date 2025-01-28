@@ -359,13 +359,13 @@
               <widget class="QFrame" name="frame">
                <property name="minimumSize">
                 <size>
-                 <width>80</width>
+                 <width>70</width>
                  <height>0</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>80</width>
+                 <width>70</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -401,7 +401,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>Type:</string>
+                <string>Impedance:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -578,6 +578,9 @@
                <property name="autoDefault">
                 <bool>false</bool>
                </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -673,6 +676,9 @@
                <property name="text">
                 <string>Reset</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="1">
@@ -703,6 +709,12 @@
                </property>
                <property name="text">
                 <string>Remove</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="status" stdset="0">
+                <string>danger</string>
                </property>
               </widget>
              </item>
@@ -775,6 +787,15 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>comboBox_radiation_impedance_type</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+  <tabstop>treeWidget_nodal_info</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

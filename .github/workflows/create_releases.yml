@@ -29,6 +29,14 @@ jobs:
         with:
           path: ./uploads/
 
+      - name: Zip linux
+        run: |
+          zip -r open-pulse-linux-x64.zip ./uploads/openpulse-linux/open-pulse-linux-x64
+
+      - name: Zip Windows
+        run: |
+          zip -r open-pulse-windows-x64.zip ./uploads/openpulse-windows/open-pulse-windows-x64
+
       - name: show path
         run: ls -r ./uploads/openpulse-linux
 
@@ -39,8 +47,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./uploads/openpulse-linux/open-pulse-linux-x64.so
-          asset_name: open-pulse-linux-x64.so
+          asset_path: open-pulse-linux-x64.zip
+          asset_name: open-pulse-linux-x64.zip
           asset_content_type: application/zip
 
       - name: upload release windows
@@ -50,8 +58,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./uploads/openpulse-windows/open-pulse-windows-x64.exe
-          asset_name: open-pulse-windows-x64.exe
+          asset_path: open-pulse-windows-x64.zip
+          asset_name: open-pulse-windows-x64.zip
+          asset_content_type: application/zip                        
+
+      - name: upload release windows installer
+        id: upload-windows-installer
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./uploads/openpulse-windows/open-pulse-windows-installer-x64.exe
+          asset_name: open-pulse-windows-installer-x64.exe
           asset_content_type: application/zip                        
 
   build-windows:
@@ -64,6 +83,9 @@ jobs:
         with:
           python-version: '3.11'
           architecture: 'x64'
+      # - name: Install InnoSetup
+      #   run: |
+      #     winget install -e --id JRSoftware.InnoSetup
       - name: Install Poetry
         run: |
           pip install poetry
@@ -75,14 +97,24 @@ jobs:
       #     poetry run pytest
       - name: Run Pyinstaller
         run: |
-          poetry run pyinstaller openpulse.spec
+          poetry run pyinstaller pulse.spec
+      # - name: Run InnoSetup
+      #   run: |
+      #     & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /O"dist" /F"open-pulse-setup-x64" "pulse.iss"
+      - name: Compile .iss to .exe Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: pulse.iss
+          options: /O"dist" /F"open-pulse-windows-installer-x64"
+
       - name: Rename file
         run: |
-          mv dist/OpenPulse.exe dist/open-pulse-windows-x64.exe
+          mv dist/OpenPulse dist/open-pulse-windows-x64
+
       - uses: actions/upload-artifact@v4
         with:
           name: openpulse-windows
-          path: dist/open-pulse-windows-x64.exe
+          path: dist/
 
   build-linux:
     runs-on: ubuntu-latest
@@ -105,11 +137,11 @@ jobs:
       #     poetry run pytest
       - name: Run Pyinstaller
         run: |
-          poetry run pyinstaller openpulse.spec
+          poetry run pyinstaller pulse.spec
       - name: Rename file
         run: |
-          mv dist/OpenPulse dist/open-pulse-linux-x64.so
+          mv dist/OpenPulse dist/open-pulse-linux-x64
       - uses: actions/upload-artifact@v4
         with:
           name: openpulse-linux
-          path: dist/open-pulse-linux-x64.so
+          path: dist/

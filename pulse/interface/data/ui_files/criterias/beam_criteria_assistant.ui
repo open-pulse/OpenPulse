@@ -31,6 +31,9 @@
     <height>600</height>
    </size>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::StrongFocus</enum>
+  </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
@@ -292,7 +295,7 @@
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::StrongFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
@@ -675,6 +678,9 @@
         <property name="text">
          <string>Cancel</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="1">
@@ -713,6 +719,11 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>lineEdit_beam_criteria</tabstop>
+  <tabstop>lineEdit_section_id</tabstop>
+  <tabstop>treeWidget_sections_parameters_by_lines</tabstop>
+  <tabstop>treeWidget_non_beam_segments</tabstop>
+  <tabstop>pushButton_more_info</tabstop>
   <tabstop>pushButton_check_criteria</tabstop>
  </tabstops>
  <resources/>

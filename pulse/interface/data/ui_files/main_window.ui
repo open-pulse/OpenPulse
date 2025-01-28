@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1045</width>
+    <width>1044</width>
     <height>674</height>
    </rect>
   </property>
@@ -96,7 +96,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1045</width>
+     <width>1044</width>
      <height>21</height>
     </rect>
    </property>
@@ -170,6 +170,7 @@
     </property>
     <addaction name="action_check_beam_criteria"/>
     <addaction name="action_pulsation_suppression_device_editor"/>
+    <addaction name="action_pulsation_damper_editor"/>
    </widget>
    <addaction name="menu_project"/>
    <addaction name="menu_general_settings"/>
@@ -181,7 +182,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="tool_bar">
    <property name="windowTitle">
-    <string>toolBar</string>
+    <string>Main toolbar</string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -474,6 +475,10 @@
    </property>
   </action>
   <action name="action_user_preferences">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/common/user_preferences_icon.png</normaloff>../icons/common/user_preferences_icon.png</iconset>
+   </property>
    <property name="text">
     <string>User Preferences</string>
    </property>
@@ -846,6 +851,11 @@
   <action name="action_check_refprop">
    <property name="text">
     <string>Check REFPROP</string>
+   </property>
+  </action>
+  <action name="action_pulsation_damper_editor">
+   <property name="text">
+    <string>Pulsation damper editor</string>
    </property>
   </action>
  </widget>

@@ -192,6 +192,9 @@
             <property name="shortcut">
              <string>Ctrl+Return</string>
             </property>
+            <property name="default">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -6409,6 +6412,9 @@
             <property name="shortcut">
              <string>Ctrl+Return</string>
             </property>
+            <property name="default">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -6624,6 +6630,9 @@
             <property name="text">
              <string>Load section</string>
             </property>
+            <property name="default">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -6651,14 +6660,16 @@
  <tabstops>
   <tabstop>tabWidget_general</tabstop>
   <tabstop>tabWidget_pipe_section</tabstop>
+  <tabstop>pushButton_select_standard_section</tabstop>
   <tabstop>lineEdit_outside_diameter</tabstop>
   <tabstop>lineEdit_wall_thickness</tabstop>
   <tabstop>lineEdit_offset_y</tabstop>
   <tabstop>lineEdit_offset_z</tabstop>
   <tabstop>lineEdit_insulation_thickness</tabstop>
   <tabstop>lineEdit_insulation_density</tabstop>
-  <tabstop>pushButton_select_standard_section</tabstop>
   <tabstop>pushButton_check_if_section_is_normalized</tabstop>
+  <tabstop>pushButton_plot_pipe_cross_section</tabstop>
+  <tabstop>pushButton_confirm_pipe</tabstop>
   <tabstop>lineEdit_element_id_initial</tabstop>
   <tabstop>lineEdit_outside_diameter_initial</tabstop>
   <tabstop>lineEdit_wall_thickness_initial</tabstop>
@@ -6679,6 +6690,8 @@
   <tabstop>lineEdit_wall_thickness_rectangular_section</tabstop>
   <tabstop>lineEdit_offsety_rectangular_section</tabstop>
   <tabstop>lineEdit_offsetz_rectangular_section</tabstop>
+  <tabstop>pushButton_plot_beam_cross_section</tabstop>
+  <tabstop>pushButton_confirm_beam</tabstop>
   <tabstop>lineEdit_outside_diameter_circular_section</tabstop>
   <tabstop>lineEdit_wall_thickness_circular_section</tabstop>
   <tabstop>lineEdit_offsety_circular_section</tabstop>
@@ -6710,10 +6723,6 @@
   <tabstop>lineEdit_Izz</tabstop>
   <tabstop>lineEdit_Iyz</tabstop>
   <tabstop>lineEdit_shear_coefficient</tabstop>
-  <tabstop>pushButton_plot_beam_cross_section</tabstop>
-  <tabstop>pushButton_confirm_beam</tabstop>
-  <tabstop>pushButton_plot_pipe_cross_section</tabstop>
-  <tabstop>pushButton_confirm_pipe</tabstop>
   <tabstop>tabWidget_sections_data</tabstop>
   <tabstop>treeWidget_sections_parameters_by_lines</tabstop>
   <tabstop>pushButton_load_section_info</tabstop>

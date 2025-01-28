@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt 
 
 from pulse.model.cross_section import CrossSection
-from pulse.properties.material import Material
-from pulse.properties.fluid import Fluid
+from pulse.model.properties.material import Material
+from pulse.model.properties.fluid import Fluid
 from pulse.model.preprocessor import Preprocessor
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
@@ -47,7 +47,7 @@ preprocessor.set_material_by_element('all', steel)
 preprocessor.set_acoustic_pressure_bc_by_node(51, [1 + 0j,''])
 preprocessor.set_radiation_impedance_bc_by_node(103 , 0)
 
-# element_type = 'undamped mean flow'
+# element_type = 'undamped_mean_flow'
 element_type = 'peters'
 # element_type = 'howe'
 preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=None)

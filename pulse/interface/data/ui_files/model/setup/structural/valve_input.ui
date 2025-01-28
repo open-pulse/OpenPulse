@@ -1312,7 +1312,7 @@
                    <bool>false</bool>
                   </property>
                   <property name="default">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="flat">
                    <bool>false</bool>
@@ -1538,6 +1538,9 @@
                   </property>
                   <property name="text">
                    <string>Remove</string>
+                  </property>
+                  <property name="status" stdset="0">
+                   <string>danger</string>
                   </property>
                  </widget>
                 </item>

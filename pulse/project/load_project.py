@@ -7,7 +7,7 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.perforated_plate import PerforatedPlate
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
 
 from pulse.model.cross_section import CrossSection
 
@@ -50,6 +50,10 @@ class LoadProject:
         #
         self.load_fluids_library()
         self.load_materials_library()
+
+        if self.check_line_properties():
+            return True
+
         self.load_cross_sections_from_file()
         #
         self.load_lines_properties()
@@ -131,7 +135,18 @@ class LoadProject:
             else:
                 molar_mass = None
 
-            fluid = Fluid(  name = name,
+            if 'adiabatic_bulk_modulus' in keys:
+                adiabatic_bulk_modulus = float(section['adiabatic_bulk_modulus'])
+            else:
+                adiabatic_bulk_modulus = None
+
+            if 'vapor_pressure' in keys:
+                vapor_pressure = float(section['vapor_pressure'])
+            else:
+                vapor_pressure = None
+
+            fluid = Fluid(  
+                            name = name,
                             density = density,
                             speed_of_sound = speed_of_sound,
                             color =  color,
@@ -142,8 +157,11 @@ class LoadProject:
                             dynamic_viscosity = dynamic_viscosity,
                             temperature = temperature,
                             pressure = pressure,
-                            molar_mass = molar_mass  )
-            
+                            molar_mass = molar_mass,
+                            adiabatic_bulk_modulus = adiabatic_bulk_modulus,
+                            vapor_pressure = vapor_pressure
+                          )
+
             self.library_fluids[identifier] = fluid
 
 
@@ -182,6 +200,20 @@ class LoadProject:
                                 )
             
             self.library_materials[identifier] = material
+
+    
+    def check_line_properties(self):
+
+        line_properties = app().pulse_file.read_line_properties_from_file()
+        if line_properties is None:
+            return True
+        elif isinstance(line_properties, dict):
+            if len(line_properties) == 0:
+                return True
+            else:
+                return False
+        else:
+            return False
 
 
     def load_cross_sections_from_file(self):
@@ -544,6 +576,19 @@ class LoadProject:
         return psd_lines
 
 
+    def get_pulsation_damper_related_lines(self):
+
+        pulsation_damper_lines = defaultdict(list)
+        for line_id, data in self.properties.line_properties.items():
+
+            data: dict
+            if "pulsation_damper_name" in data.keys():
+                pulsation_damper_name = data["pulsation_damper_name"]
+                pulsation_damper_lines[pulsation_damper_name].append(line_id)
+
+        return pulsation_damper_lines
+
+
     def get_cross_sections_from_file(self):
         """ This method returns a dictionary of already applied cross-sections.
         """
@@ -807,7 +852,10 @@ class LoadProject:
 
                 if key == "modal_acoustic":
                     act_modal_analysis = True
-                    app().main_window.project.natural_frequencies_acoustic = data["natural_frequencies"]
+                    if np.iscomplexobj(data["natural_frequencies"]):
+                        app().main_window.project.complex_natural_frequencies_acoustic = data["natural_frequencies"]
+                    else:
+                        app().main_window.project.natural_frequencies_acoustic = data["natural_frequencies"]
                     app().main_window.project.acoustic_solution = data["modal_shape"]
 
                 if key == "modal_structural":

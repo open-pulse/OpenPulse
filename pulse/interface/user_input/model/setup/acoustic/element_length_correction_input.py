@@ -92,8 +92,8 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def selection_callback(self):
         selected_elements = app().main_window.list_selected_elements()
         if selected_elements:
-            if self.tabWidget_main.currentIndex() == 1:
-                return
+            # if self.tabWidget_main.currentIndex() == 1:
+            #     return
             text = ", ".join([str(i) for i in selected_elements])
             self.lineEdit_element_id.setText(text)
 
@@ -111,6 +111,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
             self.selection_callback()
 
         elif index == 1:
+            app().main_window.set_selection()
             self.lineEdit_element_id.setText("")
 
         self.lineEdit_element_id.setDisabled(bool(index))
@@ -212,13 +213,9 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
             self.preprocessor.set_element_length_correction_by_element(element_ids, data)
             self.properties._set_element_property("element_length_correction", data, element_ids=element_ids)
-
-            app().pulse_file.write_element_properties_in_file()
+            self.actions_to_finalize()
 
             print("The acoustic element length correction {} was attributed to elements: {}".format(self.type_label, element_ids))
-
-            self.load_elements_info()
-            # self.close()
 
     def remove_callback(self):
 
@@ -234,13 +231,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
             for element_id in element_ids:
                 self.properties._remove_element_property("element_length_correction", element_id)
 
-            self.lineEdit_element_id.setText("")
-            
-
-            app().pulse_file.write_element_properties_in_file()
-            app().main_window.update_plots()
-            self.load_elements_info()
-            # self.close()
+            self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -268,10 +259,14 @@ class AcousticElementLengthCorrectionInput(QDialog):
                     for element_id in element_ids:
                         self.properties._remove_element_property("element_length_correction", element_id)
 
-                    app().pulse_file.write_element_properties_in_file()
-                    app().main_window.update_plots()
-                    self.load_elements_info()
-                    # self.close()
+                    self.actions_to_finalize()
+
+    def actions_to_finalize(self):
+        app().pulse_file.write_element_properties_in_file()
+        app().main_window.set_selection()
+        self.load_elements_info()
+        self.lineEdit_element_id.setText("")
+        self.pushButton_cancel.setText("Exit")
 
     def maps_correction_type_to_elements(self):
 

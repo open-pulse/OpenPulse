@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pulse"
-version = "2.0.9"
+version = "2.0.10"
 description = "Open Source Software for Pulsation Analysis of Pipeline Systems"
 authors = [
     "Olavo Silva <olavus@gmail.com>",
@@ -16,29 +16,29 @@ license = "MIT License"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.12"
-pyqt5-qt5 = "5.15.2"
+python = ">=3.10"
 PyQt5 = "^5.15.9"
-vtk = "^9.2.6"
-numpy = "^1.25.2"
+vtk = "^9.4.0"
+numpy = "^2.1.2"
 scipy = "^1.11.2"
 matplotlib = "^3.7.2"
-gmsh = "^4.11.1"
+gmsh = "^4.13.1"
 ctREFPROP = "^0.10.2"
 pandas = "^2.1.0"
 openpyxl = "^3.1.2"
-h5py = "^3.9.0"
-opps = {git = "https://github.com/open-pulse/opps"}
+h5py = "^3.12.1"
 compressors = {git = "https://github.com/MOPT-UFSC/Compressors"}
 molde = {git = "https://github.com/andrefpf/molde"}
-pypardiso = {git = "https://github.com/MOPT-UFSC/PyPardiso"}
-fileboxes = "^0.1.2"
+pypardiso-mopt = {git = "https://github.com/MOPT-UFSC/PyPardiso"}
+pyqtdarktheme = {version = "^2.1.0", python = ">=3.10,<3.12"}
+fileboxes = "^0.1.4"
+ordered-set = "^4.1.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"
 isort = "^5.12.0"
 pytest = "^7.4.1"
-pyinstaller = "^6.4.0"
+pyinstaller = {version = "^6.4.0", python = ">=3.10,<3.14"}
 tuna = "^0.5.11"
 
 [tool.poetry.scripts]

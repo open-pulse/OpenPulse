@@ -590,6 +590,12 @@
                <property name="text">
                 <string>Attribute</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -620,6 +626,9 @@
                </property>
                <property name="text">
                 <string>Cancel</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -756,6 +765,15 @@
                <property name="text">
                 <string>Remove</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>false</bool>
+               </property>
+               <property name="status" stdset="0">
+                <string>danger</string>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -783,6 +801,9 @@
                <property name="text">
                 <string>Reset</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
             </layout>
@@ -797,6 +818,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_attribution_type</tabstop>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>lineEdit_external_pressure</tabstop>
+  <tabstop>lineEdit_internal_pressure</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+  <tabstop>treeWidget_stress_stiffening</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -403,7 +403,7 @@ class PerforatedPlateInput(QDialog):
             try:
                 z_real = float(self.lineEdit_impedance_real.text())
             except Exception:
-                title = "INPUT ERROR"
+                title = "Input error"
                 message = "Wrong input for real part of dimensionless impedance."
                 PrintMessageInput([window_title_1, title, message])
                 self.lineEdit_impedance_real.setFocus()
@@ -415,7 +415,7 @@ class PerforatedPlateInput(QDialog):
             try:
                 z_imag = float(self.lineEdit_impedance_imag.text())
             except Exception:
-                title = "INPUT ERROR"
+                title = "Input error"
                 message = "Wrong input for imaginary part of dimensionless impedance."
                 PrintMessageInput([window_title_1, title, message])
                 self.lineEdit_impedance_imag.setFocus()
@@ -441,7 +441,7 @@ class PerforatedPlateInput(QDialog):
         try:
             if self.lineEdit_load_table_path.text() == "" or button_pressed:
 
-                last_path = app().config.get_last_folder_for("imported table folder")
+                last_path = app().config.get_last_folder_for("imported_table_folder")
                 if last_path is None:
                     last_path = Path.home()
 
@@ -480,7 +480,7 @@ class PerforatedPlateInput(QDialog):
             f_max = self.frequencies[-1]
             f_step = self.frequencies[1] - self.frequencies[0] 
             
-            app().main_window.config.write_last_folder_path_in_file("imported table folder", imported_table_path)
+            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", imported_table_path)
 
             if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
 
@@ -503,7 +503,7 @@ class PerforatedPlateInput(QDialog):
                 app().project.model.set_frequency_setup(frequency_setup)
             
         except Exception as log_error:
-            title = "Dimensionless impedance input error"
+            title = "Dimensionless impedance Input error"
             message = str(log_error)
             PrintMessageInput([window_title_1, title, message])
             return
@@ -693,18 +693,12 @@ class PerforatedPlateInput(QDialog):
                                                       element_ids=element_id 
                                                       )
 
-            app().pulse_file.write_element_properties_in_file()
+            self.actions_to_finalize()
 
             if len(element_ids) > 20:
                 print(f"[Set Perforated Plate] - defined at {len(element_ids)} selected elements")
             else:
                 print(f"[Set Perforated Plate] - defined at elements {element_ids}")
-
-            self.load_elements_info()
-            app().main_window.update_plots()
-
-            self.complete = True
-            self.close()    
 
         except Exception as log_error:
             title = "Error with the perforated plate data"
@@ -723,11 +717,7 @@ class PerforatedPlateInput(QDialog):
             app().pulse_file.write_element_properties_in_file()
 
             self.preprocessor.set_perforated_plate_by_elements(element_id, None)
-
-            self.lineEdit_element_id.setText("")
-            self.load_elements_info()
-            app().main_window.update_plots()
-            # self.close()
+            self.actions_to_finalize()
 
     def remove_table_files_from_elements(self, node_ids : list):
         table_names = self.properties.get_element_related_table_names("perforated_plate", node_ids)
@@ -760,11 +750,15 @@ class PerforatedPlateInput(QDialog):
                 self.properties._remove_element_property("perforated_plate", element_id)
 
             self.preprocessor.set_perforated_plate_by_elements(element_ids, None)
+            self.actions_to_finalize()
 
-            app().pulse_file.write_element_properties_in_file()
-            self.load_elements_info()
-            app().main_window.update_plots()
-            # self.close()
+    def actions_to_finalize(self):
+        app().pulse_file.write_element_properties_in_file()
+        app().main_window.update_plots()
+        self.load_elements_info()
+        self.lineEdit_element_id.setText("")
+        self.pushButton_cancel.setText("Exit")
+        self.complete = True   
 
     def process_table_file_removal(self, table_names : list):
         if table_names:
@@ -885,7 +879,6 @@ class PerforatedPlateInput(QDialog):
                                         "x_label" : "Frequency [Hz]",
                                         "y_label" : "Dimensionless impedance",
                                         "title" : title,
-                                        "data_type" : "dimensionless impedance",
                                         "legend" : legend_label,
                                         "unit" : "--",
                                         "color" : (0,0,255),

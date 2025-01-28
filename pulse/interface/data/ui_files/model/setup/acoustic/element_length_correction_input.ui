@@ -374,6 +374,12 @@
                <property name="text">
                 <string>Attribute</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -404,6 +410,9 @@
                </property>
                <property name="text">
                 <string>Cancel</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -444,6 +453,11 @@
                  <width>16777215</width>
                  <height>26</height>
                 </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
                </property>
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the element length correction type&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -656,6 +670,12 @@
                <property name="text">
                 <string>Remove</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="status" stdset="0">
+                <string>danger</string>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -683,6 +703,9 @@
                <property name="text">
                 <string>Reset</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
                <property name="flat">
                 <bool>false</bool>
                </property>
@@ -700,6 +723,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_element_length_correction_type</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

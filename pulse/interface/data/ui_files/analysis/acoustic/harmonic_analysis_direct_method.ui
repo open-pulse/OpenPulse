@@ -258,13 +258,13 @@
            <widget class="QLineEdit" name="lineEdit_fmin">
             <property name="minimumSize">
              <size>
-              <width>80</width>
+              <width>120</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>80</width>
+              <width>120</width>
               <height>28</height>
              </size>
             </property>
@@ -343,13 +343,13 @@
            <widget class="QLineEdit" name="lineEdit_fmax">
             <property name="minimumSize">
              <size>
-              <width>80</width>
+              <width>120</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>80</width>
+              <width>120</width>
               <height>28</height>
              </size>
             </property>
@@ -412,13 +412,13 @@
            <widget class="QLineEdit" name="lineEdit_fstep">
             <property name="minimumSize">
              <size>
-              <width>80</width>
+              <width>120</width>
               <height>28</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>80</width>
+              <width>120</width>
               <height>28</height>
              </size>
             </property>
@@ -653,8 +653,8 @@
   <tabstop>lineEdit_fmin</tabstop>
   <tabstop>lineEdit_fmax</tabstop>
   <tabstop>lineEdit_fstep</tabstop>
-  <tabstop>run_analysis_button</tabstop>
   <tabstop>enter_setup_button</tabstop>
+  <tabstop>run_analysis_button</tabstop>
  </tabstops>
  <resources/>
  <connections/>

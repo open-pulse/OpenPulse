@@ -53,6 +53,8 @@ class Fluid:
         self.temperature = kwargs.get("temperature", None)
         self.pressure = kwargs.get("pressure", None)
         self.molar_mass = kwargs.get("molar_mass", None)
+        self.adiabatic_bulk_modulus = kwargs.get("adiabatic_bulk_modulus", None)
+        self.vapor_pressure = kwargs.get("vapor_pressure", None)
 
     @property
     def impedance(self):

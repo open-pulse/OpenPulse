@@ -19,6 +19,8 @@ class FrequencyResponsePlotter(QDialog):
         ui_path = UI_DIR / "plots/results/general/frequency_response_plot.ui"
         uic.loadUi(ui_path, self)
 
+        app().main_window.set_input_widget(self)
+
         self._config_window()
         self._initialize()
         self._initialize_canvas()
@@ -270,8 +272,8 @@ class FrequencyResponsePlotter(QDialog):
             return self.unit + "/s²"
 
     def paint_toolbar_icons(self, *args, **kwargs):
-        from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
-        toolbar = self.findChild(NavigationToolbar2QT)
+        from pulse.interface.user_input.plots.general.custom_navigation_toolbar import CustomNavigationToolbar
+        toolbar = self.findChild(CustomNavigationToolbar)
         if toolbar is None:
             return
 
@@ -289,8 +291,8 @@ class FrequencyResponsePlotter(QDialog):
         self.plots = []
 
         if self._layout is None:
-            from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
-            toolbar = NavigationToolbar2QT(self.mpl_canvas_frequency_plot, self)
+            from pulse.interface.user_input.plots.general.custom_navigation_toolbar import CustomNavigationToolbar
+            toolbar = CustomNavigationToolbar(self.mpl_canvas_frequency_plot, self)
 
             # Paint the toolbar icons and connect the buttons to paint
             # themselves after every click or draw events

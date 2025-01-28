@@ -954,6 +954,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_compressor_node_id</tabstop>
+  <tabstop>lineEdit_pressure_ratio</tabstop>
+  <tabstop>lineEdit_unfiltered_criteria</tabstop>
+  <tabstop>pushButton_plot_unfiltered_criteria</tabstop>
+  <tabstop>lineEdit_nozzle_id</tabstop>
+  <tabstop>comboBox_line_ids</tabstop>
+  <tabstop>lineEdit_speed_of_sound</tabstop>
+  <tabstop>lineEdit_line_pressure</tabstop>
+  <tabstop>lineEdit_internal_diameter</tabstop>
+  <tabstop>pushButton_plot_filtered_criteria</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

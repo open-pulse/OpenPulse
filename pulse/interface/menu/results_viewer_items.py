@@ -27,6 +27,7 @@ class ResultsViewerItems(CommonMenuItems):
         self._create_connections()
 
     def _create_items(self):
+
         # Structural results items
         self.item_top_results_viewer_structural = self.add_top_item("Results Viewer - Structural")
         self.item_child_plot_structural_mode_shapes = self.add_item("Plot structural mode shapes")
@@ -35,6 +36,7 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_reaction_frequency_response = self.add_item("Plot reactions frequency response")
         self.item_child_plot_stress_field = self.add_item("Plot stress field")
         self.item_child_plot_stress_frequency_response = self.add_item("Plot stress frequency response")
+
         # Acoustic results items
         self.item_top_results_viewer_acoustic = self.add_top_item("Results Viewer - Acoustic")
         self.item_child_plot_acoustic_mode_shapes = self.add_item("Plot acoustic mode shapes")
@@ -44,7 +46,9 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_acoustic_delta_pressures = self.add_item("Plot acoustic delta pressures")
         self.item_child_plot_transmission_loss = self.add_item("Plot transmission loss")
         self.item_child_plot_perforated_plate_convergence_data = self.add_item("Plot perforated plate convergence data")
-        self.item_child_check_pulsation_criteria = self.add_item("Check pulsation criteria")
+        self.item_child_reciprocating_compressor_pulsation_criteria = self.add_item("Reciprocating compressor pulsation criteria")
+        self.item_child_reciprocating_pump_pulsation_criteria = self.add_item("Reciprocating pump pulsation criteria")
+        self.item_child_reciprocating_pump_inlet_pressure_criteria = self.add_item("Reciprocating pump inlet pressure criteria")
         self.item_child_shaking_forces_criteria = self.add_item("Shaking forces criteria")
 
         self.top_level_items = [self.item_top_results_viewer_acoustic,
@@ -67,7 +71,9 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_acoustic_frequency_response_function.setDisabled(True)
         self.item_child_plot_acoustic_pressure_field.setDisabled(True)
         self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
-        self.item_child_check_pulsation_criteria.setDisabled(True)
+        self.item_child_reciprocating_compressor_pulsation_criteria.setDisabled(True)
+        self.item_child_reciprocating_pump_pulsation_criteria.setDisabled(True)
+        self.item_child_reciprocating_pump_inlet_pressure_criteria.setDisabled(True)
         self.item_child_shaking_forces_criteria.setDisabled(True)
         self.item_child_plot_transmission_loss.setDisabled(True)
         self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
@@ -126,10 +132,13 @@ class ResultsViewerItems(CommonMenuItems):
                 self.item_child_plot_transmission_loss.setDisabled(False)
                 self.item_child_shaking_forces_criteria.setDisabled(False)
 
-                for (property, *args) in app().project.model.properties.nodal_properties.keys():
-                    if property == "compressor_excitation":
-                        self.item_child_check_pulsation_criteria.setDisabled(False)
-        
+                for (property, *_) in app().project.model.properties.nodal_properties.keys():
+                    if property == "reciprocating_compressor_excitation":
+                        self.item_child_reciprocating_compressor_pulsation_criteria.setDisabled(False)
+                    elif property == "reciprocating_pump_excitation":
+                        self.item_child_reciprocating_pump_pulsation_criteria.setDisabled(False)
+                        self.item_child_reciprocating_pump_inlet_pressure_criteria.setDisabled(False)
+
             elif self.project.analysis_id == 7:
                 self.item_child_plot_displacement_field.setDisabled(False)
                 self.item_child_plot_stress_field.setDisabled(False)

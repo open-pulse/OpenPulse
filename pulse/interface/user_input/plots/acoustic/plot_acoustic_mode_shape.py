@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -87,11 +87,24 @@ class PlotAcousticModeShape(QWidget):
         self.frame_button.setVisible(False)
         self.lineEdit_natural_frequency.setDisabled(True)
 
-        widths = [80, 140]
-        for i, width in enumerate(widths):
-            self.treeWidget_frequencies.setColumnWidth(i, width)
-            self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
+        if isinstance(app().project.complex_natural_frequencies_acoustic, np.ndarray):
+            widths = [60, 170]
+            headers = ["Mode", "Damped frequency [Hz]", "Damping ratio [--]"]
 
+        else:
+            widths = [120, 160]
+            headers = ["Mode", "Frequency [Hz]"]
+
+        font = QFont()
+        font.setPointSize(9)
+
+        for i, header in enumerate(headers):
+            self.treeWidget_frequencies.headerItem().setFont(i, font)
+            self.treeWidget_frequencies.headerItem().setText(i, header)
+            if i < 2:
+                self.treeWidget_frequencies.setColumnWidth(i, widths[i])
+            self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            
     def update_animation_widget_visibility(self):
         index = self.comboBox_color_scale.currentIndex()
         if index >= 2:
@@ -101,8 +114,7 @@ class PlotAcousticModeShape(QWidget):
 
     def load_user_preference_colormap(self):
         try:
-            app().main_window.load_user_preferences()
-            colormap = app().main_window.user_preferences["colormap"]
+            colormap = app().config.user_preferences.color_map
             if colormap in self.colormaps:
                 index = self.colormaps.index(colormap)
                 self.comboBox_colormaps.setCurrentIndex(index)
@@ -112,7 +124,6 @@ class PlotAcousticModeShape(QWidget):
     def update_colormap_type(self):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
-        app().config.write_colormap_in_file(colormap)
         app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
 
@@ -123,8 +134,7 @@ class PlotAcousticModeShape(QWidget):
             return
         
         app().project.analysis_type_label = "Acoustic Modal Analysis"
-        frequency = self.selected_natural_frequency
-        self.mode_index = self.natural_frequencies.index(frequency)
+        self.mode_index = self.natural_frequencies.index(self.selected_frequency)
             
         color_scale_setup = self.get_user_color_scale_setup()
         app().project.set_color_scale_setup(color_scale_setup)
@@ -162,29 +172,50 @@ class PlotAcousticModeShape(QWidget):
 
     def load_natural_frequencies(self):
 
-        self.natural_frequencies = list(app().project.natural_frequencies_acoustic)
+        if isinstance(app().project.complex_natural_frequencies_acoustic, np.ndarray):
+            self.natural_frequencies = list(app().project.complex_natural_frequencies_acoustic)
+
+        else:
+            self.natural_frequencies = list(app().project.natural_frequencies_acoustic)
+
         modes = np.arange(1, len(self.natural_frequencies) + 1, 1)
         self.modes_to_frequencies = dict(zip(modes, self.natural_frequencies))
 
         self.treeWidget_frequencies.clear()
-        for mode, natural_frequency in self.modes_to_frequencies.items():
-            new = QTreeWidgetItem([str(mode), str(round(natural_frequency,4))])
-            new.setTextAlignment(0, Qt.AlignCenter)
-            new.setTextAlignment(1, Qt.AlignCenter)
+        for mode, value in self.modes_to_frequencies.items():
+            if isinstance(value, complex):
+                cols = 3
+                damping_ratio = -np.real(value) / np.abs(value)
+                damped_frequency = np.abs(value) * ((1-damping_ratio**2)**(1/2))
+                new = QTreeWidgetItem([str(mode), str(round(damped_frequency, 4)), str(round(damping_ratio, 4))])
+            else:
+                cols = 2
+                new = QTreeWidgetItem([str(mode), str(round(value,4))])
+
+            for i in range(cols):
+                new.setTextAlignment(i, Qt.AlignCenter)
+            
             self.treeWidget_frequencies.addTopLevelItem(new)
 
     def on_click_item(self, item):
-        self.selected_natural_frequency = self.modes_to_frequencies[int(item.text(0))]
-        self.lineEdit_natural_frequency.setText(str(round(self.selected_natural_frequency,4)))
+
+        selected_frequency = self.modes_to_frequencies[int(item.text(0))]
+
+        if isinstance(selected_frequency, complex):
+            damping_ratio = -np.real(selected_frequency) / np.abs(selected_frequency)
+            damped_frequency = np.abs(selected_frequency) * ((1-damping_ratio**2)**(1/2))
+            self.lineEdit_natural_frequency.setText(str(round(damped_frequency, 4)))
+        else:
+            self.lineEdit_natural_frequency.setText(str(round(selected_frequency, 4)))
+
+        self.selected_frequency = selected_frequency
         self.update_plot()
 
     def on_doubleclick_item(self, item):
-        natural_frequency = self.modes_to_frequencies[int(item.text(0))]
-        self.lineEdit_natural_frequency.setText(str(natural_frequency))
-        self.update_plot()
+        self.on_click_item(item)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.update_plot()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
+    #     elif event.key() == Qt.Key_Escape:
+    #         self.close()

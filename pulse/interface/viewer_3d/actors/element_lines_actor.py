@@ -11,6 +11,7 @@ class ElementLinesActor(GhostActor):
         super().__init__()
 
         self.project = app().project
+        self.user_preferences = app().main_window.config.user_preferences
         self.preprocessor = self.project.preprocessor
         self.elements = self.project.get_structural_elements()
         self.hidden_elements = kwargs.get("hidden_elements", set())
@@ -45,7 +46,9 @@ class ElementLinesActor(GhostActor):
         data = LinesData(lines)
         data.GetCellData().AddArray(entity_index)
         data.GetCellData().AddArray(element_index)
-        set_polydata_colors(data, (90, 90, 90))
+
+        lines_color = self.user_preferences.lines_color.to_rgb()
+        set_polydata_colors(data, lines_color)
 
         mapper = vtkPolyDataMapper()
         mapper.SetInputData(data)

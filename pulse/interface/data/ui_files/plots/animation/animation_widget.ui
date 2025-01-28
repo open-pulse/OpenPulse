@@ -497,7 +497,7 @@
             <string notr="true"/>
            </property>
            <property name="text">
-            <string> Animate</string>
+            <string>Animate</string>
            </property>
            <property name="icon">
             <iconset>
@@ -510,6 +510,9 @@
             </size>
            </property>
            <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="default">
             <bool>true</bool>
            </property>
           </widget>
@@ -559,6 +562,13 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>spinBox_frames</tabstop>
+  <tabstop>spinBox_cycles</tabstop>
+  <tabstop>phase_slider</tabstop>
+  <tabstop>pushButton_export</tabstop>
+  <tabstop>pushButton_animate</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

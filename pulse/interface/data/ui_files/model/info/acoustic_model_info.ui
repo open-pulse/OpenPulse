@@ -1168,6 +1168,16 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>treeWidget_acoustic_pressure</tabstop>
+  <tabstop>treeWidget_radiation_impedance</tabstop>
+  <tabstop>treeWidget_volume_velocity</tabstop>
+  <tabstop>treeWidget_perforated_plate</tabstop>
+  <tabstop>treeWidget_specific_impedance</tabstop>
+  <tabstop>treeWidget_element_length_correction</tabstop>
+  <tabstop>lineEdit_number_nodes</tabstop>
+  <tabstop>lineEdit_number_elements</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

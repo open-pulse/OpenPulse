@@ -930,6 +930,16 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_node_id</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>lineEdit_response_ux</tabstop>
+  <tabstop>lineEdit_response_uy</tabstop>
+  <tabstop>lineEdit_response_uz</tabstop>
+  <tabstop>lineEdit_response_rx</tabstop>
+  <tabstop>lineEdit_response_ry</tabstop>
+  <tabstop>lineEdit_response_rz</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

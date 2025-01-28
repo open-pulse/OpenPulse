@@ -139,8 +139,7 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
 
     def load_user_preference_colormap(self):
         try:
-            app().main_window.load_user_preferences()
-            colormap = app().main_window.user_preferences["colormap"]
+            colormap = app().config2.user_preferences.color_map
             if colormap in self.colormaps:
                 index = self.colormaps.index(colormap)
                 self.comboBox_colormaps.setCurrentIndex(index)
@@ -150,7 +149,6 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
     def update_colormap_type(self):
         index = self.comboBox_colormaps.currentIndex()
         colormap = self.colormaps[index]
-        app().config.write_colormap_in_file(colormap)
         app().main_window.results_widget.set_colormap(colormap)
         self.update_plot()
 
@@ -221,12 +219,11 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         app().main_window.results_widget.show_stress_field(self.selected_index)
 
     def on_click_item(self, item):
-        self.lineEdit_selected_frequency.setText(item.text(0))
+        self.lineEdit_selected_frequency.setText(item.text(1))
         self.update_plot()
 
     def on_doubleclick_item(self, item):
-        self.lineEdit_selected_frequency.setText(item.text(0))
-        self.update_plot()
+        self.on_click_item(item)
 
     def load_frequencies(self):
         for index, frequency in enumerate(self.frequencies):

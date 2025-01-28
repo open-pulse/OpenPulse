@@ -4,8 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt 
 
 from pulse.model.cross_section import CrossSection
-from pulse.properties.material import Material
-from pulse.properties.fluid import Fluid
+from pulse.model.properties.material import Material
+from pulse.model.properties.fluid import Fluid
 from pulse.model.preprocessor import  Preprocessor
 from pulse.processing.assembly_structural import AssemblyStructural 
 from pulse.processing.structural_solver import StructuralSolver

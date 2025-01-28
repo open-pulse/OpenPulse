@@ -685,6 +685,9 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
             <iconset>
              <normaloff>../data/icons/020-search.png</normaloff>../data/icons/020-search.png</iconset>
            </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
         </layout>
@@ -840,6 +843,9 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
            <property name="icon">
             <iconset>
              <normaloff>../data/icons/020-search.png</normaloff>../data/icons/020-search.png</iconset>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -1192,6 +1198,12 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
         <property name="text">
          <string>Start</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="2">
@@ -1231,6 +1243,9 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
         <property name="text">
          <string>Cancel</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -1253,15 +1268,16 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
  </widget>
  <tabstops>
   <tabstop>lineEdit_project_name</tabstop>
+  <tabstop>lineEdit_project_folder</tabstop>
   <tabstop>pushButton_search_project_folder</tabstop>
   <tabstop>comboBox_start_project</tabstop>
+  <tabstop>lineEdit_geometry_path</tabstop>
   <tabstop>pushButton_import_geometry</tabstop>
+  <tabstop>comboBox_length_unit</tabstop>
   <tabstop>lineEdit_element_size</tabstop>
   <tabstop>lineEdit_geometry_tolerance</tabstop>
   <tabstop>pushButton_start_project</tabstop>
   <tabstop>pushButton_cancel</tabstop>
-  <tabstop>lineEdit_project_folder</tabstop>
-  <tabstop>lineEdit_geometry_path</tabstop>
  </tabstops>
  <resources/>
  <connections/>

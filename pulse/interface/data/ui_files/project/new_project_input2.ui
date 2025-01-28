@@ -326,8 +326,8 @@
          <property name="bottomMargin">
           <number>6</number>
          </property>
-         <item row="0" column="0">
-          <spacer name="horizontalSpacer_6">
+         <item row="0" column="3">
+          <spacer name="horizontalSpacer_7">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -365,6 +365,19 @@
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
+         </item>
+         <item row="0" column="0">
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item row="0" column="2">
           <widget class="QLineEdit" name="lineEdit_geometry_tolerance">
@@ -420,19 +433,6 @@
             <string>&lt; Insert a value &gt;</string>
            </property>
           </widget>
-         </item>
-         <item row="0" column="3">
-          <spacer name="horizontalSpacer_7">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -592,6 +592,9 @@
            <property name="icon">
             <iconset>
              <normaloff>../data/icons/020-search.png</normaloff>../data/icons/020-search.png</iconset>
+           </property>
+           <property name="autoDefault">
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -930,6 +933,12 @@
         <property name="text">
          <string>Start</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="2">
@@ -969,6 +978,9 @@
         <property name="text">
          <string>Cancel</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -990,6 +1002,12 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>comboBox_start_project</tabstop>
+  <tabstop>lineEdit_geometry_path</tabstop>
+  <tabstop>pushButton_import_geometry</tabstop>
+  <tabstop>comboBox_length_unit</tabstop>
+  <tabstop>lineEdit_element_size</tabstop>
+  <tabstop>lineEdit_geometry_tolerance</tabstop>
   <tabstop>pushButton_start_project</tabstop>
   <tabstop>pushButton_cancel</tabstop>
  </tabstops>

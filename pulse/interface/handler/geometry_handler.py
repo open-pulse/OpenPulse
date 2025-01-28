@@ -1,11 +1,28 @@
 # fmt: off
-
 from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
+from pulse.utils.unit_conversion import *
 
-from opps.model import Pipe, Bend, Point, Flange, Valve, Beam, Reducer, RectangularBeam, CircularBeam, IBeam, TBeam, CBeam, ExpansionJoint
-from opps.model import SimpleCurve
+from pulse.editor.structures import (
+    Pipe,
+    Bend,
+    Point,
+    Flange,
+    Valve,
+    Beam,
+    Reducer,
+    RectangularBeam,
+    CircularBeam,
+    IBeam,
+    TBeam,
+    CBeam,
+    ExpansionJoint,
+    Fillet,
+    Structure,
+    Arc,
+    ALL_STRUCTURE_TYPES,
+)
 
 import gmsh
 import numpy as np
@@ -19,7 +36,7 @@ window_title_2 = "Warning"
 
 
 def get_data(data):
-    return list(np.array(np.round(data, 6), dtype=float))
+    return list(np.array(np.round(data, 8), dtype=float))
 
 def normalize(vector):
     return vector / np.linalg.norm(vector)
@@ -47,189 +64,299 @@ class GeometryHandler:
         if unit in ["meter", "millimeter", "inch"]:
             self.length_unit = unit
 
-    def create_geometry(self, gmsh_GUI=False):
+    def get_unit_conversion_function(self):
+        if self.length_unit == "meter":
+            return m_to_mm
+        elif self.length_unit == "inch":
+            return in_to_mm
+        else:
+            return lambda x: x  # A function that returns the input
 
+    def save_valve_internal_lines_if_exists(self, structure: Valve, line_tags: list):
+        valve_info: dict = structure.extra_info["valve_info"]
+        if ("orifice_plate_thickness" in valve_info.keys()) or ("blocking_length" in valve_info.keys()):
+            middle_line_tag = line_tags[len(line_tags) // 2]
+            self.valve_internal_lines[middle_line_tag] = structure.tag                      
+
+    def create_geometry(self, gmsh_gui=False):
+        # TODO this function is currently overriden by the
+        # other with the same name. When it is ready we can
+        # remove the other one.
+
+        if gmsh.is_initialized():
+            gmsh.finalize()
+    
         gmsh.initialize("", False)
         gmsh.option.setNumber("General.Terminal",0)
         gmsh.option.setNumber("General.Verbosity", 0)
 
+        cad = gmsh.model.occ
+        conversion_function = self.get_unit_conversion_function()
+
         for structure in self.pipeline.structures:
+            line_tags = structure.add_to_gmsh(cad, conversion_function)
 
-            if isinstance(structure, (Pipe, Beam, Reducer, Flange, ExpansionJoint)):
+            for tag in line_tags:
+                self.lines_mapping[tag] = structure.tag
 
-                _start_coords = structure.start.coords()
-                _end_coords = structure.end.coords()
+            if line_tags:
+                self.curve_length[structure.tag] = conversion_function(structure.arc_length)
 
-                if self.length_unit == "meter":
-                    start_coords = m_to_mm(_start_coords)
-                    end_coords = m_to_mm(_end_coords)
+            if isinstance(structure, Valve):
+                self.save_valve_internal_lines_if_exists(structure, line_tags)
 
-                elif self.length_unit == "inch":
-                    start_coords = in_to_mm(_start_coords)
-                    end_coords = in_to_mm(_end_coords)
+        # cad.remove_all_duplicates()
+        cad.synchronize()
 
-                else:
-                    start_coords = _start_coords
-                    end_coords = _end_coords
+        if gmsh_gui:
+            gmsh.option.setNumber('General.FltkColorScheme', 1)
+            gmsh.fltk.run()
 
-                start_point = gmsh.model.occ.addPoint(*start_coords)
-                end_point = gmsh.model.occ.addPoint(*end_coords)
-                line_tag = gmsh.model.occ.addLine(start_point, end_point)
+    # def old_create_geometry(self, gmsh_GUI=False):
+    #     # TODO replace this function by the simpler version above
 
-                self.lines_mapping[line_tag] = structure.tag
-                self.curve_length[structure.tag] = np.linalg.norm(end_coords-start_coords)
+    #     gmsh.initialize("", False)
+    #     gmsh.option.setNumber("General.Terminal",0)
+    #     gmsh.option.setNumber("General.Verbosity", 0)
 
-            elif isinstance(structure, Valve):
+    #     for structure in self.pipeline.structures:
 
-                _start_coords = structure.start.coords()
-                _end_coords = structure.end.coords()
+    #         if isinstance(structure, (Pipe, Beam, Reducer, Flange, ExpansionJoint)):
 
-                if self.length_unit == "meter":
-                    start_coords = m_to_mm(_start_coords)
-                    end_coords = m_to_mm(_end_coords)
+    #             _start_coords = structure.start.coords()
+    #             _end_coords = structure.end.coords()
 
-                elif self.length_unit == "inch":
-                    start_coords = in_to_mm(_start_coords)
-                    end_coords = in_to_mm(_end_coords)
+    #             if self.length_unit == "meter":
+    #                 start_coords = m_to_mm(_start_coords)
+    #                 end_coords = m_to_mm(_end_coords)
 
-                else:
-                    start_coords = _start_coords
-                    end_coords = _end_coords
+    #             elif self.length_unit == "inch":
+    #                 start_coords = in_to_mm(_start_coords)
+    #                 end_coords = in_to_mm(_end_coords)
 
-                valve_info = structure.extra_info["valve_info"]
-                valve_points = self.process_valve_points(start_coords, end_coords, valve_info)
+    #             else:
+    #                 start_coords = _start_coords
+    #                 end_coords = _end_coords
 
-                lc = 0
-                if "external_points" in valve_points.keys():
-                    (coords_A, coords_B) = valve_points["external_points"]
-                    point_A = gmsh.model.occ.addPoint(*coords_A, meshSize=lc)
-                    point_B = gmsh.model.occ.addPoint(*coords_B, meshSize=lc)
-                    self.curve_length[structure.tag] = np.linalg.norm(coords_B - coords_A)
+    #             start_point = gmsh.model.occ.addPoint(*start_coords)
+    #             end_point = gmsh.model.occ.addPoint(*end_coords)
+    #             line_tag = gmsh.model.occ.addLine(start_point, end_point)
 
-                if "flange_points" in valve_points.keys():
-                    (coords_C, coords_D) = valve_points["flange_points"]
-                    point_C = gmsh.model.occ.addPoint(*coords_C, meshSize=lc)
-                    point_D = gmsh.model.occ.addPoint(*coords_D, meshSize=lc)
+    #             self.lines_mapping[line_tag] = structure.tag
+    #             self.curve_length[structure.tag] = np.linalg.norm(end_coords-start_coords)
 
-                if "internal_points" in valve_points.keys():
-                    (coords_E, coords_F) = valve_points["internal_points"]
-                    point_E = gmsh.model.occ.addPoint(*coords_E, meshSize=lc)
-                    point_F = gmsh.model.occ.addPoint(*coords_F, meshSize=lc)
+    #         elif isinstance(structure, Valve):
 
-                # line_tag = gmsh.model.occ.addLine(point_A, point_B)
-                # self.lines_mapping[line_tag] = structure.tag
+    #             _start_coords = structure.start.coords()
+    #             _end_coords = structure.end.coords()
 
-                lines = list()
-                if "flange_points" in valve_points.keys():
-                    if "internal_points" in valve_points.keys():
-                        lines.append(gmsh.model.occ.addLine(point_A, point_C))
-                        lines.append(gmsh.model.occ.addLine(point_C, point_E))
-                        lines.append(gmsh.model.occ.addLine(point_E, point_F))
-                        lines.append(gmsh.model.occ.addLine(point_F, point_D))
-                        lines.append(gmsh.model.occ.addLine(point_D, point_B))
+    #             if self.length_unit == "meter":
+    #                 start_coords = m_to_mm(_start_coords)
+    #                 end_coords = m_to_mm(_end_coords)
 
-                        if "blocking_length" in valve_info.keys():
-                            self.valve_internal_lines[lines[2]] = structure.tag
-                        # self.valve_points_to_ignore[structure.tag] = (point_C, point_D, point_E, point_F)
+    #             elif self.length_unit == "inch":
+    #                 start_coords = in_to_mm(_start_coords)
+    #                 end_coords = in_to_mm(_end_coords)
 
-                    else:
-                        lines.append(gmsh.model.occ.addLine(point_A, point_C))
-                        lines.append(gmsh.model.occ.addLine(point_C, point_D))
-                        lines.append(gmsh.model.occ.addLine(point_D, point_B))
-                        # self.valve_points_to_ignore[structure.tag] = (point_C, point_D)
+    #             else:
+    #                 start_coords = _start_coords
+    #                 end_coords = _end_coords
 
-                elif "internal_points" in valve_points.keys():
-                    lines.append(gmsh.model.occ.addLine(point_A, point_E))
-                    lines.append(gmsh.model.occ.addLine(point_E, point_F))
-                    lines.append(gmsh.model.occ.addLine(point_F, point_B))
+    #             valve_info = structure.extra_info["valve_info"]
+    #             valve_points = self.process_valve_points(start_coords, end_coords, valve_info)
 
-                    if "blocking_length" in valve_info.keys():
-                        self.valve_internal_lines[lines[1]] = structure.tag
-                    # self.valve_points_to_ignore[structure.tag] = (point_E, point_F)
+    #             lc = 0
+    #             if "external_points" in valve_points.keys():
+    #                 (coords_A, coords_B) = valve_points["external_points"]
+    #                 point_A = gmsh.model.occ.addPoint(*coords_A, meshSize=lc)
+    #                 point_B = gmsh.model.occ.addPoint(*coords_B, meshSize=lc)
+    #                 self.curve_length[structure.tag] = np.linalg.norm(coords_B - coords_A)
 
-                else:
-                    lines.append(gmsh.model.occ.addLine(point_A, point_B))
+    #             if "flange_points" in valve_points.keys():
+    #                 (coords_C, coords_D) = valve_points["flange_points"]
+    #                 point_C = gmsh.model.occ.addPoint(*coords_C, meshSize=lc)
+    #                 point_D = gmsh.model.occ.addPoint(*coords_D, meshSize=lc)
 
-                for line_tag in lines:
-                    self.lines_mapping[line_tag] = structure.tag
+    #             if "internal_points" in valve_points.keys():
+    #                 (coords_E, coords_F) = valve_points["internal_points"]
+    #                 point_E = gmsh.model.occ.addPoint(*coords_E, meshSize=lc)
+    #                 point_F = gmsh.model.occ.addPoint(*coords_F, meshSize=lc)
 
-            elif isinstance(structure, SimpleCurve):
+    #             # line_tag = gmsh.model.occ.addLine(point_A, point_B)
+    #             # self.lines_mapping[line_tag] = structure.tag
 
-                if structure.is_colapsed():
-                    continue
+    #             lines = list()
+    #             if "flange_points" in valve_points.keys():
+    #                 if "internal_points" in valve_points.keys():
+    #                     lines.append(gmsh.model.occ.addLine(point_A, point_C))
+    #                     lines.append(gmsh.model.occ.addLine(point_C, point_E))
+    #                     lines.append(gmsh.model.occ.addLine(point_E, point_F))
+    #                     lines.append(gmsh.model.occ.addLine(point_F, point_D))
+    #                     lines.append(gmsh.model.occ.addLine(point_D, point_B))
 
-                _start_coords = structure.start.coords()
-                _end_coords = structure.end.coords()
-                _center_coords = structure.center.coords()
+    #                     if "blocking_length" in valve_info.keys():
+    #                         self.valve_internal_lines[lines[2]] = structure.tag
+    #                     # self.valve_points_to_ignore[structure.tag] = (point_C, point_D, point_E, point_F)
 
-                # print(f"Center coordinates (opps): {_center_coords} [m]")
+    #                 else:
+    #                     lines.append(gmsh.model.occ.addLine(point_A, point_C))
+    #                     lines.append(gmsh.model.occ.addLine(point_C, point_D))
+    #                     lines.append(gmsh.model.occ.addLine(point_D, point_B))
+    #                     # self.valve_points_to_ignore[structure.tag] = (point_C, point_D)
 
-                if self.length_unit == "meter":
-                    start_coords = m_to_mm(_start_coords)
-                    end_coords = m_to_mm(_end_coords)
-                    center_coords = m_to_mm(_center_coords)
+    #             elif "internal_points" in valve_points.keys():
+    #                 lines.append(gmsh.model.occ.addLine(point_A, point_E))
+    #                 lines.append(gmsh.model.occ.addLine(point_E, point_F))
+    #                 lines.append(gmsh.model.occ.addLine(point_F, point_B))
+
+    #                 if "blocking_length" in valve_info.keys():
+    #                     self.valve_internal_lines[lines[1]] = structure.tag
+    #                 # self.valve_points_to_ignore[structure.tag] = (point_E, point_F)
+
+    #             else:
+    #                 lines.append(gmsh.model.occ.addLine(point_A, point_B))
+
+    #             for line_tag in lines:
+    #                 self.lines_mapping[line_tag] = structure.tag
+
+    #         elif isinstance(structure, Fillet):
+
+    #             if structure.is_colapsed():
+    #                 continue
+
+    #             _start_coords = structure.start.coords()
+    #             _end_coords = structure.end.coords()
+    #             _center_coords = structure.center_coords
+
+    #             # TODO: remove OPPS internal calculation as soos as possible
+    #             # _center_coords2 = structure.center.coords()
+
+    #             # print(f"Center coordinates (external): {_center_coords} [m]")
+    #             # print(f"Center coordinates (internal): {_center_coords2} [m]")
+
+    #             if self.length_unit == "meter":
+    #                 start_coords = m_to_mm(_start_coords)
+    #                 end_coords = m_to_mm(_end_coords)
+    #                 center_coords = m_to_mm(_center_coords)
                 
-                elif self.length_unit == "inch":
-                    start_coords = in_to_mm(_start_coords)
-                    end_coords = in_to_mm(_end_coords)
-                    center_coords = in_to_mm(_center_coords)
+    #             elif self.length_unit == "inch":
+    #                 start_coords = in_to_mm(_start_coords)
+    #                 end_coords = in_to_mm(_end_coords)
+    #                 center_coords = in_to_mm(_center_coords)
 
-                else:
-                    start_coords = _start_coords
-                    end_coords = _end_coords
-                    center_coords = _center_coords
+    #             else:
+    #                 start_coords = _start_coords
+    #                 end_coords = _end_coords
+    #                 center_coords = _center_coords
 
-                start_point = gmsh.model.occ.addPoint(*start_coords)
-                end_point = gmsh.model.occ.addPoint(*end_coords)
-                center_point = gmsh.model.occ.addPoint(*center_coords)
+    #             start_radius = np.linalg.norm(start_coords-center_coords)
+    #             end_radius = np.linalg.norm(end_coords-center_coords)
 
-                line_tag = gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
+    #             if abs(start_radius-end_radius) > 1e-12:
 
-                self.lines_mapping[line_tag] = structure.tag
-                self.curve_length[structure.tag] = get_arc_length(start_coords, end_coords, center_coords)
+    #                 center_coords, shift_value = self.get_corrected_arc_center_coordinates(start_coords, 
+    #                                                                                        end_coords, 
+    #                                                                                        center_coords)
 
-        gmsh.model.occ.synchronize()
+    #                 print("The arc center point was shifted by {:.6e} [mm]".format(shift_value))
 
-        if gmsh_GUI:
-            import sys
-            if '-nopopup' not in sys.argv:
-                gmsh.option.setNumber('General.FltkColorScheme', 1)
-                gmsh.fltk.run()
+    #             start_point = gmsh.model.occ.addPoint(*start_coords)
+    #             end_point = gmsh.model.occ.addPoint(*end_coords)
+    #             center_point = gmsh.model.occ.addPoint(*center_coords)
+
+    #             line_tag = gmsh.model.occ.add_circle_arc(start_point, center_point, end_point)
+
+    #             self.lines_mapping[line_tag] = structure.tag
+    #             self.curve_length[structure.tag] = get_arc_length(start_coords, end_coords, center_coords)
+
+    #     gmsh.model.occ.synchronize()
+
+    #     if gmsh_GUI:
+    #         import sys
+    #         if '-nopopup' not in sys.argv:
+    #             gmsh.option.setNumber('General.FltkColorScheme', 1)
+    #             gmsh.fltk.run()
     
-    def process_valve_points(self, start_coords: np.ndarray, end_coords: np.ndarray, valve_info: dict) -> dict:
+    # def get_corrected_arc_center_coordinates(self, start_coords: np.ndarray, end_coords: np.ndarray, center_coords: np.ndarray):
+    #     """ 
+    #         This method returns precise arc center coordinates to avoid floating
+    #         precision errors while decoding geometry data from imported CAD files.
+    #     """
+    #     middle_coords = (start_coords + end_coords) / 2
+    #     normal_vector = np.cross(end_coords - start_coords, center_coords - start_coords)
+    #     bisector_direction = np.cross(normal_vector, end_coords - start_coords)
+    #     # bisector_direction = np.cross(end - start, normal_vector)
+
+    #     u = center_coords - middle_coords
+    #     v = bisector_direction
+    #     projection_uv = (np.dot(u, v) / (np.linalg.norm(v)**2)) * v
+
+    #     corrected_center_coords = middle_coords + projection_uv
+    #     correction_length = np.linalg.norm(corrected_center_coords - center_coords)
+
+    #     return corrected_center_coords, correction_length
+
+    # def process_valve_points(self, start_coords: np.ndarray, end_coords: np.ndarray, valve_info: dict) -> dict:
+    #     """
+    #     """
+
+    #     valve_points = dict()
+
+    #     A = start_coords
+    #     B = end_coords
+    #     AB = B - A
+
+    #     L = np.linalg.norm(AB)
+    #     n = AB / L
+
+    #     valve_points["external_points"] = (A, B)
+
+    #     if "flange_length" in valve_info.keys():
+    #         flange_length = 1e3 * valve_info["flange_length"]
+    #         C = A + n * flange_length
+    #         D = A + n * (L - flange_length)
+    #         valve_points["flange_points"] = (C, D)
+
+    #     if "orifice_plate_thickness" in valve_info.keys():
+    #         internal_length = 1e3 * valve_info["orifice_plate_thickness"]
+    #         E = A + n * (L - internal_length) / 2
+    #         F = A + n * (L + internal_length) / 2
+    #         valve_points["internal_points"] = (E, F)
+
+    #     elif "blocking_length" in valve_info.keys():
+    #         internal_length = 1e3 * valve_info["blocking_length"]
+    #         E = A + n * (L - internal_length) / 2
+    #         F = A + n * (L + internal_length) / 2
+    #         valve_points["internal_points"] = (E, F)
+
+    #     return valve_points
+    
+    def fix_data_for_backwards_compatibility(self, data: dict):
         """
+        Older files did not have the structure_name property correctly set,
+        and the needed information to create the structure was inferred in 
+        a confusing way from multiple parameters.
+         
+        This function fixes some of the cases to keep old files working.
         """
 
-        valve_points = dict()
+        if data.get("structural_element_type") == "pipe_1" and len(data["section_parameters"]) == 10:
+            data["structure_name"] = "reducer"
 
-        A = start_coords
-        B = end_coords
-        AB = B - A
+        if data.get("structural_element_type") == "beam_1" and data.get("structure_name") == "undefined":
+            type_label: str = data["section_type_label"]
+            data["structure_name"] = type_label.lower().replace(" ", "_").replace("-", "_").replace("section", "beam")
 
-        L = np.linalg.norm(AB)
-        n = AB / L
+    def create_structure_from_data(self, data: dict) -> Structure:
+        """
+        This function compares data["structure_name"] the name of every structure availabe. 
+        If it matches the structure is created and returned.
+        """
 
-        valve_points["external_points"] = (A, B)
-
-        if "flange_length" in valve_info.keys():
-            flange_length = 1e3 * valve_info["flange_length"]
-            C = A + n * flange_length
-            D = A + n * (L - flange_length)
-            valve_points["flange_points"] = (C, D)
-
-        if "orifice_plate_thickness" in valve_info.keys():
-            internal_length = 1e3 * valve_info["orifice_plate_thickness"]
-            E = A + n * (L - internal_length) / 2
-            F = A + n * (L + internal_length) / 2
-            valve_points["internal_points"] = (E, F)
-
-        elif "blocking_length" in valve_info.keys():
-            internal_length = 1e3 * valve_info["blocking_length"]
-            E = A + n * (L - internal_length) / 2
-            F = A + n * (L + internal_length) / 2
-            valve_points["internal_points"] = (E, F)
-
-        return valve_points
+        for structure_type in ALL_STRUCTURE_TYPES:
+            if structure_type.name() == data.get("structure_name"):
+                return structure_type.load_from_data(data)
+        return None
 
     def process_pipeline(self):
         """ This method builds structures based on model_data file data.
@@ -246,264 +373,320 @@ class GeometryHandler:
 
             pipeline data to...
         """
-
-        structures = list()
         self.pipeline.reset()
 
-        lines_data = app().pulse_file.read_line_properties_from_file()
+        lines_data: dict[str, dict] = app().pulse_file.read_line_properties_from_file()
+        if not isinstance(lines_data, dict):
+            return
 
-        if isinstance(lines_data, dict):
-            for _line_id, data in lines_data.items():
+        structures = list()
+        for str_line_id, data in lines_data.items():
 
-                data : dict
-                line_id = int(_line_id)
+            self.fix_data_for_backwards_compatibility(data)
+            structure = self.create_structure_from_data(data)
+            if structure is None:
+                continue
+        
+            structures.append(structure)
 
-                structural_element_type = data.get("structural_element_type", None)
-                structure = None
+            # Adds common properties to the structure
+            structure.tag = int(str_line_id)
+            if "material_id" in data.keys():
+                structure.extra_info["material_info"] = data['material_id']
 
-                if structural_element_type in ["pipe_1", None]:
-                    structure = self._process_pipe(line_id, data)
-
-                elif structural_element_type == "beam_1":
-                    structure = self._process_beam(line_id, data)
-
-                elif structural_element_type == "valve":
-                    structure = self._process_valve(line_id, data)
-
-                elif structural_element_type == "expansion_joint":
-                    structure = self._process_expansion_joint(line_id, data)
-
-                if "material_id" in data.keys():
-                    structure.extra_info["material_info"] = data['material_id']
-
-                if structure is not None:
-                    structures.append(structure)
+        if not structures:
+            return
 
         self.pipeline.structures.clear()
-        if len(structures):
-            self.pipeline.add_structures(structures)
-            self.pipeline.commit()
-            self.pipeline.merge_coincident_points()
-            app().main_window.update_plots()
+        self.pipeline.add_structures(structures)
+        self.pipeline.commit()
+        self.pipeline.merge_coincident_points()
+        app().main_window.update_plots()
 
-    def _process_pipe(self, line_id: int, data: dict):
-
-        if "section_parameters" in data.keys():
-            section_parameters = data["section_parameters"]
-        else:
-            section_parameters = [0.01, 0.001, 0, 0, 0 ,0]
-
-        if "section_type_label" in data.keys():
-            section_type_label = data["section_type_label"]
-        else:
-            section_type_label = "Pipe"
-
-        if len(section_parameters) == 6:
-
-            if data["structure_name"] == "pipe":
-                start = Point(*data['start_coords'])
-                end = Point(*data['end_coords'])
-                structure = Pipe(
-                                 start, 
-                                 end, 
-                                 diameter = section_parameters[0],
-                                 thickness = section_parameters[1],
-                                )
-
-            elif data["structure_name"] == "bend":
-                start = Point(*data['start_coords'])
-                end = Point(*data['end_coords'])
-                corner = Point(*data['corner_coords'])
-                curvature_radius = data['curvature_radius']
-                structure = Bend(
-                                 start, 
-                                 end, 
-                                 corner, 
-                                 curvature_radius, 
-                                 diameter = section_parameters[0],
-                                 thickness = section_parameters[1]
-                                )
-
-            elif data["structure_name"] == "flange":
-                start = Point(*data['start_coords'])
-                end = Point(*data['end_coords'])
-                structure = Flange(
-                                   start, 
-                                   end, 
-                                   diameter = section_parameters[0],
-                                   thickness = section_parameters[1],
-                                   )
-
-        elif len(section_parameters) == 10:
-
-            start = Point(*data['start_coords'])
-            end = Point(*data['end_coords'])
-            structure = Reducer(
-                                start, 
-                                end, 
-                                initial_diameter = section_parameters[0],
-                                final_diameter = section_parameters[4],
-                                thickness = section_parameters[1],
-                                initial_offset_y = section_parameters[2],
-                                initial_offset_z = section_parameters[3],
-                                final_offset_y = section_parameters[6],
-                                final_offset_z = section_parameters[7],
-                                )
-
-        else:
-            return
-
-        structure.tag = line_id
-
-        section_info = {
-                        "section_type_label" : section_type_label,
-                        "section_parameters" : section_parameters
-                       }
-
-        structure.extra_info["cross_section_info"] = section_info
-        structure.extra_info["structural_element_type"] = "pipe_1"
+    # def old_process_pipeline(self):
+    #     """ This method builds structures based on model_data file data.
         
-        if "psd_name" in data.keys():
-            structure.extra_info["psd_name"] = data["psd_name"]
+    #     Parameters:
+    #     -----------
+    #     structures_data: dictionary
+            
+    #         a dictionary containing all required data to build the pipeline structures.
 
-        return structure
+    #     Returns
+    #     -------
+    #     pipeline: Pipeline type
 
-    def _process_beam(self, line_id: int, data: dict):
+    #         pipeline data to...
+    #     """
 
-        if "section_parameters" not in data.keys():
-            return
+    #     structures = list()
+    #     self.pipeline.reset()
 
-        section_type_label = data.get("section_type_label", None)
-        section_parameters = data["section_parameters"]
+    #     lines_data = app().pulse_file.read_line_properties_from_file()
 
-        if section_type_label == "Rectangular section":
-            start = Point(*data['start_coords'])
-            end = Point(*data['end_coords'])
-            structure = RectangularBeam(
-                                        start, 
-                                        end,
-                                        width = section_parameters[0],
-                                        height = section_parameters[1],
-                                        thickness_width = (section_parameters[0] - section_parameters[2]) / 2,
-                                        thickness_height = (section_parameters[0] - section_parameters[3]) / 2,
-                                        )
+    #     if isinstance(lines_data, dict):
+    #         for _line_id, data in lines_data.items():
+
+    #             data : dict
+    #             line_id = int(_line_id)
+
+    #             structural_element_type = data.get("structural_element_type", None)
+    #             structure = None
+
+    #             if structural_element_type in ["pipe_1", None]:
+    #                 structure = self._process_pipe(line_id, data)
+
+    #             elif structural_element_type == "beam_1":
+    #                 structure = self._process_beam(line_id, data)
+
+    #             elif structural_element_type == "valve":
+    #                 structure = self._process_valve(line_id, data)
+
+    #             elif structural_element_type == "expansion_joint":
+    #                 structure = self._process_expansion_joint(line_id, data)
+
+    #             if "material_id" in data.keys():
+    #                 structure.extra_info["material_info"] = data['material_id']
+
+    #             if structure is not None:
+    #                 structures.append(structure)
+
+    #     self.pipeline.structures.clear()
+    #     if len(structures):
+    #         self.pipeline.add_structures(structures)
+    #         self.pipeline.commit()
+    #         self.pipeline.merge_coincident_points()
+    #         app().main_window.update_plots()
+
+    # def _process_pipe(self, line_id: int, data: dict):
+
+    #     if "section_parameters" in data.keys():
+    #         section_parameters = data["section_parameters"]
+    #     else:
+    #         section_parameters = [0.01, 0.001, 0, 0, 0 ,0]
+
+    #     if "section_type_label" in data.keys():
+    #         section_type_label = data["section_type_label"]
+    #     else:
+    #         section_type_label = "Pipe"
+
+    #     if len(section_parameters) == 6:
+
+    #         if data["structure_name"] == "pipe":
+    #             start = Point(*data['start_coords'])
+    #             end = Point(*data['end_coords'])
+    #             structure = Pipe(
+    #                              start, 
+    #                              end, 
+    #                              diameter = section_parameters[0],
+    #                              thickness = section_parameters[1],
+    #                             )
+
+    #         elif data["structure_name"] == "bend":
+
+    #             start = Point(*data['start_coords'])
+    #             end = Point(*data['end_coords'])
+    #             corner = Point(*data['corner_coords'])
+    #             curvature_radius = data['curvature_radius']
+    #             center_coords = data.get('center_coords')
+
+    #             structure = Bend(
+    #                              start, 
+    #                              end, 
+    #                              corner, 
+    #                              curvature_radius,
+    #                              center_coords = center_coords, 
+    #                              diameter = section_parameters[0],
+    #                              thickness = section_parameters[1]
+    #                             )
+
+    #             if center_coords is None:
+    #                 structure.center_coords = structure.center.coords()
+
+    #         elif data["structure_name"] == "flange":
+    #             start = Point(*data['start_coords'])
+    #             end = Point(*data['end_coords'])
+    #             structure = Flange(
+    #                                start, 
+    #                                end, 
+    #                                diameter = section_parameters[0],
+    #                                thickness = section_parameters[1],
+    #                                )
+
+    #     elif len(section_parameters) == 10:
+
+    #         start = Point(*data['start_coords'])
+    #         end = Point(*data['end_coords'])
+    #         structure = Reducer(
+    #                             start, 
+    #                             end, 
+    #                             initial_diameter = section_parameters[0],
+    #                             final_diameter = section_parameters[4],
+    #                             thickness = section_parameters[1],
+    #                             initial_offset_y = section_parameters[2],
+    #                             initial_offset_z = section_parameters[3],
+    #                             final_offset_y = section_parameters[6],
+    #                             final_offset_z = section_parameters[7],
+    #                             )
+
+    #     else:
+    #         return
+
+    #     structure.tag = line_id
+
+    #     section_info = {
+    #                     "section_type_label" : section_type_label,
+    #                     "section_parameters" : section_parameters
+    #                    }
+
+    #     structure.extra_info["cross_section_info"] = section_info
+    #     structure.extra_info["structural_element_type"] = "pipe_1"
         
-        elif section_type_label == "Circular section":
-            start = Point(*data['start_coords'])
-            end = Point(*data['end_coords'])
-            structure = CircularBeam(
-                                     start, 
-                                     end, 
-                                     diameter = section_parameters[0],
-                                     thickness = section_parameters[1],
-                                    )
+    #     if "psd_name" in data.keys():
+    #         structure.extra_info["psd_name"] = data["psd_name"]
 
-        elif section_type_label == "C-section":
-            start = Point(*data['start_coords'])
-            end = Point(*data['end_coords'])
-            structure = CBeam(
-                              start, 
-                              end, 
-                              height = section_parameters[0],
-                              width_1 = section_parameters[1],
-                              width_2 = section_parameters[3],
-                              thickness_1 = section_parameters[2],
-                              thickness_2 = section_parameters[4],
-                              thickness_3 = section_parameters[5],
-                              )
+    #     return structure
+
+    # def _process_beam(self, line_id: int, data: dict):
+
+    #     if "section_parameters" not in data.keys():
+    #         return
+
+    #     section_type_label = data.get("section_type_label", None)
+    #     section_parameters = data["section_parameters"]
+
+    #     if section_type_label == "Rectangular section":
+    #         start = Point(*data['start_coords'])
+    #         end = Point(*data['end_coords'])
+    #         structure = RectangularBeam(
+    #                                     start, 
+    #                                     end,
+    #                                     width = section_parameters[0],
+    #                                     height = section_parameters[1],
+    #                                     thickness_width = (section_parameters[0] - section_parameters[2]) / 2,
+    #                                     thickness_height = (section_parameters[0] - section_parameters[3]) / 2,
+    #                                     )
+        
+    #     elif section_type_label == "Circular section":
+    #         start = Point(*data['start_coords'])
+    #         end = Point(*data['end_coords'])
+    #         structure = CircularBeam(
+    #                                  start, 
+    #                                  end, 
+    #                                  diameter = section_parameters[0],
+    #                                  thickness = section_parameters[1],
+    #                                 )
+
+    #     elif section_type_label == "C-section":
+    #         start = Point(*data['start_coords'])
+    #         end = Point(*data['end_coords'])
+    #         structure = CBeam(
+    #                           start, 
+    #                           end, 
+    #                           height = section_parameters[0],
+    #                           width_1 = section_parameters[1],
+    #                           width_2 = section_parameters[3],
+    #                           thickness_1 = section_parameters[2],
+    #                           thickness_2 = section_parameters[4],
+    #                           thickness_3 = section_parameters[5],
+    #                           )
     
-        elif section_type_label == "I-section":
-            start = Point(*data['start_coords'])
-            end = Point(*data['end_coords'])
-            structure = IBeam(
-                              start, 
-                              end, 
-                              height = section_parameters[0],
-                              width_1 = section_parameters[1],
-                              width_2 = section_parameters[3],
-                              thickness_1 = section_parameters[2],
-                              thickness_2 = section_parameters[4],
-                              thickness_3 = section_parameters[5],
-                              )
+    #     elif section_type_label == "I-section":
+    #         start = Point(*data['start_coords'])
+    #         end = Point(*data['end_coords'])
+    #         structure = IBeam(
+    #                           start, 
+    #                           end, 
+    #                           height = section_parameters[0],
+    #                           width_1 = section_parameters[1],
+    #                           width_2 = section_parameters[3],
+    #                           thickness_1 = section_parameters[2],
+    #                           thickness_2 = section_parameters[4],
+    #                           thickness_3 = section_parameters[5],
+    #                           )
                         
-        elif section_type_label == "T-section":
-            start = Point(*data['start_coords'])
-            end = Point(*data['end_coords'])
-            structure = TBeam(
-                              start, 
-                              end, 
-                              height = section_parameters[0],
-                              width = section_parameters[1],
-                              thickness_1 = section_parameters[2],
-                              thickness_2 = section_parameters[3],
-                              )
+    #     elif section_type_label == "T-section":
+    #         start = Point(*data['start_coords'])
+    #         end = Point(*data['end_coords'])
+    #         structure = TBeam(
+    #                           start, 
+    #                           end, 
+    #                           height = section_parameters[0],
+    #                           width = section_parameters[1],
+    #                           thickness_1 = section_parameters[2],
+    #                           thickness_2 = section_parameters[3],
+    #                           )
 
-        else:
-            return
+    #     else:
+    #         return
 
-        structure.tag = line_id
+    #     structure.tag = line_id
 
-        section_properties = data["section_properties"]
-        section_info = {
-                        "section_type_label" : section_type_label,
-                        "section_parameters" : section_parameters,
-                        "section_properties" : section_properties
-                        }
+    #     section_properties = data["section_properties"]
+    #     section_info = {
+    #                     "section_type_label" : section_type_label,
+    #                     "section_parameters" : section_parameters,
+    #                     "section_properties" : section_properties
+    #                     }
 
-        structure.extra_info["cross_section_info"] = section_info
-        structure.extra_info["structural_element_type"] = "beam_1"
+    #     structure.extra_info["cross_section_info"] = section_info
+    #     structure.extra_info["structural_element_type"] = "beam_1"
 
-        return structure
+    #     return structure
 
-    def _process_valve(self, line_id: int, data: dict):
+    # def _process_valve(self, line_id: int, data: dict):
 
-        start = Point(*data['start_coords'])
-        end = Point(*data['end_coords'])
+    #     start = Point(*data['start_coords'])
+    #     end = Point(*data['end_coords'])
 
-        valve_info = data["valve_info"]
-        d_out, t, *_ = valve_info["body_section_parameters"]
+    #     valve_info = data["valve_info"]
+    #     d_out, t, *_ = valve_info["body_section_parameters"]
+    #     flange_outer_diameter, *_ = valve_info["flange_section_parameters"]
+    #     flange_length = valve_info["flange_length"]
 
-        structure = Valve(
-                          start, 
-                          end,
-                          diameter = d_out,
-                          thickness = t
-                          )
+    #     structure = Valve(
+    #         start, 
+    #         end,
+    #         diameter = d_out,
+    #         thickness = t,
+    #         flange_outer_diameter = flange_outer_diameter,
+    #         flange_length = flange_length,                          
+    #     )
 
-        structure.tag = line_id
+    #     structure.tag = line_id
 
-        section_info = {"section_type_label" : "Valve"}
-        structure.extra_info["cross_section_info"] = section_info
+    #     section_info = {"section_type_label" : "Valve"}
+    #     structure.extra_info["cross_section_info"] = section_info
 
-        structure.extra_info["valve_info"] = valve_info
-        structure.extra_info["structural_element_type"] = "valve"
+    #     structure.extra_info["valve_info"] = valve_info
+    #     structure.extra_info["structural_element_type"] = "valve"
 
-        return structure
+    #     return structure
 
-    def _process_expansion_joint(self, line_id: int, data: dict):
+    # def _process_expansion_joint(self, line_id: int, data: dict):
 
-        start = Point(*data['start_coords'])
-        end = Point(*data['end_coords'])
+    #     start = Point(*data['start_coords'])
+    #     end = Point(*data['end_coords'])
 
-        expansion_joint_info = data["expansion_joint_info"]
-        diameter  = expansion_joint_info["effective_diameter"]
+    #     expansion_joint_info = data["expansion_joint_info"]
+    #     diameter  = expansion_joint_info["effective_diameter"]
 
-        structure = ExpansionJoint(
-                                   start, 
-                                   end,
-                                   diameter = diameter,
-                                   thickness = 0.05*diameter
-                                   )
+    #     structure = ExpansionJoint(
+    #                                start, 
+    #                                end,
+    #                                diameter = diameter,
+    #                                thickness = 0.05*diameter
+    #                                )
 
-        structure.tag = line_id
+    #     structure.tag = line_id
 
-        section_info = {"section_type_label" : "Expansion joint"}
-        structure.extra_info["cross_section_info"] = section_info
+    #     section_info = {"section_type_label" : "Expansion joint"}
+    #     structure.extra_info["cross_section_info"] = section_info
 
-        structure.extra_info["expansion_joint_info"] = expansion_joint_info
-        structure.extra_info["structural_element_type"] = "expansion_joint"
+    #     structure.extra_info["expansion_joint_info"] = expansion_joint_info
+    #     structure.extra_info["structural_element_type"] = "expansion_joint"
 
-        return structure
+    #     return structure
 
     def export_cad_file(self, path):
         self.create_geometry()
@@ -531,7 +714,8 @@ class GeometryHandler:
         self.points_coords = dict()
         for point in points:
             coords = gmsh.model.getValue(*point, [])
-            self.points_coords[point[1]] = np.round(self.conv_unit(coords), 5)
+            self.points_coords[point[1]] = self.conv_unit(coords)
+            # self.points_coords[point[1]] = np.round(self.conv_unit(coords), 5)
 
         self.points_coords_cache = self.points_coords.copy()
         self.map_points_according_to_coordinates()
@@ -607,6 +791,19 @@ class GeometryHandler:
                         self.merge_near_points(end_coords)
                         end_coords = self.get_point_coords(end_point)
 
+                    Ps = gmsh.model.getValue(0, start_point, [])
+                    Pe = gmsh.model.getValue(0, end_point, [])
+
+                    t_start = gmsh.model.getParametrization(1, line[1], Ps)
+                    t_end = gmsh.model.getParametrization(1, line[1], Pe)
+                    t_middle = (t_start + t_end) / 2
+
+                    P1 = gmsh.model.getValue(1, line[1], t_start)
+                    P2 = gmsh.model.getValue(1, line[1], t_middle)
+                    P3 = gmsh.model.getValue(1, line[1], t_end)
+                    P0 = self.get_center_coordinates_from_3p_circle(P1, P2, P3)
+                    center_coords = self.conv_unit(P0)
+
                     corner_coords = self.get_corner_point_coords(start_point, end_point)
                     # center_coords = self.get_center_point_coords(start_point, end_point)
 
@@ -619,7 +816,7 @@ class GeometryHandler:
                     radius = self.get_radius(corner_coords, start_point, end_point)
 
                     corner = Point(*corner_coords)
-                    pipe = Bend(start, end, corner, radius)
+                    pipe = Bend(start, end, corner, radius, center_coords=center_coords)
 
                     curved_structures.append(pipe)
 
@@ -673,13 +870,31 @@ class GeometryHandler:
 
         return straight_structures
 
+    def get_center_coordinates_from_3p_circle(self, P1: np.ndarray, P2: np.ndarray, P3: np.ndarray):
+
+        v1 = P2 - P1
+        v2 = P3 - P1
+
+        v11 = np.dot(v1, v1)
+        v22 = np.dot(v2, v2)
+        v12 = np.dot(v1, v2)
+
+        b = (1/(2*(v11*v22 - v12**2)))
+
+        k1 = b * v22*(v11 - v12)
+        k2 = b * v11*(v22 - v12)
+
+        P0 = P1 + k1*v1 + k2*v2
+
+        return P0
+
     def map_points_according_to_coordinates(self):
         """ This method maps points according to its nodal coordinates.
         """
         self.points_map  = defaultdict(list)
         for index, coords in self.points_coords.items():
-            # key = str(list(np.round(coords, 8)))
-            key = str(list(coords))
+            # key = str(list(coords))
+            key = str(list(np.round(coords, 8)))
             self.points_map[key].append(index)
 
     def get_point_coords(self, point):
@@ -688,7 +903,7 @@ class GeometryHandler:
     def get_point_by_coords(self, coords):
         """ This method returns the points with 'coords' nodal coordinates. 
         """
-        key = str(list(np.round(coords, 5)))
+        key = str(list(np.round(coords, 8)))
         try:
             points = self.points_map[key]
             return points
@@ -734,7 +949,7 @@ class GeometryHandler:
         if np.round(np.linalg.norm(cross_ab), 8) != 0:
             s = np.dot(cross_cb, cross_ab)/(((np.linalg.norm(cross_ab)))**2)
             Xc = X1 + a*s
-            return np.round(Xc, 5)
+            return np.round(Xc, 10)
         else:
             return None
 
@@ -939,38 +1154,51 @@ class GeometryHandler:
         data = dict()
         # data["structure name"] = structure.name
 
-        if isinstance(structure, Bend):
-            data["structure_name"] = self.get_structure_name(structure)
+        if isinstance(structure, Fillet):
+            data["structure_name"] = structure.name()
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
+            # print("-> ", structure.center_coords)
+
+            if structure.center_coords is None:
+                data["center_coords"] = get_data(structure.center.coords())
+            else:
+                data["center_coords"] = get_data(structure.center_coords)
+
             data["corner_coords"] = get_data(structure.corner.coords())
-            data["curvature_radius"] = np.round(structure.curvature, 8)
+            data["curvature_radius"] = np.round(structure.curvature_radius, 8)
 
         elif isinstance(structure, Pipe | Beam | Reducer | Flange | Valve | ExpansionJoint):
-            data["structure_name"] = self.get_structure_name(structure)
+            data["structure_name"] = structure.name()
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
+        
+        elif isinstance(structure, Arc):
+            data["structure_name"] = structure.name()
+            data["start_coords"] = get_data(structure.start.coords())
+            data["end_coords"] = get_data(structure.end.coords())
+            data["mid_coords"] = get_data(structure.mid.coords())
 
         return data
 
-    def get_structure_name(self, structure):
+    # def get_structure_name(self, structure):
 
-        # temporary solution, replace for structure.name
+    #     # temporary solution, replace for structure.name
 
-        if isinstance(structure, Pipe):
-            return "pipe"
-        elif isinstance(structure, Bend):
-            return "bend"
-        elif isinstance(structure, Flange):
-            return "flange"
-        elif isinstance(structure, Reducer):
-            return "reducer"
-        elif isinstance(structure, ExpansionJoint):
-            return "expansion joint"
-        elif isinstance(structure, Valve):
-            return "valve"
-        else:
-            return "undefined"
+    #     if isinstance(structure, Pipe):
+    #         return "pipe"
+    #     elif isinstance(structure, Bend):
+    #         return "bend"
+    #     elif isinstance(structure, Flange):
+    #         return "flange"
+    #     elif isinstance(structure, Reducer):
+    #         return "reducer"
+    #     elif isinstance(structure, ExpansionJoint):
+    #         return "expansion joint"
+    #     elif isinstance(structure, Valve):
+    #         return "valve"
+    #     else:
+    #         return "undefined"
 
     def get_dummy_pipe_section_info(self):
         section_info = dict()

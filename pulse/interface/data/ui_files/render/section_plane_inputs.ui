@@ -906,6 +906,9 @@
         <property name="text">
          <string>Apply</string>
         </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="1" column="0">
@@ -937,6 +940,24 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>relative_plane_position_x_slider</tabstop>
+  <tabstop>relative_plane_position_x_spinbox</tabstop>
+  <tabstop>relative_plane_position_y_slider</tabstop>
+  <tabstop>relative_plane_position_y_spinbox</tabstop>
+  <tabstop>relative_plane_position_z_slider</tabstop>
+  <tabstop>relative_plane_position_z_spinbox</tabstop>
+  <tabstop>plane_rotation_x_slider</tabstop>
+  <tabstop>plane_rotation_x_spinbox</tabstop>
+  <tabstop>plane_rotation_y_slider</tabstop>
+  <tabstop>plane_rotation_y_spinbox</tabstop>
+  <tabstop>plane_rotation_z_slider</tabstop>
+  <tabstop>plane_rotation_z_spinbox</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_invert</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_apply</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

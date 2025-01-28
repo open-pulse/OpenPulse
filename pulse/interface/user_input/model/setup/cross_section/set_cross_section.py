@@ -7,7 +7,7 @@ from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.model.cross_section import CrossSection
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
 
 from collections import defaultdict
 
@@ -551,10 +551,19 @@ class SetCrossSectionInput(QDialog):
                             self.properties._remove_element_property(property, element_id)
                             remove_data_from_elements[property].append(element_id)
 
+            prop_labels = [
+                            "acoustic_pressure", 
+                            "volume_velocity", 
+                            "specific_impedance", 
+                            "radiation_impedance", 
+                            "reciprocating_compressor_excitation", 
+                            "reciprocating_pump_excitation"
+                           ]
+
             line_nodes = self.preprocessor.mesh.nodes_from_line[line_id]
             for node_id in line_nodes:
                 for key in aux_n.items():
-                    for property in ["acoustic_pressure", "volume_velocity", "specific_impedance", "radiation_impedance", "compressor_excitation"]:
+                    for property in prop_labels:
                         if key == (property, node_id):
                             self.properties._remove_nodal_property(property, node_id)
                             remove_data_from_nodes[property].append(node_id)
