@@ -1,4 +1,5 @@
 import sys
+import os
 
 from PySide6.QtWidgets import QAbstractButton, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PySide6.QtCore import Qt, Signal, QEvent, QPoint
@@ -270,7 +271,11 @@ class MainWindow(QMainWindow):
         print(f"Time to process D: {round(dt, 6)} [s]")
 
         if len(sys.argv) > 1:
-            self.open_project(Path(sys.argv[1]))
+            path = Path(sys.argv[1])
+            if path.exists():
+                self.open_project(path)
+            else:
+                self.load_recent_project()
 
         elif not self.is_temporary_folder_empty():
             self.recovery_dialog()
