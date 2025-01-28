@@ -31,27 +31,32 @@ class CoupledHarmonicAnalysisInput(QDialog):
         self.index = -1
 
     def _define_qt_variables(self):
+
         # QComboBox
         self.comboBox_method : QComboBox
+
         # QLabel
         self.label_method : QLabel
         self.label_method.setText("Harmonic Analysis - Coupled")
+
         # QPushButton
-        self.pushButton_go_to_analysis_setup : QPushButton
+        self.pushButton_cancel : QPushButton
+        self.pushButton_proceed : QPushButton
     
     def _create_connections(self):
-        self.pushButton_go_to_analysis_setup.clicked.connect(self.button_clicked)
+        self.pushButton_cancel.clicked.connect(self.close_window)
+        self.pushButton_proceed.clicked.connect(self.proceed_callback)
 
-    def button_clicked(self):
-        self.check()
-
-    def check(self):
+    def proceed_callback(self):
         self.index = self.comboBox_method.currentIndex()
         self.close()
 
+    def close_window(self):
+        self.index = -1
+        self.close()    
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
+            self.proceed_callback()
         elif event.key() == Qt.Key_Escape:
-            self.index = -1
-            self.close()
+            self.close_window()

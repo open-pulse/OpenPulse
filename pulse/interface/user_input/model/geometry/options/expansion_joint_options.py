@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
-from opps.model import ExpansionJoint
+from pulse.editor.structures import ExpansionJoint
 
 from molde.stylesheets import set_qproperty
 
@@ -18,30 +18,17 @@ from pulse.interface.user_input.model.setup.structural.expansion_joint_input imp
 window_title = "Error"
 
 class ExpansionJointOptions(StructureOptions):
-    def __init__(self, geometry_designer_widget: "GeometryDesignerWidget") -> None:
-        super().__init__()
+    structure_type = ExpansionJoint
 
-        self.geometry_designer_widget = geometry_designer_widget
-        self.cross_section_widget = self.geometry_designer_widget.cross_section_widget
-
-        self.structure_type = ExpansionJoint
-        self.expansion_joint_info = dict()
-        self.update_permissions()
-    
-    def xyz_callback(self, xyz):
-        kwargs = self._get_kwargs()
-        if kwargs is None:
+    def get_kwargs(self) -> dict:
+        if self.structure_info is None:
             return
 
-        self.pipeline.dismiss()
-        self.pipeline.clear_structure_selection()
-        self.pipeline.add_expansion_joint(xyz, **kwargs)
-
-    def attach_callback(self):
-        kwargs = self._get_kwargs()
-        if kwargs is None:
-            return
-        self.pipeline.connect_expansion_joints(**kwargs)
+        return dict(
+            diameter = self.structure_info.get("effective_diameter", 0),
+            thickness = 0,
+            extra_info = self._get_extra_info(),
+        )
 
     def configure_structure(self):
         app().main_window.close_dialogs()
@@ -51,30 +38,23 @@ class ExpansionJointOptions(StructureOptions):
         app().main_window.set_input_widget(None)
 
         if not self.expansion_joint_input.complete:
-            self.expansion_joint_info = None
+            self.structure_info = None
             return
 
-        self.expansion_joint_info = self.expansion_joint_input.expansion_joint_info
+        self.structure_info = self.expansion_joint_input.expansion_joint_info
         self.configure_section_of_selected()
         self.update_permissions()
 
     def update_permissions(self):
-        if self.expansion_joint_info:
+        if self.structure_info:
             set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
             enable = True
         else:
             set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
             enable = False
 
-        enable_attach = len(self.pipeline.selected_points) >= 2
-        enable_add = len(self.pipeline.staged_structures) + len(self.pipeline.staged_points) >= 1
-        enable_delete = len(self.pipeline.selected_structures) + len(self.pipeline.selected_points) >= 1
-
-        self.geometry_designer_widget.configure_button.setEnabled(True)
-        self.geometry_designer_widget.frame_bounding_box_sizes.setEnabled(enable)
-        self.geometry_designer_widget.attach_button.setEnabled(enable_attach)
-        self.geometry_designer_widget.add_button.setEnabled(enable_add)
-        self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
+        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
+        super().update_permissions(enable)
 
     def load_data_from_pipe_section(self):
 
@@ -96,19 +76,9 @@ class ExpansionJointOptions(StructureOptions):
             message = str(error_log)
             PrintMessageInput([window_title, title, message])
 
-    def _get_kwargs(self) -> dict:
-        if self.expansion_joint_info is None:
-            return
-
-        return dict(
-            diameter = self.expansion_joint_info.get("effective_diameter", 0),
-            thickness = 0,
-            extra_info = self._get_extra_info(),
-        )
-
     def _get_extra_info(self):
         return dict(
             structural_element_type = "expansion_joint",
-            expansion_joint_info = deepcopy(self.expansion_joint_info),
+            expansion_joint_info = deepcopy(self.structure_info),
             material_info = self.geometry_designer_widget.current_material_info,
         )

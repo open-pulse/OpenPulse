@@ -11,6 +11,7 @@ class EditorStagedPointsActor(GhostActor):
     def __init__(self):
         super().__init__()
         self.points = app().project.pipeline.staged_points
+        self.user_preferences = app().main_window.config.user_preferences
         self.build()
 
     def build(self):
@@ -20,6 +21,7 @@ class EditorStagedPointsActor(GhostActor):
         mapper.SetInputData(data)
         self.SetMapper(mapper)
 
-        set_polydata_colors(data, (255, 180, 50))
+        staged_points_color = self.user_preferences.nodes_points_color.to_rgb()
+        set_polydata_colors(data, staged_points_color)
         self.make_ghost()
         self.GetProperty().SetPointSize(8)

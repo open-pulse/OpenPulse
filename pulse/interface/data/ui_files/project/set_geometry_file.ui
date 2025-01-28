@@ -46,6 +46,13 @@
      <height>320</height>
     </size>
    </property>
+   <property name="font">
+    <font>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
+    </font>
+   </property>
    <property name="frameShape">
     <enum>QFrame::Box</enum>
    </property>
@@ -78,11 +85,10 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
       <pointsize>14</pointsize>
-      <weight>75</weight>
+      <weight>50</weight>
       <italic>false</italic>
-      <bold>true</bold>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -118,11 +124,10 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
       <pointsize>12</pointsize>
-      <weight>75</weight>
+      <weight>50</weight>
       <italic>false</italic>
-      <bold>true</bold>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">
@@ -158,10 +163,9 @@
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
       <pointsize>10</pointsize>
       <weight>50</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>false</bold>
      </font>
     </property>
@@ -208,11 +212,10 @@ background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
       <pointsize>12</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">
@@ -245,10 +248,9 @@ background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
       <pointsize>10</pointsize>
       <weight>50</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>false</bold>
      </font>
     </property>
@@ -283,11 +285,10 @@ background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
       <pointsize>12</pointsize>
-      <weight>75</weight>
+      <weight>50</weight>
       <italic>false</italic>
-      <bold>true</bold>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">
@@ -320,15 +321,17 @@ background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
       <pointsize>12</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">
      <string>Cancel</string>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_confirm">
@@ -354,15 +357,20 @@ background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="font">
      <font>
-      <family>Arial</family>
       <pointsize>12</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">
      <string>Confirm</string>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
+    </property>
+    <property name="default">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QFrame" name="frame_2">
@@ -385,6 +393,13 @@ background-color: rgb(255, 255, 255);</string>
       <width>420</width>
       <height>88</height>
      </size>
+    </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -418,11 +433,10 @@ background-color: rgb(255, 255, 255);</string>
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
        <pointsize>11</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="styleSheet">
@@ -456,11 +470,10 @@ color: rgb(0, 0, 255);</string>
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
        <pointsize>12</pointsize>
-       <weight>75</weight>
+       <weight>50</weight>
        <italic>false</italic>
-       <bold>true</bold>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -496,11 +509,10 @@ color: rgb(0, 0, 255);</string>
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
        <pointsize>11</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="styleSheet">
@@ -537,11 +549,10 @@ color: rgb(0, 0, 255);</string>
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
        <pointsize>12</pointsize>
-       <weight>75</weight>
+       <weight>50</weight>
        <italic>false</italic>
-       <bold>true</bold>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -573,6 +584,13 @@ color: rgb(0, 0, 255);</string>
       <height>30</height>
      </size>
     </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
+    </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
     </property>
@@ -602,11 +620,10 @@ color: rgb(0, 0, 255);</string>
      </property>
      <property name="font">
       <font>
-       <family>Arial</family>
        <pointsize>12</pointsize>
-       <weight>75</weight>
+       <weight>50</weight>
        <italic>false</italic>
-       <bold>true</bold>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -619,6 +636,15 @@ color: rgb(0, 0, 255);</string>
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_current_geometry_file_path</tabstop>
+  <tabstop>lineEdit_new_geometry_file_path</tabstop>
+  <tabstop>toolButton_search_new_geometry_file</tabstop>
+  <tabstop>lineEdit_element_size</tabstop>
+  <tabstop>lineEdit_geometry_tolerance</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_confirm</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -1183,6 +1183,16 @@ QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 24
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>treeWidget_prescribed_dofs</tabstop>
+  <tabstop>treeWidget_masses</tabstop>
+  <tabstop>treeWidget_constrained_dofs</tabstop>
+  <tabstop>treeWidget_springs</tabstop>
+  <tabstop>treeWidget_nodal_loads</tabstop>
+  <tabstop>treeWidget_dampers</tabstop>
+  <tabstop>lineEdit_number_nodes</tabstop>
+  <tabstop>lineEdit_number_elements</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

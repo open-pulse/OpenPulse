@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
+    <width>460</width>
     <height>360</height>
    </rect>
   </property>
@@ -21,13 +21,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>420</width>
+    <width>460</width>
     <height>360</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>420</width>
+    <width>460</width>
     <height>360</height>
    </size>
   </property>
@@ -73,7 +73,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>420</width>
+       <width>16777215</width>
        <height>48</height>
       </size>
      </property>
@@ -122,7 +122,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>420</width>
+       <width>16777215</width>
        <height>480</height>
       </size>
      </property>
@@ -276,7 +276,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>420</width>
+          <width>440</width>
           <height>16777215</height>
          </size>
         </property>
@@ -514,7 +514,7 @@
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>40</width>
+                  <width>60</width>
                   <height>30</height>
                  </size>
                 </property>
@@ -888,6 +888,9 @@
                <property name="autoDefault">
                 <bool>false</bool>
                </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -949,6 +952,63 @@
           <property name="spacing">
            <number>2</number>
           </property>
+          <item row="0" column="0">
+           <widget class="QTreeWidget" name="treeWidget_nodal_info">
+            <property name="minimumSize">
+             <size>
+              <width>320</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>600</width>
+              <height>200</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>MS Shell Dlg 2</family>
+              <pointsize>10</pointsize>
+              <italic>false</italic>
+             </font>
+            </property>
+            <property name="toolTip">
+             <string>Select a face to remove the previously attributed boundary condition.</string>
+            </property>
+            <property name="indentation">
+             <number>1</number>
+            </property>
+            <property name="headerHidden">
+             <bool>false</bool>
+            </property>
+            <attribute name="headerHighlightSections">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="headerShowSortIndicator" stdset="0">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="headerStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Nodes</string>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>DOFs</string>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QFrame" name="frame_buttons_remove">
             <property name="minimumSize">
@@ -1014,6 +1074,9 @@
                <property name="text">
                 <string>Reset</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="1">
@@ -1045,66 +1108,15 @@
                <property name="text">
                 <string>Remove</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="status" stdset="0">
+                <string>danger</string>
+               </property>
               </widget>
              </item>
             </layout>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QTreeWidget" name="treeWidget_nodal_info">
-            <property name="minimumSize">
-             <size>
-              <width>320</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>600</width>
-              <height>200</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>MS Shell Dlg 2</family>
-              <pointsize>10</pointsize>
-              <italic>false</italic>
-             </font>
-            </property>
-            <property name="toolTip">
-             <string>Select a face to remove the previously attributed boundary condition.</string>
-            </property>
-            <property name="indentation">
-             <number>1</number>
-            </property>
-            <property name="headerHidden">
-             <bool>false</bool>
-            </property>
-            <attribute name="headerHighlightSections">
-             <bool>false</bool>
-            </attribute>
-            <attribute name="headerShowSortIndicator" stdset="0">
-             <bool>false</bool>
-            </attribute>
-            <attribute name="headerStretchLastSection">
-             <bool>true</bool>
-            </attribute>
-            <column>
-             <property name="text">
-              <string>Nodes</string>
-             </property>
-             <property name="textAlignment">
-              <set>AlignCenter</set>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>DOFs</string>
-             </property>
-             <property name="textAlignment">
-              <set>AlignCenter</set>
-             </property>
-            </column>
            </widget>
           </item>
          </layout>
@@ -1116,6 +1128,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>tabWidget_inputs</tabstop>
+  <tabstop>lineEdit_real_value</tabstop>
+  <tabstop>lineEdit_imag_value</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+  <tabstop>treeWidget_nodal_info</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>lineEdit_table_path</tabstop>
+  <tabstop>pushButton_search</tabstop>
+  <tabstop>spinBox_skip_wors</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

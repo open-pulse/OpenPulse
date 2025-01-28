@@ -1,4 +1,4 @@
-# fmt: off
+import sys
 
 from PyQt5.QtWidgets import QAbstractButton, QAction, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
@@ -6,23 +6,25 @@ from PyQt5.QtGui import QColor, QCloseEvent, QCursor
 from PyQt5 import uic
 
 from molde.render_widgets import CommonRenderWidget
+from molde import stylesheets
+from molde.colors import color_names
 
+# TODO: remove this import
 from pulse import *
+
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
+from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.handler.pcf_file_io import PCFFileIO
+from pulse.interface.menu.model_setup_widget import ModelSetupWidget
+from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
+from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
 from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
-from pulse.interface.others.status_bar import StatusBar
-from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
-from pulse.interface.menu.model_setup_widget import ModelSetupWidget
-from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
-from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.handler.pcf_file_io import PCFFileIO
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
-from pulse.interface.utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
@@ -31,9 +33,10 @@ from pulse.interface.user_input.project.save_project_data_selector import SavePr
 from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.loading_window import LoadingWindow
+from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
+from pulse.utils.interface_utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
 
 import logging
-import qdarktheme
 import os
 
 from functools import partial
@@ -60,9 +63,9 @@ class MainWindow(QMainWindow):
 
         self.visualization_filter = VisualizationFilter.all_true()
         self.selection_filter = SelectionFilter.all_false()
-
+        
         self.ui_dir = UI_DIR
-        self.config = app().config
+        self.config= app().config
         self.project = app().project
 
         self._initialize()
@@ -71,6 +74,7 @@ class MainWindow(QMainWindow):
 
         self.dialog = None
         self.input_ui = None
+        self.force_close = False
 
         self.model_setup_widget = None
         self.results_viewer_wigdet = None
@@ -82,6 +86,7 @@ class MainWindow(QMainWindow):
         self.project_data_modified = False
 
     def _load_stylesheets(self):
+        return
         stylesheets = list()
         common_dir = QSS_DIR / "common_theme"
         
@@ -146,10 +151,9 @@ class MainWindow(QMainWindow):
         self.action_export_piping: QAction
         self.action_user_preferences: QAction
         self.action_pulsation_suppression_device_editor: QAction
+        self.action_pulsation_damper_editor: QAction
         self.action_section_plane: QAction
         self.action_exit: QAction
-        #TODO: implement a new user preferences
-        self.action_user_preferences.setVisible(False)
 
         # QMenu
         self.menu_recent: QMenu
@@ -219,7 +223,7 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
 
         self.splitter.setSizes([100, 400])
-        self.splitter.widget(0).setMinimumWidth(420)
+        self.splitter.widget(0).setMinimumWidth(360)
         self._update_visualization()
 
         self.model_and_analysis_items = self.model_setup_widget.model_setup_items
@@ -264,8 +268,12 @@ class MainWindow(QMainWindow):
         dt = time() - t0
         print(f"Time to process D: {round(dt, 6)} [s]")
 
-        if not self.is_temporary_folder_empty():
+        if len(sys.argv) > 1:
+            self.open_project(Path(sys.argv[1]))
+
+        elif not self.is_temporary_folder_empty():
             self.recovery_dialog()
+        
         else:
             self.load_recent_project()
  
@@ -316,7 +324,7 @@ class MainWindow(QMainWindow):
 
     def export_geometry(self):
 
-        last_path = app().config.get_last_folder_for("exported geometry folder")
+        last_path = self.config.get_last_folder_for("exported_geometry_folder")
         if last_path is None:
             last_path = str(Path().home())
 
@@ -477,10 +485,7 @@ class MainWindow(QMainWindow):
         # t0 = time()
         self.mesh_toolbar.pushButton_generate_mesh.setDisabled(True)
 
-        if self.config.open_last_project and self.config.have_recent_projects():
-            self.open_project(self.config.getMostRecentProjectDir())
-
-        elif self.get_started():
+        if self.get_started():
             self.action_front_view_callback()
             # self._update_recent_projects()
 
@@ -585,6 +590,8 @@ class MainWindow(QMainWindow):
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
 
+        self.splitter.widget(0).setMinimumWidth(420)
+
     def action_model_setup_workspace_callback(self):
 
         self.mesh_toolbar.setDisabled(False)
@@ -598,6 +605,8 @@ class MainWindow(QMainWindow):
 
         self.setup_widgets_stack.setCurrentWidget(self.model_setup_widget)
         self.render_widgets_stack.setCurrentWidget(self.mesh_widget)
+
+        self.splitter.widget(0).setMinimumWidth(360)
 
     def action_results_workspace_callback(self):
 
@@ -647,7 +656,6 @@ class MainWindow(QMainWindow):
         self.use_geometry_workspace()
     
     def action_user_preferences_callback(self):
-        return
         self.input_ui.mesh_setup_visibility()
 
     def action_exit_callback(self):
@@ -655,6 +663,9 @@ class MainWindow(QMainWindow):
 
     def action_pulsation_suppression_device_editor_callback(self):
         self.input_ui.pulsation_suppression_device_editor()
+
+    def action_pulsation_damper_editor_callback(self):
+        self.input_ui.pulsation_damper_editor()
 
     def action_plot_lines_callback(self):
         if not self.action_model_setup_workspace.isChecked():
@@ -817,69 +828,56 @@ class MainWindow(QMainWindow):
         pass
 
     def load_user_preferences(self):
-        self.update_theme = False
-        self.user_preferences = self.config.get_user_preferences()
-        if "interface theme" in self.user_preferences:
-            if self.user_preferences["interface theme"] == "dark":
-                self.action_set_dark_theme_callback()
-            else:
-                self.action_set_light_theme_callback()
-        else:
-            self.action_set_dark_theme_callback()
-        self.update_theme = True
+        self.config.load_config_file()
+        self.set_theme()
 
     def action_set_dark_theme_callback(self):
-        self.set_theme("dark")
+        self.config.user_preferences.set_dark_theme()
+        self.set_theme()
+        self.config.update_config_file()
+
+        self.update_plots()
 
     def action_set_light_theme_callback(self):
-        self.set_theme("light")
+        self.config.user_preferences.set_light_theme()
+        self.set_theme()
+        self.config.update_config_file()
+        
+        self.update_plots()
+
+    def set_theme(self):
+        theme = self.config.user_preferences.interface_theme
+
+        # if theme not in ["light", "dark"]:
+        #     return
     
-    def set_theme(self, theme):
-        if theme not in ["light", "dark"]:
-            return
-    
-        self.update_themes_in_file(theme)
+        # self.update_themes_in_file()
         if self.interface_theme == theme:
             return
-        
+
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
-            self.icon_color = QColor("#5f9af4")
+            self.icon_color = QColor(color_names.BLUE_6.to_hex())
 
         elif theme == "light":
-            self.icon_color = QColor("#1a73e8")
+            self.icon_color = QColor(color_names.BLUE_4.to_hex())
     
         self.interface_theme = theme
-        qdarktheme.setup_theme(theme, custom_colors=self.custom_colors)
+        stylesheets.set_theme(theme)
         self.theme_changed.emit(theme)
         
         self.action_set_light_theme.setDisabled(theme == "light")
         self.action_set_dark_theme.setDisabled(theme == "dark")
-        self._load_stylesheets()
+        self.action_user_preferences.setDisabled(0)
 
         # paint the icons of every children widget
         widgets = self.findChildren((QAbstractButton, QAction))
         icons.change_icon_color_for_widgets(widgets, self.icon_color)
 
-        # TODO: Connect this via signaling
-        self.geometry_widget.set_theme(theme)
-
-    def update_themes_in_file(self, theme):
-        if self.update_theme:
-            self.user_preferences = self.config.get_user_preferences()
-            self.user_preferences["interface theme"] = theme
-            self.user_preferences["background color"] = theme
-            if theme == "dark":
-                self.user_preferences["bottom font color"] = (255, 255, 255)
-            else:
-                self.user_preferences["bottom font color"] = (0, 0, 0)
-            self.config.write_user_preferences_in_file(self.user_preferences)
-            # self.blah.set_user_interface_preferences(self.user_preferences)
-
     def savePNG_call(self):
 
-        last_path = app().config.get_last_folder_for("exported image folder")
+        last_path = self.config.get_last_folder_for("exported_image_folder")
         if last_path is None:
             last_path = str(Path().home())
 
@@ -912,6 +910,7 @@ class MainWindow(QMainWindow):
                                     )
 
         if close == QMessageBox.Cancel:
+            self.force_close = False
             return True
 
         elif close == QMessageBox.Save:
@@ -949,8 +948,9 @@ class MainWindow(QMainWindow):
 
             if project_path is not None:
 
-                app().config.add_recent_file(project_path)
-                app().config.write_last_folder_path_in_file("project folder", project_path)
+            
+                self.config.add_recent_file(project_path)
+                self.config.write_last_folder_path_in_file("project_folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
 
                 if app().loader.check_file_version():
@@ -982,7 +982,8 @@ class MainWindow(QMainWindow):
 
     def open_project_dialog(self):
 
-        last_path = app().config.get_last_folder_for("project folder")
+        last_path = self.config.get_last_folder_for("project_folder")
+    
         if last_path is None:
             last_path = str(Path().home())
 
@@ -1005,11 +1006,10 @@ class MainWindow(QMainWindow):
             return True
 
     def save_project_as_dialog(self):
-
         obj = SaveProjectDataSelector()
         if obj.complete:
 
-            last_path = app().config.get_last_folder_for("project folder")
+            last_path = self.config.get_last_folder_for("project_folder")
             if last_path is None:
                 last_path = str(Path.home())
 
@@ -1033,19 +1033,36 @@ class MainWindow(QMainWindow):
         return obj.complete
 
     def save_project_as(self, path):
-        path = Path(path)
-        self.project.name = path.stem
-        self.project.save_path = path
-        app().pulse_file.write_thumbnail()
-        app().config.add_recent_file(path)
-        app().config.write_last_folder_path_in_file("project folder", path)
-        # self.project_menu.update_recents_menu()
-        copy(TEMP_PROJECT_FILE, path)
-        self.update_window_title(path)
-        self.project_data_modified = False
 
-        from datetime import datetime
-        print(f"The project data has been saved @ {datetime.now()}")
+        def save_data(path):
+
+            logging.info("Saving the project data... [10%]")
+
+            from time import sleep
+            from datetime import datetime
+
+            path = Path(path)
+            self.project.name = path.stem
+            self.project.save_path = path
+
+            logging.info("Saving the project data... [20%]")
+            app().pulse_file.write_thumbnail()
+            self.config.add_recent_file(path)
+
+            logging.info("Saving the project data... [40%]")
+            self.config.write_last_folder_path_in_file("project_folder", path)
+
+            logging.info("Saving the project data... [75%]")
+            # self.project_menu.update_recents_menu()
+            copy(TEMP_PROJECT_FILE, path)
+            self.update_window_title(path)
+            self.project_data_modified = False
+
+            logging.info("The project data has been saved. [100%]")
+            print(f"The project data has been saved @ {datetime.now()}")
+            sleep(0.5)
+
+        LoadingWindow(save_data).run(path)
 
     def update_window_title(self, project_path : str | Path):
         if isinstance(project_path, str):
@@ -1055,6 +1072,7 @@ class MainWindow(QMainWindow):
 
     def set_input_widget(self, dialog):
         self.dialog = dialog
+        return
         if isinstance(self.dialog, QDialog):
             self.dialog.setStyleSheet(self.combined_stylesheet)
 
@@ -1065,6 +1083,7 @@ class MainWindow(QMainWindow):
 
     def close_app(self):
 
+        self.force_close = True
         self.close_dialogs()
 
         condition_1 = self.project.save_path is None
@@ -1085,13 +1104,14 @@ class MainWindow(QMainWindow):
                                         )
 
             if close == QMessageBox.No:
+                self.force_close = False
                 return
 
         # self.user_config.save()
         self.reset_temporary_folder()
         self.mesh_widget.render_interactor.Finalize()
         self.results_widget.render_interactor.Finalize()
-        exit()
+        app().quit()
 
     def eventFilter(self, obj, event):
         modifiers = QApplication.keyboardModifiers()
@@ -1119,5 +1139,3 @@ def create_new_folder(path : Path, folder_name : str) -> Path:
     folder_path = path / folder_name
     folder_path.mkdir(exist_ok=True)
     return folder_path
-
-# fmt: on

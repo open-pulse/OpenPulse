@@ -10,6 +10,7 @@ class EditorPointsActor(GhostActor):
     def __init__(self):
         super().__init__()
         self.points = app().project.pipeline.points
+        self.user_preferences = app().main_window.config.user_preferences
         self.build()
 
     def build(self):
@@ -21,6 +22,7 @@ class EditorPointsActor(GhostActor):
 
         self.GetProperty().SetPointSize(15)
         self.GetProperty().RenderPointsAsSpheresOn()
-        self.GetProperty().SetColor([i / 255 for i in (255, 180, 50)])
+        editor_points_color = self.user_preferences.nodes_points_color.to_rgb()
+        self.GetProperty().SetColor([i / 255 for i in editor_points_color])
         self.GetProperty().LightingOff()
         self.make_ghost()

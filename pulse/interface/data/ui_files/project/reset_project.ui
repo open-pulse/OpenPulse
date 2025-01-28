@@ -266,6 +266,12 @@
         <property name="text">
          <string>Reset project</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -305,6 +311,9 @@
         <property name="text">
          <string>Cancel</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -315,6 +324,15 @@
   <zorder>frame_buttons</zorder>
   <zorder>frame_main</zorder>
  </widget>
+ <tabstops>
+  <tabstop>reset_fluids_checkbox</tabstop>
+  <tabstop>reset_materials_checkbox</tabstop>
+  <tabstop>reset_acoustic_model_checkbox</tabstop>
+  <tabstop>reset_structural_model_checkbox</tabstop>
+  <tabstop>reset_analysis_setup_checkbox</tabstop>
+  <tabstop>cancel_button</tabstop>
+  <tabstop>reset_project_button</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

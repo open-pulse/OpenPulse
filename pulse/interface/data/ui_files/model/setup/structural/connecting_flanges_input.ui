@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
+    <width>756</width>
     <height>605</height>
    </rect>
   </property>
@@ -2594,10 +2594,10 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
          <string>Confirm</string>
         </property>
         <property name="autoDefault">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="default">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -2609,6 +2609,16 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>comboBox_selection_type</tabstop>
+  <tabstop>checkBox_get_cross_section</tabstop>
+  <tabstop>tabWidget_inputs</tabstop>
+  <tabstop>comboBox_ending_setup</tabstop>
+  <tabstop>spinBox_number_elements_line</tabstop>
+  <tabstop>pushButton_confirm</tabstop>
+  <tabstop>spinBox_number_elements_node</tabstop>
+  <tabstop>treeWidget_flange_by_elements</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -150,9 +150,7 @@ class RadiationImpedanceInput(QDialog):
                     }
 
             self.properties._set_nodal_property("radiation_impedance", data, node_id)
-
             self.actions_to_finalize()
-            # self.close()
 
         print(f"[Set Radiation Impedance] - defined at node(s) {node_ids}")
 
@@ -208,7 +206,6 @@ class RadiationImpedanceInput(QDialog):
                 self.properties._remove_nodal_property("radiation_impedance", node_id)
 
             self.actions_to_finalize()
-            # self.close()
 
     def reset_callback(self):
 
@@ -231,14 +228,13 @@ class RadiationImpedanceInput(QDialog):
                         node_ids.append(args[0])
 
                 self.properties._reset_nodal_property("radiation_impedance")
-
                 self.actions_to_finalize()
-                # self.close()
 
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
-        self.load_nodes_info()
         app().main_window.update_plots(reset_camera=False)
+        self.load_nodes_info()
+        self.pushButton_cancel.setText("Exit")
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

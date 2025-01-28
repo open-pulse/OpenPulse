@@ -323,7 +323,7 @@
             </font>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab_setup">
             <attribute name="title">
@@ -4303,10 +4303,10 @@
                    <string>Attribute</string>
                   </property>
                   <property name="autoDefault">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="default">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="flat">
                    <bool>false</bool>
@@ -4339,7 +4339,7 @@
                    <string>Cancel</string>
                   </property>
                   <property name="autoDefault">
-                   <bool>true</bool>
+                   <bool>false</bool>
                   </property>
                   <property name="default">
                    <bool>false</bool>
@@ -4743,6 +4743,9 @@
                   <property name="text">
                    <string>Reset</string>
                   </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
                   <property name="flat">
                    <bool>false</bool>
                   </property>
@@ -4773,6 +4776,12 @@
                   </property>
                   <property name="text">
                    <string>Remove</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                  <property name="status" stdset="0">
+                   <string>danger</string>
                   </property>
                  </widget>
                 </item>

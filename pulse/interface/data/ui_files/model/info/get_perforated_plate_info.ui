@@ -949,6 +949,12 @@
         <property name="text">
          <string>Close</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -956,6 +962,21 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>lineEdit_selection_label</tabstop>
+  <tabstop>lineEdit_perforated_plate_elements</tabstop>
+  <tabstop>lineEdit_hole_diameter</tabstop>
+  <tabstop>lineEdit_plate_thickness</tabstop>
+  <tabstop>lineEdit_area_porosity</tabstop>
+  <tabstop>lineEdit_discharge_coefficient</tabstop>
+  <tabstop>lineEdit_single_hole</tabstop>
+  <tabstop>lineEdit_non_linear_discharge_coefficient</tabstop>
+  <tabstop>lineEdit_correction_factor</tabstop>
+  <tabstop>lineEdit_bias_flow_coefficient</tabstop>
+  <tabstop>lineEdit_dimensionless_impedance</tabstop>
+  <tabstop>pushButton_close</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

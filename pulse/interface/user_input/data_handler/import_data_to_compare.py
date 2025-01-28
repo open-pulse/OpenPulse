@@ -56,29 +56,31 @@ class ImportDataToCompare(QDialog):
     def _define_qt_variables(self):
 
         # CheckBox
-        self.checkBox_skiprows : QCheckBox
+        self.checkBox_skiprows: QCheckBox
 
         # LineEdit
-        self.lineEdit_import_results_path : QLineEdit
+        self.lineEdit_import_results_path: QLineEdit
         self.lineEdit_import_results_path.setDisabled(True)
 
         # PushButton
-        self.pushButton_add_imported_data_to_plot : QPushButton
-        self.pushButton_reset_imported_data : QPushButton
-        self.pushButton_search_file_to_import : QPushButton
+        self.pushButton_add_imported_data_to_plot: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_reset_imported_data: QPushButton
+        self.pushButton_search_file_to_import: QPushButton
 
         # SpinBox
-        self.spinBox_skiprows : QSpinBox
+        self.spinBox_skiprows: QSpinBox
 
         # TreeWidget
-        self.treeWidget_import_text_files : QTreeWidget
-        self.treeWidget_import_sheet_files : QTreeWidget
+        self.treeWidget_import_text_files: QTreeWidget
+        self.treeWidget_import_sheet_files: QTreeWidget
 
     def _create_connections(self):
         #
         self.checkBox_skiprows.clicked.connect(self.update_skiprows_visibility)
         #
         self.pushButton_search_file_to_import.clicked.connect(self.choose_path_to_import_results)
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_reset_imported_data.clicked.connect(self.reset_imported_data)
         self.pushButton_add_imported_data_to_plot.clicked.connect(self.add_imported_data_to_plot)
         #
@@ -99,7 +101,7 @@ class ImportDataToCompare(QDialog):
 
     def choose_path_to_import_results(self):
 
-        path = app().config.get_last_folder_for("imported data folder")
+        path = app().config.get_last_folder_for("imported_data_folder")
         if path is None:
             folder_path = os.path.expanduser("~")
         else:
@@ -113,7 +115,7 @@ class ImportDataToCompare(QDialog):
         if not check:
             return
 
-        app().config.write_last_folder_path_in_file("imported data folder", imported_path)
+        app().config.write_last_folder_path_in_file("imported_data_folder", imported_path)
 
         self.import_name = os.path.basename(imported_path)
         self.lineEdit_import_results_path.setText(imported_path)
@@ -121,7 +123,7 @@ class ImportDataToCompare(QDialog):
         self.import_results(imported_path)
         self.update_treeWidget_info()
 
-    def import_results(self, imported_path):
+    def import_results(self, imported_path: str):
 
         from pandas import read_excel
         from openpyxl import load_workbook

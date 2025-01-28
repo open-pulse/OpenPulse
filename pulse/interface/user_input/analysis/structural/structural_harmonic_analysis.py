@@ -39,10 +39,12 @@ class StructuralHarmonicAnalysisInput(QDialog):
         self.label_method.setText("Harmonic Analysis - Structural")
 
         # QPushButton
-        self.pushButton_go_to_analysis_setup : QPushButton
+        self.pushButton_cancel : QPushButton
+        self.pushButton_proceed : QPushButton
     
     def _create_connections(self):
-        self.pushButton_go_to_analysis_setup.clicked.connect(self.analysis_setup_callback)
+        self.pushButton_cancel.clicked.connect(self.close_window)
+        self.pushButton_proceed.clicked.connect(self.analysis_setup_callback)
 
     def analysis_setup_callback(self):
         self.go_to_analysis_setup()
@@ -51,9 +53,12 @@ class StructuralHarmonicAnalysisInput(QDialog):
         self.index = self.comboBox_method.currentIndex()
         self.close()
 
+    def close_window(self):
+        self.index = -1
+        self.close()        
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.go_to_analysis_setup()
         elif event.key() == Qt.Key_Escape:
-            self.index = -1
-            self.close()
+            self.close_window()

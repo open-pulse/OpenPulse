@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QFileDialog, QLabel, QLineEdit, QPushButton
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -27,11 +27,14 @@ class NewProjectInput(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _initialize(self):
         self.stop = False
         self.complete = False
+        self.keep_window_open = True
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -72,6 +75,7 @@ class NewProjectInput(QDialog):
         self.pushButton_start_project.clicked.connect(self.start_project)
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_import_geometry.clicked.connect(self.import_geometry)
+        #
         self.update_available_inputs()
 
     def update_unit_length_event(self):
@@ -97,7 +101,8 @@ class NewProjectInput(QDialog):
 
     def import_geometry(self):
 
-        last_geometry_file = app().main_window.config.get_last_folder_for("geometry folder")
+        self.hide()
+        last_geometry_file = app().main_window.config.get_last_folder_for("geometry_folder")
 
         if last_geometry_file is None:
             suggested_path = str(Path().home())
@@ -113,7 +118,8 @@ class NewProjectInput(QDialog):
 
         if check:
             self.lineEdit_geometry_path.setText(geometry_path)
-            app().main_window.config.write_last_folder_path_in_file("geometry folder", geometry_path)
+
+            app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
     def check_project_inputs(self):
         
@@ -208,12 +214,14 @@ class NewProjectInput(QDialog):
 
     def start_project(self):
 
+        self.hide()
+
         if self.check_project_inputs():
             return
 
         if self.stop:
             return
-   
+
         if self.create_project():
             return
         
@@ -237,3 +245,7 @@ class NewProjectInput(QDialog):
             self.start_project()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)

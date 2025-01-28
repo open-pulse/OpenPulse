@@ -1,10 +1,12 @@
 #fmt: off
 
-import numpy as np
-from numbers import Number
 from pulse import app
+from pulse.utils.unit_conversion import mm_to_m
 
 from molde.utils import TreeInfo, format_long_sequence
+
+import numpy as np
+from numbers import Number
 
 
 def nodes_info_text() -> str:
@@ -76,21 +78,21 @@ def nodes_info_text() -> str:
         key = ("acoustic_pressure", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            ap_values = data["values"]   
+            ap_values = data["values"][0]
             loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Acoustic pressure", ap_values, "P", "Pa")
 
         key = ("volume_velocity", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            vv_values = data["values"]   
+            vv_values = data["values"][0]
             loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Volume velocity", vv_values, "Q", "m³/s")
 
         key = ("specific_impedance", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            si_values = data["values"]   
+            si_values = data["values"][0]
             loaded_table = "table_names" in data.keys()
             info_text += _acoustic_format("Specific impedance", si_values, "Zs", "kg/m².s")
 
@@ -98,16 +100,20 @@ def nodes_info_text() -> str:
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             impedance_type = data["impedance_type"]
-            labels = ["anechoic termination", "unflanged pipe", "flanged pipe"]
+            labels = ["anechoic termination", "flanged pipe", "unflanged pipe"]
             info_text += _acoustic_format("Radiation impedance", labels[impedance_type], "Type", "")
 
-        key = ("compressor_excitation", node_id)
+        key = ("reciprocating_compressor_excitation", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
             info_text += compressor_excitation_info_text(data)
 
-    return info_text
+        key = ("reciprocating_pump_excitation", node_id)
+        if key in properties.nodal_properties.keys():
+            data = properties.nodal_properties[key]
+            info_text += pump_excitation_info_text(data)
 
+    return info_text
 
 def elements_info_text() -> str:
 
@@ -155,12 +161,12 @@ def elements_info_text() -> str:
 
     return info_text
 
-
 def lines_info_text() -> str:
 
-    lines = app().main_window.list_selected_lines()
     info_text = ""
+
     project = app().project
+    lines = app().main_window.list_selected_lines()
 
     if len(lines) > 1:
         info_text += (
@@ -171,9 +177,13 @@ def lines_info_text() -> str:
 
         line_id, *_ = lines
 
-        properties = app().project.model.properties
+        properties = project.model.properties
+        length = mm_to_m(project.model.mesh.curve_length[line_id])
 
-        info_text += f"LINE {line_id}\n\n"
+        # info_text += f"LINE {line_id}\n"
+        # info_text += f"Length: {length : .3f} [m]\n\n"
+
+        info_text += line_info_text(line_id, length)
 
         material = properties._get_property("material", line_id=line_id)
         if material is not None:
@@ -183,7 +193,6 @@ def lines_info_text() -> str:
         if fluid is not None:
             info_text += fluid_info_text(fluid)
 
-        properties = app().project.model.properties
         cross_section = properties._get_property("cross_section", line_id=line_id)
         structural_element_type = properties._get_property("structural_element_type", line_id=line_id)
         beam_xaxis_rotation = properties._get_property("beam_xaxis_rotation", line_id=line_id)
@@ -199,9 +208,16 @@ def lines_info_text() -> str:
                                              beam_xaxis_rotation, 
                                              valve_name
                                              )
+        
+        info_text += strucural_element_info_text()
 
     return info_text
 
+def line_info_text(line_id, length):
+    tree = TreeInfo("Line")
+    tree.add_item("Identifier", line_id)
+    tree.add_item("Length", f"{length : .4f}", "m")
+    return str(tree)
 
 def material_info_text(material) -> str:
     tree = TreeInfo("Material")
@@ -211,22 +227,22 @@ def material_info_text(material) -> str:
     tree.add_item("Poisson ratio", material.poisson_ratio, "")
     return str(tree)
 
-
 def fluid_info_text(fluid) -> str:
     tree = TreeInfo("fluid")
     tree.add_item("Name", fluid.name)
     if fluid.temperature:
         tree.add_item("Temperature", round(fluid.temperature, 4), "K")
     if fluid.pressure:
-        tree.add_item("Pressure", round(fluid.pressure, 4), "Pa")
+        tree.add_item("Pressure", f"{fluid.pressure : .8e}", "Pa")
     if fluid.density:
         tree.add_item("Density", round(fluid.density, 4), "kg/m³")
     if fluid.speed_of_sound:
         tree.add_item("Speed of sound", round(fluid.speed_of_sound, 4), "m/s")
+    if fluid.bulk_modulus:
+        tree.add_item("Bulk modulus", f"{fluid.bulk_modulus : .8e}", "Pa")
     if fluid.molar_mass:
         tree.add_item("Molar mass", round(fluid.molar_mass, 4), "kg/kmol")
     return str(tree)
-
 
 def cross_section_info_text(cross_section, structural_element_type, beam_xaxis_rotation, valve_name) -> str:
 
@@ -280,6 +296,44 @@ def cross_section_info_text(cross_section, structural_element_type, beam_xaxis_r
 
     return info_text
 
+def strucural_element_info_text():
+
+    line_ids = app().main_window.list_selected_lines()
+    if len(line_ids) == 1:
+
+        tree = TreeInfo("structural element")
+
+        structural_element_type = app().project.model.properties._get_property("structural_element_type", line_id=line_ids[0])
+        if strucural_element_info_text is None:
+            label = "Pipe_1"
+        else:
+            label = structural_element_type
+        tree.add_item("Strucural element type", label)
+
+        if structural_element_type in ["Pipe_1", "pipe_1"]:
+
+            capped_end = app().project.model.properties._get_property("capped_end", line_id=line_ids[0])
+            if capped_end is not None:
+                label = "Active" if capped_end else "Inactive"
+            else:
+                label = "Active"
+            tree.add_item("Capped end", label)
+
+            force_offset = app().project.model.properties._get_property("force_offset", line_id=line_ids[0])
+            if force_offset is not None:
+                label = "Active" if force_offset else "Inactive"
+            else:
+                label = "Active"
+            tree.add_item("Force offset", label)
+
+            wall_formulation = app().project.model.properties._get_property("wall_formulation", line_id=line_ids[0])
+            if wall_formulation is not None:
+                label = wall_formulation.replace("_", " ").capitalize()
+            else:
+                label = "Thin wall"
+            tree.add_item("Wall formulation", label)
+
+    return str(tree)
 
 def analysis_info_text(frequency_index: int):
 
@@ -291,7 +345,10 @@ def analysis_info_text(frequency_index: int):
             frequencies = list(project.natural_frequencies_structural)
 
         if project.analysis_type_label == "Acoustic Modal Analysis":
-            frequencies = list(project.natural_frequencies_acoustic)
+            if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
+                frequencies = list(project.complex_natural_frequencies_acoustic)
+            else:
+                frequencies = list(project.natural_frequencies_acoustic)
 
         if frequencies is None:
             return ""
@@ -300,9 +357,18 @@ def analysis_info_text(frequency_index: int):
             return ""
 
         mode = frequency_index + 1
-        frequency = frequencies[frequency_index]
         tree.add_item("Mode", mode)
-        tree.add_item("Natural Frequency", f"{frequency:.2f}", "Hz")
+
+        if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
+            value = frequencies[frequency_index]
+            damping_ratio = -np.real(value) / np.abs(value)
+            damped_frequency = np.abs(value) * np.sqrt(1 - damping_ratio**2)
+            tree.add_item("Damped Natural Frequency", f"{damped_frequency : .4f}", "Hz")
+            tree.add_item("Damping Ratio", f"{damping_ratio : .4e}", "--")
+
+        else:
+            frequency = frequencies[frequency_index]
+            tree.add_item("Natural Frequency", f"{frequency : .4f}", "Hz")
 
     else:
 
@@ -330,6 +396,15 @@ def compressor_excitation_info_text(compressor_data: dict) -> str:
 
     return str(tree)
 
+def pump_excitation_info_text(pump_data: dict) -> str:
+    tree = TreeInfo("Volume velocity due pump excitation")
+    tree.add_item("Q", "Table of values")
+
+    connection_type = pump_data["connection_type"]
+    tree.add_item("Connection type", connection_type)
+
+    return str(tree)
+
 def min_max_stresses_info_text():
     min_stress = np.round(app().project.min_stress, 2)
     max_stress = np.round(app().project.max_stress, 2)
@@ -340,7 +415,6 @@ def min_max_stresses_info_text():
 
 def _all_none(sequence) -> bool:
     return all(i is None for i in sequence)
-
 
 def _structural_format(property_name, values, labels, units, has_table):
     if _all_none(values):
@@ -375,7 +449,6 @@ def _structural_format(property_name, values, labels, units, has_table):
         if r_values:
             tree.add_item(", ".join(r_labels), r_values, units[1])
     return str(tree)
-
 
 def _acoustic_format(property_name, value, label, unit):
     tree = TreeInfo(property_name)

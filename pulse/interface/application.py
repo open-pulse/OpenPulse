@@ -10,7 +10,6 @@ from pulse.project.project import Project
 from pulse.project.load_project import LoadProject
 from pulse.interface.file.project_file import ProjectFile
 
-
 class Application(QApplication):
     selection_changed = pyqtSignal()
 
@@ -23,6 +22,7 @@ class Application(QApplication):
         self.processEvents()
 
         # global params
+        # self.config = Config()
         self.config = Config()
         self.pulse_file = ProjectFile(TEMP_PROJECT_FILE)
         self.project = Project()

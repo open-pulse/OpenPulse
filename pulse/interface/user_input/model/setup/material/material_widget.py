@@ -27,7 +27,7 @@ def get_color_rgb(color):
     tokens = color.split(',')
     return list(map(int, tokens))
 
-class MaterialInputs(QWidget):
+class MaterialWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -35,6 +35,7 @@ class MaterialInputs(QWidget):
         uic.loadUi(ui_path, self)
 
         self.project = app().project
+        self.properties = app().project.model.properties
 
         self._initialize()
         self.define_qt_variables()
@@ -70,13 +71,14 @@ class MaterialInputs(QWidget):
     def define_qt_variables(self):
 
         # QPushButton
-        self.pushButton_attribute_material : QPushButton
-        self.pushButton_add_column : QPushButton
-        self.pushButton_remove_column : QPushButton
-        self.pushButton_reset_library : QPushButton
+        self.pushButton_attribute: QPushButton
+        self.pushButton_cancel: QPushButton
+        self.pushButton_add_column: QPushButton
+        self.pushButton_remove_column: QPushButton
+        self.pushButton_reset_library: QPushButton
 
         # QTableWidget
-        self.tableWidget_material_data : QTableWidget
+        self.tableWidget_material_data: QTableWidget
 
     def create_connections(self):
         #
@@ -227,9 +229,13 @@ class MaterialInputs(QWidget):
             self.tableWidget_material_data.setColumnCount(current_size - 1)
             return
 
-        material = self.library_materials[selected_column]
+        item = self.tableWidget_material_data.item(1, selected_column)
+        identifier = int(item.text())
+        material = self.library_materials[identifier]
+
         self.remove_material_from_file(material)
-    
+        self.pushButton_cancel.setText("Exit")
+
     def item_changed_callback(self, item : QTableWidgetItem):
 
         self.tableWidget_material_data.blockSignals(True)
@@ -284,7 +290,7 @@ class MaterialInputs(QWidget):
         if not column_name:
             return True
 
-        for material in self.library_materials:
+        for material in self.library_materials.values():
             if material.name == column_name:
                 return True
 
@@ -295,7 +301,7 @@ class MaterialInputs(QWidget):
         item = self.tableWidget_material_data.item(1, column)
 
         already_used_ids = set()
-        for material in self.library_materials:
+        for material in self.library_materials.values():
             already_used_ids.add(material.identifier)
         
         if item.text() == "":
@@ -389,17 +395,14 @@ class MaterialInputs(QWidget):
                 else:
                     material_data[key] = item.text()
 
-            # material_data["identifier"] = self.new_identifier()
-
-            material_name = material_data["name"]
-            if not material_name:
-                return
+            identifier = material_data["identifier"]
 
             config = app().pulse_file.read_material_library_from_file()
-            config[material_name] = material_data
+            config[identifier] = material_data
 
             app().pulse_file.write_material_library_in_file(config)
- 
+            self.pushButton_cancel.setText("Exit")
+
         except Exception as error_log:
             title = "Error while writing material data in file"
             message = str(error_log)
@@ -410,18 +413,37 @@ class MaterialInputs(QWidget):
 
         config = app().pulse_file.read_material_library_from_file()
 
-        if not material.name in config.sections():
+        identifier = str(material.identifier)
+        if not identifier in config.sections():
             return
+        
+        self.reset_material_from_lines(int(identifier))
+        config.remove_section(identifier)
 
-        config.remove_section(material.name)
         app().pulse_file.write_material_library_in_file(config)
-
-        self.reset_materials_from_bodies_and_surfaces([material.name])
         self.load_data_from_materials_library()
+
+    def reset_material_from_lines(self, material_identifiers: (list | int)):
+
+        lines_to_remove_material = list()
+        for line_id, data in self.properties.line_properties.items():
+            if "material_id" in data.keys():
+                material_id = data["material_id"]
+                if material_id in material_identifiers:
+                    if line_id not in lines_to_remove_material:
+                        lines_to_remove_material.append(line_id)
+
+        for _line_id in lines_to_remove_material:
+            self.properties._remove_line_property("material_id", line_id=_line_id)
+            self.properties._remove_line_property("material", line_id=_line_id)
+            app().project.model.preprocessor.set_material_by_lines(line_id, None)
+
+        app().pulse_file.write_line_properties_in_file()
+        app().main_window.set_selection()
 
     def new_identifier(self):
         already_used_ids = set()
-        for material in self.library_materials:
+        for material in self.library_materials.values():
             already_used_ids.add(material.identifier)
 
         for i in count(1):
@@ -468,6 +490,7 @@ class MaterialInputs(QWidget):
     def reset_library_callback(self):
         if self.get_confirmation_to_proceed():
             self.reset_library_to_default()
+            self.pushButton_cancel.setText("Exit")
             return True
         return False
 
@@ -483,34 +506,14 @@ class MaterialInputs(QWidget):
 
         config = app().pulse_file.read_material_library_from_file()
 
-        material_names = list()
+        material_identifiers = list()
         for section_cache in sections_cache:
             if section_cache not in config.sections():
-                material_names.append(config_cache[section_cache]["name"])
+                identifier = config_cache[section_cache]["identifier"]
+                material_identifiers.append(int(identifier))
 
-        # self.reset_materials_from_bodies_and_surfaces(material_names)
+        self.reset_material_from_lines(material_identifiers)
         self.load_data_from_materials_library()
-
-    def reset_materials_from_bodies_and_surfaces(self, material_names : list):
-
-        surfaces_to_remove_material = list()
-        volumes_to_remove_material = list()
-
-        for key, data in self.properties.volume_properties.items():
-            property, volume_id = key
-            if property == "material":
-                if isinstance(data, Material):
-                    if data.name in material_names:
-                        volumes_to_remove_material.append(volume_id)
-                        surface_ids = self.model.mesh.surfaces_from_volumes[volume_id]
-                        for surface_id in surface_ids:
-                            surfaces_to_remove_material.append(surface_id)
-
-        for vol_id in volumes_to_remove_material:
-            self.model.properties._remove_volume_property("material", volume_id=vol_id)
-
-        for surf_id in surfaces_to_remove_material:
-            self.model.properties._remove_surface_property("material", surface_id=surf_id)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

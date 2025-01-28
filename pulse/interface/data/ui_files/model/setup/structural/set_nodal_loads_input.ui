@@ -998,6 +998,12 @@
                <property name="text">
                 <string>Attribute</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -1024,6 +1030,9 @@
                </property>
                <property name="text">
                 <string>Cancel</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1113,6 +1122,12 @@
                <property name="text">
                 <string>Atribute</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -1139,6 +1154,9 @@
                </property>
                <property name="text">
                 <string>Cancel</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
                </property>
               </widget>
              </item>
@@ -1902,6 +1920,9 @@
                <property name="text">
                 <string>Reset</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="1">
@@ -1935,6 +1956,15 @@
                </property>
                <property name="text">
                 <string>Remove</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>false</bool>
+               </property>
+               <property name="status" stdset="0">
+                <string>danger</string>
                </property>
               </widget>
              </item>

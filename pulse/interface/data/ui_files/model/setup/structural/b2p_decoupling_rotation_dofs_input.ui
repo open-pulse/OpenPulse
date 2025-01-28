@@ -605,6 +605,9 @@
                <property name="text">
                 <string>Attribute</string>
                </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -1152,6 +1155,9 @@
                <property name="text">
                 <string>Reset</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="1">
@@ -1179,6 +1185,15 @@
                <property name="text">
                 <string>Remove</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>false</bool>
+               </property>
+               <property name="status" stdset="0">
+                <string>danger</string>
+               </property>
               </widget>
              </item>
             </layout>
@@ -1193,6 +1208,18 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>comboBox_node_to_uncouple_dofs</tabstop>
+  <tabstop>checkBox_rotation_x</tabstop>
+  <tabstop>checkBox_rotation_y</tabstop>
+  <tabstop>checkBox_rotation_z</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+  <tabstop>treeWidget_B2P_rotation_decoupling</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

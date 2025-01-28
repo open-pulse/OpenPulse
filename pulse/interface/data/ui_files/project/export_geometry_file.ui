@@ -294,6 +294,9 @@
             <iconset>
              <normaloff>../data/icons/020-search.png</normaloff>../data/icons/020-search.png</iconset>
            </property>
+           <property name="autoDefault">
+            <bool>false</bool>
+           </property>
           </widget>
          </item>
         </layout>
@@ -500,6 +503,9 @@
         <property name="text">
          <string>Cancel</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="1">
@@ -539,6 +545,12 @@
         <property name="text">
          <string>Export</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -561,10 +573,10 @@
  </widget>
  <tabstops>
   <tabstop>lineEdit_geometry_filename</tabstop>
+  <tabstop>lineEdit_directory_to_export</tabstop>
   <tabstop>pushButton_search_folder</tabstop>
   <tabstop>pushButton_export</tabstop>
   <tabstop>pushButton_cancel</tabstop>
-  <tabstop>lineEdit_directory_to_export</tabstop>
  </tabstops>
  <resources/>
  <connections/>

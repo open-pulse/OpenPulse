@@ -214,6 +214,12 @@
         <property name="text">
          <string>Run Analysis</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
       <item row="0" column="0">
@@ -432,6 +438,10 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>checkBox_self_weight_load</tabstop>
+  <tabstop>checkBox_internal_pressure_load</tabstop>
+  <tabstop>checkBox_external_nodal_loads</tabstop>
+  <tabstop>checkBox_distributed_element</tabstop>
   <tabstop>pushButton_run_analysis</tabstop>
  </tabstops>
  <resources/>

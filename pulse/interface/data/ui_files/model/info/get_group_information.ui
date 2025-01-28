@@ -412,6 +412,12 @@
         <property name="text">
          <string>Remove</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="status" stdset="0">
+         <string>danger</string>
+        </property>
        </widget>
       </item>
       <item row="0" column="2">
@@ -455,6 +461,12 @@
         <property name="text">
          <string>Close</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -462,6 +474,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>treeWidget_group_info</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>pushButton_close</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

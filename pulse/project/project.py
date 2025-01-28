@@ -5,13 +5,13 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 #
-from opps.model import Pipeline
+from pulse.editor import Pipeline
 from pulse.model.model import Model
 from pulse.model.after_run import AfterRun
 from pulse.model.before_run import BeforeRun
 from pulse.processing.structural_solver import StructuralSolver
 from pulse.processing.acoustic_solver import AcousticSolver
-from pulse.tools.utils import *
+from pulse.utils.common_utils import *
 #
 import logging
 from collections import defaultdict
@@ -70,6 +70,7 @@ class Project:
 
         self.natural_frequencies_acoustic = list()
         self.natural_frequencies_structural = list()
+        self.complex_natural_frequencies_acoustic = list()
 
         self.acoustic_harmonic_solution = None
         self.acoustic_modal_solution = None
@@ -100,6 +101,9 @@ class Project:
                 return False
 
         except Exception as log_error:
+            from traceback import print_exception
+            print_exception(log_error)
+
             title = "Error while processing initial load project actions"
             message = str(log_error)
             PrintMessageInput([window_title, title, message])
@@ -108,7 +112,8 @@ class Project:
     def load_project(self):
 
         logging.info("Loading project data [30%]")
-        app().loader.load_project_data()
+        if app().loader.load_project_data():
+            return
 
         logging.info("Processing geometry and mesh [50%]")
         self.initial_load_project_actions()
@@ -127,7 +132,9 @@ class Project:
         app().pulse_file.remove_nodal_properties_from_project_file()
 
         if app().pulse_file.check_pipeline_data():
-            app().loader.load_project_data()
+            if app().loader.load_project_data():
+                return
+
             self.process_geometry_and_mesh()
             app().loader.load_mesh_dependent_properties()
 
@@ -230,8 +237,10 @@ class Project:
                                 "volume_velocity", 
                                 "specific_impedance", 
                                 "radiation_impedance", 
-                                "compressor_excitation",
-                                "psd_acoustic_link"
+                                "reciprocating_compressor_excitation",
+                                "reciprocating_pump_excitation",
+                                "psd_acoustic_link",
+                                "acoustic_transfer_element"
                                 ]
 
         for (property, *args) in self.model.properties.nodal_properties.keys():
@@ -478,6 +487,7 @@ class Project:
         elif self.analysis_id == 4: # Acoustic Modal Analysis
             self.acoustic_solver.modal_analysis(modes = self.modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_acoustic = self.acoustic_solver.natural_frequencies
+            self.complex_natural_frequencies_acoustic = self.acoustic_solver.complex_natural_frequencies
             self.acoustic_solution = self.acoustic_solver.modal_shapes
             # self.structural_modal_solution = self.acoustic_solver.modal_shapes
 

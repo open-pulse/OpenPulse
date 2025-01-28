@@ -13,6 +13,7 @@ class NodesActor(GhostActor):
         super().__init__()
 
         self.project = app().project
+        self.user_preferences = app().main_window.config.user_preferences
         self.nodes = self.project.preprocessor.nodes
 
         self.hidden_nodes = kwargs.get('hidden_nodes', set())
@@ -44,16 +45,18 @@ class NodesActor(GhostActor):
         mapper = vtkPolyDataMapper()
         mapper.SetInputData(data)
         mapper.SetScalarModeToUseCellData()
-        set_polydata_colors(data, (255, 180, 50))
 
         self.SetMapper(mapper)
         self.GetProperty().SetPointSize(10)
         self.GetProperty().RenderPointsAsSpheresOn()
         self.make_ghost()
+        
+        self.clear_colors()
 
     def clear_colors(self):
         data = self.GetMapper().GetInput()
-        set_polydata_colors(data, (255, 180, 50))
+        nodes_color = self.user_preferences.nodes_points_color.to_rgb()
+        set_polydata_colors(data, nodes_color)
 
     def set_color(self, color, nodes=None):
         data = self.GetMapper().GetInput()

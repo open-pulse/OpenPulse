@@ -153,37 +153,53 @@ class SpecificImpedanceInput(QDialog):
 
     def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):
 
-        stop = False
-        title = "Invalid entry to the specific impedance"
+        title = "Invalid entry to the specific impedace"
 
         if lineEdit_real.text() != "":
+
+            _str_real = lineEdit_real.text()
+            str_real = _str_real.replace(",", ".")
+
             try:
-                real_F = float(lineEdit_real.text())
+                real_F = float(str_real)
             except Exception:
-                message = "Wrong input for real part of specific impedance."
+                self.hide()
+                message = "Wrong input for real part of specific impedace."
                 PrintMessageInput([window_title_1, title, message])
                 lineEdit_real.setFocus()
-                stop = True
-                return stop, None
+                app().main_window.set_input_widget(self)
+                return True, None
         else:
             real_F = 0
 
         if lineEdit_imag.text() != "":
+
+            _str_imag = lineEdit_imag.text()
+            str_imag = _str_imag.replace(",", ".")
+
             try:
-                imag_F = float(lineEdit_imag.text())
+                imag_F = float(str_imag)
             except Exception:
-                message = "Wrong input for imaginary part of specific impedance."
+                self.hide()
+                message = "Wrong input for imaginary part of specific impedace."
                 PrintMessageInput([window_title_1, title, message])
                 lineEdit_imag.setFocus()
-                stop = True
-                return stop, None
+                app().main_window.set_input_widget(self)
+                return True, None
         else:
             imag_F = 0
-        
+
         if real_F == 0 and imag_F == 0:
-            return  stop, None
+            self.hide()
+            message = "You must inform at least one specific impedace " 
+            message += "before confirming the input!"
+            PrintMessageInput([window_title_1, title, message])
+            self.lineEdit_real_value.setFocus()
+            app().main_window.set_input_widget(self)
+            return True, None
+
         else:
-            return stop, real_F + 1j*imag_F
+            return False, real_F + 1j*imag_F
 
     def constant_values_attribution_callback(self):
 
@@ -198,15 +214,10 @@ class SpecificImpedanceInput(QDialog):
         if stop:
             return
 
-        if specific_impedance is None:
-            title = "Additional inputs required"
-            message = "You must inform at least one specific impedance " 
-            message += "before confirming the input!"
-            PrintMessageInput([window_title_1, title, message])
-            self.lineEdit_real_value.setFocus()
+        # for node_id in node_ids:
+        #     self.remove_table_files_from_nodes(node_id)
 
-        for node_id in node_ids:
-            self.remove_table_files_from_nodes(node_id)
+        self.remove_conflicting_excitations(node_ids)
 
         real_values = [np.real(specific_impedance)]
         imag_values = [np.imag(specific_impedance)]
@@ -225,7 +236,6 @@ class SpecificImpedanceInput(QDialog):
             self.properties._set_nodal_property("specific_impedance", data, node_id)
 
         self.actions_to_finalize()
-        # self.close()
 
         print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
 
@@ -251,7 +261,7 @@ class SpecificImpedanceInput(QDialog):
             if direct_load:
                 self.path_imported_table = lineEdit.text()
             else:
-                last_path = app().main_window.config.get_last_folder_for("imported table folder")
+                last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
                 if last_path is None:
                     last_path = str(Path().home())
 
@@ -285,6 +295,8 @@ class SpecificImpedanceInput(QDialog):
             f_min = self.frequencies[0]
             f_max = self.frequencies[-1]
             f_step = self.frequencies[1] - self.frequencies[0] 
+
+            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
             if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
 
@@ -326,7 +338,8 @@ class SpecificImpedanceInput(QDialog):
             self.lineEdit_node_ids.setFocus()
             return
 
-        table_names = self.properties.get_nodal_related_table_names("specific_impedance", node_ids)
+        self.remove_conflicting_excitations(node_ids)
+        # table_names = self.properties.get_nodal_related_table_names("specific_impedance", node_ids)
 
         if self.lineEdit_table_path != "":
 
@@ -360,11 +373,7 @@ class SpecificImpedanceInput(QDialog):
 
                 self.properties._set_nodal_property("specific_impedance", data, node_id)
 
-            self.process_table_file_removal(table_names)
-
             self.actions_to_finalize()
-            # self.close()
-            app().pulse_file.write_nodal_properties_in_file()
 
             print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
 
@@ -401,7 +410,7 @@ class SpecificImpedanceInput(QDialog):
             node_ids = [node_ids]
 
         for node_id in node_ids:
-            for label in ["specific_impedance"]:
+            for label in ["specific_impedance", "radiation_impedance"]:
                 table_names = self.properties.get_nodal_related_table_names(label, node_id)
                 self.properties._remove_nodal_property(label, node_id)
 
@@ -430,9 +439,7 @@ class SpecificImpedanceInput(QDialog):
 
             self.remove_table_files_from_nodes(node_ids[0])
             self.properties._remove_nodal_property("specific_impedance", node_ids[0])
-
             self.actions_to_finalize()
-            # self.close()
 
     def reset_callback(self):
 
@@ -458,14 +465,14 @@ class SpecificImpedanceInput(QDialog):
                     self.remove_table_files_from_nodes(node_id)
 
                 self.properties._reset_nodal_property("specific_impedance")
-
                 self.actions_to_finalize()
-                # self.close()
 
     def actions_to_finalize(self):
         app().pulse_file.write_nodal_properties_in_file()
-        self.load_nodes_info()
+        app().pulse_file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera=False)
+        self.load_nodes_info()
+        self.pushButton_cancel.setText("Exit")
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.setText("")

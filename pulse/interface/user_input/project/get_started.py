@@ -147,9 +147,9 @@ class GetStartedInput(QDialog):
             self.close()
 
         else:
-            for key, value in self.config.recent_projects.items():
-                if value == project_path:
-                    self.config.remove_path_from_config_file(key)
+            for path in self.config.get_recent_files():
+                if str(path) == str(project_path):
+                    self.config.remove_path_from_config_file(path)
                     self.update_buttons_visibility()
                     break
 
@@ -173,7 +173,7 @@ class GetStartedInput(QDialog):
             return
 
         if read._continue:
-            self.config.resetRecentProjectList()
+            self.config.reset_recent_projects()
             self.initial_actions()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:

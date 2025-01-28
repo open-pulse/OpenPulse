@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
+    <width>460</width>
     <height>360</height>
    </rect>
   </property>
@@ -21,13 +21,13 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>420</width>
+    <width>460</width>
     <height>360</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>420</width>
+    <width>460</width>
     <height>360</height>
    </size>
   </property>
@@ -73,7 +73,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>420</width>
+       <width>16777215</width>
        <height>48</height>
       </size>
      </property>
@@ -122,7 +122,7 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>420</width>
+       <width>16777215</width>
        <height>480</height>
       </size>
      </property>
@@ -276,7 +276,7 @@
         </property>
         <property name="maximumSize">
          <size>
-          <width>420</width>
+          <width>440</width>
           <height>16777215</height>
          </size>
         </property>
@@ -514,7 +514,7 @@
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>40</width>
+                  <width>100</width>
                   <height>30</height>
                  </size>
                 </property>
@@ -626,6 +626,9 @@
                    </property>
                    <property name="text">
                     <string>Search</string>
+                   </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -888,6 +891,9 @@
                <property name="autoDefault">
                 <bool>false</bool>
                </property>
+               <property name="default">
+                <bool>true</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="0">
@@ -1014,6 +1020,12 @@
                <property name="text">
                 <string>Reset</string>
                </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>false</bool>
+               </property>
               </widget>
              </item>
              <item row="0" column="1">
@@ -1044,6 +1056,15 @@
                </property>
                <property name="text">
                 <string>Remove</string>
+               </property>
+               <property name="autoDefault">
+                <bool>false</bool>
+               </property>
+               <property name="default">
+                <bool>false</bool>
+               </property>
+               <property name="status" stdset="0">
+                <string>danger</string>
                </property>
               </widget>
              </item>
@@ -1116,6 +1137,20 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>tabWidget_inputs</tabstop>
+  <tabstop>lineEdit_real_value</tabstop>
+  <tabstop>lineEdit_imag_value</tabstop>
+  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_attribute</tabstop>
+  <tabstop>lineEdit_table_path</tabstop>
+  <tabstop>pushButton_search</tabstop>
+  <tabstop>spinBox_skip_wors</tabstop>
+  <tabstop>treeWidget_nodal_info</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

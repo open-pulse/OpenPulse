@@ -380,6 +380,10 @@ QProgressBar::chunk {border-radius: 4px;   background-color:  rgb(20,150,255);  
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>pushButton_close</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

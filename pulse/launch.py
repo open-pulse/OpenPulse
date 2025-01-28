@@ -1,6 +1,6 @@
 import sys, os, platform
 from vtkmodules.vtkCommonCore import vtkObject, vtkLogger
-import qdarktheme
+# import qdarktheme
 import logging
 from traceback import format_tb
 
@@ -87,7 +87,7 @@ def main():
         sys.argv.append("--platform")
         sys.argv.append("windows:dpiawareness=0")
 
-    qdarktheme.enable_hi_dpi()
+    # qdarktheme.enable_hi_dpi()
     app = Application(sys.argv)
     sys.exit(app.exec_())
 

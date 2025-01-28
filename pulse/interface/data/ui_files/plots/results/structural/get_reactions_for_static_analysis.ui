@@ -1531,6 +1531,21 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_node_id</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>treeWidget_reactions_at_constrained_dofs</tabstop>
+  <tabstop>tabWidget_springs_dampers</tabstop>
+  <tabstop>treeWidget_reactions_at_springs</tabstop>
+  <tabstop>treeWidget_reactions_at_dampers</tabstop>
+  <tabstop>lineEdit_reaction_fx</tabstop>
+  <tabstop>lineEdit_reaction_fy</tabstop>
+  <tabstop>lineEdit_reaction_fz</tabstop>
+  <tabstop>lineEdit_reaction_mx</tabstop>
+  <tabstop>lineEdit_reaction_my</tabstop>
+  <tabstop>lineEdit_reaction_mz</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

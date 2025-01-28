@@ -27,18 +27,8 @@ def default_material_library():
     }
 
     config["3"] = {
-        "name": "Ni-Co-Cr_alloy",
-        "identifier": 3,
-        "color": "[126, 226, 184]",  # Green level 7
-        "density": 8220,
-        "elasticity_modulus": 212,
-        "poisson_ratio": 0.315,
-        "thermal_expansion_coefficient": 1.2e-5,
-    }
-
-    config["4"] = {
         "name": "Cast_iron",
-        "identifier": 4,
+        "identifier": 3,
         "color": "[184, 172, 246]",  # Purple level 7
         "density": 7200,
         "elasticity_modulus": 110,
@@ -46,9 +36,9 @@ def default_material_library():
         "thermal_expansion_coefficient": 1.1e-5,
     }
 
-    config["5"] = {
+    config["4"] = {
         "name": "Aluminum",
-        "identifier": 5,
+        "identifier": 4,
         "color": "[255, 211, 135]",  # Yellow level 7
         "density": 2770,
         "elasticity_modulus": 71,
@@ -56,15 +46,25 @@ def default_material_library():
         "thermal_expansion_coefficient": 2.3e-5,
     }
 
-    config["6"] = {
+    config["5"] = {
         "name": "Brass",
-        "identifier": 6,
+        "identifier": 5,
         "color": "[248, 136, 174]",  # Pink level 7
         "density": 8150,
         "elasticity_modulus": 96,
         "poisson_ratio": 0.345,
         "thermal_expansion_coefficient": 1.9e-5,
     }
+
+    config["6"] = {
+        "name": "Ni-Co-Cr_alloy",
+        "identifier": 6,
+        "color": "[126, 226, 184]",  # Green level 7
+        "density": 8220,
+        "elasticity_modulus": 212,
+        "poisson_ratio": 0.315,
+        "thermal_expansion_coefficient": 1.2e-5,
+    }    
 
     app().pulse_file.write_material_library_in_file(config)
 
@@ -117,6 +117,7 @@ def default_fluid_library():
         "dynamic_viscosity": float(9.3092e-6),
         "temperature": 318.15,
         "pressure": 101325,
+        "molar_mass": 2.01588
     }
 
     config["4"] = {
@@ -131,6 +132,7 @@ def default_fluid_library():
         "dynamic_viscosity": float(9.3137e-6),
         "temperature": 318.15,
         "pressure": 1013250,
+        "molar_mass": 2.01588
     }
 
     config["5"] = {
@@ -145,6 +147,7 @@ def default_fluid_library():
         "dynamic_viscosity": float(1.0914e-5),
         "temperature": 293.15,
         "pressure": 101325,
+        "molar_mass": 16.0428
     }
 
     app().pulse_file.write_fluid_library_in_file(config)

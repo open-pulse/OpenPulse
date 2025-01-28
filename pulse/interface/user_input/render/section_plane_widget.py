@@ -32,7 +32,7 @@ class SectionPlaneWidget(QDialog):
     def _config_window(self):
 
         self.setWindowFlags(
-            Qt.Window
+            Qt.WindowModal
             | Qt.CustomizeWindowHint
             | Qt.WindowTitleHint
             | Qt.WindowStaysOnTopHint

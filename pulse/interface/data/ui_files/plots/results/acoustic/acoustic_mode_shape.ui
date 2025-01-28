@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>326</width>
+    <width>374</width>
     <height>499</height>
    </rect>
   </property>
@@ -212,6 +212,9 @@
            <property name="text">
             <string>Plot the mode shape</string>
            </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
           </widget>
          </item>
         </layout>
@@ -392,7 +395,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>260</width>
+             <width>480</width>
              <height>600</height>
             </size>
            </property>
@@ -414,40 +417,6 @@
            <property name="indentation">
             <number>0</number>
            </property>
-           <column>
-            <property name="text">
-             <string>Mode</string>
-            </property>
-            <property name="font">
-             <font>
-              <family>MS Shell Dlg 2</family>
-              <pointsize>10</pointsize>
-              <weight>50</weight>
-              <italic>false</italic>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="textAlignment">
-             <set>AlignCenter</set>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string notr="true">Natural frequency [Hz]</string>
-            </property>
-            <property name="font">
-             <font>
-              <family>MS Shell Dlg 2</family>
-              <pointsize>10</pointsize>
-              <weight>50</weight>
-              <italic>false</italic>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="textAlignment">
-             <set>AlignCenter</set>
-            </property>
-           </column>
           </widget>
          </item>
         </layout>
@@ -548,7 +517,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>120</width>
              <height>28</height>
             </size>
            </property>
@@ -893,6 +862,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_natural_frequency</tabstop>
+  <tabstop>treeWidget_frequencies</tabstop>
+  <tabstop>comboBox_colormaps</tabstop>
+  <tabstop>slider_transparency</tabstop>
+  <tabstop>comboBox_color_scale</tabstop>
+  <tabstop>pushButton_plot</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
