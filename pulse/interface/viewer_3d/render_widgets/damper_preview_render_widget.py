@@ -62,6 +62,12 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
                 liquid_filled_tube_actor = vtkActor()
                 liquid_filled_tube_actor.SetMapper(liquid_filled_tube_mapper)
                 liquid_filled_tube_actor.GetProperty().SetColor(0.5176470588235295, 0.6666666666666666, 1)
+                liquid_filled_tube_actor.GetProperty().SetInterpolationToPhong()
+                liquid_filled_tube_actor.GetProperty().SetDiffuse(0.8)
+                liquid_filled_tube_actor.GetProperty().SetSpecular(1.5)
+                liquid_filled_tube_actor.GetProperty().SetSpecularPower(80)
+                liquid_filled_tube_actor.GetProperty().SetSpecularColor(1, 1, 1)
+
                 self.add_actors(liquid_filled_tube_actor)
 
             else:
@@ -90,6 +96,12 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
 
         mapper.SetInputData(damper.GetOutput())
         damper_actor.SetMapper(mapper)
+        damper_actor.GetProperty().SetInterpolationToPhong()
+        damper_actor.GetProperty().SetDiffuse(0.8)
+        damper_actor.GetProperty().SetSpecular(1.5)
+        damper_actor.GetProperty().SetSpecularPower(80)
+        damper_actor.GetProperty().SetSpecularColor(1, 1, 1)
+
 
         self.add_actors(damper_actor)
 

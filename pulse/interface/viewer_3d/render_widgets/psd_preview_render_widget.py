@@ -84,6 +84,11 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
 
         mapper.SetInputData(filter.GetOutput())
         filter_actor.SetMapper(mapper)
+        filter_actor.GetProperty().SetInterpolationToPhong()
+        filter_actor.GetProperty().SetDiffuse(0.8)
+        filter_actor.GetProperty().SetSpecular(1.5)
+        filter_actor.GetProperty().SetSpecularPower(80)
+        filter_actor.GetProperty().SetSpecularColor(1, 1, 1)
 
         self.add_actors(filter_actor)
 
