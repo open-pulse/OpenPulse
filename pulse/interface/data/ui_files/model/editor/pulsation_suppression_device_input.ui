@@ -95,7 +95,7 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
+               <y>-52</y>
                <width>567</width>
                <height>688</height>
               </rect>
@@ -784,11 +784,6 @@
                    <item>
                     <property name="text">
                      <string> perf. plate</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text">
-                     <string/>
                     </property>
                    </item>
                   </widget>
@@ -1846,7 +1841,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>0.4</string>
+                    <string>1</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -1873,7 +1868,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>0.4</string>
+                    <string>1</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
