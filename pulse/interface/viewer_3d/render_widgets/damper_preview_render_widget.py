@@ -7,6 +7,8 @@ from molde.render_widgets import CommonRenderWidget
 from pulse import ICON_DIR, app
 from pulse.editor.pulsation_damper import PulsationDamper
 
+
+
 class DamperPreviewRenderWidget(CommonRenderWidget):
 
     def __init__(self, parent=None):
@@ -14,7 +16,6 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
 
         self.main_window = app().main_window
 
-        # It is better for an editor to have parallel projection
         self.renderer.GetActiveCamera().SetParallelProjection(True)
         self.renderer.RemoveAllLights()
 
@@ -25,8 +26,6 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
         self.update_plot()
 
         self.main_window.theme_changed.connect(self.set_theme)
-
-
 
     def update_plot(self):
         self.update()
