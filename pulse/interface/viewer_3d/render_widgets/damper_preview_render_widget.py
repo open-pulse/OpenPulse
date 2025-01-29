@@ -1,5 +1,6 @@
-from vtk import vtkAppendPolyData, vtkLineSource, vtkTubeFilter, vtkPolyDataMapper, vtkSphereSource
-from vtkmodules.vtkRenderingCore import vtkActor
+from vtkmodules.vtkFiltersSources import vtkLineSource, vtkSphereSource
+from vtkmodules.vtkFiltersCore import vtkAppendPolyData, vtkTubeFilter
+from vtkmodules.vtkRenderingCore import vtkPolyDataMapper, vtkActor
 
 from molde.render_widgets import CommonRenderWidget
 
