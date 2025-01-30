@@ -452,7 +452,7 @@ class PulsationDamperEditorInputs(QDialog):
         self._pulsation_damper_data["liquid_fluid_id"] = self.liquid_fluid.identifier
         self._pulsation_damper_data["gas_fluid_id"] = self.gas_fluid.identifier
 
-    def check_pulsation_damper_inputs(self):
+    def check_pulsation_damper_geometric_inputs(self):
 
         self._pulsation_damper_data = dict()
 
@@ -467,16 +467,21 @@ class PulsationDamperEditorInputs(QDialog):
 
         if self.check_geometric_entries():
             return True
+
+    def check_pulsation_damper_inputs(self):
+
+        if self.check_pulsation_damper_geometric_inputs():
+            return True
         
         if self.check_fluids():
             return True
-
+        
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
 
     def preview_callback(self):
 
-        if self.check_pulsation_damper_inputs():
+        if self.check_pulsation_damper_geometric_inputs():
             pass
 
         else:

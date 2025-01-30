@@ -8,7 +8,6 @@ from pulse import ICON_DIR, app
 from pulse.editor.pulsation_damper import PulsationDamper
 
 
-
 class DamperPreviewRenderWidget(CommonRenderWidget):
 
     def __init__(self, parent=None):
@@ -34,8 +33,11 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
 
         self.renderer.RemoveAllViewProps()
 
-        device = PulsationDamper(device_data)
-        device.process_segment_data()
+        # device = PulsationDamper(device_data)
+        # device.process_segment_data()
+
+        from pprint import pprint
+        pprint(device_data)
 
         damper = vtkAppendPolyData()
 
