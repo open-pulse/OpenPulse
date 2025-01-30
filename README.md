@@ -96,7 +96,7 @@ Your installer will appear inside the `dist` folder, named as `open-pulse-setup-
 
 - Project page on [Researchgate](https://www.researchgate.net/project/Acoustically-Induced-Vibration-in-Pipeline-Systems).
   
-- [Português] Demonstração rápida: [MOPT YouTube](https://youtu.be/qhuQcdCk4i0).
+- [Português] Demonstração rápida: [MOPT YouTube](https://www.youtube.com/watch?v=l8I8lAv6CSo&ab_channel=MOPT).
 
 ## Article published: Mechanical Systems and Signal Processing - Volume 186, 1 March 2023
 
