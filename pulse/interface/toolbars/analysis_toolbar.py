@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QComboBox, QLabel, QPushButton, QToolBar, QWidget
-from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtGui import  QIcon, QFont
+from PySide6.QtWidgets import QComboBox, QLabel, QPushButton, QToolBar, QWidget
+from PySide6.QtCore import QSize, Qt 
+from PySide6.QtGui import  QIcon, QFont
 
 from pulse import app, UI_DIR, ICON_DIR
 from pulse.interface.formatters import icons
@@ -77,7 +77,11 @@ class AnalysisToolbar(QToolBar):
         font = QFont()
         font.setPointSize(10)
 
-        for widget in self.findChildren((QComboBox, QLabel, QPushButton)):
+        widgets = list()
+        for widget in [QComboBox, QLabel, QPushButton]:
+            widgets += self.findChildren(widget)
+
+        for widget in widgets:
             widget.setFont(font)
 
     def get_spacer(self):

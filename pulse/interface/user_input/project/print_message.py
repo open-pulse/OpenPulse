@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QProgressBar, QPushButton
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QFrame, QLabel, QProgressBar, QPushButton
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, QTimer
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters.icons import *
+
+from molde import load_ui
 
 from time import sleep, time 
 
@@ -13,7 +14,7 @@ class PrintMessageInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "messages/print_message.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.auto_close = kwargs.get("auto_close", False)
         self.window_title, self.title, self.message = text_info

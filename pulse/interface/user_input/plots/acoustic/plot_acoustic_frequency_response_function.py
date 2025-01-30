@@ -1,14 +1,14 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QFrame, QLineEdit, QPushButton, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
-from PyQt5 import uic
+from PySide6.QtWidgets import QFrame, QLineEdit, QPushButton, QWidget
+from PySide6.QtCore import Qt, QEvent, QObject, Signal
 
 from pulse import app, UI_DIR
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+
+from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -18,7 +18,7 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_frequency_response_function.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.project = app().project
@@ -80,7 +80,7 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
 
     def clickable(self, widget):
         class Filter(QObject):
-            clicked = pyqtSignal()
+            clicked = Signal()
 
             def eventFilter(self, obj, event):
                 if obj == widget and event.type() == QEvent.MouseButtonRelease and obj.rect().contains(event.pos()):

@@ -1,14 +1,15 @@
-from PyQt5.QtWidgets import QDialog, QFileDialog, QLabel, QLineEdit, QPushButton
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
-from pathlib import Path
-
-import os
-import numpy as np
+from PySide6.QtWidgets import QDialog, QFileDialog, QLabel, QLineEdit, QPushButton
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
+
+from pathlib import Path
+import os
+import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"

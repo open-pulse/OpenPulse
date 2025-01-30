@@ -1,7 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton, QTableWidget, QTabWidget, QTableWidgetItem, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton, QTableWidget, QTabWidget, QTableWidgetItem, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QIcon, QFont
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.auxiliar.file_dialog import FileDialog
@@ -9,6 +8,8 @@ from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input i
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.utils.common_utils import get_new_path
+
+from molde import load_ui
 
 import os
 from pathlib import Path
@@ -21,7 +22,7 @@ class SetFluidCompositionInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/fluid/set_fluid_composition_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.state_properties = kwargs.get("state_properties", dict())
         self.selected_fluid_to_edit = kwargs.get("selected_fluid_to_edit", None)

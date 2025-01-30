@@ -1,12 +1,13 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QDialog, QToolButton, QVBoxLayout, QWidget
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QToolButton, QVBoxLayout, QWidget
+from PySide6.QtGui import QColor
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters import icons
+
+from molde import load_ui
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
@@ -32,7 +33,7 @@ class XYPlot(QWidget):
         super().__init__()
 
         ui_path = UI_DIR / "plots/graphs/plot_xy_widget.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         app().main_window.theme_changed.connect(self.paint_toolbar_icons)

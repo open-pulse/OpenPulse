@@ -1,18 +1,18 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
 from pulse.interface.user_input.model.setup.acoustic.pulsation_damper_calculator_inputs import PulsationDamperCalculatorInputs
-from pulse.interface.user_input.plots.general.xy_plot import XYPlot
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
+
+from molde import load_ui
 
 import numpy as np
 
@@ -28,7 +28,7 @@ class ReciprocatingPumpInputs(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/acoustic/reciprocating_pump_inputs.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties

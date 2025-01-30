@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QDialog, QFileDialog
-from PyQt5.QtCore import Qt
+from PySide6.QtWidgets import QDialog, QFileDialog
+from PySide6.QtCore import Qt
 
 from pulse import app
 
@@ -8,7 +8,7 @@ class FileDialog(QFileDialog):
     def __init__(self):
         super().__init__()
 
-        desktop_geometry = app().desktop().screenGeometry()
+        desktop_geometry = app().primaryScreen().geometry()
         width = self.width()
         height = self.height()
         pos_x = int((desktop_geometry.width() - width)/2)

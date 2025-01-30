@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QPushButton, QRadioButton, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon, QBrush, QColor
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QComboBox, QPushButton, QRadioButton, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QIcon, QBrush, QColor
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.libraries.standard_cross_sections import StandardCrossSections
+
+from molde import load_ui
 
 import numpy as np
 from collections import defaultdict
@@ -14,7 +15,7 @@ class GetStandardCrossSection(QDialog):
         super(GetStandardCrossSection, self).__init__()
         
         ui_path = UI_DIR / "model/setup/structural/standard_cross_section_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         section_data = kwargs.get("section_data", None)
 

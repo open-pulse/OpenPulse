@@ -1,14 +1,6 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QFileDialog
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-
-from pulse import app, UI_DIR
-from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-
+from pulse import app
 import os
 from pathlib import Path
 

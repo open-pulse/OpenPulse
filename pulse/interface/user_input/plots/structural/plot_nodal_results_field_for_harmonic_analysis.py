@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+
+from molde import load_ui
 
 import numpy as np
 
@@ -13,7 +13,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/results/structural/plot_nodal_results_field_for_harmonic_analysis.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self._initialize()
         self._config_window()

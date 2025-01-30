@@ -1,13 +1,14 @@
-from PyQt5.QtWidgets import QDialog, QLabel, QPushButton, QAbstractButton, QAction
-from PyQt5.QtGui import QCloseEvent, QIcon, QColor
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QLabel, QPushButton, QAbstractButton
+from PySide6.QtGui import QCloseEvent, QColor, QAction
+from PySide6.QtCore import Qt
 from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+
+from molde import load_ui
 
 import os
 
@@ -16,7 +17,7 @@ class GetStartedInput(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "project/get_started_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         # app().main_window.set_input_widget(self)
         self.project = app().main_window.project
@@ -39,7 +40,9 @@ class GetStartedInput(QDialog):
         self.keep_window_open = True
 
     def _load_icons(self):
-        widgets = self.findChildren((QAbstractButton, QAction))
+        widgets = list()
+        for widget in [QAbstractButton, QAction]:
+            widgets += self.findChildren(widget)
         icons.change_icon_color_for_widgets(widgets, QColor("#1a73e8"))
 
     def _config_window(self):

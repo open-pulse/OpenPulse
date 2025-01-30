@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.interface.application import Application
 
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication
 from pathlib import Path
 
 OPEN_PULSE_DIR = Path(__file__).parent

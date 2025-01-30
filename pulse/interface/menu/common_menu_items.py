@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
-from PyQt5.QtCore import Qt, QSize, QRect, pyqtSignal, QObject, pyqtBoundSignal
+from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
+from PySide6.QtCore import Qt, QSize, QRect, Signal, QObject
 from pathlib import Path
 
 from pulse.interface.formatters.icons import *
@@ -92,7 +92,7 @@ class CustomBoundSignal:
 
 class TopTreeWidgetItem(QTreeWidgetItem):
     def __init__(self, name):
-        super(QTreeWidgetItem, self).__init__([name])
+        super().__init__([name])
         self.clicked = CustomBoundSignal()
         self._configure_appearance()
 
@@ -103,7 +103,7 @@ class TopTreeWidgetItem(QTreeWidgetItem):
 
         font = QFont()
         font.setBold(True)
-        font.setWeight(60)
+        font.setWeight(QFont.Weight(60))
         font.setPointSize(10)
         self.setFont(0, font)
         self.setTextAlignment(0, Qt.AlignHCenter | Qt.AlignVCenter)
@@ -125,7 +125,7 @@ class TopTreeWidgetItem(QTreeWidgetItem):
 
 class ChildTreeWidgetItem(QTreeWidgetItem):
     def __init__(self, name):
-        super(QTreeWidgetItem, self).__init__([name])
+        super().__init__([name])
         self.clicked = CustomBoundSignal()
 
     def set_warning(self, cond):

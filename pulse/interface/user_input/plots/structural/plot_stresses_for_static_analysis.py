@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import QLineEdit, QPushButton, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QLineEdit, QPushButton, QWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.loading_window import LoadingWindow
+
+from molde import load_ui
 
 import logging
 import numpy as np
@@ -14,7 +14,7 @@ class PlotStressesForStaticAnalysis(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/results/structural/get_stresses_for_static_analysis.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
 

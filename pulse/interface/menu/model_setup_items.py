@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
-from PyQt5.QtCore import Qt, QSize, QRect
+from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
+from PySide6.QtCore import Qt, QSize, QRect
 from pathlib import Path
 
 from pulse import app

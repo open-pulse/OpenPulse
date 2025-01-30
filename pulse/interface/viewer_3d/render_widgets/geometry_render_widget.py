@@ -1,7 +1,7 @@
 from vtkmodules.vtkRenderingCore import vtkActor
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QApplication
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import CommonRenderWidget
@@ -11,7 +11,7 @@ from pulse import ICON_DIR, app
 
 
 class GeometryRenderWidget(CommonRenderWidget):
-    selection_changed = pyqtSignal()
+    selection_changed = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
