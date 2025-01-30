@@ -218,7 +218,7 @@ class PulsationDamperEditorInputs(QDialog):
 
     def config_treeWidget(self):
         widths = [120, 140, 160, 40]
-        header_labels = ["Label", "Damper type", "Connection point", "Lines"]
+        header_labels = ["Label", "Damper type", "Gas volume [m³]", "Lines"]
         for col, label in enumerate(header_labels):
             self.treeWidget_pulsation_damper_info.headerItem().setText(col, label)
             self.treeWidget_pulsation_damper_info.headerItem().setTextAlignment(col, Qt.AlignCenter)
@@ -688,10 +688,10 @@ class PulsationDamperEditorInputs(QDialog):
 
         for key, damper_data in self.damper_data.items():
 
-            coords = damper_data["connecting_coords"]
+            gas_volume = damper_data["gas_volume"]
             damper_type = damper_data["damper_type"]
 
-            new = QTreeWidgetItem([key, damper_type, str(coords), str(self.pulsation_damper_lines[key])])
+            new = QTreeWidgetItem([key, damper_type, str(gas_volume), str(self.pulsation_damper_lines[key])])
             for col in range(4):
                 new.setTextAlignment(col, Qt.AlignCenter)
             self.treeWidget_pulsation_damper_info.addTopLevelItem(new)

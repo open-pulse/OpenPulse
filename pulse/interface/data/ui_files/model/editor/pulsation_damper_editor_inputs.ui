@@ -452,7 +452,7 @@
             </font>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab_setup">
             <attribute name="title">
@@ -2615,7 +2615,7 @@
                   </column>
                   <column>
                    <property name="text">
-                    <string>Connection point</string>
+                    <string>Gas volume [m³]</string>
                    </property>
                    <property name="font">
                     <font>
