@@ -47,6 +47,8 @@ class PulsationDamperEditorInputs(QDialog):
         self.load_pulsation_damper_info()
         self.selection_callback()
         self.update_pulsation_damper_label()
+        self.preview_callback()
+        self.automatic_preview()
 
         while self.keep_window_open:
             self.exec()
@@ -495,6 +497,13 @@ class PulsationDamperEditorInputs(QDialog):
             self._pulsation_damper_data["liquid_fluid_id"] = None
             self._pulsation_damper_data["gas_fluid_id"] = None
 
+    def automatic_preview(self):
+
+        for line_edit in self.findChildren(QLineEdit):
+            line_edit.textEdited.connect(self.preview_callback)
+        
+        for combo_box in self.findChildren(QComboBox):
+            combo_box.currentIndexChanged.connect(self.preview_callback)
 
 
     def create_pulsation_damper_callback(self):
