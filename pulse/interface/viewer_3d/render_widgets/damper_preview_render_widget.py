@@ -33,11 +33,8 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
 
         self.renderer.RemoveAllViewProps()
 
-        # device = PulsationDamper(device_data)
-        # device.process_segment_data()
-
-        from pprint import pprint
-        pprint(device_data)
+        device = PulsationDamper(device_data)
+        device.process_segment_data()
 
         damper = vtkAppendPolyData()
 

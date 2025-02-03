@@ -485,9 +485,16 @@ class PulsationDamperEditorInputs(QDialog):
             pass
 
         else:
+            self._pulsation_damper_data["liquid_fluid_id"] = 'placeholder'
+            self._pulsation_damper_data["gas_fluid_id"] = 'placeholder'
+
             self.preview_widget.build_device_preview(self._pulsation_damper_data)
             self.preview_widget.config_view()
             self.preview_widget.update()
+        
+            self._pulsation_damper_data["liquid_fluid_id"] = None
+            self._pulsation_damper_data["gas_fluid_id"] = None
+
 
 
     def create_pulsation_damper_callback(self):
