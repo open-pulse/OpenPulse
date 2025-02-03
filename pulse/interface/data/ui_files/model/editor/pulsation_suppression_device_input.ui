@@ -95,7 +95,7 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>-52</y>
+               <y>0</y>
                <width>567</width>
                <height>688</height>
               </rect>
@@ -2598,42 +2598,6 @@
       <property name="spacing">
        <number>0</number>
       </property>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="pushButton_create_psd">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>28</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string>Create PSD</string>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-        <property name="default">
-         <bool>true</bool>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="pushButton_cancel">
         <property name="minimumSize">
@@ -2671,7 +2635,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_preview">
+       <widget class="QPushButton" name="pushButton_create_psd">
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -2689,13 +2653,19 @@
           <pointsize>10</pointsize>
          </font>
         </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>Preview</string>
+         <string>Create PSD</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>
         </property>
         <property name="default">
+         <bool>true</bool>
+        </property>
+        <property name="flat">
          <bool>false</bool>
         </property>
        </widget>

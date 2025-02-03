@@ -2856,45 +2856,6 @@
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="pushButton_create">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string>Create</string>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-        <property name="default">
-         <bool>true</bool>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="pushButton_cancel">
         <property name="minimumSize">
@@ -2935,7 +2896,7 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_preview">
+       <widget class="QPushButton" name="pushButton_create">
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -2951,16 +2912,22 @@
         <property name="font">
          <font>
           <pointsize>10</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
          </font>
         </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
         <property name="text">
-         <string>Preview</string>
+         <string>Create</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>
         </property>
         <property name="default">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="flat">
          <bool>false</bool>

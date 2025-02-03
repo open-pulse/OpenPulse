@@ -116,7 +116,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.pushButton_create_psd : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
-        self.pushButton_preview : QPushButton
 
         # QSpinBox
         self.spinBox_pipe1_rotation_angle : QDoubleSpinBox
@@ -148,7 +147,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.pushButton_create_psd.clicked.connect(self.create_psd_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
-        self.pushButton_preview.clicked.connect(self.preview_callback)
         #
         self.spinBox_volumes_spacing.valueChanged.connect(self.volumes_spacing_callback)
         #

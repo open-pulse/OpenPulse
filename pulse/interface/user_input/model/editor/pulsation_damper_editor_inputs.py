@@ -33,12 +33,6 @@ class PulsationDamperEditorInputs(QDialog):
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
 
-        # self.preview = DamperPreviewRenderWidget()
-        # self.vtkWidget = QVTKRenderWindowInteractor(self.preview)
-        # self.renderer = vtkRenderer()
-        # self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
-
-
         self._config_window()
         self._initialize()
         self._define_qt_variables()
@@ -115,7 +109,6 @@ class PulsationDamperEditorInputs(QDialog):
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_reset_entries: QPushButton
-        self.pushButton_preview : QPushButton
 
         # QTabWidget
         self.tabWidget_main: QTabWidget
@@ -142,7 +135,6 @@ class PulsationDamperEditorInputs(QDialog):
         self.pushButton_get_liquid_fluid.clicked.connect(self.get_liquid_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
-        self.pushButton_preview.clicked.connect(self.preview_callback)
 
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
