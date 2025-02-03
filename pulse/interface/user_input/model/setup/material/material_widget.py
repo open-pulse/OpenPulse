@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem, QWidget
+from PyQt5.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -40,6 +40,7 @@ class MaterialWidget(QWidget):
         self._initialize()
         self.define_qt_variables()
         self.create_connections()
+        self._config_widgets()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
@@ -88,6 +89,10 @@ class MaterialWidget(QWidget):
         #
         self.tableWidget_material_data.itemChanged.connect(self.item_changed_callback)
         self.tableWidget_material_data.cellClicked.connect(self.cell_clicked_callback)
+
+    def _config_widgets(self):
+        self.tableWidget_material_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
+        self.tableWidget_material_data.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
 
     def config_table_of_material_data(self):
         return
