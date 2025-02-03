@@ -38,6 +38,8 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
+        self.preview_callback()
+        self.automatic_preview()
 
         self.load_psd_info()
         self.selection_callback()
@@ -54,6 +56,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
     def _initialize(self):
         self.keep_window_open = True
         self.nodes_from_removed_lines = list()
+        
 
     def _define_qt_variables(self):
 
@@ -1009,6 +1012,15 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.preview_widget.build_device_preview(self._psd_data)
             self.preview_widget.config_view()
             self.preview_widget.update()
+
+    def automatic_preview(self):
+
+        for line_edit in self.findChildren(QLineEdit):
+            line_edit.textEdited.connect(self.preview_callback)
+        
+        for combo_box in self.findChildren(QComboBox):
+            combo_box.currentIndexChanged.connect(self.preview_callback)
+
 
     def load_psd_info(self):
 
