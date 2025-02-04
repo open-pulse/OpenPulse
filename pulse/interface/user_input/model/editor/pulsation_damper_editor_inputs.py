@@ -502,8 +502,9 @@ class PulsationDamperEditorInputs(QDialog):
 
         self.preview_widget.close_preview()
 
-        stop, damper_label = self.check_pulsation_damper_label()
+        stop, damper_label, _, _, _ = self.check_pulsation_damper_label()
         if stop:
+            self.show_error_window_for_label()
             return
 
         if self.check_pulsation_damper_inputs():
@@ -746,11 +747,16 @@ class PulsationDamperEditorInputs(QDialog):
 
         if message != "":
             self.hide()
-            PrintMessageInput([window_title_2, title, message])
-            app().main_window.set_input_widget(self)
-            return True, None
+            return True, None, window_title_2, title, message
 
-        return False, damper_label
+        return False, damper_label, None, None, None
+    
+    def show_error_window_for_label(self):
+        _, _, window_title, title, message = self.check_pulsation_damper_label()
+        if window_title is not None and title is not None and message is not None:
+            app().main_window.set_input_widget(self)
+            PrintMessageInput([window_title, title, message])
+
 
     def attribute_callback(self):
         pass
@@ -777,7 +783,7 @@ class PulsationDamperEditorInputs(QDialog):
                     message = f"You cannot input a negative value to the {label}."
 
             except Exception:
-                return None
+                return None, None, None
                 message = f"You have typed an invalid value to the {label}."
 
         else:
@@ -786,10 +792,16 @@ class PulsationDamperEditorInputs(QDialog):
 
         if message != "":
             self.hide()
-            PrintMessageInput([window_title_1, title, message])
-            return None
+            return window_title_1, title, message
+            
+        return value, None, None
+    
+    def show_error_window_for_parameters(self):
+        _, _, window_title, title, message = self.check_input_parameters()
+        if window_title is not None and title is not None and message is not None:
+            app().main_window.set_input_widget(self)
+            PrintMessageInput([window_title, title, message])
 
-        return value
 
     def get_device_tag(self):
         index = 1
