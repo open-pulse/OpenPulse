@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>519</width>
-    <height>687</height>
+    <width>1056</width>
+    <height>730</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,86 +29,11 @@
    <property name="spacing">
     <number>4</number>
    </property>
-   <item row="0" column="0">
-    <widget class="QFrame" name="frame_18">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>48</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>48</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_12">
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>MS Shell Dlg 2</family>
-          <pointsize>11</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="text">
-         <string>Pulsation damper editor</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::AutoText</enum>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="QFrame" name="frame">
      <property name="minimumSize">
       <size>
-       <width>0</width>
+       <width>500</width>
        <height>0</height>
       </size>
      </property>
@@ -184,7 +109,7 @@
             </font>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab_setup">
             <attribute name="title">
@@ -219,7 +144,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>458</width>
+                  <width>491</width>
                   <height>658</height>
                  </rect>
                 </property>
@@ -364,7 +289,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -425,7 +354,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -486,7 +419,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -513,7 +450,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -543,7 +484,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -635,8 +580,10 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                         <weight>50</weight>
+                        <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
@@ -770,7 +717,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
@@ -797,8 +748,10 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                         <weight>50</weight>
+                        <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
@@ -888,7 +841,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <item>
@@ -924,7 +881,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="currentIndex">
@@ -989,7 +950,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1019,8 +984,10 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                         <weight>50</weight>
+                        <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
@@ -1048,7 +1015,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <item>
@@ -1141,7 +1112,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1202,7 +1177,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="currentIndex">
@@ -1287,7 +1266,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1360,7 +1343,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1424,7 +1411,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1548,7 +1539,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1578,7 +1573,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <item>
@@ -1640,7 +1639,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="currentIndex">
@@ -1735,7 +1738,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1765,6 +1772,7 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
@@ -1835,7 +1843,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="currentIndex">
@@ -1934,7 +1946,11 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
+                        <weight>50</weight>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
@@ -1964,6 +1980,7 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                         <weight>50</weight>
                         <italic>false</italic>
@@ -2221,6 +2238,7 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>9</pointsize>
                     <weight>50</weight>
                     <italic>false</italic>
@@ -2254,7 +2272,7 @@
                   </column>
                   <column>
                    <property name="text">
-                    <string>Connection point</string>
+                    <string>Gas volume [m³]</string>
                    </property>
                    <property name="font">
                     <font>
@@ -2331,7 +2349,11 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <italic>false</italic>
+                    <bold>false</bold>
                    </font>
                   </property>
                   <property name="styleSheet">
@@ -2364,7 +2386,11 @@
                   </property>
                   <property name="font">
                    <font>
+                    <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
+                    <weight>50</weight>
+                    <italic>false</italic>
+                    <bold>false</bold>
                    </font>
                   </property>
                   <property name="styleSheet">
@@ -2383,6 +2409,101 @@
              </item>
             </layout>
            </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QFrame" name="frame_5">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="topMargin">
+          <number>4</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="label_12">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>100</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Damper label:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_damper_label">
+           <property name="minimumSize">
+            <size>
+             <width>300</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>400</width>
+             <height>26</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>pulsation_damper_bladder</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
           </widget>
          </item>
         </layout>
@@ -2418,74 +2539,7 @@
          <property name="spacing">
           <number>6</number>
          </property>
-         <item row="1" column="0">
-          <spacer name="horizontalSpacer_9">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_8">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>80</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>coord. x [m]</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="3">
-          <widget class="QLabel" name="label_10">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>80</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>coord. y [m]</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="4">
           <widget class="QLabel" name="label_11">
            <property name="minimumSize">
             <size>
@@ -2512,47 +2566,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="5">
-          <spacer name="horizontalSpacer_12">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
          <item row="1" column="2">
-          <widget class="QLineEdit" name="lineEdit_connecting_coord_x">
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>80</width>
-             <height>26</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>0</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="3">
           <widget class="QLineEdit" name="lineEdit_connecting_coord_y">
            <property name="minimumSize">
             <size>
@@ -2579,7 +2593,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="4">
+         <item row="1" column="3">
           <widget class="QLineEdit" name="lineEdit_connecting_coord_z">
            <property name="minimumSize">
             <size>
@@ -2606,7 +2620,34 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_10">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>80</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>coord. y [m]</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
           <widget class="QLabel" name="label_46">
            <property name="minimumSize">
             <size>
@@ -2633,85 +2674,18 @@
            </property>
           </widget>
          </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QFrame" name="frame_5">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_13">
-         <property name="leftMargin">
-          <number>4</number>
-         </property>
-         <property name="topMargin">
-          <number>4</number>
-         </property>
-         <property name="rightMargin">
-          <number>4</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <item row="0" column="0">
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="3">
-          <spacer name="horizontalSpacer_6">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
          <item row="0" column="1">
-          <widget class="QLabel" name="label_12">
+          <widget class="QLabel" name="label_8">
            <property name="minimumSize">
             <size>
-             <width>100</width>
-             <height>26</height>
+             <width>0</width>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
-             <height>26</height>
+             <width>80</width>
+             <height>20</height>
             </size>
            </property>
            <property name="font">
@@ -2720,24 +2694,24 @@
             </font>
            </property>
            <property name="text">
-            <string>Damper label:</string>
+            <string>coord. x [m]</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
-         <item row="0" column="2">
-          <widget class="QLineEdit" name="lineEdit_damper_label">
+         <item row="1" column="1">
+          <widget class="QLineEdit" name="lineEdit_connecting_coord_x">
            <property name="minimumSize">
             <size>
-             <width>252</width>
+             <width>80</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>252</width>
+             <width>80</width>
              <height>26</height>
             </size>
            </property>
@@ -2747,7 +2721,7 @@
             </font>
            </property>
            <property name="text">
-            <string>pulsation_damper_bladder</string>
+            <string>0</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -2760,7 +2734,93 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="1" column="1">
+    <widget class="QFrame" name="frame_4">
+     <property name="minimumSize">
+      <size>
+       <width>500</width>
+       <height>400</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>1</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <property name="leftMargin">
+       <number>9</number>
+      </property>
+      <property name="topMargin">
+       <number>9</number>
+      </property>
+      <property name="rightMargin">
+       <number>9</number>
+      </property>
+      <property name="bottomMargin">
+       <number>9</number>
+      </property>
+      <item row="1" column="0">
+       <widget class="DamperPreviewRenderWidget" name="preview_widget" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>400</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+          <strikeout>false</strikeout>
+          <kerning>true</kerning>
+         </font>
+        </property>
+        <property name="text">
+         <string>Damper preview</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="wordWrap">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
     <widget class="QFrame" name="frame_2">
      <property name="minimumSize">
       <size>
@@ -2796,45 +2856,6 @@
       <property name="verticalSpacing">
        <number>0</number>
       </property>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="pushButton_create">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string>Create</string>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-        <property name="default">
-         <bool>true</bool>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="pushButton_cancel">
         <property name="minimumSize">
@@ -2874,11 +2895,160 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="pushButton_create">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Create</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QPushButton" name="pushButton_show_errors">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Show errors</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QFrame" name="frame_18">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>48</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>48</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_12">
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>2</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>MS Shell Dlg 2</family>
+          <pointsize>11</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="text">
+         <string>Pulsation damper editor</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::AutoText</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DamperPreviewRenderWidget</class>
+   <extends>QWidget</extends>
+   <header>pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

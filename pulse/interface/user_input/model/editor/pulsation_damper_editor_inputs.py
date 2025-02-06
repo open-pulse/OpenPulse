@@ -1,7 +1,9 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
 from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+from vtk import vtkRenderer
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
@@ -11,6 +13,7 @@ from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified imp
 from pulse.editor.pulsation_damper import PulsationDamper
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
+from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget import DamperPreviewRenderWidget
 
 from pulse.utils.interface_utils import check_inputs
 
@@ -38,6 +41,8 @@ class PulsationDamperEditorInputs(QDialog):
         self.load_pulsation_damper_info()
         self.selection_callback()
         self.update_pulsation_damper_label()
+        self.preview_callback()
+        self.automatic_preview()
 
         while self.keep_window_open:
             self.exec()
@@ -111,6 +116,9 @@ class PulsationDamperEditorInputs(QDialog):
         # QTreeWidget
         self.treeWidget_pulsation_damper_info: QTreeWidget
 
+        # Qwidget
+        self.preview_widget : DamperPreviewRenderWidget
+
     def _create_connections(self):
         #
         self.comboBox_volume_sections.currentIndexChanged.connect(self.volume_sections_callback)
@@ -127,6 +135,7 @@ class PulsationDamperEditorInputs(QDialog):
         self.pushButton_get_liquid_fluid.clicked.connect(self.get_liquid_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
@@ -203,7 +212,7 @@ class PulsationDamperEditorInputs(QDialog):
 
     def config_treeWidget(self):
         widths = [120, 140, 160, 40]
-        header_labels = ["Label", "Damper type", "Connection point", "Lines"]
+        header_labels = ["Label", "Damper type", "Gas volume [m³]", "Lines"]
         for col, label in enumerate(header_labels):
             self.treeWidget_pulsation_damper_info.headerItem().setText(col, label)
             self.treeWidget_pulsation_damper_info.headerItem().setTextAlignment(col, Qt.AlignCenter)
@@ -437,7 +446,7 @@ class PulsationDamperEditorInputs(QDialog):
         self._pulsation_damper_data["liquid_fluid_id"] = self.liquid_fluid.identifier
         self._pulsation_damper_data["gas_fluid_id"] = self.gas_fluid.identifier
 
-    def check_pulsation_damper_inputs(self):
+    def check_pulsation_damper_geometric_inputs(self):
 
         self._pulsation_damper_data = dict()
 
@@ -452,17 +461,50 @@ class PulsationDamperEditorInputs(QDialog):
 
         if self.check_geometric_entries():
             return True
+
+    def check_pulsation_damper_inputs(self):
+
+        if self.check_pulsation_damper_geometric_inputs():
+            return True
         
         if self.check_fluids():
             return True
-
+        
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
 
+    def preview_callback(self):
+
+        if self.check_pulsation_damper_geometric_inputs():
+            pass
+
+        else:
+            self._pulsation_damper_data["liquid_fluid_id"] = 'placeholder'
+            self._pulsation_damper_data["gas_fluid_id"] = 'placeholder'
+
+            self.preview_widget.build_device_preview(self._pulsation_damper_data)
+            self.preview_widget.config_view()
+            self.preview_widget.update()
+        
+            self._pulsation_damper_data["liquid_fluid_id"] = None
+            self._pulsation_damper_data["gas_fluid_id"] = None
+
+    def automatic_preview(self):
+
+        for line_edit in self.findChildren(QLineEdit):
+            line_edit.textEdited.connect(self.preview_callback)
+        
+        for combo_box in self.findChildren(QComboBox):
+            combo_box.currentIndexChanged.connect(self.preview_callback)
+
+
     def create_pulsation_damper_callback(self):
 
-        stop, damper_label = self.check_pulsation_damper_label()
+        self.preview_widget.close_preview()
+
+        stop, damper_label, _, _, _ = self.check_pulsation_damper_label()
         if stop:
+            self.show_error_window_for_label()
             return
 
         if self.check_pulsation_damper_inputs():
@@ -655,10 +697,10 @@ class PulsationDamperEditorInputs(QDialog):
 
         for key, damper_data in self.damper_data.items():
 
-            coords = damper_data["connecting_coords"]
+            gas_volume = damper_data["gas_volume"]
             damper_type = damper_data["damper_type"]
 
-            new = QTreeWidgetItem([key, damper_type, str(coords), str(self.pulsation_damper_lines[key])])
+            new = QTreeWidgetItem([key, damper_type, str(gas_volume), str(self.pulsation_damper_lines[key])])
             for col in range(4):
                 new.setTextAlignment(col, Qt.AlignCenter)
             self.treeWidget_pulsation_damper_info.addTopLevelItem(new)
@@ -705,11 +747,16 @@ class PulsationDamperEditorInputs(QDialog):
 
         if message != "":
             self.hide()
-            PrintMessageInput([window_title_2, title, message])
-            app().main_window.set_input_widget(self)
-            return True, None
+            return True, None, window_title_2, title, message
 
-        return False, damper_label
+        return False, damper_label, None, None, None
+    
+    def show_error_window_for_label(self):
+        _, _, window_title, title, message = self.check_pulsation_damper_label()
+        if window_title is not None and title is not None and message is not None:
+            app().main_window.set_input_widget(self)
+            PrintMessageInput([window_title, title, message])
+
 
     def attribute_callback(self):
         pass
@@ -736,7 +783,7 @@ class PulsationDamperEditorInputs(QDialog):
                     message = f"You cannot input a negative value to the {label}."
 
             except Exception:
-                return None
+                return None, None, None
                 message = f"You have typed an invalid value to the {label}."
 
         else:
@@ -745,10 +792,16 @@ class PulsationDamperEditorInputs(QDialog):
 
         if message != "":
             self.hide()
-            PrintMessageInput([window_title_1, title, message])
-            return None
+            return window_title_1, title, message
+            
+        return value, None, None
+    
+    def show_error_window_for_parameters(self):
+        _, _, window_title, title, message = self.check_input_parameters()
+        if window_title is not None and title is not None and message is not None:
+            app().main_window.set_input_widget(self)
+            PrintMessageInput([window_title, title, message])
 
-        return value
 
     def get_device_tag(self):
         index = 1
@@ -790,6 +843,7 @@ class PulsationDamperEditorInputs(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        self.preview_widget.close_preview()
         return super().closeEvent(a0)
     
     # def calculate_effective_volume(self):
