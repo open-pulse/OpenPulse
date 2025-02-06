@@ -131,6 +131,11 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
             self.scale_bar_actor.GetLegendTitleProperty().SetColor(font_color.to_rgb_f())
             self.scale_bar_actor.GetLegendLabelProperty().SetColor(font_color.to_rgb_f())
 
+    def turn_red(self):
+        for actor in self.get_widget_actors():
+            actor.GetProperty().SetColor(1, 0, 0)
+            self.update_plot()
+
 
     def set_theme(self, *args, **kwargs):
         self.update_theme()
