@@ -31,6 +31,8 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
 
+        self.error_title = None
+        self.error_message = None
 
         self._config_window()
         self._initialize()
@@ -694,6 +696,9 @@ class PulsationSuppressionDeviceInputs(QDialog):
     def show_errors_for_single_volume_psd_geometric_inputs(self):
         if window_title_2 is not None and self.error_title is not None and self.error_message is not None:
             PrintMessageInput([window_title_2, self.error_title, self.error_message])
+        
+        else:
+            PrintMessageInput([window_title_2, "Invalid input", "An empty or incomplete field was detected"])
 
      
     def check_geometric_criteria_for_double_volume_psd(self):
@@ -758,6 +763,9 @@ class PulsationSuppressionDeviceInputs(QDialog):
     def show_errors_for_double_volume_psd_geometric_inputs(self):
             if window_title_2 is not None and self.error_title is not None and self.error_message is not None:
                 PrintMessageInput([window_title_2, self.error_title, self.error_message])
+
+            else:
+                PrintMessageInput([window_title_2, "Invalid input", "An empty or incomplete field was detected"])
 
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
