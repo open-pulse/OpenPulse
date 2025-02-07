@@ -142,6 +142,13 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
 
     def close_render(self):
         self.render_interactor
+    
+    def turn_red(self):
+        for actor in self.get_widget_actors():
+            actor.GetProperty().SetColor(1, 0, 0)
+            self.update_plot()
+
+
 
     def set_theme(self, *args, **kwargs):
         self.update_theme()

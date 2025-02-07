@@ -61,6 +61,8 @@ class PulsationDamperEditorInputs(QDialog):
         self.liquid_fluid = None
         self.selected_fluid = None
         self.selected_material = None
+        self.error_title = None
+        self.error_message = None
 
         self.state_properties = dict()
         self.nodes_from_removed_lines = list()
@@ -103,6 +105,7 @@ class PulsationDamperEditorInputs(QDialog):
 
         # QPushButton
         self.pushButton_cancel: QPushButton
+        self.pushButton_show_errors : QPushButton
         self.pushButton_create: QPushButton
         self.pushButton_get_liquid_fluid: QPushButton
         self.pushButton_get_gas_fluid: QPushButton
@@ -130,6 +133,7 @@ class PulsationDamperEditorInputs(QDialog):
         self.lineEdit_wall_thickness_liquid.textEdited.connect(self.update_sections_info_callback)
         #
         self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_show_errors.clicked.connect(self.show_error_window_for_parameters)
         self.pushButton_create.clicked.connect(self.create_pulsation_damper_callback)
         self.pushButton_get_gas_fluid.clicked.connect(self.get_gas_fluid_callback)
         self.pushButton_get_liquid_fluid.clicked.connect(self.get_liquid_fluid_callback)
@@ -476,7 +480,8 @@ class PulsationDamperEditorInputs(QDialog):
     def preview_callback(self):
 
         if self.check_pulsation_damper_geometric_inputs():
-            pass
+            self.preview_widget.turn_red()
+            # self.pushButton_show_errors.setDisabled(False)
 
         else:
             self._pulsation_damper_data["liquid_fluid_id"] = 'placeholder'
