@@ -883,7 +883,6 @@ class PulsationDamperEditorInputs(QDialog):
             self.preprocessor.mesh._create_gmsh_geometry()
 
         self.load_pulsation_damper_info()
-        # app().main_window.use_model_setup_workspace()
 
         app().main_window.update_plots()
         self.pushButton_cancel.setText("Exit")
@@ -901,30 +900,3 @@ class PulsationDamperEditorInputs(QDialog):
         self.preview_widget.close_preview()
         return super().closeEvent(a0)
     
-    # def calculate_effective_volume(self):
-
-    #     dV = self.check_input_parameters(self.lineEdit_fluctuating_volume, "Fluctuating volume of reciprocating pump")
-    #     if dV is None:
-    #         self.lineEdit_effective_volume.setText("")
-    #         self.lineEdit_volume_at_average_pressure.setText("")
-    #         return
-        
-    #     phi = self.doubleSpinBox_pressure_ratio.value()
-    #     x = self.doubleSpinBox_residual_pulsation.value() / 100
-    #     k = self.doubleSpinBox_isentropic_exponent.value()
-
-    #     V0 = dV / ((phi/(1-x))**(1/k) - (phi/(1+x))**(1/k))
-    #     Vm = V0 * (phi**(1/k))
-
-    #     unit_label = self.comboBox_volume_unit.currentText()
-
-    #     if unit_label == " cubic centimeters":
-    #         V0 = V0 * 1e6
-    #         Vm = Vm * 1e6
-
-    #     elif unit_label == " liters":
-    #         V0 = V0 * 1e3
-    #         Vm = Vm * 1e6
-
-    #     self.lineEdit_effective_volume.setText(f"{V0 : .8e}")
-    #     self.lineEdit_volume_at_average_pressure.setText(f"{Vm : .8e}")
