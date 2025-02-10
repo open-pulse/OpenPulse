@@ -30,6 +30,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
+        self.default_stylesheet = self.styleSheet()
 
         self.error_title = None
         self.error_message = None
@@ -1059,11 +1060,20 @@ class PulsationSuppressionDeviceInputs(QDialog):
             app().main_window.update_plots()
 
     def preview_callback(self):
+
         if self.check_psd_inputs():
             self.preview_widget.turn_red()
-            # if self.highlight_empty_fields() == False:
+
+            for line_edit in self.findChildren(QLineEdit):
+                if line_edit.text() == "":
+                    line_edit.setStyleSheet("border: 2px solid red")
+
             self.pushButton_show_errors.setDisabled(False)
+
         else:
+            for line_edit in self.findChildren(QLineEdit):
+                line_edit.setStyleSheet(self.default_stylesheet)
+                
             self.pushButton_show_errors.setDisabled(True)
             self.preview_widget.build_device_preview(self._psd_data)
             self.preview_widget.config_view()
