@@ -15,7 +15,6 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget import DamperPreviewRenderWidget
 
-from pulse.utils.interface_utils import check_inputs
 
 import numpy as np
 
@@ -32,6 +31,7 @@ class PulsationDamperEditorInputs(QDialog):
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
+        self.default_style_sheet = self.styleSheet()
 
         self._config_window()
         self._initialize()
@@ -353,19 +353,55 @@ class PulsationDamperEditorInputs(QDialog):
             self.lineEdit_outside_diameter_gas.setText(outside_diameter)
             self.lineEdit_wall_thickness_gas.setText(wall_thickness)
 
+    def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False, title=None):
+        message = ""
+        if title is None:
+            title = "Invalid input"
+
+        if lineEdit.text() != "":
+            try:
+                str_value = lineEdit.text().replace(",", ".")
+                out = float(str_value)
+
+                if only_positive:
+                    if zero_included:
+                        if out < 0:
+                            message = f"Insert a positive value to the {label}."
+                            message += "\n\nZero value is allowed."
+                            return None
+                    else:
+                        if out <= 0:
+                            message = f"Insert a positive value to the {label}."
+                            message += "\n\nZero value is not allowed."
+                            return None
+
+            except Exception as error_log:
+                message = f"Wrong input for {label}.\n\n"
+                message += str(error_log)
+                return None
+
+        else:
+            if zero_included:
+                return float(0)
+            else:
+                message = f"Insert some value at the {label} input field."
+                return None
+
+        return out
+
     def check_connecting_coords(self):
 
-        coord_x = check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", only_positive=False)
+        coord_x = self.check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", only_positive=False)
         if coord_x is None:
             self.lineEdit_connecting_coord_x.setFocus()
             return True
 
-        coord_y = check_inputs(self.lineEdit_connecting_coord_y, "'connecting coord. y'", only_positive=False)
+        coord_y = self.check_inputs(self.lineEdit_connecting_coord_y, "'connecting coord. y'", only_positive=False)
         if coord_y is None:
             self.lineEdit_connecting_coord_y.setFocus()
             return True
         
-        coord_z = check_inputs(self.lineEdit_connecting_coord_z, "'connecting coord. z'", only_positive=False)
+        coord_z = self.check_inputs(self.lineEdit_connecting_coord_z, "'connecting coord. z'", only_positive=False)
         if coord_z is None:
             self.lineEdit_connecting_coord_z.setFocus()
             return True
@@ -374,12 +410,12 @@ class PulsationDamperEditorInputs(QDialog):
 
     def check_volumes(self):
 
-        damper_volume = check_inputs(self.lineEdit_damper_volume, "'damper volume'", only_positive=False)
+        damper_volume = self.check_inputs(self.lineEdit_damper_volume, "'damper volume'", only_positive=False)
         if damper_volume is None:
             self.lineEdit_damper_volume.setFocus()
             return True
 
-        gas_volume = check_inputs(self.lineEdit_gas_volume, "'gas volume'", only_positive=False)
+        gas_volume = self.check_inputs(self.lineEdit_gas_volume, "'gas volume'", only_positive=False)
         if gas_volume is None:
             self.lineEdit_gas_volume.setFocus()
             return True
@@ -400,32 +436,32 @@ class PulsationDamperEditorInputs(QDialog):
 
     def check_geometric_entries(self):
 
-        outside_diameter_liquid = check_inputs(self.lineEdit_outside_diameter_liquid, "'outside diameter (liquid)'", only_positive=False)
+        outside_diameter_liquid = self.check_inputs(self.lineEdit_outside_diameter_liquid, "'outside diameter (liquid)'", only_positive=False)
         if outside_diameter_liquid is None:
             self.lineEdit_outside_diameter_liquid.setFocus()
             return True
 
-        wall_thickness_liquid = check_inputs(self.lineEdit_wall_thickness_liquid, "'wall thickness (liquid)'", only_positive=False)
+        wall_thickness_liquid = self.check_inputs(self.lineEdit_wall_thickness_liquid, "'wall thickness (liquid)'", only_positive=False)
         if wall_thickness_liquid is None:
             self.lineEdit_wall_thickness_liquid.setFocus()
             return True
 
-        outside_diameter_gas = check_inputs(self.lineEdit_outside_diameter_gas, "'outside diameter (gas)'", only_positive=False)
+        outside_diameter_gas = self.check_inputs(self.lineEdit_outside_diameter_gas, "'outside diameter (gas)'", only_positive=False)
         if outside_diameter_gas is None:
             self.lineEdit_outside_diameter_gas.setFocus()
             return True
 
-        wall_thickness_gas = check_inputs(self.lineEdit_wall_thickness_gas, "'wall thickness (gas)'", only_positive=False)
+        wall_thickness_gas = self.check_inputs(self.lineEdit_wall_thickness_gas, "'wall thickness (gas)'", only_positive=False)
         if wall_thickness_gas is None:
             self.lineEdit_wall_thickness_gas.setFocus()
             return True
 
-        outside_diameter_neck = check_inputs(self.lineEdit_outside_diameter_neck, "'outside diameter (neck)'", only_positive=False)
+        outside_diameter_neck = self.check_inputs(self.lineEdit_outside_diameter_neck, "'outside diameter (neck)'", only_positive=False)
         if outside_diameter_neck is None:
             self.lineEdit_outside_diameter_neck.setFocus()
             return True
 
-        neck_height = check_inputs(self.lineEdit_neck_height, "'neck heght'", only_positive=False)
+        neck_height = self.check_inputs(self.lineEdit_neck_height, "'neck heght'", only_positive=False)
         if neck_height is None:
             self.lineEdit_neck_height.setFocus()
             return True
@@ -480,10 +516,20 @@ class PulsationDamperEditorInputs(QDialog):
     def preview_callback(self):
 
         if self.check_pulsation_damper_geometric_inputs():
+            for line_edit in self.findChildren(QLineEdit):
+                if line_edit.text() == "" and line_edit.isEnabled():
+                    line_edit.setStyleSheet("border: 2px solid red")
+
             self.preview_widget.turn_red()
-            # self.pushButton_show_errors.setDisabled(False)
+            self.pushButton_show_errors.setDisabled(False)
 
         else:
+
+            for line_edit in self.findChildren(QLineEdit):
+                line_edit.setStyleSheet(self.default_style_sheet)
+
+            self.pushButton_show_errors.setDisabled(True)
+
             self._pulsation_damper_data["liquid_fluid_id"] = 'placeholder'
             self._pulsation_damper_data["gas_fluid_id"] = 'placeholder'
 
@@ -802,10 +848,14 @@ class PulsationDamperEditorInputs(QDialog):
         return value, None, None
     
     def show_error_window_for_parameters(self):
-        _, _, window_title, title, message = self.check_input_parameters()
-        if window_title is not None and title is not None and message is not None:
+        
+        if window_title_2 is not None and self.error_title is not None and self.error_message is not None:
             app().main_window.set_input_widget(self)
-            PrintMessageInput([window_title, title, message])
+            PrintMessageInput([window_title_2, self.error_title, self.error_message])
+        
+        else:
+            PrintMessageInput([window_title_2, "Invalid input", "An empty or incomplete field was detected"])
+
 
 
     def get_device_tag(self):
