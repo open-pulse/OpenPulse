@@ -11,8 +11,8 @@ from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified imp
 from pulse.editor.pulsation_damper import PulsationDamper
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
+from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget import DamperPreviewRenderWidget
 
-from pulse.utils.interface_utils import check_inputs
 
 import numpy as np
 
@@ -29,6 +29,7 @@ class PulsationDamperEditorInputs(QDialog):
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
+        self.default_style_sheet = self.styleSheet()
 
         self._config_window()
         self._initialize()
@@ -38,6 +39,8 @@ class PulsationDamperEditorInputs(QDialog):
         self.load_pulsation_damper_info()
         self.selection_callback()
         self.update_pulsation_damper_label()
+        self.preview_callback()
+        self.automatic_preview()
 
         while self.keep_window_open:
             self.exec()
@@ -56,6 +59,8 @@ class PulsationDamperEditorInputs(QDialog):
         self.liquid_fluid = None
         self.selected_fluid = None
         self.selected_material = None
+        self.error_title = None
+        self.error_message = None
 
         self.state_properties = dict()
         self.nodes_from_removed_lines = list()
@@ -98,6 +103,7 @@ class PulsationDamperEditorInputs(QDialog):
 
         # QPushButton
         self.pushButton_cancel: QPushButton
+        self.pushButton_show_errors : QPushButton
         self.pushButton_create: QPushButton
         self.pushButton_get_liquid_fluid: QPushButton
         self.pushButton_get_gas_fluid: QPushButton
@@ -111,6 +117,9 @@ class PulsationDamperEditorInputs(QDialog):
         # QTreeWidget
         self.treeWidget_pulsation_damper_info: QTreeWidget
 
+        # Qwidget
+        self.preview_widget : DamperPreviewRenderWidget
+
     def _create_connections(self):
         #
         self.comboBox_volume_sections.currentIndexChanged.connect(self.volume_sections_callback)
@@ -122,11 +131,13 @@ class PulsationDamperEditorInputs(QDialog):
         self.lineEdit_wall_thickness_liquid.textEdited.connect(self.update_sections_info_callback)
         #
         self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_show_errors.clicked.connect(self.show_error_window_for_parameters)
         self.pushButton_create.clicked.connect(self.create_pulsation_damper_callback)
         self.pushButton_get_gas_fluid.clicked.connect(self.get_gas_fluid_callback)
         self.pushButton_get_liquid_fluid.clicked.connect(self.get_liquid_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
@@ -203,7 +214,7 @@ class PulsationDamperEditorInputs(QDialog):
 
     def config_treeWidget(self):
         widths = [120, 140, 160, 40]
-        header_labels = ["Label", "Damper type", "Connection point", "Lines"]
+        header_labels = ["Label", "Damper type", "Gas volume [m³]", "Lines"]
         for col, label in enumerate(header_labels):
             self.treeWidget_pulsation_damper_info.headerItem().setText(col, label)
             self.treeWidget_pulsation_damper_info.headerItem().setTextAlignment(col, Qt.AlignCenter)
@@ -340,19 +351,55 @@ class PulsationDamperEditorInputs(QDialog):
             self.lineEdit_outside_diameter_gas.setText(outside_diameter)
             self.lineEdit_wall_thickness_gas.setText(wall_thickness)
 
+    def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False, title=None):
+        message = ""
+        if title is None:
+            title = "Invalid input"
+
+        if lineEdit.text() != "":
+            try:
+                str_value = lineEdit.text().replace(",", ".")
+                out = float(str_value)
+
+                if only_positive:
+                    if zero_included:
+                        if out < 0:
+                            message = f"Insert a positive value to the {label}."
+                            message += "\n\nZero value is allowed."
+                            return None
+                    else:
+                        if out <= 0:
+                            message = f"Insert a positive value to the {label}."
+                            message += "\n\nZero value is not allowed."
+                            return None
+
+            except Exception as error_log:
+                message = f"Wrong input for {label}.\n\n"
+                message += str(error_log)
+                return None
+
+        else:
+            if zero_included:
+                return float(0)
+            else:
+                message = f"Insert some value at the {label} input field."
+                return None
+
+        return out
+
     def check_connecting_coords(self):
 
-        coord_x = check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", only_positive=False)
+        coord_x = self.check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", only_positive=False)
         if coord_x is None:
             self.lineEdit_connecting_coord_x.setFocus()
             return True
 
-        coord_y = check_inputs(self.lineEdit_connecting_coord_y, "'connecting coord. y'", only_positive=False)
+        coord_y = self.check_inputs(self.lineEdit_connecting_coord_y, "'connecting coord. y'", only_positive=False)
         if coord_y is None:
             self.lineEdit_connecting_coord_y.setFocus()
             return True
         
-        coord_z = check_inputs(self.lineEdit_connecting_coord_z, "'connecting coord. z'", only_positive=False)
+        coord_z = self.check_inputs(self.lineEdit_connecting_coord_z, "'connecting coord. z'", only_positive=False)
         if coord_z is None:
             self.lineEdit_connecting_coord_z.setFocus()
             return True
@@ -361,12 +408,12 @@ class PulsationDamperEditorInputs(QDialog):
 
     def check_volumes(self):
 
-        damper_volume = check_inputs(self.lineEdit_damper_volume, "'damper volume'", only_positive=False)
+        damper_volume = self.check_inputs(self.lineEdit_damper_volume, "'damper volume'", only_positive=False)
         if damper_volume is None:
             self.lineEdit_damper_volume.setFocus()
             return True
 
-        gas_volume = check_inputs(self.lineEdit_gas_volume, "'gas volume'", only_positive=False)
+        gas_volume = self.check_inputs(self.lineEdit_gas_volume, "'gas volume'", only_positive=False)
         if gas_volume is None:
             self.lineEdit_gas_volume.setFocus()
             return True
@@ -387,32 +434,32 @@ class PulsationDamperEditorInputs(QDialog):
 
     def check_geometric_entries(self):
 
-        outside_diameter_liquid = check_inputs(self.lineEdit_outside_diameter_liquid, "'outside diameter (liquid)'", only_positive=False)
+        outside_diameter_liquid = self.check_inputs(self.lineEdit_outside_diameter_liquid, "'outside diameter (liquid)'", only_positive=False)
         if outside_diameter_liquid is None:
             self.lineEdit_outside_diameter_liquid.setFocus()
             return True
 
-        wall_thickness_liquid = check_inputs(self.lineEdit_wall_thickness_liquid, "'wall thickness (liquid)'", only_positive=False)
+        wall_thickness_liquid = self.check_inputs(self.lineEdit_wall_thickness_liquid, "'wall thickness (liquid)'", only_positive=False)
         if wall_thickness_liquid is None:
             self.lineEdit_wall_thickness_liquid.setFocus()
             return True
 
-        outside_diameter_gas = check_inputs(self.lineEdit_outside_diameter_gas, "'outside diameter (gas)'", only_positive=False)
+        outside_diameter_gas = self.check_inputs(self.lineEdit_outside_diameter_gas, "'outside diameter (gas)'", only_positive=False)
         if outside_diameter_gas is None:
             self.lineEdit_outside_diameter_gas.setFocus()
             return True
 
-        wall_thickness_gas = check_inputs(self.lineEdit_wall_thickness_gas, "'wall thickness (gas)'", only_positive=False)
+        wall_thickness_gas = self.check_inputs(self.lineEdit_wall_thickness_gas, "'wall thickness (gas)'", only_positive=False)
         if wall_thickness_gas is None:
             self.lineEdit_wall_thickness_gas.setFocus()
             return True
 
-        outside_diameter_neck = check_inputs(self.lineEdit_outside_diameter_neck, "'outside diameter (neck)'", only_positive=False)
+        outside_diameter_neck = self.check_inputs(self.lineEdit_outside_diameter_neck, "'outside diameter (neck)'", only_positive=False)
         if outside_diameter_neck is None:
             self.lineEdit_outside_diameter_neck.setFocus()
             return True
 
-        neck_height = check_inputs(self.lineEdit_neck_height, "'neck heght'", only_positive=False)
+        neck_height = self.check_inputs(self.lineEdit_neck_height, "'neck heght'", only_positive=False)
         if neck_height is None:
             self.lineEdit_neck_height.setFocus()
             return True
@@ -437,7 +484,7 @@ class PulsationDamperEditorInputs(QDialog):
         self._pulsation_damper_data["liquid_fluid_id"] = self.liquid_fluid.identifier
         self._pulsation_damper_data["gas_fluid_id"] = self.gas_fluid.identifier
 
-    def check_pulsation_damper_inputs(self):
+    def check_pulsation_damper_geometric_inputs(self):
 
         self._pulsation_damper_data = dict()
 
@@ -452,17 +499,68 @@ class PulsationDamperEditorInputs(QDialog):
 
         if self.check_geometric_entries():
             return True
+
+    def check_pulsation_damper_inputs(self):
+
+        if self.check_pulsation_damper_geometric_inputs():
+            return True
         
         if self.check_fluids():
             return True
-
+        
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
+    
+    def is_not_valid_number(self, value: str):
+        try:
+            float(value.replace(",", "."))
+            return False
+        except:
+            return True
+
+    def preview_callback(self):
+
+        if self.check_pulsation_damper_geometric_inputs():
+            for line_edit in [le for le in self.findChildren(QLineEdit) if le != self.lineEdit_damper_label]:
+                if line_edit.isEnabled() and (line_edit.text() == ""  or self.is_not_valid_number(line_edit.text())):
+                    line_edit.setStyleSheet("border: 2px solid red")
+
+            self.preview_widget.turn_red()
+            self.pushButton_show_errors.setDisabled(False)
+
+        else:
+
+            for line_edit in self.findChildren(QLineEdit):
+                line_edit.setStyleSheet(self.default_style_sheet)
+
+            self.pushButton_show_errors.setDisabled(True)
+
+            self._pulsation_damper_data["liquid_fluid_id"] = 'placeholder'
+            self._pulsation_damper_data["gas_fluid_id"] = 'placeholder'
+
+            self.preview_widget.build_device_preview(self._pulsation_damper_data)
+            self.preview_widget.config_view()
+            self.preview_widget.update()
+        
+            self._pulsation_damper_data["liquid_fluid_id"] = None
+            self._pulsation_damper_data["gas_fluid_id"] = None
+
+    def automatic_preview(self):
+
+        for line_edit in self.findChildren(QLineEdit):
+            line_edit.textEdited.connect(self.preview_callback)
+        
+        for combo_box in self.findChildren(QComboBox):
+            combo_box.currentIndexChanged.connect(self.preview_callback)
+
 
     def create_pulsation_damper_callback(self):
 
-        stop, damper_label = self.check_pulsation_damper_label()
+        self.preview_widget.close_preview()
+
+        stop, damper_label, _, _, _ = self.check_pulsation_damper_label()
         if stop:
+            self.show_error_window_for_label()
             return
 
         if self.check_pulsation_damper_inputs():
@@ -655,10 +753,10 @@ class PulsationDamperEditorInputs(QDialog):
 
         for key, damper_data in self.damper_data.items():
 
-            coords = damper_data["connecting_coords"]
+            gas_volume = damper_data["gas_volume"]
             damper_type = damper_data["damper_type"]
 
-            new = QTreeWidgetItem([key, damper_type, str(coords), str(self.pulsation_damper_lines[key])])
+            new = QTreeWidgetItem([key, damper_type, str(gas_volume), str(self.pulsation_damper_lines[key])])
             for col in range(4):
                 new.setTextAlignment(col, Qt.AlignCenter)
             self.treeWidget_pulsation_damper_info.addTopLevelItem(new)
@@ -705,11 +803,16 @@ class PulsationDamperEditorInputs(QDialog):
 
         if message != "":
             self.hide()
-            PrintMessageInput([window_title_2, title, message])
-            app().main_window.set_input_widget(self)
-            return True, None
+            return True, None, window_title_2, title, message
 
-        return False, damper_label
+        return False, damper_label, None, None, None
+    
+    def show_error_window_for_label(self):
+        _, _, window_title, title, message = self.check_pulsation_damper_label()
+        if window_title is not None and title is not None and message is not None:
+            app().main_window.set_input_widget(self)
+            PrintMessageInput([window_title, title, message])
+
 
     def attribute_callback(self):
         pass
@@ -736,7 +839,7 @@ class PulsationDamperEditorInputs(QDialog):
                     message = f"You cannot input a negative value to the {label}."
 
             except Exception:
-                return None
+                return None, None, None
                 message = f"You have typed an invalid value to the {label}."
 
         else:
@@ -745,10 +848,20 @@ class PulsationDamperEditorInputs(QDialog):
 
         if message != "":
             self.hide()
-            PrintMessageInput([window_title_1, title, message])
-            return None
+            return window_title_1, title, message
+            
+        return value, None, None
+    
+    def show_error_window_for_parameters(self):
+        
+        if window_title_2 is not None and self.error_title is not None and self.error_message is not None:
+            app().main_window.set_input_widget(self)
+            PrintMessageInput([window_title_2, self.error_title, self.error_message])
+        
+        else:
+            PrintMessageInput([window_title_2, "Invalid input", "An empty or invalid field was detected"])
 
-        return value
+
 
     def get_device_tag(self):
         index = 1
@@ -775,7 +888,6 @@ class PulsationDamperEditorInputs(QDialog):
             self.preprocessor.mesh._create_gmsh_geometry()
 
         self.load_pulsation_damper_info()
-        # app().main_window.use_model_setup_workspace()
 
         app().main_window.update_plots()
         self.pushButton_cancel.setText("Exit")
@@ -790,32 +902,6 @@ class PulsationDamperEditorInputs(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        self.preview_widget.close_preview()
         return super().closeEvent(a0)
     
-    # def calculate_effective_volume(self):
-
-    #     dV = self.check_input_parameters(self.lineEdit_fluctuating_volume, "Fluctuating volume of reciprocating pump")
-    #     if dV is None:
-    #         self.lineEdit_effective_volume.setText("")
-    #         self.lineEdit_volume_at_average_pressure.setText("")
-    #         return
-        
-    #     phi = self.doubleSpinBox_pressure_ratio.value()
-    #     x = self.doubleSpinBox_residual_pulsation.value() / 100
-    #     k = self.doubleSpinBox_isentropic_exponent.value()
-
-    #     V0 = dV / ((phi/(1-x))**(1/k) - (phi/(1+x))**(1/k))
-    #     Vm = V0 * (phi**(1/k))
-
-    #     unit_label = self.comboBox_volume_unit.currentText()
-
-    #     if unit_label == " cubic centimeters":
-    #         V0 = V0 * 1e6
-    #         Vm = Vm * 1e6
-
-    #     elif unit_label == " liters":
-    #         V0 = V0 * 1e3
-    #         Vm = Vm * 1e6
-
-    #     self.lineEdit_effective_volume.setText(f"{V0 : .8e}")
-    #     self.lineEdit_volume_at_average_pressure.setText(f"{Vm : .8e}")

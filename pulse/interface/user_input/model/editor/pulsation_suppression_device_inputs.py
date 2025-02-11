@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QSpinBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCloseEvent
 from PyQt5 import uic
@@ -7,10 +7,9 @@ from pulse import app, UI_DIR
 from pulse.editor.single_volume_psd import SingleVolumePSD
 from pulse.editor.dual_volume_psd import DualVolumePSD
 
-from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.interface_utils import check_inputs
+from pulse.interface.viewer_3d.render_widgets.psd_preview_render_widget import PSDPreviewRenderWidget
 
 import numpy as np
 
@@ -30,12 +29,18 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
+        self.default_stylesheet = self.styleSheet()
+
+        self.error_title = None
+        self.error_message = None
 
         self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
+        self.preview_callback()
+        self.automatic_preview()
 
         self.load_psd_info()
         self.selection_callback()
@@ -52,6 +57,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
     def _initialize(self):
         self.keep_window_open = True
         self.nodes_from_removed_lines = list()
+        
 
     def _define_qt_variables(self):
 
@@ -108,6 +114,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         # QPushButton
         self.pushButton_cancel : QPushButton
+        self.pushButton_show_errors : QPushButton
         self.pushButton_create_psd : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
@@ -123,6 +130,9 @@ class PulsationSuppressionDeviceInputs(QDialog):
         # QTreeWidget
         self.treeWidget_psd_info : QTreeWidget
 
+        # QWidget
+        self.preview_widget : PSDPreviewRenderWidget
+
     def _create_connections(self):
         #
         self.comboBox_main_axis.currentIndexChanged.connect(self.update_the_rotation_angle)
@@ -136,6 +146,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
         #
         self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_show_errors.clicked.connect(self.show_errors_callback)
         self.pushButton_create_psd.clicked.connect(self.create_psd_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
@@ -221,7 +232,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.lineEdit_volume2_wall_thickness.setDisabled(bool(index))
 
         if index:
-            # self.spinBox_volumes_spacing.setValue(0.025)
             self.comboBox_volumes_connection.setCurrentIndex(3)
         else:
             self.spinBox_volumes_spacing.setFocus()
@@ -238,9 +248,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.lineEdit_pipe3_length.setText(str(round(vol_spacing, 4)))
             self.lineEdit_pipe3_length.setDisabled(True)
             self.lineEdit_pipe3_wall_thickness.setDisabled(True)
-        #     self.update_wall_thickness_for_plate_setup()
-        # else:
-        #     self.lineEdit_pipe3_wall_thickness.setEnabled(True)
 
     def volumes_connection_callback(self):
         index = self.comboBox_volumes_connection.currentIndex()
@@ -250,14 +257,11 @@ class PulsationSuppressionDeviceInputs(QDialog):
             vol_spacing = self.spinBox_volumes_spacing.value()
             self.lineEdit_pipe3_length.setText(str(round(vol_spacing, 4)))
             self.lineEdit_pipe3_length.setDisabled(True)
-            # self.lineEdit_pipe3_wall_thickness.setDisabled(True)
-            # self.update_wall_thickness_for_plate_setup()
 
         else:
             if self.comboBox_number_volumes.currentIndex() == 0:
                 self.lineEdit_pipe3_distance.setEnabled(True)
                 self.lineEdit_pipe3_length.setEnabled(True)
-            # self.lineEdit_pipe3_wall_thickness.setEnabled(True)
 
     def update_wall_thickness_for_plate_setup(self):
         try:
@@ -293,13 +297,13 @@ class PulsationSuppressionDeviceInputs(QDialog):
             volume_spacing = self.spinBox_volumes_spacing.value()
 
             if self.lineEdit_volume1_length.text() != "":
-                volume1_length = check_inputs(self.lineEdit_volume1_length, "'volume #1 length'")
+                volume1_length = self.check_inputs(self.lineEdit_volume1_length, "'volume #1 length'")
                 if volume1_length is None:
                     self.lineEdit_volume1_length.setFocus()
                     return True
 
             if self.lineEdit_volume2_length.text() != "": 
-                volume2_length = check_inputs(self.lineEdit_volume2_length, "'volume #2 length'")
+                volume2_length = self.check_inputs(self.lineEdit_volume2_length, "'volume #2 length'")
                 if volume2_length is None:
                     self.lineEdit_volume2_length.setFocus()
                     return True
@@ -373,20 +377,56 @@ class PulsationSuppressionDeviceInputs(QDialog):
             return True, None
         
         return False, psd_label
+    
+    def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False, title=None):
+        message = ""
+        if title is None:
+            title = "Invalid input"
+
+        if lineEdit.text() != "":
+            try:
+                str_value = lineEdit.text().replace(",", ".")
+                out = float(str_value)
+
+                if only_positive:
+                    if zero_included:
+                        if out < 0:
+                            message = f"Insert a positive value to the {label}."
+                            message += "\n\nZero value is allowed."
+                            return None
+                    else:
+                        if out <= 0:
+                            message = f"Insert a positive value to the {label}."
+                            message += "\n\nZero value is not allowed."
+                            return None
+
+            except Exception as error_log:
+                message = f"Wrong input for {label}.\n\n"
+                message += str(error_log)
+                return None
+
+        else:
+            if zero_included:
+                return float(0)
+            else:
+                message = f"Insert some value at the {label} input field."
+                return None
+
+        return out
 
     def check_connecting_coords(self):
 
-        coord_x = check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", only_positive=False)
+        coord_x = self.check_inputs(self.lineEdit_connecting_coord_x, "'connecting coord. x'", only_positive=False)
         if coord_x is None:
             self.lineEdit_connecting_coord_x.setFocus()
             return True
 
-        coord_y = check_inputs(self.lineEdit_connecting_coord_y, "'connecting coord. y'", only_positive=False)
+        coord_y = self.check_inputs(self.lineEdit_connecting_coord_y, "'connecting coord. y'", only_positive=False)
         if coord_y is None:
             self.lineEdit_connecting_coord_y.setFocus()
             return True
         
-        coord_z = check_inputs(self.lineEdit_connecting_coord_z, "'connecting coord. z'", only_positive=False)
+        coord_z = self.check_inputs(self.lineEdit_connecting_coord_z, "'connecting coord. z'", only_positive=False)
         if coord_z is None:
             self.lineEdit_connecting_coord_z.setFocus()
             return True
@@ -395,64 +435,54 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def check_volume1_info(self):
 
-        length = check_inputs(self.lineEdit_volume1_length, "'volume #1 length'")
+        length = self.check_inputs(self.lineEdit_volume1_length, "'volume #1 length'")
         if length is None:
-            self.lineEdit_volume1_length.setFocus()
             return True
 
-        diameter = check_inputs(self.lineEdit_volume1_diameter, "'volume #1 diameter'")
+        diameter = self.check_inputs(self.lineEdit_volume1_diameter, "'volume #1 diameter'")
         if diameter is None:
-            self.lineEdit_volume1_diameter.setFocus()
             return True
 
-        wall_thickness = check_inputs(self.lineEdit_volume1_wall_thickness, "'volume #1 wall_thickness'")
+        wall_thickness = self.check_inputs(self.lineEdit_volume1_wall_thickness, "'volume #1 wall_thickness'")
         if wall_thickness is None:
-            self.lineEdit_volume1_wall_thickness.setFocus()
             return True
 
         self._psd_data["volume #1 parameters"] = [diameter, wall_thickness, length]
 
     def check_volume2_info(self):
 
-        length = check_inputs(self.lineEdit_volume2_length, "'volume #2 length'")
+        length = self.check_inputs(self.lineEdit_volume2_length, "'volume #2 length'")
         if length is None:
-            self.lineEdit_volume2_length.setFocus()
             return True
 
-        diameter = check_inputs(self.lineEdit_volume2_diameter, "'volume #2 diameter'")
+        diameter = self.check_inputs(self.lineEdit_volume2_diameter, "'volume #2 diameter'")
         if diameter is None:
-            self.lineEdit_volume2_diameter.setFocus()
             return True
 
-        wall_thickness = check_inputs(self.lineEdit_volume2_wall_thickness, "'volume #2 wall_thickness'")
+        wall_thickness = self.check_inputs(self.lineEdit_volume2_wall_thickness, "'volume #2 wall_thickness'")
         if wall_thickness is None:
-            self.lineEdit_volume2_wall_thickness.setFocus()
             return True
 
         self._psd_data["volume #2 parameters"] = [diameter, wall_thickness, length]
 
     def check_pipe1_info(self):
 
-        length = check_inputs(self.lineEdit_pipe1_length, "'pipe #1 length'")
+        length = self.check_inputs(self.lineEdit_pipe1_length, "'pipe #1 length'")
         if length is None:
-            self.lineEdit_pipe1_length.setFocus()
             return True
 
-        diameter = check_inputs(self.lineEdit_pipe1_diameter, "'pipe #1 diameter'")
+        diameter = self.check_inputs(self.lineEdit_pipe1_diameter, "'pipe #1 diameter'")
         if diameter is None:
-            self.lineEdit_pipe1_diameter.setFocus()
             return True
 
-        wall_thickness = check_inputs(self.lineEdit_pipe1_wall_thickness, "'pipe #1 wall_thickness'")
+        wall_thickness = self.check_inputs(self.lineEdit_pipe1_wall_thickness, "'pipe #1 wall_thickness'")
         if wall_thickness is None:
-            self.lineEdit_pipe1_wall_thickness.setFocus()
             return True
 
         if self.comboBox_pipe1_connection.currentIndex() == 0:
 
-            distance = check_inputs(self.lineEdit_pipe1_distance, "'pipe #1 distance'")
+            distance = self.check_inputs(self.lineEdit_pipe1_distance, "'pipe #1 distance'")
             if distance is None:
-                self.lineEdit_pipe1_distance.setFocus()
                 return True
 
             rot_angle = self.spinBox_pipe1_rotation_angle.value()
@@ -465,26 +495,22 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def check_pipe2_info(self):
 
-        length = check_inputs(self.lineEdit_pipe2_length, "'pipe #2 length'")
+        length = self.check_inputs(self.lineEdit_pipe2_length, "'pipe #2 length'")
         if length is None:
-            self.lineEdit_pipe2_length.setFocus()
             return True
 
-        diameter = check_inputs(self.lineEdit_pipe2_diameter, "'pipe #2 diameter'")
+        diameter = self.check_inputs(self.lineEdit_pipe2_diameter, "'pipe #2 diameter'")
         if diameter is None:
-            self.lineEdit_pipe2_diameter.setFocus()
             return True
 
-        wall_thickness = check_inputs(self.lineEdit_pipe2_wall_thickness, "'pipe #2 wall_thickness'")
+        wall_thickness = self.check_inputs(self.lineEdit_pipe2_wall_thickness, "'pipe #2 wall_thickness'")
         if wall_thickness is None:
-            self.lineEdit_pipe2_wall_thickness.setFocus()
             return True
 
         if self.comboBox_pipe2_connection.currentIndex() == 0:
             
-            distance = check_inputs(self.lineEdit_pipe2_distance, "'pipe #2 distance'")
+            distance = self.check_inputs(self.lineEdit_pipe2_distance, "'pipe #2 distance'")
             if distance is None:
-                self.lineEdit_pipe2_distance.setFocus()
                 return True
 
             rot_angle = self.spinBox_pipe2_rotation_angle.value()
@@ -497,14 +523,12 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def check_pipe3_info(self):
         
-        diameter = check_inputs(self.lineEdit_pipe3_diameter, "'pipe #3 diameter'")
+        diameter = self.check_inputs(self.lineEdit_pipe3_diameter, "'pipe #3 diameter'")
         if diameter is None:
-            self.lineEdit_pipe3_diameter.setFocus()
             return True
 
-        wall_thickness = check_inputs(self.lineEdit_pipe3_wall_thickness, "'pipe #3 wall_thickness'")
+        wall_thickness = self.check_inputs(self.lineEdit_pipe3_wall_thickness, "'pipe #3 wall_thickness'")
         if wall_thickness is None:
-            self.lineEdit_pipe3_wall_thickness.setFocus()
             return True
             
         index = self.comboBox_volumes_connection.currentIndex()
@@ -513,14 +537,12 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         if index in [0 ,1]:
 
-            length = check_inputs(self.lineEdit_pipe3_length, "'pipe #3 length'")
+            length = self.check_inputs(self.lineEdit_pipe3_length, "'pipe #3 length'")
             if length is None:
-                self.lineEdit_pipe3_length.setFocus()
                 return True
 
-            distance = check_inputs(self.lineEdit_pipe3_distance, "'pipe #3 distance'")
+            distance = self.check_inputs(self.lineEdit_pipe3_distance, "'pipe #3 distance'")
             if distance is None:
-                self.lineEdit_pipe3_distance.setFocus()
                 return True
 
         if index in [0, 1]:
@@ -535,7 +557,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self._psd_data["pipe #4 parameters"] = _parameters
 
     def check_psd_inputs(self):
-
         self._psd_data = dict()
 
         main_axis = self.comboBox_main_axis.currentText()[1:]
@@ -568,7 +589,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
             if self.check_pipe3_info():
                 return True
             
-            if self.check_geometric_criteria_for_double_volume_psd():
+            if self.check_geometric_criteria_for_double_volume_psd() is not None:
                 return True
 
             index_vol_connect = self.comboBox_volumes_connection.currentIndex()
@@ -590,7 +611,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
             if self.check_pipe2_info():
                 return True
 
-            if self.check_geometric_criteria_for_single_volume_psd():
+            if self.check_geometric_criteria_for_single_volume_psd() is not None:
                 return True
 
     def check_geometric_criteria_for_single_volume_psd(self):
@@ -603,18 +624,16 @@ class PulsationSuppressionDeviceInputs(QDialog):
             pipe1_distance = self._psd_data["pipe #1 parameters"][3]
 
             if pipe1_distance <= pipe1_diameter / 2:
-                title = "Invalid pipe #1 distance"
-                message = "The 'pipe #1 distance' must be greater than half of the 'pipe #1 diameter'"
-                PrintMessageInput([window_title_2, title, message])
-                return True
+                self.error_title = "Invalid pipe #1 distance"
+                self.error_message = "The 'pipe #1 distance' must be greater than half of the 'pipe #1 diameter'"
+                return True, window_title_2, self.error_title, self.error_message
 
             if len(self._psd_data["pipe #2 parameters"]) == 3: # i.e. pipe #2 is axial
                 if pipe1_distance >= volume1_length - pipe1_diameter / 2:
-                    title = "Invalid pipe #1 distance"
-                    message = "For the radial-axial psd configuration, the 'pipe #1 distance' should be less "
-                    message += "than the 'volume #1 length'minus the half of the 'pipe #1 diameter'."
-                    PrintMessageInput([window_title_2, title, message])
-                    return True
+                    self.error_title = "Invalid pipe #1 distance"
+                    self.error_message = "For the radial-axial psd configuration, the 'pipe #1 distance' should be less "
+                    self.error_message += "than the 'volume #1 length'minus the half of the 'pipe #1 diameter'."
+                    return True, window_title_2, self.error_title, self.error_message
                 
         if len(self._psd_data["pipe #2 parameters"]) == 5:
 
@@ -622,31 +641,35 @@ class PulsationSuppressionDeviceInputs(QDialog):
             pipe2_distance = self._psd_data["pipe #2 parameters"][3]
 
             if pipe2_distance >= volume1_length - pipe2_diameter / 2:
-                title = "Invalid pipe #2 distance"
-                message = "The 'pipe #2 distance' should be less than the 'volume #1 length' "
-                message += "minus the half of the 'pipe #2 diameter'."
-                PrintMessageInput([window_title_2, title, message])
-                return True
+                self.error_title = "Invalid pipe #2 distance"
+                self.error_message = "The 'pipe #2 distance' should be less than the 'volume #1 length' "
+                self.error_message += "minus the half of the 'pipe #2 diameter'."
+                return True, window_title_2, self.error_title, self.error_message
 
             if len(self._psd_data["pipe #1 parameters"]) == 5:
 
                 pipe1_distance = self._psd_data["pipe #1 parameters"][3]
 
                 if pipe1_distance >= pipe2_distance:
-                    title = "Invalid pipe #1 distance"
-                    message = "The 'pipe #1 distance' should be less than the 'pipe #2 distance'."
-                    PrintMessageInput([window_title_2, title, message])
-                    return True
+                    self.error_title = "Invalid pipe #1 distance"
+                    self.error_message = "The 'pipe #1 distance' should be less than the 'pipe #2 distance'."
+                    return True, window_title_2, self.error_title, self.error_message
             
             if len(self._psd_data["pipe #1 parameters"]) == 3:
                 if pipe2_distance <= pipe2_diameter:
-                    title = "Invalid pipe #2 length"
-                    message = "For the axial-radial configuration, the 'pipe #2 distance' must be greater than half of the 'pipe #2 diameter'"
-                    PrintMessageInput([window_title_2, title, message])
-                    return True
+                    self.error_title = "Invalid pipe #2 length"
+                    self.error_message = "For the axial-radial configuration, the 'pipe #2 distance' must be greater than half of the 'pipe #2 diameter'"
+                    return True, window_title_2, self.error_title, self.error_message
                 
-    def check_geometric_criteria_for_double_volume_psd(self):
+    def show_errors_for_single_volume_psd_geometric_inputs(self):
+        if window_title_2 is not None and self.error_title is not None and self.error_message is not None:
+            PrintMessageInput([window_title_2, self.error_title, self.error_message])
         
+        else:
+            PrintMessageInput([window_title_2, "Invalid input", "An empty or invalid field was detected"])
+
+     
+    def check_geometric_criteria_for_double_volume_psd(self):
         volumes_spacing = self._psd_data["volumes spacing"]
         volume1_length = self._psd_data["volume #1 parameters"][2]
         volume2_length = self._psd_data["volume #2 parameters"][2]
@@ -656,72 +679,83 @@ class PulsationSuppressionDeviceInputs(QDialog):
             pipe1_diameter = self._psd_data["pipe #1 parameters"][0]
 
             if pipe1_distance >= volume1_length - pipe1_diameter / 2: # i.e. pipe #1 distance must be 
-                title = "Invalid pipe #1 distance"
-                message = "The 'pipe #1 distance' must be less than the 'volume #1 length' "
-                message += "minus the half of the 'pipe #1 diameter'"
-                PrintMessageInput([window_title_2, title, message])
-                return True
+                self.error_title = "Invalid pipe #1 distance"
+                self.error_message = "The 'pipe #1 distance' must be less than the 'volume #1 length' "
+                self.error_message += "minus the half of the 'pipe #1 diameter'"
+                return True, window_title_2, self.error_title, self.error_message
             
             if pipe1_distance <= pipe1_diameter / 2:
-                title = "Invalid pipe #1 distance"
-                message = "The 'pipe #1 distance' must be greater than half of the 'pipe #1 diameter'"
-                PrintMessageInput([window_title_2, title, message])
-                return True
+                self.error_title = "Invalid pipe #1 distance"
+                self.error_message = "The 'pipe #1 distance' must be greater than half of the 'pipe #1 diameter'"
+                return True, window_title_2, self.error_title, self.error_message
         
         if len(self._psd_data["pipe #2 parameters"]) == 5: # i.e. pipe #2 is radial
             pipe2_distance = self._psd_data["pipe #2 parameters"][3]
             pipe2_diameter = self._psd_data["pipe #2 parameters"][0]
 
             if pipe2_distance >= volume1_length + volumes_spacing + volume2_length - pipe2_diameter / 2 : # i.e. pipe #2 distance must be less than "volume #2 distance + length"
-                title = "Invalid pipe #2 distance"
-                message = "The 'pipe #2 distance' must be less than the 'volume #1 length' "
-                message += "+ 'volumes spacing' + 'volume #2 length' "
-                message += "minus the half of the 'pipe #2 diameter'"
-                PrintMessageInput([window_title_2, title, message])
-                return True
+                self.error_title = "Invalid pipe #2 distance"
+                self.error_message = "The 'pipe #2 distance' must be less than the 'volume #1 length' "
+                self.error_message += "+ 'volumes spacing' + 'volume #2 length' "
+                self.error_message += "minus the half of the 'pipe #2 diameter'"
+                return True, window_title_2, self.error_title, self.error_message
             
             if pipe2_distance - pipe2_diameter / 2 <= volume1_length + volumes_spacing: 
-                title = "Invalid pipe #2 distance"
-                message = "The 'pipe #2 distance' minus the 'pipe #2 diameter / 2' must be greater than the volume #1 length plus "
-                message += "the 'volumes spacing'"
-                PrintMessageInput([window_title_2, title, message])
-                return True
+                self.error_title = "Invalid pipe #2 distance"
+                self.error_message = "The 'pipe #2 distance' minus the 'pipe #2 diameter / 2' must be greater than the volume #1 length plus "
+                self.error_message += "the 'volumes spacing'"
+                return True, window_title_2, self.error_title, self.error_message
 
         if self.comboBox_volumes_connection.currentIndex() in [0, 1]:
 
             pipe3_length = self._psd_data["pipe #3 parameters"][2]
             pipe3_distance = self._psd_data["pipe #3 parameters"][3]
 
-            # TODO: check if the cases where these are equal to each other and see if they are valid
             if pipe3_distance > volume1_length:
-                title = "Invalid pipe #3 length"
-                message = "The 'pipe #3 distance' must be less than the 'volume #1 length'"
-                PrintMessageInput([window_title_2, title, message])
-                return True
+                self.error_title = "Invalid pipe #3 length"
+                self.error_message = "The 'pipe #3 distance' must be less than the 'volume #1 length'"
+                return True, window_title_2, self.error_title, self.error_message
             
             if pipe3_length < volumes_spacing:
-                title = "Invalid pipe #3 length"
-                message = "The 'pipe #3 length' must be greater than or equal to the 'volumes spacing'"
-                PrintMessageInput([window_title_2, title, message])
-                return True            
+                self.error_title = "Invalid pipe #3 length"
+                self.error_message = "The 'pipe #3 length' must be greater than or equal to the 'volumes spacing'"
+                return True, window_title_2, self.error_title, self.error_message            
             
             if pipe3_distance + pipe3_length < volume1_length + volumes_spacing:
-                title = "Invalid combination of pipe #3 length and distance"
-                message = "The pipe #3 length plus the pipe #3 distance must be less "
-                message += "than the volume #1 length plus the volumes spacing"
-                PrintMessageInput([window_title_2, title, message])
-                return True
+                self.error_title = "Invalid combination of pipe #3 length and distance"
+                self.error_message = "The pipe #3 length plus the pipe #3 distance must be less "
+                self.error_message += "than the volume #1 length plus the volumes spacing"
+                return True, window_title_2, self.error_title, self.error_message
+            
+    def show_errors_for_double_volume_psd_geometric_inputs(self):
+            if window_title_2 is not None and self.error_title is not None and self.error_message is not None:
+                PrintMessageInput([window_title_2, self.error_title, self.error_message])
+
+            else:
+                PrintMessageInput([window_title_2, "Invalid input", "An empty or invalid field was detected"])
 
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
+    
+    def show_errors_callback(self):
+        if self.comboBox_number_volumes.currentIndex() == 0:
+            self.show_errors_for_double_volume_psd_geometric_inputs()
+        else:
+            self.show_errors_for_single_volume_psd_geometric_inputs()
 
     def create_psd_callback(self):
+        self.preview_widget.close_preview()
 
         stop, psd_label = self.check_psd_label()
         if stop:
             return
 
         if self.check_psd_inputs():
+            if self.comboBox_number_volumes.currentIndex() == 0:
+                self.show_errors_for_double_volume_psd_geometric_inputs()
+            else:
+                self.show_errors_for_single_volume_psd_geometric_inputs()
+            
             self._psd_data.clear()
             return
 
@@ -891,24 +925,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         app().pulse_file.write_nodal_properties_in_file()
 
-    # def update_length_correction_after_psd_removal(self):
-
-    #     psds_data = app().pulse_file.read_psd_data_from_file()
-    #     if psds_data is None:
-    #         return
-
-    #     for device_label, psd_data in psds_data.items():
-
-    #         elc_data = list()
-    #         for key, data in psd_data.items():
-    #             if "element_length_correction -" in key:
-    #                 elc_coords = data["connection_coords"]
-    #                 elc_type = data["connection_type"]
-    #                 elc_data.append((elc_coords, elc_type))
-
-    #         if elc_data:
-    #             self.set_element_length_corrections(device_label, elc_data)
-
     def set_element_length_corrections(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
 
         for (coords, connection_type) in device.branch_data:
@@ -948,7 +964,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.preprocessor.set_element_length_correction_by_element(element_ids, None)
         self.properties._remove_element_property("element_length_correction", element_ids) 
         app().pulse_file.write_element_properties_in_file()
-        # self.update_length_correction_after_psd_removal()
 
     def remove_callback(self):
 
@@ -990,6 +1005,43 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
             self.actions_to_finalize()
             app().main_window.update_plots()
+    
+    def is_not_valid_number(self, value: str):
+        try:
+            float(value.replace(",", "."))
+            return False
+        except:
+            return True
+
+    def preview_callback(self):
+
+        if self.check_psd_inputs():
+            self.preview_widget.turn_red()
+
+            for line_edit in [le for le in self.findChildren(QLineEdit) if le != self.lineEdit_device_label]:
+                if line_edit.isEnabled() and (line_edit.text() == "" or self.is_not_valid_number(line_edit.text())):
+                    line_edit.setStyleSheet("border: 2px solid red")
+
+            self.pushButton_show_errors.setDisabled(False)
+
+        else:
+            for line_edit in self.findChildren(QLineEdit):
+                line_edit.setStyleSheet(self.default_stylesheet)
+                
+            self.pushButton_show_errors.setDisabled(True)
+            self.preview_widget.build_device_preview(self._psd_data)
+            self.preview_widget.config_view()
+            self.preview_widget.update()
+
+    def automatic_preview(self):
+        for line_edit in self.findChildren(QLineEdit):
+            line_edit.textEdited.connect(self.preview_callback)
+        
+        for combo_box in self.findChildren(QComboBox):
+            combo_box.currentIndexChanged.connect(self.preview_callback)
+        
+        for spin_box in self.findChildren(QSpinBox):
+            spin_box.valueChanged.connect(self.preview_callback)
 
     def load_psd_info(self):
 
@@ -1039,7 +1091,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.preprocessor.mesh._create_gmsh_geometry()
 
         self.load_psd_info()
-        # app().main_window.use_model_setup_workspace()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
@@ -1049,4 +1100,5 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        self.preview_widget.close_preview()
         return super().closeEvent(a0)
