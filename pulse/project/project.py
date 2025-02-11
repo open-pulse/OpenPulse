@@ -579,7 +579,10 @@ class Project:
         else:
             static_analysis = False
 
+        logging.info("Evaluating the structural reactions for constrained dofs [60%]")
         self.structural_solver.get_reactions_at_constrained_dofs(static_analysis=static_analysis)
+
+        logging.info("Evaluating the structural reactions for lumped elements [80%]")
         self.structural_solver.get_reactions_at_springs_and_dampers(static_analysis=static_analysis)
 
         self.structural_reactions = {
