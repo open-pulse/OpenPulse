@@ -512,12 +512,19 @@ class PulsationDamperEditorInputs(QDialog):
         
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
+    
+    def is_not_valid_number(self, value: str):
+        try:
+            float(value.replace(",", "."))
+            return False
+        except:
+            return True
 
     def preview_callback(self):
 
         if self.check_pulsation_damper_geometric_inputs():
-            for line_edit in self.findChildren(QLineEdit):
-                if line_edit.text() == "" and line_edit.isEnabled():
+            for line_edit in [le for le in self.findChildren(QLineEdit) if le != self.lineEdit_damper_label]:
+                if line_edit.isEnabled() and (line_edit.text() == ""  or self.is_not_valid_number(line_edit.text())):
                     line_edit.setStyleSheet("border: 2px solid red")
 
             self.preview_widget.turn_red()
@@ -854,7 +861,7 @@ class PulsationDamperEditorInputs(QDialog):
             PrintMessageInput([window_title_2, self.error_title, self.error_message])
         
         else:
-            PrintMessageInput([window_title_2, "Invalid input", "An empty or incomplete field was detected"])
+            PrintMessageInput([window_title_2, "Invalid input", "An empty or invalid field was detected"])
 
 
 
