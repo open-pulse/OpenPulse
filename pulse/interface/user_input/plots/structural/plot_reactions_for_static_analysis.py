@@ -4,7 +4,9 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 
+import logging
 import numpy as np
 
 
@@ -16,22 +18,17 @@ class PlotReactionsForStaticAnalysis(QWidget):
         uic.loadUi(ui_path, self)
         
         app().main_window.set_input_widget(self)
-        self.model = app().project.model
 
         self._initialize()
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+        self._load_structural_solver_and_reactions()
         self._load_nodes_info()
         self._config_widgets()
 
     def _initialize(self):
-
-        reactions_data = app().project.get_structural_reactions()
-
-        self.reactions_at_constrained_dofs = reactions_data.get("reactions_at_constrained_dofs", None)
-        self.reactions_at_springs = reactions_data.get("reactions_at_springs", None)
-        self.reactions_at_dampers = reactions_data.get("reactions_at_dampers", None)
+        pass
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -88,15 +85,11 @@ class PlotReactionsForStaticAnalysis(QWidget):
         self.treeWidget_reactions_at_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
     def _config_widgets(self):
-
-        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(2, 80)
-
-        self.treeWidget_reactions_at_dampers.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_dampers.setColumnWidth(2, 80)
-
-        self.treeWidget_reactions_at_springs.setColumnWidth(1, 20)
-        self.treeWidget_reactions_at_springs.setColumnWidth(2, 80)
+        #
+        for i, width in enumerate([20, 80]):
+            self.treeWidget_reactions_at_constrained_dofs.setColumnWidth(i, width)
+            self.treeWidget_reactions_at_dampers.setColumnWidth(i, width)
+            self.treeWidget_reactions_at_springs.setColumnWidth(i, width)
 
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:
@@ -170,9 +163,37 @@ class PlotReactionsForStaticAnalysis(QWidget):
             text = "[{}]".format(*labels)
         return text
 
+    def _load_structural_solver_and_reactions(self):
+
+        if app().project.structural_solver is None:
+
+            def solver_callback():
+
+                logging.info("Processing the cross-sections [5%]")
+                app().project.model.preprocessor.process_cross_sections_mapping()
+
+                logging.info("Processing global matrices [50%]")
+                app().project.structural_solver = app().project.get_structural_solver()
+
+                logging.info("Processing global matrices [100%]")
+
+                if app().project.structural_solver.solution is None:
+                    app().project.structural_solver.solution = app().project.structural_solution
+
+                logging.info("Evaluating the structural reactions [20%]")
+                app().project.calculate_structural_reactions()
+
+            LoadingWindow(solver_callback).run()
+
+        reactions_data = app().project.get_structural_reactions()
+
+        self.reactions_at_constrained_dofs = reactions_data.get("reactions_at_constrained_dofs", None)
+        self.reactions_at_springs = reactions_data.get("reactions_at_springs", None)
+        self.reactions_at_dampers = reactions_data.get("reactions_at_dampers", None)
+
     def _load_nodes_info(self):
 
-        for (property, *args), data in self.model.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "lumped_stiffness":
                 node_id = args[0]

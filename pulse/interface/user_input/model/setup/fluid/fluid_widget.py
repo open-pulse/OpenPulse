@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetItem, QWidget
+from PyQt5.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -47,6 +47,7 @@ class FluidWidget(QWidget):
         self._define_qt_variables()
         self._create_connections()
         self._load_state_properties(**kwargs)
+        self._config_widgets()
 
         self.load_data_from_fluids_library()
 
@@ -101,6 +102,10 @@ class FluidWidget(QWidget):
         self.tableWidget_fluid_data.cellClicked.connect(self.cell_clicked_callback)
         self.tableWidget_fluid_data.itemChanged.connect(self.item_changed_callback)
         self.tableWidget_fluid_data.cellDoubleClicked.connect(self.cell_double_clicked_callback)
+
+    def _config_widgets(self):
+        self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
+        self.tableWidget_fluid_data.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
 
     def _load_state_properties(self, **kwargs):
         self.state_properties = kwargs.get("state_properties", dict())
