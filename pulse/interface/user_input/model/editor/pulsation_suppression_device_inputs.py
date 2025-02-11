@@ -667,7 +667,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
             PrintMessageInput([window_title_2, self.error_title, self.error_message])
         
         else:
-            PrintMessageInput([window_title_2, "Invalid input", "An empty or incomplete field was detected"])
+            PrintMessageInput([window_title_2, "Invalid input", "An empty or invalid field was detected"])
 
      
     def check_geometric_criteria_for_double_volume_psd(self):
@@ -733,7 +733,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
                 PrintMessageInput([window_title_2, self.error_title, self.error_message])
 
             else:
-                PrintMessageInput([window_title_2, "Invalid input", "An empty or incomplete field was detected"])
+                PrintMessageInput([window_title_2, "Invalid input", "An empty or invalid field was detected"])
 
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
@@ -1006,14 +1006,21 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
             self.actions_to_finalize()
             app().main_window.update_plots()
+    
+    def is_not_valid_number(self, value: str):
+        try:
+            float(value.replace(",", "."))
+            return False
+        except:
+            return True
 
     def preview_callback(self):
 
         if self.check_psd_inputs():
             self.preview_widget.turn_red()
 
-            for line_edit in self.findChildren(QLineEdit):
-                if line_edit.text() == "":
+            for line_edit in [le for le in self.findChildren(QLineEdit) if le != self.lineEdit_device_label]:
+                if line_edit.isEnabled() and (line_edit.text() == "" or self.is_not_valid_number(line_edit.text())):
                     line_edit.setStyleSheet("border: 2px solid red")
 
             self.pushButton_show_errors.setDisabled(False)
