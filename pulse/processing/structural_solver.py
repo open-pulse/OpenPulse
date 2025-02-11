@@ -38,11 +38,9 @@ class StructuralSolver:
         self.acoustic_solution = kwargs.get("acoustic_solution", None)
         self.assembly = AssemblyStructural(model, acoustic_solution=self.acoustic_solution)
 
-        self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
-        self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()
+        self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()       
+        self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()       
         self.K_exp_joint, self.M_exp_joint, self.Kr_exp_joint, self.Mr_exp_joint = self.assembly.get_expansion_joint_global_matrices()
-
-        # self.cache_K = self.K.copy()
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values, self.array_prescribed_values = self.assembly.get_prescribed_values()
@@ -68,8 +66,6 @@ class StructuralSolver:
 
     def update_global_matrices(self):
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
-        # print(np.max(np.abs(self.cache_K - self.K)))
-        # print(np.max(np.abs(self.K)))
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis=False):
         """
@@ -124,7 +120,7 @@ class StructuralSolver:
         """
 
         unprescribed_indexes = self.unprescribed_indexes
-        alphaV, betaV, alphaH, betaH = self.model.global_damping
+        alpha_v, beta_v, alpha_h, beta_h = self.model.global_damping
 
         F = self.assembly.get_global_loads(static_analysis=static_analysis)
 
@@ -184,7 +180,7 @@ class StructuralSolver:
                 omega = 2*np.pi*freq
                 F_Kadd = Kr_add + Kr_add_lump
                 F_Madd = (-(omega**2))*(Mr_add + Mr_add_lump) 
-                F_Cadd = 1j*((betaH + omega*betaV)*Kr_add + (alphaH + omega*alphaV)*Mr_add)
+                F_Cadd = 1j*((beta_h + omega*beta_v)*Kr_add + (alpha_h + omega*alpha_v)*Mr_add)
                 F_Cadd_lump = 1j*omega*Cr_add_lump
                 F_eq[:, i] = F_Kadd + F_Madd + F_Cadd + F_Cadd_lump
 
@@ -296,7 +292,7 @@ class StructuralSolver:
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
 
-        alphaV, betaV, alphaH, betaH = self.model.global_damping
+        alpha_v, beta_v, alpha_h, beta_h = self.model.global_damping
 
         if self.model.preprocessor.stress_stiffening_enabled:
             static_solution = self.static_analysis()
@@ -317,11 +313,11 @@ class StructuralSolver:
 
             # F_K = (self.K + self.K_lump[i])
             # F_M =  (-(omega**2))*(self.M + self.M_lump[i])
-            # F_C = 1j*(( betaH + omega*betaV )*self.K + ( alphaH + omega*alphaV )*self.M)
+            # F_C = 1j*(( beta_h + omega*beta_v )*self.K + ( alpha_h + omega*alpha_v )*self.M)
 
             F_K = (self.K + self.K_exp_joint[i] + self.K_lump[i])
             F_M =  (-(omega**2))*(self.M + self.M_exp_joint + self.M_lump[i])
-            F_C = 1j*(( betaH + omega*betaV )*(self.K + self.K_exp_joint[i]) + ( alphaH + omega*alphaV )*(self.M + self.M_exp_joint))
+            F_C = 1j*(( beta_h + omega*beta_v )*(self.K + self.K_exp_joint[i]) + ( alpha_h + omega*alpha_v )*(self.M + self.M_exp_joint))
 
             F_Clump = 1j*omega*self.C_lump[i]
             
@@ -359,7 +355,7 @@ class StructuralSolver:
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
         global_damping = self.model.global_damping
-        alphaV, betaV, alphaH, betaH = global_damping
+        alpha_v, beta_v, alpha_h, beta_h = global_damping
 
         self.warning_mode_sup_prescribed_dofs = ""
 
@@ -397,7 +393,7 @@ class StructuralSolver:
             omega_n = 2 * np.pi * natural_frequencies
             F_kg = (omega_n**2)
             F_mg =  -(omega**2)
-            F_cg = 1j*((betaH + betaV*omega)*(omega_n**2) + (alphaH + omega*alphaV)) 
+            F_cg = 1j*((beta_h + beta_v*omega)*(omega_n**2) + (alpha_h + omega*alpha_v)) 
             diag = np.divide(1, (F_kg + F_mg + F_cg))*np.eye(number_modes)
             F_aux = modal_shape.T @ F
             solution = modal_shape @ (diag @ F_aux)
@@ -417,7 +413,7 @@ class StructuralSolver:
 
                 omega = 2*np.pi*freq
                 F_mg =  - (omega**2)
-                F_cg = 1j*((betaH + betaV*omega)*(omega_n**2) + (alphaH + omega*alphaV)) 
+                F_cg = 1j*((beta_h + beta_v*omega)*(omega_n**2) + (alpha_h + omega*alpha_v)) 
                 data = np.divide(1, (F_kg + F_mg + F_cg))
                 diag = np.diag(data)
                 solution[:,i] = modal_shape @ (diag @ F_aux[:,i])
@@ -448,7 +444,7 @@ class StructuralSolver:
             Gets the nodal results at the global coordinate system and updates the global matrices to get into account the stress stiffening effect. 
         """
 
-        alphaV, betaV, alphaH, betaH = self.model.global_damping
+        alpha_v, beta_v, alpha_h, beta_h = self.model.global_damping
         # F = self.assembly.get_global_loads_for_static_analysis()
         F = self.get_combined_loads(static_analysis=True)
 
@@ -460,8 +456,8 @@ class StructuralSolver:
 
         F_K = (self.K + self.K_exp_joint[0] + self.K_lump[0])
         F_M =  (-(omega**2))*(self.M + self.M_exp_joint + self.M_lump[0])
-        F_C = 1j*(( betaH + omega*betaV )*(self.K + self.K_exp_joint[0]) + 
-                  ( alphaH + omega*alphaV )*(self.M + self.M_exp_joint))
+        F_C = 1j*(( beta_h + omega*beta_v )*(self.K + self.K_exp_joint[0]) + 
+                  ( alpha_h + omega*alpha_v )*(self.M + self.M_exp_joint))
 
         F_Clump = 1j*omega*self.C_lump[0]
         A = F_K + F_M + F_C + F_Clump
@@ -487,8 +483,8 @@ class StructuralSolver:
             Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a fixed degree of freedom.
         """
 
-        alphaH, betaH, alphaV, betaV = self.model.global_damping
-        load_reactions = {}
+        alpha_h, beta_h, alpha_v, beta_v = self.model.global_damping
+
         if self.solution is not None:    
 
             if self.Kr == [] or self.Mr == []:
@@ -509,35 +505,23 @@ class StructuralSolver:
                 Ut = self.solution.T
                 Kr = self.Kr.toarray()
                 Mr = self.Mr.toarray() + self.Mr_exp_joint.toarray()
-                Ut_Mr = Ut@Mr
+                Ut_Mr = Ut @ Mr
 
+                n_freq = len(_frequencies)
                 for j, freq in enumerate(_frequencies):
-                    
+
+                    logging.info(f"Evaluating the structural reactions for constrained dofs [{j+1}/{n_freq}]")
+
                     omega = 2*np.pi*freq
-                    # Ut_Kr = Ut@(Kr+self.Kr_exp_joint[j].toarray())
-
-                    # F_K = Ut_Kr[j,:]
-                    # F_M = -(omega**2)*Ut_Mr[j,:]
-                    # F_C = 1j*((betaH + omega*betaV)*Ut_Kr[j,:] + (alphaH + omega*alphaV)*Ut_Mr[j,:])
-
                     Ut_Kr = Ut[j,:] @ (Kr + self.Kr_exp_joint[j].toarray())
+
                     F_K = Ut_Kr
                     F_M = -(omega**2) * Ut_Mr[j, :]
-                    F_C = 1j*((betaH + omega*betaV) * Ut_Kr + (alphaH + omega*alphaV) * Ut_Mr[j, :])
-                    _reactions[j, :] = F_K + F_M + F_C
-                
-                # Mr = self.Mr.toarray()
-                # Ut_Kr = Ut@Kr
-                # Ut_Mr = Ut@Mr
-                
-                # omega = 2*np.pi*self.frequencies
-                # omega = omega.reshape(rows,1)
-                    
-                # F_K = Ut_Kr
-                # F_M = -(omega**2)*Ut_Mr
-                # F_C = 1j*((betaH + omega*betaV)*Ut_Kr + (alphaH + omega*alphaV)*Ut_Mr)
-                # _reactions = F_K + F_M + F_C
+                    F_C = 1j*((beta_h + omega*beta_v) * Ut_Kr + (alpha_h + omega*alpha_v) * Ut_Mr[j, :])
 
+                    _reactions[j, :] = F_K + F_M + F_C
+
+                load_reactions = dict()
                 for i, prescribed_index in enumerate(self.prescribed_indexes):
                     load_reactions[prescribed_index] =  _reactions[:,i]
 
@@ -659,9 +643,9 @@ class StructuralSolver:
         self.stress_field_dict = dict()
 
         if damping:
-            _, betaH, _, betaV = self.model.global_damping
+            _, beta_h, _, beta_v = self.model.global_damping
         else:
-            betaH = betaV = 0
+            beta_h = beta_v = 0
 
         if static_analysis:
             _frequencies = np.array([0], dtype=float)
@@ -671,7 +655,7 @@ class StructuralSolver:
         structural_elements = self.model.preprocessor.structural_elements.values()
         omega = 2 * np.pi * _frequencies.reshape(1,-1)
 
-        damping = np.ones([6,1]) @  (1 + 1j*( betaH + omega * betaV ))
+        damping = np.ones([6,1]) @  (1 + 1j*( beta_h + omega * beta_v ))
         p0 = external_pressure
 
         for element in structural_elements:

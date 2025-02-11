@@ -16,6 +16,7 @@ from pulse.utils.unit_conversion import *
 
 from pulse.model.mesh import Mesh
 
+import logging
 import numpy as np
 from time import time
 from collections import defaultdict, deque
@@ -2004,18 +2005,6 @@ class Preprocessor:
 
             return data
 
-    # Z = Te.reshape(-1,2,2)
-
-    # He = np.array([H11, H12, H21, H22], dtype=complex).T.reshape(-1,2,2)
-    # inv = np.linalg.inv(He)
-
-    # print(f"teste inversa -> {np.max(np.abs(Z - inv))}")
-
-    # q = np.array([1, 0], dtype=float)
-    # rq1 = (H21*q[0] + H22*q[1]) / (H11*q[0] + H12*q[1])               
-    # q = np.array([0, 1], dtype=float)
-    # rq2 = (H21*q[0] + H22*q[1]) / (H11*q[0] + H12*q[1])
-    # print(rq1[:10], rq2[:10])
 
     def process_cross_sections_mapping(self):  
 
@@ -2025,6 +2014,8 @@ class Preprocessor:
         dict_etype_index = dict(zip(label_etypes,indexes))
         dict_index_etype = dict(zip(indexes,label_etypes))
         map_cross_section_to_elements = defaultdict(list)
+
+        logging.info("Processing the cross-sections [25%]")
 
         for index, element in self.structural_elements.items():
 
@@ -2071,6 +2062,8 @@ class Preprocessor:
             if self.stop_processing:
                 return
 
+        logging.info("Processing the cross-sections [80%]")
+
         for key, elements in map_cross_section_to_elements.items():
 
             cross_strings = key[1:-1].split(',')
@@ -2095,6 +2088,8 @@ class Preprocessor:
 
             if self.stop_processing:
                 return True
+
+            logging.info("Processing the cross-sections [95%]")
 
             self.set_cross_section_by_elements(
                                                elements, 
