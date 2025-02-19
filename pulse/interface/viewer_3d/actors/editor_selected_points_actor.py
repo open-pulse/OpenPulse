@@ -20,7 +20,6 @@ class EditorSelectedPointsActor(GhostActor):
         self.SetMapper(mapper)
 
         self.GetProperty().SetPointSize(15)
-        self.GetProperty().RenderPointsAsSpheresOn()
         self.GetProperty().SetColor([i / 255 for i in (255, 50, 50)])
         self.GetProperty().LightingOff()
         self.make_ghost()
