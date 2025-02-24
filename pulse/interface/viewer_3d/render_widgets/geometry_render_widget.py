@@ -18,7 +18,6 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.set_interactor_style(BoxSelectionInteractorStyle())
 
         self.pipeline = app().project.pipeline
-        self.main_window = app().main_window
 
         self.open_pulse_logo = None
         self.pipeline_actor = None

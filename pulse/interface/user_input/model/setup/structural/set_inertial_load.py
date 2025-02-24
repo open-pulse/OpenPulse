@@ -21,7 +21,7 @@ class SetInertialLoad(QDialog):
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
         
         self._initialize()
         self._config_window()
@@ -167,7 +167,7 @@ class SetInertialLoad(QDialog):
 
     def _load_inertia_load_setup(self):
 
-        key_stiffening = self.project.preprocessor.stress_stiffening_enabled
+        key_stiffening = self.project.model.preprocessor.stress_stiffening_enabled
         self.checkBox_stiffening_effect.setChecked(key_stiffening)
 
         if np.sum(self.gravity_vector) != 0:

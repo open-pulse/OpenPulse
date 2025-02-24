@@ -447,7 +447,7 @@ class ValvesInput(QDialog):
 
         app().pulse_file.write_line_properties_in_file()
 
-        # geometry_handler = GeometryHandler()
+        # geometry_handler = GeometryHandler(app().project)
         # geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         # geometry_handler.process_pipeline()
 

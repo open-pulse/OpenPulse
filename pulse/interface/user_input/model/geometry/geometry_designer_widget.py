@@ -54,8 +54,7 @@ class GeometryDesignerWidget(QWidget):
         self.modified = False
         self.tmp_camera = None
 
-        self.project = app().project
-        self.pipeline = self.project.pipeline
+        self.pipeline = app().project.pipeline
 
         self._define_qt_variables()
         self._create_layout()
@@ -664,7 +663,7 @@ class GeometryDesignerWidget(QWidget):
         self.modified = False
         self.pipeline.dismiss()
 
-        geometry_handler = GeometryHandler()
+        geometry_handler = GeometryHandler(app().project)
         geometry_handler.set_pipeline(self.pipeline)
         geometry_handler.set_length_unit(self.length_unit)
         geometry_handler.export_model_data_file()
@@ -873,7 +872,7 @@ class GeometryDesignerWidget(QWidget):
 
     def _load_project(self):
         app().loader.load_project_data()
-        self.project.initial_load_project_actions()
+        app().project.initial_load_project_actions()
         app().loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         self.complete = True

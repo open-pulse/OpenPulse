@@ -14,23 +14,27 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import *
 from pulse.utils.unit_conversion import *
 
-from pulse.model.mesh import Mesh
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.model.mesh import Mesh
 
 import logging
 import numpy as np
-from time import time
+
+# from time import time
 from collections import defaultdict, deque
 from scipy.spatial.transform import Rotation
 
 window_title_1 = "Error"
 
+
 class Preprocessor:
     """A preprocessor class.
     This class creates a acoustic and structural preprocessor object.
     """
-    def __init__(self):
-
-        self.mesh = None
+    def __init__(self, mesh: 'Mesh'):
+        # self.mesh = None
+        self.mesh = mesh
         self.reset_variables()
 
     def reset_variables(self):
@@ -53,8 +57,8 @@ class Preprocessor:
         self.structural_elements_connected_to_node = defaultdict(list)
         self.acoustic_elements_connected_to_node = defaultdict(list)
 
-        if isinstance(self.mesh, Mesh):
-            self.mesh.reset_variables()
+        # if isinstance(self.mesh, Mesh):
+        self.mesh.reset_variables()
 
         self.number_structural_elements = 0
         self.number_acoustic_elements = 0
@@ -73,8 +77,8 @@ class Preprocessor:
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
 
-    def set_mesh(self, mesh: Mesh):
-        self.mesh = mesh
+    # def set_mesh(self, mesh: Mesh):
+    #     self.mesh = mesh
 
     def generate(self):
         """

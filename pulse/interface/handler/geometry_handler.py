@@ -1,5 +1,6 @@
 # fmt: off
 from pulse import app
+from pulse.editor import Pipeline
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import *
 from pulse.utils.unit_conversion import *
@@ -24,6 +25,10 @@ from pulse.editor.structures import (
     ALL_STRUCTURE_TYPES,
 )
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.project.project import Project
+
 import gmsh
 import numpy as np
 
@@ -42,9 +47,11 @@ def normalize(vector):
     return vector / np.linalg.norm(vector)
 
 class GeometryHandler:
-    def __init__(self):
-        self.project = app().project
+    def __init__(self, project: 'Project'):
+        self.project = project
+        self.pipeline = project.pipeline
         self._initialize()
+        self.load_pulse_file()
 
     def _initialize(self):
         self.length_unit = "meter"
@@ -55,9 +62,8 @@ class GeometryHandler:
         self.curve_length = dict()
         self.valve_internal_lines = dict()
         # self.valve_points_to_ignore = dict()
-        self.pipeline = self.project.pipeline
 
-    def set_pipeline(self, pipeline):
+    def set_pipeline(self, pipeline: "Pipeline"):
         self.pipeline = pipeline
 
     def set_length_unit(self, unit):
@@ -71,6 +77,14 @@ class GeometryHandler:
             return in_to_mm
         else:
             return lambda x: x  # A function that returns the input
+
+    def load_pulse_file(self):
+        if app() is None:
+            from pulse import TEMP_PROJECT_FILE
+            from pulse.interface.file.project_file import ProjectFile
+            self.pulse_file = ProjectFile(TEMP_PROJECT_FILE)
+        else:
+            self.pulse_file = app().pulse_file            
 
     def save_valve_internal_lines_if_exists(self, structure: Valve, line_tags: list):
         valve_info: dict = structure.extra_info["valve_info"]
@@ -375,7 +389,7 @@ class GeometryHandler:
         """
         self.pipeline.reset()
 
-        lines_data: dict[str, dict] = app().pulse_file.read_line_properties_from_file()
+        lines_data: dict[str, dict] = self.pulse_file.read_line_properties_from_file()
         if not isinstance(lines_data, dict):
             return
 
@@ -401,7 +415,8 @@ class GeometryHandler:
         self.pipeline.add_structures(structures)
         self.pipeline.commit()
         self.pipeline.merge_coincident_points()
-        app().main_window.update_plots()
+        if app() is not None:
+            app().main_window.update_plots()
 
     # def old_process_pipeline(self):
     #     """ This method builds structures based on model_data file data.
@@ -422,7 +437,7 @@ class GeometryHandler:
     #     structures = list()
     #     self.pipeline.reset()
 
-    #     lines_data = app().pulse_file.read_line_properties_from_file()
+    #     lines_data = self.pulse_file.read_line_properties_from_file()
 
     #     if isinstance(lines_data, dict):
     #         for _line_id, data in lines_data.items():
@@ -742,7 +757,8 @@ class GeometryHandler:
         self.pipeline.merge_coincident_points()
         self.export_model_data_file()
 
-        element_size = app().project.preprocessor.mesh.element_size
+        element_size = self.project.model.preprocessor.mesh.element_size
+
         if self.length_unit == "millimeter":
             element_size = mm_to_m(element_size)
 
@@ -750,11 +766,16 @@ class GeometryHandler:
             element_size = in_to_m(element_size)
 
         if self.length_unit !=  "meter":
-            app().pulse_file.modify_project_attributes(length_unit = "meter", element_size = element_size)
-            app().main_window.mesh_toolbar.update_mesh_attributes()
+            self.pulse_file.modify_project_attributes(length_unit = "meter", element_size = element_size)
+            if app() is not None:
+                app().main_window.mesh_toolbar.update_mesh_attributes()
 
         if len(self.merged_points):
             self.print_merged_nodes_message()
+
+        if app() is None:
+            gmsh.option.setNumber('General.FltkColorScheme', 1)
+            gmsh.fltk.run()
 
         gmsh.finalize()
 
@@ -1126,28 +1147,28 @@ class GeometryHandler:
             for line_id, structure_data in structures_data.items():
                 structure_data: dict
                 for key, values in structure_data.items():
-                    app().project.model.properties._set_line_property(key, values, line_ids=line_id)
+                    self.project.model.properties._set_line_property(key, values, line_ids=line_id)
 
             for line_id, cross_data in section_info.items():
-                app().project.model.properties._set_multiple_line_properties(cross_data, line_ids=line_id)
+                self.project.model.properties._set_multiple_line_properties(cross_data, line_ids=line_id)
 
             for element_type, line_ids in element_type_info.items():
-                app().project.model.properties._set_line_property("structural_element_type", element_type, line_ids=line_ids)
+                self.project.model.properties._set_line_property("structural_element_type", element_type, line_ids=line_ids)
 
             for material_id, line_ids in material_info.items():
-                app().project.model.properties._set_line_property("material_id", material_id, line_ids=line_ids)
+                self.project.model.properties._set_line_property("material_id", material_id, line_ids=line_ids)
 
             for line_id, ej_data in expansion_joint_info.items():
-                app().project.model.properties._set_line_property("expansion_joint_info", ej_data, line_ids=line_id)
+                self.project.model.properties._set_line_property("expansion_joint_info", ej_data, line_ids=line_id)
 
             for line_id, valve_data in valve_info.items():
-                app().project.model.properties._set_line_property("valve_info", valve_data, line_ids=line_id)
+                self.project.model.properties._set_line_property("valve_info", valve_data, line_ids=line_id)
 
             for line_id, psd_label in psd_info.items():
-                app().project.model.properties._set_line_property("psd_name", psd_label, line_ids=line_id)
+                self.project.model.properties._set_line_property("psd_name", psd_label, line_ids=line_id)
 
-            app().pulse_file.write_line_properties_in_file()
-            app().pulse_file.modify_project_attributes(import_type = 1)
+            self.pulse_file.write_line_properties_in_file()
+            self.pulse_file.modify_project_attributes(import_type = 1)
 
     def get_pipeline_data(self, structure):
 
@@ -1211,12 +1232,12 @@ class GeometryHandler:
     #         removed structures.
     #     """
     #     lines_to_remove = list()
-    #     for line_id in app().project.model.properties.line_properties.keys():
+    #     for line_id in self.project.model.properties.line_properties.keys():
     #         if line_id not in structures_data.keys():
     #             lines_to_remove.append(line_id)
         
     #     for line_id in lines_to_remove:
-    #         app().project.model.properties._remove_line(line_id)
+    #         self.project.model.properties._remove_line(line_id)
 
 def get_arc_length(coords_A, coords_B, coords_C):
 

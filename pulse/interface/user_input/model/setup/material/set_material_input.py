@@ -184,7 +184,7 @@ class SetMaterialInput(QDialog):
             self.properties._set_line_property("material", selected_material, line_ids)
             app().pulse_file.write_line_properties_in_file()
 
-            geometry_handler = GeometryHandler()
+            geometry_handler = GeometryHandler(app().project)
             geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
             geometry_handler.process_pipeline()
 

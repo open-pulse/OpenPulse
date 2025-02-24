@@ -547,7 +547,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
     def _compute_displacement_field(self, frequency_index, phase_step):
 
         project = app().project
-        preprocessor = project.preprocessor
+        preprocessor = project.model.preprocessor
         solution = project.get_structural_solution()
 
         # It is probably a bit unclear, but this function have some colateral
@@ -573,7 +573,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
     def _compute_stress_field(self, frequency_index, phase_step):
         project = app().project
-        preprocessor = project.preprocessor
+        preprocessor = project.model.preprocessor
         solution = project.get_structural_solution()
 
         *_, self._magnification_factor = get_structural_response(

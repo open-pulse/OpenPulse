@@ -23,9 +23,8 @@ class Project:
     def __init__(self):
 
         self.pipeline = Pipeline()
-
         self.model = Model(self)
-        self.preprocessor = self.model.preprocessor
+        # self.preprocessor = self.model.preprocessor
 
         self.name = None
         self.save_path = None
@@ -37,7 +36,7 @@ class Project:
 
         # TODO: reimplement this
         if reset_all:
-            self.preprocessor.reset_variables()
+            self.model.preprocessor.reset_variables()
             #TODO: reset nodal, element and line properties
 
         self.preferences = dict()
@@ -122,8 +121,8 @@ class Project:
         app().loader.load_mesh_dependent_properties()
 
         logging.info("Finalizing model data loading [75%]")
-        self.preprocessor.process_all_rotation_matrices()
-        self.preprocessor.check_disconnected_lines()
+        self.model.preprocessor.process_all_rotation_matrices()
+        self.model.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
 
@@ -140,7 +139,7 @@ class Project:
 
     def process_geometry_and_mesh(self):
         # t0 = time()
-        self.preprocessor.generate()
+        self.model.preprocessor.generate()
         app().main_window.update_status_bar_info()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
@@ -149,7 +148,7 @@ class Project:
         """ 
         This method adds lids to cross-section variations and terminations.
         """
-        for elements in self.preprocessor.structural_elements_connected_to_node.values():
+        for elements in self.model.preprocessor.structural_elements_connected_to_node.values():
 
             element = None
             if len(elements) == 2:
@@ -189,12 +188,12 @@ class Project:
 
                 inner_diameter = element.cross_section.inner_diameter 
 
-                if len(self.preprocessor.neighbors[first_node]) == 1:
+                if len(self.model.preprocessor.neighbors[first_node]) == 1:
                     first_node_id = first_node.external_index
                     if self.is_there_an_acoustic_attribute_in_the_node(first_node_id) == 0:
                         inner_diameter = 0
 
-                elif len(self.preprocessor.neighbors[last_node]) == 1:
+                elif len(self.model.preprocessor.neighbors[last_node]) == 1:
                     last_node_id = last_node.external_index
                     if self.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
                         inner_diameter = 0
@@ -260,16 +259,16 @@ class Project:
         return False
 
     def get_structural_elements(self):
-        return self.preprocessor.structural_elements
+        return self.model.preprocessor.structural_elements
     
     def get_structural_element(self, element_id):
-        return self.preprocessor.structural_elements[element_id]
+        return self.model.preprocessor.structural_elements[element_id]
 
     def get_acoustic_elements(self):
-        return self.preprocessor.acoustic_elements 
+        return self.model.preprocessor.acoustic_elements 
 
     def get_acoustic_element(self, element_id):
-        return self.preprocessor.acoustic_elements[element_id]
+        return self.model.preprocessor.acoustic_elements[element_id]
 
     def set_perforated_plate_convergence_data_log(self, data):
         self.perforated_plate_data_log = data
@@ -285,12 +284,12 @@ class Project:
                 if coords is None:
                     return
 
-                node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-                neigh_elements = self.preprocessor.structural_elements_connected_to_node[node_id]
+                node_id = self.model.preprocessor.get_node_id_by_coordinates(coords)
+                neigh_elements = self.model.preprocessor.structural_elements_connected_to_node[node_id]
     
                 for element in neigh_elements:
 
-                    element_line = self.preprocessor.mesh.line_from_element[element.index]
+                    element_line = self.model.preprocessor.mesh.line_from_element[element.index]
                     _data = self.model.properties.line_properties[element_line]
 
                     if "corner_coords" in _data.keys():
@@ -300,8 +299,8 @@ class Project:
 
     def get_geometry_points(self):
         points = dict()
-        for i in self.preprocessor.mesh.geometry_points:
-            points[i] = self.preprocessor.nodes[i]
+        for i in self.model.preprocessor.mesh.geometry_points:
+            points[i] = self.model.preprocessor.nodes[i]
         return points
 
     def set_analysis_id(self, analysis_id: int):
@@ -418,7 +417,7 @@ class Project:
             if len(self.model.frequencies) == 0:
                 return
 
-        if self.preprocessor._process_beam_nodes_and_indexes():
+        if self.model.preprocessor._process_beam_nodes_and_indexes():
             if self.analysis_id not in [0, 1, 2]:
                 title = "Invalid analysis type"
                 message = "There are only BEAM_1 elements in the model, therefore, "
@@ -428,18 +427,18 @@ class Project:
                 return
 
         if self.analysis_id == 2:
-            self.preprocessor.enable_fluid_mass_adding_effect(reset=True)
+            self.model.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.structural_solver = self.get_structural_solver()
 
         elif self.analysis_id in [3, 4]:
             self.acoustic_solver = self.get_acoustic_solver()
 
         elif self.analysis_id in [5, 6]:
-            self.preprocessor.enable_fluid_mass_adding_effect()
+            self.model.preprocessor.enable_fluid_mass_adding_effect()
             self.acoustic_solver = self.get_acoustic_solver()
 
         else:
-            self.preprocessor.enable_fluid_mass_adding_effect(reset=True)
+            self.model.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.structural_solver = self.get_structural_solver()
 
     def process_analysis(self):
@@ -525,7 +524,7 @@ class Project:
 
         logging.info("Processing the cross-sections [10%]")
         if self.model.preprocessor.process_cross_sections_mapping():
-            self.preprocessor.stop_processing = False
+            self.model.preprocessor.stop_processing = False
             return
 
         logging.info("Initializing the problem solver [30%]")
@@ -537,9 +536,9 @@ class Project:
         logging.info("Saving the solution data [95%]")
         app().pulse_file.write_results_data_in_file()
 
-        if self.preprocessor.stop_processing:
+        if self.model.preprocessor.stop_processing:
             self.reset_solution()
-            self.preprocessor.stop_processing = False
+            self.model.preprocessor.stop_processing = False
             return
 
         logging.info("Post-processing the obtained results [90%]")

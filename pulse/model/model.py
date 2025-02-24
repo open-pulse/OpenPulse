@@ -1,26 +1,27 @@
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
 from pulse.model.mesh import Mesh
+from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.preprocessor import Preprocessor
 from pulse.model.properties.model_properties import ModelProperties
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.project.project import Project
 
 import numpy as np
 
 class Model:
 
-    def __init__(self, project):
+    def __init__(self, project: 'Project'):
         super().__init__()
 
         self.project = project
 
         self._initialize()
 
-        self.preprocessor = Preprocessor()
-        self.mesh = Mesh(self.preprocessor)
-
-        # self.preprocessor.set_model(self)
-        self.preprocessor.set_mesh(self.mesh)
-
+        self.mesh = Mesh(self.project)
+        self.preprocessor = Preprocessor(self.mesh)
+        # self.preprocessor.set_mesh(self.mesh)
         self.properties = ModelProperties()
 
     def _initialize(self):

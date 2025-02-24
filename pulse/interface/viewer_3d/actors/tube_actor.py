@@ -39,7 +39,7 @@ class TubeActor(vtkActor):
         self.project = app().project
         self.user_preferences = app().main_window.config.user_preferences
         self.model = self.project.model
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
         self.elements = self.project.get_structural_elements()
         self.hidden_elements = kwargs.get("hidden_elements", set())
         self.build()

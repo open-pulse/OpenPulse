@@ -12,7 +12,7 @@ from numbers import Number
 def nodes_info_text() -> str:
 
     nodes = app().main_window.list_selected_nodes()
-    preprocessor = app().project.preprocessor
+    preprocessor = app().project.model.preprocessor
     properties = app().project.model.properties
 
     info_text = ""

@@ -39,10 +39,10 @@ class PlotCrossSectionInput(QDialog):
     def _initialize(self):
 
         self.project = self.project
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         
-        self.structural_elements = self.project.preprocessor.structural_elements
+        self.structural_elements = self.project.model.preprocessor.structural_elements
 
     def _define_qt_variables(self):
 

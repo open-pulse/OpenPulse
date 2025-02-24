@@ -53,7 +53,7 @@ class MaterialWidget(QWidget):
 
     def _initialize(self):
 
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
 
         self.row = None
         self.col = None

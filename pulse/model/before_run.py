@@ -16,7 +16,7 @@ class BeforeRun:
         self.project = app().project
         self.model = app().project.model
         self.properties = app().project.model.properties
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
 
         self.nodes = self.preprocessor.nodes
         self.acoustic_elements = self.preprocessor.acoustic_elements

@@ -26,7 +26,7 @@ class SetCrossSectionInput(QDialog):
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
         self.before_run = app().project.get_pre_solution_model_checks()
 
         self.input_widget = CrossSectionWidget()
@@ -520,7 +520,7 @@ class SetCrossSectionInput(QDialog):
         self.complete = True
         app().pulse_file.write_line_properties_in_file()
 
-        geometry_handler = GeometryHandler()
+        geometry_handler = GeometryHandler(app().project)
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
 

@@ -313,7 +313,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
     def _get_lumped_spring_symbol(self):
 
-        e_size = app().project.preprocessor.mesh.element_size
+        e_size = app().project.model.preprocessor.mesh.element_size
         length = self.scale_factor/2
 
         if self.scale_factor / 2 > 4 * e_size:
@@ -361,7 +361,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
     def _get_lumped_damper_symbol(self):
 
-        e_size = app().project.preprocessor.mesh.element_size
+        e_size = app().project.model.preprocessor.mesh.element_size
         length = self.scale_factor/2
 
         if self.scale_factor / 2 > 4 * e_size:
@@ -470,7 +470,7 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
                     index = int((len(valve_elements) - 1) / 2) + 1
                     element_id = valve_elements[index]
 
-                element = app().project.preprocessor.structural_elements[element_id]
+                element = app().project.model.preprocessor.structural_elements[element_id]
 
                 rot = element.section_rotation_xyz_undeformed
                 rotation = Rotation.from_euler("xyz", rot, degrees=True)

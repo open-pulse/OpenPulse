@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 
 from pulse import app
 from pulse.utils.text_utils import pascal_to_spaced_case
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 
 
 class StructureOptions:

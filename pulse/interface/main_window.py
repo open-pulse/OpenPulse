@@ -1,4 +1,3 @@
-import sys
 
 from PyQt5.QtWidgets import QAbstractButton, QAction, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
@@ -42,7 +41,7 @@ import os
 from functools import partial
 from pathlib import Path
 from shutil import copy, rmtree
-from sys import exit
+from sys import argv
 from time import time
 
 
@@ -268,8 +267,8 @@ class MainWindow(QMainWindow):
         dt = time() - t0
         print(f"Time to process D: {round(dt, 6)} [s]")
 
-        if len(sys.argv) > 1:
-            self.open_project(Path(sys.argv[1]))
+        if len(argv) > 1:
+            self.open_project(Path(argv[1]))
 
         elif not self.is_temporary_folder_empty():
             self.recovery_dialog()
@@ -337,7 +336,7 @@ class MainWindow(QMainWindow):
         if not check:
             return
 
-        geometry_handler = GeometryHandler()
+        geometry_handler = GeometryHandler(app().project)
         geometry_handler.export_cad_file(path)
 
     # public
