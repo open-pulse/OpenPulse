@@ -173,6 +173,13 @@ def lines_info_text() -> str:
             f"{len(lines)} LINES IN SELECTION\n" f"{format_long_sequence(lines)}\n\n"
         )
 
+        total_length = 0
+        for line in lines:
+            line_length = mm_to_m(project.model.mesh.curve_length[line])
+            total_length += line_length
+        
+        info_text += f"TOTAL LENGTH: {total_length : .3f} [m]\n\n"
+
     elif len(lines) == 1:
 
         line_id, *_ = lines
