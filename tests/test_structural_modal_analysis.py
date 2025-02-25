@@ -47,18 +47,18 @@ def test_structural_modal_analysis():
     preprocessor.generate()
 
     ## Define the fluid
-    fluid = Fluid(  
-                    'Air',
-                    1.204263,
-                    343.395034,
-                    isentropic_exponent = 1.401985,
-                    thermal_conductivity = 0.025503,
-                    specific_heat_Cp = 1006.400178,
-                    dynamic_viscosity = float(1.8247e-5),
-                    temperature = 293.15,
-                    pressure = 101325,
-                    molar_mass  = 28.958601
-                    )
+    # fluid = Fluid(  
+    #                 'Air',
+    #                 1.204263,
+    #                 343.395034,
+    #                 isentropic_exponent = 1.401985,
+    #                 thermal_conductivity = 0.025503,
+    #                 specific_heat_Cp = 1006.400178,
+    #                 dynamic_viscosity = float(1.8247e-5),
+    #                 temperature = 293.15,
+    #                 pressure = 101325,
+    #                 molar_mass  = 28.958601
+    #                 )
 
     ## Define the material
     material = Material(
@@ -79,22 +79,20 @@ def test_structural_modal_analysis():
 
     ## Define the model cross-sections
 
-    section_info_1 = {  "section_type_label" : "Pipe" ,
-                        "section_parameters" : [0.100, 0.008, 0, 0, 0, 0]  }
+    section_info_main = {"section_type_label" : "Pipe" ,
+                        "section_parameters" : [0.100, 0.008, 0, 0, 0, 0]}
 
-    section_info_2 = {  "section_type_label" : "Pipe" ,
-                        "section_parameters" : [0.050, 0.008, 0, 0, 0, 0]  }
+    section_info_branch = {"section_type_label" : "Pipe" ,
+                           "section_parameters" : [0.050, 0.008, 0, 0, 0, 0]}
 
     beam_section_parameters = [0.16, 0.12, 0.01, 0.12, 0.01, 0.01, 0.0, 0.0]
-    section_info_3 = {  "section_type_label" : "I-section" ,
-                        "section_parameters" : beam_section_parameters,
-                        "section_properties" : get_beam_section_properties("I-section", beam_section_parameters)  }
+    section_info_beam = {"section_type_label" : "I-section" ,
+                         "section_parameters" : beam_section_parameters,
+                         "section_properties" : get_beam_section_properties("I-section", beam_section_parameters)}
 
-    cross_section_1 = CrossSection(pipe_section_info=section_info_1)
-    cross_section_2 = CrossSection(pipe_section_info=section_info_2)
-    cross_section_3 = CrossSection(beam_section_info=section_info_3)
-    # cross_section_1.update_properties()
-    # cross_section_2.update_properties()
+    cross_section_main = CrossSection(pipe_section_info=section_info_main)
+    cross_section_branch = CrossSection(pipe_section_info=section_info_branch)
+    cross_section_beam = CrossSection(beam_section_info=section_info_beam)
 
     beam_lines = [20, 23, 24]
     branch_lines = [31, 32, 33]
@@ -102,22 +100,22 @@ def test_structural_modal_analysis():
 
     ## Assigns the cross-sections to the respective lines
 
-    model.properties._set_multiple_line_properties(section_info_1, main_lines)
-    model.properties._set_line_property("cross_section", cross_section_1, main_lines)
+    model.properties._set_multiple_line_properties(section_info_main, main_lines)
+    model.properties._set_line_property("cross_section", cross_section_main, main_lines)
     model.properties._set_line_property("structural_element_type", "pipe_1", main_lines)
-    preprocessor.set_cross_section_by_lines(main_lines, cross_section_1)
+    preprocessor.set_cross_section_by_lines(main_lines, cross_section_main)
     preprocessor.set_structural_element_type_by_lines(main_lines, "pipe_1")
 
-    model.properties._set_multiple_line_properties(section_info_2, branch_lines)
-    model.properties._set_line_property("cross_section", cross_section_2, branch_lines)
+    model.properties._set_multiple_line_properties(section_info_branch, branch_lines)
+    model.properties._set_line_property("cross_section", cross_section_branch, branch_lines)
     model.properties._set_line_property("structural_element_type", "pipe_1", branch_lines)
-    preprocessor.set_cross_section_by_lines(branch_lines, cross_section_2)
+    preprocessor.set_cross_section_by_lines(branch_lines, cross_section_branch)
     preprocessor.set_structural_element_type_by_lines(branch_lines, "pipe_1")
 
-    model.properties._set_multiple_line_properties(section_info_3, beam_lines)
-    model.properties._set_line_property("cross_section", cross_section_3, beam_lines)
+    model.properties._set_multiple_line_properties(section_info_beam, beam_lines)
+    model.properties._set_line_property("cross_section", cross_section_beam, beam_lines)
     model.properties._set_line_property("structural_element_type", "beam_1", beam_lines)
-    preprocessor.set_cross_section_by_lines(beam_lines, cross_section_3)
+    preprocessor.set_cross_section_by_lines(beam_lines, cross_section_beam)
     preprocessor.set_structural_element_type_by_lines(beam_lines, "beam_1")
 
     ## Apply the dofs prescriptions
