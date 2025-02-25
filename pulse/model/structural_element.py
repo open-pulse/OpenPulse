@@ -418,15 +418,19 @@ class StructuralElement:
             else:
                 stiffness = Rt @ self.stiffness_matrix_pipes() @ R
                 mass = Rt @ self.mass_matrix_pipes() @ R
+
         elif self.element_type == 'beam_1':
             stiffness = Rt @ self.stiffness_matrix_beam() @ R
             mass = Rt @ self.mass_matrix_beam() @ R
+
         elif self.element_type == 'valve':
             stiffness = Rt @ (self.stiffness_matrix_pipes() * self.valve_stiffening_factor) @ R
             mass = Rt @ self.mass_matrix_valve() @ R
+
         # elif self.element_type == "expansion_joint":
         #     stiffness = Rt @ self.stiffness_matrix_expansion_joint() @ R
-        #     mass = Rt @ self.mass_matrix_expansion_joint() @ R            
+        #     mass = Rt @ self.mass_matrix_expansion_joint() @ R
+
         return stiffness, mass
 
     def expansion_joint_matrices_gcs(self, frequencies=None):
@@ -598,9 +602,9 @@ class StructuralElement:
         res_z = self.cross_section.res_z
     
         # Shear coefficiets
-        aly = 1/res_y
-        alz = 1/res_z
-        
+        aly = 1 / res_y
+        alz = 1 / res_z
+
         if self.element_type in ['pipe_1', 'valve']:
             Qy = 0
             Qz = 0

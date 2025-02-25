@@ -21,7 +21,6 @@ class Model:
 
         self.mesh = Mesh(self.project)
         self.preprocessor = Preprocessor(self.mesh)
-        # self.preprocessor.set_mesh(self.mesh)
         self.properties = ModelProperties()
 
     def _initialize(self):

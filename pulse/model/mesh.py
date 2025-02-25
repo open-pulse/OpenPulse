@@ -23,6 +23,7 @@ class Mesh:
 
         self.project = project
         # self.preprocessor = project.model.preprocessor
+
         self.reset_variables()
         self.set_mesher_setup()
 

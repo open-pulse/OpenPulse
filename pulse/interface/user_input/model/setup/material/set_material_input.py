@@ -190,6 +190,9 @@ class SetMaterialInput(QDialog):
 
             self.pushButton_cancel.setText("Exit")
 
+            if self.comboBox_attribution_type.currentIndex() == 0:
+                self.close()
+
         except Exception as error_log:
             self.title = "Error detected on material list data"
             self.message = str(error_log)

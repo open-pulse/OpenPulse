@@ -441,8 +441,8 @@ class SetCrossSectionInput(QDialog):
         self.properties._remove_line_property("wall_formulation", line_ids)
         self.properties._remove_line_property("force_offset", line_ids)
         self.properties._remove_line_property("capped_end", line_ids)
-        self.properties._remove_line_property("expansion_joint_info", line_ids=line_ids)
-        self.properties._remove_line_property("valve_info", line_ids=line_ids)
+        self.properties._remove_line_property("expansion_joint_info", line_ids)
+        self.properties._remove_line_property("valve_info", line_ids)
 
         self.remove_table_files_from_expansion_joints(line_ids)
 
@@ -493,6 +493,10 @@ class SetCrossSectionInput(QDialog):
 
             section_info = self.input_widget.beam_section_info
             cross_section = CrossSection(beam_section_info=section_info)
+            print(section_info)
+
+            self.properties._set_multiple_line_properties(section_info, line_ids)
+            self.properties._set_line_property("cross_section", cross_section, line_ids)
 
             self.preprocessor.set_cross_section_by_lines(line_ids, cross_section)
             self.preprocessor.set_capped_end_by_lines(line_ids, False)
@@ -501,12 +505,11 @@ class SetCrossSectionInput(QDialog):
             self.preprocessor.add_valve_by_lines(line_ids, None)
             self.preprocessor.add_expansion_joint_by_lines(line_ids, None)
 
-            self.properties._set_multiple_line_properties(section_info, line_ids)
             self.properties._remove_line_property("wall_formulation", line_ids)
             self.properties._remove_line_property("force_offset", line_ids)
             self.properties._remove_line_property("capped_end", line_ids)
-            self.properties._remove_line_property("expansion_joint_info", line_ids=line_ids)
-            self.properties._remove_line_property("valve_info", line_ids=line_ids)
+            self.properties._remove_line_property("expansion_joint_info", line_ids)
+            self.properties._remove_line_property("valve_info", line_ids)
 
             self.remove_acoustic_related_data_from_lines(line_ids)
             self.remove_table_files_from_expansion_joints(line_ids)
@@ -514,6 +517,7 @@ class SetCrossSectionInput(QDialog):
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
+
         import matplotlib.pyplot as plt
 
         plt.close()
@@ -530,11 +534,11 @@ class SetCrossSectionInput(QDialog):
     def remove_acoustic_related_data_from_lines(self, line_ids: list):
         """
         """
-        self.properties._remove_line_property("fluid", line_ids=line_ids)
-        self.properties._remove_line_property("fluid_id", line_ids=line_ids)
-        self.properties._remove_line_property("acoustic_element_type", line_ids=line_ids)
-        self.properties._remove_line_property("proportinal_damping", line_ids=line_ids)
-        self.properties._remove_line_property("volume_flow", line_ids=line_ids)
+        self.properties._remove_line_property("fluid", line_ids)
+        self.properties._remove_line_property("fluid_id", line_ids)
+        self.properties._remove_line_property("acoustic_element_type", line_ids)
+        self.properties._remove_line_property("proportinal_damping", line_ids)
+        self.properties._remove_line_property("volume_flow", line_ids)
 
         aux_e = self.properties.element_properties.copy()
         aux_n = self.properties.nodal_properties.copy()

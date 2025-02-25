@@ -84,6 +84,14 @@ class Project:
         self.analysis_id = None
         self.analysis_type_label = ""
         self.analysis_method_label = ""
+    
+    def initialize_pulse_file(self):
+        if app() is None:
+            from pulse import TEMP_PROJECT_FILE
+            from pulse.interface.file.project_file import ProjectFile
+            self.pulse_file = ProjectFile(self, TEMP_PROJECT_FILE)
+        else:
+            self.pulse_file = app().pulse_file  
 
     def initial_load_project_actions(self):
 
@@ -249,12 +257,12 @@ class Project:
         return False
 
     def is_analysis_setup_complete(self):
-        self.analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        self.analysis_setup = self.pulse_file.read_analysis_setup_from_file()
         if isinstance(self.analysis_setup, dict):
             if "analysis_id" in self.analysis_setup.keys():
                 self.analysis_id = self.analysis_setup["analysis_id"]
                 self.modes = self.analysis_setup.get("modes", 40)
-                self.sigma_factor = self.analysis_setup.get("sigma_factor", 40)
+                self.sigma_factor = self.analysis_setup.get("sigma_factor", 1e-2)
                 return True
         return False
 
@@ -507,7 +515,7 @@ class Project:
     def run_analysis(self):
         LoadingWindow(self.build_model_and_solve).run()
 
-    def build_model_and_solve(self):
+    def build_model_and_solve(self, running_by_script=False):
 
         setup_complete = self.is_analysis_setup_complete()
 
@@ -518,9 +526,10 @@ class Project:
             PrintMessageInput([window_title_1, title, message])
             return
 
-        self.before_run = self.get_pre_solution_model_checks()
-        if self.before_run.check_is_there_a_problem(self.analysis_id):
-            return
+        if not running_by_script:
+            self.before_run = self.get_pre_solution_model_checks()
+            if self.before_run.check_is_there_a_problem(self.analysis_id):
+                return
 
         logging.info("Processing the cross-sections [10%]")
         if self.model.preprocessor.process_cross_sections_mapping():
@@ -534,18 +543,20 @@ class Project:
         self.process_analysis()
 
         logging.info("Saving the solution data [95%]")
-        app().pulse_file.write_results_data_in_file()
+        self.pulse_file.write_results_data_in_file()
 
         if self.model.preprocessor.stop_processing:
             self.reset_solution()
             self.model.preprocessor.stop_processing = False
             return
 
-        logging.info("Post-processing the obtained results [90%]")
-        self.check_warnings()
+        if not running_by_script:
 
-        logging.info("Processing the post solution checks [95%]")
-        self.post_solution_actions()
+            logging.info("Post-processing the obtained results [90%]")
+            self.check_warnings()
+
+            logging.info("Processing the post solution checks [95%]")
+            self.post_solution_actions()
 
     def check_warnings(self):
 

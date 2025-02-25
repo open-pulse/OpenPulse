@@ -24,9 +24,12 @@ class Application(QApplication):
         # global params
         # self.config = Config()
         self.config = Config()
-        self.pulse_file = ProjectFile(TEMP_PROJECT_FILE)
         self.project = Project()
         self.loader = LoadProject()
+        self.pulse_file = ProjectFile(self.project, TEMP_PROJECT_FILE)
+
+        # temporary solution
+        self.project.initialize_pulse_file()
 
         # gui
         self.main_window = MainWindow()

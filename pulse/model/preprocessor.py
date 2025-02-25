@@ -33,7 +33,7 @@ class Preprocessor:
     This class creates a acoustic and structural preprocessor object.
     """
     def __init__(self, mesh: 'Mesh'):
-        # self.mesh = None
+
         self.mesh = mesh
         self.reset_variables()
 
@@ -571,8 +571,8 @@ class Preprocessor:
         """
 
         coord_matrix = self.nodal_coordinates_matrix_external
-        list_coordinates = coord_matrix[:,1:].tolist()
-        external_indexes = coord_matrix[:,0]
+        list_coordinates = coord_matrix[:, 1:].tolist()
+        external_indexes = coord_matrix[:, 0]
 
         if isinstance(coords, (np.ndarray, tuple)):
             coords = list(coords)
