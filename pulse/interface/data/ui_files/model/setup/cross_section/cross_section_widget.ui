@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>654</width>
-    <height>500</height>
+    <height>536</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -25,13 +25,13 @@
      <property name="minimumSize">
       <size>
        <width>566</width>
-       <height>0</height>
+       <height>475</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>620</width>
-       <height>475</height>
+       <height>500</height>
       </size>
      </property>
      <property name="font">
@@ -6641,19 +6641,6 @@
       </layout>
      </widget>
     </widget>
-   </item>
-   <item row="1" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>

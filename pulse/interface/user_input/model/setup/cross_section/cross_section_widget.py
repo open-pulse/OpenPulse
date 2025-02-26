@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget, QDialog
+from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
@@ -13,12 +13,14 @@ import numpy as np
 window_title = "Error"
 window_title2 = "Warning"
 
-class CrossSectionWidget(QDialog):
+class CrossSectionWidget(QWidget):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         ui_path = UI_DIR / "model/setup/cross_section/cross_section_widget.ui"
         uic.loadUi(ui_path, self)
+
+        self.dialog = kwargs.get("dialog", None)
 
         self._initialize()
         self._define_qt_variables()
@@ -128,6 +130,7 @@ class CrossSectionWidget(QDialog):
         # QPushButton
         self.pushButton_confirm_pipe: QPushButton
         self.pushButton_confirm_beam: QPushButton
+        # self.pushButton_cancel: QPushButton
         self.pushButton_invert_input_values: QPushButton
         self.pushButton_load_section_info: QPushButton
         self.pushButton_plot_pipe_cross_section: QPushButton
@@ -814,3 +817,11 @@ class CrossSectionWidget(QDialog):
         plt.ylim(-_max*f, _max*f)
         plt.grid()
         plt.show()
+
+    def keyPressEvent(self, event):
+        if isinstance(self.dialog, QDialog):
+            if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+                self.dialog.attribute_callback()
+
+            elif event.key() == Qt.Key_Escape:
+                self.dialog.close()
