@@ -1595,7 +1595,7 @@ class StructuralElement:
         section_label = section_info[0]
         parameters = section_info[1]
  
-        if section_label == "Rectangular section":
+        if section_label == "rectangular_beam":
 
             b, h, b_in, _, _, _ = parameters
 
@@ -1605,7 +1605,7 @@ class StructuralElement:
             denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + ((3 + poisson)*m + 3*m**2)*(10*n**2)
             shear_coefficient = numerator/denominator
 
-        elif section_label == "Circular section":
+        elif section_label == "circular_beam":
 
             d_out, d_in, _, _ = parameters
             
@@ -1614,7 +1614,7 @@ class StructuralElement:
             denominator = (7 + 6*poisson)*((1 + m**2)**2) + ((20 + 12*poisson)*m**2)
             shear_coefficient = numerator/denominator
 
-        elif section_label == "C-section":
+        elif section_label == "c_beam":
 
             h, w1, t1, w2, t2, tw, _, _, _ = parameters
             
@@ -1627,7 +1627,7 @@ class StructuralElement:
             denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + (m + m**2)*(30*n**2) + (8*m + 9*m**2)*(5*poisson*n**2)
             shear_coefficient = 0.93*numerator/denominator
 
-        elif section_label == "I-section":
+        elif section_label == "i_beam":
 
             h, w1, t1, w2, t2, tw, _, _, _ = parameters
             
@@ -1640,7 +1640,7 @@ class StructuralElement:
             denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + (m + m**2)*(30*n**2) + (8*m + 9*m**2)*(5*poisson*n**2)
             shear_coefficient = numerator/denominator
 
-        elif section_label == "T-section":
+        elif section_label == "i_beam":
 
             h, w1, t1, tw, _, _, _ = parameters
             tf, b = t1, w1
@@ -1651,7 +1651,7 @@ class StructuralElement:
             denominator = (12 + 96*m + 278*m**2 + 192*m**3) + poisson*(11 + 88*m + 248*m**2 + 216*m**3) + (m + m**2)*(30*n**2) + (4*m + 5*m**2 + m**3)*(10*poisson*n**2)
             shear_coefficient = numerator/denominator
 
-        elif section_label == "Generic section":
+        elif section_label == "generic_beam":
             shear_coefficient = self.cross_section.shear_coefficient
 
         return shear_coefficient

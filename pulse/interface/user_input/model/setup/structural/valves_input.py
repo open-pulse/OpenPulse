@@ -424,7 +424,7 @@ class ValvesInput(QDialog):
             if self.valve_info:
                 for line_id in line_ids:
                     
-                    self.properties._set_line_property("section_type_label", "Valve", line_id)
+                    self.properties._set_line_property("section_type_label", "valve", line_id)
                     self.properties._set_line_property("structural_element_type", "valve", line_ids=line_id)
                     self.properties._set_line_property("valve_info", self.valve_info, line_ids=line_id)
 
@@ -581,7 +581,7 @@ class ValvesInput(QDialog):
 
             if element_type == 'pipe_1' and isinstance(cross, CrossSection):
 
-                pipe_info = {   "section_type_label" : "Pipe",
+                pipe_info = {   "section_type_label" : "pipe",
                                 "section_parameters" : cross.section_parameters   }
 
                 self.properties._set_line_property("structural_element_type", element_type, line_id)

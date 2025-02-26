@@ -829,9 +829,9 @@ class GeometryDesignerWidget(QWidget):
         message = "Active configuration\n\n"
 
         if cross_section_info:
-            if section_label == "Reducer":
+            if section_label == "reducer":
                 message += f"Section type: {section_label} (variable)\n"
-            elif section_label  == "Pipe":
+            elif section_label  == "pipe":
                 message += f"Section type: {section_label} (constant)\n"    
             else:
                 message += f"Section type: {section_label}\n"

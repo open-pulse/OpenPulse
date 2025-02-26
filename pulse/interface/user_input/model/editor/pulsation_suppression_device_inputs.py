@@ -806,7 +806,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
                         "structure_name" : "pipe",
                         "start_coords" : self.get_values(start_coords),
                         "end_coords" : self.get_values(end_coords),
-                        "section_type_label" : "Pipe",
+                        "section_type_label" : "pipe",
                         "section_parameters" : section_data,
                         "structural_element_type" : "pipe_1",
                         "psd_name" : psd_label,

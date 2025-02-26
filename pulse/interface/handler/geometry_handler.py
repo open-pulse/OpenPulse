@@ -690,7 +690,7 @@ class GeometryHandler:
 
     def get_dummy_pipe_section_info(self):
         section_info = dict()
-        section_info["section_type_label"] = "Pipe"
+        section_info["section_type_label"] = "pipe"
         section_info["section_parameters"] = [0.01, 0.001, 0, 0, 0 ,0]
         return section_info
 
@@ -997,7 +997,7 @@ def get_arc_length(coords_A, coords_B, coords_C):
     #     if "section_type_label" in data.keys():
     #         section_type_label = data["section_type_label"]
     #     else:
-    #         section_type_label = "Pipe"
+    #         section_type_label = "pipe"
 
     #     if len(section_parameters) == 6:
 
@@ -1084,7 +1084,7 @@ def get_arc_length(coords_A, coords_B, coords_C):
     #     section_type_label = data.get("section_type_label", None)
     #     section_parameters = data["section_parameters"]
 
-    #     if section_type_label == "Rectangular section":
+    #     if section_type_label == "rectangular_beam":
     #         start = Point(*data['start_coords'])
     #         end = Point(*data['end_coords'])
     #         structure = RectangularBeam(
@@ -1096,7 +1096,7 @@ def get_arc_length(coords_A, coords_B, coords_C):
     #                                     thickness_height = (section_parameters[0] - section_parameters[3]) / 2,
     #                                     )
         
-    #     elif section_type_label == "Circular section":
+    #     elif section_type_label == "circular_beam":
     #         start = Point(*data['start_coords'])
     #         end = Point(*data['end_coords'])
     #         structure = CircularBeam(
@@ -1106,7 +1106,7 @@ def get_arc_length(coords_A, coords_B, coords_C):
     #                                  thickness = section_parameters[1],
     #                                 )
 
-    #     elif section_type_label == "C-section":
+    #     elif section_type_label == "c_beam":
     #         start = Point(*data['start_coords'])
     #         end = Point(*data['end_coords'])
     #         structure = CBeam(
@@ -1120,7 +1120,7 @@ def get_arc_length(coords_A, coords_B, coords_C):
     #                           thickness_3 = section_parameters[5],
     #                           )
     
-    #     elif section_type_label == "I-section":
+    #     elif section_type_label == "i_beam":
     #         start = Point(*data['start_coords'])
     #         end = Point(*data['end_coords'])
     #         structure = IBeam(
@@ -1134,7 +1134,7 @@ def get_arc_length(coords_A, coords_B, coords_C):
     #                           thickness_3 = section_parameters[5],
     #                           )
                         
-    #     elif section_type_label == "T-section":
+    #     elif section_type_label == "t_beam":
     #         start = Point(*data['start_coords'])
     #         end = Point(*data['end_coords'])
     #         structure = TBeam(
@@ -1209,7 +1209,7 @@ def get_arc_length(coords_A, coords_B, coords_C):
 
     #     structure.tag = line_id
 
-    #     section_info = {"section_type_label" : "Expansion joint"}
+    #     section_info = {"section_type_label" : "expansion_joint"}
     #     structure.extra_info["cross_section_info"] = section_info
 
     #     structure.extra_info["expansion_joint_info"] = expansion_joint_info

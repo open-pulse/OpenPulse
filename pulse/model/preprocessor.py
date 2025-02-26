@@ -977,7 +977,7 @@ class Preprocessor:
                                                 insulation_density
                                                 ]
 
-                    pipe_section_info_first = { "section_type_label" : "Reducer" ,
+                    pipe_section_info_first = { "section_type_label" : "reducer" ,
                                                 "section_parameters" : section_parameters_first }
 
                     section_parameters_last = [
@@ -989,7 +989,7 @@ class Preprocessor:
                                                 insulation_density
                                             ]
 
-                    pipe_section_info_last = { "section_type_label" : "Reducer" ,
+                    pipe_section_info_last = { "section_type_label" : "reducer" ,
                                                 "section_parameters" : section_parameters_last }
 
                     cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
@@ -1041,7 +1041,7 @@ class Preprocessor:
             for element_id in line_elements:
                 valve_body_elements.append(element_id)
 
-        body_section_info = {   "section_type_label" : "Valve",
+        body_section_info = {   "section_type_label" : "valve",
                                 "section_parameters" : valve_info["body_section_parameters"]   }
 
         body_cross_section = CrossSection(valve_section_info=body_section_info)
@@ -1050,7 +1050,7 @@ class Preprocessor:
 
         if "flange_section_parameters" in valve_info.keys():
 
-            flange_section_info = { "section_type_label" : "Valve",
+            flange_section_info = { "section_type_label" : "valve",
                                     "section_parameters" : valve_info["flange_section_parameters"] }
 
             flange_cross_section = CrossSection(valve_section_info=flange_section_info)
@@ -2078,14 +2078,14 @@ class Preprocessor:
 
             if el_type == 'pipe_1':
                 pipe_section_info = {   
-                                     "section_type_label" : "Pipe",
+                                     "section_type_label" : "pipe",
                                      "section_parameters" : section_parameters
                                     }
                 cross_section = CrossSection(pipe_section_info = pipe_section_info)                             
 
             elif el_type == 'valve':
                 valve_section_info = {  
-                                      "section_type_label" : "Valve",
+                                      "section_type_label" : "valve",
                                       "section_parameters" : section_parameters
                                       }
                 cross_section = CrossSection(valve_section_info = valve_section_info)     

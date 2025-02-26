@@ -187,7 +187,7 @@ class SetCrossSectionInput(QDialog):
 
     def update_pipe_section_entries(self, section_type: str, section_parameters: list):
 
-        if section_type == "Pipe":
+        if section_type == "pipe":
 
             self.tabWidget_pipe_section.setCurrentIndex(0)
 
@@ -213,7 +213,7 @@ class SetCrossSectionInput(QDialog):
             if insulation_thickness:
                 self.cross_section_widget.lineEdit_insulation_thickness.setText(str(insulation_thickness))
 
-        elif section_type == "Reducer":
+        elif section_type == "reducer":
 
             self.tabWidget_pipe_section.setCurrentIndex(1)
 
@@ -222,7 +222,7 @@ class SetCrossSectionInput(QDialog):
 
     def update_beam_section_entries(self, section_type: str, section_parameters: list):
 
-        if section_type == 'Rectangular section':
+        if section_type == 'rectangular_beam':
             [base, height, base_in, height_in, offset_y, offset_z] = section_parameters
             self.tabWidget_beam_section.setCurrentIndex(0)
             self.cross_section_widget.lineEdit_base_rectangular_section.setText(str(base))
@@ -232,7 +232,7 @@ class SetCrossSectionInput(QDialog):
             if base_in != 0 and height_in != 0:
                 self.cross_section_widget.lineEdit_wall_thickness_rectangular_section.setText(str(round((base-base_in)/2,4))) 
 
-        elif section_type == 'Circular section':
+        elif section_type == 'circular_beam':
             [outside_diameter_beam, thickness, offset_y, offset_z] = section_parameters
             self.tabWidget_beam_section.setCurrentIndex(1)
             self.cross_section_widget.lineEdit_outside_diameter_circular_section.setText(str(outside_diameter_beam))
@@ -241,7 +241,7 @@ class SetCrossSectionInput(QDialog):
             if thickness != 0:
                 self.cross_section_widget.lineEdit_wall_thickness_circular_section.setText(str(thickness))
 
-        elif section_type == 'C-section':
+        elif section_type == 'c_beam':
             [h, w1, t1, w2, t2, tw, offset_y, offset_z] = section_parameters
             self.tabWidget_beam_section.setCurrentIndex(2)
             self.cross_section_widget.lineEdit_height_C_section.setText(str(h))
@@ -253,7 +253,7 @@ class SetCrossSectionInput(QDialog):
             self.cross_section_widget.lineEdit_offsety_C_section.setText(str(offset_y))
             self.cross_section_widget.lineEdit_offsetz_C_section.setText(str(offset_z))             
 
-        elif section_type == 'I-section':
+        elif section_type == 'i_beam':
             [h, w1, t1, w2, t2, tw, offset_y, offset_z] = section_parameters
             self.tabWidget_beam_section.setCurrentIndex(3)
             self.cross_section_widget.lineEdit_height_I_section.setText(str(h))
@@ -265,7 +265,7 @@ class SetCrossSectionInput(QDialog):
             self.cross_section_widget.lineEdit_offsety_I_section.setText(str(offset_y))
             self.cross_section_widget.lineEdit_offsetz_I_section.setText(str(offset_z))
 
-        elif section_type == 'T-section':
+        elif section_type == 'i_beam':
             [h, w1, t1, tw, offset_y, offset_z] = section_parameters
             self.tabWidget_beam_section.setCurrentIndex(4)
             self.cross_section_widget.lineEdit_height_T_section.setText(str(h))
@@ -443,6 +443,7 @@ class SetCrossSectionInput(QDialog):
         self.preprocessor.set_structural_element_force_offset_by_lines(line_ids, 1)
 
         self.properties._set_line_property("structural_element_type", "pipe_1", line_ids)
+    
         self.properties._remove_line_property("section_properties", line_ids)
         self.properties._remove_line_property("wall_formulation", line_ids)
         self.properties._remove_line_property("force_offset", line_ids)
@@ -462,7 +463,17 @@ class SetCrossSectionInput(QDialog):
                     return
 
         section_info = self.cross_section_widget.pipe_section_info
-        cross_section = CrossSection(pipe_section_info=section_info) 
+        cross_section = CrossSection(pipe_section_info=section_info)
+
+        for line_id in line_ids:
+            center_coords = self.properties._get_property("center_coords", line_id=line_id)
+            corner_coords = self.properties._get_property("corner_coords", line_id=line_id)
+
+            if (center_coords, corner_coords).count(None) == 2:
+                section_label = section_info["section_type_label"]
+                self.properties._set_line_property("structure_name", section_label, line_id)
+            else:
+                self.properties._set_line_property("structure_name", "bend", line_id)
 
         self.properties._set_multiple_line_properties(section_info, line_ids)
         self.properties._set_line_property("cross_section", cross_section, line_ids)
@@ -502,6 +513,7 @@ class SetCrossSectionInput(QDialog):
 
             self.properties._set_multiple_line_properties(section_info, line_ids)
             self.properties._set_line_property("cross_section", cross_section, line_ids)
+            self.properties._set_line_property("structure_name", section_info["section_type_label"], line_ids)
 
             self.preprocessor.set_cross_section_by_lines(line_ids, cross_section)
             self.preprocessor.set_capped_end_by_lines(line_ids, False)

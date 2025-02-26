@@ -227,7 +227,7 @@ class LoadProject:
 
             if "section_type_label" in data.keys() and "section_parameters" in data.keys():
 
-                if data["section_type_label"] in ["Pipe", "Bend"]:
+                if data["section_type_label"] in ["pipe", "bend"]:
 
                     pipe_section_info = {   "section_type_label" : data["section_type_label"],
                                             "section_parameters" : data["section_parameters"]   }
@@ -394,7 +394,7 @@ class LoadProject:
             self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
 
         elif "section_type_label" in data.keys():
-            if data["section_type_label"] == "Reducer":
+            if data["section_type_label"] == "reducer":
                 self.preprocessor.set_variable_cross_section_by_line(line_id, data)
 
 
@@ -611,7 +611,7 @@ class LoadProject:
                 else:
                     continue
 
-                if section_type in ["Valve", "Expansion joint", "Generic beam section"]:
+                if section_type in ["valve", "expansion_joint", "generic_beam"]:
                     continue
 
                 if "section_parameters" in data.keys():
