@@ -8,6 +8,7 @@ from .arrows import (
 from .simple_shapes import (
     create_cone_source,
     create_cube_source,
+    create_sphere_source,
     create_double_cone_source,
 )
 

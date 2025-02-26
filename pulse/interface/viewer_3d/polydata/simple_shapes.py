@@ -2,6 +2,7 @@ from molde.utils.poly_data_utils import transform_polydata
 from vtkmodules.vtkFiltersSources import (
     vtkConeSource,
     vtkCubeSource,
+    vtkSphereSource,
 )
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData
 
@@ -44,5 +45,14 @@ def create_double_cone_source():
 def create_cube_source():
     source = vtkCubeSource()
     source.SetBounds(0, 1, 0, 1, 0, 1)
+    source.Update()
+    return source.GetOutput()
+
+
+def create_sphere_source():
+    source = vtkSphereSource()
+    source.SetRadius(0.3)
+    source.SetThetaResolution(12)
+    source.SetPhiResolution(12)
     source.Update()
     return source.GetOutput()

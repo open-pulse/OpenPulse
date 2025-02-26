@@ -164,7 +164,7 @@ class MeshRenderWidget(CommonRenderWidget):
         opacity = 0.9 if visualization.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
 
-        self.symbols_actor.SetVisibility(not visualization.acoustic_symbols and not visualization.structural_symbols)
+        self.symbols_actor.SetVisibility(not visualization.structural_symbols)
 
         self.acoustic_nodes_symbols_actor.SetVisibility(visualization.acoustic_symbols)
         self.acoustic_elements_symbols_actor.SetVisibility(visualization.acoustic_symbols)

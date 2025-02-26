@@ -8,6 +8,8 @@ from pulse import SYMBOLS_DIR, app
 from ..polydata import (
     create_arrow_source,
     create_cone_source,
+    create_cube_source,
+    create_sphere_source,
     create_double_arrow_source,
     create_double_cone_source,
 )
@@ -40,6 +42,16 @@ class NodalSymbolsActor(CommonSymbolsActorVariableSize):
         self.register_shape(
             "cone",
             create_cone_source(),
+            scale=(0.5, 0.5, 0.5),
+        )
+        self.register_shape(
+            "sphere",
+            create_sphere_source(),
+        )
+        self.register_shape(
+            "cube",
+            create_cube_source(),
+            position=(-0.25, -0.25, -0.25),
             scale=(0.5, 0.5, 0.5),
         )
         self.register_shape(
@@ -95,6 +107,26 @@ class NodalSymbolsActor(CommonSymbolsActorVariableSize):
                     position=data["coords"],
                     displacements=data["values"][:3],
                     rotations=data["values"][3:],
+                )
+
+            elif property_name == "acoustic_pressure":
+                self.add_acoustic_pressure_symbol(
+                    position=data["coords"],
+                )
+            
+            elif property_name == "volume_velocity":
+                self.add_volume_velocity_symbol(
+                    position=data["coords"],
+                )
+            
+            elif property_name == "specific_impedance":
+                self.add_specific_impedance_symbol(
+                    position=data["coords"],
+                )
+            
+            elif property_name == "radiation_impedance":
+                self.add_radiation_impedance_symbol(
+                    position=data["coords"],
                 )
 
         return super().build()
@@ -198,6 +230,38 @@ class NodalSymbolsActor(CommonSymbolsActorVariableSize):
         for axis, mask in zip(axes, axes_mask):
             if mask:
                 self.add_symbol(shape_name, position, axis, color, size)
+
+    def add_acoustic_pressure_symbol(self, position):
+        self.add_symbol(
+            "sphere",
+            position,
+            orientation=(0, 0, 0),
+            color=color_names.PURPLE,
+        )
+
+    def add_volume_velocity_symbol(self, position):
+        self.add_symbol(
+            "sphere",
+            position,
+            orientation=(0, 0, 0),
+            color=color_names.RED,
+        )
+
+    def add_specific_impedance_symbol(self, position):
+        self.add_symbol(
+            "cube",
+            position,
+            orientation=(0, 0, 0),
+            color=color_names.GREEN,
+        )
+
+    def add_radiation_impedance_symbol(self, position):
+        self.add_symbol(
+            "cube",
+            position,
+            orientation=(0, 0, 0),
+            color=color_names.RED,
+        )
 
     def configure_appearance(self):
         self.set_zbuffer_offsets(1, -66000)
