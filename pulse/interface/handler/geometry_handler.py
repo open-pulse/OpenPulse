@@ -129,12 +129,28 @@ class GeometryHandler:
         This function fixes some of the cases to keep old files working.
         """
 
+        sections_list = [
+                         "Pipe", 
+                         "Rectangular section", 
+                         "Circular section", 
+                         "C-section", 
+                         "I-section", 
+                         "T-section", 
+                         "Generic section",
+                         "Valve",
+                         "Expansion joint",
+                         "Reducer"
+                         ]
+
+        if data.get("section_type_label") in sections_list:
+            type_label: str = data["section_type_label"]
+            data["section_type_label"] = type_label.lower().replace(" ", "_").replace("-", "_").replace("section", "beam")
+
         if data.get("structural_element_type") == "pipe_1" and len(data["section_parameters"]) == 10:
             data["structure_name"] = "reducer"
 
         if data.get("structural_element_type") == "beam_1" and data.get("structure_name") == "undefined":
-            type_label: str = data["section_type_label"]
-            data["structure_name"] = type_label.lower().replace(" ", "_").replace("-", "_").replace("section", "beam")
+            data["structure_name"] = type_label
 
     def create_structure_from_data(self, data: dict) -> Structure:
         """

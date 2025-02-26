@@ -3564,7 +3564,7 @@
          </widget>
          <widget class="QWidget" name="tab_C_section">
           <attribute name="title">
-           <string>C-section</string>
+           <string>C-beam</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_49">
            <property name="leftMargin">
@@ -4435,7 +4435,7 @@
          </widget>
          <widget class="QWidget" name="tab_I_section">
           <attribute name="title">
-           <string>I-section</string>
+           <string>I-beam</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_51">
            <property name="leftMargin">
@@ -5254,7 +5254,7 @@
          </widget>
          <widget class="QWidget" name="tab_T_section">
           <attribute name="title">
-           <string>T-section</string>
+           <string>T-beam</string>
           </attribute>
           <layout class="QGridLayout" name="gridLayout_53">
            <property name="leftMargin">
