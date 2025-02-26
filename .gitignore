@@ -10,6 +10,8 @@ src/
 .config
 test.py
 
+.idea/
+
 # Profiling files
 *.log
 *.prof
