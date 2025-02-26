@@ -395,7 +395,7 @@ class GeometryDesignerWidget(QWidget):
         w, h = renderer.GetSize()
         need_to_fit = False
         border = int(max(w, h) * 0.1)
-        
+
         # Starts with a rectangle the size of the viewport,
         # and make it grow according to selected/staged points
         # that are outside of it.
@@ -431,12 +431,14 @@ class GeometryDesignerWidget(QWidget):
         dx = (x1 + x0 - w) / 2
         dy = (y1 + y0 - h) / 2
         self.move_viewport(dx, dy)
+        renderer.ResetCameraScreenSpace()
 
         # This function changes the zoom around the center.
         # That's why we needed to move the viewport.
         rect = vtkRecti(x0, y0, x1-x0, y1-y0)
         renderer.ZoomToBoxUsingViewAngle(rect)
-    
+        renderer.ResetCameraClippingRange()
+
     def move_viewport(self, dx, dy):
         '''
         Moves the viewport in view coordinates by some amount of pixels.
