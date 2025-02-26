@@ -1,5 +1,4 @@
 
-# from pulse.utils.common_utils import sparse_is_equal
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
@@ -9,7 +8,6 @@ from pulse.project.project import Project
 import numpy as np
 
 from pathlib import Path
-from pprint import pprint
 
 # Setting up model
 # @pytest.fixture
@@ -80,7 +78,7 @@ def test_structural_modal_analysis():
     model.properties._set_line_property("material_id", material.identifier, all_lines)
     model.properties._set_line_property("material", material, all_lines)
 
-    ## Define the model cross-sections
+    ## Create the model cross-sections
 
     main_section_info = {"section_type_label" : "pipe" ,
                         "section_parameters" : [0.100, 0.008, 0, 0, 0, 0]}
@@ -101,7 +99,7 @@ def test_structural_modal_analysis():
     branch_lines = [31, 32, 33]
     main_lines = [line_id for line_id in all_lines if line_id not in beam_lines + branch_lines]
 
-    ## Assign the cross-sections to the main lines
+    ## Assign the cross-sections to main lines
 
     for line_id in main_lines:
         center_coords = model.properties._get_property("center_coords", line_id=line_id)
@@ -119,7 +117,7 @@ def test_structural_modal_analysis():
     preprocessor.set_cross_section_by_lines(main_lines, cross_section_main)
     preprocessor.set_structural_element_type_by_lines(main_lines, "pipe_1")
 
-    ## Assign the cross-sections to the branch lines
+    ## Assign the cross-sections to branch lines
 
     for line_id in branch_lines:
         center_coords = model.properties._get_property("center_coords", line_id=line_id)
@@ -137,7 +135,7 @@ def test_structural_modal_analysis():
     preprocessor.set_cross_section_by_lines(branch_lines, cross_section_branch)
     preprocessor.set_structural_element_type_by_lines(branch_lines, "pipe_1")
 
-    ## Assign the cross-sections to the beam lines
+    ## Assign the cross-sections to beam lines
 
     model.properties._set_line_property("structure_name", beam_section_info["section_type_label"], beam_lines)
     model.properties._set_multiple_line_properties(beam_section_info, beam_lines)
@@ -212,9 +210,11 @@ def create_material_library(project: Project, material: Material):
     project.pulse_file.write_material_library_in_file(config)
 
 def remove_files_from_temporary_folder():
+
     from pulse import TEMP_PROJECT_DIR
     from shutil import rmtree
     from os import path, remove, listdir
+
     if TEMP_PROJECT_DIR.exists():
         for filename in listdir(TEMP_PROJECT_DIR).copy():
             file_path = TEMP_PROJECT_DIR / filename
