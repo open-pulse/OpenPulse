@@ -51,18 +51,18 @@ class SetMaterialInput(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_attribution_type = self.findChild(QComboBox, 'comboBox_attribution_type')
+        self.comboBox_attribution_type : QComboBox
 
         # QFrame
-        self.frame_main_widget = self.findChild(QFrame, 'frame_main_widget')
+        self.frame_main_widget : QFrame
 
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
         # QLineEdit
-        self.lineEdit_selected_id = self.findChild(QLineEdit, 'lineEdit_selected_id')
-        self.lineEdit_selected_material_name = self.findChild(QLineEdit, 'lineEdit_selected_material_name')
+        self.lineEdit_selected_id : QLineEdit
+        self.lineEdit_selected_material_name : QLineEdit
 
         # QScrollArea
         self.scrollArea_table_of_materials : QScrollArea
@@ -70,15 +70,15 @@ class SetMaterialInput(QDialog):
         self._add_material_input_widget()
         self.scrollArea_table_of_materials.adjustSize()
 
-        # QPushButtonget_comboBox_index
-        self.pushButton_attribute = self.findChild(QPushButton, 'pushButton_attribute')
-        self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
+        # QPushButton
+        self.pushButton_attribute = self.material_widget.pushButton_attribute
+        self.pushButton_cancel = self.material_widget.pushButton_cancel
 
         # QTableWidget
-        self.tableWidget_material_data = self.findChild(QTableWidget, 'tableWidget_material_data')
+        self.tableWidget_material_data = self.material_widget.tableWidget_material_data
 
     def _add_material_input_widget(self):
-        self.material_widget = MaterialWidget()
+        self.material_widget = MaterialWidget(dialog=self)
         self.material_widget.load_data_from_materials_library()
         self.grid_layout.addWidget(self.material_widget)
 

@@ -7,7 +7,7 @@ def default_material_library():
     config = ConfigParser()
 
     config["1"] = {
-        "name": "Steel",
+        "name": "Carbon_steel",
         "identifier": 1,
         "color": "[253, 152, 145]",  # Red level 7
         "density": 7860,
