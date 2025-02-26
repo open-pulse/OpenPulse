@@ -46,6 +46,9 @@ def test_structural_modal_analysis():
     ## Process the geometry and mesh
     preprocessor.generate()
 
+    mesher_setup["import_type"] = 1
+    mesh.set_mesher_setup(mesher_setup=mesher_setup)
+
     ## Define the fluid
     # fluid = Fluid(  
     #                 'Air',

@@ -87,10 +87,10 @@ class Mesh:
         self.reset_variables()
 
         if self.import_type == 0:
-            if os.path.exists(self.geometry_path):
-                self._load_cad_geometry_on_gmsh()
-            else:
+            if not os.path.exists(self.geometry_path):
                 return
+
+            self._load_cad_geometry_on_gmsh()
 
         self._create_gmsh_geometry()
         self._set_gmsh_options()
