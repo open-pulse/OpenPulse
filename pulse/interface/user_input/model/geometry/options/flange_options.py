@@ -40,7 +40,7 @@ class FlangeOptions(StructureOptions):
         self.cross_section_widget.lineEdit_outside_diameter.setFocus()
         self.cross_section_widget.exec()
 
-        if not self.cross_section_widget.complete:
+        if not self.cross_section_dialog.complete:
             return
         
         if self.cross_section_widget.get_constant_section_pipe_parameters():
