@@ -643,7 +643,7 @@ class ReciprocatingPumpInputs(QDialog):
         self.pump_model.number_points = N
         self.pump_model.max_frequency = self.spinBox_max_frequency.value()
 
-        T_rev = 60/self.parameters['rotational_speed']
+        T_rev = 60 / self.parameters['rotational_speed']
         list_T = [10, 5, 2, 1, 0.5]
         list_df = [0.1, 0.2, 0.5, 1, 2]
 
@@ -652,13 +652,13 @@ class ReciprocatingPumpInputs(QDialog):
 
         if np.remainder(T_selected, T_rev) == 0:
             T = T_selected
-            df = 1/T
+            df = 1 / T
         else:
             i = 0
-            df = 1/(T_rev)
+            df = 1 / (T_rev)
             while df > df_selected:
                 i += 1
-                df = 1/(i*T_rev)
+                df = 1 / (i * T_rev)
 
         self.N_rev = i
 

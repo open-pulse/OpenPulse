@@ -29,6 +29,7 @@ class Model:
         self.preprocessor = None
         self.properties = None
         self.psd_data = dict()
+        self.analysis_setup = dict()
 
         self.f_min = 1
         self.f_max = 200
@@ -51,23 +52,31 @@ class Model:
         self.gravity_vector = gravity_vector
 
     def set_analysis_setup(self, analysis_setup: dict):
-        self.analysis_setup = analysis_setup
+
+        self.analysis_setup.update(analysis_setup)
+
         if "f_min" in analysis_setup.keys():
             self.set_frequency_setup(analysis_setup)
+
         if "global_damping" in analysis_setup.keys():
             self.set_global_damping(analysis_setup)
+
         if "weight_load" in analysis_setup.keys():
             self.set_static_analysis_setup(analysis_setup)
 
     def set_frequency_setup(self, analysis_setup: dict):
-        self.frequencies = None
+
         self.f_min = analysis_setup.get("f_min", None)
         self.f_max = analysis_setup.get("f_max", None)
         self.f_step = analysis_setup.get("f_step", None)
+        self.frequencies = analysis_setup.get("frequencies", None)
+
         if "frequencies" in analysis_setup.keys():
-            self.frequencies = analysis_setup.get("frequencies", None)
+            self.frequencies = analysis_setup["frequencies"]
+
         elif (self.f_min, self.f_max, self.f_step).count(None) != 3:
-            self.frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step)
+            frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step)
+            self.frequencies = frequencies[frequencies <= self.f_max]
 
     def set_global_damping(self, analysis_setup: dict):
         self.global_damping = analysis_setup.get("global_damping", [0., 0., 0., 0.])

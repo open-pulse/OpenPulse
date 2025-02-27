@@ -81,7 +81,6 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
 
     def selection_callback(self):
 
-        # self.reset_input_fields()
 
         selected_nodes = app().main_window.list_selected_nodes()
         line_ids = self.preprocessor.get_line_from_node_id(selected_nodes)
@@ -90,9 +89,13 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
 
             node_id = selected_nodes[0]
             pump_data = self.properties._get_property("reciprocating_pump_excitation", node_ids=int(node_id))
+            if pump_data is None:
+                self.reset_input_fields()
+                return
 
             if isinstance(pump_data, dict):
-                if pump_data["connection_type"] == "discharge" and False:
+                if pump_data["connection_type"] == "discharge":
+                    self.reset_input_fields()
                     return
 
             if len(line_ids) > 0:
