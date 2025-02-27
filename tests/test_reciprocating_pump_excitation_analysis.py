@@ -121,6 +121,46 @@ def test_coupled_harmonic_analysis():
         preprocessor.set_cross_section_by_lines(line_ids, cross_section)
         preprocessor.set_structural_element_type_by_lines(line_ids, "pipe_1")
 
+    ## Apply the acoustic element length corrections
+
+    correction_types_ids = {"expansion" : 0, "side_branch" : 1, "loop" : 2}
+
+    points_coords = np.array([[  0.500,  0.000,  0.000 ],
+                              [  0.500,  0.050,  0.000 ],
+                              [ 23.000,  4.000,  0.000 ]], dtype=float)
+
+    correction_types = ["side_branch", "expansion", "side_branch"]
+
+    for i, coords in enumerate(points_coords):
+
+        node_id = preprocessor.get_node_id_by_coordinates(coords)
+        neigh_elements = model.preprocessor.acoustic_elements_connected_to_node[node_id]
+        correction_type = correction_types_ids[correction_types[i]]
+
+        element_ids = [int(element.index) for element in neigh_elements]
+
+        if correction_type in [1, 2]:
+            if len(neigh_elements) != 3:
+                continue
+
+        else:
+            if len(neigh_elements) == 2:
+                cross_e0 = neigh_elements[0].cross_section
+                cross_e1 = neigh_elements[1].cross_section
+                inside_diam_0 = cross_e0.outer_diameter - 2 * cross_e0.thickness
+                inside_diam_1 = cross_e1.outer_diameter - 2 * cross_e1.thickness
+
+                if inside_diam_0 == inside_diam_1:
+                    continue
+
+        data = {
+                "coords" : list(coords),
+                "correction_type" : correction_type,
+                }
+
+        model.preprocessor.set_element_length_correction_by_element(element_ids, data)
+        model.properties._set_element_property("element_length_correction", data, element_ids)
+
     ## Apply the dofs prescriptions
 
     dofs_prescription_data = list()
@@ -227,7 +267,7 @@ def test_coupled_harmonic_analysis():
             return
 
         model.properties._set_nodal_property("reciprocating_pump_excitation", data, node_id)
-    # return
+
     ## Apply the radiation impedance
 
     points_coords = np.array([[ 23.000,  4.000,  4.000 ],
@@ -282,6 +322,7 @@ def test_coupled_harmonic_analysis():
     ## Write project data in the temp_pulse folder
     project.pulse_file.write_line_properties_in_file()
     project.pulse_file.write_nodal_properties_in_file()
+    project.pulse_file.write_element_properties_in_file()
     project.pulse_file.write_imported_table_data_in_file()
     project.pulse_file.write_project_setup_in_file(mesher_setup)
     project.pulse_file.write_analysis_setup_in_file(model.analysis_setup)

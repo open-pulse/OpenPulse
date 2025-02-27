@@ -151,11 +151,12 @@ class AcousticElementLengthCorrectionInput(QDialog):
             else:
 
                 if len(neigh_elements) == 2:
-                    element_0 = neigh_elements[0]
-                    element_1 = neigh_elements[1]
 
-                    inside_diam_0 = element_0.cross_section.outer_diameter - 2*element_0.cross_section.thickness
-                    inside_diam_1 = element_1.cross_section.outer_diameter - 2*element_1.cross_section.thickness
+                    cross_e0 = neigh_elements[0].cross_section
+                    cross_e1 = neigh_elements[1].cross_section
+
+                    inside_diam_0 = cross_e0.outer_diameter - 2 * cross_e0.thickness
+                    inside_diam_1 = cross_e1.outer_diameter - 2 * cross_e1.thickness
 
                     if inside_diam_0 != inside_diam_1:
                         node = app().project.model.preprocessor.nodes[node_id]
@@ -212,7 +213,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                     }
 
             self.preprocessor.set_element_length_correction_by_element(element_ids, data)
-            self.properties._set_element_property("element_length_correction", data, element_ids=element_ids)
+            self.properties._set_element_property("element_length_correction", data, element_ids)
             self.actions_to_finalize()
 
             print("The acoustic element length correction {} was attributed to elements: {}".format(self.type_label, element_ids))
