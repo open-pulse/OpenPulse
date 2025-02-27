@@ -12,7 +12,7 @@ from pathlib import Path
 # Setting up model
 # @pytest.fixture
 
-def test_structural_modal_analysis():
+def test_coupled_harmonic_analysis():
 
     ## Initialize a project
     project = Project()
@@ -45,7 +45,7 @@ def test_structural_modal_analysis():
     mesh.set_mesher_setup(mesher_setup=mesher_setup)
 
     all_lines = project.model.mesh.lines_from_model
-    
+
     beam_lines = [20, 23, 24]
     branch_lines = [31, 32, 33]
     main_lines = [line_id for line_id in all_lines if line_id not in beam_lines + branch_lines]
@@ -175,40 +175,90 @@ def test_structural_modal_analysis():
 
         model.properties._set_nodal_property("nodal_loads", data, node_id)
 
+    ## Apply the volume velocity excitation
+
+    points_coords = np.array([[ 0.000,  0.000,  0.000]], dtype=float)
+
+    for coords in points_coords:
+
+        node_id = preprocessor.get_node_id_by_coordinates(coords)
+
+        volume_velocity = [0.01 + 0j]
+        real_values = [value if value is None else np.real(value) for value in volume_velocity]
+        imag_values = [value if value is None else np.imag(value) for value in volume_velocity]
+
+        data = {
+                "coords" : list(coords),
+                "values" : volume_velocity,
+                "real_values" : real_values,
+                "imag_values" : imag_values
+                }
+
+        model.properties._set_nodal_property("volume_velocity", data, node_id)
+
+    ## Apply the radiation impedance
+
+    points_coords = np.array([[ 2.000,  -0.250,  1.250]], dtype=float)
+
+    for coords in points_coords:
+
+        node_id = preprocessor.get_node_id_by_coordinates(coords)
+
+        data = {
+                "coords" : list(coords),
+                "impedance_type" : 1,
+                }
+
+        model.properties._set_nodal_property("radiation_impedance", data, node_id)
+
+    """
+    |--------------------------------------------------------------------|
+    |                    Analysis ID codification                        |
+    |--------------------------------------------------------------------|
+    |    0 - Structural - Harmonic analysis through direct method        |
+    |    1 - Structural - Harmonic analysis through mode superposition   |
+    |    2 - Structural - Modal analysis                                 |
+    |    3 - Acoustic - Harmonic analysis through direct method          |
+    |    4 - Acoustic - Modal analysis (convetional FE 1D)               |
+    |    5 - Coupled - Harmonic analysis through direct method           |
+    |    6 - Coupled - Harmonic analysis through mode superposition      |
+    |    7 - Structural - Static analysis (under development)            |
+    |--------------------------------------------------------------------|
+    """
+
+    ## Analysis setup for acoustic harmonic analysis
+
     ## Analysis setup for structural modal analysis
 
-    analysis_setup = {
-                      "analysis_id" : 2,
-                      "modes" : 40,
-                      "sigma_factor" : 1e-2
-                      }
-
-    ## Analysis setup for structural harmonic analysis
-
     # analysis_setup = {
-    #                   "analysis_id" : 0,
-    #                   "f_min" : 1,
-    #                   "f_max" : 300,
-    #                   "f_step" : 1,
-    #                   "global_damping" : [1e-3, 1e-5, 0., 0.],
+    #                   "analysis_id" : 4,
+    #                   "modes" : 40,
+    #                   "sigma_factor" : 1e-2
     #                   }
+
+    ## Analysis setup for coupled harmonic analysis
+    analysis_setup = {
+                      "analysis_id" : 5,
+                      "f_min" : 1,
+                      "f_max" : 300,
+                      "f_step" : 1,
+                      "global_damping" : [1e-3, 1e-5, 0., 0.],
+                      }
     
     model.set_analysis_setup(analysis_setup = analysis_setup)
 
-    ## Write project data in the temp_pulse folder
+    # write data in file
     project.pulse_file.write_line_properties_in_file()
     project.pulse_file.write_nodal_properties_in_file()
     project.pulse_file.write_project_setup_in_file(mesher_setup)
     project.pulse_file.write_analysis_setup_in_file(analysis_setup)
 
-    ## Build the mathematical model and solve it (it also saves the model results in the temp_pulse folder)
     project.build_model_and_solve(running_by_script=True)
 
-    natural_frequencies = project.structural_solver.natural_frequencies
+    # natural_frequencies = project.structural_solver.natural_frequencies
     # natural_frequencies = project.acoustic_solver.natural_frequencies
-    print(f"Natural frequencies: \n {natural_frequencies.reshape(-1, 1)}")
+    # print(f"Natural frequencies: \n {natural_frequencies.reshape(-1, 1)}")
 
-    ## Uncomment the following function to remove the created files from the temp_pulse folder
     # remove_files_from_temporary_folder()
 
 
@@ -309,6 +359,5 @@ def remove_files_from_temporary_folder():
                 else:
                     rmtree(file_path)
 
-
 if __name__ == "__main__":
-    test_structural_modal_analysis()
+    test_coupled_harmonic_analysis()
