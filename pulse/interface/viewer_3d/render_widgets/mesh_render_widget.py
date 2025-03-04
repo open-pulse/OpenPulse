@@ -146,6 +146,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.lines_actor = None
         self.tubes_actor = None
         self.element_axes_actor = None
+        self.symbols_actor = None
         self.acoustic_nodes_symbols_actor = None
         self.acoustic_elements_symbols_actor = None
         self.structural_nodes_symbols_actor = None
@@ -162,6 +163,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.tubes_actor.SetVisibility(visualization.tubes)
         opacity = 0.9 if visualization.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
+
+        self.symbols_actor.SetVisibility(not visualization.acoustic_symbols and not visualization.structural_symbols)
 
         self.acoustic_nodes_symbols_actor.SetVisibility(visualization.acoustic_symbols)
         self.acoustic_elements_symbols_actor.SetVisibility(visualization.acoustic_symbols)

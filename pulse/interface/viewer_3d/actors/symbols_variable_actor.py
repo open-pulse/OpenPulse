@@ -30,7 +30,7 @@ class SymbolsActorVariableSize(CommonSymbolsActorVariableSize):
         self.register_shape(
             "double_arrow",
             create_double_arrow_source(),
-            scale=(2, 2, 2),
+            scale=(1.8, 1.8, 1.8),
         )
         self.register_shape(
             "double_cone",
