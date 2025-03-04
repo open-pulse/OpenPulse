@@ -1,5 +1,5 @@
 import numpy as np
-from molde.actors import CommonSymbolsActorFixedSize, CommonSymbolsActorVariableSize
+from molde.actors import CommonSymbolsActorFixedSize, CommonSymbolsActorVariableSize  # noqa: F401
 from molde.colors import Color, color_names
 from molde.utils.poly_data_utils import read_obj_file
 
