@@ -1,5 +1,5 @@
 from pulse import app, SYMBOLS_DIR
-from pulse.interface.viewer_3d.actors.symbols_actor import SymbolsActorBase, SymbolTransform, loadSymbol
+from pulse.interface.viewer_3d.actors.symbols_actor_base import SymbolsActorBase, SymbolTransform, loadSymbol
 from pulse.utils.common_utils import transformation_matrix_3x3
 
 import numpy as np
@@ -8,7 +8,7 @@ from vtkmodules.vtkFiltersCore import vtkAppendPolyData
 from vtkmodules.vtkFiltersSources import vtkLineSource, vtkSphereSource
 
 from pulse import SYMBOLS_DIR
-from pulse.interface.viewer_3d.actors.symbols_actor import (
+from pulse.interface.viewer_3d.actors.symbols_actor_base import (
     SymbolsActorBase,
     SymbolTransform,
     loadSymbol,
