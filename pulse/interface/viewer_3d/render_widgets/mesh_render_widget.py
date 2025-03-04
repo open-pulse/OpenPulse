@@ -12,6 +12,7 @@ from pulse.interface.viewer_3d.actors import (
     PointsActor,
     SectionPlaneActor,
     NodalSymbolsActor,
+    FixedSymbolsActor,
     TubeActor,
 )
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
@@ -34,17 +35,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
 
-        self.open_pulse_logo = None
-        self.nodes_actor = None
-        self.points_actor = None
-        self.lines_actor = None
-        self.tubes_actor = None
-        self.element_axes_actor = None
-        self.acoustic_nodes_symbols_actor = None
-        self.acoustic_elements_symbols_actor = None
-        self.structural_nodes_symbols_actor = None
-        self.structural_elements_symbols_actor = None
-        self.plane_actor = None
+        self.remove_all_actors()
 
         self.selected_nodes = set()
         self.selected_lines = set()
@@ -69,7 +60,7 @@ class MeshRenderWidget(CommonRenderWidget):
         app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
 
     def update_plot(self, reset_camera=False):
-        self.remove_actors()
+        self.remove_all_actors()
         self.mesh_picker.update_bounds()
         project = app().project
 
@@ -84,7 +75,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self.element_axes_actor.VisibilityOff()
         self.plane_actor = SectionPlaneActor(self.tubes_actor.GetBounds())
         self.plane_actor.VisibilityOff()
+
         self.symbols_actor = NodalSymbolsActor(self.renderer)
+        self.symbols_actor_fixed = FixedSymbolsActor()
 
         # TODO: Replace these actors for newer ones that
         # are lighter and easier to update
@@ -115,6 +108,7 @@ class MeshRenderWidget(CommonRenderWidget):
             self.structural_elements_symbols_actor,
             self.plane_actor,
             self.symbols_actor,
+            self.symbols_actor_fixed,
         )
 
         # Prevents uneeded update calls
@@ -130,16 +124,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.update_theme()
         self.update()
 
-    def remove_actors(self):
-        self.renderer.RemoveActor(self.lines_actor)
-        self.renderer.RemoveActor(self.nodes_actor)
-        self.renderer.RemoveActor(self.points_actor)
-        self.renderer.RemoveActor(self.tubes_actor)
-        self.renderer.RemoveActor(self.element_axes_actor)
-        self.renderer.RemoveActor(self.acoustic_nodes_symbols_actor)
-        self.renderer.RemoveActor(self.acoustic_elements_symbols_actor)
-        self.renderer.RemoveActor(self.structural_nodes_symbols_actor)
-        self.renderer.RemoveActor(self.structural_elements_symbols_actor)
+    def remove_all_actors(self):
+        super().remove_all_actors()
 
         self.nodes_actor = None
         self.points_actor = None
@@ -147,6 +133,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.tubes_actor = None
         self.element_axes_actor = None
         self.symbols_actor = None
+        self.symbols_actor_fixed = None
         self.acoustic_nodes_symbols_actor = None
         self.acoustic_elements_symbols_actor = None
         self.structural_nodes_symbols_actor = None
@@ -165,6 +152,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.tubes_actor.GetProperty().SetOpacity(opacity)
 
         self.symbols_actor.SetVisibility(not visualization.structural_symbols)
+        self.symbols_actor_fixed.SetVisibility(not visualization.structural_symbols)
 
         self.acoustic_nodes_symbols_actor.SetVisibility(visualization.acoustic_symbols)
         self.acoustic_elements_symbols_actor.SetVisibility(visualization.acoustic_symbols)

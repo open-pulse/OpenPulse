@@ -9,4 +9,5 @@ from .editor_points_actor import EditorPointsActor
 from .editor_staged_points_actor import EditorStagedPointsActor
 from .editor_selected_points_actor import EditorSelectedPointsActor
 from .nodal_symbols_actor import NodalSymbolsActor
+from .fixed_symbols_actor import FixedSymbolsActor
 from .editor_actors import *
