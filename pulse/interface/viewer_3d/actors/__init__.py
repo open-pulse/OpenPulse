@@ -8,5 +8,5 @@ from .tube_actor_results import TubeActorResults
 from .editor_points_actor import EditorPointsActor
 from .editor_staged_points_actor import EditorStagedPointsActor
 from .editor_selected_points_actor import EditorSelectedPointsActor
-from .symbols_variable_actor import SymbolsActorVariableSize
+from .nodal_symbols_actor import NodalSymbolsActor
 from .editor_actors import *

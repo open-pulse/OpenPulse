@@ -13,7 +13,7 @@ from ..polydata import (
 )
 
 
-class SymbolsActorVariableSize(CommonSymbolsActorVariableSize):
+class NodalSymbolsActor(CommonSymbolsActorVariableSize):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

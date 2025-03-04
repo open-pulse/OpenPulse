@@ -11,7 +11,7 @@ from pulse.interface.viewer_3d.actors import (
     NodesActor,
     PointsActor,
     SectionPlaneActor,
-    SymbolsActorVariableSize,
+    NodalSymbolsActor,
     TubeActor,
 )
 from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
@@ -84,7 +84,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.element_axes_actor.VisibilityOff()
         self.plane_actor = SectionPlaneActor(self.tubes_actor.GetBounds())
         self.plane_actor.VisibilityOff()
-        self.symbols_actor = SymbolsActorVariableSize(self.renderer)
+        self.symbols_actor = NodalSymbolsActor(self.renderer)
 
         # TODO: Replace these actors for newer ones that
         # are lighter and easier to update
