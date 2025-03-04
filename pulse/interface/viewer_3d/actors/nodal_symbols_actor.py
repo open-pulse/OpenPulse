@@ -70,11 +70,31 @@ class NodalSymbolsActor(CommonSymbolsActorVariableSize):
             position=(-0.145, 0, 0),
             scale=(1.5, 1.5, 1.5),
         )
+        self.register_shape(
+            "compressor_suction",
+            read_obj_file(SYMBOLS_DIR / "acoustic/compressor_suction.obj"),
+            scale=(0.6, 0.6, 0.6),
+        )
+        self.register_shape(
+            "compressor_discharge",
+            read_obj_file(SYMBOLS_DIR / "acoustic/compressor_discharge.obj"),
+            scale=(0.6, 0.6, 0.6),
+        )
+        self.register_shape(
+            "pump_suction",
+            read_obj_file(SYMBOLS_DIR / "acoustic/pump_suction.obj"),
+            scale=(5, 5, 5),
+        )
+        self.register_shape(
+            "pump_discharge",
+            read_obj_file(SYMBOLS_DIR / "acoustic/pump_discharge.obj"),
+            scale=(5, 5, 5),
+        )
 
     def build(self):
         nodal_properties = app().project.model.properties.nodal_properties
 
-        for (property_name, *_), data in nodal_properties.items():
+        for (property_name, *args), data in nodal_properties.items():
             if property_name == "prescribed_dofs":
                 self.add_prescribed_dof_symbol(
                     position=data["coords"],
@@ -113,20 +133,58 @@ class NodalSymbolsActor(CommonSymbolsActorVariableSize):
                 self.add_acoustic_pressure_symbol(
                     position=data["coords"],
                 )
-            
+
             elif property_name == "volume_velocity":
                 self.add_volume_velocity_symbol(
                     position=data["coords"],
                 )
-            
+
             elif property_name == "specific_impedance":
                 self.add_specific_impedance_symbol(
                     position=data["coords"],
                 )
-            
+
             elif property_name == "radiation_impedance":
                 self.add_radiation_impedance_symbol(
                     position=data["coords"],
+                )
+
+            elif property_name == "reciprocating_compressor_excitation":
+                node_id = args[0]
+                elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+                if len(elements) != 1:
+                    continue
+
+                node = app().project.preprocessor.nodes[node_id]
+                element = elements[0]
+                orientation = element.last_node.coordinates - element.first_node.coordinates
+
+                if node != element.first_node:
+                    orientation = -orientation
+
+                self.add_compressor_symbol(
+                    position=data["coords"],
+                    orientation=orientation,
+                    mode=data["connection_type"],
+                )
+
+            elif property_name == "reciprocating_pump_excitation":
+                node_id = args[0]
+                elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+                if len(elements) != 1:
+                    continue
+
+                node = app().project.preprocessor.nodes[node_id]
+                element = elements[0]
+                orientation = element.last_node.coordinates - element.first_node.coordinates
+
+                if node != element.first_node:
+                    orientation = -orientation
+
+                self.add_pump_symbol(
+                    position=data["coords"],
+                    orientation=orientation,
+                    mode=data["connection_type"],
                 )
 
         return super().build()
@@ -263,7 +321,42 @@ class NodalSymbolsActor(CommonSymbolsActorVariableSize):
             color=color_names.RED,
         )
 
+    def add_compressor_symbol(self, position, orientation, mode):
+        if mode == "discharge":
+            self.add_symbol(
+                "compressor_discharge",
+                position,
+                orientation,
+                color=color_names.RED_2,
+            )
+
+        elif mode == "suction":
+            self.add_symbol(
+                "compressor_suction",
+                position,
+                orientation,
+                color=color_names.BLUE_2,
+            )
+
+    def add_pump_symbol(self, position, orientation, mode):
+        if mode == "discharge":
+            self.add_symbol(
+                "pump_discharge",
+                position,
+                orientation,
+                color=color_names.RED,
+            )
+
+        elif mode == "suction":
+            self.add_symbol(
+                "pump_suction",
+                position,
+                orientation,
+                color=color_names.BLUE,
+            )
+
     def configure_appearance(self):
         self.set_zbuffer_offsets(1, -66000)
         self.GetProperty().SetAmbient(0.5)
         self.PickableOff()
+        self.mapper.SetScaleFactor(0.8)
