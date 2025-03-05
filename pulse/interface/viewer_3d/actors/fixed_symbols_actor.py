@@ -127,6 +127,11 @@ class FixedSymbolsActor(vtkActor):
             vector = coords_b - coords_a
             length = np.linalg.norm(vector)
 
+            # this makes the valve handle always point up
+            angle = 0
+            if vector[0] >= 0:
+                angle = np.pi
+
             valve_info = data["valve_info"]
             outside_diameter, thickness, *_ = valve_info["body_section_parameters"]
             flange_outer_diameter, *_ = valve_info["flange_section_parameters"]
@@ -140,7 +145,7 @@ class FixedSymbolsActor(vtkActor):
                 flange_length,
             )
 
-            data = align_vtk_geometry(source, coords_a, vector)
+            data = align_vtk_geometry(source, coords_a, vector, angle)
             set_polydata_colors(data, color_names.PINK_6.to_rgb())
             yield data
 

@@ -19,8 +19,6 @@ class ValveActor(vtkActor):
     def create_geometry(self):
         a = self.valve.start.coords()
         b = self.valve.end.coords()
-        if b[0] > a[0]:
-            a, b = b, a
 
         vector = b - a
         length = np.linalg.norm(vector)
@@ -31,8 +29,13 @@ class ValveActor(vtkActor):
             self.valve.flange_outer_diameter,
             self.valve.flange_length,
         )
+        
+        # this makes the valve handle always point up
+        angle = 0
+        if vector[0] >= 0:
+            angle = np.pi
 
-        data = align_vtk_geometry(source, a, vector)
+        data = align_vtk_geometry(source, a, vector, angle)
         paint_data(data, self.valve.color.to_rgb())
 
         mapper = vtkPolyDataMapper()
