@@ -3,13 +3,14 @@ from typing import Iterator
 
 import numpy as np
 from molde.colors import color_names
-from molde.utils import set_polydata_colors
+from molde.utils import set_polydata_colors, read_obj_file, transform_polydata
+
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData
 from vtkmodules.vtkFiltersSources import vtkLineSource
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
-from pulse import app
+from pulse import app, SYMBOLS_DIR
 from pulse.utils.cross_section_sources import valve_data
 from pulse.utils.rotations import align_vtk_geometry
 
@@ -43,17 +44,11 @@ class FixedSymbolsActor(vtkActor):
             if property_name not in ["structural_stiffness_links", "structural_damping_links"]:
                 continue
 
-            coords_a = np.array(data["coords"][:3], dtype=float)
-            coords_b = np.array(data["coords"][3:], dtype=float)
-
-            source = vtkLineSource()
-            source.SetPoint1(coords_a)
-            source.SetPoint2(coords_b)
-            source.Update()
-
-            output = source.GetOutput()
-            set_polydata_colors(output, color_names.GREEN.to_rgb())
-            yield output
+            yield self._create_line(
+                data["coords"][:3],
+                data["coords"][3:],
+                color_names.GREEN,
+            )
 
     def create_psd_structural_links(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
@@ -62,17 +57,11 @@ class FixedSymbolsActor(vtkActor):
             if property_name != "psd_structural_links":
                 continue
 
-            coords_a = np.array(data["coords"][:3], dtype=float)
-            coords_b = np.array(data["coords"][3:], dtype=float)
-
-            source = vtkLineSource()
-            source.SetPoint1(coords_a)
-            source.SetPoint2(coords_b)
-            source.Update()
-
-            output = source.GetOutput()
-            set_polydata_colors(output, color_names.GREEN.to_rgb())
-            yield output
+            yield self._create_line(
+                data["coords"][:3],
+                data["coords"][3:],
+                color_names.GREEN,
+            )
 
     def create_psd_acoustic_links(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
@@ -81,17 +70,11 @@ class FixedSymbolsActor(vtkActor):
             if property_name != "psd_acoustic_link":
                 continue
 
-            coords_a = np.array(data["coords"][:3], dtype=float)
-            coords_b = np.array(data["coords"][3:], dtype=float)
-
-            source = vtkLineSource()
-            source.SetPoint1(coords_a)
-            source.SetPoint2(coords_b)
-            source.Update()
-
-            output = source.GetOutput()
-            set_polydata_colors(output, color_names.BLUE.to_rgb())
-            yield output
+            yield self._create_line(
+                data["coords"][:3],
+                data["coords"][3:],
+                color_names.BLUE,
+            )
 
     def create_acoustic_transfer_element(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
@@ -100,20 +83,46 @@ class FixedSymbolsActor(vtkActor):
             if property_name != "acoustic_transfer_element":
                 continue
 
-            coords_a = np.array(data["coords"][:3], dtype=float)
-            coords_b = np.array(data["coords"][3:], dtype=float)
-
-            source = vtkLineSource()
-            source.SetPoint1(coords_a)
-            source.SetPoint2(coords_b)
-            source.Update()
-
-            output = source.GetOutput()
-            set_polydata_colors(output, color_names.BLUE.to_rgb())
-            yield output
+            yield self._create_line(
+                data["coords"][:3],
+                data["coords"][3:],
+                color_names.BLUE,
+            )
 
     def create_perforated_plates(self) -> Iterator[vtkPolyData]:
-        return []
+        perforated_plate = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate.obj")
+        element_properties = app().project.model.properties.element_properties
+
+        for (property_name, element_id), data in element_properties.items():
+            if property_name != "perforated_plate":
+                continue
+
+            element = app().project.preprocessor.structural_elements.get(element_id)
+            if element is None:
+                continue
+
+            # There must be a cleaner way, but I will just
+            # copy this code from the previous version
+            factor_x = element.perforated_plate.thickness / 0.01
+            if element.valve_data:
+                d_in = element.valve_data["valve_effective_diameter"]
+                factor_yz = (d_in / 2) / 0.1
+            else:
+                factor_yz = element.cross_section.inner_diameter / 0.1
+            factor_yz *= 1.5
+
+            coord_a = element.first_node.coordinates
+            coord_b = element.last_node.coordinates
+            vector = coord_b - coord_a
+
+            data = transform_polydata(
+                perforated_plate,
+                rotation=(0, 0, 90),
+                scale=(factor_x, factor_yz, factor_yz),
+            )
+            data = align_vtk_geometry(data, coord_a, vector)
+            set_polydata_colors(data, color_names.PINK_6.to_rgb())
+            yield data
 
     def create_valves(self) -> Iterator[vtkPolyData]:
         line_properties = app().project.model.properties.line_properties
@@ -151,7 +160,7 @@ class FixedSymbolsActor(vtkActor):
 
     def configure_appearance(self):
         # This shows the points and lines over any other geometry
-        # But the polygons get just a small priority to avoid 
+        # But the polygons get just a small priority to avoid
         # unexpected rendering
         mapper = self.GetMapper()
         mapper.SetResolveCoincidentTopologyToPolygonOffset()
@@ -162,3 +171,16 @@ class FixedSymbolsActor(vtkActor):
 
         self.GetProperty().SetAmbient(0.5)
         self.PickableOff()
+
+    def _create_line(self, coords_a, coords_b, color):
+        coords_a = np.array(coords_a)
+        coords_b = np.array(coords_a)
+
+        source = vtkLineSource()
+        source.SetPoint1(coords_a)
+        source.SetPoint2(coords_b)
+        source.Update()
+
+        output = source.GetOutput()
+        set_polydata_colors(output, color.to_rgb())
+        return output
