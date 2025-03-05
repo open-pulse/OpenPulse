@@ -154,16 +154,3 @@ class FixedSymbolsActor(vtkActor):
 
         self.GetProperty().SetAmbient(0.5)
         self.PickableOff()
-
-    def set_zbuffer_offsets(self, factor: float, units: float):
-        """
-        This functions is usefull to make a object appear in front of the others.
-        If the object should never be hidden, the parameters should be set to
-        factor = 1 and offset = -66000.
-        """
-        mapper = self.GetMapper()
-        mapper.SetResolveCoincidentTopologyToPolygonOffset()
-        mapper.SetRelativeCoincidentTopologyLineOffsetParameters(factor, units)
-        mapper.SetRelativeCoincidentTopologyPolygonOffsetParameters(factor, units)
-        mapper.SetRelativeCoincidentTopologyPointOffsetParameter(units)
-        mapper.Update()
