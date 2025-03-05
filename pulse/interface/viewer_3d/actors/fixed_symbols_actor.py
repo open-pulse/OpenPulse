@@ -145,6 +145,9 @@ class FixedSymbolsActor(vtkActor):
             yield data
 
     def configure_appearance(self):
+        # This shows the points and lines over any other geometry
+        # But the polygons get just a small priority to avoid 
+        # unexpected rendering
         mapper = self.GetMapper()
         mapper.SetResolveCoincidentTopologyToPolygonOffset()
         mapper.SetRelativeCoincidentTopologyLineOffsetParameters(0, -66000)
