@@ -161,7 +161,7 @@ class FixedSymbolsActor(vtkActor):
     def configure_appearance(self):
         self.set_zbuffer_offsets(0, -6600)
 
-        self.GetProperty().SetLineWidth(2)
+        self.GetProperty().SetLineWidth(4)
         self.GetProperty().SetOpacity(0.7)
         self.GetProperty().SetAmbient(0.5)
         self.PickableOff()
@@ -181,7 +181,7 @@ class FixedSymbolsActor(vtkActor):
 
     def _create_line(self, coords_a, coords_b, color: Color):
         coords_a = np.array(coords_a)
-        coords_b = np.array(coords_a)
+        coords_b = np.array(coords_b)
 
         source = vtkLineSource()
         source.SetPoint1(coords_a)
