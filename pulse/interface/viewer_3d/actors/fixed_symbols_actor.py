@@ -2,7 +2,7 @@ from itertools import chain
 from typing import Iterator
 
 import numpy as np
-from molde.colors import color_names
+from molde.colors import Color, color_names
 from molde.utils import set_polydata_colors, read_obj_file, transform_polydata
 
 from vtkmodules.vtkCommonDataModel import vtkPolyData
@@ -159,20 +159,27 @@ class FixedSymbolsActor(vtkActor):
             yield data
 
     def configure_appearance(self):
-        # This shows the points and lines over any other geometry
-        # But the polygons get just a small priority to avoid
-        # unexpected rendering
-        mapper = self.GetMapper()
-        mapper.SetResolveCoincidentTopologyToPolygonOffset()
-        mapper.SetRelativeCoincidentTopologyLineOffsetParameters(0, -66000)
-        mapper.SetRelativeCoincidentTopologyPointOffsetParameter(-66000)
-        mapper.SetRelativeCoincidentTopologyPolygonOffsetParameters(-1, 0)
-        mapper.Update()
+        self.set_zbuffer_offsets(0, -6600)
 
+        self.GetProperty().SetLineWidth(2)
+        self.GetProperty().SetOpacity(0.7)
         self.GetProperty().SetAmbient(0.5)
         self.PickableOff()
 
-    def _create_line(self, coords_a, coords_b, color):
+    def set_zbuffer_offsets(self, factor: float, units: float):
+        """
+        This functions is usefull to make a object appear in front of the others.
+        If the object should never be hidden, the parameters should be set to
+        factor = 1 and offset = -6600.
+        """
+        mapper = self.GetMapper()
+        mapper.SetResolveCoincidentTopologyToPolygonOffset()
+        mapper.SetRelativeCoincidentTopologyLineOffsetParameters(factor, units)
+        mapper.SetRelativeCoincidentTopologyPolygonOffsetParameters(factor, units)
+        mapper.SetRelativeCoincidentTopologyPointOffsetParameter(units)
+        mapper.Update()
+
+    def _create_line(self, coords_a, coords_b, color: Color):
         coords_a = np.array(coords_a)
         coords_b = np.array(coords_a)
 
