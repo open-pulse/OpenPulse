@@ -62,6 +62,7 @@ class MainWindow(QMainWindow):
 
         self.visualization_filter = VisualizationFilter.all_true()
         self.selection_filter = SelectionFilter.all_false()
+        self.filter_tab_scroll_by_wheel()
         
         self.ui_dir = UI_DIR
         self.config= app().config
@@ -294,6 +295,20 @@ class MainWindow(QMainWindow):
             if os.listdir(TEMP_PROJECT_DIR):
                 return False
         return True
+    
+    def filter_tab_scroll_by_wheel(self):
+        from PyQt5.QtWidgets import QTabBar
+        from PyQt5.QtCore import QObject, QEvent
+
+        class Filter(QObject):
+            def eventFilter(self, obj, event):
+                if isinstance(obj, QTabBar) and (event.type() == QEvent.Wheel):
+                    return True
+                else:
+                    return False
+
+        filter = Filter(self)
+        self.installEventFilter(filter)
     
     def recovery_dialog(self):
 
