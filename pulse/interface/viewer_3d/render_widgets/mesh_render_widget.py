@@ -1,19 +1,24 @@
-# fmt: off
-
+from molde.colors import Color
+from molde.interactor_styles import BoxSelectionInteractorStyle
+from molde.render_widgets import CommonRenderWidget
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 
-from molde.interactor_styles import BoxSelectionInteractorStyle
-from molde.render_widgets import CommonRenderWidget
-from molde.colors import Color
-
-from pulse import app, ICON_DIR
-from pulse.interface.viewer_3d.actors import SectionPlaneActor, ElementAxesActor, ElementLinesActor, NodesActor, PointsActor, TubeActor
-from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import AcousticElementsSymbolsActor, AcousticNodesSymbolsActor
-from pulse.interface.viewer_3d.actors.structural_symbols_actor import StructuralElementsSymbolsActor, StructuralNodesSymbolsActor
+from pulse import ICON_DIR, app
+from pulse.interface.viewer_3d.actors import (
+    ElementAxesActor,
+    ElementLinesActor,
+    NodesActor,
+    PointsActor,
+    SectionPlaneActor,
+    VariableSymbolsActor,
+    FixedSymbolsActor,
+    TubeActor,
+)
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text
+
 
 class MeshRenderWidget(CommonRenderWidget):
     def __init__(self, parent=None):
@@ -22,17 +27,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.set_interactor_style(BoxSelectionInteractorStyle())
         self.mesh_picker = MeshPicker(self)
 
-        self.open_pulse_logo = None
-        self.nodes_actor = None
-        self.points_actor = None
-        self.lines_actor = None
-        self.tubes_actor = None
-        self.element_axes_actor = None
-        self.acoustic_nodes_symbols_actor = None
-        self.acoustic_elements_symbols_actor = None
-        self.structural_nodes_symbols_actor = None
-        self.structural_elements_symbols_actor = None
-        self.plane_actor = None
+        self.remove_all_actors()
 
         self.selected_nodes = set()
         self.selected_lines = set()
@@ -52,14 +47,12 @@ class MeshRenderWidget(CommonRenderWidget):
         self.left_released.connect(self.selection_callback)
 
         app().main_window.theme_changed.connect(self.set_theme)
-        app().main_window.visualization_changed.connect(
-            self.visualization_changed_callback
-        )
+        app().main_window.visualization_changed.connect(self.visualization_changed_callback)
         app().main_window.selection_changed.connect(self.update_selection)
         app().main_window.section_plane.value_changed_2.connect(self.update_section_plane)
 
     def update_plot(self, reset_camera=False):
-        self.remove_actors()
+        self.remove_all_actors()
         self.mesh_picker.update_bounds()
         project = app().project
 
@@ -75,22 +68,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.plane_actor = SectionPlaneActor(self.tubes_actor.GetBounds())
         self.plane_actor.VisibilityOff()
 
-        # TODO: Replace these actors for newer ones that
-        # are lighter and easier to update
-        self._acoustic_nodes_symbols = AcousticNodesSymbolsActor(project)
-        self._acoustic_elements_symbols = AcousticElementsSymbolsActor(project)        
-        self._structural_nodes_symbols = StructuralNodesSymbolsActor(project)        
-        self._structural_elements_symbols = StructuralElementsSymbolsActor(project)
-
-        self._acoustic_nodes_symbols.build()
-        self._acoustic_elements_symbols.build()
-        self._structural_nodes_symbols.build()
-        self._structural_elements_symbols.build()
-
-        self.acoustic_nodes_symbols_actor = self._acoustic_nodes_symbols.getActor()
-        self.acoustic_elements_symbols_actor = self._acoustic_elements_symbols.getActor()
-        self.structural_nodes_symbols_actor = self._structural_nodes_symbols.getActor()
-        self.structural_elements_symbols_actor = self._structural_elements_symbols.getActor()
+        self.symbols_actor = VariableSymbolsActor(self.renderer)
+        self.symbols_actor_fixed = FixedSymbolsActor()
 
         self.add_actors(
             self.lines_actor,
@@ -98,18 +77,16 @@ class MeshRenderWidget(CommonRenderWidget):
             self.nodes_actor,
             self.tubes_actor,
             self.element_axes_actor,
-            self.acoustic_nodes_symbols_actor,
-            self.acoustic_elements_symbols_actor,
-            self.structural_nodes_symbols_actor,
-            self.structural_elements_symbols_actor,
-            self.plane_actor
+            self.plane_actor,
+            self.symbols_actor,
+            self.symbols_actor_fixed,
         )
 
         # Prevents uneeded update calls
         with self.update_lock:
             self.visualization_changed_callback()
-            self.update_section_plane()        
-        
+            self.update_section_plane()
+
             if reset_camera:
                 self.renderer.ResetCamera()
 
@@ -118,26 +95,16 @@ class MeshRenderWidget(CommonRenderWidget):
         self.update_theme()
         self.update()
 
-    def remove_actors(self):
-        self.renderer.RemoveActor(self.lines_actor)
-        self.renderer.RemoveActor(self.nodes_actor)
-        self.renderer.RemoveActor(self.points_actor)
-        self.renderer.RemoveActor(self.tubes_actor)
-        self.renderer.RemoveActor(self.element_axes_actor)
-        self.renderer.RemoveActor(self.acoustic_nodes_symbols_actor)
-        self.renderer.RemoveActor(self.acoustic_elements_symbols_actor)
-        self.renderer.RemoveActor(self.structural_nodes_symbols_actor)
-        self.renderer.RemoveActor(self.structural_elements_symbols_actor)
+    def remove_all_actors(self):
+        super().remove_all_actors()
 
         self.nodes_actor = None
         self.points_actor = None
         self.lines_actor = None
         self.tubes_actor = None
         self.element_axes_actor = None
-        self.acoustic_nodes_symbols_actor = None
-        self.acoustic_elements_symbols_actor = None
-        self.structural_nodes_symbols_actor = None
-        self.structural_elements_symbols_actor = None
+        self.symbols_actor = None
+        self.symbols_actor_fixed = None
 
     def visualization_changed_callback(self):
         if not self._actor_exists():
@@ -151,10 +118,8 @@ class MeshRenderWidget(CommonRenderWidget):
         opacity = 0.9 if visualization.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
 
-        self.acoustic_nodes_symbols_actor.SetVisibility(visualization.acoustic_symbols)
-        self.acoustic_elements_symbols_actor.SetVisibility(visualization.acoustic_symbols)
-        self.structural_nodes_symbols_actor.SetVisibility(visualization.structural_symbols)
-        self.structural_elements_symbols_actor.SetVisibility(visualization.structural_symbols)
+        self.symbols_actor.SetVisibility(visualization.structural_symbols)
+        self.symbols_actor_fixed.SetVisibility(visualization.structural_symbols)
 
         # To update default, material or fluid visualization
         self.tubes_actor.clear_colors()
@@ -166,19 +131,14 @@ class MeshRenderWidget(CommonRenderWidget):
             self.nodes_actor,
             self.lines_actor,
             self.tubes_actor,
-            self.acoustic_nodes_symbols_actor,
-            self.acoustic_elements_symbols_actor,
-            self.structural_nodes_symbols_actor,
-            self.structural_elements_symbols_actor,
         ]
         return all([actor is not None for actor in actors])
-    
+
     def set_theme(self, *args, **kwargs):
-        """ It's necessary because if this function doesn't exist
-            CommomRenderWidget will call it's own set_theme function in
-            it's constructor """
-                            
-        
+        """It's necessary because if this function doesn't exist
+        CommomRenderWidget will call it's own set_theme function in
+        it's constructor"""
+
         self.update_theme()
 
     def update_theme(self):
@@ -221,7 +181,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.open_pulse_logo = self.create_logo(path)
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
-    
+
     def apply_user_preferences(self):
         self.update_open_pulse_logo_visibility()
         self.update_scale_bar_visibility()
@@ -229,7 +189,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def update_renderer_font_size(self):
         user_preferences = app().main_window.config.user_preferences
-        font_size_px = int(user_preferences.renderer_font_size * 4/3)
+        font_size_px = int(user_preferences.renderer_font_size * 4 / 3)
 
         info_text_property = self.text_actor.GetTextProperty()
         info_text_property.SetFontSize(font_size_px)
@@ -238,7 +198,7 @@ class MeshRenderWidget(CommonRenderWidget):
         scale_bar_label_property = self.scale_bar_actor.GetLegendLabelProperty()
         scale_bar_title_property.SetFontSize(font_size_px)
         scale_bar_label_property.SetFontSize(font_size_px)
-    
+
     def update_open_pulse_logo_visibility(self):
         user_preferences = app().config.user_preferences
 
@@ -252,7 +212,7 @@ class MeshRenderWidget(CommonRenderWidget):
 
     def disable_open_pulse_logo(self):
         self.open_pulse_logo.VisibilityOff()
-    
+
     def update_scale_bar_visibility(self):
         user_preferences = app().config.user_preferences
 
@@ -260,7 +220,7 @@ class MeshRenderWidget(CommonRenderWidget):
             self.enable_scale_bar()
         else:
             self.disable_scale_bar()
-    
+
     def enable_scale_bar(self):
         self.scale_bar_actor.VisibilityOn()
 
@@ -407,5 +367,3 @@ class MeshRenderWidget(CommonRenderWidget):
         self.plane_actor.GetProperty().SetColor(0.5, 0.5, 0.5)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
-
-# fmt: on
