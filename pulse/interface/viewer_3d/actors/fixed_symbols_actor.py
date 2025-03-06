@@ -90,8 +90,10 @@ class FixedSymbolsActor(vtkActor):
             )
 
     def create_perforated_plates(self) -> Iterator[vtkPolyData]:
-        perforated_plate = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate.obj")
         element_properties = app().project.model.properties.element_properties
+        perforated_plate_many_holes = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_many_holes.obj")
+        perforated_plate_single_hole = read_obj_file(SYMBOLS_DIR / "acoustic/perforated_plate_single_hole.obj")
+
 
         for (property_name, element_id), data in element_properties.items():
             if property_name != "perforated_plate":
@@ -103,22 +105,25 @@ class FixedSymbolsActor(vtkActor):
 
             # There must be a cleaner way, but I will just
             # copy this code from the previous version
-            factor_x = element.perforated_plate.thickness / 0.01
+            thickness = element.perforated_plate.thickness
             if element.valve_data:
                 d_in = element.valve_data["valve_effective_diameter"]
-                factor_yz = (d_in / 2) / 0.1
+                diameter = (d_in / 2)
             else:
-                factor_yz = element.cross_section.inner_diameter / 0.1
-            factor_yz *= 1.5
+                diameter = element.cross_section.inner_diameter
 
             coord_a = element.first_node.coordinates
             coord_b = element.last_node.coordinates
             vector = coord_b - coord_a
 
+            if element.perforated_plate.single_hole:
+                data = perforated_plate_single_hole
+            else:
+                data = perforated_plate_many_holes    
+
             data = transform_polydata(
-                perforated_plate,
-                rotation=(0, 0, 90),
-                scale=(factor_x, factor_yz, factor_yz),
+                data,
+                scale=(diameter, thickness, diameter),
             )
             data = align_vtk_geometry(data, coord_a, vector)
             set_polydata_colors(data, color_names.PINK_6.to_rgb())
