@@ -11,7 +11,7 @@ from pulse.interface.viewer_3d.actors import (
     NodesActor,
     PointsActor,
     SectionPlaneActor,
-    NodalSymbolsActor,
+    VariableSymbolsActor,
     FixedSymbolsActor,
     TubeActor,
 )
@@ -76,7 +76,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.plane_actor = SectionPlaneActor(self.tubes_actor.GetBounds())
         self.plane_actor.VisibilityOff()
 
-        self.symbols_actor = NodalSymbolsActor(self.renderer)
+        self.symbols_actor = VariableSymbolsActor(self.renderer)
         self.symbols_actor_fixed = FixedSymbolsActor()
 
         # TODO: Replace these actors for newer ones that
