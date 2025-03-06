@@ -91,10 +91,6 @@ class MeshRenderWidget(CommonRenderWidget):
         self._structural_nodes_symbols.build()
         self._structural_elements_symbols.build()
 
-        self.acoustic_nodes_symbols_actor = self._acoustic_nodes_symbols.getActor()
-        self.acoustic_elements_symbols_actor = self._acoustic_elements_symbols.getActor()
-        self.structural_nodes_symbols_actor = self._structural_nodes_symbols.getActor()
-        self.structural_elements_symbols_actor = self._structural_elements_symbols.getActor()
 
         self.add_actors(
             self.lines_actor,
@@ -102,10 +98,6 @@ class MeshRenderWidget(CommonRenderWidget):
             self.nodes_actor,
             self.tubes_actor,
             self.element_axes_actor,
-            self.acoustic_nodes_symbols_actor,
-            self.acoustic_elements_symbols_actor,
-            self.structural_nodes_symbols_actor,
-            self.structural_elements_symbols_actor,
             self.plane_actor,
             self.symbols_actor,
             self.symbols_actor_fixed,
@@ -134,10 +126,6 @@ class MeshRenderWidget(CommonRenderWidget):
         self.element_axes_actor = None
         self.symbols_actor = None
         self.symbols_actor_fixed = None
-        self.acoustic_nodes_symbols_actor = None
-        self.acoustic_elements_symbols_actor = None
-        self.structural_nodes_symbols_actor = None
-        self.structural_elements_symbols_actor = None
 
     def visualization_changed_callback(self):
         if not self._actor_exists():
@@ -151,13 +139,9 @@ class MeshRenderWidget(CommonRenderWidget):
         opacity = 0.9 if visualization.transparent else 1
         self.tubes_actor.GetProperty().SetOpacity(opacity)
 
-        self.symbols_actor.SetVisibility(not visualization.structural_symbols)
-        self.symbols_actor_fixed.SetVisibility(not visualization.structural_symbols)
+        self.symbols_actor.SetVisibility(visualization.structural_symbols)
+        self.symbols_actor_fixed.SetVisibility(visualization.structural_symbols)
 
-        self.acoustic_nodes_symbols_actor.SetVisibility(visualization.acoustic_symbols)
-        self.acoustic_elements_symbols_actor.SetVisibility(visualization.acoustic_symbols)
-        self.structural_nodes_symbols_actor.SetVisibility(visualization.structural_symbols)
-        self.structural_elements_symbols_actor.SetVisibility(visualization.structural_symbols)
 
         # To update default, material or fluid visualization
         self.tubes_actor.clear_colors()
@@ -169,10 +153,6 @@ class MeshRenderWidget(CommonRenderWidget):
             self.nodes_actor,
             self.lines_actor,
             self.tubes_actor,
-            self.acoustic_nodes_symbols_actor,
-            self.acoustic_elements_symbols_actor,
-            self.structural_nodes_symbols_actor,
-            self.structural_elements_symbols_actor,
         ]
         return all([actor is not None for actor in actors])
 
