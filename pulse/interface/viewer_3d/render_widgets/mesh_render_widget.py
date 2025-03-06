@@ -15,14 +15,6 @@ from pulse.interface.viewer_3d.actors import (
     FixedSymbolsActor,
     TubeActor,
 )
-from pulse.interface.viewer_3d.actors.acoustic_symbols_actor import (
-    AcousticElementsSymbolsActor,
-    AcousticNodesSymbolsActor,
-)
-from pulse.interface.viewer_3d.actors.structural_symbols_actor import (
-    StructuralElementsSymbolsActor,
-    StructuralNodesSymbolsActor,
-)
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text
@@ -79,19 +71,6 @@ class MeshRenderWidget(CommonRenderWidget):
         self.symbols_actor = VariableSymbolsActor(self.renderer)
         self.symbols_actor_fixed = FixedSymbolsActor()
 
-        # TODO: Replace these actors for newer ones that
-        # are lighter and easier to update
-        self._acoustic_nodes_symbols = AcousticNodesSymbolsActor(project)
-        self._acoustic_elements_symbols = AcousticElementsSymbolsActor(project)
-        self._structural_nodes_symbols = StructuralNodesSymbolsActor(project)
-        self._structural_elements_symbols = StructuralElementsSymbolsActor(project)
-
-        self._acoustic_nodes_symbols.build()
-        self._acoustic_elements_symbols.build()
-        self._structural_nodes_symbols.build()
-        self._structural_elements_symbols.build()
-
-
         self.add_actors(
             self.lines_actor,
             self.points_actor,
@@ -141,7 +120,6 @@ class MeshRenderWidget(CommonRenderWidget):
 
         self.symbols_actor.SetVisibility(visualization.structural_symbols)
         self.symbols_actor_fixed.SetVisibility(visualization.structural_symbols)
-
 
         # To update default, material or fluid visualization
         self.tubes_actor.clear_colors()
