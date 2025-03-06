@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 
 from pulse import app
 from pulse.utils.text_utils import pascal_to_spaced_case
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 
 
 class StructureOptions:
@@ -12,7 +13,8 @@ class StructureOptions:
     def __init__(self, geometry_designer_widget: "GeometryDesignerWidget"):
         self.pipeline = app().project.pipeline
         self.geometry_designer_widget = geometry_designer_widget
-        self.cross_section_widget = self.geometry_designer_widget.cross_section_widget
+        self.cross_section_dialog = self.geometry_designer_widget.cross_section_dialog
+        self.cross_section_widget = self.cross_section_dialog.cross_section_widget
         self.structure_info = dict()
 
     @classmethod

@@ -606,7 +606,7 @@ class PulsationDamperEditorInputs(QDialog):
                         "structure_name" : "pipe",
                         "start_coords" : self.get_values(start_coords),
                         "end_coords" : self.get_values(end_coords),
-                        "section_type_label" : "Pipe",
+                        "section_type_label" : "pipe",
                         "section_parameters" : section_data,
                         "structural_element_type" : "pipe_1",
                         "pulsation_damper_name" : damper_label,

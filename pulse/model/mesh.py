@@ -1,9 +1,12 @@
 
-from pulse.model.line import Line
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import *
 from pulse.utils.unit_conversion import *
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.project.project import Project
 
 import os
 import gmsh 
@@ -13,11 +16,13 @@ from collections import defaultdict
 
 window_title_1 = "Error"
 
+
 class Mesh:
-    def __init__(self, preprocessor):
+    def __init__(self, project: 'Project'):
         super().__init__()
 
-        self.preprocessor = preprocessor
+        self.project = project
+        # self.preprocessor = project.model.preprocessor
 
         self.reset_variables()
         self.set_mesher_setup()
@@ -82,10 +87,10 @@ class Mesh:
         self.reset_variables()
 
         if self.import_type == 0:
-            if os.path.exists(self.geometry_path):
-                self._load_cad_geometry_on_gmsh()
-            else:
+            if not os.path.exists(self.geometry_path):
                 return
+
+            self._load_cad_geometry_on_gmsh()
 
         self._create_gmsh_geometry()
         self._set_gmsh_options()
@@ -106,7 +111,7 @@ class Mesh:
         ----------
 
         """
-        geometry_handler = GeometryHandler()
+        geometry_handler = GeometryHandler(self.project)
         geometry_handler.set_length_unit(self.length_unit)
         geometry_handler.open_cad_file(str(self.geometry_path))
 
@@ -119,7 +124,7 @@ class Mesh:
 
         """
 
-        geometry_handler = GeometryHandler()
+        geometry_handler = GeometryHandler(self.project)
         geometry_handler.set_length_unit(self.length_unit) 
         geometry_handler.process_pipeline()
         geometry_handler.create_geometry()
@@ -178,10 +183,10 @@ class Mesh:
             self.map_nodes = dict(zip(node_indexes, np.arange(1, len(node_indexes)+1, 1)))
             self.map_elements = dict(zip(element_indexes[0], np.arange(1, len(element_indexes[0])+1, 1)))
 
-            self.preprocessor._create_nodes(node_indexes, coords, self.map_nodes)
-            self.preprocessor._create_structural_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)
-            self.preprocessor._create_acoustic_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)                       
-            self.preprocessor.update_number_divisions()
+            self.project.model.preprocessor._create_nodes(node_indexes, coords, self.map_nodes)
+            self.project.model.preprocessor._create_structural_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)
+            self.project.model.preprocessor._create_acoustic_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)                       
+            self.project.model.preprocessor.update_number_divisions()
 
         except Exception as log_error:
             from traceback import print_exception
@@ -228,7 +233,7 @@ class Mesh:
                 self.line_from_element[element_id] = _line_id
 
         self.lines_from_model = list(self.elements_from_line.keys())
-        self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(elements_to_ignore_on_acoustic_analysis, True)
+        self.project.model.preprocessor.set_elements_to_ignore_in_acoustic_analysis(elements_to_ignore_on_acoustic_analysis, True)
 
     def _concatenate_line_nodes(self):
         """
@@ -246,7 +251,7 @@ class Mesh:
         """
         self.lines_from_node.clear()
         self.nodes_from_line.clear()
-        for node_id, elements in self.preprocessor.structural_elements_connected_to_node.items():
+        for node_id, elements in self.project.model.preprocessor.structural_elements_connected_to_node.items():
             for element in elements:
 
                 line_id = self.line_from_element[element.index]

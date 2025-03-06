@@ -31,7 +31,7 @@ class PerforatedPlateInput(QDialog):
 
         app().main_window.set_input_widget(self)
 
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
 
         self.before_run = app().project.get_pre_solution_model_checks()

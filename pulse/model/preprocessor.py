@@ -14,23 +14,27 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import *
 from pulse.utils.unit_conversion import *
 
-from pulse.model.mesh import Mesh
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.model.mesh import Mesh
 
 import logging
 import numpy as np
-from time import time
+
+# from time import time
 from collections import defaultdict, deque
 from scipy.spatial.transform import Rotation
 
 window_title_1 = "Error"
 
+
 class Preprocessor:
     """A preprocessor class.
     This class creates a acoustic and structural preprocessor object.
     """
-    def __init__(self):
+    def __init__(self, mesh: 'Mesh'):
 
-        self.mesh = None
+        self.mesh = mesh
         self.reset_variables()
 
     def reset_variables(self):
@@ -53,8 +57,8 @@ class Preprocessor:
         self.structural_elements_connected_to_node = defaultdict(list)
         self.acoustic_elements_connected_to_node = defaultdict(list)
 
-        if isinstance(self.mesh, Mesh):
-            self.mesh.reset_variables()
+        # if isinstance(self.mesh, Mesh):
+        self.mesh.reset_variables()
 
         self.number_structural_elements = 0
         self.number_acoustic_elements = 0
@@ -73,8 +77,8 @@ class Preprocessor:
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
 
-    def set_mesh(self, mesh: Mesh):
-        self.mesh = mesh
+    # def set_mesh(self, mesh: Mesh):
+    #     self.mesh = mesh
 
     def generate(self):
         """
@@ -567,8 +571,8 @@ class Preprocessor:
         """
 
         coord_matrix = self.nodal_coordinates_matrix_external
-        list_coordinates = coord_matrix[:,1:].tolist()
-        external_indexes = coord_matrix[:,0]
+        list_coordinates = coord_matrix[:, 1:].tolist()
+        external_indexes = coord_matrix[:, 0]
 
         if isinstance(coords, (np.ndarray, tuple)):
             coords = list(coords)
@@ -973,7 +977,7 @@ class Preprocessor:
                                                 insulation_density
                                                 ]
 
-                    pipe_section_info_first = { "section_type_label" : "Reducer" ,
+                    pipe_section_info_first = { "section_type_label" : "reducer" ,
                                                 "section_parameters" : section_parameters_first }
 
                     section_parameters_last = [
@@ -985,7 +989,7 @@ class Preprocessor:
                                                 insulation_density
                                             ]
 
-                    pipe_section_info_last = { "section_type_label" : "Reducer" ,
+                    pipe_section_info_last = { "section_type_label" : "reducer" ,
                                                 "section_parameters" : section_parameters_last }
 
                     cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
@@ -1037,7 +1041,7 @@ class Preprocessor:
             for element_id in line_elements:
                 valve_body_elements.append(element_id)
 
-        body_section_info = {   "section_type_label" : "Valve",
+        body_section_info = {   "section_type_label" : "valve",
                                 "section_parameters" : valve_info["body_section_parameters"]   }
 
         body_cross_section = CrossSection(valve_section_info=body_section_info)
@@ -1046,7 +1050,7 @@ class Preprocessor:
 
         if "flange_section_parameters" in valve_info.keys():
 
-            flange_section_info = { "section_type_label" : "Valve",
+            flange_section_info = { "section_type_label" : "valve",
                                     "section_parameters" : valve_info["flange_section_parameters"] }
 
             flange_cross_section = CrossSection(valve_section_info=flange_section_info)
@@ -2074,14 +2078,14 @@ class Preprocessor:
 
             if el_type == 'pipe_1':
                 pipe_section_info = {   
-                                     "section_type_label" : "Pipe",
+                                     "section_type_label" : "pipe",
                                      "section_parameters" : section_parameters
                                     }
                 cross_section = CrossSection(pipe_section_info = pipe_section_info)                             
 
             elif el_type == 'valve':
                 valve_section_info = {  
-                                      "section_type_label" : "Valve",
+                                      "section_type_label" : "valve",
                                       "section_parameters" : section_parameters
                                       }
                 cross_section = CrossSection(valve_section_info = valve_section_info)     

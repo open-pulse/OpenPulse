@@ -34,8 +34,8 @@ class Material:
     """
     def __init__(self, name, density, **kwargs):
         self.name = name
-        self.identifier = kwargs.get("identifier", -1)
         self.density = density
+        self.identifier = kwargs.get("identifier", -1)
         self.elasticity_modulus = kwargs.get("elasticity_modulus", None)
         self.poisson_ratio = kwargs.get("poisson_ratio", None)
         self.shear_modulus = kwargs.get("shear_modulus", None)

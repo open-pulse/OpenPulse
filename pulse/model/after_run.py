@@ -12,7 +12,7 @@ class AfterRun:
         self.main_window = app().main_window
         self.project = app().project
         self.model = app().project.model
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
 
         self.load_model_and_analysis_data()
 

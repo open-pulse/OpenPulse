@@ -37,7 +37,7 @@ class ExpansionJoint(LinearStructure):
             start, end, diameter=diameter, thickness=0.05 * diameter
         )
 
-        section_info = {"section_type_label": "Expansion joint"}
+        section_info = {"section_type_label" : "expansion_joint"}
         structure.extra_info["cross_section_info"] = section_info
 
         structure.extra_info["expansion_joint_info"] = expansion_joint_info

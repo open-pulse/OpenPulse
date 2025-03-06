@@ -51,7 +51,7 @@ class DualVolumePSD:
     def __init__(self, device_data : dict) -> None:
 
         self.project = app().project
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
 
         self._initialize()
         self.unwrap_device_data(device_data)

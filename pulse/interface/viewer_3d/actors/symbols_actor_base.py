@@ -42,7 +42,7 @@ class SymbolsActorBase(ActorBase):
         super().__init__()
 
         self.project = project
-        self.preprocessor = project.preprocessor
+        self.preprocessor = project.model.preprocessor
         self.deformed = deformed
         if self.process_scaleFactor():
             self.scale_factor = 1
@@ -83,10 +83,10 @@ class SymbolsActorBase(ActorBase):
     #     return []
 
     def process_scaleFactor(self):
-        if self.project.preprocessor.structure_principal_diagonal is None:
+        if self.project.model.preprocessor.structure_principal_diagonal is None:
             return True
         else:
-            diagonal = self.project.preprocessor.structure_principal_diagonal
+            diagonal = self.project.model.preprocessor.structure_principal_diagonal
             if diagonal <= 0.01:
                 self.scale_factor = 0.01
             elif diagonal <= 0.1:

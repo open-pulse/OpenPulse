@@ -26,7 +26,7 @@ class LoadProject:
         self.project = app().project
         self.model = app().project.model
         self.properties = app().project.model.properties
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
 
         self._initialize()
         
@@ -226,21 +226,43 @@ class LoadProject:
         for line_id, data in line_properties.items():
 
             if "section_type_label" in data.keys() and "section_parameters" in data.keys():
+                section_type_label = self.fix_data_for_backwards_compatibility(data)
 
-                if data["section_type_label"] in ["Pipe", "Bend"]:
-
-                    pipe_section_info = {   "section_type_label" : data["section_type_label"],
+                if data.get("structure_name") in ["pipe", "bend", "flange"]:
+                    pipe_section_info = {   "section_type_label" : section_type_label,
                                             "section_parameters" : data["section_parameters"]   }
 
                     self.cross_sections[line_id] = CrossSection(pipe_section_info=pipe_section_info) 
-       
-                elif "section_properties" in data.keys():
 
-                    beam_section_info = {   "section_type_label" : data["section_type_label"],
+                elif "section_properties" in data.keys():
+                    beam_section_info = {   "section_type_label" : section_type_label,
                                             "section_parameters" : data["section_parameters"],
                                             "section_properties" : data["section_properties"]   }
 
                     self.cross_sections[line_id] = CrossSection(beam_section_info=beam_section_info)
+
+
+    def fix_data_for_backwards_compatibility(self, data: dict):
+
+        sections_types = [
+                          "Pipe", 
+                          "Rectangular section", 
+                          "Circular section", 
+                          "C-section", 
+                          "I-section", 
+                          "T-section", 
+                          "Generic section",
+                          "Valve",
+                          "Expansion joint",
+                          "Reducer",
+                          "Flange"
+                          ]
+
+        if data.get("section_type_label") in sections_types:
+            type_label: str = data.get("section_type_label")
+            return type_label.lower().replace(" ", "_").replace("-", "_").replace("section", "beam")
+
+        return data.get("section_type_label")
 
 
     def load_lines_properties(self):
@@ -394,7 +416,8 @@ class LoadProject:
             self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
 
         elif "section_type_label" in data.keys():
-            if data["section_type_label"] == "Reducer":
+            section_type_label = self.fix_data_for_backwards_compatibility(data)
+            if section_type_label == "reducer":
                 self.preprocessor.set_variable_cross_section_by_line(line_id, data)
 
 
@@ -611,7 +634,7 @@ class LoadProject:
                 else:
                     continue
 
-                if section_type in ["Valve", "Expansion joint", "Generic beam section"]:
+                if section_type in ["valve", "expansion_joint", "generic_beam"]:
                     continue
 
                 if "section_parameters" in data.keys():

@@ -37,7 +37,7 @@ class FluidWidget(QWidget):
         ui_path = UI_DIR  / "model/setup/fluid/fluid_input_widget.ui"
         uic.loadUi(ui_path, self)
 
-        self.parent_widget = kwargs.get("parent_widget", None)
+        self.dialog = kwargs.get("dialog", None)
 
         self.main_window = app().main_window
         self.project = app().project
@@ -623,15 +623,15 @@ class FluidWidget(QWidget):
         fluid_name = self.tableWidget_fluid_data.item(0, col).text()
 
         if fluid_name in self.fluid_name_to_refprop_data.keys():
-            if isinstance(self.parent_widget, QDialog):
-                self.parent_widget.hide()
+            if isinstance(self.dialog, QDialog):
+                self.dialog.hide()
 
             selected_fluid = self.fluid_name_to_refprop_data[fluid_name]
             self.refprop = SetFluidCompositionInput(selected_fluid_to_edit = selected_fluid,
                                                     state_properties = self.state_properties)
 
             if not self.refprop.complete:
-                app().main_window.set_input_widget(self.parent_widget)
+                app().main_window.set_input_widget(self.dialog)
                 return
 
             self.selected_column = col
@@ -713,17 +713,17 @@ class FluidWidget(QWidget):
         
     def call_refprop_interface(self):
 
-        if isinstance(self.parent_widget, QDialog):
-            self.parent_widget.hide()
+        if isinstance(self.dialog, QDialog):
+            self.dialog.hide()
 
         self.refprop = SetFluidCompositionInput(state_properties = self.state_properties)
 
         if app().main_window.force_close:
-            self.parent_widget.close()
+            self.dialog.close()
             return True
 
         if not self.refprop.complete:
-            app().main_window.set_input_widget(self.parent_widget)
+            app().main_window.set_input_widget(self.dialog)
             return True
 
         self.after_getting_fluid_properties_from_refprop()
@@ -783,7 +783,7 @@ class FluidWidget(QWidget):
             if source is None:
                 return
 
-            if isinstance(self.parent_widget, QDialog):
+            if isinstance(self.dialog, QDialog):
 
                 line_id = self.state_properties.get("line_id", None)
                 if isinstance(line_id, int):
@@ -801,12 +801,16 @@ class FluidWidget(QWidget):
                     elif source == "reciprocating_compressor":
                         title = f"Set a fluid for the reciprocating compressor ({connection_type})"
 
-                    self.parent_widget.setWindowTitle(title)
+                    self.dialog.setWindowTitle(title)
 
     def keyPressEvent(self, event):
+
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            return
+            if isinstance(self.dialog, QDialog):
+                self.dialog.attribute_callback()
+
         elif event.key() == Qt.Key_Delete:
             self.remove_selected_column()
+
         elif event.key() == Qt.Key_Escape:
             self.close()

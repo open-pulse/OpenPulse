@@ -82,6 +82,7 @@
            <height>340</height>
           </rect>
          </property>
+         <layout class="QGridLayout" name="gridLayout_5"/>
         </widget>
        </widget>
       </item>

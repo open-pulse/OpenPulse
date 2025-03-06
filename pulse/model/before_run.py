@@ -10,13 +10,13 @@ from collections import defaultdict
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class BeforeRun:
+class BeforeRun():
     def __init__(self):
 
         self.project = app().project
         self.model = app().project.model
         self.properties = app().project.model.properties
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
 
         self.nodes = self.preprocessor.nodes
         self.acoustic_elements = self.preprocessor.acoustic_elements

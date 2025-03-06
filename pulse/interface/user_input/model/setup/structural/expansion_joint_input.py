@@ -639,7 +639,7 @@ class ExpansionJointInput(QDialog):
                 self.properties._remove_line_property("valve_info", line_id)
                 self.properties._remove_line_property("section_parameters", line_id)
                 self.properties._remove_line_property("section_properties", line_id)
-                self.properties._set_line_property("section_type_label", "Expansion joint", line_id)
+                self.properties._set_line_property("section_type_label", "expansion_joint", line_id)
                 self.properties._set_line_property("structural_element_type", "expansion_joint", line_id)
                 self.properties._set_line_property("expansion_joint_info", self.expansion_joint_info, line_id)
 
@@ -728,7 +728,7 @@ class ExpansionJointInput(QDialog):
                 self.preprocessor.set_cross_section_by_lines(line_id, cross)
                 self.preprocessor.set_structural_element_type_by_lines(line_id, "pipe_1")
 
-                pipe_info = {   "section_type_label" : "Pipe",
+                pipe_info = {   "section_type_label" : "pipe",
                                 "section_parameters" : cross.section_parameters   }
 
                 self.properties._set_line_property("structural_element_type", element_type, line_id)
@@ -801,7 +801,7 @@ class ExpansionJointInput(QDialog):
 
         app().pulse_file.write_line_properties_in_file()
 
-        geometry_handler = GeometryHandler()
+        geometry_handler = GeometryHandler(app().project)
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
 
@@ -844,7 +844,7 @@ def get_cross_sections_to_plot_expansion_joint(joint_elements: list, effective_d
                 plot_key = "major"
 
         expansion_joint_info = [
-                                "Expansion joint", 
+                                "expansion_joint", 
                                 plot_key,
                                 effective_diameter 
                                 ]

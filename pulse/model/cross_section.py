@@ -254,7 +254,7 @@ class CrossSection:
         self.offset_z = self.section_properties['Zc']
         self.offset = [self.offset_y, self.offset_z]
         
-        if self.section_type_label == "Generic section":
+        if self.section_type_label == "generic_beam":
             self.shear_coefficient = self.section_properties['shear factor']
         
         self.section_info = self.beam_section_info
@@ -768,15 +768,15 @@ class CrossSection:
             hypothesis so that the thickness of beams t_i -> 0. If the thickness is not small sufficiently greater. 
             deviations are expected.
         '''
-        if self.section_type_label == "Rectangular section":
+        if self.section_type_label == "rectangular_beam":
             _, _, _, _, offset_y, offset_z = self.section_parameters
             return 0, 0
 
-        elif self.section_type_label == "Circular section":
+        elif self.section_type_label == "circular_beam":
             _, _, offset_y, offset_z = self.section_parameters
             return 0, 0
         
-        elif self.section_type_label == "C-section":
+        elif self.section_type_label == "c_beam":
             h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
 
             b1 = w1
@@ -827,7 +827,7 @@ class CrossSection:
             
             return e_y, e_z
 
-        elif self.section_type_label == "I-section":
+        elif self.section_type_label == "i_beam":
             h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
 
             b1 = w1
@@ -878,7 +878,7 @@ class CrossSection:
 
             return e_y, e_z
 
-        elif self.section_type_label == "T-section":
+        elif self.section_type_label == "t_beam":
             h, w1, t1, tw, offset_y, offset_z = self.section_parameters
 
             b1 = w1
@@ -923,7 +923,7 @@ class CrossSection:
 
 def get_points_to_plot_section(section_label, section_parameters):   
     
-    if section_label in ["Pipe", "Reducer"]:
+    if section_label in ["pipe", "reducer"]:
 
         N = 60
         d_out = section_parameters[0]
@@ -987,7 +987,7 @@ def get_points_to_plot_section(section_label, section_parameters):
         Yc = section_properties["Yc"]
         Zc = section_properties["Zc"]
 
-    if section_label == "Rectangular section":
+    if section_label == "rectangular_beam":
 
         b, h, b_in, h_in, offset_y, offset_z = section_parameters
             
@@ -1000,7 +1000,7 @@ def get_points_to_plot_section(section_label, section_parameters):
         Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
         Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
 
-    elif section_label == "Circular section":
+    elif section_label == "circular_beam":
 
         N = 60
         d_out, thickness, offset_y, offset_z = section_parameters
@@ -1029,7 +1029,7 @@ def get_points_to_plot_section(section_label, section_parameters):
         Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
         Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
 
-    elif section_label == "C-section":
+    elif section_label == "c_beam":
 
         h, w1, t1, w2, t2, tw, offset_y, offset_z = section_parameters
         hw = h - t1 - t2
@@ -1037,7 +1037,7 @@ def get_points_to_plot_section(section_label, section_parameters):
         Yp = np.array([0, w2, w2, tw, tw, w1, w1, 0, 0]) + offset_y 
         Zp = np.array([-(h/2), -(h/2), -(hw/2), -(hw/2), (h/2)-t1, (h/2)-t1, (h/2), (h/2), -(h/2)]) + offset_z
 
-    elif section_label == "I-section":
+    elif section_label == "i_beam":
 
         h, w1, t1, w2, t2, tw, offset_y, offset_z = section_parameters
         hw = h - t1 - t2
@@ -1051,7 +1051,7 @@ def get_points_to_plot_section(section_label, section_parameters):
         Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
         Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
 
-    elif section_label == "T-section":
+    elif section_label == "t_beam":
 
         h, w1, tw, t1, offset_y, offset_z = section_parameters
         hw = h - t1
@@ -1065,7 +1065,7 @@ def get_points_to_plot_section(section_label, section_parameters):
         Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
         Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
 
-    elif section_label == "Generic section":
+    elif section_label == "generic_beam":
 
         message = "The GENERIC BEAM SECTION cannot be ploted."
         title = "Error while graphing cross-section"
@@ -1086,7 +1086,7 @@ def get_points_to_plot_section(section_label, section_parameters):
 
 def get_beam_section_properties(section_label, data):
 
-    if section_label == "Generic section":
+    if section_label == "generic_beam":
 
         [area, Iyy, Izz, Iyz, shear_factor, Yc, Zc] = data
 
@@ -1100,7 +1100,7 @@ def get_beam_section_properties(section_label, data):
         
         return section_properties
 
-    if section_label == "Rectangular section":
+    if section_label == "rectangular_beam":
 
         [base, height, base_in, height_in, offset_y, offset_z] = data
         
@@ -1110,7 +1110,7 @@ def get_beam_section_properties(section_label, data):
         Iyz = 0.
         Yc, Zc = 0, 0
     
-    elif section_label == "Circular section":
+    elif section_label == "circular_beam":
         
         [outer_diameter_beam, thickness, offset_y, offset_z] = data
         
@@ -1125,7 +1125,7 @@ def get_beam_section_properties(section_label, data):
         Iyz = 0
         Yc, Zc = 0, 0 
 
-    elif section_label == "C-section":
+    elif section_label == "c_beam":
 
         [h, w1, t1, w2, t2, tw, offset_y, offset_z] = data
         hw = h - t1 - t2
@@ -1140,7 +1140,7 @@ def get_beam_section_properties(section_label, data):
         I_zi = np.array([(t1*w1**3)/12, (hw*tw**3)/12, (t2*w2**3)/12])
         I_yzi = np.array([0, 0, 0])
 
-    elif section_label == "I-section":
+    elif section_label == "i_beam":
 
         [h, w1, t1, w2, t2, tw, offset_y, offset_z] = data
         hw = h - t1 - t2
@@ -1155,7 +1155,7 @@ def get_beam_section_properties(section_label, data):
         I_zi = np.array([(t1*w1**3)/12, (hw*tw**3)/12, (t2*w2**3)/12])
         I_yzi = np.array([0, 0, 0])
 
-    elif section_label == "T-section":
+    elif section_label == "t_beam":
 
         [h, w1, t1, tw, offset_y, offset_z] = data
 
@@ -1171,7 +1171,7 @@ def get_beam_section_properties(section_label, data):
         I_zi = np.array([(t1*w1**3)/12, (hw*tw**3)/12])
         I_yzi = np.array([0, 0])  
 
-    if section_label in ["C-section", "I-section", "T-section"]:
+    if section_label in ["c_beam", "i_beam", "t_beam"]:
         area = A_t
         Yc = (y_ci@A_i)/A_t
         Zc = (z_ci@A_i)/A_t

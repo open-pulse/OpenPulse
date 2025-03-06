@@ -39,9 +39,9 @@ class Reducer(LinearStructure):
             final_offset_z=section_parameters[7],
         )
         section_info = {
-            "section_type_label": data["section_type_label"],
-            "section_parameters": section_parameters,
-        }
+                        "section_type_label" : data["section_type_label"],
+                        "section_parameters" : section_parameters,
+                        }
         structure.extra_info["cross_section_info"] = section_info
         structure.extra_info["structural_element_type"] = "pipe_1"
         return structure

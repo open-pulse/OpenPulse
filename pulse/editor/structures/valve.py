@@ -134,7 +134,7 @@ class Valve(LinearStructure):
             flange_length=flange_length,
         )
 
-        section_info = {"section_type_label": "Valve"}
+        section_info = {"section_type_label" : "valve"}
         structure.extra_info["cross_section_info"] = section_info
 
         structure.extra_info["valve_info"] = valve_info

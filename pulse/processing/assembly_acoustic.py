@@ -692,7 +692,9 @@ class AssemblyAcoustic:
                 values = data["values"][0]
 
                 if isinstance(values, complex):
-                    volume_velocity[:, position] = values*np.ones_like(self.frequencies)
+                    aux_ones = np.ones_like(self.frequencies)
+                    volume_velocity[:, position] = values * aux_ones
+
                 elif isinstance(values, np.ndarray):
                     volume_velocity[:, position] = values
 

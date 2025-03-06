@@ -492,7 +492,7 @@ class ReciprocatingCompressorInputs(QDialog):
         if stop:
             return True, None
 
-        neigh_elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+        neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
 
         if len(neigh_elements) == 1:
             return stop, node_id

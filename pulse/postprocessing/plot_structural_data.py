@@ -9,7 +9,7 @@ N_div = 20
 
 def get_preprocessor():
     project = app().main_window.project
-    return project.preprocessor
+    return project.model.preprocessor
 
 
 def get_structural_solution():

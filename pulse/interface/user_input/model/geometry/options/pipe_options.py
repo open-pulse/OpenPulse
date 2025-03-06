@@ -34,18 +34,18 @@ class PipeOptions(StructureOptions):
         )
 
     def configure_structure(self):
-        self.cross_section_widget._add_icon_and_title()
+
         self.cross_section_widget.set_inputs_to_geometry_creator()     
         self.cross_section_widget.hide_all_tabs()
         self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
         self.cross_section_widget.lineEdit_outside_diameter.setFocus()
         self.load_data_from_reducer_section()
-        self.cross_section_widget.exec()
+        self.cross_section_dialog.exec()
 
-        if not self.cross_section_widget.complete:
+        if not self.cross_section_dialog.complete:
             return
-        
+
         if self.cross_section_widget.get_constant_section_pipe_parameters():
             self.configure_structure()  # if it is invalid try again
             return

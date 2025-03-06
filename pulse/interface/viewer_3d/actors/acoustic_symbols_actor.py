@@ -201,9 +201,9 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
                     pos = data["coords"]
                     node_id = args[0]
-                    node = app().project.preprocessor.nodes[node_id]
+                    node = app().project.model.preprocessor.nodes[node_id]
 
-                    _elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+                    _elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
 
                     if len(_elements) == 1:
                         element = _elements[0]
@@ -232,8 +232,8 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
                     pos = data["coords"]
                     node_id = args[0]
-                    node = app().project.preprocessor.nodes[node_id]
-                    _elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+                    node = app().project.model.preprocessor.nodes[node_id]
+                    _elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
 
                     if len(_elements) == 1:
                         element = _elements[0]
@@ -263,9 +263,9 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
                     pos = data["coords"]
                     node_id = args[0]
-                    node = app().project.preprocessor.nodes[node_id]
+                    node = app().project.model.preprocessor.nodes[node_id]
 
-                    _elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+                    _elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
 
                     if len(_elements) == 1:
                         element = _elements[0]
@@ -294,8 +294,8 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
                     pos = data["coords"]
                     node_id = args[0]
-                    node = app().project.preprocessor.nodes[node_id]
-                    _elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+                    node = app().project.model.preprocessor.nodes[node_id]
+                    _elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
 
                     if len(_elements) == 1:
                         element = _elements[0]
@@ -350,8 +350,8 @@ class AcousticElementsSymbolsActor(SymbolsActorBase):
 
             if property == "perforated_plate":
 
-                if element_id in app().project.preprocessor.structural_elements.keys():
-                    element = app().project.preprocessor.structural_elements[element_id]
+                if element_id in app().project.model.preprocessor.structural_elements.keys():
+                    element = app().project.model.preprocessor.structural_elements[element_id]
                 else:
                     return list()
             

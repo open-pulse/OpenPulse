@@ -14,7 +14,7 @@ class NodesActor(GhostActor):
 
         self.project = app().project
         self.user_preferences = app().main_window.config.user_preferences
-        self.nodes = self.project.preprocessor.nodes
+        self.nodes = self.project.model.preprocessor.nodes
 
         self.hidden_nodes = kwargs.get('hidden_nodes', set())
         self.show_deformed = show_deformed

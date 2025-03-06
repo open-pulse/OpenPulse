@@ -57,18 +57,18 @@ class SetFluidInput(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_attribution_type = self.findChild(QComboBox, 'comboBox_attribution_type')
+        self.comboBox_attribution_type : QComboBox
 
         # QFrame
-        self.frame_main_widget = self.findChild(QFrame, 'frame_main_widget')
+        self.frame_main_widget : QFrame
 
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
         # QLineEdit
-        self.lineEdit_selected_id = self.findChild(QLineEdit, 'lineEdit_selected_id')
-        self.lineEdit_selected_fluid_name = self.findChild(QLineEdit, 'lineEdit_selected_fluid_name')
+        self.lineEdit_selected_id : QLineEdit
+        self.lineEdit_selected_fluid_name : QLineEdit
 
         # QScrollArea
         self.scrollArea_table_of_fluids : QScrollArea
@@ -76,18 +76,16 @@ class SetFluidInput(QDialog):
         self._add_fluid_input_widget()
         self.frame_main_widget.adjustSize()
 
-        # QPushButtonget_comboBox_index
-        self.pushButton_attribute = self.findChild(QPushButton, 'pushButton_attribute')
-        self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
-        self.pushButton_remove_row = self.fluid_widget.findChild(QPushButton, 'pushButton_remove_row')
+        # QPushButton
+        self.pushButton_attribute = self.fluid_widget.pushButton_attribute
+        self.pushButton_cancel = self.fluid_widget.pushButton_cancel
 
         # QTableWidget
-        self.tableWidget_fluid_data = self.findChild(QTableWidget, 'tableWidget_fluid_data')
+        self.tableWidget_fluid_data = self.fluid_widget.tableWidget_fluid_data
 
     def _add_fluid_input_widget(self):
 
-        self.fluid_widget = FluidWidget(parent_widget=self,
-                                        state_properties = self.state_properties)
+        self.fluid_widget = FluidWidget(dialog = self, state_properties = self.state_properties)
 
         self.grid_layout.addWidget(self.fluid_widget)
 

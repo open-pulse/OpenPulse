@@ -18,7 +18,7 @@ def current_model():
     return
 
     section_parameters = [0.08, 0.008, 0, 0, 0, 0]
-    pipe_section_info = {  "section_type_label" : "Pipe" ,
+    pipe_section_info = {  "section_type_label" : "pipe" ,
                             "section_parameters" : section_parameters  }
 
     cross_section = CrossSection(pipe_section_info=pipe_section_info)

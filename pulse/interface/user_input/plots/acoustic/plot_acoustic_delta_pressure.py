@@ -34,7 +34,7 @@ class PlotAcousticDeltaPressure(QWidget):
         self.analysis_method = self.project.analysis_method_label
         self.frequencies = self.model.frequencies
         self.solution = self.project.get_acoustic_solution()
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
 
     def _config_window(self):

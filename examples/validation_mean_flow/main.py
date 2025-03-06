@@ -25,14 +25,14 @@ steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 
 section_parameters = [0.04859, 0.003, 0, 0, 0, 0]
-pipe_section_info = {  "section_type_label" : "Pipe" ,
+pipe_section_info = {  "section_type_label" : "pipe" ,
                         "section_parameters" : section_parameters  }
 
 cross_section1 = CrossSection(pipe_section_info=pipe_section_info)
 cross_section1.update_properties()
 
 section_parameters = [0.04044, 0.003, 0, 0, 0, 0]
-pipe_section_info = {  "section_type_label" : "Pipe" ,
+pipe_section_info = {  "section_type_label" : "pipe" ,
                         "section_parameters" : section_parameters  }
 
 cross_section2 = CrossSection(pipe_section_info=pipe_section_info)
