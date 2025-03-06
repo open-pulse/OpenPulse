@@ -99,7 +99,7 @@ class FixedSymbolsActor(vtkActor):
             if property_name != "perforated_plate":
                 continue
 
-            element = app().project.preprocessor.structural_elements.get(element_id)
+            element = app().project.model.preprocessor.structural_elements.get(element_id)
             if element is None:
                 continue
 

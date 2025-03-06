@@ -151,11 +151,11 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
             elif property_name == "reciprocating_compressor_excitation":
                 node_id = args[0]
-                elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
                 if len(elements) != 1:
                     continue
 
-                node = app().project.preprocessor.nodes[node_id]
+                node = app().project.model.preprocessor.nodes[node_id]
                 element = elements[0]
                 orientation = element.last_node.coordinates - element.first_node.coordinates
 
@@ -170,11 +170,11 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
             elif property_name == "reciprocating_pump_excitation":
                 node_id = args[0]
-                elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
                 if len(elements) != 1:
                     continue
 
-                node = app().project.preprocessor.nodes[node_id]
+                node = app().project.model.preprocessor.nodes[node_id]
                 element = elements[0]
                 orientation = element.last_node.coordinates - element.first_node.coordinates
 
