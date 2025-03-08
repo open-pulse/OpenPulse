@@ -6,7 +6,7 @@ from pulse.model.node import Node, distance
 from numpy import sqrt, pi
 import numpy as np
 from scipy.special import jv, hankel1
-from scipy.optimize import root
+from scipy.optimize import root, fsolve
 
 
 DOF_PER_NODE = 1
@@ -121,6 +121,7 @@ class AcousticElement:
         self.vol_flow = kwargs.get('vol_flow', 0)
         self.length_correction_data = kwargs.get('length_correction_data', None)
         self.turned_off = kwargs.get("turned_off", False)
+        self.volumetric_flow_rate = kwargs.get("volumetric_flow_rate", None)
 
         self.reset()
 
@@ -236,6 +237,56 @@ class AcousticElement:
         else:
             factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.elasticity_modulus * self.cross_section.thickness)
             return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
+        
+    def get_damping_for_shear_stress_in_liquids(self, frequencies: np.ndarray):
+
+        Q = self.volumetric_flow_rate
+
+        if Q is None:
+            return 0.
+
+        rho = self.fluid.density
+        c_0 = self.fluid.speed_of_sound
+        mu = self.fluid.dynamic_viscosity
+        v = mu / rho
+
+        A = self.cross_section.area_fluid
+        d = self.cross_section.outer_diameter
+        u = Q / A
+
+        Re = u * d * rho / mu
+
+        # Colebrook equation for determining the Darcy friction factor
+        def colebrook_equation(x):
+            return 2*np.log10(Re*(x**0.5)) - 0.8 - (1/(x**0.5))
+
+        # use Haaland approximation for Colebrook equation as initial guess value for Darcy friction factor
+        x_initial = 1 / ((-1.8 * np.log10(6.9 / Re))**0.5)
+
+        f_d = fsolve(colebrook_equation, x_initial)
+
+        omega = 2 * np.pi * frequencies
+        k_0 = omega / c_0
+
+        kappa = 14.3 / (Re**0.05)
+        beta = 0.54 * (v / (d**2)) * (Re**kappa)
+
+        # shear stress term
+        alpha_r = -1j * f_d * abs(Q) / (omega * d * A) + (4 / d) * np.sqrt(v / (beta + 1j*omega))
+
+        # viscous elasticity term
+        alpha_v = 0.
+
+        # complex wave number
+        k = k_0 * np.sqrt(1 + alpha_r) * np.sqrt(1 + alpha_v)
+
+        # complex speed of sound
+        c = k / omega
+
+        # acoustic impedance
+        Z = rho * c
+
+        return k, Z
         
     def matrix(self, frequencies, length_correction=0):
         """
