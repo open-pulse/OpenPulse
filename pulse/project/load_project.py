@@ -422,103 +422,50 @@ class LoadProject:
 
 
     def load_fluids(self, line_id: int, data: dict):
-
-        fluid = None
-        if "fluid" in data.keys():
-            fluid = data["fluid"]
-
+        fluid = data.get("fluid")
         self.preprocessor.set_fluid_by_lines(line_id, fluid)
 
 
     def load_acoustic_element_types(self, line_id: int, data: dict):
-
-        element_type = "undamped"
-        if "acoustic_element_type" in data.keys():
-            element_type = data["acoustic_element_type"]
-
-        proportional_damping = None
-        if "proportional_damping" in data.keys():
-            proportional_damping = data["proportional_damping"]
-
-        volume_flow = None
-        if "volume_flow" in data.keys():
-            volume_flow = data["volume_flow"]
-
+        acoustic_element_type = data.get("acoustic_element_type", "undamped")
+        proportional_damping = data.get("proportional_damping")
+        volumetric_flow_rate = data.get("volumetric_flow_rate")
         self.preprocessor.set_acoustic_element_type_by_lines(   
                                                              line_id, 
-                                                             element_type, 
+                                                             acoustic_element_type, 
                                                              proportional_damping = proportional_damping,
-                                                             vol_flow = volume_flow    
+                                                             volumetric_flow_rate = volumetric_flow_rate    
                                                              )
 
 
     def load_materials(self, line_id: int, data: dict):
-
-        material = None
-        if "material" in data.keys():
-            material = data["material"]
-
+        material = data.get("material")
         self.preprocessor.set_material_by_lines(line_id, material)
 
 
     def load_structural_element_types(self, line_id: int, data: dict):
-
-        element_type = None
-        if "structural_element_type" in data.keys():
-            element_type = data["structural_element_type"]
-
-            self.preprocessor.set_structural_element_type_by_lines( 
-                                                                   line_id, 
-                                                                   element_type  
-                                                                   )
+        element_type = data.get("structural_element_type")
+        self.preprocessor.set_structural_element_type_by_lines(line_id, element_type)
 
 
     def load_capped_ends(self, line_id: int, data: dict):
-
-        capped_end = None
-        if "capped_end" in data.keys():
-            capped_end = data["capped_end"]
-
-        self.preprocessor.set_capped_end_by_lines(   
-                                                    line_id, 
-                                                    capped_end, 
-                                                    )
+        capped_end = data.get("capped_end")
+        self.preprocessor.set_capped_end_by_lines(line_id, capped_end)
 
 
     def load_force_offsets(self, line_id: int, data: dict):
-
-        # force_offset = None
-        if "force_offset" in data.keys():
-            force_offset = data["force_offset"]
-
-            self.preprocessor.set_structural_element_force_offset_by_lines(   
-                                                                            line_id, 
-                                                                            force_offset, 
-                                                                        )
+        force_offset = data.get("force_offset", True)
+        self.preprocessor.set_structural_element_force_offset_by_lines(line_id, force_offset)
 
 
     def load_wall_formulations(self, line_id: int, data: dict):
-
-        # wall_formulation = None
-        if "wall_formulation" in data.keys():
-            wall_formulation = data["wall_formulation"]
-
-            self.preprocessor.set_structural_element_wall_formulation_by_lines(   
-                                                                                line_id, 
-                                                                                wall_formulation, 
-                                                                               )
+        wall_formulation = data.get("wall_formulation", "thin_wall")
+        self.preprocessor.set_structural_element_wall_formulation_by_lines(line_id, wall_formulation)
 
 
     def load_beam_xaxis_rotations(self, line_id: int, data: dict):
-
-        xaxis_beam_rotation = 0
-        if "beam_xaxis_rotation" in data.keys():
-            xaxis_beam_rotation = data["beam_xaxis_rotation"]
-
-        self.preprocessor.set_beam_xaxis_rotation_by_lines(   
-                                                            line_id, 
-                                                            xaxis_beam_rotation, 
-                                                            )
+        xaxis_beam_rotation = data.get("beam_xaxis_rotation", 0)
+        self.preprocessor.set_beam_xaxis_rotation_by_lines(line_id, xaxis_beam_rotation)
 
 
     def load_imported_table_data_from_file(self):

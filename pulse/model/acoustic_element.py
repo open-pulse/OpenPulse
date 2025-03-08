@@ -118,10 +118,9 @@ class AcousticElement:
         self.cross_section_points = kwargs.get('cross_section_points', None)
         self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
         self.perforated_plate = kwargs.get('perforated_plate', None)
-        self.vol_flow = kwargs.get('vol_flow', 0)
+        self.volumetric_flow_rate = kwargs.get('volumetric_flow_rate', 0)
         self.length_correction_data = kwargs.get('length_correction_data', None)
         self.turned_off = kwargs.get("turned_off", False)
-        self.volumetric_flow_rate = kwargs.get("volumetric_flow_rate", None)
 
         self.reset()
 
@@ -161,9 +160,20 @@ class AcousticElement:
         """
         return self.fluid.impedance / self.area_fluid
 
+    def wave_number(self, omega: np.ndarray):
+        """
+        This method returns the element's wave number based on its fluid.
+
+        Returns
+        -------
+        float
+            The wave number.
+        """
+        return omega / self.speed_of_sound_corrected()
+
     @property
     def mach(self):
-        return self.vol_flow / (self.speed_of_sound_corrected()*self.area_fluid)
+        return self.volumetric_flow_rate / (self.speed_of_sound_corrected() * self.area_fluid)
     
     def reset(self):
 
@@ -237,57 +247,179 @@ class AcousticElement:
         else:
             factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.elasticity_modulus * self.cross_section.thickness)
             return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
+
+    def get_undamped_wave_number_and_acoustic_impedance(self, frequencies: np.ndarray):
+
+        omega = 2 * np.pi * frequencies
+        kappa_real = self.wave_number(omega)
+
+        radius = self.cross_section.inner_radius
+
+        rho_0 = self.fluid.density
+        c_0 = self.speed_of_sound_corrected()       
+        Z_0 = c_0 * rho_0
+
+        aux = np.real(kappa_real * radius) > 1.84118
+        if np.any(aux):
+            self.flag_plane_wave = True
+            self.max_valid_freq = np.min(frequencies[aux])
+
+        return kappa_real, Z_0
+
+    def get_proportional_wave_number_and_acoustic_impedance(self, frequencies: np.ndarray):
+
+        omega = 2 * np.pi * frequencies
+        kappa_real = self.wave_number(omega)
+        radius = self.cross_section.inner_radius
+
+        rho_0 = self.fluid.density
+        c_0 = self.speed_of_sound_corrected()       
+        Z_0 = c_0 * rho_0
+
+        hysteresis = (1 - 1j*self.proportional_damping)
+
+        kappa_complex = kappa_real * hysteresis
+        impedance_complex = Z_0 * hysteresis
+
+        aux = np.real(kappa_real * radius) > 1.84118
+        if np.any(aux):
+            self.flag_plane_wave = True
+            self.max_valid_freq = np.min(frequencies[aux])
+
+        return kappa_complex, impedance_complex
         
-    def get_damping_for_shear_stress_in_liquids(self, frequencies: np.ndarray):
+    def get_wide_duct_wave_number_and_acoustic_impedance(self, frequencies: np.ndarray):
+
+        omega = 2 * np.pi * frequencies
+        kappa_real = self.wave_number(omega)
+        radius = self.cross_section.inner_radius
+
+        rho_0 = self.fluid.density
+        c_0 = self.speed_of_sound_corrected()       
+        Z_0 = c_0 * rho_0
+
+        nu = self.fluid.kinematic_viscosity
+        pr = self.fluid.prandtl
+        gamma = self.fluid.isentropic_exponent
+        k0 = self.fluid.thermal_conductivity
+        c0 = self.speed_of_sound_corrected()
+
+        aux_wd1 = radius < 10*sqrt(2*nu/omega) 
+        aux_wd2 = radius < 10*sqrt(2*k0/omega) 
+        aux = np.any(np.array([aux_wd1, aux_wd2]), axis=0)
+
+        aux_wd3 = sqrt(2*omega * nu) / c0 > 1 / 10
+
+        if np.any(aux):
+            self.min_valid_freq = np.max(frequencies[aux])
+            self.flag_wide_duct = True
+
+        if np.any(aux_wd3):
+            self.max_valid_freq = np.min(frequencies[aux_wd3])
+            self.flag_wide_duct = True
+
+        aux = np.real(kappa_real * radius) > 1.84118
+        if np.any(aux):
+            self.flag_plane_wave = True
+            self.max_valid_freq = np.min([np.min(frequencies[aux]), self.max_valid_freq]) 
+
+        const = 1 - 1j* np.sqrt(nu/(2*omega)) * ((1 + (gamma-1)/sqrt(pr))/radius)
+
+        kappa_complex = kappa_real * const
+        impedance_complex = Z_0 * const
+
+        return kappa_complex, impedance_complex
+
+    def get_LRF_fluid_equivalent_wave_number_and_acoustic_impedance(self, frequencies: np.ndarray):
+
+        omega = 2 * np.pi * frequencies
+        kappa_real = self.wave_number(omega)
+
+        rho_0 = self.fluid.density
+        c_0 = self.speed_of_sound_corrected()       
+        Z_0 = c_0 * rho_0
+
+        nu = self.fluid.kinematic_viscosity
+        gamma = self.fluid.isentropic_exponent
+        alpha = self.fluid.thermal_diffusivity
+        radius = self.cross_section.inner_radius
+
+        aux = np.sqrt(2 * np.pi * frequencies)
+        kappa_v = aux * np.sqrt(-1j / nu)
+        kappa_t = aux * np.sqrt(-1j / alpha)
+
+        aux_lrfeq1 = np.abs(kappa_t / kappa_real) < 10
+        aux_lrfeq2 = np.abs(kappa_v / kappa_real) < 10
+        aux = np.any(np.array([aux_lrfeq1, aux_lrfeq2]), axis=0)
+
+        if np.any(aux):
+            self.max_valid_freq = np.min(frequencies[aux]) 
+            self.flag_lrf_fluid_eq = True
+
+        y_v = - j2_j0(kappa_v * radius)
+        y_t =   j2_j0(kappa_t * radius) * (gamma-1) + gamma
+
+        kappa_complex = kappa_real * np.sqrt(y_t / y_v)
+        impedance_complex = Z_0 / np.sqrt(y_t * y_v)
+
+        aux = np.real(kappa_complex * radius) > 1.84118
+        if np.any(aux):
+            self.flag_plane_wave = True
+            self.max_valid_freq = np.min([np.min(frequencies[aux]), self.max_valid_freq])
+
+        return kappa_complex, impedance_complex
+
+    def get_damped_liquid_wave_number_and_acoustic_impedance(self, frequencies: np.ndarray):
+
+        omega = 2 * np.pi * frequencies
+        kappa_real = self.wave_number(omega)
+
+        rho_0 = self.fluid.density
+        # c_0 = self.fluid.speed_of_sound
+        c_0 = self.speed_of_sound_corrected()
+        mu = self.fluid.dynamic_viscosity
+        v = mu / rho_0
 
         Q = self.volumetric_flow_rate
-
-        if Q is None:
-            return 0.
-
-        rho = self.fluid.density
-        c_0 = self.fluid.speed_of_sound
-        mu = self.fluid.dynamic_viscosity
-        v = mu / rho
+        if Q == 0:
+            Z = rho_0 * c_0
+            return kappa_real, Z
 
         A = self.cross_section.area_fluid
-        d = self.cross_section.outer_diameter
+        d = self.cross_section.inner_diameter
         u = Q / A
 
-        Re = u * d * rho / mu
+        Re = u * d * rho_0 / mu
 
         # Colebrook equation for determining the Darcy friction factor
         def colebrook_equation(x):
-            return 2*np.log10(Re*(x**0.5)) - 0.8 - (1/(x**0.5))
+            return 2 * np.log10(Re * (x**0.5)) - 0.8 - (1 / (x**0.5))
 
         # use Haaland approximation for Colebrook equation as initial guess value for Darcy friction factor
-        x_initial = 1 / ((-1.8 * np.log10(6.9 / Re))**0.5)
+        x_initial = 1 / ((-1.8 * np.log10(6.9 / Re))**2)
 
         f_d = fsolve(colebrook_equation, x_initial)
 
-        omega = 2 * np.pi * frequencies
-        k_0 = omega / c_0
-
-        kappa = 14.3 / (Re**0.05)
-        beta = 0.54 * (v / (d**2)) * (Re**kappa)
+        k = np.log10(14.3 / (Re**0.05))
+        beta = 0.54 * (v / (d**2)) * (Re**k)
 
         # shear stress term
-        alpha_r = -1j * f_d * abs(Q) / (omega * d * A) + (4 / d) * np.sqrt(v / (beta + 1j*omega))
+        alpha_r = -1j * (f_d * abs(Q) / (omega * d * A)) + (4 / d) * np.sqrt(v / (beta + 1j*omega))
 
         # viscous elasticity term
         alpha_v = 0.
 
         # complex wave number
-        k = k_0 * np.sqrt(1 + alpha_r) * np.sqrt(1 + alpha_v)
+        kappa_complex = kappa_real * np.sqrt(1 + alpha_r) * np.sqrt(1 + alpha_v)
 
         # complex speed of sound
-        c = k / omega
+        c_complex = omega / kappa_complex
 
         # acoustic impedance
-        Z = rho * c
+        Z = rho_0 * c_complex
 
-        return k, Z
-        
+        return kappa_complex, Z
+
     def matrix(self, frequencies, length_correction=0):
         """
         This method returns the element's admittance matrix for each frequency of analysis 
@@ -320,7 +452,7 @@ class AcousticElement:
         if self.element_type in ['undamped_mean_flow','peters','howe']:
             return self.fetm_mean_flow_matrix(frequencies, length_correction)
 
-        elif self.element_type in ['undamped', 'proportional', 'wide_duct','LRF_fluid_equivalent']:
+        elif self.element_type in ['undamped', 'proportional', 'wide_duct','LRF_fluid_equivalent', 'damped_liquid']:
             return self.fetm_matrix(frequencies, length_correction)
 
         elif self.element_type == 'LRF full':
@@ -348,7 +480,7 @@ class AcousticElement:
             admittance matrix corresponding to a frequency of analysis.
         """
         ones = np.ones(len(frequencies), dtype='float64')
-        kappa_complex, impedance_complex = self.get_fetm_damping_data(frequencies)
+        kappa_complex, impedance_complex = self.get_fetm_wave_number_and_acoustic_impedance(frequencies)
         # self.radiation_impedance(kappa_complex, impedance_complex)
 
         kappaLe = kappa_complex * (self.length + length_correction)
@@ -381,7 +513,7 @@ class AcousticElement:
             Elementary admittance matrix. Each row of the output array is an element 
             admittance matrix corresponding to a frequency of analysis.
         """
-        ones = np.ones(len(frequencies), dtype='float64')
+
         omega = 2 * pi * frequencies
         rho = self.fluid.density
         nu = self.fluid.kinematic_viscosity
@@ -390,7 +522,7 @@ class AcousticElement:
         
         c = self.speed_of_sound_corrected()
         length = self.length + length_correction
-        radius = self.cross_section.inner_diameter / 2
+        radius = self.cross_section.inner_radius
         kappa_real = omega / c
 
         s = radius * np.sqrt(omega / nu)
@@ -417,6 +549,7 @@ class AcousticElement:
 
         sinh = np.sinh(kappa_complex * length)
         cosh = np.cosh(kappa_complex * length)
+        ones = np.ones(len(frequencies), dtype='float64')
 
         matrix = - ((self.area_fluid * G / (impedance_complex * sinh)) * np.array([cosh, -ones, -ones, cosh])).T
 
@@ -503,7 +636,7 @@ class AcousticElement:
             matrix corresponding to a frequency of analysis.
         """
         ones = np.ones(len(frequencies), dtype='float64')
-        kappa_complex, impedance_complex = self.get_fetm_damping_data(frequencies)
+        kappa_complex, impedance_complex = self.get_fetm_wave_number_and_acoustic_impedance(frequencies)
         
         kappaLe = kappa_complex * (self.length / 10)
         sine = np.sin(kappaLe)
@@ -548,7 +681,7 @@ class AcousticElement:
         
         return Ke.flatten(), Me.flatten()
 
-    def get_fetm_damping_data(self, frequencies: np.ndarray):
+    def get_fetm_wave_number_and_acoustic_impedance(self, frequencies: np.ndarray):
         """
         This method returns wavenumber and fluid impedance for the FETM 1D theory according to 
         the element's damping model (element type). The damping models compatible with FETM 1D 
@@ -568,100 +701,30 @@ class AcousticElement:
             Complex impedance. This array have the same structure of the frequencies array.
         """
 
-        c0 = self.speed_of_sound_corrected()
-        rho_0 = self.fluid.density
-
-        omega = 2 * pi * frequencies
-        kappa_real = omega / c0
-
-        radius = self.cross_section.inner_diameter / 2
-
         if self.element_type == 'undamped':
-            aux = np.real(kappa_real * radius) > 1.84118
-            if np.any(aux):
-                self.flag_plane_wave = True
-                self.max_valid_freq = np.min(frequencies[aux])
-            return kappa_real, c0 * rho_0
+            return self.get_undamped_wave_number_and_acoustic_impedance(frequencies)
 
         elif self.element_type == 'proportional':
-            hysteresis = (1 - 1j*self.proportional_damping)
-            kappa_complex = kappa_real * hysteresis
-            impedance_complex = c0 * rho_0 * hysteresis
-
-            aux = np.real(kappa_real * radius) > 1.84118
-            if np.any(aux):
-                self.flag_plane_wave = True
-                self.max_valid_freq = np.min(frequencies[aux])
-            return kappa_complex, impedance_complex
+            return self.get_proportional_wave_number_and_acoustic_impedance()
 
         elif self.element_type == 'wide_duct':
-            nu = self.fluid.kinematic_viscosity
-            pr = self.fluid.prandtl
-            gamma = self.fluid.isentropic_exponent
-            k0 = self.fluid.thermal_conductivity
-
-            aux_wd1 = radius < 10*sqrt(2*nu/omega) 
-            aux_wd2 = radius < 10*sqrt(2*k0/omega) 
-            aux = np.any(np.array([aux_wd1, aux_wd2]), axis=0)
-
-            aux_wd3 = sqrt(2*omega * nu)/c0 > 1/10
-
-            if np.any(aux):
-                self.min_valid_freq = np.max(frequencies[aux])
-                self.flag_wide_duct = True
-
-            if np.any(aux_wd3):
-                self.max_valid_freq = np.min(frequencies[aux_wd3])
-                self.flag_wide_duct = True
-
-            aux = np.real(kappa_real * radius) > 1.84118
-            if np.any(aux):
-                self.flag_plane_wave = True
-                self.max_valid_freq = np.min([np.min(frequencies[aux]), self.max_valid_freq]) 
-
-            const = 1 - 1j* np.sqrt(nu/(2*omega)) * ((1 + (gamma-1)/sqrt(pr))/radius)
-
-            kappa_complex = kappa_real*const
-            impedance_complex = rho_0*c0*const
-            return kappa_complex, impedance_complex
+            return self.get_wide_duct_wave_number_and_acoustic_impedance(frequencies)
 
         elif self.element_type == 'LRF_fluid_equivalent':
-            nu = self.fluid.kinematic_viscosity
-            gamma = self.fluid.isentropic_exponent
-            alpha = self.fluid.thermal_diffusivity
-            radius = self.cross_section.inner_diameter / 2
+            return self.get_LRF_fluid_equivalent_wave_number_and_acoustic_impedance(frequencies)
 
-            aux = np.sqrt(omega)
-            kappa_v = aux * np.sqrt(-1j / nu)
-            kappa_t = aux * np.sqrt(-1j / alpha)
-
-            aux_lrfeq1 = np.abs(kappa_t / kappa_real) < 10
-            aux_lrfeq2 = np.abs(kappa_v / kappa_real) < 10
-            aux = np.any(np.array([aux_lrfeq1, aux_lrfeq2]), axis=0)
-
-            if np.any(aux):
-                self.max_valid_freq = np.min(frequencies[aux]) 
-                self.flag_lrf_fluid_eq = True
-
-            y_v = - j2_j0(kappa_v * radius)
-            y_t =   j2_j0(kappa_t * radius) * (gamma-1) + gamma
-
-            kappa_complex = kappa_real * np.sqrt(y_t / y_v)
-            impedance_complex = c0 * rho_0 / np.sqrt(y_t * y_v)
-
-            aux = np.real(kappa_complex * radius) > 1.84118
-            if np.any(aux):
-                self.flag_plane_wave = True
-                self.max_valid_freq = np.min([np.min(frequencies[aux]), self.max_valid_freq]) 
-
-            return kappa_complex, impedance_complex
+        elif self.element_type == "damped_liquid":
+            return self.get_damped_liquid_wave_number_and_acoustic_impedance(frequencies)
 
     def get_fetm_mean_flow_damping_data(self, frequencies):
 
         omega = 2 * pi * frequencies
-        c0 = self.speed_of_sound_corrected()
+        kappa_real = self.wave_number(omega)
+
         rho_0 = self.fluid.density
-        kappa_real = omega/c0
+        c_0 = self.speed_of_sound_corrected()
+        Z_0 = rho_0 * c_0
+
         di = self.cross_section.inner_diameter
         radius = di / 2
 
@@ -670,14 +733,15 @@ class AcousticElement:
             if np.any(aux):
                 self.flag_plane_wave = True
                 self.max_valid_freq = np.min(frequencies[aux])
-            return kappa_real, c0 * rho_0, self.mach
+
+            return kappa_real, Z_0, self.mach
 
         elif self.element_type == 'howe':
             nu = self.fluid.kinematic_viscosity
             alpha = self.fluid.thermal_diffusivity
             pr = self.fluid.prandtl
             gamma = self.fluid.isentropic_exponent
-            U = self.mach * self.speed_of_sound_corrected()
+            U = self.mach * c_0
             Karmank = 0.41
 
             # TODO: prt warning por p < 0.5
@@ -697,17 +761,17 @@ class AcousticElement:
             F1 = 1j*(hankel1(1,aux1)*np.cos(aux2) -  hankel1(0,aux1)*np.sin(aux2))/(hankel1(0,aux1)*np.cos(aux2) +  hankel1(1,aux1)*np.sin(aux2))
             F2 = 1j*(hankel1(1,aux3)*np.cos(aux4) -  hankel1(0,aux3)*np.sin(aux4))/(hankel1(0,aux3)*np.cos(aux4) +  hankel1(1,aux3)*np.sin(aux4))
 
-            aux1 = np.sqrt(2)*(1-1j)*np.sqrt(omega*nu)/(c0*di)
-            aux2_m = np.conj(F1/(1-self.mach)**2 + (gamma-1)*F2*np.sqrt(alpha/nu))
-            aux2_M = np.conj(F1/(1+self.mach)**2 + (gamma-1)*F2*np.sqrt(alpha/nu))
+            aux1 = np.sqrt(2) * (1 - 1j) * np.sqrt(omega * nu) / (c_0 * di)
+            aux2_m = np.conj(F1 / (1 - self.mach)**2 + (gamma - 1)* F2 * np.sqrt(alpha / nu))
+            aux2_M = np.conj(F1 / (1 + self.mach)**2 + (gamma - 1)* F2 * np.sqrt(alpha / nu))
 
-            kappa_m = 1/(1-self.mach)*(kappa_real + aux1*aux2_m)
-            kappa_M = 1/(1+self.mach)*(kappa_real + aux1*aux2_M)
+            kappa_m = 1 / (1 - self.mach) * (kappa_real + aux1 * aux2_m)
+            kappa_M = 1 / (1 + self.mach) * (kappa_real + aux1 * aux2_M)
 
             kappa = (kappa_M + kappa_m)/2
-            c = omega/kappa
+            c = omega / kappa
             z = rho_0 * c
-            mach_ef = U/c
+            mach_ef = U / c
 
             aux = np.real(kappa*(1-mach_ef**2) * radius) > 1.84118
             if np.any(aux):
@@ -721,7 +785,7 @@ class AcousticElement:
             gamma = self.fluid.isentropic_exponent
             pr = self.fluid.prandtl
 
-            U = self.mach * self.speed_of_sound_corrected()
+            U = self.mach * c_0
             ur = np.sqrt(0.03955) * (nu/di)**(1/8) * U**(7/8)
 
             delta_vs = 12.5
@@ -738,12 +802,13 @@ class AcousticElement:
             kappa = (kappa_M - kappa_m)/2
             c = omega/kappa
             z = rho_0 * c
-            mach_ef = U/c
+            mach_ef = U / c
 
             aux = np.real(kappa*(1-mach_ef**2) * radius) > 1.84118
             if np.any(aux):
                 self.flag_plane_wave = True
                 self.max_valid_freq = np.min(frequencies[aux])
+
             return kappa, z, mach_ef
   
     def get_fetm_thermoviscous_damping_data(self, frequencies: np.ndarray):
@@ -756,7 +821,7 @@ class AcousticElement:
 
         c = self.speed_of_sound_corrected()
 
-        radius = self.cross_section.inner_diameter / 2
+        radius = self.cross_section.inner_radius
         kappa_real = omega / c
 
         s = radius * np.sqrt(omega / nu)
@@ -952,7 +1017,7 @@ class AcousticElement:
             impedance_complex = z * (1 - M**2)
 
         elif self.element_type in ['undamped', 'proportional', 'wide_duct', 'LRF_fluid_equivalent']:
-            kappa_complex, impedance_complex = self.get_fetm_damping_data(frequencies)
+            kappa_complex, impedance_complex = self.get_fetm_wave_number_and_acoustic_impedance(frequencies)
 
         elif self.element_type == 'LRF full':
             kappa_complex, impedance_complex = self.get_fetm_thermoviscous_damping_data(frequencies)

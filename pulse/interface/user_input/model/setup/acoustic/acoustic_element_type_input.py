@@ -51,23 +51,19 @@ class AcousticElementTypeInput(QDialog):
 
         self.element_type = 'undamped'
         self.element_types = [
-                                "undamped", 
-                                "proportional", 
-                                "wide_duct", 
-                                "LRF_fluid_equivalent", 
-                                "LRF_full", 
-                                "damped_liquids", 
-                                "undamped_mean_flow", 
-                                "peters", 
-                                "howe"
-                                ]
+                              "undamped", 
+                              "proportional", 
+                              "wide_duct", 
+                              "LRF_fluid_equivalent", 
+                              "LRF_full", 
+                              "damped_liquid", 
+                              "undamped_mean_flow", 
+                              "peters", 
+                              "howe"
+                              ]
 
         self.complete = False
         self.keep_window_open = True
-
-        # self.update_cross_section = False
-        # self.pipe_to_beam = False
-        # self.beam_to_pipe = False
 
         self.before_run = app().project.get_pre_solution_model_checks()
 
@@ -79,12 +75,12 @@ class AcousticElementTypeInput(QDialog):
 
         # QLabel
         self.label_proportional_damping: QLabel
-        self.label_vol_flow: QLabel
+        self.label_volumetric_flow_rate: QLabel
         self.label_volume_rate_unit: QLabel
         self.label_selected_id: QLabel
 
         # QLineEdit
-        self.lineEdit_vol_flow: QLineEdit
+        self.lineEdit_volumetric_flow_rate: QLineEdit
         self.lineEdit_selected_id: QLineEdit
         self.lineEdit_proportional_damping: QLineEdit
 
@@ -94,7 +90,7 @@ class AcousticElementTypeInput(QDialog):
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_get_volumetric_flow_rate: QPushButton
-        
+
         # QStackedWidget
         self.stackedWidget_main: QStackedWidget
 
@@ -160,15 +156,15 @@ class AcousticElementTypeInput(QDialog):
 
                 else:
 
-                    mf_element_types = ["damped_liquids", "undamped_mean_flow", "peters", "howe"]
+                    mf_element_types = ["damped_liquid", "undamped_mean_flow", "peters", "howe"]
 
                     if element_type in mf_element_types:
 
                         # etype_index = mf_element_types.index(element_type)
-                        vol_flow = self.properties._get_property("volume_flow", line_id=line_id)
+                        volumetric_flow_rate = self.properties._get_property("volume_flow", line_id=line_id)
 
-                        if isinstance(vol_flow, float):
-                            self.lineEdit_vol_flow.setText(str(vol_flow))
+                        if isinstance(volumetric_flow_rate, float):
+                            self.lineEdit_volumetric_flow_rate.setText(str(volumetric_flow_rate))
                             self.comboBox_element_type.setCurrentIndex(self.element_types.index(element_type))
 
         self.comboBox_selection.blockSignals(False)
@@ -267,13 +263,13 @@ class AcousticElementTypeInput(QDialog):
 
         if etype_index in [5, 6, 7, 8]:
 
-            lineEdit = self.lineEdit_vol_flow.text()
-            if self.check_input_parameters(lineEdit, "Volume flow rate"):
+            lineEdit = self.lineEdit_volumetric_flow_rate.text()
+            if self.check_input_parameters(lineEdit, "Volumetric flow rate"):
                 return
-            vol_flow = self.value
+            volumetric_flow_rate = self.value
 
         else:
-            vol_flow = None
+            volumetric_flow_rate = None
 
         index_selection = self.comboBox_selection.currentIndex()
         if index_selection == 0:
@@ -296,7 +292,7 @@ class AcousticElementTypeInput(QDialog):
                                                                             line_ids, 
                                                                             self.element_type, 
                                                                             proportional_damping = proportional_damping, 
-                                                                            vol_flow = vol_flow
+                                                                            volumetric_flow_rate = volumetric_flow_rate
                                                                             )
         
         app().project.model.properties._set_line_property("acoustic_element_type", self.element_type, line_ids)
@@ -308,12 +304,12 @@ class AcousticElementTypeInput(QDialog):
         else:
             app().project.model.properties._set_line_property("proportional_damping", proportional_damping, line_ids)
 
-        if vol_flow is None:
+        if volumetric_flow_rate is None:
             for line_id in line_ids:
                 app().project.model.properties._remove_line_property("volume_flow", line_id)
 
         else:
-            app().project.model.properties._set_line_property("volume_flow", vol_flow, line_ids)
+            app().project.model.properties._set_line_property("volume_flow", volumetric_flow_rate, line_ids)
 
         self.actions_to_finalize()
 
@@ -362,7 +358,7 @@ class AcousticElementTypeInput(QDialog):
         if rms.volumetric_flow_rate is None:
             return
 
-        self.lineEdit_vol_flow.setText(f"{rms.volumetric_flow_rate : .6e}")
+        self.lineEdit_volumetric_flow_rate.setText(f"{rms.volumetric_flow_rate : .6e}")
 
     def on_click_item(self, item):
         self.comboBox_selection.setCurrentIndex(1)
@@ -380,7 +376,7 @@ class AcousticElementTypeInput(QDialog):
         self.treeWidget_element_type.clear()
         header = self.treeWidget_element_type.headerItem()
 
-        header_labels = ["Element type", "Volume flow rate", "Lines"]
+        header_labels = ["Element type", "Volumetric flow rate", "Lines"]
         for col, label in enumerate(header_labels):
             header.setText(col, label)
             header.setTextAlignment(col, Qt.AlignCenter)
@@ -395,12 +391,12 @@ class AcousticElementTypeInput(QDialog):
             aux[element_type].append(line_id)
         
         for key, line_ids in aux.items():
-            vol_flow = [self.properties._get_property("volume_flow", line_id=line_id) for line_id in line_ids]
+            volumetric_flow_rate = [self.properties._get_property("volume_flow", line_id=line_id) for line_id in line_ids]
 
-            if None in vol_flow:
+            if None in volumetric_flow_rate:
                 item = QTreeWidgetItem([str(key), str('---'), str(line_ids)[1:-1]])
             else:
-                item = QTreeWidgetItem([str(key), str(vol_flow), str(line_ids)[1:-1]])
+                item = QTreeWidgetItem([str(key), str(volumetric_flow_rate), str(line_ids)[1:-1]])
 
             for col in range(len(header_labels)):
                 item.setTextAlignment(col, Qt.AlignCenter)
@@ -451,10 +447,10 @@ class AcousticElementTypeInput(QDialog):
                             element_data.append(damping)
     
                         elif key in ["undamped_mean_flow", "peters", "howe"]:
-                            vol_flow = self.properties._get_property("volume_flow", line_id=line_id)
-                            if vol_flow is None:
+                            volumetric_flow_rate = self.properties._get_property("volume_flow", line_id=line_id)
+                            if volumetric_flow_rate is None:
                                 continue
-                            element_data.append(vol_flow)
+                            element_data.append(volumetric_flow_rate)
 
                         data[line_id] = element_data
 

@@ -316,15 +316,15 @@ class CrossSection:
 
     @property
     def outer_radius(self):
-        return self.outer_diameter/2
+        return self.outer_diameter / 2
 
     @property
     def inner_diameter(self):
-        return self.outer_diameter - 2*self.thickness
+        return self.outer_diameter - 2 * self.thickness
 
     @property
     def inner_radius(self):
-        return self.inner_diameter/2
+        return self.inner_diameter / 2
 
     @property
     def area_fluid(self):
@@ -349,50 +349,6 @@ class CrossSection:
             insulation cross section area.
         """
         return (((self.outer_diameter+2*self.insulation_thickness)**2)-(self.outer_diameter**2)) * pi / 4
-
-    def getExternalDiameter(self):
-        """
-        This method returns the tube cross section outer diameter.
-
-        Returns
-        -------
-        float
-            outer diameter.
-        """
-        return self.outer_diameter
-    
-    def getExternalRadius(self):
-        """
-        This method returns the tube cross section outer radius.
-
-        Returns
-        -------
-        float
-            outer radius.
-        """
-        return self.outer_radius
-
-    def getThickness(self):
-        """
-        This method returns the tube cross section thickness.
-
-        Returns
-        -------
-        float
-            thickness.
-        """
-        return self.thickness
-
-    def getInnerDiameter(self):
-        """
-        This method returns the tube cross section inner diameter.
-
-        Returns
-        -------
-        float
-            inner diameter.
-        """
-        return self.inner_diameter
 
     def mesh_connectivity(self):
         """

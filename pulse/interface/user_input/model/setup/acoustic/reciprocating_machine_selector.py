@@ -25,8 +25,6 @@ class ReciprocatingMachineSelector(QDialog):
         self.machine_type = machine_type
 
         app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
         self.properties = app().project.model.properties
 
         self._config_window()
@@ -69,7 +67,7 @@ class ReciprocatingMachineSelector(QDialog):
     def _create_connections(self):
         #
         self.pushButton_exit.clicked.connect(self.close)
-        self.pushButton_reset_selection.clicked.connect(self.select_callback)
+        self.pushButton_reset_selection.clicked.connect(self.reset_selection)
         self.pushButton_select.clicked.connect(self.select_callback)
         #
         self.treeWidget_reciprocating_machine_data.itemClicked.connect(self.on_click_item)
@@ -102,39 +100,6 @@ class ReciprocatingMachineSelector(QDialog):
         self.lineEdit_volumetric_flow_rate.setDisabled(True)
         self.treeWidget_reciprocating_machine_data.setColumnWidth(0, 150)
 
-    # def check_input_parameters(self, parameter: str, label: str, _float=True):
-
-    #     title = "Input error"
-
-    #     if parameter != "":
-    #         try:
-
-    #             parameter = parameter.replace(",", ".")
-
-    #             if _float:
-    #                 value = float(parameter)
-    #             else:
-    #                 value = int(parameter) 
-
-    #             if value < 0:
-    #                 message = f"You cannot input a negative value to the {label}."
-    #                 PrintMessageInput([window_title_1, title, message])
-    #                 return True
-    #             else:
-    #                 self.value = value
-
-    #         except Exception:
-    #             message = f"You have typed an invalid value to the {label}."
-    #             PrintMessageInput([window_title_1, title, message])
-    #             return True
-    #     else:
-    #         title = "Empty entry to the " + label
-    #         message = "Please, input a valid " + label + " value to continue."
-    #         PrintMessageInput([window_title_1, title, message])
-    #         self.value = None
-    #         return True
-    #     return False
-
     def reset_selection(self):
         self.lineEdit_selected_id.setText("")
         self.lineEdit_connection_type.setText("")
@@ -166,9 +131,9 @@ class ReciprocatingMachineSelector(QDialog):
 
         for (property, node_id), data in self.properties.nodal_properties.items():
             if property == f"reciprocating_{self.machine_type}_excitation":
-                vol_flow = np.real(data["values"][0][0])
+                volumetric_flow_rate = np.real(data["values"][0][0])
                 connection_type = data.get("connection_type", "not detected")
-                item = QTreeWidgetItem([str(node_id), connection_type, f"{vol_flow : .6e}"])
+                item = QTreeWidgetItem([str(node_id), connection_type, f"{volumetric_flow_rate : .6e}"])
 
                 for col in range(len(header_labels)):
                     item.setTextAlignment(col, Qt.AlignCenter)
