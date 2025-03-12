@@ -168,9 +168,11 @@ class SetCrossSectionInput(QDialog):
 
                 elif element_type == "beam_1":
                     self.tabWidget_general.setCurrentIndex(1)
+                    section_properties = self.properties._get_property("section_properties", line_id=line_id)
                     self.update_beam_section_entries(
                                                      section_type,
-                                                     section_parameters
+                                                     section_parameters,
+                                                     section_properties
                                                      )
                     
                 if self.tabWidget_general.currentIndex() == 0:
@@ -220,7 +222,7 @@ class SetCrossSectionInput(QDialog):
             for index, lineEdit in enumerate(self.cross_section_widget.list_pipe_section_entries[6:-2]):
                 lineEdit.setText(str(section_parameters[index]))
 
-    def update_beam_section_entries(self, section_type: str, section_parameters: list):
+    def update_beam_section_entries(self, section_type: str, section_parameters: list, section_properties: dict):
 
         if section_type == 'rectangular_beam':
             [base, height, base_in, height_in, offset_y, offset_z] = section_parameters
@@ -277,6 +279,12 @@ class SetCrossSectionInput(QDialog):
 
         else:
             self.tabWidget_beam_section.setCurrentIndex(5)
+            [area, Iyy, Izz, Iyz, _, _, shear_coefficient] = list(section_properties.values())
+            self.cross_section_widget.lineEdit_area.setText(str(area))
+            self.cross_section_widget.lineEdit_Iyy.setText(str(Iyy))
+            self.cross_section_widget.lineEdit_Izz.setText(str(Izz))
+            self.cross_section_widget.lineEdit_Iyz.setText(str(Iyz))
+            self.cross_section_widget.lineEdit_shear_coefficient.setText(str(shear_coefficient))
 
     def load_existing_sections(self):
 
