@@ -267,7 +267,7 @@ class SetCrossSectionInput(QDialog):
             self.cross_section_widget.lineEdit_offsety_I_section.setText(str(offset_y))
             self.cross_section_widget.lineEdit_offsetz_I_section.setText(str(offset_z))
 
-        elif section_type == 'i_beam':
+        elif section_type == 't_beam':
             [h, w1, t1, tw, offset_y, offset_z] = section_parameters
             self.tabWidget_beam_section.setCurrentIndex(4)
             self.cross_section_widget.lineEdit_height_T_section.setText(str(h))
@@ -277,7 +277,7 @@ class SetCrossSectionInput(QDialog):
             self.cross_section_widget.lineEdit_offsety_T_section.setText(str(offset_y))
             self.cross_section_widget.lineEdit_offsetz_T_section.setText(str(offset_z))
 
-        else:
+        elif section_type == 'generic_beam':
             self.tabWidget_beam_section.setCurrentIndex(5)
             [area, Iyy, Izz, Iyz, _, _, shear_coefficient] = list(section_properties.values())
             self.cross_section_widget.lineEdit_area.setText(str(area))
