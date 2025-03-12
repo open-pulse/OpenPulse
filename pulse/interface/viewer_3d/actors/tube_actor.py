@@ -143,7 +143,7 @@ class TubeActor(vtkActor):
             h, w1, t1, w2, t2, tw, offset_y, offset_z, *_ = element.section_parameters_render
             return cross_section_sources.i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=offset_y, offset_z=offset_z)
 
-        elif cross_section.section_type_label == "i_beam":
+        elif cross_section.section_type_label == "t_beam":
             h, w1, t1, tw, offset_y, offset_z, *_ = element.section_parameters_render
             return cross_section_sources.t_beam_data(length, h, w1, t1, tw, offset_y=offset_y, offset_z=offset_z)
 
@@ -326,7 +326,7 @@ class TubeActor(vtkActor):
 
         transform = vtkTransform()
         transform.RotateZ(-90)
-        transform.RotateY(180)
+        transform.RotateY(90)
         transform.Update()
 
         transform_filter = vtkTransformFilter()
