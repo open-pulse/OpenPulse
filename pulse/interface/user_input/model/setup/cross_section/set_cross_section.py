@@ -563,7 +563,7 @@ class SetCrossSectionInput(QDialog):
         self.properties._remove_line_property("fluid_id", line_ids)
         self.properties._remove_line_property("acoustic_element_type", line_ids)
         self.properties._remove_line_property("proportinal_damping", line_ids)
-        self.properties._remove_line_property("volume_flow", line_ids)
+        self.properties._remove_line_property("volumetric_flow_rate", line_ids)
 
         aux_e = self.properties.element_properties.copy()
         aux_n = self.properties.nodal_properties.copy()

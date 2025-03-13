@@ -1230,6 +1230,14 @@
             </column>
             <column>
              <property name="text">
+              <string>Volumetric flow rate [m³/s]</string>
+             </property>
+             <property name="textAlignment">
+              <set>AlignCenter</set>
+             </property>
+            </column>
+            <column>
+             <property name="text">
               <string>Lines</string>
              </property>
              <property name="textAlignment">

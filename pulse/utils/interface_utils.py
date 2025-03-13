@@ -1,3 +1,5 @@
+from PyQt5.QtWidgets import QDialog, QLineEdit, QWidget
+
 from dataclasses import dataclass
 from enum import IntEnum
 
@@ -63,10 +65,12 @@ class SelectionFilter:
         return cls(*args)
 
 
-def check_inputs(lineEdit, label, only_positive=True, zero_included=False, title=None):
+def check_inputs(lineEdit: QLineEdit, label: str, only_positive=True, zero_included=False, title=None, parent: None | QDialog | QWidget = None):
+
     if title is None:
         title = "Invalid input"
 
+    message = ""
     if lineEdit.text() != "":
         try:
             str_value = lineEdit.text().replace(",", ".")
@@ -75,30 +79,35 @@ def check_inputs(lineEdit, label, only_positive=True, zero_included=False, title
             if only_positive:
                 if zero_included:
                     if out < 0:
-                        message = f"Insert a positive value to the {label}."
-                        message += "\n\nZero value is allowed."
-                        PrintMessageInput([window_title, title, message])
-                        return None
+                        message = f"Insert a positive value to the {label}. "
+                        message += "The zero value is allowed."
+
                 else:
+
                     if out <= 0:
-                        message = f"Insert a positive value to the {label}."
-                        message += "\n\nZero value is not allowed."
-                        PrintMessageInput([window_title, title, message])
-                        return None
+                        message = f"Insert a positive value to the {label}. "
+                        message += "The zero value is not allowed."
 
         except Exception as error_log:
+
             message = f"Wrong input for {label}.\n\n"
             message += str(error_log)
-            PrintMessageInput([window_title, title, message])
-            return None
 
     else:
         if zero_included:
             return float(0)
+
         else:
             message = f"Insert some value at the {label} input field."
-            PrintMessageInput([window_title, title, message])
-            return None
+
+    if message != "":
+
+        if isinstance(parent, QWidget | QDialog):
+            parent.hide()
+
+        lineEdit.setFocus()
+        PrintMessageInput([window_title, title, message])
+        return None
 
     return out
 

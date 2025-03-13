@@ -375,15 +375,15 @@ class AcousticElement:
         kappa_real = self.wave_number(omega)
 
         rho_0 = self.fluid.density
-        # c_0 = self.fluid.speed_of_sound
-        c_0 = self.speed_of_sound_corrected()
         mu = self.fluid.dynamic_viscosity
         v = mu / rho_0
 
         Q = self.volumetric_flow_rate
         if Q == 0:
-            Z = rho_0 * c_0
-            return kappa_real, Z
+            # c_0 = self.fluid.speed_of_sound
+            c_0 = self.speed_of_sound_corrected()
+            Z_0 = rho_0 * c_0
+            return kappa_real, Z_0
 
         A = self.cross_section.area_fluid
         d = self.cross_section.inner_diameter
@@ -398,6 +398,7 @@ class AcousticElement:
         # use Haaland approximation for Colebrook equation as initial guess value for Darcy friction factor
         x_initial = 1 / ((-1.8 * np.log10(6.9 / Re))**2)
 
+        # Get the Darcy friction factor
         f_d = fsolve(colebrook_equation, x_initial)
 
         k = np.log10(14.3 / (Re**0.05))
@@ -406,7 +407,7 @@ class AcousticElement:
         # shear stress term
         alpha_r = -1j * (f_d * abs(Q) / (omega * d * A)) + (4 / d) * np.sqrt(v / (beta + 1j*omega))
 
-        # viscous elasticity term
+        # viscous elasticity term (neglected due to the high pipe wall stiffness)
         alpha_v = 0.
 
         # complex wave number
@@ -1016,7 +1017,7 @@ class AcousticElement:
             kappa_complex = k
             impedance_complex = z * (1 - M**2)
 
-        elif self.element_type in ['undamped', 'proportional', 'wide_duct', 'LRF_fluid_equivalent']:
+        elif self.element_type in ['undamped', 'proportional', 'wide_duct', 'LRF_fluid_equivalent', 'damped_liquid']:
             kappa_complex, impedance_complex = self.get_fetm_wave_number_and_acoustic_impedance(frequencies)
 
         elif self.element_type == 'LRF full':
