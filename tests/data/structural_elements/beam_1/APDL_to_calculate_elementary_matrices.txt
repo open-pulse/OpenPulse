@@ -2,29 +2,28 @@
 !!!!!!!!!!!!!!!!!!!!!!!!
 FINISH
 /CLEAR
-/COM,  Structural   
+/COM,  Structural
+/CWD,'C:\Users\Jacson_Corsair\Desktop\validacoes\OpenPulse\estrutural\APDLs'
 
 /PREP7
 
-!!
-!! keypoints originais 
-!!
+!! line length
+length = 0.01
 
-L = 0.01
+L = length / (3**(1/2))
 
+!! create the keypoints
 k,1,0,0,0
-k,2,L,0,0
+!k,2,length,0,0
+k,2,L,L,L
 
-!
-l,1,2  !1
+!! create a line connecting keypoints
+L,1,2  !1
 
-!
-!LFILLT,1,2,0.1
-
+!! define the element type
 ET,1,4
-!!! RECTANGULAR SECTION
 
-b = 0.1
+b = 0.06
 h = 0.1
 area = b*h
 Iyy = (h*b**3)/12
@@ -34,7 +33,7 @@ shear_coef_y = 0
 shear_coef_z = 0
 
 R, 1, area, Izz, Iyy,
-!RMORE, , , shear_coef_z, shear_coef_y, , , 
+RMORE, , , shear_coef_z, shear_coef_y, , , 
 
 MP,EX,1,200e9
 MP,PRXY,1,0.3
@@ -47,6 +46,8 @@ lmesh,all
 !D, 1, All, 0
 !D, 1200, All, 0
 !D, 1325, All, 0
+!D, 1, UX, 0
+!D, 1, UY, 0
 !
 !F,361,FX,1 
 FINISH
@@ -124,12 +125,12 @@ num = ELEMT(I,1)
 
 ! Stiffness global matrix
 *DMAT,K_MatrixDense,D,IMPORT,FULL,file.full,STIFF
-*EXPORT,K_MatrixDense,CSV,Kdense.csv,24,
+*EXPORT,K_MatrixDense,CSV,K_dense.csv,24,
 !*PRINT,K_MatrixDense,Kdense.matrix
 
 ! Mass global matrix
 *DMAT,M_MatrixDense,D,IMPORT,FULL,file.full,MASS
-*EXPORT,M_MatrixDense,CSV,Mdense.csv,24,
+*EXPORT,M_MatrixDense,CSV,M_dense.csv,24,
 !*PRINT,M_MatrixDense,Mdense.matrix
 
 ! Commands to create sparse matrix
