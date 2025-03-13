@@ -705,23 +705,23 @@ class CrossSectionWidget(QWidget):
             Izz = float(0)
             Iyz = float(0)
 
-            area = check_inputs(self.lineEdit_area, 'Area (generic section)')
+            area = check_inputs(self.lineEdit_area, 'Area (generic beam)')
             if area is None:
                 return True
 
-            Iyy = check_inputs(self.lineEdit_Iyy, 'Iyy (generic section)')
+            Iyy = check_inputs(self.lineEdit_Iyy, 'Iyy (generic beam)')
             if Iyy is None:
                 return True
 
-            Izz = check_inputs(self.lineEdit_Izz, 'Izz (generic section)')
+            Izz = check_inputs(self.lineEdit_Izz, 'Izz (generic beam)')
             if Izz is None:
                 return True
 
-            Iyz = check_inputs(self.lineEdit_Iyz, 'Iyz (generic section)', only_positive=False, zero_included=True)
+            Iyz = check_inputs(self.lineEdit_Iyz, 'Iyz (generic beam)', only_positive=False, zero_included=True)
             if Iyz is None:
                 return True
 
-            shear_coefficient = check_inputs(self.lineEdit_shear_coefficient, 'Shear Factor (generic section)')
+            shear_coefficient = check_inputs(self.lineEdit_shear_coefficient, 'Shear Coefficient (generic beam)', zero_included=True)
             if shear_coefficient is None:
                 return True
 

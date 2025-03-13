@@ -167,7 +167,13 @@ class AssemblyStructural:
                 self.expansion_joint_data[index] = element
             else:
                 mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()
-  
+
+            # if element.index == 1:
+            #     print(">>>>>")
+            #     print(element.first_node.external_index, element.last_node.external_index)
+            #     np.savetxt("elementary_matrix_Ke_1.dat", mat_Ke[index,:,:], delimiter=",", fmt="%.24e")
+            #     np.savetxt("elementary_matrix_Me_1.dat", mat_Me[index,:,:], delimiter=",", fmt="%.24e")
+
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
 

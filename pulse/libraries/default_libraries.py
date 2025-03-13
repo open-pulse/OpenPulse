@@ -10,8 +10,8 @@ def default_material_library():
         "name": "Carbon_steel",
         "identifier": 1,
         "color": "[253, 152, 145]",  # Red level 7
-        "density": 7860,
-        "elasticity_modulus": 210,
+        "density": 7850,
+        "elasticity_modulus": 200,
         "poisson_ratio": 0.3,
         "thermal_expansion_coefficient": 1.2e-5,
     }

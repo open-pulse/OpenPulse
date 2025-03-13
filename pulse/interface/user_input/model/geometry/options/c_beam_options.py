@@ -68,6 +68,6 @@ class CBeamOptions(StructureOptions):
     def _get_extra_info(self):
         return dict(
             structural_element_type = "beam_1",
-            structure_info = deepcopy(self.structure_info),
+            cross_section_info = deepcopy(self.structure_info),
             material_info = self.geometry_designer_widget.current_material_info,
         )

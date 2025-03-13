@@ -255,8 +255,8 @@ class CrossSection:
         self.offset = [self.offset_y, self.offset_z]
         
         if self.section_type_label == "generic_beam":
-            self.shear_coefficient = self.section_properties['shear factor']
-        
+            self.shear_coefficient = self.section_properties['shear_coefficient']
+
         self.section_info = self.beam_section_info
 
     def load_valve_section_data(self):
@@ -300,7 +300,7 @@ class CrossSection:
         self.polar_moment_area = 0
         self.y_centroid = 0
         self.z_centroid = 0
-        self.shear_coefficient = 1
+        self.shear_coefficient = 0
 
         # Shear properties
         self.y_shear = 0
@@ -874,8 +874,11 @@ class CrossSection:
 
             e_y = 0
             e_z = h*F1_Vy
-     
+
             return e_y, e_z
+
+        elif self.section_type_label == "generic_beam":
+            return 0, 0
 
 def get_points_to_plot_section(section_label, section_parameters):   
     
@@ -1044,7 +1047,7 @@ def get_beam_section_properties(section_label, data):
 
     if section_label == "generic_beam":
 
-        [area, Iyy, Izz, Iyz, shear_factor, Yc, Zc] = data
+        [area, Iyy, Izz, Iyz, shear_coefficient, Yc, Zc] = data
 
         section_properties = {  "area" : area, 
                                 "Iyy" : Iyy, 
@@ -1052,34 +1055,34 @@ def get_beam_section_properties(section_label, data):
                                 "Iyz" : Iyz, 
                                 "Yc" : Yc, 
                                 "Zc" : Zc,   
-                                "shear_factor": shear_factor    }
-        
+                                "shear_coefficient": shear_coefficient    }
+
         return section_properties
 
     if section_label == "rectangular_beam":
 
-        [base, height, base_in, height_in, offset_y, offset_z] = data
-        
-        area = base*height - base_in*height_in
-        Iyy = ((height**3)*base/12) - ((height_in**3)*base_in/12)
-        Izz = ((base**3)*height/12) - ((base_in**3)*height_in/12)
+        [b, h, b_in, h_in, offset_y, offset_z] = data
+
+        area = b * h - b_in * h_in
+        Iyy = ((b**3)*h/12) - ((b_in**3)*h_in/12)
+        Izz = ((h**3)*b/12) - ((h_in**3)*b_in/12)
         Iyz = 0.
         Yc, Zc = 0, 0
-    
+
     elif section_label == "circular_beam":
         
-        [outer_diameter_beam, thickness, offset_y, offset_z] = data
+        [d_out, t, offset_y, offset_z] = data
         
-        if thickness == 0:
-            inner_diameter_beam = 0
+        if t == 0:
+            d_in = 0
         else:
-            inner_diameter_beam = outer_diameter_beam - 2*thickness
+            d_in = d_out - 2 * t
 
-        area = np.pi*((outer_diameter_beam**2)-(inner_diameter_beam**2))/4
-        Iyy = np.pi*((outer_diameter_beam**4)-(inner_diameter_beam**4))/64
-        Izz = np.pi*((outer_diameter_beam**4)-(inner_diameter_beam**4))/64
+        area = np.pi * ((d_out**2) - (d_in**2)) / 4
+        Iyy = np.pi * ((d_out**4) - (d_in**4)) / 64
+        Izz = np.pi * ((d_out**4) - (d_in**4)) / 64
         Iyz = 0
-        Yc, Zc = 0, 0 
+        Yc, Zc = 0, 0
 
     elif section_label == "c_beam":
 
@@ -1089,11 +1092,11 @@ def get_beam_section_properties(section_label, data):
         A_i = np.array([w1*t1, tw*hw, w2*t2])
         A_t = np.sum(A_i)
 
-        y_ci = np.array([w1/2, tw/2, w2/2])
-        z_ci = np.array([((t1+hw)/2), 0, -((hw+t2)/2)])
+        z_ci = np.array([w1/2, tw/2, w2/2])
+        y_ci = np.array([((t1+hw)/2), 0, -((hw+t2)/2)])
         
-        I_yi = np.array([(w1*t1**3)/12, (tw*hw**3)/12, (w2*t2**3)/12])
-        I_zi = np.array([(t1*w1**3)/12, (hw*tw**3)/12, (t2*w2**3)/12])
+        I_zi = np.array([(w1*t1**3)/12, (tw*hw**3)/12, (w2*t2**3)/12])
+        I_yi = np.array([(t1*w1**3)/12, (hw*tw**3)/12, (t2*w2**3)/12])
         I_yzi = np.array([0, 0, 0])
 
     elif section_label == "i_beam":
@@ -1104,11 +1107,11 @@ def get_beam_section_properties(section_label, data):
         A_i = np.array([w1*t1, tw*hw, w2*t2])
         A_t = np.sum(A_i)  
 
-        y_ci = np.array([0, 0, 0])
-        z_ci = np.array([((t1+hw)/2), 0, -((hw+t2)/2)])
+        z_ci = np.array([0, 0, 0])
+        y_ci = np.array([((t1+hw)/2), 0, -((hw+t2)/2)])
 
-        I_yi = np.array([(w1*t1**3)/12, (tw*hw**3)/12, (w2*t2**3)/12])
-        I_zi = np.array([(t1*w1**3)/12, (hw*tw**3)/12, (t2*w2**3)/12])
+        I_zi = np.array([(w1*t1**3)/12, (tw*hw**3)/12, (w2*t2**3)/12])
+        I_yi = np.array([(t1*w1**3)/12, (hw*tw**3)/12, (t2*w2**3)/12])
         I_yzi = np.array([0, 0, 0])
 
     elif section_label == "t_beam":
@@ -1120,11 +1123,11 @@ def get_beam_section_properties(section_label, data):
         A_i = np.array([w1*t1, tw*hw])
         A_t = np.sum(A_i)
 
-        y_ci = np.array([0, 0])
-        z_ci = np.array([((t1+hw)/2), 0])
+        z_ci = np.array([0, 0])
+        y_ci = np.array([((t1+hw)/2), 0])
 
-        I_yi = np.array([(w1*t1**3)/12, (tw*hw**3)/12])
-        I_zi = np.array([(t1*w1**3)/12, (hw*tw**3)/12])
+        I_zi = np.array([(w1*t1**3)/12, (tw*hw**3)/12])
+        I_yi = np.array([(t1*w1**3)/12, (hw*tw**3)/12])
         I_yzi = np.array([0, 0])  
 
     if section_label in ["c_beam", "i_beam", "t_beam"]:
@@ -1143,7 +1146,7 @@ def get_beam_section_properties(section_label, data):
                             "Iyz" : Iyz, 
                             "Yc" : Yc, 
                             "Zc" : Zc   }
-    
+
     return section_properties
 
 

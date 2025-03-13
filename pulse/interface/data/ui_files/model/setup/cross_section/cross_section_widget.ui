@@ -2573,7 +2573,7 @@
          <property name="maximumSize">
           <size>
            <width>620</width>
-           <height>350</height>
+           <height>380</height>
           </size>
          </property>
          <property name="font">

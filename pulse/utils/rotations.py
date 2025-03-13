@@ -41,7 +41,7 @@ def align_vtk_geometry(geometry: vtkPolyData, start: np.ndarray, vector: np.ndar
     transform.RotateZ(np.degrees(rz))
     transform.RotateX(np.degrees(rx))
     transform.RotateY(np.degrees(ry))
-    transform.RotateY(np.degrees(angle))
+    transform.RotateY(np.degrees(angle) - 90)
     transform.Update()
 
     transform_filter = vtkTransformFilter()
