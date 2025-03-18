@@ -81,12 +81,13 @@ class ReciprocatingMachineSelector(QDialog):
             self.lineEdit_selected_id.setText(text)
 
             if len(selected_nodes) == 1:
-                node_id = selected_nodes[0]
-                recip_pump = self.properties._get_property(f"reciprocating_{self.machine_type}_excitation", node_id=node_id)
+                node_id = int(selected_nodes[0])
+                property = f"reciprocating_{self.machine_type}_excitation"
+                recip_pump = self.properties._get_property(property, node_ids=node_id)
 
                 if isinstance(recip_pump, dict):
                     connection_type = recip_pump["connection_type"]
-                    volumetric_flow_rate = recip_pump["values"][0, 1]
+                    volumetric_flow_rate = np.real(recip_pump["values"][0][0])
                     self.lineEdit_selected_id.setText(str(node_id))
                     self.lineEdit_connection_type.setText(connection_type)
                     self.lineEdit_volumetric_flow_rate.setText(f"{volumetric_flow_rate : .6e}")
@@ -98,6 +99,7 @@ class ReciprocatingMachineSelector(QDialog):
         self.treeWidget_reciprocating_machine_data.setColumnWidth(0, 150)
 
     def reset_selection(self):
+        app().main_window.set_selection()
         self.lineEdit_selected_id.setText("")
         self.lineEdit_connection_type.setText("")
         self.lineEdit_volumetric_flow_rate.setText("")

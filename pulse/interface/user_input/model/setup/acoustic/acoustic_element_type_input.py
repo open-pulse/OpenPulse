@@ -353,6 +353,8 @@ class AcousticElementTypeInput(QDialog):
             machine_type = "compressor"
 
         rms = ReciprocatingMachineSelector(machine_type)
+        app().main_window.set_input_widget(self)
+
         if rms.volumetric_flow_rate is None:
             return
 
