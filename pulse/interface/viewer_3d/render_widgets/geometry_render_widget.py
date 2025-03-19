@@ -7,6 +7,8 @@ from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import CommonRenderWidget
 
 from pulse.interface.viewer_3d.actors import EditorPointsActor, EditorStagedPointsActor, EditorSelectedPointsActor
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+
 from pulse import ICON_DIR, app
 
 
@@ -24,6 +26,7 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.control_points_actor = None
         self.staged_points_actor = None
         self.selected_points_actor = None
+        self.psd_selection_error = False
 
         # It is better for an editor to have parallel projection
         self.renderer.GetActiveCamera().SetParallelProjection(True)
@@ -190,6 +193,24 @@ class GeometryRenderWidget(CommonRenderWidget):
 
         picked_points = self._pick_points(x, y)
         picked_structures = self._pick_structures(x, y)
+
+        for structure in picked_structures:
+            psd_parts = []
+            
+            try:
+                if "psd_name" in structure.as_dict()["extra_info"].keys():
+                    self.psd_selection_error = True
+                    psd_parts.append(structure)
+                    picked_structures = set(picked_structures)
+                    picked_structures -= set(psd_parts)
+                    picked_structures = list(picked_structures)
+                
+            except:
+                pass
+        
+        if self.psd_selection_error is True:
+            PrintMessageInput(["Error", "Invalid selection", "For PSD selection and/or deletion, please use the dedicated PSD editor."])
+            self.psd_selection_error = False
 
         # give selection priority to points
         if len(picked_points) == 1 and len(picked_structures) <= 1:
