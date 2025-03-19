@@ -194,21 +194,20 @@ class GeometryRenderWidget(CommonRenderWidget):
         picked_points = self._pick_points(x, y)
         picked_structures = self._pick_structures(x, y)
 
+        psd_parts = []
         for structure in picked_structures:
-            psd_parts = []
-            
-            try:
-                if "psd_name" in structure.as_dict()["extra_info"].keys():
-                    self.psd_selection_error = True
-                    psd_parts.append(structure)
-                    picked_structures = set(picked_structures)
-                    picked_structures -= set(psd_parts)
-                    picked_structures = list(picked_structures)
+            if "psd_name" not in structure.extra_info:
+                continue
+
+            else:
+                self.psd_selection_error = True
+                psd_parts.append(structure)
                 
-            except:
-                pass
         
         if self.psd_selection_error is True:
+            picked_structures = set(picked_structures)
+            picked_structures -= set(psd_parts)
+            picked_structures = list(picked_structures)
             PrintMessageInput(["Error", "Invalid selection", "For PSD selection and/or deletion, please use the dedicated PSD editor."])
             self.psd_selection_error = False
 
