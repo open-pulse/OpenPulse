@@ -62,7 +62,7 @@ class BeforeRun():
             
             if len(typed_ids) == 0:
                     message = f"An empty input field for the {label.capitalize()} ID has been detected." 
-                    message += f"You should to enter a valid  {label.capitalize()} ID to proceed!"
+                    message += f"You should enter a valid  {label.capitalize()} ID to proceed!"
 
             elif len(typed_ids) >= 1:
 
@@ -376,17 +376,17 @@ class BeforeRun():
 
         cross_section_message = "You should set a Cross-Section to all elements before proceeding with the model solution.\n\n"
         #
-        material_message = "You should to set a Material to all elements before trying to run any Analysis.\n\n"
+        material_message = "You should set a Material to all elements before trying to run any Analysis.\n\n"
         material_message += "Lines without material assignment: \n{}"
         #
-        fluid_message = "You should to set a Fluid to all elements before trying to run any Analysis.\n\n"
+        fluid_message = "You should set a Fluid to all elements before trying to run any Analysis.\n\n"
         fluid_message += "Lines without fluid assignment: \n{}"
         #
         all_fluid_inputs_message = "You should insert all fluid properties for wide-duct, LRF fluid equivalent and " 
         all_fluid_inputs_message += "LRF full acoustic element types before proceeding with the model solution.\n\n"
         all_fluid_inputs_message += "Lines with incomplete fluid properties: \n{}"
         #
-        structural_message = "You should to apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis."
+        structural_message = "You should apply an external load to the model or prescribe a non-null DOF value before trying to solve the Harmonic Analysis."
         #
         acoustic_message = "Enter a nodal acoustic excitation to proceed with the Harmonic Analysis processing. "
         acoustic_message += "\n\nAvailable acoustic excitations: acoustic pressure, volume velocity, "
