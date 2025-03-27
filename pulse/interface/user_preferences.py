@@ -14,6 +14,7 @@ class UserPreferences:
     renderer_font_size: int  = 12
     show_open_pulse_logo : bool = True
     show_reference_scale_bar: bool = True
+    compatibility_mode: bool = False   
     color_map = "jet"
 
     def set_light_theme(self):

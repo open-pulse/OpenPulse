@@ -48,7 +48,8 @@ class NodesActor(GhostActor):
 
         self.SetMapper(mapper)
         self.GetProperty().SetPointSize(10)
-        self.GetProperty().RenderPointsAsSpheresOn()
+        if not app().main_window.config.user_preferences.compatibility_mode:
+            self.GetProperty().RenderPointsAsSpheresOn()
         self.make_ghost()
         
         self.clear_colors()
