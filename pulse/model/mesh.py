@@ -47,6 +47,9 @@ class Mesh:
         self.curve_length = dict()
         self.valve_internal_lines = dict()
 
+        self.section_nodal_coordinates = np.array([])
+        self.section_connectivities = dict()
+
     def set_element_size(self, element_size):
         self.element_size = element_size
 
@@ -191,6 +194,63 @@ class Mesh:
         except Exception as log_error:
             from traceback import print_exception
             print_exception(log_error)
+
+    def _process_section_mesh(self):
+        """
+        This method generate the section mesh and processes the nodal 
+        coordinates and the connectivity.
+        """
+
+        try:
+
+            gmsh.model.mesh.generate(3)
+            gmsh.model.mesh.removeDuplicateNodes()
+
+            # gmsh.option.setNumber('General.FltkColorScheme', 1)
+            # gmsh.fltk.run()
+
+            # process the nodal coordinates
+            node_indexes, coords, _ = gmsh.model.mesh.getNodes(2, -1, True)
+            self.process_section_nodal_coordinates(node_indexes, coords)
+
+            # process the connectivity
+            element_types, element_indexes, element_nodes = gmsh.model.mesh.getElements(2, -1)
+
+            if len(element_indexes) > 1:
+                print("multiple element type detected")
+
+            for i in range(len(element_nodes)):
+                element_name, _, _, nodes_per_element, _, _ = gmsh.model.mesh.getElementProperties(element_types[i])
+                self.process_section_connectivity(element_indexes[i], element_nodes[i], element_name, nodes_per_element)
+
+        except Exception as log_error:
+            from traceback import print_exception
+            print_exception(log_error)
+
+    def process_section_nodal_coordinates(self, node_indexes: np.ndarray, coords: np.ndarray):
+        """ 
+            This method processes the nodal coordinates from section mesh.
+        """
+        n_nodes = len(node_indexes)
+        n_indexes = np.arange(n_nodes, dtype=int)
+        self.section_nodal_coordinates = np.zeros((n_nodes, 4))
+        self.section_nodal_coordinates[n_indexes, 1:] = mm_to_m(coords.reshape(-1, 3))
+        self.section_nodal_coordinates[n_indexes, :1] = node_indexes.reshape(-1, 1) - 1
+
+    def process_section_connectivity(self, element_indexes: np.ndarray, element_nodes: np.ndarray, element_name: str, nodes_per_element: int):
+        """ 
+            This method processes the connectivity from section mesh.
+        """
+        n_elements = len(element_indexes)
+        e_indexes = np.arange(n_elements, dtype=int)
+        cols = nodes_per_element
+
+        section_connectivity = np.zeros((n_elements, cols+1))
+        section_connectivity[:, 0] = e_indexes
+        section_connectivity[:, 1:] = element_nodes.reshape(-1, cols) - 1
+
+        self.section_connectivities.clear()
+        self.section_connectivities[element_name] = section_connectivity
 
     def _process_gmsh_lines_mesh_data(self):
         """
