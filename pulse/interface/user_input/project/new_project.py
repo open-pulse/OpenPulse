@@ -205,10 +205,10 @@ class NewProjectInput(QDialog):
             self.geometry_filename = os.path.basename(geometry_path)
             setup_data["geometry_filename"] = self.geometry_filename
 
-        app().pulse_file.write_project_setup_in_file(setup_data, geometry_path = geometry_path)
+        app().project.file.write_project_setup_in_file(setup_data, geometry_path = geometry_path)
         
         if import_type == 0:
-            setup_data["geometry_path"] = app().pulse_file.read_geometry_from_file()
+            setup_data["geometry_path"] = app().project.file.read_geometry_from_file()
 
         return setup_data
 

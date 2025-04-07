@@ -16,7 +16,7 @@ def test_coupled_harmonic_analysis():
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file()
+    project.initialize_pulse_file_and_loader()
 
     ## Define usefull objects
     model = project.model
@@ -248,10 +248,10 @@ def test_coupled_harmonic_analysis():
     model.set_analysis_setup(analysis_setup = analysis_setup)
 
     # write data in file
-    project.pulse_file.write_line_properties_in_file()
-    project.pulse_file.write_nodal_properties_in_file()
-    project.pulse_file.write_project_setup_in_file(mesher_setup)
-    project.pulse_file.write_analysis_setup_in_file(analysis_setup)
+    project.file.write_line_properties_in_file()
+    project.file.write_nodal_properties_in_file()
+    project.file.write_project_setup_in_file(mesher_setup)
+    project.file.write_analysis_setup_in_file(analysis_setup)
 
     project.build_model_and_solve(running_by_script=True)
 
@@ -321,7 +321,7 @@ def create_temporary_fluid_library(project: Project, fluids: dict):
                                  "color": fluid.color,
                                  }
 
-    project.pulse_file.write_fluid_library_in_file(config)
+    project.file.write_fluid_library_in_file(config)
 
 
 def create_temporary_material_library(project: Project, materials: dict):
@@ -341,7 +341,7 @@ def create_temporary_material_library(project: Project, materials: dict):
                                 "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
                                 }
 
-    project.pulse_file.write_material_library_in_file(config)
+    project.file.write_material_library_in_file(config)
 
 
 def remove_files_from_temporary_folder():

@@ -125,7 +125,7 @@ class MaterialWidget(QWidget):
             self.reset_library_to_default()
             return
 
-        config = app().pulse_file.read_material_library_from_file()
+        config = app().project.file.read_material_library_from_file()
         if config is None:
             self.reset_library_to_default()
             return
@@ -404,10 +404,10 @@ class MaterialWidget(QWidget):
 
             identifier = material_data["identifier"]
 
-            config = app().pulse_file.read_material_library_from_file()
+            config = app().project.file.read_material_library_from_file()
             config[identifier] = material_data
 
-            app().pulse_file.write_material_library_in_file(config)
+            app().project.file.write_material_library_in_file(config)
             self.pushButton_cancel.setText("Exit")
 
         except Exception as error_log:
@@ -418,7 +418,7 @@ class MaterialWidget(QWidget):
 
     def remove_material_from_file(self, material : Material):
 
-        config = app().pulse_file.read_material_library_from_file()
+        config = app().project.file.read_material_library_from_file()
 
         identifier = str(material.identifier)
         if not identifier in config.sections():
@@ -427,7 +427,7 @@ class MaterialWidget(QWidget):
         self.reset_material_from_lines(int(identifier))
         config.remove_section(identifier)
 
-        app().pulse_file.write_material_library_in_file(config)
+        app().project.file.write_material_library_in_file(config)
         self.load_data_from_materials_library()
 
     def reset_material_from_lines(self, material_identifiers: (list | int)):
@@ -445,7 +445,7 @@ class MaterialWidget(QWidget):
             self.properties._remove_line_property("material", line_id=_line_id)
             app().project.model.preprocessor.set_material_by_lines(line_id, None)
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         app().main_window.set_selection()
 
     def new_identifier(self):
@@ -503,7 +503,7 @@ class MaterialWidget(QWidget):
 
     def reset_library_to_default(self):
 
-        config_cache = app().pulse_file.read_material_library_from_file()
+        config_cache = app().project.file.read_material_library_from_file()
 
         sections_cache = list()
         if config_cache is not None:
@@ -511,7 +511,7 @@ class MaterialWidget(QWidget):
 
         default_material_library()
 
-        config = app().pulse_file.read_material_library_from_file()
+        config = app().project.file.read_material_library_from_file()
 
         material_identifiers = list()
         for section_cache in sections_cache:

@@ -313,7 +313,7 @@ class BeamXaxisRotationInput(QDialog):
     def actions_to_finalize(self):
         self.lineEdit_actual_angle.setText("")
         self.preprocessor.process_all_rotation_matrices()
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         self.load_lines_info()
         app().main_window.update_plots()
 

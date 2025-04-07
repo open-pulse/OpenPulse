@@ -53,7 +53,6 @@ class GeometryHandler:
 
         self.project = project
         self.pipeline = project.pipeline
-        self.pulse_file = project.pulse_file
 
     def _initialize(self):
         self.length_unit = "meter"
@@ -180,7 +179,7 @@ class GeometryHandler:
         """
         self.pipeline.reset()
 
-        lines_data: dict[str, dict] = self.pulse_file.read_line_properties_from_file()
+        lines_data: dict[str, dict] = self.project.file.read_line_properties_from_file()
         if not isinstance(lines_data, dict):
             return
 
@@ -272,7 +271,7 @@ class GeometryHandler:
             element_size = in_to_m(element_size)
 
         if self.length_unit !=  "meter":
-            self.pulse_file.modify_project_attributes(length_unit = "meter", element_size = element_size)
+            self.project.file.modify_project_attributes(length_unit = "meter", element_size = element_size)
             if app() is not None:
                 app().main_window.mesh_toolbar.update_mesh_attributes()
 
@@ -669,8 +668,8 @@ class GeometryHandler:
             for line_id, psd_label in psd_info.items():
                 self.project.model.properties._set_line_property("psd_name", psd_label, line_ids=line_id)
 
-            self.pulse_file.write_line_properties_in_file()
-            self.pulse_file.modify_project_attributes(import_type = 1)
+            self.project.file.write_line_properties_in_file()
+            self.project.file.modify_project_attributes(import_type = 1)
 
     def get_pipeline_data(self, structure):
 
@@ -967,7 +966,7 @@ def get_arc_length(coords_A, coords_B, coords_C):
     #     structures = list()
     #     self.pipeline.reset()
 
-    #     lines_data = self.pulse_file.read_line_properties_from_file()
+    #     lines_data = self.file.read_line_properties_from_file()
 
     #     if isinstance(lines_data, dict):
     #         for _line_id, data in lines_data.items():

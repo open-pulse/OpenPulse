@@ -116,7 +116,7 @@ class FluidWidget(QWidget):
             self.reset_library_to_default()
             return
 
-        config = app().pulse_file.read_fluid_library_from_file()
+        config = app().project.file.read_fluid_library_from_file()
         if config is None:
             self.reset_library_to_default()
             return
@@ -566,10 +566,10 @@ class FluidWidget(QWidget):
                 if "vapor_pressure" in self.fluid_data_refprop.keys():
                     fluid_data["vapor_pressure"] = self.fluid_data_refprop["vapor_pressure"]
 
-            config = app().pulse_file.read_fluid_library_from_file()
+            config = app().project.file.read_fluid_library_from_file()
             config[identifier] = fluid_data
 
-            app().pulse_file.write_fluid_library_in_file(config)
+            app().project.file.write_fluid_library_in_file(config)
             self.pushButton_cancel.setText("Exit")
         
         except Exception as error_log:
@@ -580,7 +580,7 @@ class FluidWidget(QWidget):
 
     def remove_fluid_from_file(self, fluid: Fluid):
 
-        config = app().pulse_file.read_fluid_library_from_file()
+        config = app().project.file.read_fluid_library_from_file()
 
         identifier = str(fluid.identifier)
         if not identifier in config.sections():
@@ -589,7 +589,7 @@ class FluidWidget(QWidget):
         self.reset_fluid_from_lines(int(identifier))
 
         config.remove_section(identifier)
-        app().pulse_file.write_fluid_library_in_file(config)
+        app().project.file.write_fluid_library_in_file(config)
 
         self.load_data_from_fluids_library()
 
@@ -611,7 +611,7 @@ class FluidWidget(QWidget):
             self.properties._remove_line_property("fluid", _line_id)
             app().project.model.preprocessor.set_fluid_by_lines(line_id, None)
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         app().main_window.set_selection()
 
     def cell_clicked_callback(self, row, col):
@@ -692,7 +692,7 @@ class FluidWidget(QWidget):
 
     def reset_library_to_default(self):
 
-        config_cache = app().pulse_file.read_fluid_library_from_file()
+        config_cache = app().project.file.read_fluid_library_from_file()
 
         sections_cache = list()
         if config_cache is not None:
@@ -700,7 +700,7 @@ class FluidWidget(QWidget):
 
         default_fluid_library()
 
-        config = app().pulse_file.read_fluid_library_from_file()
+        config = app().project.file.read_fluid_library_from_file()
 
         fluid_identifiers = list()
         for section_cache in sections_cache:

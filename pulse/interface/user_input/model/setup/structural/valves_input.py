@@ -445,15 +445,15 @@ class ValvesInput(QDialog):
 
     def actions_to_finalize(self):
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
         # geometry_handler = GeometryHandler(app().project)
         # geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         # geometry_handler.process_pipeline()
 
-        app().loader.load_project_data()
+        app().project.loader.load_project_data()
         app().project.initial_load_project_actions()
-        app().loader.load_mesh_dependent_properties()
+        app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         app().main_window.update_plots()
         self.complete = True
@@ -603,7 +603,7 @@ class ValvesInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("structural", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
         if self.lineEdit_selected_id.text() != "":

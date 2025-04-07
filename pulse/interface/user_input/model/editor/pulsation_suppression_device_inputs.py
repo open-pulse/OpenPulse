@@ -832,7 +832,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
                 counter += 1
                 self.psds_data[psd_label][f"Link-{counter}"] = link
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         self.write_psd_element_properties_in_file(psd_label, device)
 
     def write_psd_nodal_properties_in_file(self):
@@ -854,7 +854,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
                     if link_type == "structural_link":
                         self.properties._set_nodal_property("psd_structural_links", data, node_ids)
 
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
 
     def write_psd_element_properties_in_file(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
 
@@ -872,14 +872,14 @@ class PulsationSuppressionDeviceInputs(QDialog):
                                                     "connection_type" : _connection_type 
                                                   }
 
-        app().pulse_file.write_psd_data_in_file(self.psds_data)
+        app().project.file.write_psd_data_in_file(self.psds_data)
 
     def remove_psd_related_line_properties(self, psd_labels: str | list):
 
         if isinstance(psd_labels, str):
             psd_labels = [psd_labels]
 
-        lines_data = app().pulse_file.read_line_properties_from_file()
+        lines_data = app().project.file.read_line_properties_from_file()
         if lines_data is None:
             return
 
@@ -895,10 +895,10 @@ class PulsationSuppressionDeviceInputs(QDialog):
                     self.nodes_from_removed_lines.extend(list(line_nodes))
                     remove_gaps = True
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
         if remove_gaps:
-            app().pulse_file.remove_line_gaps_from_line_properties_file()
+            app().project.file.remove_line_gaps_from_line_properties_file()
 
     def remove_psd_related_nodal_properties(self, psd_labels: str | list):
 
@@ -923,7 +923,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         self.nodes_from_removed_lines.clear()
 
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
 
     def set_element_length_corrections(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
 
@@ -947,7 +947,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
             self.preprocessor.set_element_length_correction_by_element(element_ids, data)
             self.properties._set_element_property("element_length_correction", data, element_ids)
-            app().pulse_file.write_element_properties_in_file()
+            app().project.file.write_element_properties_in_file()
 
     def remove_psd_related_element_properties(self, psd_label: str):
 
@@ -963,7 +963,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         
         self.preprocessor.set_element_length_correction_by_element(element_ids, None)
         self.properties._remove_element_property("element_length_correction", element_ids) 
-        app().pulse_file.write_element_properties_in_file()
+        app().project.file.write_element_properties_in_file()
 
     def remove_callback(self):
 
@@ -1046,9 +1046,9 @@ class PulsationSuppressionDeviceInputs(QDialog):
     def load_psd_info(self):
 
         self.treeWidget_psd_info.clear()
-        self.psds_lines = app().loader.get_psd_related_lines()
+        self.psds_lines = app().project.loader.get_psd_related_lines()
 
-        self.psds_data = app().pulse_file.read_psd_data_from_file()
+        self.psds_data = app().project.file.read_psd_data_from_file()
         if self.psds_data is None:
             self.psds_data = dict()
 
@@ -1080,12 +1080,12 @@ class PulsationSuppressionDeviceInputs(QDialog):
     def actions_to_finalize(self):
 
         app().main_window.set_selection()
-        app().pulse_file.write_psd_data_in_file(self.psds_data)
-        app().loader.load_project_data()
+        app().project.file.write_psd_data_in_file(self.psds_data)
+        app().project.loader.load_project_data()
         app().project.initial_load_project_actions()
 
-        if app().pulse_file.check_pipeline_data():
-            app().loader.load_mesh_dependent_properties()
+        if app().project.file.check_pipeline_data():
+            app().project.loader.load_mesh_dependent_properties()
             app().main_window.initial_project_action(True)
         else:
             self.preprocessor.mesh._create_gmsh_geometry()

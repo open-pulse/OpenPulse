@@ -340,7 +340,7 @@ class AcousticElementTypeInput(QDialog):
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         self.pushButton_exit.setText("Exit")
         self.complete = True
         self.close()

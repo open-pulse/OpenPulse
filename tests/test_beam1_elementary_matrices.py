@@ -15,7 +15,7 @@ def test_elementary_matrices_for_beam1_element():
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file()
+    project.initialize_pulse_file_and_loader()
 
     ## Define usefull objects
     model = project.model
@@ -51,7 +51,7 @@ def test_elementary_matrices_for_beam1_element():
 
     # Load geometry file (only the *.iges and *.step formats are supported)
     # geometry_path = Path("examples/iges_files/run_by_script/reciprocating_pump_piping.step")
-    project.pulse_file.write_line_properties_in_file()
+    project.file.write_line_properties_in_file()
 
     ## Configure the mesher setup
     mesher_setup = {
@@ -127,9 +127,9 @@ def test_elementary_matrices_for_beam1_element():
     assert np.max(rel_diff_Ke) < 1e-14
     assert np.max(rel_diff_Me) < 1e-14
 
-    project.pulse_file.write_line_properties_in_file()
-    project.pulse_file.write_project_setup_in_file(mesher_setup)
-    project.pulse_file.write_analysis_setup_in_file(model.analysis_setup)
+    project.file.write_line_properties_in_file()
+    project.file.write_project_setup_in_file(mesher_setup)
+    project.file.write_analysis_setup_in_file(model.analysis_setup)
 
     remove_files_from_temporary_folder()
 
@@ -166,7 +166,7 @@ def create_temporary_material_library(project: Project, materials: dict):
                                 "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
                                 }
 
-    project.pulse_file.write_material_library_in_file(config)
+    project.file.write_material_library_in_file(config)
     
 def remove_files_from_temporary_folder():
 
