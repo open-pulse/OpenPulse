@@ -35,3 +35,4 @@ temporary_data/
 
 # Do not ignore
 !pulse/libraries/*.dat
+!examples/projects/*.pulse
