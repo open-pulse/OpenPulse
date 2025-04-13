@@ -532,7 +532,10 @@ class MaterialWidget(QWidget):
             self.remove_selected_column()
 
         elif event.key() == Qt.Key_Escape:
-            self.close()
+            if isinstance(self.dialog, QDialog):
+                self.dialog.close()
+            else:
+                self.close()
 
     def closeEvent(self, event):
         super().closeEvent(event)
