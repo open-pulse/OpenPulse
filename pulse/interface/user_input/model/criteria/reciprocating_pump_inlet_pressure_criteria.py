@@ -4,11 +4,11 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
+from pulse.model.properties.fluid import Fluid
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse.model.properties.fluid import Fluid
+from pulse.utils.signal_processing_utils import process_iFFT_of_onesided_signal
 
 import numpy as np
 
@@ -130,18 +130,9 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
             node_id = node_ids[0]
             acoustic_pressure = self.get_acoustic_pressure(node_id)
 
-            N = len(acoustic_pressure)
-
             # processes the inverse Fourier transform of the one-sided spectrum
-            pressure_time = np.fft.irfft(acoustic_pressure) * (N - 1)
-            pressure_time -= np.average(pressure_time)
-
-            f_max = self.frequencies[-1]
             df = self.frequencies[1] - self.frequencies[0]
-
-            # T = 1 / df
-            N_t = len(pressure_time)
-            time = np.arange(0, N_t) / (df * N_t)
+            time, pressure_time = process_iFFT_of_onesided_signal(df, acoustic_pressure, remove_avg=True)
 
             fluid = self.get_fluid_from_line()
             if fluid is None:
@@ -180,7 +171,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
 
             self.model_results[key] = { 
                                         "x_data" : time,
-                                        "y_data" : P_min * np.ones(N_t, dtype=float),
+                                        "y_data" : P_min * np.ones_like(time),
                                         "x_label" : "Time [s]",
                                         "y_label" : "Pressure",
                                         "title" : title,

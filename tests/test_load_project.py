@@ -3,11 +3,15 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
+from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
+from pulse.utils.signal_processing_utils import process_iFFT_of_onesided_signal
+
 # import pytest
 import numpy as np
 
 from pathlib import Path
 from shutil import copy
+from matplotlib import pyplot as plt
 
 # Setting up model
 # @pytest.fixture
@@ -41,7 +45,7 @@ def test_coupled_harmonic_analysis(project_path: str | Path):
     line_id = mesh.lines_from_node[node_id]
     fluid = model.properties._get_property("fluid", line_id=line_id[0])
 
-    connection_type = "discharge"
+    connection_type = "suction"
     parameters, freq, flow_rate = get_reciprocating_pump_excitation(connection_type, fluid)
 
     table_name = f"pump_excitation_{connection_type}_node_{node_id}"
@@ -88,7 +92,7 @@ def test_coupled_harmonic_analysis(project_path: str | Path):
 
     ## Write project data in the temp_pulse folder
 
-    # Note: if some modification exists, it is necessary to update the property-related data in the file
+    # Note: if some modification exists, it is necessary to update the property-related data file
 
     # project.file.write_line_properties_in_file()
     # project.file.write_element_properties_in_file()
@@ -101,8 +105,63 @@ def test_coupled_harmonic_analysis(project_path: str | Path):
     ## Build the mathematical model and solve it (it also saves the model results in the temp_pulse folder)
     project.build_model_and_solve(running_by_script=True)
 
+    ## Post-processing the obtained results
+    post_process_results(project, node_id)
+
     ## Uncomment the following function to remove the created files from the temp_pulse folder
     # remove_files_from_temporary_folder()
+
+def post_process_results(project: "Project", node_id: int):
+
+    model = project.model
+    preprocessor = model.preprocessor
+    solution = project.acoustic_solver.solution
+
+    line_id = preprocessor.get_line_from_node_id(node_id)
+    if len(line_id) == 1:
+            
+        fluid = model.properties._get_property("fluid", line_id=line_id[0])
+        line_pressure = fluid.pressure
+        vapor_pressure = fluid.vapor_pressure
+
+        df = model.frequencies[1] - model.frequencies[0]
+        acoustic_pressure_spectrum = get_acoustic_frf(preprocessor, solution, node_id)
+        time, acoustic_pressure_time = process_iFFT_of_onesided_signal(df, acoustic_pressure_spectrum, remove_avg=True)
+
+        ## acoustic inlet pressure in kPa
+        inlet_suction_pressure = (acoustic_pressure_time + line_pressure) / 1e3
+
+        ## minimum pressure levels in kPa recommended by API 688 2nd edition (item 5.3.7.3)
+        P_min = ((vapor_pressure + 0.03 * line_pressure) / 1e3) + 0.01
+
+        ## Gatherering data to plot
+
+        data_to_plot = dict()
+        
+        label_1 = f"Inlet pressure (node {node_id})"
+        data_to_plot[label_1] = {
+                                 "x_data" : time,
+                                 "y_data" : inlet_suction_pressure,
+                                 "linewidth" : 1,
+                                 "linestyle" : "-",
+                                 "color" : (0, 0, 0)
+                                 }
+
+        label_2 = "Minimum pressure criteria"
+        data_to_plot[label_2] = {
+                                 "x_data" : time,
+                                 "y_data" : P_min * np.ones_like(time),
+                                 "linewidth" : 2,
+                                 "linestyle" : "-",
+                                 "color" : (1, 0, 0)
+                                 }
+
+        ## Plot the inlet pressure criteria
+        x_label = "Time [s]"
+        y_label = "inlet pressure [kPa]"
+        title = r"Inlet Pressure vs Liquid Vapor Pressure (API 688 $2^{nd}$ ed.)"
+        plot_data(data_to_plot, x_label, y_label, title)
+
 
 def create_temporary_fluid_library(project: Project, fluids: dict):
 
@@ -127,6 +186,7 @@ def create_temporary_fluid_library(project: Project, fluids: dict):
                                  }
 
     project.file.write_fluid_library_in_file(config)
+
 
 def get_reciprocating_pump_excitation(connection_type: str, fluid: Fluid):
 
@@ -186,6 +246,7 @@ def get_reciprocating_pump_excitation(connection_type: str, fluid: Fluid):
 
     return parameters, freq, flow_rate
 
+
 def save_table_values(project: Project, table_name: str, frequencies: np.ndarray, complex_values: np.ndarray):
 
     f_min = frequencies[0]
@@ -208,6 +269,31 @@ def save_table_values(project: Project, table_name: str, frequencies: np.ndarray
 
     project.model.properties.add_imported_tables("acoustic", table_name, data)
 
+
+def plot_data(plot_data: dict, x_label: str, y_label: str, title: str):
+
+    fig = plt.figure(figsize=[10, 6])
+    ax = fig.add_subplot(1,1,1)
+
+    for i, (label, data) in enumerate(plot_data.items()): 
+        ax.plot(
+                data["x_data"], 
+                data["y_data"], 
+                color = data["color"], 
+                linewidth = data["linewidth"], 
+                linestyle = data["linestyle"], 
+                label = label
+                )
+
+    ax.set_xlabel(x_label, fontsize = 11, fontweight = 'bold')
+    ax.set_ylabel(y_label, fontsize = 11, fontweight = 'bold')
+    ax.set_title(title, fontsize = 12, fontweight = 'bold')
+
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+
 def remove_files_from_temporary_folder():
 
     from pulse import TEMP_PROJECT_DIR
@@ -223,7 +309,8 @@ def remove_files_from_temporary_folder():
                 else:
                     rmtree(file_path)
 
+
 if __name__ == "__main__":
 
-    project_path = "examples//projects//piping_with_pulsation_damper.pulse"
+    project_path = "examples//projects//piping_with_pulsation_damper_suction.pulse"
     test_coupled_harmonic_analysis(project_path)
