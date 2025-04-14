@@ -706,7 +706,7 @@ class AcousticElement:
             return self.get_undamped_wave_number_and_acoustic_impedance(frequencies)
 
         elif self.element_type == 'proportional':
-            return self.get_proportional_wave_number_and_acoustic_impedance()
+            return self.get_proportional_wave_number_and_acoustic_impedance(frequencies)
 
         elif self.element_type == 'wide_duct':
             return self.get_wide_duct_wave_number_and_acoustic_impedance(frequencies)
