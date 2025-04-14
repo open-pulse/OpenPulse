@@ -4,7 +4,7 @@ from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.utils.signal_processing_utils import process_iFFT_of_onesided_signal
+from pulse.utils.signal_processing_utils import *
 
 # import pytest
 import numpy as np
@@ -125,8 +125,10 @@ def post_process_results(project: "Project", node_id: int):
         vapor_pressure = fluid.vapor_pressure
 
         df = model.frequencies[1] - model.frequencies[0]
+
+        # get the one-sided acoustic pressure spectrum at the suction node 
         acoustic_pressure_spectrum = get_acoustic_frf(preprocessor, solution, node_id)
-        time, acoustic_pressure_time = process_iFFT_of_onesided_signal(df, acoustic_pressure_spectrum, remove_avg=True)
+        time, acoustic_pressure_time = process_iFFT_of_onesided_spectrum(df, acoustic_pressure_spectrum, remove_avg=True)
 
         ## acoustic inlet pressure in kPa
         inlet_suction_pressure = (acoustic_pressure_time + line_pressure) / 1e3
