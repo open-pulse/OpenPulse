@@ -305,6 +305,10 @@ class StructuralSolver:
         F = self.get_combined_loads()
         solution = np.zeros((rows, cols), dtype=complex)
         
+        #TODO: remember to remove these lines
+        # np.savetxt("loads.csv", F, delimiter=",", fmt="%.12e")
+        # np.savetxt("frequencies.dat", self.frequencies)
+
         for i, freq in enumerate(self.frequencies):
 
             logging.info(f"Solution step {i+1} and frequency {freq : .3f} Hz [{i+1}/{len(self.frequencies)}]")

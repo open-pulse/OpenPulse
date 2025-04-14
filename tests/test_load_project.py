@@ -274,7 +274,7 @@ def save_table_values(project: Project, table_name: str, frequencies: np.ndarray
 
 def plot_data(plot_data: dict, x_label: str, y_label: str, title: str):
 
-    fig = plt.figure(figsize=[10, 6])
+    fig = plt.figure(figsize=[8, 6])
     ax = fig.add_subplot(1,1,1)
 
     for i, (label, data) in enumerate(plot_data.items()): 
