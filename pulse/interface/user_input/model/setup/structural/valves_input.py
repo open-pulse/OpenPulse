@@ -645,7 +645,6 @@ class ValvesInput(QDialog):
             if line_ids:
                 self.load_valves_info()
                 self.actions_to_finalize()
-                # self.close()
 
     def remove_valve_acoustic_effects_function(self, valve_names: list):
 

@@ -504,7 +504,6 @@ class ElasticNodalLinksInput(QDialog):
 
         self.reset_nodes_input_fields()
         self.actions_to_finalize()
-        # self.close()
 
     def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
 

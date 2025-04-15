@@ -289,8 +289,6 @@ class NodalLoadsInput(QDialog):
                 self.properties._set_nodal_property("nodal_loads", data, node_id)
 
             self.actions_to_finalize()
-            # self.close()
-
             print(f"[Set Nodal loads] - defined at node(s) {node_ids}")
 
         else:    
@@ -500,8 +498,6 @@ class NodalLoadsInput(QDialog):
         app().project.file.write_nodal_properties_in_file()
 
         self.actions_to_finalize()
-        # self.close()
-
         print(f"[Set Nodal loads] - defined at node(s) {node_ids}")
 
     def text_label(self, mask):
@@ -645,7 +641,6 @@ class NodalLoadsInput(QDialog):
             self.properties._remove_nodal_property("nodal_loads", node_ids[0])
 
             self.actions_to_finalize()
-            # self.close()
 
     def reset_callback(self):
 
@@ -673,7 +668,6 @@ class NodalLoadsInput(QDialog):
             self.properties._reset_nodal_property("nodal_loads")
 
             self.actions_to_finalize()
-            # self.close()
 
     def actions_to_finalize(self):
         app().project.file.write_nodal_properties_in_file()

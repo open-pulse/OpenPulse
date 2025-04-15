@@ -407,7 +407,6 @@ class MassSpringDamperInput(QDialog):
             self.check_table_values_inputs(node_ids)
 
         self.actions_to_finalize()
-        # self.close()
 
     def check_entries(self, lineEdit: QLineEdit, label: str):
 

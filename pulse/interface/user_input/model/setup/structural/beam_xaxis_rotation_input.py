@@ -256,7 +256,6 @@ class BeamXaxisRotationInput(QDialog):
             self.properties._set_line_property("beam_xaxis_rotation", rotation_angle, line_id)
 
         self.actions_to_finalize()
-        # self.close()
 
     def remove_callback(self):
 
@@ -297,7 +296,6 @@ class BeamXaxisRotationInput(QDialog):
             self.properties._remove_line_property("beam_xaxis_rotation", line_ids)
 
             self.actions_to_finalize()
-            # self.close()
 
     def load_lines_info(self):
         self.treeWidget_xaxis_rotation_angle.clear()

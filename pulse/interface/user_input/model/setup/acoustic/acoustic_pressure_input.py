@@ -234,7 +234,6 @@ class AcousticPressureInput(QDialog):
             self.properties._set_nodal_property("acoustic_pressure", data, node_id)
 
         self.actions_to_finalize()
-
         print(f"[Set Acoustic Pressure] - defined at node(s) {node_ids}")
 
     def lineEdit_reset(self, lineEdit: QLineEdit):

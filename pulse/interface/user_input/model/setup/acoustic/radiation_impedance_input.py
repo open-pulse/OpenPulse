@@ -150,8 +150,8 @@ class RadiationImpedanceInput(QDialog):
                     }
 
             self.properties._set_nodal_property("radiation_impedance", data, node_id)
-            self.actions_to_finalize()
 
+        self.actions_to_finalize()
         print(f"[Set Radiation Impedance] - defined at node(s) {node_ids}")
 
     def text_label(self, value):

@@ -561,8 +561,6 @@ class PrescribedDofsInput(QDialog):
         app().project.file.write_nodal_properties_in_file()
 
         self.actions_to_finalize()
-        # self.close()
-
         print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")
 
     def text_label(self, mask):
@@ -704,7 +702,6 @@ class PrescribedDofsInput(QDialog):
             self.properties._remove_nodal_property("prescribed_dofs", node_ids[0])
 
             self.actions_to_finalize()
-            # self.close()
 
     def reset_callback(self):
 
@@ -732,7 +729,6 @@ class PrescribedDofsInput(QDialog):
             self.properties._reset_nodal_property("prescribed_dofs")
 
             self.actions_to_finalize()
-            # self.close()
 
     def actions_to_finalize(self):
         app().project.file.write_nodal_properties_in_file()

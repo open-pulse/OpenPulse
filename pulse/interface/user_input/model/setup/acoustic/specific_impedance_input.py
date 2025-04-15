@@ -236,7 +236,6 @@ class SpecificImpedanceInput(QDialog):
             self.properties._set_nodal_property("specific_impedance", data, node_id)
 
         self.actions_to_finalize()
-
         print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
@@ -374,7 +373,6 @@ class SpecificImpedanceInput(QDialog):
                 self.properties._set_nodal_property("specific_impedance", data, node_id)
 
             self.actions_to_finalize()
-
             print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
 
         else:
