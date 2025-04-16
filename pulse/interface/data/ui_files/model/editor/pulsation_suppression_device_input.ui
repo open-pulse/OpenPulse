@@ -95,7 +95,7 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
+               <y>-192</y>
                <width>567</width>
                <height>688</height>
               </rect>
@@ -216,7 +216,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>double_volume_psd</string>
+                    <string/>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignCenter</set>
@@ -1477,6 +1477,11 @@
                      <height>27</height>
                     </size>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>distance [m]</string>
                    </property>
@@ -1579,6 +1584,11 @@
                      <width>100</width>
                      <height>26</height>
                     </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
                    </property>
                    <property name="text">
                     <string>diameter [m]</string>
@@ -1737,6 +1747,11 @@
                      <height>26</height>
                     </size>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>thickness [m]</string>
                    </property>
@@ -1758,6 +1773,11 @@
                      <width>100</width>
                      <height>26</height>
                     </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
                    </property>
                    <property name="text">
                     <string>length [m]</string>
@@ -2001,6 +2021,11 @@
                      <height>20</height>
                     </size>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>coord. x [m]</string>
                    </property>
@@ -2077,6 +2102,11 @@
                      <height>20</height>
                     </size>
                    </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
+                   </property>
                    <property name="text">
                     <string>coord. y [m]</string>
                    </property>
@@ -2098,6 +2128,11 @@
                      <width>80</width>
                      <height>20</height>
                     </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
                    </property>
                    <property name="text">
                     <string>coord. z [m]</string>

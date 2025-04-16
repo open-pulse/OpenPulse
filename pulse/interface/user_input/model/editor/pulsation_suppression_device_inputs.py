@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QSpinBox
+from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCloseEvent
 from PyQt5 import uic
@@ -12,6 +12,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.viewer_3d.render_widgets.psd_preview_render_widget import PSDPreviewRenderWidget
 
 import numpy as np
+from time import time
 
 
 window_title_1 = "Error"
@@ -43,6 +44,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.automatic_preview()
 
         self.load_psd_info()
+        self.process_line_edits()
         self.selection_callback()
 
         while self.keep_window_open:
@@ -56,8 +58,8 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def _initialize(self):
         self.keep_window_open = True
-        self.nodes_from_removed_lines = list()
-        
+        self.line_edits = list()
+        self.nodes_from_removed_lines = list()       
 
     def _define_qt_variables(self):
 
@@ -112,6 +114,10 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.lineEdit_rotation_plane : QLineEdit
         self.lineEdit_selection : QLineEdit
 
+        self.line_edit_coords = [self.lineEdit_connecting_coord_x, 
+                                 self.lineEdit_connecting_coord_y, 
+                                 self.lineEdit_connecting_coord_z]
+
         # QPushButton
         self.pushButton_cancel : QPushButton
         self.pushButton_show_errors : QPushButton
@@ -143,7 +149,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.comboBox_tuned_filter.currentIndexChanged.connect(self.tuned_filter_callback)
         #
         self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
-        self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
+        self.lineEdit_volume2_length.textChanged.connect(self.update_tuned_filter_callback)
         #
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_show_errors.clicked.connect(self.show_errors_callback)
@@ -1006,23 +1012,61 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.actions_to_finalize()
             app().main_window.update_plots()
     
-    def is_not_valid_number(self, value: str):
-        try:
-            float(value.replace(",", "."))
+    def is_valid_number(self, value: str, include_zero: bool=False):
+
+        if value == "":
             return False
+
+        try:
+            _value = float(value.replace(",", "."))
+            if include_zero:
+                return True
+            elif _value > 0:
+                return True
         except:
-            return True
+            return False
+
+        return False
+        
+    def process_line_edits(self):
+        line_edits = list()
+        for line_edit in self.findChildren(QLineEdit):
+            if line_edit != self.lineEdit_device_label:
+                line_edits.append(line_edit)
+        self.line_edits = line_edits
 
     def preview_callback(self):
-
+        print()
+        print("preview_callback")
+        t0 = time()
         if self.check_psd_inputs():
+            dt = time() - t0
+            print(f"Time 1: {dt} s")
             self.preview_widget.turn_red()
 
-            for line_edit in [le for le in self.findChildren(QLineEdit) if le != self.lineEdit_device_label]:
-                if line_edit.isEnabled() and (line_edit.text() == "" or self.is_not_valid_number(line_edit.text())):
-                    line_edit.setStyleSheet("border: 2px solid red")
+            dt = time() - t0
+            print(f"Time 2: {dt} s")
+
+            for line_edit in self.line_edits:
+                line_edit : QLineEdit
+                if not line_edit.isEnabled():
+                    continue
+
+                if line_edit in self.line_edit_coords:
+                    is_valid = self.is_valid_number(line_edit.text(), include_zero=True)
+                else:
+                    is_valid = self.is_valid_number(line_edit.text(), include_zero=False)
+
+                if is_valid:
+                    style_sheet = self.default_stylesheet
+                else:
+                    style_sheet = "border: 2px solid red"
+
+                line_edit.setStyleSheet(style_sheet)
 
             self.pushButton_show_errors.setDisabled(False)
+            dt = time() - t0
+            print(f"Elapsed time (raised error): {dt} s")
 
         else:
             for line_edit in self.findChildren(QLineEdit):
@@ -1033,14 +1077,17 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.preview_widget.config_view()
             self.preview_widget.update()
 
+            dt = time() - t0
+            print(f"Elapsed time (generate preview): {dt} s")
+
     def automatic_preview(self):
         for line_edit in self.findChildren(QLineEdit):
             line_edit.textEdited.connect(self.preview_callback)
-        
+
         for combo_box in self.findChildren(QComboBox):
             combo_box.currentIndexChanged.connect(self.preview_callback)
         
-        for spin_box in self.findChildren(QSpinBox):
+        for spin_box in self.findChildren(QDoubleSpinBox):
             spin_box.valueChanged.connect(self.preview_callback)
 
     def load_psd_info(self):
