@@ -288,7 +288,7 @@ class StructuralElementTypeInput(QDialog):
         self.properties._set_line_property("force_offset", force_offset, line_ids)
         self.properties._set_line_property("wall_formulation", wall_formulation, line_ids)
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
         self.complete = True
         self.close()
@@ -322,7 +322,7 @@ class StructuralElementTypeInput(QDialog):
                     app().project.model.properties._remove_line_property("structural_element_type", line_id)
                     app().project.model.properties._remove_line_property("capped_end", line_id)
 
-            app().pulse_file.write_line_properties_in_file()
+            app().project.file.write_line_properties_in_file()
 
             self.complete = True
             self.close()

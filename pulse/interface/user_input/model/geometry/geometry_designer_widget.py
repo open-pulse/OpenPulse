@@ -665,7 +665,7 @@ class GeometryDesignerWidget(QWidget):
         geometry_handler.set_length_unit(self.length_unit)
         geometry_handler.export_model_data_file()
 
-        app().pulse_file.modify_project_attributes(
+        app().project.file.modify_project_attributes(
             length_unit = self.length_unit,
             element_size = 0.01, 
             geometry_tolerance = 1e-6,
@@ -868,8 +868,8 @@ class GeometryDesignerWidget(QWidget):
             set_qproperty(self.finalize_button, warning=False, status="default")
 
     def _load_project(self):
-        app().loader.load_project_data()
+        app().project.loader.load_project_data()
         app().project.initial_load_project_actions()
-        app().loader.load_mesh_dependent_properties()
+        app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         self.complete = True

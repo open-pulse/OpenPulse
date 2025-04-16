@@ -644,7 +644,7 @@ class BeforeRun():
 
             return output_lines, list_of_neighboor_lines, neighboor_data, index
 
-        section_data_lines = app().loader.get_cross_sections_from_file()
+        section_data_lines = app().project.loader.get_cross_sections_from_file()
 
         self.one_section_multiple_lines = dict()
         for section_id, [element_type, section_parameters, tag_type, line_ids] in section_data_lines.items():

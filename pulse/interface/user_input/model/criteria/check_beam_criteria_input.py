@@ -88,7 +88,7 @@ class CheckBeamCriteriaInput(QDialog):
         self.section_id_data_lines = dict()
         self.section_id_data_elements = dict()
         self.treeWidget_sections_parameters_by_lines.clear()
-        self.section_data_lines = app().loader.get_cross_sections_from_file()
+        self.section_data_lines = app().project.loader.get_cross_sections_from_file()
 
         for section_id, [element_type, section_parameters, tag_type, tags] in self.section_data_lines.items():
             if section_parameters:

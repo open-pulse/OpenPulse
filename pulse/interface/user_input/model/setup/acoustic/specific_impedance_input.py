@@ -236,7 +236,6 @@ class SpecificImpedanceInput(QDialog):
             self.properties._set_nodal_property("specific_impedance", data, node_id)
 
         self.actions_to_finalize()
-
         print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
@@ -374,7 +373,6 @@ class SpecificImpedanceInput(QDialog):
                 self.properties._set_nodal_property("specific_impedance", data, node_id)
 
             self.actions_to_finalize()
-
             print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
 
         else:
@@ -416,7 +414,7 @@ class SpecificImpedanceInput(QDialog):
 
                 self.process_table_file_removal(table_names)
 
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
 
     def remove_table_files_from_nodes(self, node_id : list):
         table_names = self.properties.get_nodal_related_table_names("specific_impedance", node_id)
@@ -426,7 +424,7 @@ class SpecificImpedanceInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("acoustic", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
@@ -468,8 +466,8 @@ class SpecificImpedanceInput(QDialog):
                 self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_nodal_properties_in_file()
-        app().pulse_file.write_imported_table_data_in_file()
+        app().project.file.write_nodal_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
         self.pushButton_cancel.setText("Exit")

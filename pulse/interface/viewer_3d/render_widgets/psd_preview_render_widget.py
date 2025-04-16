@@ -136,7 +136,6 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
             actor.GetProperty().SetColor(1, 0, 0)
             self.update_plot()
 
-
     def set_theme(self, *args, **kwargs):
         self.update_theme()
 

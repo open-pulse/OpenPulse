@@ -183,7 +183,7 @@ class SetFluidInput(QDialog):
             app().project.model.preprocessor.set_fluid_by_lines(line_ids, selected_fluid)
             self.properties._set_line_property("fluid_id", selected_fluid.identifier, line_ids)
             self.properties._set_line_property("fluid", selected_fluid, line_ids)
-            app().pulse_file.write_line_properties_in_file()
+            app().project.file.write_line_properties_in_file()
             app().main_window.update_plots()
 
             self.complete = True

@@ -620,7 +620,7 @@ class PulsationDamperEditorInputs(QDialog):
                 tag = int(shifted_line + i)
                 self.properties._set_multiple_line_properties(aux, tag)
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         self.write_pulsation_damper_element_properties_in_file(damper_label, device)
 
     def write_pulsation_damper_element_properties_in_file(self, damper_label: str, device: (PulsationDamper)):
@@ -639,14 +639,14 @@ class PulsationDamperEditorInputs(QDialog):
                                                        "elc_type" : _elc_type 
                                                        }
 
-        app().pulse_file.write_pulsation_damper_data_in_file(self.damper_data)
+        app().project.file.write_pulsation_damper_data_in_file(self.damper_data)
 
     def remove_pulsation_damper_related_line_properties(self, damper_labels: str | list):
 
         if isinstance(damper_labels, str):
             damper_labels = [damper_labels]
 
-        lines_data = app().pulse_file.read_line_properties_from_file()
+        lines_data = app().project.file.read_line_properties_from_file()
         if lines_data is None:
             return
 
@@ -662,10 +662,10 @@ class PulsationDamperEditorInputs(QDialog):
                     self.nodes_from_removed_lines.extend(list(line_nodes))
                     remove_gaps = True
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
         if remove_gaps:
-            app().pulse_file.remove_line_gaps_from_line_properties_file()
+            app().project.file.remove_line_gaps_from_line_properties_file()
 
     def set_element_length_corrections(self, damper_label: str, device: (PulsationDamper)):
 
@@ -689,7 +689,7 @@ class PulsationDamperEditorInputs(QDialog):
 
             self.preprocessor.set_element_length_correction_by_element(element_ids, data)
             self.properties._set_element_property("element_length_correction", data, element_ids)
-            app().pulse_file.write_element_properties_in_file()
+            app().project.file.write_element_properties_in_file()
 
     def remove_pulsation_damper_related_element_properties(self, damper_label: str):
 
@@ -705,7 +705,7 @@ class PulsationDamperEditorInputs(QDialog):
 
         self.preprocessor.set_element_length_correction_by_element(element_ids, None)
         self.properties._remove_element_property("element_length_correction", element_ids) 
-        app().pulse_file.write_element_properties_in_file()
+        app().project.file.write_element_properties_in_file()
 
     def remove_callback(self):
 
@@ -745,9 +745,9 @@ class PulsationDamperEditorInputs(QDialog):
     def load_pulsation_damper_info(self):
 
         self.treeWidget_pulsation_damper_info.clear()
-        self.pulsation_damper_lines = app().loader.get_pulsation_damper_related_lines()
+        self.pulsation_damper_lines = app().project.loader.get_pulsation_damper_related_lines()
 
-        self.damper_data = app().pulse_file.read_pulsation_damper_data_from_file()
+        self.damper_data = app().project.file.read_pulsation_damper_data_from_file()
         if self.damper_data is None:
             self.damper_data = dict()
 
@@ -876,13 +876,13 @@ class PulsationDamperEditorInputs(QDialog):
     def actions_to_finalize(self):
 
         app().main_window.set_selection()
-        app().pulse_file.write_pulsation_damper_data_in_file(self.damper_data)
+        app().project.file.write_pulsation_damper_data_in_file(self.damper_data)
 
-        app().loader.load_project_data()
+        app().project.loader.load_project_data()
         app().project.initial_load_project_actions()
 
-        if app().pulse_file.check_pipeline_data():
-            app().loader.load_mesh_dependent_properties()
+        if app().project.file.check_pipeline_data():
+            app().project.loader.load_mesh_dependent_properties()
             app().main_window.initial_project_action(True)
         else:
             self.preprocessor.mesh._create_gmsh_geometry()

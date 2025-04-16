@@ -11,8 +11,6 @@ class MeshUpdater:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.preprocessor = app().project.model.preprocessor
-
         self._initialize()
 
     def _initialize(self):
@@ -31,17 +29,17 @@ class MeshUpdater:
         self.element_size = element_size
         self.geometry_tolerance = geometry_tolerance
 
-        app().pulse_file.modify_project_attributes(
+        app().project.file.modify_project_attributes(
                                                     element_size = element_size, 
                                                     geometry_tolerance = geometry_tolerance
                                                     )
 
     def get_mesh_attributes_from_project_file(self):
 
-        if app().pulse_file is None:
+        if app().project.file is None:
             return None, None
 
-        project_setup = app().pulse_file.read_project_setup_from_file()
+        project_setup = app().project.file.read_project_setup_from_file()
         if project_setup is None:
             return None, None
 
@@ -63,13 +61,13 @@ class MeshUpdater:
 
     def process_mesh_and_load_project(self):
 
-        if app().pulse_file.check_pipeline_data():
+        if app().project.file.check_pipeline_data():
             self.current_element_size, self.current_geometry_tolerance = self.get_mesh_attributes_from_project_file()
-            # app().pulse_file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
-            app().loader.load_mesh_setup_from_file()
+            # app().project.file.modify_project_attributes(element_size=self.element_size, geometry_tolerance=self.geometry_tolerance)
+            app().project.loader.load_mesh_setup_from_file()
             app().project.initial_load_project_actions()
-            app().loader.load_project_data()
-            app().loader.load_mesh_dependent_properties()
+            app().project.loader.load_project_data()
+            app().project.loader.load_mesh_dependent_properties()
             app().main_window.initial_project_action(True)
             app().main_window.update_plots()  
             self.complete = True
@@ -86,8 +84,8 @@ class MeshUpdater:
         app().main_window.mesh_toolbar.lineEdit_element_size.setText(str(element_size))
         app().main_window.mesh_toolbar.lineEdit_geometry_tolerance.setText(str(geometry_tolerance))
 
-        app().loader.load_mesh_setup_from_file()
+        app().project.loader.load_mesh_setup_from_file()
         app().project.initial_load_project_actions()
-        app().loader.load_project_data()
-        app().loader.load_mesh_dependent_properties()
+        app().project.loader.load_project_data()
+        app().project.loader.load_mesh_dependent_properties()
         app().main_window.update_plots()

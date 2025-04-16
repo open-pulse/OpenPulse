@@ -54,7 +54,7 @@ class StructuralModalAnalysisInput(QDialog):
         self.pushButton_enter_setup.clicked.connect(self.enter_setup_callback)
 
     def _load_analysis_setup(self):
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().project.file.read_analysis_setup_from_file()
         if isinstance(analysis_setup, dict):
             if analysis_setup["analysis_id"] in [2, 4]:
                 modes = analysis_setup["modes"]
@@ -103,7 +103,7 @@ class StructuralModalAnalysisInput(QDialog):
                           "sigma_factor" : self.sigma_factor
                           }
 
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
         self.setup_defined = True
         self.close()
 

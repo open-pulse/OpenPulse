@@ -289,7 +289,7 @@ class SetCrossSectionInput(QDialog):
     def load_existing_sections(self):
 
         self.treeWidget_sections_parameters_by_lines.clear()
-        self.section_data_lines = app().loader.get_cross_sections_from_file()
+        self.section_data_lines = app().project.loader.get_cross_sections_from_file()
 
         if len(self.section_data_lines) == 0:
             self.tabWidget_general.setTabVisible(2, False)
@@ -378,7 +378,7 @@ class SetCrossSectionInput(QDialog):
 
     def check_if_lines_belongs_to_psd(self, line_ids: list):
 
-        device_related_lines =app().loader.get_psd_related_lines()
+        device_related_lines =app().project.loader.get_psd_related_lines()
 
         for psd_lines in device_related_lines.values():
             for line_id in line_ids:
@@ -547,7 +547,7 @@ class SetCrossSectionInput(QDialog):
 
         plt.close()
         self.complete = True
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
         geometry_handler = GeometryHandler(app().project)
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
@@ -610,7 +610,7 @@ class SetCrossSectionInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("acoustic", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_table_files_from_expansion_joints(self, line_ids: list):
 
@@ -625,7 +625,7 @@ class SetCrossSectionInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("structural", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

@@ -214,9 +214,10 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
             self.preprocessor.set_element_length_correction_by_element(element_ids, data)
             self.properties._set_element_property("element_length_correction", data, element_ids)
-            self.actions_to_finalize()
 
             print("The acoustic element length correction {} was attributed to elements: {}".format(self.type_label, element_ids))
+
+        self.actions_to_finalize()
 
     def remove_callback(self):
 
@@ -263,7 +264,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                     self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_element_properties_in_file()
+        app().project.file.write_element_properties_in_file()
         app().main_window.set_selection()
         self.load_elements_info()
         self.lineEdit_element_id.setText("")

@@ -203,7 +203,7 @@ class DecouplingRotationDOFsInput(QDialog):
                 self.preprocessor.set_B2P_rotation_decoupling(element_id, data)
                 self.properties._set_element_property("B2P_rotation_decoupling", data, element_ids=element_id)
 
-                app().pulse_file.write_element_properties_in_file()
+                app().project.file.write_element_properties_in_file()
                 self.load_decoupling_info()
                 app().main_window.set_selection()
                 self.lineEdit_element_id.setText("")
@@ -224,7 +224,7 @@ class DecouplingRotationDOFsInput(QDialog):
 
             self.properties._remove_element_property("B2P_rotation_decoupling", element_id)
 
-            app().pulse_file.write_element_properties_in_file()
+            app().project.file.write_element_properties_in_file()
             self.load_decoupling_info()
 
     def reset_callback(self):
@@ -255,7 +255,7 @@ class DecouplingRotationDOFsInput(QDialog):
 
                 self.properties._remove_element_property("B2P_rotation_decoupling", element_id)
 
-            app().pulse_file.write_element_properties_in_file()
+            app().project.file.write_element_properties_in_file()
             self.load_decoupling_info()
 
     def get_rotation_mask(self):
