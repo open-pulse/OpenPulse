@@ -114,10 +114,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.lineEdit_rotation_plane : QLineEdit
         self.lineEdit_selection : QLineEdit
 
-        self.line_edit_coords = [self.lineEdit_connecting_coord_x, 
-                                 self.lineEdit_connecting_coord_y, 
-                                 self.lineEdit_connecting_coord_z]
-
         # QPushButton
         self.pushButton_cancel : QPushButton
         self.pushButton_show_errors : QPushButton
@@ -1027,13 +1023,20 @@ class PulsationSuppressionDeviceInputs(QDialog):
             return False
 
         return False
-        
+
     def process_line_edits(self):
+
         line_edits = list()
         for line_edit in self.findChildren(QLineEdit):
             if line_edit != self.lineEdit_device_label:
                 line_edits.append(line_edit)
+
         self.line_edits = line_edits
+        self.line_edit_coords = [
+                                self.lineEdit_connecting_coord_x, 
+                                self.lineEdit_connecting_coord_y, 
+                                self.lineEdit_connecting_coord_z
+                                ]
 
     def preview_callback(self):
         print()
@@ -1051,16 +1054,16 @@ class PulsationSuppressionDeviceInputs(QDialog):
                 line_edit : QLineEdit
                 if not line_edit.isEnabled():
                     continue
-
+                
+                include_zero = False
                 if line_edit in self.line_edit_coords:
-                    is_valid = self.is_valid_number(line_edit.text(), include_zero=True)
-                else:
-                    is_valid = self.is_valid_number(line_edit.text(), include_zero=False)
+                    include_zero = True
 
+                is_valid = self.is_valid_number(line_edit.text(), include_zero=include_zero)
+
+                style_sheet = "border: 2px solid red"
                 if is_valid:
                     style_sheet = self.default_stylesheet
-                else:
-                    style_sheet = "border: 2px solid red"
 
                 line_edit.setStyleSheet(style_sheet)
 
