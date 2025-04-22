@@ -83,6 +83,16 @@ class AnalysisToolbar(QToolBar):
 
         for widget in widgets:
             widget.setFont(font)
+        
+        self.setStyleSheet(
+            """
+            QToolBar {
+                border-style: solid;
+                border-width: 1px;
+                border-color: #888888;
+            }
+            """
+        )
 
     def get_spacer(self):
         spacer = QWidget()
