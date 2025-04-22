@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pulse"
-version = "2.0.10"
+version = "2.0.11"
 description = "Open Source Software for Pulsation Analysis of Pipeline Systems"
 authors = [
     "Olavo Silva <olavus@gmail.com>",
@@ -26,7 +26,6 @@ ctREFPROP = "^0.10.2"
 pandas = "^2.1.0"
 openpyxl = "^3.1.2"
 h5py = "^3.12.1"
-compressors = {git = "https://github.com/MOPT-UFSC/Compressors"}
 molde = {git = "https://github.com/andrefpf/molde", branch = "update_dependencies", python = ">=3.10"}
 pyqtdarktheme = {version = "^2.1.0", python = ">=3.10,<3.12"}
 fileboxes = "^0.1.4"

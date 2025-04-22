@@ -393,7 +393,8 @@ class StructuralElement:
 
     def matrices_gcs(self):
         """
-        This method returns the element stiffness and mass matrices according to the 3D Timoshenko beam theory in the global coordinate system.
+        This method returns the element stiffness and mass matrices according to the 
+        3D Timoshenko beam theory in the global coordinate system.
 
         Returns
         -------
@@ -418,15 +419,19 @@ class StructuralElement:
             else:
                 stiffness = Rt @ self.stiffness_matrix_pipes() @ R
                 mass = Rt @ self.mass_matrix_pipes() @ R
+
         elif self.element_type == 'beam_1':
             stiffness = Rt @ self.stiffness_matrix_beam() @ R
             mass = Rt @ self.mass_matrix_beam() @ R
+
         elif self.element_type == 'valve':
             stiffness = Rt @ (self.stiffness_matrix_pipes() * self.valve_stiffening_factor) @ R
             mass = Rt @ self.mass_matrix_valve() @ R
+
         # elif self.element_type == "expansion_joint":
         #     stiffness = Rt @ self.stiffness_matrix_expansion_joint() @ R
-        #     mass = Rt @ self.mass_matrix_expansion_joint() @ R            
+        #     mass = Rt @ self.mass_matrix_expansion_joint() @ R
+
         return stiffness, mass
 
     def expansion_joint_matrices_gcs(self, frequencies=None):
@@ -456,7 +461,8 @@ class StructuralElement:
 
     def stiffness_matrix_gcs(self, frequencies=None):
         """
-        This method returns the element stiffness matrix according to the 3D Timoshenko beam theory in the global coordinate system.
+        This method returns the element stiffness matrix according to the 3D Timoshenko beam theory 
+        in the global coordinate system.
 
         Returns
         -------
@@ -489,7 +495,8 @@ class StructuralElement:
             
     def mass_matrix_gcs(self):
         """
-        This method returns the element mass matrix according to the 3D Timoshenko beam theory in the global coordinate system.
+        This method returns the element mass matrix according to the 3D Timoshenko beam theory 
+        in the global coordinate system.
 
         Returns
         -------
@@ -572,7 +579,8 @@ class StructuralElement:
 
     def stiffness_matrix_pipes(self):
         """
-        This method returns the pipe element stiffness matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is optimized for pipe cross section data.
+        This method returns the pipe element stiffness matrix according to the 3D Timoshenko beam theory 
+        in the local coordinate system. This formulation is optimized for pipe cross section data.
 
         Returns
         -------
@@ -598,9 +606,9 @@ class StructuralElement:
         res_z = self.cross_section.res_z
     
         # Shear coefficiets
-        aly = 1/res_y
-        alz = 1/res_z
-        
+        aly = 1 / res_y
+        alz = 1 / res_z
+
         if self.element_type in ['pipe_1', 'valve']:
             Qy = 0
             Qz = 0
@@ -689,7 +697,8 @@ class StructuralElement:
 
     def mass_matrix_pipes(self):
         """
-        This method returns the pipe element mass matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is optimized for pipe cross section data.
+        This method returns the pipe element mass matrix according to the 3D Timoshenko beam theory 
+        in the local coordinate system. This formulation is optimized for pipe cross section data.
 
         Returns
         -------
@@ -804,7 +813,8 @@ class StructuralElement:
 
     def stiffness_matrix_pipes_variable_section(self):
         """
-        This method returns the pipe element stiffness matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is optimized for pipe cross section data.
+        This method returns the pipe element stiffness matrix according to the 3D Timoshenko beam theory 
+        in the local coordinate system. This formulation is optimized for pipe cross section data.
 
         Returns
         -------
@@ -936,7 +946,8 @@ class StructuralElement:
 
     def mass_matrix_pipes_variable_section(self):
         """
-        This method returns the pipe element mass matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is optimized for pipe cross section data.
+        This method returns the pipe element mass matrix according to the 3D Timoshenko beam theory 
+        in the local coordinate system. This formulation is optimized for pipe cross section data.
 
         Returns
         -------
@@ -1366,7 +1377,8 @@ class StructuralElement:
         
     def stiffness_matrix_beam(self):
         """
-        This method returns the beam element stiffness matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is suitable for any beam cross section data.
+        This method returns the beam element stiffness matrix according to the 3D Timoshenko beam theory 
+        in the local coordinate system. This formulation is suitable for any beam cross section data.
 
         Returns
         -------
@@ -1398,15 +1410,21 @@ class StructuralElement:
 
         # alpha = self.get_shear_coefficient(self.cross_section.additional_section_info, self.material.poisson_ratio)
         # k_2 = alpha
-        k_2 = 1
+
+        # Note: the shear coefficient is currently disabled, as a consequence, the shear deflection will be disabled on the beam_1 element 
+        k_2 = 0
 
         # Others constitutive properties
-        # I_3     = I_2
         k_3     = k_2
 
         # Auxiliar constants
-        Phi_12      = 24. * I_3 * (1 + nu) / (k_2 * A * L**2)
-        Phi_13      = 24. * I_2 * (1 + nu) / (k_3 * A * L**2)
+        if k_2 == 0:
+            Phi_12 = 0
+            Phi_13 = 0
+        else:
+            Phi_12      = 24. * I_3 * (1 + nu) / (k_2 * A * L**2)
+            Phi_13      = 24. * I_2 * (1 + nu) / (k_3 * A * L**2)
+
         beta_12_a   = E * I_3 / (1. + Phi_12)
         beta_13_a   = E * I_2 / (1. + Phi_13)
         beta_12_b   = (4. + Phi_12) * beta_12_a
@@ -1450,13 +1468,14 @@ class StructuralElement:
         # else:
         #     Ke = self.symmetrize(me)*decoupling_matrix
 
-        Ke = symmetrize(ke)*self.decoupling_matrix
+        Ke = symmetrize(ke) * self.decoupling_matrix
 
         return principal_axis.T @ Ke @ principal_axis
 
     def mass_matrix_beam(self):
         """
-        This method returns the beam element mass matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is suitable for any beam cross section data.
+        This method returns the beam element mass matrix according to the 3D Timoshenko beam theory 
+        in the local coordinate system. This formulation is suitable for any beam cross section data.
 
         Returns
         -------
@@ -1489,22 +1508,28 @@ class StructuralElement:
 
         # alpha = self.get_shear_coefficient(self.cross_section.section_info, self.material.poisson_ratio)
         # k_2 = alpha
-        k_2 = 1
+
+        # Note: the shear coefficient is currently disabled, as a consequence, the shear deflection will be disabled on the beam_1 element 
+        k_2 = 0
         
         # Others constitutive constants
-        # I_3     = I_2
         J_p     = J
         k_3     = k_2
 
         # Auxiliar constants
         # 1st group
-        a_12 = 1. / (k_2 * A * G)
-        a_13 = 1. / (k_3 * A * G)
+        if k_2 == 0:
+            a_12 = 0
+            a_13 = 0
+        else:
+            a_12 = 1. / (k_2 * A * G)
+            a_13 = 1. / (k_3 * A * G)
+
         b_12 = 1. / (E * I_3)
         b_13 = 1. / (E * I_2)
 
         # 2nd group
-        a_12u_1 = 156 * b_12**2 * L**4 + 3528*a_12 * b_12 * L**2 + 20160 * a_12**2
+        a_12u_1 = 156 * b_12**2 * L**4 + 3528 * a_12 * b_12 * L**2 + 20160 * a_12**2
         a_12u_2 = 2 * L * (11 * b_12**2 * L**4 + 231 * a_12 * b_12 * L**2 + 1260 * a_12**2)
         a_12u_3 = 54 * b_12**2 * L**4 + 1512 * a_12 * b_12 * L**2 + 10080 * a_12**2
         a_12u_4 = -L * (13 * b_12**2 * L**4 + 378 * a_12 * b_12 * L**2 + 2520 * a_12**2)
@@ -1530,8 +1555,8 @@ class StructuralElement:
         a_13t_4 = -b_13**2 * L**4 - 60 * a_13 * b_13 * L**2 + 720 * a_13**2
 
         # 4th group
-        gamma_12 = rho * L / (b_12 * L**2 + 12*a_12)**2
-        gamma_13 = rho * L / (b_13 * L**2 + 12*a_13)**2
+        gamma_12 = rho * L / (b_12 * L**2 + 12 * a_12)**2
+        gamma_13 = rho * L / (b_13 * L**2 + 12 * a_13)**2
 
         me = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
 
@@ -1566,7 +1591,7 @@ class StructuralElement:
         me[11, 5] =  gamma_12 * (A * a_12u_6 / 420 + I_3 * a_12t_4 / 30)
         me[10, 4] =  gamma_13 * (A * a_13u_6 / 420 + I_2 * a_13t_4 / 30)
         
-        Me = symmetrize(me)*self.decoupling_matrix
+        Me = symmetrize(me) * self.decoupling_matrix
 
         return principal_axis.T @ Me @ principal_axis
 
@@ -1591,7 +1616,7 @@ class StructuralElement:
         section_label = section_info[0]
         parameters = section_info[1]
  
-        if section_label == "Rectangular section":
+        if section_label == "rectangular_beam":
 
             b, h, b_in, _, _, _ = parameters
 
@@ -1601,7 +1626,7 @@ class StructuralElement:
             denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + ((3 + poisson)*m + 3*m**2)*(10*n**2)
             shear_coefficient = numerator/denominator
 
-        elif section_label == "Circular section":
+        elif section_label == "circular_beam":
 
             d_out, d_in, _, _ = parameters
             
@@ -1610,7 +1635,7 @@ class StructuralElement:
             denominator = (7 + 6*poisson)*((1 + m**2)**2) + ((20 + 12*poisson)*m**2)
             shear_coefficient = numerator/denominator
 
-        elif section_label == "C-section":
+        elif section_label == "c_beam":
 
             h, w1, t1, w2, t2, tw, _, _, _ = parameters
             
@@ -1620,10 +1645,10 @@ class StructuralElement:
             m = (2*b*tf)/(h*w2)
             n = b/h
             numerator = 10*(1 + poisson)*((1 + 3*m)**2)
-            denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + (m + m**2)*(30*n**2) + (8*m + 9*m**2)*(5*poisson*n**2)
+            denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + (30*n**2)*(m + m**2) + (8*m + 9*m**2)*(5*poisson*n**2)
             shear_coefficient = 0.93*numerator/denominator
 
-        elif section_label == "I-section":
+        elif section_label == "i_beam":
 
             h, w1, t1, w2, t2, tw, _, _, _ = parameters
             
@@ -1633,10 +1658,10 @@ class StructuralElement:
             m = (2*b*tf)/(h*w2)
             n = b/h
             numerator = 10*(1 + poisson)*((1 + 3*m)**2)
-            denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + (m + m**2)*(30*n**2) + (8*m + 9*m**2)*(5*poisson*n**2)
+            denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + (30*n**2)*(m + m**2) + (8*m + 9*m**2)*(5*poisson*n**2)
             shear_coefficient = numerator/denominator
 
-        elif section_label == "T-section":
+        elif section_label == "i_beam":
 
             h, w1, t1, tw, _, _, _ = parameters
             tf, b = t1, w1
@@ -1644,10 +1669,10 @@ class StructuralElement:
             m = (2*b*tf)/(h*tw)
             n = b/h
             numerator = 10*(1 + poisson)*((1 + 4*m)**2)
-            denominator = (12 + 96*m + 278*m**2 + 192*m**3) + poisson*(11 + 88*m + 248*m**2 + 216*m**3) + (m + m**2)*(30*n**2) + (4*m + 5*m**2 + m**3)*(10*poisson*n**2)
+            denominator = (12 + 96*m + 278*m**2 + 192*m**3) + poisson*(11 + 88*m + 248*m**2 + 216*m**3) + (30*n**2)*(m + m**2) + (10*poisson*n**2)*(4*m + 5*m**2 + m**3)
             shear_coefficient = numerator/denominator
 
-        elif section_label == "Generic section":
+        elif section_label == "generic_beam":
             shear_coefficient = self.cross_section.shear_coefficient
 
         return shear_coefficient

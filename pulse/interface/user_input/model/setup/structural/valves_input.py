@@ -425,7 +425,7 @@ class ValvesInput(QDialog):
             if self.valve_info:
                 for line_id in line_ids:
                     
-                    self.properties._set_line_property("section_type_label", "Valve", line_id)
+                    self.properties._set_line_property("section_type_label", "valve", line_id)
                     self.properties._set_line_property("structural_element_type", "valve", line_ids=line_id)
                     self.properties._set_line_property("valve_info", self.valve_info, line_ids=line_id)
 
@@ -446,15 +446,15 @@ class ValvesInput(QDialog):
 
     def actions_to_finalize(self):
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
-        # geometry_handler = GeometryHandler()
+        # geometry_handler = GeometryHandler(app().project)
         # geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         # geometry_handler.process_pipeline()
 
-        app().loader.load_project_data()
+        app().project.loader.load_project_data()
         app().project.initial_load_project_actions()
-        app().loader.load_mesh_dependent_properties()
+        app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         app().main_window.update_plots()
         self.complete = True
@@ -582,7 +582,7 @@ class ValvesInput(QDialog):
 
             if element_type == 'pipe_1' and isinstance(cross, CrossSection):
 
-                pipe_info = {   "section_type_label" : "Pipe",
+                pipe_info = {   "section_type_label" : "pipe",
                                 "section_parameters" : cross.section_parameters   }
 
                 self.properties._set_line_property("structural_element_type", element_type, line_id)
@@ -604,7 +604,7 @@ class ValvesInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("structural", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
         if self.lineEdit_selected_id.text() != "":
@@ -646,7 +646,6 @@ class ValvesInput(QDialog):
             if line_ids:
                 self.load_valves_info()
                 self.actions_to_finalize()
-                # self.close()
 
     def remove_valve_acoustic_effects_function(self, valve_names: list):
 

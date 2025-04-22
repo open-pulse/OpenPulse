@@ -289,7 +289,7 @@ class StressStiffeningInput(QDialog):
     def actions_to_finalize(self):
 
         self.load_treeWidgets_info()
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
         self.preprocessor.stress_stiffening_enabled = False
         for data in self.properties.line_properties.values():

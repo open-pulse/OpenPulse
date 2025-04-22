@@ -408,7 +408,6 @@ class MassSpringDamperInput(QDialog):
             self.check_table_values_inputs(node_ids)
 
         self.actions_to_finalize()
-        # self.close()
 
     def check_entries(self, lineEdit: QLineEdit, label: str):
 
@@ -1011,7 +1010,7 @@ class MassSpringDamperInput(QDialog):
                 self.properties._remove_nodal_property(_property, node_id)
                 self.process_table_file_removal(table_names)
 
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
 
     def remove_table_files_from_nodes(self, node_ids : list):
         for _property in ["lumped_masses", "lumped_stiffness", "lumped_dampings"]:
@@ -1022,7 +1021,7 @@ class MassSpringDamperInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("structural", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
@@ -1102,7 +1101,7 @@ class MassSpringDamperInput(QDialog):
         self.cache_tab = self.tabWidget_main.currentIndex()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
 

@@ -150,8 +150,8 @@ class RadiationImpedanceInput(QDialog):
                     }
 
             self.properties._set_nodal_property("radiation_impedance", data, node_id)
-            self.actions_to_finalize()
 
+        self.actions_to_finalize()
         print(f"[Set Radiation Impedance] - defined at node(s) {node_ids}")
 
     def text_label(self, value):
@@ -185,13 +185,13 @@ class RadiationImpedanceInput(QDialog):
 
                 self.process_table_file_removal(table_names)
 
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
 
     def process_table_file_removal(self, table_names : list):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("acoustic", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
@@ -231,7 +231,7 @@ class RadiationImpedanceInput(QDialog):
                 self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
         self.pushButton_cancel.setText("Exit")

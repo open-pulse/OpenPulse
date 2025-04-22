@@ -1,18 +1,20 @@
 # fmt: off
 
 from pulse import app, version
-
-from pulse.model.properties.material import Material
-from pulse.model.properties.fluid import Fluid
-from pulse.model.perforated_plate import PerforatedPlate
-
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.common_utils import *
-
 from pulse.model.cross_section import CrossSection
+from pulse.model.properties.fluid import Fluid
+from pulse.model.properties.material import Material
+from pulse.model.perforated_plate import PerforatedPlate
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.utils.common_utils import get_color_rgb
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.project.project import Project
 
 import logging
-from time import time
+import numpy as np
+
 from collections import defaultdict
 from packaging.version import Version
 
@@ -20,16 +22,15 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class LoadProject:
-    def __init__(self):
+    def __init__(self, project: "Project"):
         super().__init__()
 
-        self.project = app().project
-        self.model = app().project.model
-        self.properties = app().project.model.properties
-        self.preprocessor = app().project.preprocessor
+        self.project = project
+        self.properties = project.model.properties
+        self.preprocessor = project.model.preprocessor
 
         self._initialize()
-        
+
 
     def _initialize(self):
         pass
@@ -67,7 +68,7 @@ class LoadProject:
     def load_fluids_library(self):
 
         self.library_fluids = dict()
-        config = app().pulse_file.read_fluid_library_from_file()
+        config = self.project.file.read_fluid_library_from_file()
 
         if config is None:
             return
@@ -168,7 +169,7 @@ class LoadProject:
     def load_materials_library(self):
 
         self.library_materials = dict()
-        config = app().pulse_file.read_material_library_from_file()
+        config = self.project.file.read_material_library_from_file()
 
         if config is None:
             return
@@ -204,7 +205,7 @@ class LoadProject:
     
     def check_line_properties(self):
 
-        line_properties = app().pulse_file.read_line_properties_from_file()
+        line_properties = self.project.file.read_line_properties_from_file()
         if line_properties is None:
             return True
         elif isinstance(line_properties, dict):
@@ -219,33 +220,55 @@ class LoadProject:
     def load_cross_sections_from_file(self):
 
         self.cross_sections = dict()
-        line_properties = app().pulse_file.read_line_properties_from_file()
+        line_properties = self.project.file.read_line_properties_from_file()
         if line_properties is None:
             return
 
         for line_id, data in line_properties.items():
 
             if "section_type_label" in data.keys() and "section_parameters" in data.keys():
+                section_type_label = self.fix_data_for_backwards_compatibility(data)
 
-                if data["section_type_label"] in ["Pipe", "Bend"]:
-
-                    pipe_section_info = {   "section_type_label" : data["section_type_label"],
+                if data.get("structure_name") in ["pipe", "bend", "flange"]:
+                    pipe_section_info = {   "section_type_label" : section_type_label,
                                             "section_parameters" : data["section_parameters"]   }
 
                     self.cross_sections[line_id] = CrossSection(pipe_section_info=pipe_section_info) 
-       
-                elif "section_properties" in data.keys():
 
-                    beam_section_info = {   "section_type_label" : data["section_type_label"],
+                elif "section_properties" in data.keys():
+                    beam_section_info = {   "section_type_label" : section_type_label,
                                             "section_parameters" : data["section_parameters"],
                                             "section_properties" : data["section_properties"]   }
 
                     self.cross_sections[line_id] = CrossSection(beam_section_info=beam_section_info)
 
 
+    def fix_data_for_backwards_compatibility(self, data: dict):
+
+        sections_types = [
+                          "Pipe", 
+                          "Rectangular section", 
+                          "Circular section", 
+                          "C-section", 
+                          "I-section", 
+                          "T-section", 
+                          "Generic section",
+                          "Valve",
+                          "Expansion joint",
+                          "Reducer",
+                          "Flange"
+                          ]
+
+        if data.get("section_type_label") in sections_types:
+            type_label: str = data.get("section_type_label")
+            return type_label.lower().replace(" ", "_").replace("-", "_").replace("section", "beam")
+
+        return data.get("section_type_label")
+
+
     def load_lines_properties(self):
 
-        line_properties = app().pulse_file.read_line_properties_from_file()
+        line_properties = self.project.file.read_line_properties_from_file()
         if line_properties is None:
             return
 
@@ -284,13 +307,13 @@ class LoadProject:
 
 
     def load_element_properties(self):
-        element_properties = app().pulse_file.load_element_properties_from_file()
+        element_properties = self.project.file.load_element_properties_from_file()
         for (property, id), prop_data in element_properties.items():
             self.properties._set_element_property(property, prop_data, element_ids=id)
 
 
     def load_nodal_properties(self):
-        nodal_properties = app().pulse_file.load_nodal_properties_from_file()
+        nodal_properties = self.project.file.load_nodal_properties_from_file()
         for (property, *args), prop_data in nodal_properties.items():
             self.properties._set_nodal_property(property, prop_data, node_ids=args)
 
@@ -394,121 +417,69 @@ class LoadProject:
             self.preprocessor.set_cross_section_by_lines(line_id, cross_section)
 
         elif "section_type_label" in data.keys():
-            if data["section_type_label"] == "Reducer":
+            section_type_label = self.fix_data_for_backwards_compatibility(data)
+            if section_type_label == "reducer":
                 self.preprocessor.set_variable_cross_section_by_line(line_id, data)
 
 
     def load_fluids(self, line_id: int, data: dict):
-
-        fluid = None
-        if "fluid" in data.keys():
-            fluid = data["fluid"]
-
+        fluid = data.get("fluid")
         self.preprocessor.set_fluid_by_lines(line_id, fluid)
 
 
     def load_acoustic_element_types(self, line_id: int, data: dict):
-
-        element_type = "undamped"
-        if "acoustic_element_type" in data.keys():
-            element_type = data["acoustic_element_type"]
-
-        proportional_damping = None
-        if "proportional_damping" in data.keys():
-            proportional_damping = data["proportional_damping"]
-
-        volume_flow = None
-        if "volume_flow" in data.keys():
-            volume_flow = data["volume_flow"]
-
+        acoustic_element_type = data.get("acoustic_element_type", "undamped")
+        proportional_damping = data.get("proportional_damping")
+        volumetric_flow_rate = data.get("volumetric_flow_rate")
         self.preprocessor.set_acoustic_element_type_by_lines(   
                                                              line_id, 
-                                                             element_type, 
+                                                             acoustic_element_type, 
                                                              proportional_damping = proportional_damping,
-                                                             vol_flow = volume_flow    
+                                                             volumetric_flow_rate = volumetric_flow_rate    
                                                              )
 
 
     def load_materials(self, line_id: int, data: dict):
-
-        material = None
-        if "material" in data.keys():
-            material = data["material"]
-
+        material = data.get("material")
         self.preprocessor.set_material_by_lines(line_id, material)
 
 
     def load_structural_element_types(self, line_id: int, data: dict):
-
-        element_type = None
-        if "structural_element_type" in data.keys():
-            element_type = data["structural_element_type"]
-
-            self.preprocessor.set_structural_element_type_by_lines( 
-                                                                   line_id, 
-                                                                   element_type  
-                                                                   )
+        element_type = data.get("structural_element_type")
+        self.preprocessor.set_structural_element_type_by_lines(line_id, element_type)
 
 
     def load_capped_ends(self, line_id: int, data: dict):
-
-        capped_end = None
-        if "capped_end" in data.keys():
-            capped_end = data["capped_end"]
-
-        self.preprocessor.set_capped_end_by_lines(   
-                                                    line_id, 
-                                                    capped_end, 
-                                                    )
+        capped_end = data.get("capped_end")
+        self.preprocessor.set_capped_end_by_lines(line_id, capped_end)
 
 
     def load_force_offsets(self, line_id: int, data: dict):
-
-        # force_offset = None
-        if "force_offset" in data.keys():
-            force_offset = data["force_offset"]
-
-            self.preprocessor.set_structural_element_force_offset_by_lines(   
-                                                                            line_id, 
-                                                                            force_offset, 
-                                                                        )
+        force_offset = data.get("force_offset", True)
+        self.preprocessor.set_structural_element_force_offset_by_lines(line_id, force_offset)
 
 
     def load_wall_formulations(self, line_id: int, data: dict):
-
-        # wall_formulation = None
-        if "wall_formulation" in data.keys():
-            wall_formulation = data["wall_formulation"]
-
-            self.preprocessor.set_structural_element_wall_formulation_by_lines(   
-                                                                                line_id, 
-                                                                                wall_formulation, 
-                                                                               )
+        wall_formulation = data.get("wall_formulation", "thin_wall")
+        self.preprocessor.set_structural_element_wall_formulation_by_lines(line_id, wall_formulation)
 
 
     def load_beam_xaxis_rotations(self, line_id: int, data: dict):
-
-        xaxis_beam_rotation = 0
-        if "beam_xaxis_rotation" in data.keys():
-            xaxis_beam_rotation = data["beam_xaxis_rotation"]
-
-        self.preprocessor.set_beam_xaxis_rotation_by_lines(   
-                                                            line_id, 
-                                                            xaxis_beam_rotation, 
-                                                            )
+        xaxis_beam_rotation = data.get("beam_xaxis_rotation", 0)
+        self.preprocessor.set_beam_xaxis_rotation_by_lines(line_id, xaxis_beam_rotation)
 
 
     def load_imported_table_data_from_file(self):
-        imported_tables = app().pulse_file.load_imported_table_data_from_file()
+        imported_tables = self.project.file.load_imported_table_data_from_file()
         if "acoustic" in imported_tables.keys():
-            app().project.model.properties.acoustic_imported_tables = imported_tables["acoustic"]
+            self.project.model.properties.acoustic_imported_tables = imported_tables["acoustic"]
         if "structural" in imported_tables.keys():
-            app().project.model.properties.structural_imported_tables = imported_tables["structural"]
+            self.project.model.properties.structural_imported_tables = imported_tables["structural"]
 
 
     def check_file_version(self):
 
-        project_setup = app().pulse_file.read_project_setup_from_file()
+        project_setup = self.project.file.read_project_setup_from_file()
         if project_setup is None:
             return True
 
@@ -529,7 +500,7 @@ class LoadProject:
 
     def load_mesh_setup_from_file(self):
 
-        project_setup = app().pulse_file.read_project_setup_from_file()
+        project_setup = self.project.file.read_project_setup_from_file()
         if project_setup is None:
             return
 
@@ -539,7 +510,7 @@ class LoadProject:
 
     def load_inertia_load_setup(self):
 
-        inertia_load = app().pulse_file.read_inertia_load_from_file()
+        inertia_load = self.project.file.read_inertia_load_from_file()
         if inertia_load is None:
             return
 
@@ -551,16 +522,16 @@ class LoadProject:
 
 
     def load_analysis_file(self):
-        analysis_setup = app().pulse_file.load_analysis_file()
+        analysis_setup = self.project.file.load_analysis_file()
         if isinstance(analysis_setup, dict):
-            self.model.set_frequency_setup(analysis_setup)
-            self.model.set_global_damping(analysis_setup)
+            self.project.model.set_frequency_setup(analysis_setup)
+            self.project.model.set_global_damping(analysis_setup)
 
 
     def load_analysis_id(self):
-        analysis_setup = app().pulse_file.load_analysis_file()
+        analysis_setup = self.project.file.load_analysis_file()
         if isinstance(analysis_setup, dict):
-            app().project.set_analysis_id(analysis_setup.get("analysis_id", None))
+            self.project.set_analysis_id(analysis_setup.get("analysis_id", None))
 
 
     def get_psd_related_lines(self):
@@ -611,7 +582,7 @@ class LoadProject:
                 else:
                     continue
 
-                if section_type in ["Valve", "Expansion joint", "Generic beam section"]:
+                if section_type in ["valve", "expansion_joint", "generic_beam"]:
                     continue
 
                 if "section_parameters" in data.keys():
@@ -707,7 +678,7 @@ class LoadProject:
                 self.properties._set_nodal_property(property, data, args)
 
             if aux_nodal:
-                app().pulse_file.write_nodal_properties_in_file()
+                self.project.file.write_nodal_properties_in_file()
 
             if non_mapped_nodes:
 
@@ -816,7 +787,7 @@ class LoadProject:
                 self.properties._set_element_property(_property, data, int(_element_id))
 
             if aux_elements:
-                app().pulse_file.write_element_properties_in_file()
+                self.project.file.write_element_properties_in_file()
 
             if non_mapped_elements:
 
@@ -844,7 +815,7 @@ class LoadProject:
         str_harmonic_analysis = False
         str_static_analysis = False
 
-        results_data = app().pulse_file.read_results_data_from_file()
+        results_data = self.project.file.read_results_data_from_file()
 
         if results_data:
             logging.info("Loading results [10%]")
@@ -853,29 +824,29 @@ class LoadProject:
                 if key == "modal_acoustic":
                     act_modal_analysis = True
                     if np.iscomplexobj(data["natural_frequencies"]):
-                        app().main_window.project.complex_natural_frequencies_acoustic = data["natural_frequencies"]
+                        self.project.complex_natural_frequencies_acoustic = data["natural_frequencies"]
                     else:
-                        app().main_window.project.natural_frequencies_acoustic = data["natural_frequencies"]
-                    app().main_window.project.acoustic_solution = data["modal_shape"]
+                        self.project.natural_frequencies_acoustic = data["natural_frequencies"]
+                    self.project.acoustic_solution = data["modal_shape"]
 
                 if key == "modal_structural":
                     str_modal_analysis = True
-                    app().main_window.project.natural_frequencies_structural = data["natural_frequencies"]
-                    app().main_window.project.structural_solution = data["modal_shape"]
+                    self.project.natural_frequencies_structural = data["natural_frequencies"]
+                    self.project.structural_solution = data["modal_shape"]
 
                 if key == "harmonic_acoustic":
                     act_harmonic_analysis = True
-                    app().main_window.project.model.frequencies = data["frequencies"]
-                    app().main_window.project.acoustic_solution = data["solution"]
+                    self.project.model.frequencies = data["frequencies"]
+                    self.project.acoustic_solution = data["solution"]
 
                 if key == "harmonic_structural":
                     str_harmonic_analysis = True
-                    app().main_window.project.model.frequencies = data["frequencies"]
-                    app().main_window.project.structural_solution = data["solution"]
+                    self.project.model.frequencies = data["frequencies"]
+                    self.project.structural_solution = data["solution"]
 
                 if key == "static_structural":
                     str_static_analysis = True
-                    app().main_window.project.structural_solution = data["solution"]
+                    self.project.structural_solution = data["solution"]
 
             logging.info("Updating analysis render [75%]")
             if act_modal_analysis:

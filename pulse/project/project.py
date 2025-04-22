@@ -1,6 +1,8 @@
 # fmt: off
 
-from pulse import app
+from pulse import app, TEMP_PROJECT_FILE
+from pulse.interface.file.project_file import ProjectFile
+from pulse.project.load_project import LoadProject
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
 from pulse.interface.user_input.project.loading_window import LoadingWindow
@@ -23,9 +25,8 @@ class Project:
     def __init__(self):
 
         self.pipeline = Pipeline()
-
         self.model = Model(self)
-        self.preprocessor = self.model.preprocessor
+        # self.preprocessor = self.model.preprocessor
 
         self.name = None
         self.save_path = None
@@ -37,7 +38,7 @@ class Project:
 
         # TODO: reimplement this
         if reset_all:
-            self.preprocessor.reset_variables()
+            self.model.preprocessor.reset_variables()
             #TODO: reset nodal, element and line properties
 
         self.preferences = dict()
@@ -86,15 +87,19 @@ class Project:
         self.analysis_type_label = ""
         self.analysis_method_label = ""
 
+    def initialize_pulse_file_and_loader(self):   
+        self.file = ProjectFile(self, TEMP_PROJECT_FILE) 
+        self.loader = LoadProject(self)
+
     def initial_load_project_actions(self):
 
         try:
 
             self.reset(reset_all = True)
-            app().loader.load_analysis_id()
-            app().loader.load_analysis_results()
+            self.loader.load_analysis_id()
+            self.loader.load_analysis_results()
 
-            if app().pulse_file.check_pipeline_data():
+            if self.file.check_pipeline_data():
                 self.process_geometry_and_mesh()
                 return True
             else:
@@ -112,35 +117,37 @@ class Project:
     def load_project(self):
 
         logging.info("Loading project data [30%]")
-        if app().loader.load_project_data():
+        if self.loader.load_project_data():
             return
 
         logging.info("Processing geometry and mesh [50%]")
         self.initial_load_project_actions()
 
         logging.info("Loading mesh dependent properties [60%]")
-        app().loader.load_mesh_dependent_properties()
+        self.loader.load_mesh_dependent_properties()
 
         logging.info("Finalizing model data loading [75%]")
-        self.preprocessor.process_all_rotation_matrices()
-        self.preprocessor.check_disconnected_lines()
+        self.model.preprocessor.process_all_rotation_matrices()
+        self.model.preprocessor.check_disconnected_lines()
 
     def reset_project(self, **kwargs):
 
         self.reset(reset_all = True)
-        app().pulse_file.remove_element_properties_from_project_file()
-        app().pulse_file.remove_nodal_properties_from_project_file()
+        self.file.remove_element_properties_from_project_file()
+        self.file.remove_nodal_properties_from_project_file()
 
-        if app().pulse_file.check_pipeline_data():
-            if app().loader.load_project_data():
+        if self.file.check_pipeline_data():
+            if self.loader.load_project_data():
                 return
 
             self.process_geometry_and_mesh()
-            app().loader.load_mesh_dependent_properties()
+            self.loader.load_mesh_dependent_properties()
 
     def process_geometry_and_mesh(self):
         # t0 = time()
-        self.preprocessor.generate()
+        self.model.preprocessor.generate()
+        if app() is None:
+            return
         app().main_window.update_status_bar_info()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
@@ -149,7 +156,7 @@ class Project:
         """ 
         This method adds lids to cross-section variations and terminations.
         """
-        for elements in self.preprocessor.structural_elements_connected_to_node.values():
+        for elements in self.model.preprocessor.structural_elements_connected_to_node.values():
 
             element = None
             if len(elements) == 2:
@@ -189,12 +196,12 @@ class Project:
 
                 inner_diameter = element.cross_section.inner_diameter 
 
-                if len(self.preprocessor.neighbors[first_node]) == 1:
+                if len(self.model.preprocessor.neighbors[first_node]) == 1:
                     first_node_id = first_node.external_index
                     if self.is_there_an_acoustic_attribute_in_the_node(first_node_id) == 0:
                         inner_diameter = 0
 
-                elif len(self.preprocessor.neighbors[last_node]) == 1:
+                elif len(self.model.preprocessor.neighbors[last_node]) == 1:
                     last_node_id = last_node.external_index
                     if self.is_there_an_acoustic_attribute_in_the_node(last_node_id) == 0:
                         inner_diameter = 0
@@ -250,26 +257,26 @@ class Project:
         return False
 
     def is_analysis_setup_complete(self):
-        self.analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        self.analysis_setup = self.file.read_analysis_setup_from_file()
         if isinstance(self.analysis_setup, dict):
             if "analysis_id" in self.analysis_setup.keys():
                 self.analysis_id = self.analysis_setup["analysis_id"]
                 self.modes = self.analysis_setup.get("modes", 40)
-                self.sigma_factor = self.analysis_setup.get("sigma_factor", 40)
+                self.sigma_factor = self.analysis_setup.get("sigma_factor", 1e-2)
                 return True
         return False
 
     def get_structural_elements(self):
-        return self.preprocessor.structural_elements
+        return self.model.preprocessor.structural_elements
     
     def get_structural_element(self, element_id):
-        return self.preprocessor.structural_elements[element_id]
+        return self.model.preprocessor.structural_elements[element_id]
 
     def get_acoustic_elements(self):
-        return self.preprocessor.acoustic_elements 
+        return self.model.preprocessor.acoustic_elements 
 
     def get_acoustic_element(self, element_id):
-        return self.preprocessor.acoustic_elements[element_id]
+        return self.model.preprocessor.acoustic_elements[element_id]
 
     def set_perforated_plate_convergence_data_log(self, data):
         self.perforated_plate_data_log = data
@@ -285,12 +292,12 @@ class Project:
                 if coords is None:
                     return
 
-                node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-                neigh_elements = self.preprocessor.structural_elements_connected_to_node[node_id]
+                node_id = self.model.preprocessor.get_node_id_by_coordinates(coords)
+                neigh_elements = self.model.preprocessor.structural_elements_connected_to_node[node_id]
     
                 for element in neigh_elements:
 
-                    element_line = self.preprocessor.mesh.line_from_element[element.index]
+                    element_line = self.model.preprocessor.mesh.line_from_element[element.index]
                     _data = self.model.properties.line_properties[element_line]
 
                     if "corner_coords" in _data.keys():
@@ -300,8 +307,8 @@ class Project:
 
     def get_geometry_points(self):
         points = dict()
-        for i in self.preprocessor.mesh.geometry_points:
-            points[i] = self.preprocessor.nodes[i]
+        for i in self.model.preprocessor.mesh.geometry_points:
+            points[i] = self.model.preprocessor.nodes[i]
         return points
 
     def set_analysis_id(self, analysis_id: int):
@@ -331,10 +338,10 @@ class Project:
             self.analysis_method_label = None
 
     def load_analysis_setup(self):
-        self.analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-        self.analysis_id = self.analysis_setup["analysis_id"]
+        self.analysis_setup = self.file.read_analysis_setup_from_file()
+        self.analysis_id = self.analysis_setup.get("analysis_id")
         self.modes = self.analysis_setup.get("modes", 40)
-        self.sigma_factor = self.analysis_setup.get("sigma_factor", 40)
+        self.sigma_factor = self.analysis_setup.get("sigma_factor", 0.01)
 
     def get_pre_solution_model_checks(self):
         return BeforeRun()
@@ -396,7 +403,7 @@ class Project:
 
     def get_harmonic_analysis_method(self):
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup = self.file.read_analysis_setup_from_file()
         if isinstance(analysis_setup, dict):
             analysis_id = analysis_setup.get("analysis_id", None)
 
@@ -418,7 +425,7 @@ class Project:
             if len(self.model.frequencies) == 0:
                 return
 
-        if self.preprocessor._process_beam_nodes_and_indexes():
+        if self.model.preprocessor._process_beam_nodes_and_indexes():
             if self.analysis_id not in [0, 1, 2]:
                 title = "Invalid analysis type"
                 message = "There are only BEAM_1 elements in the model, therefore, "
@@ -428,18 +435,18 @@ class Project:
                 return
 
         if self.analysis_id == 2:
-            self.preprocessor.enable_fluid_mass_adding_effect(reset=True)
+            self.model.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.structural_solver = self.get_structural_solver()
 
         elif self.analysis_id in [3, 4]:
             self.acoustic_solver = self.get_acoustic_solver()
 
         elif self.analysis_id in [5, 6]:
-            self.preprocessor.enable_fluid_mass_adding_effect()
+            self.model.preprocessor.enable_fluid_mass_adding_effect()
             self.acoustic_solver = self.get_acoustic_solver()
 
         else:
-            self.preprocessor.enable_fluid_mass_adding_effect(reset=True)
+            self.model.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.structural_solver = self.get_structural_solver()
 
     def process_analysis(self):
@@ -508,7 +515,7 @@ class Project:
     def run_analysis(self):
         LoadingWindow(self.build_model_and_solve).run()
 
-    def build_model_and_solve(self):
+    def build_model_and_solve(self, running_by_script=False):
 
         setup_complete = self.is_analysis_setup_complete()
 
@@ -519,13 +526,14 @@ class Project:
             PrintMessageInput([window_title_1, title, message])
             return
 
-        self.before_run = self.get_pre_solution_model_checks()
-        if self.before_run.check_is_there_a_problem(self.analysis_id):
-            return
+        if not running_by_script:
+            self.before_run = self.get_pre_solution_model_checks()
+            if self.before_run.check_is_there_a_problem(self.analysis_id):
+                return
 
         logging.info("Processing the cross-sections [10%]")
         if self.model.preprocessor.process_cross_sections_mapping():
-            self.preprocessor.stop_processing = False
+            self.model.preprocessor.stop_processing = False
             return
 
         logging.info("Initializing the problem solver [30%]")
@@ -535,18 +543,20 @@ class Project:
         self.process_analysis()
 
         logging.info("Saving the solution data [95%]")
-        app().pulse_file.write_results_data_in_file()
+        self.file.write_results_data_in_file()
 
-        if self.preprocessor.stop_processing:
+        if self.model.preprocessor.stop_processing:
             self.reset_solution()
-            self.preprocessor.stop_processing = False
+            self.model.preprocessor.stop_processing = False
             return
 
-        logging.info("Post-processing the obtained results [90%]")
-        self.check_warnings()
+        if not running_by_script:
 
-        logging.info("Processing the post solution checks [95%]")
-        self.post_solution_actions()
+            logging.info("Post-processing the obtained results [90%]")
+            self.check_warnings()
+
+            logging.info("Processing the post solution checks [95%]")
+            self.post_solution_actions()
 
     def check_warnings(self):
 
@@ -579,7 +589,10 @@ class Project:
         else:
             static_analysis = False
 
+        logging.info("Evaluating the structural reactions for constrained dofs [60%]")
         self.structural_solver.get_reactions_at_constrained_dofs(static_analysis=static_analysis)
+
+        logging.info("Evaluating the structural reactions for lumped elements [80%]")
         self.structural_solver.get_reactions_at_springs_and_dampers(static_analysis=static_analysis)
 
         self.structural_reactions = {

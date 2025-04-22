@@ -39,10 +39,10 @@ class PlotCrossSectionInput(QDialog):
     def _initialize(self):
 
         self.project = self.project
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         
-        self.structural_elements = self.project.preprocessor.structural_elements
+        self.structural_elements = self.project.model.preprocessor.structural_elements
 
     def _define_qt_variables(self):
 
@@ -108,15 +108,6 @@ class PlotCrossSectionInput(QDialog):
 
         self.selection_callback()
 
-    # def _get_dict_key_section(self):
-    #     self.labels = [ "Pipe", 
-    #                     "Rectangular section", 
-    #                     "Circular section", 
-    #                     "C-section", 
-    #                     "I-section", 
-    #                     "T-section", 
-    #                     "Generic section"   ]
-
     def preprocess_selection(self):
 
         self.message = ""
@@ -158,7 +149,7 @@ class PlotCrossSectionInput(QDialog):
 
         if self.section_type_label != 'Expansion joint':
             self.section_parameters = cross_section.section_parameters
-            # if self.section_type_label != "Pipe":
+            # if self.section_type_label != "pipe":
             #     self.section_properties = cross_section.section_properties    
         else:
             self.window_title = window_title_2
@@ -181,7 +172,7 @@ class PlotCrossSectionInput(QDialog):
                 PrintMessageInput([self.window_title, self.title, self.message])
             return
         
-        if self.section_type_label == "Pipe":
+        if self.section_type_label == "pipe":
             Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
         else:
             Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
@@ -199,7 +190,7 @@ class PlotCrossSectionInput(QDialog):
         second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
         third_plot = plt.scatter(0, 0, marker="+", linewidth=1.5, zorder=4, color=[0,0,1], s=120)
 
-        if self.section_type_label == "Pipe" and Yp_ins is not None:
+        if self.section_type_label == "pipe" and Yp_ins is not None:
             fourth, = plt.fill(Yp_ins, Zp_ins, color=[0.5,1,1], linewidth=2, zorder=5) 
             _max = np.max(np.abs(np.array([Zp_ins, Yp_ins])))*1.2
             second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
@@ -212,9 +203,9 @@ class PlotCrossSectionInput(QDialog):
         ax.set_title('CROSS-SECTION PLOT', fontsize = 18, fontweight = 'bold')
         ax.set_xlabel('y [m]', fontsize = 16, fontweight = 'bold')
         ax.set_ylabel('z [m]', fontsize = 16, fontweight = 'bold')
-        
+
         f = 1.25
-        if self.section_type_label == 'C-section':
+        if self.section_type_label == 'c_beam':
             plt.xlim(-(1/2)*_max, (3/2)*_max)
         else:
             plt.xlim(-_max*f, _max*f)

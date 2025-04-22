@@ -16,7 +16,7 @@ from molde import load_ui
 
 from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
+from pulse.interface.user_input.model.setup.cross_section.set_cross_section_simplified import SetCrossSectionSimplified
 from pulse.interface.user_input.model.setup.material.set_material_input_simplified import SetMaterialSimplified
 from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
@@ -55,8 +55,7 @@ class GeometryDesignerWidget(QWidget):
         self.modified = False
         self.tmp_camera = None
 
-        self.project = app().project
-        self.pipeline = self.project.pipeline
+        self.pipeline = app().project.pipeline
 
         self._define_qt_variables()
         self._create_layout()
@@ -130,8 +129,9 @@ class GeometryDesignerWidget(QWidget):
         self.empty_widget: QWidget
 
     def _create_layout(self):
-        self.cross_section_widget = CrossSectionWidget(self)
+
         self.material_widget = SetMaterialSimplified()
+        self.cross_section_dialog = SetCrossSectionSimplified(self)
 
         # Add your newly implemented StructureOptions here 
         structure_option_types: list[type[StructureOptions]] = [
@@ -160,8 +160,6 @@ class GeometryDesignerWidget(QWidget):
             self.structure_combobox.addItem(name)
 
     def _create_connections(self):
-        self.cross_section_widget.pushButton_confirm_pipe.clicked.connect(self.cross_section_confirm_callback)
-        self.cross_section_widget.pushButton_confirm_beam.clicked.connect(self.cross_section_confirm_callback)
 
         self.render_widget.selection_changed.connect(self.selection_callback)
         self.select_all_action.triggered.connect(self.select_all_callback)
@@ -318,10 +316,6 @@ class GeometryDesignerWidget(QWidget):
         self.xyz_changed_callback()
         self.render_widget.update_plot(reset_camera=False)
 
-    def cross_section_confirm_callback(self):
-        self.cross_section_widget.complete = True
-        self.cross_section_widget.close()
-
     def update_bending_radius_visibility(self):
 
         index = self.bending_options_combobox.currentIndex()
@@ -358,7 +352,7 @@ class GeometryDesignerWidget(QWidget):
     def get_pipe_diameter(self):
 
         try:
-            section_parameters = self.cross_section_widget.pipe_section_info["section_parameters"]
+            section_parameters = self.cross_section_dialog.cross_section_widget.pipe_section_info["section_parameters"]
             diameter = section_parameters[0]
         except:
             return None
@@ -397,7 +391,7 @@ class GeometryDesignerWidget(QWidget):
         w, h = renderer.GetSize()
         need_to_fit = False
         border = int(max(w, h) * 0.1)
-        
+
         # Starts with a rectangle the size of the viewport,
         # and make it grow according to selected/staged points
         # that are outside of it.
@@ -433,12 +427,14 @@ class GeometryDesignerWidget(QWidget):
         dx = (x1 + x0 - w) / 2
         dy = (y1 + y0 - h) / 2
         self.move_viewport(dx, dy)
+        renderer.ResetCameraScreenSpace()
 
         # This function changes the zoom around the center.
         # That's why we needed to move the viewport.
         rect = vtkRecti(x0, y0, x1-x0, y1-y0)
         renderer.ZoomToBoxUsingViewAngle(rect)
-    
+        renderer.ResetCameraClippingRange()
+
     def move_viewport(self, dx, dy):
         '''
         Moves the viewport in view coordinates by some amount of pixels.
@@ -665,12 +661,12 @@ class GeometryDesignerWidget(QWidget):
         self.modified = False
         self.pipeline.dismiss()
 
-        geometry_handler = GeometryHandler()
+        geometry_handler = GeometryHandler(app().project)
         geometry_handler.set_pipeline(self.pipeline)
         geometry_handler.set_length_unit(self.length_unit)
         geometry_handler.export_model_data_file()
 
-        app().pulse_file.modify_project_attributes(
+        app().project.file.modify_project_attributes(
             length_unit = self.length_unit,
             element_size = 0.01, 
             geometry_tolerance = 1e-6,
@@ -834,9 +830,9 @@ class GeometryDesignerWidget(QWidget):
         message = "Active configuration\n\n"
 
         if cross_section_info:
-            if section_label == "Reducer":
+            if section_label == "reducer":
                 message += f"Section type: {section_label} (variable)\n"
-            elif section_label  == "Pipe":
+            elif section_label  == "pipe":
                 message += f"Section type: {section_label} (constant)\n"    
             else:
                 message += f"Section type: {section_label}\n"
@@ -873,8 +869,8 @@ class GeometryDesignerWidget(QWidget):
             set_qproperty(self.finalize_button, warning=False, status="default")
 
     def _load_project(self):
-        app().loader.load_project_data()
-        self.project.initial_load_project_actions()
-        app().loader.load_mesh_dependent_properties()
+        app().project.loader.load_project_data()
+        app().project.initial_load_project_actions()
+        app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         self.complete = True

@@ -2,13 +2,18 @@ from pulse import app, version
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import *
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.project.project import Project
+
 from fileboxes import Filebox
 
 import os
-import io
 import h5py
 import numpy as np
+
 from pathlib import Path
+from traceback import print_exception
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -16,14 +21,13 @@ window_title_2 = "Warning"
 
 class ProjectFile:
     
-    def __init__(self, path : str, override=False):
+    def __init__(self, project: 'Project', path: str, override=False):
         super().__init__()
 
+        self.project = project
         self.path = path
-        self.filebox = Filebox(Path(path), override=override)
 
-        # self.model = app().project.model
-        # self.properties = self.model.properties
+        self.filebox = Filebox(Path(path), override=override)
 
         self._initialize()
         self._default_filenames()
@@ -50,7 +54,12 @@ class ProjectFile:
 
         self.thumbnail_filename = "thumbnail.png"
 
-    def write_project_setup_in_file(self, data : dict, geometry_path=""):
+    def project_data_modified_callback(self):
+        if app() is None:
+            return
+        app().main_window.project_data_modified = True
+
+    def write_project_setup_in_file(self, data: dict, geometry_path=""):
 
         if geometry_path != "":
             basename = os.path.basename(geometry_path)
@@ -63,20 +72,15 @@ class ProjectFile:
 
             self.filebox.write_from_path(internal_path, geometry_path, encoding="iso-8859-1")
 
-        try:
+        project_setup = self.filebox.read(self.project_setup_filename)
+        if project_setup is None:
+            project_setup = dict()
 
-            project_setup = self.filebox.read(self.project_setup_filename)
-            if project_setup is None:
-                project_setup = dict()
+        project_setup["mesher_setup"] = data
+        project_setup["version"] = version()
 
-            project_setup["mesher_setup"] = data
-            project_setup["version"] = version()
-
-            self.filebox.write(self.project_setup_filename, project_setup)
-            app().main_window.project_data_modified = True
-
-        except Exception as error_log:
-            print(str(error_log))
+        self.filebox.write(self.project_setup_filename, project_setup)
+        self.project_data_modified_callback()
 
     def read_geometry_from_file(self):
 
@@ -106,21 +110,21 @@ class ProjectFile:
     def read_project_setup_from_file(self):
         return self.filebox.read(self.project_setup_filename)
 
-    def write_model_setup_in_file(self, project_setup : dict):
+    def write_model_setup_in_file(self, project_setup: dict):
         self.filebox.write(self.project_setup_filename, project_setup)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
-    def read_imported_table_from_file(self, folder_name : str, file_name : str):
+    def read_imported_table_from_file(self, folder_name: str, file_name: str):
         internal_path = f"imported_tables/{folder_name}/{file_name}"
         return self.filebox.read(internal_path)
 
-    def create_temporary_folder(self, folder_name : str) -> Path:
+    def create_temporary_folder(self, folder_name: str) -> Path:
         dirname = self.project_folder_path / folder_name
         if not dirname.exists():
             os.makedirs(dirname)
         return dirname
 
-    # def write_imported_table_in_file(self, file_name : str, folder_name : str):
+    # def write_imported_table_in_file(self, file_name: str, folder_name: str):
 
     #     suffix = f"imported_tables/{folder_name}"
     #     dirname = self.project_folder_path / suffix
@@ -128,18 +132,18 @@ class ProjectFile:
     #     internal_path = f"imported_tables/{folder_name}/{file_name}"
 
     #     self.filebox.write_from_path(internal_path, temp_path)
-    #     app().main_window.project_data_modified = True
+    #     self.project_data_modified_callback()
 
     def write_material_library_in_file(self, config):
         self.filebox.write(self.material_library_filename, config)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def read_material_library_from_file(self):
         return self.filebox.read(self.material_library_filename)
 
     def write_fluid_library_in_file(self, config):
         self.filebox.write(self.fluid_library_filename, config)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def read_fluid_library_from_file(self):
         return self.filebox.read(self.fluid_library_filename)
@@ -149,7 +153,7 @@ class ProjectFile:
             self.filebox.write(self.psd_info_filename, psds_data)
         else:
             self.filebox.remove(self.psd_info_filename)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def read_psd_data_from_file(self):
         return self.filebox.read(self.psd_info_filename)
@@ -159,7 +163,7 @@ class ProjectFile:
             self.filebox.write(self.pulsation_damper_info_filename, damper_data)
         else:
             self.filebox.remove(self.pulsation_damper_info_filename)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def read_pulsation_damper_data_from_file(self):
         return self.filebox.read(self.pulsation_damper_info_filename)
@@ -169,21 +173,21 @@ class ProjectFile:
             self.filebox.write(self.valve_info_filename, valve_info)
         else:
             self.filebox.remove(self.valve_info_filename)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def read_valves_info_from_file(self):
         return self.filebox.read(self.valve_info_filename)
 
-    def write_analysis_setup_in_file(self, analysis_setup : dict):
+    def write_analysis_setup_in_file(self, analysis_setup: dict):
 
         project_setup = self.filebox.read(self.project_setup_filename)
         if project_setup is None:
-            return   
+            return
 
-        project_setup["analysis_setup"] = analysis_setup         
+        project_setup["analysis_setup"] = analysis_setup
         self.filebox.write(self.project_setup_filename, project_setup)
 
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def read_analysis_setup_from_file(self):
 
@@ -198,7 +202,7 @@ class ProjectFile:
 
         return analysis_setup
 
-    def write_inertia_load_in_file(self, inertia_load : dict):
+    def write_inertia_load_in_file(self, inertia_load: dict):
 
         project_setup = self.filebox.read(self.project_setup_filename)
         if project_setup is None:
@@ -207,7 +211,7 @@ class ProjectFile:
         project_setup["inertia_load"] = inertia_load         
         self.filebox.write(self.project_setup_filename, project_setup)
 
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def read_inertia_load_from_file(self):
 
@@ -224,23 +228,15 @@ class ProjectFile:
 
     def write_nodal_properties_in_file(self):
 
-        try:
+        nodal_properties = self.project.model.properties.nodal_properties
+        data = normalize_mesh(nodal_properties)
 
-            nodal_properties = app().project.model.properties.nodal_properties
-            data = normalize_mesh(nodal_properties)
+        if nodal_properties:
+            self.filebox.write(self.nodal_properties_filename, data)
+        else:
+            self.filebox.remove(self.nodal_properties_filename)
 
-            if nodal_properties:
-                self.filebox.write(self.nodal_properties_filename, data)
-            else:
-                self.filebox.remove(self.nodal_properties_filename)
-
-            app().main_window.project_data_modified = True
-
-        except Exception as error_log:
-
-            title = "Error while exporting the nodal properties"
-            message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+        self.project_data_modified_callback()
 
     def read_nodal_properties_from_file(self):
 
@@ -253,23 +249,15 @@ class ProjectFile:
     
     def write_element_properties_in_file(self):
 
-        try:
+        element_properties = self.project.model.properties.element_properties
+        data = normalize_mesh(element_properties)
 
-            element_properties = app().project.model.properties.element_properties
-            data = normalize_mesh(element_properties)
+        if element_properties:
+            self.filebox.write(self.element_properties_filename, data)
+        else:
+            self.filebox.remove(self.element_properties_filename)
 
-            if element_properties:
-                self.filebox.write(self.element_properties_filename, data)
-            else:
-                self.filebox.remove(self.element_properties_filename)
-
-            app().main_window.project_data_modified = True
-
-        except Exception as error_log:
-
-            title = "Error while exporting element properties"
-            message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+        self.project_data_modified_callback()
 
     def read_element_properties_from_file(self):
 
@@ -282,19 +270,11 @@ class ProjectFile:
 
     def write_line_properties_in_file(self):
 
-        try:
+        line_properties = self.project.model.properties.line_properties
+        data = normalize_lines(line_properties)
 
-            line_properties = app().project.model.properties.line_properties
-            data = normalize_lines(line_properties)
-
-            self.filebox.write(self.line_properties_filename, data)
-            app().main_window.project_data_modified = True
-
-        except Exception as error_log:
-
-            title = "Error while exporting line properties"
-            message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+        self.filebox.write(self.line_properties_filename, data)
+        self.project_data_modified_callback()
 
     def read_line_properties_from_file(self):
         return self.filebox.read(self.line_properties_filename)
@@ -302,11 +282,8 @@ class ProjectFile:
     def write_imported_table_data_in_file(self):
 
         self.filebox.remove(self.imported_table_data_filename)
-        acoustic_imported_tables = app().project.model.properties.acoustic_imported_tables
-        structural_imported_tables = app().project.model.properties.structural_imported_tables
-
-        # print(acoustic_imported_tables)
-        # print(structural_imported_tables)
+        acoustic_imported_tables = self.project.model.properties.acoustic_imported_tables
+        structural_imported_tables = self.project.model.properties.structural_imported_tables
 
         if acoustic_imported_tables or structural_imported_tables:
 
@@ -327,10 +304,8 @@ class ProjectFile:
 
                             data_name = f"{group_label}/{table_name}"
                             f.create_dataset(data_name, data=data_array, dtype=float)
-                            # print(data_name, data_array.shape)
-                            # print("arquivo foi atualizado")
 
-                    app().main_window.project_data_modified = True
+                    self.project_data_modified_callback()
 
     def read_imported_table_data_from_file(self):
 
@@ -357,11 +332,11 @@ class ProjectFile:
         return tables_data
 
     def write_thumbnail(self):
-        thumbnail = app().project.thumbnail
+        thumbnail = self.project.thumbnail
         if thumbnail is None:
             return
         self.filebox.write(self.thumbnail_filename, thumbnail)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def read_thumbnail(self):
         return self.filebox.read(self.thumbnail_filename)
@@ -373,9 +348,9 @@ class ProjectFile:
         with self.filebox.open(self.results_data_filename, "w") as internal_file:
             with h5py.File(internal_file, "w") as f:
 
-                analysis_id = app().project.analysis_id
-                acoustic_solver = app().project.acoustic_solver
-                structural_solver = app().project.structural_solver
+                analysis_id = self.project.analysis_id
+                acoustic_solver = self.project.acoustic_solver
+                structural_solver = self.project.structural_solver
 
                 if analysis_id == 2:
                     if structural_solver.modal_shapes is not None:
@@ -414,7 +389,7 @@ class ProjectFile:
                         solution = structural_solver.solution
                         f.create_dataset("static_structural/solution", data=solution, dtype=complex)
 
-                app().main_window.project_data_modified = True
+                self.project_data_modified_callback()
 
     def read_results_data_from_file(self):
         
@@ -444,28 +419,28 @@ class ProjectFile:
 
     def remove_nodal_properties_from_project_file(self):
         self.filebox.remove(self.nodal_properties_filename)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def remove_element_properties_from_project_file(self):
         self.filebox.remove(self.element_properties_filename)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def remove_line_properties_from_project_file(self):
         self.filebox.remove(self.line_properties_filename)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def remove_mesh_data_from_project_file(self):
         self.filebox.remove(self.mesh_data_filename)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
     def remove_results_data_from_project_file(self):
         self.filebox.remove(self.results_data_filename)
-        app().main_window.project_data_modified = True
+        self.project_data_modified_callback()
 
-    # def remove_table_from_project_file(self, folder_name : str, file_name : str):
+    # def remove_table_from_project_file(self, folder_name: str, file_name: str):
     #     internal_path = f"imported_tables/{folder_name}/{file_name}"
     #     self.filebox.remove(internal_path)
-    #     app().main_window.project_data_modified = True
+    #     self.project_data_modified_callback()
 
     def check_pipeline_data(self):
         
@@ -538,7 +513,7 @@ class ProjectFile:
     def load_thumbnail(self):
         thumbnail = self.read_thumbnail()
         if thumbnail is not None:
-            app().project.thumbnail = thumbnail
+            self.project.thumbnail = thumbnail
 
     def load_nodal_properties_from_file(self):
         return self.read_nodal_properties_from_file()
@@ -555,7 +530,7 @@ class ProjectFile:
 
         tag = 0
         aux = dict()
-        cache_lines = list()
+        # cache_lines = list()
 
         for str_line_id, data in line_data.items():
             tag += 1
@@ -566,16 +541,16 @@ class ProjectFile:
 
             aux[tag] = data
 
-        app().project.model.properties.line_properties.clear()
+        self.project.model.properties.line_properties.clear()
 
         for line_id, _data in aux.items():
 
             _data: dict
             for property, values in _data.items():
-                app().project.model.properties._set_line_property(property, values, line_id)
+                self.project.model.properties._set_line_property(property, values, line_id)
 
         if aux:
-            app().pulse_file.write_line_properties_in_file()
+            app().project.file.write_line_properties_in_file()
 
 def denormalize_mesh(prop: dict):
 

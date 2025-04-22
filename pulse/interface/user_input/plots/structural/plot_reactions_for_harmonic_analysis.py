@@ -5,9 +5,11 @@ from pulse import app, UI_DIR
 from pulse.postprocessing.plot_structural_data import get_reactions
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+from pulse.interface.user_input.project.loading_window import LoadingWindow
 
 from molde import load_ui
 
+import logging
 import numpy as np
 
 class PlotReactionsForHarmonicAnalysis(QWidget):
@@ -18,8 +20,6 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
         load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
 
         self.before_run = app().project.get_pre_solution_model_checks()
 
@@ -27,15 +27,11 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
+        self._load_structural_solver_and_reactions()
         self._load_nodes_info()
 
     def _initialize(self):
-
-        reactions_data = self.project.get_structural_reactions()
-
-        self.reactions_at_constrained_dofs = reactions_data.get("reactions_at_constrained_dofs", None)
-        self.reactions_at_springs = reactions_data.get("reactions_at_springs", None)
-        self.reactions_at_dampers = reactions_data.get("reactions_at_dampers", None)
+        pass
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -125,9 +121,37 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
             text = "[{}]".format(*labels)
         return text
 
+    def _load_structural_solver_and_reactions(self):
+
+        if app().project.structural_solver is None:
+
+            def solver_callback():
+
+                logging.info("Processing the cross-sections [5%]")
+                app().project.model.preprocessor.process_cross_sections_mapping()
+
+                logging.info("Processing global matrices [50%]")
+                app().project.structural_solver = app().project.get_structural_solver()
+
+                logging.info("Processing global matrices [100%]")
+
+                if app().project.structural_solver.solution is None:
+                    app().project.structural_solver.solution = app().project.structural_solution
+
+                logging.info("Evaluating the structural reactions [20%]")
+                app().project.calculate_structural_reactions()
+
+            LoadingWindow(solver_callback).run()
+
+        reactions_data = app().project.get_structural_reactions()
+
+        self.reactions_at_constrained_dofs = reactions_data.get("reactions_at_constrained_dofs", None)
+        self.reactions_at_springs = reactions_data.get("reactions_at_springs", None)
+        self.reactions_at_dampers = reactions_data.get("reactions_at_dampers", None)
+
     def _load_nodes_info(self):
 
-        for (property, *args), data in self.model.properties.nodal_properties.items():
+        for (property, *args), data in app().project.model.properties.nodal_properties.items():
 
             if property == "lumped_stiffness":
                 node_id = args[0]
@@ -182,7 +206,7 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
         
         if self.tabWidget_main.currentIndex()==0:
 
-            data = self.model.properties._get_property("prescribed_dofs", node_ids=int(node_id))
+            data = app().project.model.properties._get_property("prescribed_dofs", node_ids=int(node_id))
             values = data["values"]
 
             mask = [False, False, False, False, False, False]
@@ -203,7 +227,7 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
 
             if self.tabWidget_springs_dampers.currentIndex()==0:
 
-                data = self.model.properties._get_property("lumped_stiffness", node_ids=int(node_id))
+                data = app().project.model.properties._get_property("lumped_stiffness", node_ids=int(node_id))
                 values = data["values"]
 
                 mask = [False if bc is None else True for bc in values]
@@ -212,7 +236,7 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
 
             elif self.tabWidget_springs_dampers.currentIndex()==1:
 
-                data = self.model.properties._get_property("lumped_dampings", node_ids=int(node_id))
+                data = app().project.model.properties._get_property("lumped_dampings", node_ids=int(node_id))
                 values = data["values"]
 
                 mask = [False if bc is None else True for bc in values]
@@ -244,14 +268,14 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
             return
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
-        self.plotter._set_model_results_data_to_plot(self.model_results)
+        self.plotter._set_model_results_data_to_plot(app().project.model_results)
 
     def call_data_exporter(self):
         if self.check_inputs():
             return
         self.join_model_data()
         self.exporter = ExportModelResults()
-        self.exporter._set_data_to_export(self.model_results)
+        self.exporter._set_data_to_export(app().project.model_results)
 
     def check_inputs(self):
         
@@ -302,14 +326,14 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
 
     def join_model_data(self):
 
-        self.model_results = dict()
-        analysis_method = self.project.analysis_method_label
+        app().project.model_results = dict()
+        analysis_method = app().project.analysis_method_label
         self.title = f"Structural frequency response - {analysis_method}"
         legend_label = f"Reaction {self.local_dof_label} at node {self.node_id}"
 
         key = ("node", self.node_id)
-        self.model_results[key] = {
-                                    "x_data" : self.model.frequencies,
+        app().project.model_results[key] = {
+                                    "x_data" : app().project.model.frequencies,
                                     "y_data" : self.get_reactions(),
                                     "x_label" : "Frequency [Hz]",
                                     "y_label" : "Reaction",

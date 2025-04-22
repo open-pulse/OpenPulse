@@ -14,12 +14,14 @@ import numpy as np
 window_title = "Error"
 window_title2 = "Warning"
 
-class CrossSectionWidget(QDialog):
+class CrossSectionWidget(QWidget):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         ui_path = UI_DIR / "model/setup/cross_section/cross_section_widget.ui"
         load_ui(ui_path, self, UI_DIR)
+
+        self.dialog = kwargs.get("dialog", None)
 
         self._initialize()
         self._define_qt_variables()
@@ -129,6 +131,7 @@ class CrossSectionWidget(QDialog):
         # QPushButton
         self.pushButton_confirm_pipe: QPushButton
         self.pushButton_confirm_beam: QPushButton
+        # self.pushButton_cancel: QPushButton
         self.pushButton_invert_input_values: QPushButton
         self.pushButton_load_section_info: QPushButton
         self.pushButton_plot_pipe_cross_section: QPushButton
@@ -375,7 +378,7 @@ class CrossSectionWidget(QDialog):
 
         if len(self.section_parameters) == 6:
             
-            self.section_type_label = "Pipe"
+            self.section_type_label = "pipe"
             self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
                                         "section_parameters" : self.section_parameters  }
 
@@ -461,7 +464,7 @@ class CrossSectionWidget(QDialog):
                                     insulation_density
                                     ]
 
-        self.section_type_label = "Reducer"
+        self.section_type_label = "reducer"
         self.pipe_section_info = {  "section_type_label" : self.section_type_label ,
                                     "section_parameters" : self.variable_parameters  }
 
@@ -469,33 +472,33 @@ class CrossSectionWidget(QDialog):
 
         tab_index = self.tabWidget_beam_section.currentIndex()
 
-        if tab_index == 0: # Rectangular section
+        if tab_index == 0: # rectangular-beam
 
-            self.section_type_label = "Rectangular section"
+            self.section_type_label = "rectangular_beam"
 
-            base = check_inputs(self.lineEdit_base_rectangular_section, 'base (Rectangular section)')
+            base = check_inputs(self.lineEdit_base_rectangular_section, 'base (Rectangular beam)')
             if base is None:
                 self.lineEdit_base_rectangular_section.setFocus()
                 return True
             
-            height = check_inputs(self.lineEdit_height_rectangular_section, 'height (Rectangular section)')
+            height = check_inputs(self.lineEdit_height_rectangular_section, 'height (Rectangular beam)')
             if height is None:
                 self.lineEdit_height_rectangular_section.setFocus()
                 return True
             
-            offset_y = check_inputs(self.lineEdit_offsety_rectangular_section, 'offset y (Rectangular section)', only_positive=False, zero_included=True)
+            offset_y = check_inputs(self.lineEdit_offsety_rectangular_section, 'offset y (Rectangular beam)', only_positive=False, zero_included=True)
             if offset_y is None:
                 self.lineEdit_offsety_rectangular_section.setFocus()
                 return True
             
-            offset_z = check_inputs(self.lineEdit_offsetz_rectangular_section, 'offset z (Rectangular section)', only_positive=False, zero_included=True)
+            offset_z = check_inputs(self.lineEdit_offsetz_rectangular_section, 'offset z (Rectangular beam)', only_positive=False, zero_included=True)
             if offset_z is None:
                 self.lineEdit_offsetz_rectangular_section.setFocus()
                 return True
    
             if self.lineEdit_wall_thickness_rectangular_section.text() != "":
                 
-                thickness = check_inputs(self.lineEdit_wall_thickness_rectangular_section, 'wall thickness (Rectangular section)')
+                thickness = check_inputs(self.lineEdit_wall_thickness_rectangular_section, 'wall thickness (Rectangular beam)')
                 if thickness is None:
                     self.lineEdit_wall_thickness_rectangular_section.setFocus()
                     return True
@@ -516,27 +519,27 @@ class CrossSectionWidget(QDialog):
 
             self.section_parameters = [base, height, base_in, height_in, offset_y, offset_z]
 
-        elif tab_index == 1: # Circular section
+        elif tab_index == 1: # circular-beam
 
-            self.section_type_label = "Circular section"
+            self.section_type_label = "circular_beam"
 
-            outside_diameter_beam = check_inputs(self.lineEdit_outside_diameter_circular_section, 'outside diameter (Circular section)')
+            outside_diameter_beam = check_inputs(self.lineEdit_outside_diameter_circular_section, 'outside diameter (circular_beam)')
             if outside_diameter_beam is None:
                 self.lineEdit_outside_diameter_circular_section.setFocus()
                 return True
             
-            offset_y = check_inputs(self.lineEdit_offsety_circular_section, 'offset y (Circular section)', only_positive=False, zero_included=True)
+            offset_y = check_inputs(self.lineEdit_offsety_circular_section, 'offset y (circular_beam)', only_positive=False, zero_included=True)
             if offset_y is None:
                 self.lineEdit_offsety_circular_section.setFocus()
                 return True
             
-            offset_z = check_inputs(self.lineEdit_offsetz_circular_section, 'offset z (Circular section)', only_positive=False, zero_included=True)
+            offset_z = check_inputs(self.lineEdit_offsetz_circular_section, 'offset z (circular_beam)', only_positive=False, zero_included=True)
             if offset_z is None:
                 self.lineEdit_offsetz_circular_section.setFocus()
                 return True
 
             if self.lineEdit_wall_thickness_circular_section != "":
-                thickness = check_inputs(self.lineEdit_wall_thickness_circular_section, 'wall thickness (Circular section)', zero_included=True)
+                thickness = check_inputs(self.lineEdit_wall_thickness_circular_section, 'wall thickness (circular_beam)', zero_included=True)
                 if thickness is None:
                     self.lineEdit_wall_thickness_circular_section.setFocus()
                     return True
@@ -550,46 +553,46 @@ class CrossSectionWidget(QDialog):
 
             self.section_parameters = [outside_diameter_beam, thickness, offset_y, offset_z]
 
-        elif tab_index == 2: # Beam: C-section
+        elif tab_index == 2: # c-beam
 
-            self.section_type_label = "C-section"
+            self.section_type_label = "c_beam"
 
-            h = check_inputs(self.lineEdit_height_C_section, 'height (C-profile)')
+            h = check_inputs(self.lineEdit_height_C_section, 'height (c-beam)')
             if h is None:
                 self.lineEdit_height_C_section
                 return True
             
-            w1 = check_inputs(self.lineEdit_w1_C_section, 'w1 (C-profile)')
+            w1 = check_inputs(self.lineEdit_w1_C_section, 'w1 (c-beam)')
             if w1 is None:
                 self.lineEdit_w1_C_section.setFocus()
                 return True
 
-            tw = check_inputs(self.lineEdit_tw_C_section, 'tw (C-profile)')
+            tw = check_inputs(self.lineEdit_tw_C_section, 'tw (c-beam)')
             if tw is None:
                 self.lineEdit_tw_C_section.setFocus()
                 return True
             
-            w2 = check_inputs(self.lineEdit_w2_C_section, 'w2 (C-profile)')
+            w2 = check_inputs(self.lineEdit_w2_C_section, 'w2 (c-beam)')
             if w2 is None:
                 self.lineEdit_w2_C_section.setFocus()
                 return True
 
-            t1 = check_inputs(self.lineEdit_t1_C_section, 't1 (C-profile)')
+            t1 = check_inputs(self.lineEdit_t1_C_section, 't1 (c-beam)')
             if t1 is None:
                 self.lineEdit_t1_C_section.setFocus()
                 return True
 
-            t2 = check_inputs(self.lineEdit_t2_C_section, 't2 (C-profile)')
+            t2 = check_inputs(self.lineEdit_t2_C_section, 't2 (c-beam)')
             if t2 is None:
                 self.lineEdit_t2_C_section.setFocus()
                 return True
 
-            offset_y = check_inputs(self.lineEdit_offsety_C_section, 'offset y (C-profile)',only_positive=False, zero_included=True)
+            offset_y = check_inputs(self.lineEdit_offsety_C_section, 'offset y (c-beam)',only_positive=False, zero_included=True)
             if offset_y is None:
                 self.lineEdit_offsety_C_section.setFocus()
                 return True
 
-            offset_z = check_inputs(self.lineEdit_offsetz_C_section, 'offset z (C-profile)', only_positive=False, zero_included=True)            
+            offset_z = check_inputs(self.lineEdit_offsetz_C_section, 'offset z (c-beam)', only_positive=False, zero_included=True)            
             if offset_z is None:
                 self.lineEdit_offsetz_C_section.setFocus()
                 return True
@@ -602,46 +605,46 @@ class CrossSectionWidget(QDialog):
 
             self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
 
-        elif tab_index == 3: # Beam: I-section
+        elif tab_index == 3: # i-beam
 
-            self.section_type_label = "I-section"
+            self.section_type_label = "i_beam"
 
-            h = check_inputs(self.lineEdit_height_I_section, 'height (I-profile)')
+            h = check_inputs(self.lineEdit_height_I_section, 'height (i-beam)')
             if h is None:
                 self.lineEdit_height_I_section.setFocus()
                 return True
 
-            w1 = check_inputs(self.lineEdit_w1_I_section, 'w1 (I-profile)')
+            w1 = check_inputs(self.lineEdit_w1_I_section, 'w1 (i-beam)')
             if w1 is None:
                 self.lineEdit_w1_I_section.setFocus()
                 return True
 
-            tw = check_inputs(self.lineEdit_tw_I_section, 'tw (I-profile)')
+            tw = check_inputs(self.lineEdit_tw_I_section, 'tw (i-beam)')
             if tw is None:
                 self.lineEdit_tw_I_section.setFocus()
                 return True
 
-            w2 = check_inputs(self.lineEdit_w2_I_section, 'w2 (I-profile)')
+            w2 = check_inputs(self.lineEdit_w2_I_section, 'w2 (i-beam)')
             if w2 is None:
                 self.lineEdit_w2_I_section.setFocus()
                 return True
 
-            t1 = check_inputs(self.lineEdit_t1_I_section, 't1 (I-profile)')
+            t1 = check_inputs(self.lineEdit_t1_I_section, 't1 (i-beam)')
             if t1 is None:
                 self.lineEdit_t1_I_section.setFocus()
                 return True
 
-            t2 = check_inputs(self.lineEdit_t2_I_section, 't2 (I-profile)')
+            t2 = check_inputs(self.lineEdit_t2_I_section, 't2 (i-beam)')
             if t2 is None:
                 self.lineEdit_t2_I_section.setFocus()
                 return True
 
-            offset_y = check_inputs(self.lineEdit_offsety_I_section, 'offset y (I-profile)', only_positive=False, zero_included=True)
+            offset_y = check_inputs(self.lineEdit_offsety_I_section, 'offset y (i-beam)', only_positive=False, zero_included=True)
             if offset_y is None:
                 self.lineEdit_offsety_I_section.setFocus()
                 return True
 
-            offset_z = check_inputs(self.lineEdit_offsetz_I_section, 'offset z (I-profile)', only_positive=False, zero_included=True)
+            offset_z = check_inputs(self.lineEdit_offsetz_I_section, 'offset z (i-beam)', only_positive=False, zero_included=True)
             if offset_z is None:
                 self.lineEdit_offsetz_I_section.setFocus()
                 return True
@@ -654,36 +657,36 @@ class CrossSectionWidget(QDialog):
 
             self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
             
-        elif tab_index == 4: # Beam: T-section
+        elif tab_index == 4: # t-beam
 
-            self.section_type_label = "T-section"
+            self.section_type_label = "t_beam"
 
-            h = check_inputs(self.lineEdit_height_T_section, 'height (T-profile)')
+            h = check_inputs(self.lineEdit_height_T_section, 'height (t-beam)')
             if h is None:
                 self.lineEdit_height_T_section.setFocus()
                 return True
 
-            w1 = check_inputs(self.lineEdit_w1_T_section, 'W1 (T-profile)')
+            w1 = check_inputs(self.lineEdit_w1_T_section, 'W1 (t-beam)')
             if w1 is None:
                 self.lineEdit_w1_T_section.setFocus()
                 return True
 
-            tw = check_inputs(self.lineEdit_tw_T_section, 'tw (T-profile)')
+            tw = check_inputs(self.lineEdit_tw_T_section, 'tw (t-beam)')
             if tw is None:
                 self.lineEdit_tw_T_section.setFocus()
                 return True
 
-            t1 = check_inputs(self.lineEdit_t1_T_section, 't1 (T-profile)')
+            t1 = check_inputs(self.lineEdit_t1_T_section, 't1 (t-beam)')
             if t1 is None:
                 self.lineEdit_t1_T_section.setFocus()
                 return True
 
-            offset_y = check_inputs(self.lineEdit_offsety_T_section, 'offset y (T-profile)', only_positive=False, zero_included=True)
+            offset_y = check_inputs(self.lineEdit_offsety_T_section, 'offset y (t-beam)', only_positive=False, zero_included=True)
             if offset_y is None:
                 self.lineEdit_offsety_T_section.setFocus()
                 return True
 
-            offset_z = check_inputs(self.lineEdit_offsetz_T_section, 'offset z (T-profile)', only_positive=False, zero_included=True)
+            offset_z = check_inputs(self.lineEdit_offsetz_T_section, 'offset z (t-beam)', only_positive=False, zero_included=True)
             if offset_z is None:
                 self.lineEdit_offsetz_T_section.setFocus()
                 return True
@@ -696,30 +699,30 @@ class CrossSectionWidget(QDialog):
 
             self.section_parameters = [h, w1, t1, tw, offset_y, offset_z]
 
-        elif tab_index == 5: # Beam: Generic
+        elif tab_index == 5: # generic-section
 
             area = float(0)
             Iyy = float(0)
             Izz = float(0)
             Iyz = float(0)
 
-            area = check_inputs(self.lineEdit_area, 'Area (Generic section)')
+            area = check_inputs(self.lineEdit_area, 'Area (generic beam)')
             if area is None:
                 return True
 
-            Iyy = check_inputs(self.lineEdit_Iyy, 'Iyy (Generic section)')
+            Iyy = check_inputs(self.lineEdit_Iyy, 'Iyy (generic beam)')
             if Iyy is None:
                 return True
 
-            Izz = check_inputs(self.lineEdit_Izz, 'Izz (Generic section)')
+            Izz = check_inputs(self.lineEdit_Izz, 'Izz (generic beam)')
             if Izz is None:
                 return True
 
-            Iyz = check_inputs(self.lineEdit_Iyz, 'Iyz (Generic section)', only_positive=False, zero_included=True)
+            Iyz = check_inputs(self.lineEdit_Iyz, 'Iyz (generic beam)', only_positive=False, zero_included=True)
             if Iyz is None:
                 return True
 
-            shear_coefficient = check_inputs(self.lineEdit_shear_coefficient, 'Shear Factor (Generic section)')
+            shear_coefficient = check_inputs(self.lineEdit_shear_coefficient, 'Shear Coefficient (generic beam)', zero_included=True)
             if shear_coefficient is None:
                 return True
 
@@ -730,7 +733,7 @@ class CrossSectionWidget(QDialog):
                 return True
             else:  
 
-                self.section_type_label = "Generic section"
+                self.section_type_label = "generic_beam"
                 self.section_parameters = None
                 _section_properties = [area, Iyy, Izz, Iyz, shear_coefficient, 0, 0]
 
@@ -778,7 +781,7 @@ class CrossSectionWidget(QDialog):
             if self.get_beam_section_parameters():
                 return
 
-        if self.section_type_label in ["Pipe", "Reducer"]:
+        if self.section_type_label in ["pipe", "reducer"]:
             Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
         else:
             Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
@@ -792,7 +795,7 @@ class CrossSectionWidget(QDialog):
         second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
         third_plot = plt.scatter(0, 0, marker="+", linewidth=1.5, zorder=4, color=[0,0,1], s=120)
         
-        if self.section_type_label in ["Pipe", "Reducer"] and Yp_ins is not None:
+        if self.section_type_label in ["pipe", "reducer"] and Yp_ins is not None:
             fourth, = plt.fill(Yp_ins, Zp_ins, color=[0.5,1,1], linewidth=2, zorder=5) 
             _max = np.max(np.abs(np.array([Zp_ins, Yp_ins])))*1.2
             second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
@@ -815,3 +818,11 @@ class CrossSectionWidget(QDialog):
         plt.ylim(-_max*f, _max*f)
         plt.grid()
         plt.show()
+
+    def keyPressEvent(self, event):
+        if isinstance(self.dialog, QDialog):
+            if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+                self.dialog.attribute_callback()
+
+            elif event.key() == Qt.Key_Escape:
+                self.dialog.close()

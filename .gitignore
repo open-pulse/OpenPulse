@@ -1,7 +1,6 @@
 __pycache__/
 .pytest_cache/
 .vscode/
-Projects/
 doc/build/
 target/
 docs/
@@ -9,6 +8,8 @@ src/
 *.mtl
 .config
 test.py
+
+.idea/
 
 # Profiling files
 *.log
@@ -33,3 +34,4 @@ temporary_data/
 
 # Do not ignore
 !pulse/libraries/*.dat
+!examples/projects/*.pulse

@@ -451,7 +451,7 @@ class ReciprocatingPumpInputs(QDialog):
         if stop:
             return True, None
 
-        neigh_elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+        neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
 
         if len(neigh_elements) == 1:
             return stop, node_id
@@ -643,7 +643,7 @@ class ReciprocatingPumpInputs(QDialog):
         self.pump_model.number_points = N
         self.pump_model.max_frequency = self.spinBox_max_frequency.value()
 
-        T_rev = 60/self.parameters['rotational_speed']
+        T_rev = 60 / self.parameters['rotational_speed']
         list_T = [10, 5, 2, 1, 0.5]
         list_df = [0.1, 0.2, 0.5, 1, 2]
 
@@ -652,13 +652,13 @@ class ReciprocatingPumpInputs(QDialog):
 
         if np.remainder(T_selected, T_rev) == 0:
             T = T_selected
-            df = 1/T
+            df = 1 / T
         else:
             i = 0
-            df = 1/(T_rev)
+            df = 1 / (T_rev)
             while df > df_selected:
                 i += 1
-                df = 1/(i*T_rev)
+                df = 1 / (i * T_rev)
 
         self.N_rev = i
 
@@ -696,7 +696,7 @@ class ReciprocatingPumpInputs(QDialog):
 
     def update_analysis_setup_in_file(self, f_min, f_max, f_step):
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().project.file.read_analysis_setup_from_file()
         if analysis_setup is None:
             analysis_setup = dict()
     
@@ -704,7 +704,7 @@ class ReciprocatingPumpInputs(QDialog):
         analysis_setup["f_max"] = f_max
         analysis_setup["f_step"] = f_step
 
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
     def attribute_callback(self):
 
@@ -783,8 +783,8 @@ class ReciprocatingPumpInputs(QDialog):
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_nodal_properties_in_file()
-        app().pulse_file.write_imported_table_data_in_file()
+        app().project.file.write_nodal_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
         app().main_window.set_selection()
         app().main_window.update_plots()
         self.load_reciprocating_pump_excitation_info()
@@ -794,7 +794,7 @@ class ReciprocatingPumpInputs(QDialog):
         for table_name in table_names:
             self.properties.remove_imported_tables("acoustic", table_name)
         # if table_names:
-        #     app().pulse_file.write_imported_table_data_in_file()
+        #     app().project.file.write_imported_table_data_in_file()
 
     def remove_conflicting_excitations(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "reciprocating_pump_excitation", "reciprocating_compressor_excitation"]:

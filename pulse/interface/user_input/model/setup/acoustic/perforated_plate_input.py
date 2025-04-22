@@ -32,7 +32,7 @@ class PerforatedPlateInput(QDialog):
 
         app().main_window.set_input_widget(self)
 
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
 
         self.before_run = app().project.get_pre_solution_model_checks()
@@ -715,7 +715,7 @@ class PerforatedPlateInput(QDialog):
 
             self.remove_table_files_from_elements([element_id])
             self.properties._remove_element_property("perforated_plate", element_id)
-            app().pulse_file.write_element_properties_in_file()
+            app().project.file.write_element_properties_in_file()
 
             self.preprocessor.set_perforated_plate_by_elements(element_id, None)
             self.actions_to_finalize()
@@ -754,7 +754,7 @@ class PerforatedPlateInput(QDialog):
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_element_properties_in_file()
+        app().project.file.write_element_properties_in_file()
         app().main_window.update_plots()
         self.load_elements_info()
         self.lineEdit_element_id.setText("")
@@ -765,7 +765,7 @@ class PerforatedPlateInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("acoustic", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def on_click_item(self, item):
         if item.text(0) != "":

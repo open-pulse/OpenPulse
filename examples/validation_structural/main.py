@@ -47,7 +47,7 @@ Iyy =  np.pi*((d_out**4)-(d_in**4))/64
 Izz = np.pi*((d_out**4)-(d_in**4))/64
 Iyz = 0
 
-section_info = ["Generic section", None]
+section_info = ["generic_beam", None]
 
 cross_section = CrossSection(d_out, 0, 0, 0, steel.poisson_ratio, element_type=element_type, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, additional_section_info=section_info) 
 

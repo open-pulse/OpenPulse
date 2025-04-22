@@ -493,7 +493,7 @@ class ReciprocatingCompressorInputs(QDialog):
         if stop:
             return True, None
 
-        neigh_elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+        neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
 
         if len(neigh_elements) == 1:
             return stop, node_id
@@ -755,7 +755,7 @@ class ReciprocatingCompressorInputs(QDialog):
 
     def update_analysis_setup_in_file(self, f_min, f_max, f_step):
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().project.file.read_analysis_setup_from_file()
         if analysis_setup is None:
             analysis_setup = dict()
     
@@ -763,7 +763,7 @@ class ReciprocatingCompressorInputs(QDialog):
         analysis_setup["f_max"] = f_max
         analysis_setup["f_step"] = f_step
 
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
     def update_state_properties_at_discharge(self):
 
@@ -873,8 +873,8 @@ class ReciprocatingCompressorInputs(QDialog):
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_nodal_properties_in_file()
-        app().pulse_file.write_imported_table_data_in_file()
+        app().project.file.write_nodal_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
         app().main_window.set_selection()
         app().main_window.update_plots()
         self.load_compressor_excitation_info()
@@ -884,7 +884,7 @@ class ReciprocatingCompressorInputs(QDialog):
         for table_name in table_names:
             self.properties.remove_imported_tables("acoustic", table_name)
         if table_names:
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_conflicting_excitations(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "reciprocating_compressor_excitation", "reciprocating_pump_excitation"]:

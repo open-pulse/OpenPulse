@@ -63,10 +63,14 @@ class GetStandardCrossSection(QDialog):
         self.treeWidget_section_data : QTreeWidget
 
     def _create_connections(self):
+        #
+        self.comboBox_units.currentIndexChanged.connect(self.load_treeWidget)
+        #
         self.pushButton_confirm_selection.clicked.connect(self.confirm_selection)
+        #
         self.radioButton_carbon_steel.clicked.connect(self.load_treeWidget)
         self.radioButton_stainless_steel.clicked.connect(self.load_treeWidget)
-        self.comboBox_units.currentIndexChanged.connect(self.load_treeWidget)
+        #
         self.treeWidget_section_data.itemClicked.connect(self.on_click_item)
         self.treeWidget_section_data.itemDoubleClicked.connect(self.on_double_click_item)
 

@@ -29,9 +29,9 @@ class PlotNodalResultsForHarmonicAnalysis(QWidget):
     def _initialize(self):
         self.dof_labels = ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]
 
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.nodes = self.project.preprocessor.nodes
+        self.nodes = self.project.model.preprocessor.nodes
         self.analysisMethod = self.project.analysis_method_label
         self.frequencies = self.model.frequencies
         self.solution = self.project.get_structural_solution()

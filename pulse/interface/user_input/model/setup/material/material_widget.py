@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem, QWidget
+from PySide6.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt
 
@@ -30,7 +30,7 @@ def get_color_rgb(color):
 
 class MaterialWidget(QWidget):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         ui_path = UI_DIR / "model/setup/material/material_input_widget.ui"
         load_ui(ui_path, self, UI_DIR)
@@ -38,9 +38,12 @@ class MaterialWidget(QWidget):
         self.project = app().project
         self.properties = app().project.model.properties
 
+        self.dialog = kwargs.get("dialog", None)
+
         self._initialize()
         self.define_qt_variables()
         self.create_connections()
+        self._config_widgets()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
@@ -53,7 +56,7 @@ class MaterialWidget(QWidget):
 
     def _initialize(self):
 
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
 
         self.row = None
         self.col = None
@@ -90,6 +93,10 @@ class MaterialWidget(QWidget):
         self.tableWidget_material_data.itemChanged.connect(self.item_changed_callback)
         self.tableWidget_material_data.cellClicked.connect(self.cell_clicked_callback)
 
+    def _config_widgets(self):
+        self.tableWidget_material_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
+        self.tableWidget_material_data.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
+
     def config_table_of_material_data(self):
         return
         header = [
@@ -119,7 +126,7 @@ class MaterialWidget(QWidget):
             self.reset_library_to_default()
             return
 
-        config = app().pulse_file.read_material_library_from_file()
+        config = app().project.file.read_material_library_from_file()
         if config is None:
             self.reset_library_to_default()
             return
@@ -398,10 +405,10 @@ class MaterialWidget(QWidget):
 
             identifier = material_data["identifier"]
 
-            config = app().pulse_file.read_material_library_from_file()
+            config = app().project.file.read_material_library_from_file()
             config[identifier] = material_data
 
-            app().pulse_file.write_material_library_in_file(config)
+            app().project.file.write_material_library_in_file(config)
             self.pushButton_cancel.setText("Exit")
 
         except Exception as error_log:
@@ -412,7 +419,7 @@ class MaterialWidget(QWidget):
 
     def remove_material_from_file(self, material : Material):
 
-        config = app().pulse_file.read_material_library_from_file()
+        config = app().project.file.read_material_library_from_file()
 
         identifier = str(material.identifier)
         if not identifier in config.sections():
@@ -421,7 +428,7 @@ class MaterialWidget(QWidget):
         self.reset_material_from_lines(int(identifier))
         config.remove_section(identifier)
 
-        app().pulse_file.write_material_library_in_file(config)
+        app().project.file.write_material_library_in_file(config)
         self.load_data_from_materials_library()
 
     def reset_material_from_lines(self, material_identifiers: (list | int)):
@@ -439,7 +446,7 @@ class MaterialWidget(QWidget):
             self.properties._remove_line_property("material", line_id=_line_id)
             app().project.model.preprocessor.set_material_by_lines(line_id, None)
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         app().main_window.set_selection()
 
     def new_identifier(self):
@@ -497,7 +504,7 @@ class MaterialWidget(QWidget):
 
     def reset_library_to_default(self):
 
-        config_cache = app().pulse_file.read_material_library_from_file()
+        config_cache = app().project.file.read_material_library_from_file()
 
         sections_cache = list()
         if config_cache is not None:
@@ -505,7 +512,7 @@ class MaterialWidget(QWidget):
 
         default_material_library()
 
-        config = app().pulse_file.read_material_library_from_file()
+        config = app().project.file.read_material_library_from_file()
 
         material_identifiers = list()
         for section_cache in sections_cache:
@@ -517,12 +524,19 @@ class MaterialWidget(QWidget):
         self.load_data_from_materials_library()
 
     def keyPressEvent(self, event):
+
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            return
+            if isinstance(self.dialog, QDialog):
+                self.dialog.attribute_callback()
+
         elif event.key() == Qt.Key_Delete:
             self.remove_selected_column()
+
         elif event.key() == Qt.Key_Escape:
-            self.close()
+            if isinstance(self.dialog, QDialog):
+                self.dialog.close()
+            else:
+                self.close()
 
     def closeEvent(self, event):
         super().closeEvent(event)

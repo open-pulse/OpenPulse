@@ -12,7 +12,7 @@ from numbers import Number
 def nodes_info_text() -> str:
 
     nodes = app().main_window.list_selected_nodes()
-    preprocessor = app().project.preprocessor
+    preprocessor = app().project.model.preprocessor
     properties = app().project.model.properties
 
     info_text = ""
@@ -173,6 +173,13 @@ def lines_info_text() -> str:
             f"{len(lines)} LINES IN SELECTION\n" f"{format_long_sequence(lines)}\n\n"
         )
 
+        total_length = 0
+        for line in lines:
+            line_length = mm_to_m(project.model.mesh.curve_length[line])
+            total_length += line_length
+        
+        info_text += f"TOTAL LENGTH: {total_length : .3f} [m]\n\n"
+
     elif len(lines) == 1:
 
         line_id, *_ = lines
@@ -209,7 +216,7 @@ def lines_info_text() -> str:
                                              valve_name
                                              )
         
-        info_text += strucural_element_info_text()
+        info_text += structural_element_info_text()
 
     return info_text
 
@@ -296,7 +303,7 @@ def cross_section_info_text(cross_section, structural_element_type, beam_xaxis_r
 
     return info_text
 
-def strucural_element_info_text():
+def structural_element_info_text():
 
     line_ids = app().main_window.list_selected_lines()
     if len(line_ids) == 1:
@@ -304,11 +311,11 @@ def strucural_element_info_text():
         tree = TreeInfo("structural element")
 
         structural_element_type = app().project.model.properties._get_property("structural_element_type", line_id=line_ids[0])
-        if strucural_element_info_text is None:
+        if structural_element_type is None:
             label = "Pipe_1"
         else:
             label = structural_element_type
-        tree.add_item("Strucural element type", label)
+        tree.add_item("Structural element type", label)
 
         if structural_element_type in ["Pipe_1", "pipe_1"]:
 

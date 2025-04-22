@@ -236,7 +236,7 @@ class PulsationDamperCalculatorInputs(QDialog):
 
         elif unit_label == " liters":
             V0 = V0 * 1e3
-            Vm = Vm * 1e6
+            Vm = Vm * 1e3
 
         self.lineEdit_effective_volume.setText(f"{V0 : .8e}")
         self.lineEdit_volume_at_average_pressure.setText(f"{Vm : .8e}")

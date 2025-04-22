@@ -1,6 +1,10 @@
 from pulse import app
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.model.preprocessor import Preprocessor
+
 import numpy as np
 from math import pi
 
@@ -9,7 +13,7 @@ N_div = 20
 
 def get_preprocessor():
     project = app().main_window.project
-    return project.preprocessor
+    return project.model.preprocessor
 
 
 def get_structural_solution():
@@ -22,13 +26,15 @@ def get_color_scale_setup():
     return project.color_scale_setup
 
 
-def get_structural_frf(preprocessor, solution, node, dof, **kwargs):
+def get_structural_frf(preprocessor: "Preprocessor", solution: np.ndarray, node_id: int, dof_index: int, **kwargs) -> np.ndarray:
 
     absolute = kwargs.get("absolute", False)
     real_values = kwargs.get("real_values", False)
     imag_values = kwargs.get("imag_values", False)
 
-    position = preprocessor.nodes[node].global_index * DOF_PER_NODE_STRUCTURAL + dof
+    position = preprocessor.nodes[node_id].global_index * DOF_PER_NODE_STRUCTURAL + dof_index
+    print(node_id, position)
+
     if absolute:
         return np.abs(solution[position])
     elif real_values:
@@ -39,7 +45,7 @@ def get_structural_frf(preprocessor, solution, node, dof, **kwargs):
         return solution[position]
 
 
-def get_min_max_resultant_displacements(solution, column, **kwargs):
+def get_min_max_resultant_displacements(solution: np.ndarray, column: int, **kwargs):
 
     absolute = kwargs.get("absolute", False)
     ux_abs_values = kwargs.get("ux_abs_values", False)
@@ -153,7 +159,7 @@ def get_min_max_resultant_displacements(solution, column, **kwargs):
     return r_xyz, r_min, r_max, r_xyz_max
 
 
-def get_structural_response(preprocessor, solution, column, **kwargs):
+def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, column: int, **kwargs) -> np.ndarray:
 
     phase_step = kwargs.get("phase_step", None)
     r_max = kwargs.get("r_max", None)
@@ -242,7 +248,7 @@ def get_structural_response(preprocessor, solution, column, **kwargs):
     return connect, coord_def, r_xyz_plot, magnif_factor
 
 
-def get_reactions(reactions, node, dof, **kwargs):
+def get_reactions(reactions: dict, node_id: int, dof_index: int, **kwargs):
     """ This function returns a dictionary containing global dofs 
         as its keys and the reactions as its values. 
     """
@@ -253,7 +259,7 @@ def get_reactions(reactions, node, dof, **kwargs):
 
     preprocessor = get_preprocessor()
 
-    key = preprocessor.nodes[node].global_index * DOF_PER_NODE_STRUCTURAL + dof
+    key = preprocessor.nodes[node_id].global_index * DOF_PER_NODE_STRUCTURAL + dof_index
     if absolute:
         results = np.abs(reactions[key])
     elif real_values:
@@ -265,7 +271,7 @@ def get_reactions(reactions, node, dof, **kwargs):
     return results
 
 
-def get_stress_spectrum_data(stresses, element_id, stress_key, **kwargs):
+def get_stress_spectrum_data(stresses: dict, element_id: int, stress_key: str, **kwargs) -> np.array:
 
     absolute = kwargs.get("absolute", False)
     real_values = kwargs.get("real_values", False)

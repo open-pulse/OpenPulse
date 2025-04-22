@@ -1,5 +1,6 @@
 from molde.poly_data import VerticesData
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
+from pulse import app
 
 
 class ControlPointsActor(vtkActor):
@@ -16,7 +17,8 @@ class ControlPointsActor(vtkActor):
         self.SetMapper(mapper)
 
         self.GetProperty().SetPointSize(15)
-        self.GetProperty().RenderPointsAsSpheresOn()
+        if not app().main_window.config.user_preferences.compatibility_mode:
+            self.GetProperty().RenderPointsAsSpheresOn()
         self.GetProperty().SetColor([i / 255 for i in (255, 180, 50)])
         self.GetProperty().LightingOff()
 

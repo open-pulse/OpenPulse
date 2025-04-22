@@ -1024,12 +1024,12 @@ class ReciprocatingPumpModel:
             pos_dV *= -1
 
         x_label = "Time [s]"
-        y_label = "Fluctuating volume [m³]"
+        y_label = "Flow rate [m³/s]"
 
         if flow_label == "out_flow":
-            title = f"Pump fluctuating volume at discharge"# - dV = {dV : .6e} m³"
+            title = f"Pump fluctuating volume at discharge - dV = {dV : .6e} m³"
         else:
-            title = f"Pump fluctuating volume at suction"# - dV = {dV : .6e} m³"
+            title = f"Pump fluctuating volume at suction - dV = {dV : .6e} m³"
 
         plot(time, pos_dV, x_label, y_label, title)
 

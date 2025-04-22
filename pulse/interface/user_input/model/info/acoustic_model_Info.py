@@ -34,7 +34,7 @@ class AcousticModelInfo(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
 
     def _define_qt_variables(self):
 

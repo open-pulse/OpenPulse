@@ -33,8 +33,8 @@ class MeshPicker:
         self.tube_bounds = dict()
 
     def update_bounds(self):
-        elements = app().project.preprocessor.structural_elements
-        nodes = app().project.preprocessor.nodes
+        elements = app().project.model.preprocessor.structural_elements
+        nodes = app().project.model.preprocessor.nodes
         points = app().project.get_geometry_points()
 
         # Usually it makes more sense to store the points/nodes

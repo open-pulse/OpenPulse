@@ -94,7 +94,7 @@ class PlotStructuralModeShape(QWidget):
         self.frame_button.setVisible(False)
         self.lineEdit_natural_frequency.setDisabled(True)
 
-        widths = [80, 140]
+        widths = [100, 140]
         for i, width in enumerate(widths):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)
