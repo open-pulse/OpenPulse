@@ -335,6 +335,7 @@ class ProjectFile:
         thumbnail = self.project.thumbnail
         if thumbnail is None:
             return
+        print("Oiiiii")
         self.filebox.write(self.thumbnail_filename, thumbnail)
         self.project_data_modified_callback()
 

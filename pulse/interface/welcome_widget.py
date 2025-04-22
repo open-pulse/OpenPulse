@@ -160,7 +160,7 @@ class WelcomeWidget(QWidget):
 class WelcomeItem(QWidget):
     clicked = Signal()
 
-    def __init__(self, text="", icon=None, should_paint=True):
+    def __init__(self, text="", icon=None, should_paint=False):
         super().__init__()
 
         button = QPushButton(self)
