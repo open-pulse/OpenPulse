@@ -583,14 +583,18 @@ class MainWindow(QMainWindow):
             structural_symbols=self.visualization_filter.structural_symbols,
         )
         self.close_dialogs()
+        self.tool_bar.setDisabled(False)
+        self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
-        self.animation_toolbar.setEnabled(False)
+        self.animation_toolbar.setDisabled(True)
 
         self.action_geometry_editor_workspace.setEnabled(False)
         if not self.action_model_setup_workspace.isEnabled():
             self.action_model_setup_workspace.setEnabled(True)
         elif not self.action_results_workspace.isEnabled():
             self.action_results_workspace.setEnabled(True)
+        
+        self.setup_widgets_stack.setVisible(True)
 
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
@@ -929,7 +933,6 @@ class MainWindow(QMainWindow):
         return False
 
     def new_project(self):
-
         condition_1 = self.project.save_path is None
         condition_2 = os.path.exists(TEMP_PROJECT_FILE)
         condition_3 = self.project_data_modified
@@ -947,6 +950,7 @@ class MainWindow(QMainWindow):
         obj = NewProjectInput()
         self.initial_project_action(obj.complete)
 
+        self.action_geometry_editor_workspace_callback()
         return obj.complete
 
     def open_project(self, project_path: str | Path | None = None):

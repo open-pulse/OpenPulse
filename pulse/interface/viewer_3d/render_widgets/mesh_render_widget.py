@@ -211,7 +211,6 @@ class MeshRenderWidget(CommonRenderWidget):
         self.disable_scale_bar()
         thumbnail = self.get_thumbnail()
         app().project.thumbnail = removes_image_background(thumbnail)
-        print(app().project.thumbnail)
         
         if app().config.user_preferences.show_reference_scale_bar:
             self.enable_scale_bar()

@@ -151,7 +151,7 @@ class WelcomeWidget(QWidget):
            widget.setParent(None)
 
     def new_project(self):
-        self.main_window.new_project_dialog()
+        self.main_window.new_project()
 
     def open_project(self):
         self.main_window.open_project_dialog()
