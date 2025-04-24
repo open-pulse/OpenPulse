@@ -1,5 +1,5 @@
 
-from PyQt5.QtWidgets import QAbstractButton, QAction, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
+from PyQt5.QtWidgets import QAbstractButton, QAction, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget, QFileDialog
 from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
 from PyQt5.QtGui import QColor, QCloseEvent, QCursor
 from PyQt5 import uic
@@ -137,6 +137,7 @@ class MainWindow(QMainWindow):
         self.action_set_light_theme: QAction
         self.action_save_project: QAction
         self.action_save_project_as: QAction
+        self.action_capture_image: QAction
         self.action_show_mesh_data: QAction
         self.action_show_geometry_data: QAction
         self.action_show_lines: QAction
@@ -1077,6 +1078,25 @@ class MainWindow(QMainWindow):
             sleep(0.5)
 
         LoadingWindow(save_data).run(path)
+    
+    def action_capture_image_callback(self):
+        self.capture_image()
+    
+    def capture_image(self):
+        path, check = QFileDialog.getSaveFileName(
+            self,
+            "PNG",
+            filter="PNG (*.png)",
+        )
+        
+        if not check:
+            return
+
+        widget = self.render_widgets_stack.currentWidget()
+        if isinstance(widget, CommonRenderWidget):
+            image = widget.get_screenshot()
+            with open(path, "wb") as file:
+                image.save(file)
 
     def update_window_title(self, project_path : str | Path):
         if isinstance(project_path, str):
