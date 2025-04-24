@@ -967,6 +967,8 @@ class MainWindow(QMainWindow):
 
                 if app().project.loader.check_file_version():
                     self.reset_temporary_folder()
+                    app().config.remove_path_from_config_file(project_path)
+                    self.welcome_widget.update_recent_projects()
                     return
 
                 self.update_window_title(project_path)
