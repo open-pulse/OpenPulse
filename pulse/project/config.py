@@ -27,6 +27,7 @@ class Config:
                 self.user_preferences.renderer_font_size = user_preferences["renderer_font_size"]
                 self.user_preferences.show_open_pulse_logo = user_preferences["show_open_pulse_logo"]
                 self.user_preferences.show_reference_scale_bar = user_preferences["show_reference_scale_bar"]
+                self.user_preferences.compatibility_mode = user_preferences["compatibility_mode"]
                 self.user_preferences.color_map = user_preferences["color_map"]
 
         except:
@@ -44,6 +45,7 @@ class Config:
         "renderer_font_size" : self.user_preferences.renderer_font_size,
         "show_open_pulse_logo" : self.user_preferences.show_open_pulse_logo,
         "show_reference_scale_bar" : self.user_preferences.show_reference_scale_bar,
+        "compatibility_mode" : self.user_preferences.compatibility_mode,
         "color_map" : self.user_preferences.color_map
         }
         
@@ -62,6 +64,7 @@ class Config:
         data["renderer_font_size"] = self.user_preferences.renderer_font_size
         data["show_open_pulse_logo"] = self.user_preferences.show_open_pulse_logo
         data["show_reference_scale_bar"] = self.user_preferences.show_reference_scale_bar
+        data["compatibility_mode"] = self.user_preferences.compatibility_mode
         data["color_map"] = self.user_preferences.color_map
 
         self.write_data_in_file(data)

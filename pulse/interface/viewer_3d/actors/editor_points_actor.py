@@ -21,7 +21,8 @@ class EditorPointsActor(GhostActor):
         self.SetMapper(mapper)
 
         self.GetProperty().SetPointSize(15)
-        self.GetProperty().RenderPointsAsSpheresOn()
+        if not app().main_window.config.user_preferences.compatibility_mode:
+            self.GetProperty().RenderPointsAsSpheresOn()
         editor_points_color = self.user_preferences.nodes_points_color.to_rgb()
         self.GetProperty().SetColor([i / 255 for i in editor_points_color])
         self.GetProperty().LightingOff()

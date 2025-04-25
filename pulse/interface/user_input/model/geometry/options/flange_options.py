@@ -38,7 +38,7 @@ class FlangeOptions(StructureOptions):
         self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
         self.cross_section_widget.lineEdit_outside_diameter.setFocus()
-        self.cross_section_widget.exec()
+        self.cross_section_dialog.exec()
 
         if not self.cross_section_dialog.complete:
             return

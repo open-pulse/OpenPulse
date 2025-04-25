@@ -20,7 +20,8 @@ class EditorSelectedPointsActor(GhostActor):
         self.SetMapper(mapper)
 
         self.GetProperty().SetPointSize(15)
-        self.GetProperty().RenderPointsAsSpheresOn()
+        if not app().main_window.config.user_preferences.compatibility_mode:
+            self.GetProperty().RenderPointsAsSpheresOn()
         self.GetProperty().SetColor([i / 255 for i in (255, 50, 50)])
         self.GetProperty().LightingOff()
         self.make_ghost()

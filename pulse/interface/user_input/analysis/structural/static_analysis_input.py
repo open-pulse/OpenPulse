@@ -81,7 +81,7 @@ class StaticAnalysisInput(QDialog):
                           }
 
         app().project.model.set_analysis_setup(analysis_setup)
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
         self.setup_defined = True
         self.close()

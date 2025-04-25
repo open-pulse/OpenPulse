@@ -4,11 +4,11 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from pulse import app, UI_DIR
+from pulse.model.properties.fluid import Fluid
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse.model.properties.fluid import Fluid
+from pulse.utils.signal_processing_utils import process_iFFT_of_onesided_spectrum
 
 import numpy as np
 
@@ -116,13 +116,15 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
     def get_acoustic_pressure(self, node_id: int):
 
         response = get_acoustic_frf(self.preprocessor, self.solution, node_id)
-        if complex(0) in response:
-            response += np.ones(len(response), dtype=float) * 1e-12
+
+        # remove DC component
+        response[0] = 0j
 
         return response
 
     def plot_inlet_pressure_criteria(self):
 
+        df = self.frequencies[1] - self.frequencies[0]
         node_ids = app().main_window.list_selected_nodes()
 
         if len(node_ids) == 1:
@@ -130,18 +132,8 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
             node_id = node_ids[0]
             acoustic_pressure = self.get_acoustic_pressure(node_id)
 
-            N = len(acoustic_pressure)
-
-            # processes the inverse Fourier transform of the one-sided spectrum
-            pressure_time = np.fft.irfft(acoustic_pressure) * (N - 1)
-            pressure_time -= np.average(pressure_time)
-
-            f_max = self.frequencies[-1]
-            df = self.frequencies[1] - self.frequencies[0]
-
-            # T = 1 / df
-            N_t = len(pressure_time)
-            time = np.arange(0, N_t) / (df * N_t)
+            # process the inverse Fourier transform of the one-sided spectrum
+            time, pressure_time = process_iFFT_of_onesided_spectrum(df, acoustic_pressure, remove_avg=False)
 
             fluid = self.get_fluid_from_line()
             if fluid is None:
@@ -180,7 +172,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
 
             self.model_results[key] = { 
                                         "x_data" : time,
-                                        "y_data" : P_min * np.ones(N_t, dtype=float),
+                                        "y_data" : P_min * np.ones_like(time),
                                         "x_label" : "Time [s]",
                                         "y_label" : "Pressure",
                                         "title" : title,

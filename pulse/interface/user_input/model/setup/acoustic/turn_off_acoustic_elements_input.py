@@ -187,7 +187,7 @@ class TurnOffAcousticElementsInput(QDialog):
                     self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_element_properties_in_file()
+        app().project.file.write_element_properties_in_file()
         app().main_window.update_plots()
         self.load_elements_info()
         self.pushButton_cancel.setText("Exit")

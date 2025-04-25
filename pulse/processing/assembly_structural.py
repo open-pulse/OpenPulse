@@ -182,6 +182,16 @@ class AssemblyStructural:
         Kr = full_K[:, self.prescribed_indexes]
         Mr = full_M[:, self.prescribed_indexes]
 
+        #TODO: remember to remove these lines
+        # K_data = np.array([rows, cols, mat_Ke.flatten()]).T
+        # M_data = np.array([rows, cols, mat_Me.flatten()]).T
+
+        # np.savetxt("K_data.csv", K_data, delimiter=",", fmt="%i, %i, %.24e")
+        # np.savetxt("M_data.csv", M_data, delimiter=",", fmt="%i, %i, %.24e")
+
+        # np.savetxt("unprescribed_dofs.dat", self.unprescribed_indexes, fmt="%i")
+        # np.savetxt("prescribed_dofs.dat", self.unprescribed_indexes, fmt="%i")
+
         return K, M, Kr, Mr
 
 

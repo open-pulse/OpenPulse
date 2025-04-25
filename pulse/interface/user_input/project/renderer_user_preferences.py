@@ -44,6 +44,7 @@ class RendererUserPreferencesInput(QDialog):
         # QCheckBox
         self.checkBox_OpenPulse_logo : QCheckBox
         self.checkBox_reference_scale : QCheckBox
+        self.checkBox_compatibility_mode : QCheckBox
 
         # QFrame
         self.frame_background_color : QFrame
@@ -205,6 +206,7 @@ class RendererUserPreferencesInput(QDialog):
         self.update_open_pulse_logo_state()
         self.update_reference_scale_state()
         self.update_renderers_font_size()
+        self.update_compatibility_mode_state()
         self.main_window.update_plots()
 
     def reset_to_default(self):
@@ -251,10 +253,7 @@ class RendererUserPreferencesInput(QDialog):
             self.main_window.mesh_widget.disable_open_pulse_logo()
 
     def update_show_open_pulse_logo_checkbox(self):
-        if self.user_preferences.show_open_pulse_logo:
-            self.checkBox_OpenPulse_logo.setChecked(1)
-        else:
-            self.checkBox_OpenPulse_logo.setChecked(0)
+        self.checkBox_OpenPulse_logo.setChecked(self.user_preferences.show_open_pulse_logo)
 
     def update_reference_scale_state(self):
         if self.checkBox_reference_scale.isChecked():
@@ -267,11 +266,14 @@ class RendererUserPreferencesInput(QDialog):
             self.main_window.mesh_widget.disable_scale_bar()
 
     def update_show_reference_scalebar_checkbox(self):
-        if self.user_preferences.show_reference_scale_bar:
-            self.checkBox_reference_scale.setChecked(1)
-        else:
-            self.checkBox_reference_scale.setChecked(0)
+        self.checkBox_reference_scale.setChecked(self.user_preferences.show_reference_scale_bar)
         
+    def update_compatibility_mode_state(self):
+        self.user_preferences.compatibility_mode = self.checkBox_compatibility_mode.isChecked()
+
+    def update_compatibility_mode_checkbox(self):
+        self.checkBox_compatibility_mode.setChecked(self.user_preferences.compatibility_mode)
+
     def update_renderers_font_size(self):
         self.main_window.geometry_widget.update_renderer_font_size()
         self.main_window.results_widget.update_renderer_font_size()
@@ -287,6 +289,7 @@ class RendererUserPreferencesInput(QDialog):
         self.update_line_edit_renderer_font_size()
         self.update_show_open_pulse_logo_checkbox()
         self.update_show_reference_scalebar_checkbox()
+        self.update_compatibility_mode_checkbox()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

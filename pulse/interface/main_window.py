@@ -474,7 +474,7 @@ class MainWindow(QMainWindow):
 
         if finalized:
             self.disable_workspace_selector_and_geometry_editor(False)
-            if app().pulse_file.check_pipeline_data():
+            if app().project.file.check_pipeline_data():
                 self.analysis_toolbar.setEnabled(True)
                 self.analysis_toolbar.load_analysis_settings()
                 self.model_and_analysis_items.modify_model_setup_items_access(False)
@@ -967,7 +967,7 @@ class MainWindow(QMainWindow):
                 self.config.write_last_folder_path_in_file("project_folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
 
-                if app().loader.check_file_version():
+                if app().project.loader.check_file_version():
                     self.reset_temporary_folder()
                     self.load_recent_project()
                     return
@@ -1037,10 +1037,10 @@ class MainWindow(QMainWindow):
                 return
 
             if obj.ignore_results_data:
-                app().pulse_file.remove_results_data_from_project_file()
+                app().project.file.remove_results_data_from_project_file()
 
             if obj.ignore_mesh_data:
-                app().pulse_file.remove_mesh_data_from_project_file()
+                app().project.file.remove_mesh_data_from_project_file()
 
             self.save_project_as(file_path)
 
@@ -1060,7 +1060,7 @@ class MainWindow(QMainWindow):
             self.project.save_path = path
 
             logging.info("Saving the project data... [20%]")
-            app().pulse_file.write_thumbnail()
+            app().project.file.write_thumbnail()
             self.config.add_recent_file(path)
 
             logging.info("Saving the project data... [40%]")

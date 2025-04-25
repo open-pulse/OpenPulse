@@ -143,7 +143,7 @@ class AnalysisSetupInput(QDialog):
 
     def enter_setup_callback(self):
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().project.file.read_analysis_setup_from_file()
         if analysis_setup is None:
             analysis_setup = dict()
         
@@ -225,7 +225,7 @@ class AnalysisSetupInput(QDialog):
             analysis_setup["modes"] = number_of_modes
 
         # t0 = time()
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
         # dt = time() - t0
 
         app().main_window.analysis_toolbar.pushButton_run_analysis.setEnabled(True)

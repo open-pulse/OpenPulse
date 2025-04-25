@@ -1,6 +1,8 @@
 # fmt: off
 
-from pulse import app
+from pulse import app, TEMP_PROJECT_FILE
+from pulse.interface.file.project_file import ProjectFile
+from pulse.project.load_project import LoadProject
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.model.setup.structural.expansion_joint_input import *
 from pulse.interface.user_input.project.loading_window import LoadingWindow
@@ -84,24 +86,20 @@ class Project:
         self.analysis_id = None
         self.analysis_type_label = ""
         self.analysis_method_label = ""
-    
-    def initialize_pulse_file(self):
-        if app() is None:
-            from pulse import TEMP_PROJECT_FILE
-            from pulse.interface.file.project_file import ProjectFile
-            self.pulse_file = ProjectFile(self, TEMP_PROJECT_FILE)
-        else:
-            self.pulse_file = app().pulse_file  
+
+    def initialize_pulse_file_and_loader(self):   
+        self.file = ProjectFile(self, TEMP_PROJECT_FILE) 
+        self.loader = LoadProject(self)
 
     def initial_load_project_actions(self):
 
         try:
 
             self.reset(reset_all = True)
-            app().loader.load_analysis_id()
-            app().loader.load_analysis_results()
+            self.loader.load_analysis_id()
+            self.loader.load_analysis_results()
 
-            if app().pulse_file.check_pipeline_data():
+            if self.file.check_pipeline_data():
                 self.process_geometry_and_mesh()
                 return True
             else:
@@ -119,14 +117,14 @@ class Project:
     def load_project(self):
 
         logging.info("Loading project data [30%]")
-        if app().loader.load_project_data():
+        if self.loader.load_project_data():
             return
 
         logging.info("Processing geometry and mesh [50%]")
         self.initial_load_project_actions()
 
         logging.info("Loading mesh dependent properties [60%]")
-        app().loader.load_mesh_dependent_properties()
+        self.loader.load_mesh_dependent_properties()
 
         logging.info("Finalizing model data loading [75%]")
         self.model.preprocessor.process_all_rotation_matrices()
@@ -135,19 +133,21 @@ class Project:
     def reset_project(self, **kwargs):
 
         self.reset(reset_all = True)
-        app().pulse_file.remove_element_properties_from_project_file()
-        app().pulse_file.remove_nodal_properties_from_project_file()
+        self.file.remove_element_properties_from_project_file()
+        self.file.remove_nodal_properties_from_project_file()
 
-        if app().pulse_file.check_pipeline_data():
-            if app().loader.load_project_data():
+        if self.file.check_pipeline_data():
+            if self.loader.load_project_data():
                 return
 
             self.process_geometry_and_mesh()
-            app().loader.load_mesh_dependent_properties()
+            self.loader.load_mesh_dependent_properties()
 
     def process_geometry_and_mesh(self):
         # t0 = time()
         self.model.preprocessor.generate()
+        if app() is None:
+            return
         app().main_window.update_status_bar_info()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
@@ -257,7 +257,7 @@ class Project:
         return False
 
     def is_analysis_setup_complete(self):
-        self.analysis_setup = self.pulse_file.read_analysis_setup_from_file()
+        self.analysis_setup = self.file.read_analysis_setup_from_file()
         if isinstance(self.analysis_setup, dict):
             if "analysis_id" in self.analysis_setup.keys():
                 self.analysis_id = self.analysis_setup["analysis_id"]
@@ -338,10 +338,10 @@ class Project:
             self.analysis_method_label = None
 
     def load_analysis_setup(self):
-        self.analysis_setup = app().pulse_file.read_analysis_setup_from_file()
-        self.analysis_id = self.analysis_setup["analysis_id"]
+        self.analysis_setup = self.file.read_analysis_setup_from_file()
+        self.analysis_id = self.analysis_setup.get("analysis_id")
         self.modes = self.analysis_setup.get("modes", 40)
-        self.sigma_factor = self.analysis_setup.get("sigma_factor", 40)
+        self.sigma_factor = self.analysis_setup.get("sigma_factor", 0.01)
 
     def get_pre_solution_model_checks(self):
         return BeforeRun()
@@ -403,7 +403,7 @@ class Project:
 
     def get_harmonic_analysis_method(self):
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup = self.file.read_analysis_setup_from_file()
         if isinstance(analysis_setup, dict):
             analysis_id = analysis_setup.get("analysis_id", None)
 
@@ -543,7 +543,7 @@ class Project:
         self.process_analysis()
 
         logging.info("Saving the solution data [95%]")
-        self.pulse_file.write_results_data_in_file()
+        self.file.write_results_data_in_file()
 
         if self.model.preprocessor.stop_processing:
             self.reset_solution()

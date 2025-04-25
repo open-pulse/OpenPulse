@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QSpinBox
+from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCloseEvent
 from PyQt5 import uic
@@ -12,6 +12,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.viewer_3d.render_widgets.psd_preview_render_widget import PSDPreviewRenderWidget
 
 import numpy as np
+from time import time
 
 
 window_title_1 = "Error"
@@ -43,6 +44,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.automatic_preview()
 
         self.load_psd_info()
+        self.process_line_edits()
         self.selection_callback()
 
         while self.keep_window_open:
@@ -56,8 +58,8 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def _initialize(self):
         self.keep_window_open = True
-        self.nodes_from_removed_lines = list()
-        
+        self.line_edits = list()
+        self.nodes_from_removed_lines = list()       
 
     def _define_qt_variables(self):
 
@@ -143,7 +145,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.comboBox_tuned_filter.currentIndexChanged.connect(self.tuned_filter_callback)
         #
         self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
-        self.lineEdit_volume1_length.textChanged.connect(self.update_tuned_filter_callback)
+        self.lineEdit_volume2_length.textChanged.connect(self.update_tuned_filter_callback)
         #
         self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_show_errors.clicked.connect(self.show_errors_callback)
@@ -832,7 +834,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
                 counter += 1
                 self.psds_data[psd_label][f"Link-{counter}"] = link
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         self.write_psd_element_properties_in_file(psd_label, device)
 
     def write_psd_nodal_properties_in_file(self):
@@ -854,7 +856,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
                     if link_type == "structural_link":
                         self.properties._set_nodal_property("psd_structural_links", data, node_ids)
 
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
 
     def write_psd_element_properties_in_file(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
 
@@ -872,14 +874,14 @@ class PulsationSuppressionDeviceInputs(QDialog):
                                                     "connection_type" : _connection_type 
                                                   }
 
-        app().pulse_file.write_psd_data_in_file(self.psds_data)
+        app().project.file.write_psd_data_in_file(self.psds_data)
 
     def remove_psd_related_line_properties(self, psd_labels: str | list):
 
         if isinstance(psd_labels, str):
             psd_labels = [psd_labels]
 
-        lines_data = app().pulse_file.read_line_properties_from_file()
+        lines_data = app().project.file.read_line_properties_from_file()
         if lines_data is None:
             return
 
@@ -895,10 +897,10 @@ class PulsationSuppressionDeviceInputs(QDialog):
                     self.nodes_from_removed_lines.extend(list(line_nodes))
                     remove_gaps = True
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
         if remove_gaps:
-            app().pulse_file.remove_line_gaps_from_line_properties_file()
+            app().project.file.remove_line_gaps_from_line_properties_file()
 
     def remove_psd_related_nodal_properties(self, psd_labels: str | list):
 
@@ -923,7 +925,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         self.nodes_from_removed_lines.clear()
 
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
 
     def set_element_length_corrections(self, psd_label: str, device: (SingleVolumePSD | DualVolumePSD)):
 
@@ -947,7 +949,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
             self.preprocessor.set_element_length_correction_by_element(element_ids, data)
             self.properties._set_element_property("element_length_correction", data, element_ids)
-            app().pulse_file.write_element_properties_in_file()
+            app().project.file.write_element_properties_in_file()
 
     def remove_psd_related_element_properties(self, psd_label: str):
 
@@ -963,7 +965,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         
         self.preprocessor.set_element_length_correction_by_element(element_ids, None)
         self.properties._remove_element_property("element_length_correction", element_ids) 
-        app().pulse_file.write_element_properties_in_file()
+        app().project.file.write_element_properties_in_file()
 
     def remove_callback(self):
 
@@ -1006,23 +1008,68 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.actions_to_finalize()
             app().main_window.update_plots()
     
-    def is_not_valid_number(self, value: str):
-        try:
-            float(value.replace(",", "."))
+    def is_valid_number(self, value: str, include_zero: bool=False):
+
+        if value == "":
             return False
+
+        try:
+            _value = float(value.replace(",", "."))
+            if include_zero:
+                return True
+            elif _value > 0:
+                return True
         except:
-            return True
+            return False
+
+        return False
+
+    def process_line_edits(self):
+
+        line_edits = list()
+        for line_edit in self.findChildren(QLineEdit):
+            if line_edit != self.lineEdit_device_label:
+                line_edits.append(line_edit)
+
+        self.line_edits = line_edits
+        self.line_edit_coords = [
+                                self.lineEdit_connecting_coord_x, 
+                                self.lineEdit_connecting_coord_y, 
+                                self.lineEdit_connecting_coord_z
+                                ]
 
     def preview_callback(self):
-
+        print()
+        print("preview_callback")
+        t0 = time()
         if self.check_psd_inputs():
+            dt = time() - t0
+            print(f"Time 1: {dt} s")
             self.preview_widget.turn_red()
 
-            for line_edit in [le for le in self.findChildren(QLineEdit) if le != self.lineEdit_device_label]:
-                if line_edit.isEnabled() and (line_edit.text() == "" or self.is_not_valid_number(line_edit.text())):
-                    line_edit.setStyleSheet("border: 2px solid red")
+            dt = time() - t0
+            print(f"Time 2: {dt} s")
+
+            for line_edit in self.line_edits:
+                line_edit : QLineEdit
+                if not line_edit.isEnabled():
+                    continue
+                
+                include_zero = False
+                if line_edit in self.line_edit_coords:
+                    include_zero = True
+
+                is_valid = self.is_valid_number(line_edit.text(), include_zero=include_zero)
+
+                style_sheet = "border: 2px solid red"
+                if is_valid:
+                    style_sheet = self.default_stylesheet
+
+                line_edit.setStyleSheet(style_sheet)
 
             self.pushButton_show_errors.setDisabled(False)
+            dt = time() - t0
+            print(f"Elapsed time (raised error): {dt} s")
 
         else:
             for line_edit in self.findChildren(QLineEdit):
@@ -1033,22 +1080,25 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.preview_widget.config_view()
             self.preview_widget.update()
 
+            dt = time() - t0
+            print(f"Elapsed time (generate preview): {dt} s")
+
     def automatic_preview(self):
         for line_edit in self.findChildren(QLineEdit):
             line_edit.textEdited.connect(self.preview_callback)
-        
+
         for combo_box in self.findChildren(QComboBox):
             combo_box.currentIndexChanged.connect(self.preview_callback)
         
-        for spin_box in self.findChildren(QSpinBox):
+        for spin_box in self.findChildren(QDoubleSpinBox):
             spin_box.valueChanged.connect(self.preview_callback)
 
     def load_psd_info(self):
 
         self.treeWidget_psd_info.clear()
-        self.psds_lines = app().loader.get_psd_related_lines()
+        self.psds_lines = app().project.loader.get_psd_related_lines()
 
-        self.psds_data = app().pulse_file.read_psd_data_from_file()
+        self.psds_data = app().project.file.read_psd_data_from_file()
         if self.psds_data is None:
             self.psds_data = dict()
 
@@ -1080,12 +1130,12 @@ class PulsationSuppressionDeviceInputs(QDialog):
     def actions_to_finalize(self):
 
         app().main_window.set_selection()
-        app().pulse_file.write_psd_data_in_file(self.psds_data)
-        app().loader.load_project_data()
+        app().project.file.write_psd_data_in_file(self.psds_data)
+        app().project.loader.load_project_data()
         app().project.initial_load_project_actions()
 
-        if app().pulse_file.check_pipeline_data():
-            app().loader.load_mesh_dependent_properties()
+        if app().project.file.check_pipeline_data():
+            app().project.loader.load_mesh_dependent_properties()
             app().main_window.initial_project_action(True)
         else:
             self.preprocessor.mesh._create_gmsh_geometry()
