@@ -36,6 +36,7 @@ class PulsationDamperEditorInputs(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
 
         self.load_pulsation_damper_info()
         self.selection_callback()
@@ -205,6 +206,12 @@ class PulsationDamperEditorInputs(QDialog):
         self.lineEdit_polytropic_exponent.setText(f"{isentropic_exponent : .6f}")
 
     def _config_widgets(self):
+        # Replace placeholder widget with the actual render widget
+        self.preview_widget = DamperPreviewRenderWidget()
+        self.preview_widget_placeholder.parent().layout().replaceWidget(
+            self.preview_widget_placeholder, 
+            self.preview_widget,
+        )
         #
         self.lineEdit_damper_label.setFocus()
         self.lineEdit_selected_damper_label.setDisabled(True)
