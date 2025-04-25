@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QFrame
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 
@@ -176,6 +176,12 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.lineEdit_connecting_coord_z.setText(str(round(node.z, 6)))
 
     def _config_widgets(self):
+        # Replace placeholder widget with the actual render widget
+        self.preview_widget = PSDPreviewRenderWidget()
+        self.preview_widget_placeholder.parent().layout().replaceWidget(
+            self.preview_widget_placeholder, 
+            self.preview_widget,
+        )
         #
         self.lineEdit_device_label.setFocus()
         self.lineEdit_selection.setDisabled(True)

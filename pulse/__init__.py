@@ -15,7 +15,7 @@ EXAMPLES_DIR = OPEN_PULSE_DIR / "interface/data/examples/"
    
 USER_PATH = Path().home()
 TEMP_PROJECT_DIR = USER_PATH / "temp_pulse"
-TEMP_PROJECT_FILE = str(TEMP_PROJECT_DIR / "tmp.pulse") 
+TEMP_PROJECT_FILE = str(TEMP_PROJECT_DIR / "tmp.pulse")
 
 def app() -> "Application":
     '''
@@ -27,8 +27,7 @@ def version() -> str:
     '''
     Returns the version of the software available in pyproject.toml
     '''
-    import pkg_resources
-    return pkg_resources.get_distribution('pulse').version
+    return "2.0.11"
 
 def release_date() -> str:
     '''
