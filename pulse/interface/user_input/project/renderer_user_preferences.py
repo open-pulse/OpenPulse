@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QCheckBox, QFrame, QLineEdit, QPushButton, QSlider
+from PySide6.QtWidgets import QDialog, QCheckBox, QFrame, QLineEdit, QPushButton, QSlider, QSpinBox
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
@@ -60,7 +60,9 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_nodes_points_color : QLineEdit
         self.lineEdit_lines_color : QLineEdit
         self.lineEdit_tubes_color : QLineEdit
-        self.lineEdit_renderer_font_size: QLineEdit
+
+        # QSpinBox
+        self.spinBox_renderer_font_size: QSpinBox
 
         # QPushButton
         self.pushButton_renderer_background_color_1 : QPushButton
@@ -83,7 +85,7 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_reset_to_default.clicked.connect(self.reset_to_default)
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
         self.pushButton_apply_settings.clicked.connect(self.apply_user_preferences)
-        self.lineEdit_renderer_font_size.textChanged.connect(self.update_renderer_font_size)
+        self.spinBox_renderer_font_size.valueChanged.connect(self.update_renderer_font_size)
         
     def update_renderer_background_color_1(self):
         read = PickColorInput(title="Pick the background color")
@@ -165,14 +167,14 @@ class RendererUserPreferencesInput(QDialog):
     
     def update_renderer_font_size(self):
         try:
-            self.renderer_font_size = int(self.lineEdit_renderer_font_size.text())
+            self.renderer_font_size = self.spinBox_renderer_font_size.value()
             self.user_preferences.renderer_font_size = self.renderer_font_size
         except:
             pass
     
     def update_line_edit_renderer_font_size(self):
-        renderer_font_size = str(self.user_preferences.renderer_font_size)
-        self.lineEdit_renderer_font_size.setText(renderer_font_size)
+        renderer_font_size = self.user_preferences.renderer_font_size
+        self.spinBox_renderer_font_size.setValue(renderer_font_size)
 
     def apply_user_preferences(self):
         if self.renderer_background_color_1 is not None:
