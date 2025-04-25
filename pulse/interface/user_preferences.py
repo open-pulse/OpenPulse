@@ -4,7 +4,7 @@ from molde.colors import Color, color_names
 
 @dataclass
 class UserPreferences:
-    interface_theme = "light"
+    interface_theme : str = "light"
     renderer_background_color_1: Color =  Color("#8092A6")
     renderer_background_color_2: Color = Color("#EEF2F3")
     nodes_points_color: Color = Color("#FFB432")
@@ -15,7 +15,7 @@ class UserPreferences:
     show_open_pulse_logo : bool = True
     show_reference_scale_bar: bool = True
     compatibility_mode: bool = False   
-    color_map = "jet"
+    color_map : str = "jet"
 
     def set_light_theme(self):
         self.interface_theme = "light"
@@ -45,3 +45,10 @@ class UserPreferences:
     
     def reset_reference_scale_bar(self):
         self.show_reference_scale_bar = True
+    
+    def get_attributes(self):
+        attributes = dict()
+        for attr, value in self.__dict__.items():
+            attributes[attr] = value
+
+        return attributes
