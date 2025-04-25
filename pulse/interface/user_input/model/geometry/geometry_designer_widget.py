@@ -54,7 +54,6 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget = render_widget
         self.modified = False
         self.tmp_camera = None
-        self.psd_parts = []
 
         self.pipeline = app().project.pipeline
 
@@ -618,25 +617,33 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
 
     def delete_selection_callback(self):
-        
+        # psd_parts = []
         for structure in self.pipeline.selected_structures:
-            if "psd_name" in structure.extra_info:
-                self.psd_selection_error = True
-                self.psd_parts.append(structure)
-            
-            # elif 
-
-            elif not isinstance(structure, Point):
+            if not isinstance(structure, Point):
                 tag = structure.tag
                 if tag != -1:
                     app().project.model.properties._remove_line(tag)
+        
+        psd_selection_error = False
+        for structure in self.pipeline.structures:
+            if "psd_name" not in structure.extra_info:
+                continue
             
+            if structure.selected:
+                psd_selection_error = True
+                break
+            
+            for point in structure.get_points():
+                if point in self.pipeline.selected_points:
+                    psd_selection_error = True
+                    break
+
+                # psd_parts.append(structure)
         self.pipeline.dismiss()
 
-        if self.psd_selection_error is not True:
+        if not psd_selection_error:
             self.pipeline.delete_selection()
             self.modified = True
-            self.psd_selection_error = False
         else: 
             PrintMessageInput(["Error", "Invalid operation", "To delete a PSD or its parts, please use the dedicated PSD editor."])
 
