@@ -1,8 +1,16 @@
+# fmt: off
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
+
+from molde.interactor_styles import BoxSelectionInteractorStyle
+from molde.render_widgets import CommonRenderWidget
+
+from pulse import app, ICON_DIR
+from pulse.interface.viewer_3d.actors import SectionPlaneActor, ElementAxesActor, ElementLinesActor, NodesActor, PointsActor, TubeActor
+
 from molde.colors import Color
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import CommonRenderWidget
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
 
 from pulse import ICON_DIR, app
 from pulse.interface.viewer_3d.actors import (

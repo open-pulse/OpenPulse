@@ -2,11 +2,12 @@ import logging
 import re
 from time import sleep
 
-from PyQt5 import uic
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QLabel, QProgressBar, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QLabel, QProgressBar, QWidget
 
 from pulse import UI_DIR, app
+
+from molde import load_ui
 
 # Catches every message that contains something like [n/N]
 PROGRESS_FRACTION_REGEX = re.compile(r"\[\d+/\d+\]")
@@ -61,7 +62,7 @@ class LoadingWindow(QWidget):
         super().__init__()
 
         ui_path = UI_DIR / "messages/new_loading_window.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self._function = _function
         self._config_window()
@@ -82,7 +83,7 @@ class LoadingWindow(QWidget):
         '''
         Place the window on the center of the screen.
         '''
-        desktop_geometry = app().desktop().screenGeometry()
+        desktop_geometry = app().primaryScreen().geometry()
         pos_x = int((desktop_geometry.width() - self.width())/2)
         pos_y = int((desktop_geometry.height() - self.height())/2)
         self.setGeometry(pos_x, pos_y, self.width(), self.height())

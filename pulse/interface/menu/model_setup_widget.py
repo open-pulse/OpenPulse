@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
+from PySide6.QtWidgets import QFrame, QGridLayout, QWidget
 from pulse.interface.menu.model_setup_items import ModelSetupItems
 
 class ModelSetupWidget(QWidget):

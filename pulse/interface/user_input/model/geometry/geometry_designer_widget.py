@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QAction, QSlider, QSpinBox, QCheckBox
-from PyQt5 import uic
+from PySide6.QtWidgets import QWidget, QLineEdit, QComboBox, QFrame, QPushButton, QLabel, QStackedWidget, QSlider, QSpinBox
+from PySide6.QtGui import QAction
 
 from vtkmodules.vtkRenderingCore import vtkCoordinate, vtkCamera
 from vtkmodules.vtkCommonDataModel import vtkRecti
@@ -12,6 +12,7 @@ import math
 
 from molde.stylesheets import set_qproperty
 from molde.utils import TreeInfo
+from molde import load_ui
 
 from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -48,7 +49,7 @@ class GeometryDesignerWidget(QWidget):
         super().__init__(parent)
 
         ui_path = UI_DIR / "model/geometry/geometry_designer_widget.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.render_widget = render_widget
         self.modified = False

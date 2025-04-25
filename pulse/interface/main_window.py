@@ -1,12 +1,12 @@
 
-from PyQt5.QtWidgets import QAbstractButton, QAction, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
-from PyQt5.QtCore import Qt, pyqtSignal, QEvent, QPoint
-from PyQt5.QtGui import QColor, QCloseEvent, QCursor
-from PyQt5 import uic
+from PySide6.QtWidgets import QAbstractButton, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
+from PySide6.QtCore import Qt, Signal, QEvent, QPoint
+from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
 
 from molde.render_widgets import CommonRenderWidget
 from molde import stylesheets
 from molde.colors import color_names
+from molde import load_ui
 
 # TODO: remove this import
 from pulse import *
@@ -46,15 +46,15 @@ from time import time
 
 
 class MainWindow(QMainWindow):
-    theme_changed = pyqtSignal(str)
-    visualization_changed = pyqtSignal()
-    selection_changed = pyqtSignal()
+    theme_changed = Signal(str)
+    visualization_changed = Signal()
+    selection_changed = Signal()
 
     def __init__(self):
-        super(MainWindow, self).__init__()
+        super().__init__()
 
         ui_path = UI_DIR / 'main_window.ui'
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.selected_nodes = set()
         self.selected_lines = set()
@@ -269,7 +269,11 @@ class MainWindow(QMainWindow):
         print(f"Time to process D: {round(dt, 6)} [s]")
 
         if len(argv) > 1:
-            self.open_project(Path(argv[1]))
+            path = Path(argv[1])
+            if path.exists():
+                self.open_project(path)
+            else:
+                self.load_recent_project()
 
         elif not self.is_temporary_folder_empty():
             self.recovery_dialog()
@@ -297,8 +301,8 @@ class MainWindow(QMainWindow):
         return True
     
     def filter_tab_scroll_by_wheel(self):
-        from PyQt5.QtWidgets import QTabBar
-        from PyQt5.QtCore import QObject, QEvent
+        from PySide6.QtWidgets import QTabBar
+        from PySide6.QtCore import QObject, QEvent
 
         class Filter(QObject):
             def eventFilter(self, obj, event):
@@ -886,7 +890,8 @@ class MainWindow(QMainWindow):
         self.action_user_preferences.setDisabled(0)
 
         # paint the icons of every children widget
-        widgets = self.findChildren((QAbstractButton, QAction))
+        widgets = self.findChildren(QAbstractButton)
+        widgets += self.findChildren(QAction)
         icons.change_icon_color_for_widgets(widgets, self.icon_color)
 
     def savePNG_call(self):
