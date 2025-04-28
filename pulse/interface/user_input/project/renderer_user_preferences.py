@@ -8,6 +8,8 @@ from pulse.interface.user_input.model.setup.general.color_selector import PickCo
 from molde import load_ui
 from molde.colors import Color
 
+from copy import deepcopy
+
 
 class RendererUserPreferencesInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -21,14 +23,7 @@ class RendererUserPreferencesInput(QDialog):
         self.main_window = app().main_window
         self.config = app().config
         self.user_preferences = app().config.user_preferences
-
-        self.renderer_background_color_1 = None
-        self.renderer_background_color_2 = None
-        self.renderer_font_color = None
-        self.nodes_points_color = None
-        self.lines_color = None
-        self.tubes_color = None
-        self.renderer_font_size = None
+        self.tmp_user_preferences = deepcopy(self.user_preferences)
 
         self._config_window()
         self._define_qt_variables()
@@ -94,10 +89,10 @@ class RendererUserPreferencesInput(QDialog):
             str_color = str(renderer_background_color_1)[1:-1]
             self.lineEdit_renderer_background_color_1.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
-            self.renderer_background_color_1 = Color(*renderer_background_color_1)
+            self.tmp_user_preferences.renderer_background_color_1 = Color(*renderer_background_color_1)
 
     def update_line_edit_renderer_background_color_1(self):
-        str_color = str(self.user_preferences.renderer_background_color_1.to_rgb())[1:-1]
+        str_color = str(self.tmp_user_preferences.renderer_background_color_1.to_rgb())[1:-1]
         self.lineEdit_renderer_background_color_1.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
     def update_renderer_background_color_2(self):
@@ -107,10 +102,10 @@ class RendererUserPreferencesInput(QDialog):
             str_color = str(renderer_background_color_2)[1:-1]
             self.lineEdit_renderer_background_color_2.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
-            self.renderer_background_color_2 = Color(*renderer_background_color_2)
+            self.tmp_user_preferences.renderer_background_color_2 = Color(*renderer_background_color_2)
 
     def update_line_edit_renderer_background_color_2(self):
-        str_color = str(self.user_preferences.renderer_background_color_2.to_rgb())[1:-1]
+        str_color = str(self.tmp_user_preferences.renderer_background_color_2.to_rgb())[1:-1]
         self.lineEdit_renderer_background_color_2.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
     
     def update_renderer_font_color(self):
@@ -120,10 +115,10 @@ class RendererUserPreferencesInput(QDialog):
             str_color = str(renderer_font_color)[1:-1]
             self.lineEdit_renderer_font_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
-            self.renderer_font_color = Color(*renderer_font_color)
+            self.tmp_user_preferences.renderer_font_color = Color(*renderer_font_color)
 
     def update_line_edit_renderer_font_color(self):
-        str_color = str(self.user_preferences.renderer_font_color.to_rgb())[1:-1]
+        str_color = str(self.tmp_user_preferences.renderer_font_color.to_rgb())[1:-1]
         self.lineEdit_renderer_font_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
     def update_nodes_points_color(self):
@@ -133,10 +128,10 @@ class RendererUserPreferencesInput(QDialog):
             str_color = str(nodes_points_color)[1:-1]
             self.lineEdit_nodes_points_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
-            self.nodes_points_color = Color(*nodes_points_color)
+            self.tmp_user_preferences.nodes_points_color = Color(*nodes_points_color)
         
     def update_line_edit_nodes_points_color(self):
-        str_color = str(self.user_preferences.nodes_points_color.to_rgb())[1:-1]
+        str_color = str(self.tmp_user_preferences.nodes_points_color.to_rgb())[1:-1]
         self.lineEdit_nodes_points_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
         
     def update_lines_color(self):
@@ -146,10 +141,10 @@ class RendererUserPreferencesInput(QDialog):
             str_color = str(lines_color)[1:-1]
             self.lineEdit_lines_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
-            self.lines_color = Color(*lines_color)
+            self.tmp_user_preferences.lines_color = Color(*lines_color)
     
     def update_line_edit_lines_color(self):
-        str_color = str(self.user_preferences.lines_color.to_rgb())[1:-1]
+        str_color = str(self.tmp_user_preferences.lines_color.to_rgb())[1:-1]
         self.lineEdit_lines_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
 
     def update_tubes_color(self):
@@ -159,47 +154,30 @@ class RendererUserPreferencesInput(QDialog):
             str_color = str(tubes_color)[1:-1]
             self.lineEdit_tubes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
            
-            self.tubes_color = Color(*tubes_color)
+            self.tmp_user_preferences.tubes_color = Color(*tubes_color)
 
     def update_line_edit_tubes_color(self):
-        str_color = str(self.user_preferences.tubes_color.to_rgb())[1:-1]
+        str_color = str(self.tmp_user_preferences.tubes_color.to_rgb())[1:-1]
         self.lineEdit_tubes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
     
     def update_renderer_font_size(self):
         try:
             self.renderer_font_size = self.spinBox_renderer_font_size.value()
-            self.user_preferences.renderer_font_size = self.renderer_font_size
+            self.tmp_user_preferences.user_preferences.renderer_font_size = self.renderer_font_size
         except:
             pass
     
     def update_line_edit_renderer_font_size(self):
-        renderer_font_size = self.user_preferences.renderer_font_size
+        renderer_font_size = self.tmp_user_preferences.renderer_font_size
         self.spinBox_renderer_font_size.setValue(renderer_font_size)
 
     def apply_user_preferences(self):
-        if self.renderer_background_color_1 is not None:
-            self.user_preferences.renderer_background_color_1 = self.renderer_background_color_1
-
-        if self.renderer_background_color_2 is not None:
-            self.user_preferences.renderer_background_color_2 = self.renderer_background_color_2
-
-        if self.renderer_font_color is not None:
-            self.user_preferences.renderer_font_color = self.renderer_font_color
-        
-        if self.nodes_points_color is not None:
-            self.user_preferences.nodes_points_color = self.nodes_points_color
-
-        if self.lines_color is not None:
-            self.user_preferences.lines_color = self.lines_color
-
-        if self.tubes_color is not None:
-            self.user_preferences.tubes_color = self.tubes_color
-
-        if self.renderer_font_size is not None:
-            self.user_preferences.renderer_font_size = self.renderer_font_size
-
         self.update_settings()
-        self.config.update_config_file()
+
+        app().config.user_preferences = self.tmp_user_preferences
+        app().config.update_config_file()
+
+        self.main_window.update_plots(reset_camera=False)
 
     def confirm_and_update_user_preferences(self):
         self.apply_user_preferences()
@@ -210,72 +188,66 @@ class RendererUserPreferencesInput(QDialog):
         self.update_reference_scale_state()
         self.update_renderers_font_size()
         self.update_compatibility_mode_state()
-        self.main_window.update_plots()
 
     def reset_to_default(self):
-        if self.main_window.config.user_preferences.interface_theme == "dark":
-            self.user_preferences.set_dark_theme()
+        if self.tmp_user_preferences.interface_theme == "dark":
+            self.tmp_user_preferences.set_dark_theme()
         else:
-            self.user_preferences.set_light_theme()
+            self.tmp_user_preferences.set_light_theme()
         
-        self.reset_attributes()
-        self.user_preferences.reset_font_size()
+        self.tmp_user_preferences.reset_font_size()
         self.reset_logo_state()
         self.reset_reference_scale_state()
+        self.reset_compatibility_mode_state()
+
+        self.apply_user_preferences()
         self.load_user_preferences()
 
-        self.update_settings()
-    
-    def reset_attributes(self):
-        self.renderer_background_color_1 = None
-        self.renderer_background_color_2 = None
-        self.renderer_font_color = None
-        self.nodes_points_color = None
-        self.lines_color = None
-        self.tubes_color = None
-        self.renderer_font_size = None
-
     def reset_logo_state(self):
-        self.user_preferences.reset_open_pulse_logo()
-        self.checkBox_OpenPulse_logo.setChecked(1)
+        self.tmp_user_preferences.reset_open_pulse_logo()
+        self.checkBox_OpenPulse_logo.setChecked(True)
 
     def reset_reference_scale_state(self):
-        self.user_preferences.reset_reference_scale_bar()
-        self.checkBox_reference_scale.setChecked(1)
+        self.tmp_user_preferences.reset_reference_scale_bar()
+        self.checkBox_reference_scale.setChecked(True)
+    
+    def reset_compatibility_mode_state(self):
+        self.tmp_user_preferences.compatibility_mode = False
+        self.checkBox_compatibility_mode.setChecked(False)
     
     def update_open_pulse_logo_state(self):
         if self.checkBox_OpenPulse_logo.isChecked():
-            self.user_preferences.show_open_pulse_logo = True
+            self.tmp_user_preferences.show_open_pulse_logo = True
             self.main_window.results_widget.enable_open_pulse_logo()
             self.main_window.geometry_widget.enable_open_pulse_logo()
             self.main_window.mesh_widget.enable_open_pulse_logo()
         else:
-            self.user_preferences.show_open_pulse_logo = False
+            self.tmp_user_preferences.show_open_pulse_logo = False
             self.main_window.results_widget.disable_open_pulse_logo()
             self.main_window.geometry_widget.disable_open_pulse_logo()
             self.main_window.mesh_widget.disable_open_pulse_logo()
 
     def update_show_open_pulse_logo_checkbox(self):
-        self.checkBox_OpenPulse_logo.setChecked(self.user_preferences.show_open_pulse_logo)
+        self.checkBox_OpenPulse_logo.setChecked(self.tmp_user_preferences.show_open_pulse_logo)
 
     def update_reference_scale_state(self):
         if self.checkBox_reference_scale.isChecked():
-            self.user_preferences.show_reference_scale_bar = True
+            self.tmp_user_preferences.show_reference_scale_bar = True
             self.main_window.results_widget.enable_scale_bar()
             self.main_window.mesh_widget.enable_scale_bar()
         else:
-            self.user_preferences.show_reference_scale_bar = False
+            self.tmp_user_preferences.show_reference_scale_bar = False
             self.main_window.results_widget.disable_scale_bar()
             self.main_window.mesh_widget.disable_scale_bar()
 
     def update_show_reference_scalebar_checkbox(self):
-        self.checkBox_reference_scale.setChecked(self.user_preferences.show_reference_scale_bar)
+        self.checkBox_reference_scale.setChecked(self.tmp_user_preferences.show_reference_scale_bar)
         
     def update_compatibility_mode_state(self):
-        self.user_preferences.compatibility_mode = self.checkBox_compatibility_mode.isChecked()
+        self.tmp_user_preferences.compatibility_mode = self.checkBox_compatibility_mode.isChecked()
 
     def update_compatibility_mode_checkbox(self):
-        self.checkBox_compatibility_mode.setChecked(self.user_preferences.compatibility_mode)
+        self.checkBox_compatibility_mode.setChecked(self.tmp_user_preferences.compatibility_mode)
 
     def update_renderers_font_size(self):
         self.main_window.geometry_widget.update_renderer_font_size()

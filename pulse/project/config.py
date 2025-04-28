@@ -123,8 +123,11 @@ class Config:
         return None
 
     def get_config_data(self) -> dict:
-        with open(self.config_path, "r") as file:
-            return json.load(file)
+        try:
+            with open(self.config_path, "r") as file:
+                return json.load(file)
+        except FileNotFoundError:
+            return dict()
     
     def write_data_in_file(self, data: dict):
         with open(self.config_path, "w") as file:
