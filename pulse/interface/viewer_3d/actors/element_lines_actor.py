@@ -57,12 +57,15 @@ class ElementLinesActor(GhostActor):
         mapper.ScalarVisibilityOn()
 
         self.SetMapper(mapper)
-        self.GetProperty().SetLineWidth(6)
+
+        lines_thickness = app().config.user_preferences.lines_thickness
+        self.GetProperty().SetLineWidth(lines_thickness)
         self.make_ghost()
 
     def clear_colors(self):
         data = self.GetMapper().GetInput()
-        set_polydata_colors(data, (90, 90, 90))
+        lines_color = self.user_preferences.lines_color.to_rgb()
+        set_polydata_colors(data, lines_color)
 
     def set_color(self, color, elements=None, lines=None):
         mapper = self.GetMapper()

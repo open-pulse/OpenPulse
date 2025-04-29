@@ -20,7 +20,9 @@ class EditorPointsActor(GhostActor):
         mapper.SetInputData(data)
         self.SetMapper(mapper)
 
-        self.GetProperty().SetPointSize(15)
+        points_size = app().config.user_preferences.points_size
+        self.GetProperty().SetPointSize(points_size)
+
         if not app().main_window.config.user_preferences.compatibility_mode:
             self.GetProperty().RenderPointsAsSpheresOn()
         editor_points_color = self.user_preferences.nodes_points_color.to_rgb()

@@ -58,6 +58,9 @@ class RendererUserPreferencesInput(QDialog):
 
         # QSpinBox
         self.spinBox_renderer_font_size: QSpinBox
+        self.spinBox_nodes_size: QSpinBox
+        self.spinBox_points_size: QSpinBox
+        self.spinBox_lines_thickness: QSpinBox
 
         # QPushButton
         self.pushButton_renderer_background_color_1 : QPushButton
@@ -81,6 +84,9 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
         self.pushButton_apply_settings.clicked.connect(self.apply_user_preferences)
         self.spinBox_renderer_font_size.valueChanged.connect(self.update_renderer_font_size)
+        self.spinBox_nodes_size.valueChanged.connect(self.update_nodes_size)
+        self.spinBox_points_size.valueChanged.connect(self.update_points_size)
+        self.spinBox_lines_thickness.valueChanged.connect(self.update_lines_thickness)
         
     def update_renderer_background_color_1(self):
         read = PickColorInput(title="Pick the background color")
@@ -161,23 +167,42 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_tubes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
     
     def update_renderer_font_size(self):
-        try:
-            self.renderer_font_size = self.spinBox_renderer_font_size.value()
-            self.tmp_user_preferences.user_preferences.renderer_font_size = self.renderer_font_size
-        except:
-            pass
+        renderer_font_size = self.spinBox_renderer_font_size.value()
+        self.tmp_user_preferences.renderer_font_size = renderer_font_size
     
-    def update_line_edit_renderer_font_size(self):
+    def update_spin_box_renderer_font_size(self):
         renderer_font_size = self.tmp_user_preferences.renderer_font_size
         self.spinBox_renderer_font_size.setValue(renderer_font_size)
 
+    def update_nodes_size(self):
+        nodes_size = self.spinBox_nodes_size.value()
+        self.tmp_user_preferences.nodes_size = nodes_size
+    
+    def update_spin_box_nodes_size(self):
+        nodes_size = self.tmp_user_preferences.nodes_size
+        self.spinBox_nodes_size.setValue(nodes_size)
+
+    def update_points_size(self):
+        points_size = self.spinBox_points_size.value()
+        self.tmp_user_preferences.points_size = points_size
+    
+    def update_spin_box_points_size(self):
+        points_size = self.tmp_user_preferences.points_size
+        self.spinBox_points_size.setValue(points_size)
+    
+    def update_lines_thickness(self):
+        lines_thickness = self.spinBox_lines_thickness.value()
+        self.tmp_user_preferences.lines_thickness = lines_thickness
+    
+    def update_spin_box_lines_thickness(self):
+        lines_thickness = self.tmp_user_preferences.lines_thickness
+        self.spinBox_lines_thickness.setValue(lines_thickness)
+
     def apply_user_preferences(self):
+        app().config.user_preferences = self.tmp_user_preferences
         self.update_settings()
 
-        app().config.user_preferences = self.tmp_user_preferences
         app().config.update_config_file()
-
-        self.main_window.update_plots(reset_camera=False)
 
     def confirm_and_update_user_preferences(self):
         self.apply_user_preferences()
@@ -188,6 +213,7 @@ class RendererUserPreferencesInput(QDialog):
         self.update_reference_scale_state()
         self.update_renderers_font_size()
         self.update_compatibility_mode_state()
+        self.main_window.update_plots(reset_camera=False)
 
     def reset_to_default(self):
         if self.tmp_user_preferences.interface_theme == "dark":
@@ -195,7 +221,7 @@ class RendererUserPreferencesInput(QDialog):
         else:
             self.tmp_user_preferences.set_light_theme()
         
-        self.tmp_user_preferences.reset_font_size()
+        self.tmp_user_preferences.reset_attributes()
         self.reset_logo_state()
         self.reset_reference_scale_state()
         self.reset_compatibility_mode_state()
@@ -204,15 +230,12 @@ class RendererUserPreferencesInput(QDialog):
         self.load_user_preferences()
 
     def reset_logo_state(self):
-        self.tmp_user_preferences.reset_open_pulse_logo()
         self.checkBox_OpenPulse_logo.setChecked(True)
 
     def reset_reference_scale_state(self):
-        self.tmp_user_preferences.reset_reference_scale_bar()
         self.checkBox_reference_scale.setChecked(True)
     
     def reset_compatibility_mode_state(self):
-        self.tmp_user_preferences.compatibility_mode = False
         self.checkBox_compatibility_mode.setChecked(False)
     
     def update_open_pulse_logo_state(self):
@@ -261,7 +284,10 @@ class RendererUserPreferencesInput(QDialog):
         self.update_line_edit_nodes_points_color()
         self.update_line_edit_lines_color()
         self.update_line_edit_tubes_color()
-        self.update_line_edit_renderer_font_size()
+        self.update_spin_box_renderer_font_size()
+        self.update_spin_box_nodes_size()
+        self.update_spin_box_points_size()
+        self.update_spin_box_lines_thickness()
         self.update_show_open_pulse_logo_checkbox()
         self.update_show_reference_scalebar_checkbox()
         self.update_compatibility_mode_checkbox()

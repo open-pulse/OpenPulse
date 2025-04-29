@@ -47,7 +47,10 @@ class NodesActor(GhostActor):
         mapper.SetScalarModeToUseCellData()
 
         self.SetMapper(mapper)
-        self.GetProperty().SetPointSize(10)
+
+        nodes_size = app().config.user_preferences.nodes_size
+        self.GetProperty().SetPointSize(nodes_size)
+
         if not app().main_window.config.user_preferences.compatibility_mode:
             self.GetProperty().RenderPointsAsSpheresOn()
         self.make_ghost()
