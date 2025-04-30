@@ -95,6 +95,7 @@ class MeshRenderWidget(CommonRenderWidget):
         with self.update_lock:
             self.visualization_changed_callback()
             self.update_section_plane()
+            self.update_selection()
 
             if reset_camera:
                 self.renderer.ResetCamera()
@@ -206,7 +207,7 @@ class MeshRenderWidget(CommonRenderWidget):
         self.renderer.SetBackground(color.to_rgb_f())
         self.renderer.SetBackground2(color.to_rgb_f())
         self.tubes_actor.set_color((255, 255, 255))
-        self.lines_actor.set_color((0, 0, 0))
+        self.lines_actor.set_color((Color("#5A5A5A").to_rgb()))
 
         self.disable_scale_bar()
         thumbnail = self.get_thumbnail()
@@ -215,6 +216,7 @@ class MeshRenderWidget(CommonRenderWidget):
         if app().config.user_preferences.show_reference_scale_bar:
             self.enable_scale_bar()
 
+        self.reset_renderer_colors()
         self.update_theme()
         self.render_interactor.GetRenderWindow().OffScreenRenderingOff()
 
@@ -234,6 +236,17 @@ class MeshRenderWidget(CommonRenderWidget):
         scale_bar_label_property = self.scale_bar_actor.GetLegendLabelProperty()
         scale_bar_title_property.SetFontSize(font_size_px)
         scale_bar_label_property.SetFontSize(font_size_px)
+
+    def reset_renderer_colors(self):
+        background_color_1 = app().config.user_preferences.renderer_background_color_1.to_rgb_f()
+        background_color_2 = app().config.user_preferences.renderer_background_color_2.to_rgb_f()
+        tubes_color = app().config.user_preferences.tubes_color.to_rgb()
+        lines_color = app().config.user_preferences.lines_color.to_rgb()
+
+        self.renderer.SetBackground(background_color_1)
+        self.renderer.SetBackground2(background_color_2)
+        self.tubes_actor.set_color(tubes_color)
+        self.lines_actor.set_color(lines_color)
 
     def update_open_pulse_logo_visibility(self):
         user_preferences = app().config.user_preferences
@@ -337,10 +350,15 @@ class MeshRenderWidget(CommonRenderWidget):
         lines = app().main_window.selected_lines
         elements = app().main_window.selected_elements
 
-        self.nodes_actor.set_color((255, 50, 50), nodes)
-        self.points_actor.set_color((255, 50, 50), nodes)
-        self.lines_actor.set_color((200, 0, 0), elements, lines)
-        self.tubes_actor.set_color((255, 0, 50), elements, lines)
+        selection_color = app().config.user_preferences.selection_color
+        nodes_points_color = selection_color.apply_factor(1.2).to_rgb()
+        lines_color = selection_color.apply_factor(0.6).to_rgb()
+        selection_color = selection_color.to_rgb()
+
+        self.nodes_actor.set_color(nodes_points_color, nodes)
+        self.points_actor.set_color(nodes_points_color, nodes)
+        self.lines_actor.set_color(lines_color, elements, lines)
+        self.tubes_actor.set_color(selection_color, elements, lines)
 
         # show element actor
         self.element_axes_actor.VisibilityOff()

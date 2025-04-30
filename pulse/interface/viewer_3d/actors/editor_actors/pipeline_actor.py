@@ -12,6 +12,7 @@ from pulse.utils.cell_utils import (
     paint_data,
 )
 from pulse.editor.structures import Pipe
+from pulse import app
 
 
 class PipelineActor(vtkActor):
@@ -24,7 +25,7 @@ class PipelineActor(vtkActor):
 
     def create_geometry(self):
         append_filter = vtkAppendPolyData()
-        selection_color = (255, 0, 50)
+        selection_color = app().config.user_preferences.selection_color.to_rgb()
 
         for i, shape in enumerate(self.pipeline.all_structures()):
             shape_data = shape.as_vtk().GetMapper().GetInput()

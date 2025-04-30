@@ -55,6 +55,7 @@ class RendererUserPreferencesInput(QDialog):
         self.lineEdit_nodes_points_color : QLineEdit
         self.lineEdit_lines_color : QLineEdit
         self.lineEdit_tubes_color : QLineEdit
+        self.lineEdit_selection_color: QLineEdit
 
         # QSpinBox
         self.spinBox_renderer_font_size: QSpinBox
@@ -72,6 +73,7 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_reset_to_default : QPushButton
         self.pushButton_update_settings : QPushButton
         self.pushButton_apply_settings: QPushButton
+        self.pushButton_selection_color: QPushButton
 
     def _create_connections(self):
         self.pushButton_renderer_background_color_1.clicked.connect(self.update_renderer_background_color_1)
@@ -80,6 +82,7 @@ class RendererUserPreferencesInput(QDialog):
         self.pushButton_nodes_points_color.clicked.connect(self.update_nodes_points_color)
         self.pushButton_lines_color.clicked.connect(self.update_lines_color)
         self.pushButton_tubes_color.clicked.connect(self.update_tubes_color)
+        self.pushButton_selection_color.clicked.connect(self.update_selection_color)
         self.pushButton_reset_to_default.clicked.connect(self.reset_to_default)
         self.pushButton_update_settings.clicked.connect(self.confirm_and_update_user_preferences)
         self.pushButton_apply_settings.clicked.connect(self.apply_user_preferences)
@@ -165,6 +168,19 @@ class RendererUserPreferencesInput(QDialog):
     def update_line_edit_tubes_color(self):
         str_color = str(self.tmp_user_preferences.tubes_color.to_rgb())[1:-1]
         self.lineEdit_tubes_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+    
+    def update_selection_color(self):
+        read = PickColorInput(title="Pick the surfaces color")
+        if read.complete:
+            selection_color = tuple(read.color)
+            str_color = str(selection_color)[1:-1]
+            self.lineEdit_selection_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
+           
+            self.tmp_user_preferences.selection_color = Color(*selection_color)
+    
+    def update_line_edit_selection_color(self):
+        str_color = str(self.tmp_user_preferences.selection_color.to_rgb())[1:-1]
+        self.lineEdit_selection_color.setStyleSheet(f"background-color: rgb({str_color});\n color: rgb({str_color});")
     
     def update_renderer_font_size(self):
         renderer_font_size = self.spinBox_renderer_font_size.value()
@@ -284,6 +300,7 @@ class RendererUserPreferencesInput(QDialog):
         self.update_line_edit_nodes_points_color()
         self.update_line_edit_lines_color()
         self.update_line_edit_tubes_color()
+        self.update_line_edit_selection_color()
         self.update_spin_box_renderer_font_size()
         self.update_spin_box_nodes_size()
         self.update_spin_box_points_size()
