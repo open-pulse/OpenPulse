@@ -7,6 +7,7 @@ from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import CommonRenderWidget
 
 from pulse.interface.viewer_3d.actors import EditorPointsActor, EditorStagedPointsActor, EditorSelectedPointsActor
+
 from pulse import ICON_DIR, app
 
 

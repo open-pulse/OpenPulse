@@ -18,6 +18,7 @@ from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section_simplified import SetCrossSectionSimplified
 from pulse.interface.user_input.model.setup.material.set_material_input_simplified import SetMaterialSimplified
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
 from pulse.editor.structures import (
@@ -617,15 +618,35 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
 
     def delete_selection_callback(self):
+        # psd_parts = []
         for structure in self.pipeline.selected_structures:
             if not isinstance(structure, Point):
                 tag = structure.tag
                 if tag != -1:
                     app().project.model.properties._remove_line(tag)
+        
+        psd_selection_error = False
+        for structure in self.pipeline.structures:
+            if "psd_name" not in structure.extra_info:
+                continue
+            
+            if structure.selected:
+                psd_selection_error = True
+                break
+            
+            for point in structure.get_points():
+                if point in self.pipeline.selected_points:
+                    psd_selection_error = True
+                    break
 
+                # psd_parts.append(structure)
         self.pipeline.dismiss()
-        self.pipeline.delete_selection()
-        self.modified = True
+
+        if not psd_selection_error:
+            self.pipeline.delete_selection()
+            self.modified = True
+        else: 
+            PrintMessageInput(["Error", "Invalid operation", "To delete a PSD or its parts, please use the dedicated PSD editor."])
 
         self._reset_xyz()
         self._update_permissions()
