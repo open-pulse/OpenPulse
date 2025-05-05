@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QToolBar, QWidget
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QIcon, QKeyEvent, QFont
+from PySide6.QtWidgets import QLabel, QLineEdit, QPushButton, QToolBar, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QIcon, QKeyEvent, QFont
 
 from pulse import app
 from pulse.interface.toolbars.mesh_updater import MeshUpdater
@@ -106,7 +106,11 @@ class MeshToolbar(QToolBar):
         font = QFont()
         font.setPointSize(10)
 
-        for widget in self.findChildren((QPushButton, QLabel, QLineEdit)):
+        widgets = list()
+        for widget in [QPushButton, QLabel, QLineEdit]:
+            widgets += self.findChildren(widget)
+
+        for widget in widgets:
             widget.setFont(font)
 
     def change_button_visibility(self):

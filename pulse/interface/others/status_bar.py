@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel, QStatusBar
+from PySide6.QtWidgets import QLabel, QStatusBar
 
 from pulse import app
 

@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QLabel, QFileDialog, QPushButton, QSlider, QSpinBox, QToolBar, QWidget
-from PyQt5.QtCore import QSize, Qt 
-from PyQt5.QtGui import  QIcon, QFont
+from PySide6.QtWidgets import QLabel, QFileDialog, QPushButton, QSlider, QSpinBox, QToolBar, QWidget
+from PySide6.QtCore import QSize, Qt 
+from PySide6.QtGui import  QIcon, QFont
 
 from pulse import app, UI_DIR, ICON_DIR
 from pulse.interface.formatters import icons
@@ -140,7 +140,11 @@ class AnimationToolbar(QToolBar):
         font = QFont()
         font.setPointSize(10)
 
-        for widget in self.findChildren((QLabel, QPushButton, QSpinBox)):
+        widgets = list()
+        for widget in [QLabel, QPushButton, QSpinBox]:
+            widgets += self.findChildren(widget)
+
+        for widget in widgets:
             widget.setFont(font)
 
     def frames_value_changed(self):
