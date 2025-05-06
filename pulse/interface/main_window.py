@@ -959,17 +959,19 @@ class MainWindow(QMainWindow):
             self.reset_geometry_render()
 
             if project_path is not None:
-
             
-                self.config.add_recent_file(project_path)
-                self.config.write_last_folder_path_in_file("project_folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
 
                 if app().project.loader.check_file_version():
                     self.reset_temporary_folder()
-                    app().config.remove_path_from_config_file(project_path)
-                    self.welcome_widget.update_recent_projects()
+
+                    if app().config.remove_path_from_config_file(project_path):
+                        self.welcome_widget.update_recent_projects()
+
                     return
+                
+                self.config.add_recent_file(project_path)
+                self.config.write_last_folder_path_in_file("project_folder", project_path)
 
                 self.update_window_title(project_path)
 
