@@ -1,10 +1,10 @@
 
 from PySide6.QtCore import QSize, Qt, Signal, QByteArray
-from PySide6.QtGui import QFont, QIcon, QImage, QPixmap
+from PySide6.QtGui import QFont, QIcon, QImage, QPixmap, QFontDatabase
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget, QBoxLayout
 from fileboxes import Filebox
 
-from pulse import app, EXAMPLES_DIR, ICON_DIR
+from pulse import app, EXAMPLES_DIR, ICON_DIR, FONT_DIR
 
 import numpy as np
 import io
@@ -22,24 +22,40 @@ class WelcomeWidget(QWidget):
         self.main_window = app().main_window
         self.widget_layout = QVBoxLayout(self)
         self.setLayout(self.widget_layout)
+        self.define_logo_variables()
         self.setup_image(self.widget_layout)
         self.setup_labels(self.widget_layout)
         self.create_recents_setup()
         self.update_recent_projects()
         self.setup_example_projects(self.widget_layout)
 
+        self.main_window.theme_changed.connect(self.update_logo_color)
+    
+    def define_logo_variables(self):
+        bauhaus_font_id = QFontDatabase.addApplicationFont(str(FONT_DIR / "bauhaus93.ttf"))
+        self.bauhaus_font = QFontDatabase.applicationFontFamilies(bauhaus_font_id)        
+
+        self.light_logo_text = f"""<html><head/><body style=\"font-size:72pt; font-family: '{self.bauhaus_font}';
+                                \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#4F4F4F;\">pen</span><span style=\"
+                                 color:#0055ff;\">P</span><span style=\" color:#4F4F4F;\">ulse</span></p></body></html>"""
+    
+        self.dark_logo_text = f"""<html><head/><body style=\"font-size:72pt; font-family: '{self.bauhaus_font}';
+                                \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#c8c8c8;\">pen</span><span style=\"
+                                 color:#0055ff;\">P</span><span style=\" color:#c8c8c8;\">ulse</span></p></body></html>"""
+
     def setup_image(self, layout):
-        image_label = QLabel(self)
-        image_label.setAlignment(Qt.AlignCenter)
-        pixmap = QPixmap(str(ICON_DIR / "logos/openpulse_logo.png")).scaled(350, 350, Qt.KeepAspectRatio)
-        image_label.setPixmap(pixmap)
-        # font = QFont()
-        # font.setFamily("Bauhaus 93")
-        # image_label.setFont(font)
-        # image_label.setText("<html><head/><body><p><span style=\" font-size:72pt; color:#0055ff;\">O</span><span style=\" font-size:72pt; color:#c8c8c8;\">pen</span><span style=\" font-size:72pt; color:#0055ff;\">P</span><span style=\" font-size:72pt; color:#c8c8c8;\">ulse</span></p></body></html>")
-        image_label.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(image_label)
+        self.logo_label = QLabel(self)
+        self.logo_label.setAlignment(Qt.AlignCenter)
+        
+        self.logo_label.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.logo_label)
         layout.addStretch()
+    
+    def update_logo_color(self):
+        if app().config.user_preferences.interface_theme == "dark":
+            self.logo_label.setText(self.dark_logo_text)
+        else:
+            self.logo_label.setText(self.light_logo_text)
 
     def setup_labels(self, layout):
         labels_layout = QHBoxLayout()
