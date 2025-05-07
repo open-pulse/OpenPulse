@@ -85,9 +85,7 @@ def main():
 
     if platform.system() == "Windows":
         sys.argv.append("--platform")
-        sys.argv.append("windows:dpiawareness=0")
 
-    # qdarktheme.enable_hi_dpi()
     app = Application(sys.argv)
     sys.exit(app.exec_())
 
