@@ -1,6 +1,6 @@
 
 from PySide6.QtCore import QSize, Qt, Signal, QByteArray
-from PySide6.QtGui import QIcon, QImage, QPixmap
+from PySide6.QtGui import QFont, QIcon, QImage, QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget, QBoxLayout
 from fileboxes import Filebox
 
@@ -33,9 +33,12 @@ class WelcomeWidget(QWidget):
         image_label.setAlignment(Qt.AlignCenter)
         pixmap = QPixmap(str(ICON_DIR / "logos/openpulse_logo.png")).scaled(350, 350, Qt.KeepAspectRatio)
         image_label.setPixmap(pixmap)
+        # font = QFont()
+        # font.setFamily("Bauhaus 93")
+        # image_label.setFont(font)
+        # image_label.setText("<html><head/><body><p><span style=\" font-size:72pt; color:#0055ff;\">O</span><span style=\" font-size:72pt; color:#c8c8c8;\">pen</span><span style=\" font-size:72pt; color:#0055ff;\">P</span><span style=\" font-size:72pt; color:#c8c8c8;\">ulse</span></p></body></html>")
         image_label.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(image_label)
-
         layout.addStretch()
 
     def setup_labels(self, layout):
