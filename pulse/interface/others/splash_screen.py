@@ -1,8 +1,8 @@
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import QLabel, QProgressBar, QSplashScreen
 
-from pulse import ICON_DIR, UI_DIR
+from pulse import ICON_DIR, UI_DIR, FONT_DIR, app
 
 from molde import load_ui
 
@@ -17,11 +17,9 @@ class SplashScreen(QSplashScreen):
 
         self._config_widget()
         self._define_qt_variables()
+        self._config_logo_label()
         self.update_position(parent)
         self.update_progress(5)
-
-        # pixmap = QPixmap(str(ICON_DIR / "logos/OpenPulse_logo_gray.png"))
-        # self.setPixmap(QPixmap())
 
     def _config_widget(self):
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -31,7 +29,18 @@ class SplashScreen(QSplashScreen):
 
     def _define_qt_variables(self):
         self.label_loading : QLabel
+        self.logo_label: QLabel
         self.progressBar : QProgressBar
+    
+    def _config_logo_label(self):
+        bauhaus_font_id = QFontDatabase.addApplicationFont(str(FONT_DIR / "bauhaus93.ttf"))
+        self.bauhaus_font = QFontDatabase.applicationFontFamilies(bauhaus_font_id)
+
+        logo_text = f"""<html><head/><body style\"= font-size:60pt; font-family: '{self.bauhaus_font}\"><p align="center"><span style=\"
+            color:#0055ff;\">O</span><span style=\" color:#c8c8c8;\">pen</span><span style=\"
+            color:#0055ff;\">P</span><span style=\" color:#c8c8c8;\">ulse</span></p></body></html>"""        
+
+        self.logo_label.setText(logo_text)       
 
     def update_position(self, app):
         desktop_geometry = app.primaryScreen().geometry()
