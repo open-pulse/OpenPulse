@@ -947,7 +947,9 @@ class MainWindow(QMainWindow):
 
         self.reset_geometry_render()
         obj = NewProjectInput()
-        self.initial_project_action(obj.complete)
+
+        if not self.initial_project_action(obj.complete):
+            return
 
         self.action_geometry_editor_workspace_callback()
         return obj.complete
