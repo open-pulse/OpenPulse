@@ -24,6 +24,8 @@ class AboutOpenPulseInput(QDialog):
         self._config_window()
         self._initialize()
         self._define_qt_variables()
+        self._define_logo_variables()
+        self.update_logo_text()
         self._create_connections()
         self.adjustSize()
 
@@ -35,7 +37,8 @@ class AboutOpenPulseInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-        
+    
+
     def _initialize(self):
 
         self.keep_window_open = True
@@ -52,6 +55,7 @@ class AboutOpenPulseInput(QDialog):
         self.label_licensing_information: QLabel
         self.label_main_info: QLabel
         self.label_version_information: QLabel
+        self.logo_label: QLabel
         #
         self.label_licensing_information.setText(self.licensing_info)
         self.label_main_info.setText(self.main_info)
@@ -62,6 +66,22 @@ class AboutOpenPulseInput(QDialog):
 
     def _create_connections(self):
         self.pushButton_repository.clicked.connect(self.open_gitHub_repository)
+        app().main_window.theme_changed.connect(self.update_logo_text)
+    
+    def _define_logo_variables(self):
+        self.light_logo_text = """<html><head/><body style=\"font-size: 35pt; font-family: 'Bauhaus 93';
+                                \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#4F4F4F;\">pen</span><span style=\"
+                                 color:#0055ff;\">P</span><span style=\" color:#4F4F4F;\">ulse</span></p></body></html>"""
+    
+        self.dark_logo_text = """<html><head/><body style=\"font-size: 35pt; font-family: 'Bauhaus 93';
+                                \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#c8c8c8;\">pen</span><span style=\"
+                                 color:#0055ff;\">P</span><span style=\" color:#c8c8c8;\">ulse</span></p></body></html>"""
+
+    def update_logo_text(self):
+        if app().config.user_preferences.interface_theme == "dark":
+            self.logo_label.setText(self.dark_logo_text)
+        else:
+            self.logo_label.setText(self.light_logo_text)
 
     def open_gitHub_repository(self):
 

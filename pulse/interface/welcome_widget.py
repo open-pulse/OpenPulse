@@ -1,9 +1,9 @@
 from PySide6.QtCore import QSize, Qt, Signal, QByteArray
-from PySide6.QtGui import QFont, QIcon, QImage, QPixmap, QFontDatabase
+from PySide6.QtGui import QFont, QIcon, QImage, QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget, QBoxLayout
 from fileboxes import Filebox
 
-from pulse import app, EXAMPLES_DIR, ICON_DIR, FONT_DIR
+from pulse import app, EXAMPLES_DIR, ICON_DIR
 
 import numpy as np
 import io
@@ -28,17 +28,14 @@ class WelcomeWidget(QWidget):
         self.update_recent_projects()
         self.setup_example_projects(self.widget_layout)
 
-        self.main_window.theme_changed.connect(self.update_logo_color)
+        self.main_window.theme_changed.connect(self.update_logo_text)
     
     def define_logo_variables(self):
-        bauhaus_font_id = QFontDatabase.addApplicationFont(str(FONT_DIR / "bauhaus93.ttf"))
-        self.bauhaus_font = QFontDatabase.applicationFontFamilies(bauhaus_font_id) 
-
-        self.light_logo_text = f"""<html><head/><body style=\"font-size:72pt; font-family: '{self.bauhaus_font[0]}';
+        self.light_logo_text = """<html><head/><body style=\"font-size:72pt; font-family: 'Bauhaus 93';
                                 \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#4F4F4F;\">pen</span><span style=\"
                                  color:#0055ff;\">P</span><span style=\" color:#4F4F4F;\">ulse</span></p></body></html>"""
     
-        self.dark_logo_text = f"""<html><head/><body style=\"font-size:72pt; font-family: '{self.bauhaus_font[0]}';
+        self.dark_logo_text = """<html><head/><body style=\"font-size:72pt; font-family: 'Bauhaus 93';
                                 \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#c8c8c8;\">pen</span><span style=\"
                                  color:#0055ff;\">P</span><span style=\" color:#c8c8c8;\">ulse</span></p></body></html>"""
 
@@ -50,7 +47,7 @@ class WelcomeWidget(QWidget):
         layout.addWidget(self.logo_label)
         layout.addStretch()
     
-    def update_logo_color(self):
+    def update_logo_text(self):
         if app().config.user_preferences.interface_theme == "dark":
             self.logo_label.setText(self.dark_logo_text)
         else:
