@@ -1,4 +1,3 @@
-
 from PySide6.QtCore import QSize, Qt, Signal, QByteArray
 from PySide6.QtGui import QFont, QIcon, QImage, QPixmap, QFontDatabase
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget, QBoxLayout
@@ -33,13 +32,13 @@ class WelcomeWidget(QWidget):
     
     def define_logo_variables(self):
         bauhaus_font_id = QFontDatabase.addApplicationFont(str(FONT_DIR / "bauhaus93.ttf"))
-        self.bauhaus_font = QFontDatabase.applicationFontFamilies(bauhaus_font_id)        
+        self.bauhaus_font = QFontDatabase.applicationFontFamilies(bauhaus_font_id) 
 
-        self.light_logo_text = f"""<html><head/><body style=\"font-size:72pt; font-family: '{self.bauhaus_font}';
+        self.light_logo_text = f"""<html><head/><body style=\"font-size:72pt; font-family: '{self.bauhaus_font[0]}';
                                 \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#4F4F4F;\">pen</span><span style=\"
                                  color:#0055ff;\">P</span><span style=\" color:#4F4F4F;\">ulse</span></p></body></html>"""
     
-        self.dark_logo_text = f"""<html><head/><body style=\"font-size:72pt; font-family: '{self.bauhaus_font}';
+        self.dark_logo_text = f"""<html><head/><body style=\"font-size:72pt; font-family: '{self.bauhaus_font[0]}';
                                 \"><p><span style=\" color:#0055ff;\">O</span><span style=\" color:#c8c8c8;\">pen</span><span style=\"
                                  color:#0055ff;\">P</span><span style=\" color:#c8c8c8;\">ulse</span></p></body></html>"""
 

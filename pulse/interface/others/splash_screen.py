@@ -36,7 +36,7 @@ class SplashScreen(QSplashScreen):
         bauhaus_font_id = QFontDatabase.addApplicationFont(str(FONT_DIR / "bauhaus93.ttf"))
         self.bauhaus_font = QFontDatabase.applicationFontFamilies(bauhaus_font_id)
 
-        logo_text = f"""<html><head/><body style\"= font-size:60pt; font-family: '{self.bauhaus_font}\"><p align="center"><span style=\"
+        logo_text = f"""<html><head/><body style=\" font-size:60pt; font-family: '{self.bauhaus_font[0]}'\"><p align="center"><span style=\"
             color:#0055ff;\">O</span><span style=\" color:#c8c8c8;\">pen</span><span style=\"
             color:#0055ff;\">P</span><span style=\" color:#c8c8c8;\">ulse</span></p></body></html>"""        
 
