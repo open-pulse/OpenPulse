@@ -36,6 +36,7 @@ class PulsationDamperEditorInputs(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
+        self._config_widgets()
 
         self.load_pulsation_damper_info()
         self.selection_callback()
@@ -150,18 +151,16 @@ class PulsationDamperEditorInputs(QDialog):
         self.volume_sections_callback()
 
     def selection_callback(self):
-
         selected_nodes = app().main_window.list_selected_nodes()
+        selected_points = app().project.pipeline.selected_points
 
         if len(selected_nodes) == 1:
-
             node = self.preprocessor.nodes[selected_nodes[0]]
             self.lineEdit_connecting_coord_x.setText(str(round(node.x, 6)))
             self.lineEdit_connecting_coord_y.setText(str(round(node.y, 6)))
             self.lineEdit_connecting_coord_z.setText(str(round(node.z, 6)))
 
             elements = self.preprocessor.structural_elements_connected_to_node[node.external_index]
-
             self.selected_material = None
             material = elements[0].material
 
@@ -169,6 +168,15 @@ class PulsationDamperEditorInputs(QDialog):
                 return
 
             self.selected_material = material
+            app().main_window.selection_changed.connect(self.selection_callback)
+
+        elif len(selected_points) == 1:
+            point = selected_points[0]
+            self.lineEdit_connecting_coord_x.setText(str(round(point.x, 6)))
+            self.lineEdit_connecting_coord_y.setText(str(round(point.y, 6)))
+            self.lineEdit_connecting_coord_z.setText(str(round(point.z, 6)))
+
+        app().main_window.geometry_widget.left_released.connect(self.selection_callback)
 
     def update_sections_info_callback(self):
 
@@ -205,6 +213,12 @@ class PulsationDamperEditorInputs(QDialog):
         self.lineEdit_polytropic_exponent.setText(f"{isentropic_exponent : .6f}")
 
     def _config_widgets(self):
+        # Replace placeholder widget with the actual render widget
+        self.preview_widget = DamperPreviewRenderWidget()
+        self.preview_widget_placeholder.parent().layout().replaceWidget(
+            self.preview_widget_placeholder, 
+            self.preview_widget,
+        )
         #
         self.lineEdit_damper_label.setFocus()
         self.lineEdit_selected_damper_label.setDisabled(True)
