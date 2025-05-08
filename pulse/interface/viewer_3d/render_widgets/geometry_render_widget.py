@@ -131,20 +131,10 @@ class GeometryRenderWidget(CommonRenderWidget):
 
         if hasattr(self, "open_pulse_logo"):
             self.renderer.RemoveViewProp(self.open_pulse_logo)
-        
-        self.logo = vtkTextActor()
-        self.logo.SetInput("Open Pulse")
-        self.logo.SetPosition(0.845, 0.89)
-        self.logo.SetPosition2(0.15, 0.15)
-        self.logo.GetTextProperty().SetFontSize(30)
-        self.logo.GetTextProperty().SetFontFamilyAsString("Bauhaus 93")
-        self.logo.GetTextProperty().SetColor(0.8, 0.8, 0.8)
 
-        self.renderer.AddActor2D(self.logo)
-
-        # self.open_pulse_logo = self.create_logo(path)
-        # self.open_pulse_logo.SetPosition(0.845, 0.89)
-        # self.open_pulse_logo.SetPosition2(0.15, 0.15)
+        self.open_pulse_logo = self.create_logo(path)
+        self.open_pulse_logo.SetPosition(0.845, 0.89)
+        self.open_pulse_logo.SetPosition2(0.15, 0.15)
 
     def enable_open_pulse_logo(self):
         return
