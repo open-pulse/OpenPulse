@@ -11,7 +11,9 @@ ICON_DIR = OPEN_PULSE_DIR / "interface/data/icons/"
 QSS_DIR = OPEN_PULSE_DIR / "interface/data/qss_files/"
 UI_DIR = OPEN_PULSE_DIR / "interface/data/ui_files/"
 SYMBOLS_DIR = OPEN_PULSE_DIR / "interface/data/symbols/"
-
+EXAMPLES_DIR = OPEN_PULSE_DIR / "interface/data/examples/"
+FONT_DIR = OPEN_PULSE_DIR / "interface/data/fonts/"
+   
 USER_PATH = Path().home()
 TEMP_PROJECT_DIR = USER_PATH / "temp_pulse"
 TEMP_PROJECT_FILE = str(TEMP_PROJECT_DIR / "tmp.pulse")

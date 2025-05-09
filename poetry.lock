@@ -776,7 +776,7 @@ tbb = "==2022.*"
 
 [[package]]
 name = "molde"
-version = "0.1.3"
+version = "0.1.4"
 description = ""
 optional = false
 python-versions = ">=3.10"
@@ -792,9 +792,9 @@ vtk = "^9.3.1"
 
 [package.source]
 type = "git"
-url = "https://github.com/andrefpf/molde"
-reference = "update_dependencies"
-resolved_reference = "5a6fbb90158b8d6484c0e44f383c8581a9215ecd"
+url = "https://github.com/andrefpf/molde.git"
+reference = "main"
+resolved_reference = "8ca9bd37dd68ff2f56f72b89074050c248ef3960"
 
 [[package]]
 name = "moviepy"
@@ -1744,4 +1744,4 @@ web = ["wslink (>=1.0.4)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.14"
-content-hash = "c87d85133fbfb77a780e9ef4dd814de6c2e9fdbd2608edb72af947ce2fdbab45"
+content-hash = "75688cbb331d8e8f50178a7790ed8b5df77f2da80b4f6a894f52f6bf9c820412"

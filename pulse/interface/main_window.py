@@ -15,6 +15,7 @@ from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.handler.pcf_file_io import PCFFileIO
+from pulse.interface.welcome_widget import WelcomeWidget
 from pulse.interface.menu.model_setup_widget import ModelSetupWidget
 from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
 from pulse.interface.others.status_bar import StatusBar
@@ -204,17 +205,18 @@ class MainWindow(QMainWindow):
         self.action_import_pcf.setDisabled(_bool)
 
     def _create_layout(self):
-
         self.model_setup_widget = ModelSetupWidget()
         self.results_viewer_wigdet = ResultsViewerWidget()
         self.input_ui = InputUi(self)
         self.mesh_widget = MeshRenderWidget()
         self.results_widget = ResultsRenderWidget()
         self.geometry_widget = GeometryRenderWidget()
+        self.welcome_widget = WelcomeWidget()
 
         self.render_widgets_stack.addWidget(self.mesh_widget)
         self.render_widgets_stack.addWidget(self.results_widget)
         self.render_widgets_stack.addWidget(self.geometry_widget)
+        self.render_widgets_stack.addWidget(self.welcome_widget)
         self.render_widgets_stack.currentChanged.connect(self.render_changed_callback)
 
         self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget, self)
@@ -253,7 +255,7 @@ class MainWindow(QMainWindow):
 
         t2 = time()
         self.plot_lines_with_cross_sections()
-        self.use_model_setup_workspace()
+        self.configure_welcome_widget()
         self.load_user_preferences()
         self.create_temporary_folder()
         app().splash.update_progress(98)
@@ -272,15 +274,11 @@ class MainWindow(QMainWindow):
             path = Path(argv[1])
             if path.exists():
                 self.open_project(path)
-            else:
-                self.load_recent_project()
 
         elif not self.is_temporary_folder_empty():
             self.recovery_dialog()
         
-        else:
-            self.load_recent_project()
- 
+
     def create_temporary_folder(self):
         create_new_folder(USER_PATH, "temp_pulse")
 
@@ -330,7 +328,6 @@ class MainWindow(QMainWindow):
             self.open_project()
         else:
             self.reset_temporary_folder()
-            self.load_recent_project()
 
     def open_pcf(self):
         pcf_file = PCFFileIO()
@@ -428,6 +425,15 @@ class MainWindow(QMainWindow):
         if self.action_results_workspace.isChecked():
             return
         self.action_results_workspace.trigger()
+    
+    def configure_welcome_widget(self):
+        self.render_widgets_stack.setCurrentWidget(self.welcome_widget)
+        self.setup_widgets_stack.setVisible(False)
+
+        self.analysis_toolbar.setDisabled(True)
+        self.mesh_toolbar.setDisabled(True)
+        self.tool_bar.setDisabled(True)
+        self.animation_toolbar.setDisabled(True)
 
     def plot_lines(self):
         self._configure_visualization(points=True, lines=True)
@@ -462,12 +468,6 @@ class MainWindow(QMainWindow):
             title += " - " + msg
         self.setWindowTitle(title) 
 
-    def get_started(self):
-        self.close_dialogs()
-        self.model_and_analysis_items.modify_model_setup_items_access(True)
-        obj = GetStartedInput()
-        return obj.complete
-
     def initial_project_action(self, finalized):
 
         # t0 = time()
@@ -499,19 +499,6 @@ class MainWindow(QMainWindow):
         if not self.project.none_project_action:
             ResetProjectInput()
 
-    def load_recent_project(self):
-        # t0 = time()
-        self.mesh_toolbar.pushButton_generate_mesh.setDisabled(True)
-
-        if self.get_started():
-            self.action_front_view_callback()
-            # self._update_recent_projects()
-
-        else:
-            self.disable_workspace_selector_and_geometry_editor(True)
-        # dt = time() - t0
-        # print(f"Elapsed time to load_recent_project: {round(dt, 6)}s")
-
     # internal
     def _update_recent_projects(self):
         actions = self.menu_recent.actions()
@@ -519,12 +506,11 @@ class MainWindow(QMainWindow):
             self.menu_recent.removeAction(action)
 
         self.menu_actions = list()
-        for path in reversed(self.config.get_recent_files()):
+        for path in self.config.get_recent_files():
             if not path.exists():
                 continue
     
-            import_action = QAction(str(path.name) + "\t" + str(path))
-            import_action.setStatusTip(str(path))
+            import_action = QAction(path.parent.name + "/" + path.name)
             import_action.triggered.connect(partial(self.open_project, path))
             self.menu_recent.addAction(import_action)
             self.menu_actions.append(import_action)
@@ -596,14 +582,18 @@ class MainWindow(QMainWindow):
             structural_symbols=self.visualization_filter.structural_symbols,
         )
         self.close_dialogs()
+        self.tool_bar.setDisabled(False)
+        self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
-        self.animation_toolbar.setEnabled(False)
+        self.animation_toolbar.setDisabled(True)
 
         self.action_geometry_editor_workspace.setEnabled(False)
         if not self.action_model_setup_workspace.isEnabled():
             self.action_model_setup_workspace.setEnabled(True)
         elif not self.action_results_workspace.isEnabled():
             self.action_results_workspace.setEnabled(True)
+        
+        self.setup_widgets_stack.setVisible(True)
 
         self.setup_widgets_stack.setCurrentWidget(self.geometry_input_wigdet)
         self.render_widgets_stack.setCurrentWidget(self.geometry_widget)
@@ -611,9 +601,12 @@ class MainWindow(QMainWindow):
         self.splitter.widget(0).setMinimumWidth(420)
 
     def action_model_setup_workspace_callback(self):
+        self.setup_widgets_stack.setVisible(True)
 
         self.mesh_toolbar.setDisabled(False)
-        self.animation_toolbar.setEnabled(False)
+        self.tool_bar.setDisabled(False)
+        self.analysis_toolbar.setDisabled(False)
+        self.animation_toolbar.setDisabled(True)
         
         self.action_model_setup_workspace.setEnabled(False)
         if not self.action_geometry_editor_workspace.isEnabled():
@@ -939,7 +932,6 @@ class MainWindow(QMainWindow):
         return False
 
     def new_project(self):
-
         condition_1 = self.project.save_path is None
         condition_2 = os.path.exists(TEMP_PROJECT_FILE)
         condition_3 = self.project_data_modified
@@ -955,8 +947,11 @@ class MainWindow(QMainWindow):
 
         self.reset_geometry_render()
         obj = NewProjectInput()
-        self.initial_project_action(obj.complete)
 
+        if not self.initial_project_action(obj.complete):
+            return
+
+        self.action_geometry_editor_workspace_callback()
         return obj.complete
 
     def open_project(self, project_path: str | Path | None = None):
@@ -966,16 +961,19 @@ class MainWindow(QMainWindow):
             self.reset_geometry_render()
 
             if project_path is not None:
-
             
-                self.config.add_recent_file(project_path)
-                self.config.write_last_folder_path_in_file("project_folder", project_path)
                 copy(project_path, TEMP_PROJECT_FILE)
 
                 if app().project.loader.check_file_version():
                     self.reset_temporary_folder()
-                    self.load_recent_project()
+
+                    if app().config.remove_path_from_config_file(project_path):
+                        self.welcome_widget.update_recent_projects()
+
                     return
+                
+                self.config.add_recent_file(project_path)
+                self.config.write_last_folder_path_in_file("project_folder", project_path)
 
                 self.update_window_title(project_path)
 
@@ -994,7 +992,7 @@ class MainWindow(QMainWindow):
             self._update_recent_projects()
 
             logging.info("Configuring visualization [95%]")
-            self.action_front_view_callback()
+            self.action_model_setup_workspace_callback()
             self.update_plots()
 
         LoadingWindow(tmp).run()

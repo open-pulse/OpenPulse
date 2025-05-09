@@ -1,10 +1,12 @@
-from vtkmodules.vtkRenderingCore import vtkActor
+from vtkmodules.vtkRenderingCore import vtkActor, vtkTextActor
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QApplication
+
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import CommonRenderWidget
+from molde import Color
 
 from pulse.interface.viewer_3d.actors import EditorPointsActor, EditorStagedPointsActor, EditorSelectedPointsActor
 from pulse import ICON_DIR, app
@@ -135,7 +137,8 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
 
     def enable_open_pulse_logo(self):
-        self.open_pulse_logo.VisibilityOn()
+        return
+        # self.open_pulse_logo.VisibilityOn()
 
     def disable_open_pulse_logo(self):
         self.open_pulse_logo.VisibilityOff()
