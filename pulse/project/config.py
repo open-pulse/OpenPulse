@@ -75,11 +75,18 @@ class Config:
         
         return recent_files
 
-    def remove_path_from_config_file(self, path: str | Path):
+    def remove_path_from_config_file(self, path: str | Path) -> bool:
+        path = str(path)
         data = self.get_config_data()
-        data["recent_files"].remove(str(path))
+
+        if path not in data["recent_files"]:
+            return False
+
+        data["recent_files"].remove(path)
 
         self.write_data_in_file(data)
+
+        return True
         
     def reset_recent_projects(self):
         data = self.get_config_data()

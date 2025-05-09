@@ -1,7 +1,8 @@
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import QApplication
+from PySide6.QtGui import QFontDatabase
 
-from pulse import ICON_DIR, UI_DIR, TEMP_PROJECT_FILE
+from pulse import ICON_DIR, UI_DIR, TEMP_PROJECT_FILE, FONT_DIR
 from pulse.interface.main_window import MainWindow
 from pulse.interface.others.splash_screen import SplashScreen
 
@@ -15,6 +16,8 @@ class Application(QApplication):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        QFontDatabase.addApplicationFont(str(FONT_DIR / "bauhaus93.ttf"))
 
         # create the splash screen
         self.splash = SplashScreen(self)

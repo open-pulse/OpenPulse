@@ -1,4 +1,4 @@
-from vtkmodules.vtkRenderingCore import vtkActor
+from vtkmodules.vtkRenderingCore import vtkActor, vtkTextActor
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QApplication
@@ -137,7 +137,8 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
 
     def enable_open_pulse_logo(self):
-        self.open_pulse_logo.VisibilityOn()
+        return
+        # self.open_pulse_logo.VisibilityOn()
 
     def disable_open_pulse_logo(self):
         self.open_pulse_logo.VisibilityOff()
