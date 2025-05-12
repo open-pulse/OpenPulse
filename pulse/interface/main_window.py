@@ -1,5 +1,5 @@
 
-from PySide6.QtWidgets import QAbstractButton, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
+from PySide6.QtWidgets import QAbstractButton, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PySide6.QtCore import Qt, Signal, QEvent, QPoint
 from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
 
@@ -138,6 +138,7 @@ class MainWindow(QMainWindow):
         self.action_set_light_theme: QAction
         self.action_save_project: QAction
         self.action_save_project_as: QAction
+        self.action_capture_image: QAction
         self.action_show_mesh_data: QAction
         self.action_show_geometry_data: QAction
         self.action_show_lines: QAction
@@ -1080,6 +1081,25 @@ class MainWindow(QMainWindow):
             sleep(0.5)
 
         LoadingWindow(save_data).run(path)
+    
+    def action_capture_image_callback(self):
+        self.capture_image()
+    
+    def capture_image(self):
+        path, check = QFileDialog.getSaveFileName(
+            self,
+            "PNG",
+            filter="PNG (*.png)",
+        )
+        
+        if not check:
+            return
+
+        widget = self.render_widgets_stack.currentWidget()
+        if isinstance(widget, CommonRenderWidget):
+            image = widget.get_screenshot()
+            with open(path, "wb") as file:
+                image.save(file)
 
     def update_window_title(self, project_path : str | Path):
         if isinstance(project_path, str):
