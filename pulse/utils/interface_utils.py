@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QWidget
+from PySide6.QtWidgets import QDialog, QLineEdit, QWidget
 
 from dataclasses import dataclass
 from enum import IntEnum

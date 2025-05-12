@@ -1,0 +1,23 @@
+name: pulse
+channels:
+  - conda-forge
+dependencies:
+  - pip=25.0.1
+  - python=3.12.9
+  - python-mumps=0.0.3
+  - pip:
+      - black==23.12.1
+      - ctrefprop==0.10.2
+      - gmsh==4.13.1
+      - h5py==3.13.0
+      - invoke==2.2.0
+      - matplotlib==3.10.1
+      - molde==0.1.7
+      - numpy==2.0.0
+      - openpyxl==3.1.5
+      - ordered-set==4.1.0
+      - pandas==2.2.3
+      - fileboxes==0.1.4
+      - pypardiso-mopt==0.1.0
+      - pyside6==6.8.2.1
+      - vtk==9.4.1

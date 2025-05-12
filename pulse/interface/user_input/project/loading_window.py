@@ -2,11 +2,12 @@ import logging
 import re
 from time import sleep
 
-from PyQt5 import uic
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QLabel, QProgressBar, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QLabel, QProgressBar, QWidget
 
 from pulse import UI_DIR, app
+
+from molde import load_ui
 
 # Catches every message that contains something like [n/N]
 PROGRESS_FRACTION_REGEX = re.compile(r"\[\d+/\d+\]")
@@ -29,7 +30,7 @@ class LoadingWindow(QWidget):
 
     To run this function with a progress bar you just need to write
     ```
-    value_c = LoadingWindow(long_function, param_a, param_b=1234)
+    value_c = LoadingWindow(long_function).run(param_a, param_b=1234)
     ```
 
     Disclaimers:
@@ -45,20 +46,23 @@ class LoadingWindow(QWidget):
 
     GMSH, for some reason, refuses to run in secondary thread.
     And GMSH is an important part of our software, that of course
-    need a progress bar when it is running.
+    needs a progress bar when it is running.
     So this is an attempt to run everything (both GMSH and QT) in the
     main thread without conflicts.
 
     I also don't want to mix the interface code with the engine code
     because it can easily became a mess and make the creation of
     automated tests really hard.
+
+    The idea was to use the logging callbacks and a bunch of regex to
+    update the progress bar and progress label.
     """
 
     def __init__(self, _function):
         super().__init__()
 
         ui_path = UI_DIR / "messages/new_loading_window.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self._function = _function
         self._config_window()
@@ -79,7 +83,7 @@ class LoadingWindow(QWidget):
         '''
         Place the window on the center of the screen.
         '''
-        desktop_geometry = app().desktop().screenGeometry()
+        desktop_geometry = app().primaryScreen().geometry()
         pos_x = int((desktop_geometry.width() - self.width())/2)
         pos_y = int((desktop_geometry.height() - self.height())/2)
         self.setGeometry(pos_x, pos_y, self.width(), self.height())
@@ -95,7 +99,7 @@ class LoadingWindow(QWidget):
         progress_handler = ProgressBarLogUpdater(logging.DEBUG, loading_window=self)
         logging.getLogger().addHandler(progress_handler)
 
-        # Waits the loading bar to appear and uptates pyqt
+        # Waits for the loading bar to appear and updates pyqt
         sleep(0.1)
         QApplication.processEvents()
 
@@ -123,7 +127,7 @@ class LoadingWindow(QWidget):
         return return_value
 
     def __call__(self, *args, **kwargs):
-        return self.run(self._function, *args, **kwargs)
+        return self.run(*args, **kwargs)
 
 
 class ProgressBarLogUpdater(logging.Handler):

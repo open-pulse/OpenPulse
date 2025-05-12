@@ -3,8 +3,8 @@ import logging
 import numpy as np
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import AnimatedRenderWidget
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 from pulse import ICON_DIR, app

@@ -38,7 +38,7 @@ def test_coupled_harmonic_analysis(project_path: str | Path):
     node_id = preprocessor.get_node_id_by_coordinates(coords)
     model.properties._remove_nodal_property("volume_velocity", node_id)
 
-    ## Apply reciprocating pump excitation at point 0,0,0
+    ## Apply reciprocating pump excitation at point with coordinates (0.0, 0.0, 0.0) m
     coords = np.array([ 0.000,  0.000,  0.000], dtype=float)
     node_id = preprocessor.get_node_id_by_coordinates(coords)
 
@@ -121,6 +121,9 @@ def post_process_results(project: "Project", node_id: int):
     if len(line_id) == 1:
             
         fluid = model.properties._get_property("fluid", line_id=line_id[0])
+        if not isinstance(fluid, Fluid):
+            return
+
         line_pressure = fluid.pressure
         vapor_pressure = fluid.vapor_pressure
 
@@ -163,31 +166,6 @@ def post_process_results(project: "Project", node_id: int):
         y_label = "inlet pressure [kPa]"
         title = r"Inlet Pressure vs Liquid Vapor Pressure (API 688 $2^{nd}$ ed.)"
         plot_data(data_to_plot, x_label, y_label, title)
-
-
-def create_temporary_fluid_library(project: Project, fluids: dict):
-
-    from configparser import ConfigParser
-    config = ConfigParser()
-
-    for fluid_id, fluid in fluids.items():
-        fluid: Fluid
-
-        config[f"{fluid_id}"] = {
-                                 "name": fluid.name,
-                                 "identifier": fluid.identifier,
-                                 "pressure": fluid.pressure,
-                                 "temperature": fluid.temperature,
-                                 "density": fluid.density,
-                                 "speed_of_sound": fluid.speed_of_sound,
-                                 "isentropic_exponent": fluid.isentropic_exponent,
-                                 "thermal_conductivity": fluid.thermal_conductivity,
-                                 "dynamic_viscosity": fluid.dynamic_viscosity,
-                                 "molar_mass": fluid.molar_mass,
-                                 "color": fluid.color,
-                                 }
-
-    project.file.write_fluid_library_in_file(config)
 
 
 def get_reciprocating_pump_excitation(connection_type: str, fluid: Fluid):

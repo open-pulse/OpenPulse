@@ -9,7 +9,7 @@ OpenPulse is a software written in Python for numerical modelling of low-frequen
 
 After defining the FEM mesh for the model, you can plot the piping system geometry and run simulations such as modal analysis and harmonic analysis. It is possible to plot deformed shapes, frequency plots of acoustical and structural responses, stress fields and local stresses of desired sections.
 
-*What's new?* 
+*What's new?*
 
 - New geometry interface: now the user can draw geometry through an intuitive interface, following the conventions of popular piping software.
 - Standardization of sections and materials, along with using various unit systems.
@@ -30,12 +30,12 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 ## Enhanced FE/FETM modeling and representation
 
 <p align="">
-   <img src="https://github.com/open-pulse/OpenPulse/blob/v2.0/doc/NOP_FEM.png" alt="OpenPulse logo" width="800"/> 
-   
+   <img src="https://github.com/open-pulse/OpenPulse/blob/v2.0/doc/NOP_FEM.png" alt="OpenPulse logo" width="800"/>
+
 ## Pulsation suppression device editor
 
 <p align="">
-   <img src="https://github.com/open-pulse/OpenPulse/blob/v2.0/doc/NOP_Filtros.png?raw=true" alt="OpenPulse logo" width="800"/> 
+   <img src="https://github.com/open-pulse/OpenPulse/blob/v2.0/doc/NOP_Filtros.png?raw=true" alt="OpenPulse logo" width="800"/>
 
 ## Enhanced results visualisation
 
@@ -45,7 +45,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 ## Installing through an executable
 
 - Install OpenPulse for Windows and Linux downloading the executables [here](https://github.com/open-pulse/OpenPulse/releases).
- 
+
 ## Installing through your Python IDE
 
 - **Install Python 3.9.0 or later** ([download](https://www.python.org/downloads/release/python-390/)).
@@ -72,6 +72,39 @@ In the same folder, enter the following command in the terminal:
 poetry run python pulse
 ```
 
+## Conda environment
+
+Download and install the conda-forge ([conda-forge](https://conda-forge.org/download/)).
+It is recommended to check the option *Add Miniforge3 to my PATH environment variable* in the program installation setup.
+Once conda-forge was installed, it is possible to enable the MUMPS solver in Vibra. To enable this solver we need to use conda instead of poetry.
+To generate the conda environment, just run:
+```
+conda env create -f environment.yml
+```
+
+If you are using Windows, the following commands will only work on `cmd`, and not on `powershell`.
+To make this work propperly on powershell too, you need to run
+```
+conda init powershell
+```
+And then restart the `powershell` window.
+
+After environment generation, we can activate and run Vibra by running the following commands:
+```
+conda activate pulse
+```
+
+Finally, enter the following command to execute the application:
+```
+python -m pulse
+```
+
+If some package changed since the generation, the environment can be updated using the following command:
+```
+conda env update --f environment.yml --prune
+```
+
+
 ## Creating a Windows installer (for maintainers)
 
 First you need to install InnoSetup with the following command:
@@ -88,14 +121,14 @@ ISCC.exe /O"dist" /F"open-pulse-setup-x64" "pulse.iss"
 Your installer will appear inside the `dist` folder, named as `open-pulse-setup-x64`.
 
 
-      
+
 ## Documentation
 - You can read the API reference [here](https://open-pulse.readthedocs.io/en/latest/index.html).
 
 - Theory Reference for [1D Acoustics](https://open-pulse.github.io/OpenPulse/doc/Acoustics.pdf), [Structural Vibration of Timoshenko Beams using FEM](https://open-pulse.github.io/OpenPulse/doc/Theory_Structural.pdf), [Weak Fluid-Structure-Coupling FETM-FEM](https://github.com/open-pulse/OpenPulse/blob/master/doc/OpenPulse___Report_D___Weak_Coupling.pdf), [Solution Types (May, 15th 21)](https://), [Matrix Assembly Technique using Python](https://open-pulse.github.io/OpenPulse/doc/Assembly.pdf) and [Stress Stiffening (Prestress)](https://github.com/open-pulse/OpenPulse/blob/master/doc/OpenPulse___Report_E___Prestress.pdf).
 
 - Project page on [Researchgate](https://www.researchgate.net/project/Acoustically-Induced-Vibration-in-Pipeline-Systems).
-  
+
 - [Português] Demonstração rápida: [MOPT YouTube](https://youtu.be/l8I8lAv6CSo).
 
 ## Article published: Mechanical Systems and Signal Processing - Volume 186, 1 March 2023
@@ -109,17 +142,17 @@ Your installer will appear inside the `dist` folder, named as `open-pulse-setup-
 
 ## ASA Meeting 2020 - The 179th Meeting of the Acoustical Society of America
 
-- [Effect of flow on the acoustic length correction factor of a Helmholtz resonator neck at high Strouhal number: a symmetric three-dimensional parametric study](https://asa.scitation.org/doi/10.1121/1.5147459). 
+- [Effect of flow on the acoustic length correction factor of a Helmholtz resonator neck at high Strouhal number: a symmetric three-dimensional parametric study](https://asa.scitation.org/doi/10.1121/1.5147459).
 
-## FIA 2020/22 - 12o Congresso Iberoamericano de Acústica 
+## FIA 2020/22 - 12o Congresso Iberoamericano de Acústica
 
 - [FIA2020/2022](https://fia2020.com.br/anais/index.php#topo).
 
-## EEA Forum Acusticum 2023 - 10th Convention of the European Acoustics Association 
+## EEA Forum Acusticum 2023 - 10th Convention of the European Acoustics Association
 
 - [Vargas \& Silva, 2023](https://appfa2023.silsystem.solutions/).
 
-## Next events 
+## Next events
 
 - Internoise 2025, 24 - 27 August, São Paulo, Brazil.
 
@@ -132,8 +165,8 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
 
    - [Olavo M. Silva](https://www.linkedin.com/in/olavo-m-silva-5822a5151/) - Engineer;
    - [Jacson G. Vargas](https://www.linkedin.com/in/jacson-gil-vargas-a54b0768/) - Engineer;
-   - [Andre F. Fernandes](https://www.linkedin.com/in/andrefpf/) - Computer Scientist; 
-   - [Rodrigo Schwartz](https://www.linkedin.com/in/rodrigo-schwartz-249308244/) - Computer Scientist; 
+   - [Andre F. Fernandes](https://www.linkedin.com/in/andrefpf/) - Computer Scientist;
+   - [Rodrigo Schwartz](https://www.linkedin.com/in/rodrigo-schwartz-249308244/) - Computer Scientist;
    - [Diego M. Tuozzo](https://www.linkedin.com/in/martintuozzo/) - Engineer (Former Member);
    - [Lucas V. Q. Kulakauskas](https://www.linkedin.com/in/lucas-kulakauskas-5a0314182/) - Engineer (Former Member);
    - [Ana P. Rocha](https://www.linkedin.com/in/ana-paula-da-rocha-55520a176/) - Engineer (Former Member);
@@ -143,6 +176,6 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Gildean Almeida](https://www.linkedin.com/in/gildean-almeida-708862298/) - Validation;
    - [Fabrício Cruz](https://www.linkedin.com/in/fabricio-emanuel-cruz/) - Validation (Former Member).
 
-![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true) 
+![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true)
 
 **
