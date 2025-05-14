@@ -18,6 +18,7 @@ from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section_simplified import SetCrossSectionSimplified
 from pulse.interface.user_input.model.setup.material.set_material_input_simplified import SetMaterialSimplified
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.model.editor.psd_or_damper_deletion_error_window import PsdOrDamperDeletionErrorWindow
 from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
 from pulse.editor.structures import (
@@ -645,7 +646,7 @@ class GeometryDesignerWidget(QWidget):
             self.pipeline.delete_selection()
             self.modified = True
         else: 
-            PrintMessageInput(["Error", "Invalid operation", "To delete a PSD or its parts, please use the dedicated PSD editor."])
+            PsdOrDamperDeletionErrorWindow()
 
         self._reset_xyz()
         self._update_permissions()

@@ -1039,8 +1039,8 @@ class PulsationSuppressionDeviceInputs(QDialog):
                                 ]
 
     def preview_callback(self):
-        print()
-        print("preview_callback")
+        # print()
+        # print("preview_callback")
         t0 = time()
         if self.check_psd_inputs():
             dt = time() - t0
@@ -1069,7 +1069,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
             self.pushButton_show_errors.setDisabled(False)
             dt = time() - t0
-            print(f"Elapsed time (raised error): {dt} s")
+            # print(f"Elapsed time (raised error): {dt} s")
 
         else:
             for line_edit in self.findChildren(QLineEdit):
