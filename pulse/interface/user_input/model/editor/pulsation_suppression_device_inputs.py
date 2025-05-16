@@ -49,7 +49,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         if open_in_remove_tab:
             self.tabWidget_main.setCurrentIndex(1)
-            self.treeWidget_psd_info.selectAll()
 
         while self.keep_window_open:
             self.exec()

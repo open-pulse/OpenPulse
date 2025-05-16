@@ -184,7 +184,7 @@
              <enum>QFrame::Raised</enum>
             </property>
             <property name="text">
-             <string>To delete a PSD or its parts, please use the dedicated editor.</string>
+             <string/>
             </property>
             <property name="textFormat">
              <enum>Qt::AutoText</enum>

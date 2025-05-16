@@ -624,7 +624,7 @@ class GeometryDesignerWidget(QWidget):
                 if tag != -1:
                     app().project.model.properties._remove_line(tag)
         
-        selection_error = None
+        selected_device = None
 
         for structure in self.pipeline.structures:
             if "psd_name" not in structure.extra_info and "pulsation_damper_name" not in structure.extra_info:
@@ -632,33 +632,28 @@ class GeometryDesignerWidget(QWidget):
             
             if structure.selected:
                 if "psd_name" in structure.extra_info:
-                    selection_error = "psd"
-                    print("é psd1")
+                    selected_device = "psd"
                 else:
-                    selection_error = "damper"
-                    print("é damper1")
+                    selected_device = "damper"
                 break
             
             for point in structure.get_points():
                 if point in self.pipeline.selected_points:
                     if "psd_name" in structure.extra_info:
-                        selection_error = "psd"
-                        print("é psd2")
+                        selected_device = "psd"
                     else:
-                        selection_error = "damper"
-                        print("é damper")
+                        selected_device = "damper"
                     break
 
                 # psd_parts.append(structure)
             
-            print(selection_error)
         self.pipeline.dismiss()
 
-        if selection_error is None:
+        if selected_device is None:
             self.pipeline.delete_selection()
             self.modified = True
         else: 
-            PsdOrDamperDeletionErrorWindow()
+            PsdOrDamperDeletionErrorWindow(selected_device)
 
         self._reset_xyz()
         self._update_permissions()

@@ -10,11 +10,12 @@ from pulse import app
 
 
 class PsdOrDamperDeletionErrorWindow(QDialog):
-    def __init__(self, **kwargs):
+    def __init__(self, selected_device, **kwargs):
         super().__init__()
 
         ui_path = UI_DIR / "messages/psd_or_damper_deletion_error_window.ui"
         uic.loadUi(ui_path, self)
+        self.selected_device = selected_device
 
         self.auto_close = kwargs.get("auto_close", False)
         app().main_window.set_input_widget(self)
@@ -23,16 +24,16 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
         self._define_qt_variables()
         self._create_connections()
         self._adjust_size(kwargs)
+        self._set_texts()
         self.exec()
 
     def _define_qt_variables(self):
-        # QFrame
-        self.frame_button : QFrame
-        self.frame_message : QFrame
-        self.frame_title : QFrame
-
         # QPushButton
         self.pushButton_cancel : QPushButton
+        self.pushButton_open_editor: QPushButton
+
+        # QLabel
+        self.label_message: QLabel
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -40,7 +41,17 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
+    def _set_texts(self):
+        if self.selected_device == "psd":
+            message = "To delete a PSD or its parts, please use the dedicated editor."
+        
+        elif self.selected_device == "damper":
+            message = "To delete a pulsation damper or its parts, please use the dedicated editor."
 
+        self.label_message.setText(message)
+        self.label_message.setAlignment(Qt.AlignCenter)
+        
+            
     def _adjust_size(self, kwargs: dict):
 
         height = kwargs.get("height", None)
@@ -62,4 +73,8 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
             self.close()
 
     def open_editor_callback(self):
-        app().main_window.input_ui.pulsation_suppression_device_editor(open_in_remove_tab=True)
+        if self.selected_device == "psd":
+            app().main_window.input_ui.pulsation_suppression_device_editor(open_in_remove_tab=True)
+        
+        elif self.selected_device == "damper":
+            app().main_window.input_ui.pulsation_damper_editor(open_in_remove_tab=True)

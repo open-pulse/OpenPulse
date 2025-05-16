@@ -191,8 +191,8 @@ class InputUi:
         psd_editor = self.process_input(PulsationSuppressionDeviceInputs, open_in_remove_tab=open_in_remove_tab)
         return psd_editor
 
-    def pulsation_damper_editor(self):
-        self.process_input(PulsationDamperEditorInputs)
+    def pulsation_damper_editor(self, open_in_remove_tab=False):
+        self.process_input(PulsationDamperEditorInputs, open_in_remove_tab=open_in_remove_tab)
 
     def analysis_setup(self):
 
