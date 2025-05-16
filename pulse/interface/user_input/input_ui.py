@@ -187,12 +187,11 @@ class InputUi:
     def add_reciprocating_pump_excitation(self):
         self.process_input(ReciprocatingPumpInputs)
 
-    def pulsation_suppression_device_editor(self, open_in_remove_tab=False):
-        psd_editor = self.process_input(PulsationSuppressionDeviceInputs, open_in_remove_tab=open_in_remove_tab)
-        return psd_editor
-
-    def pulsation_damper_editor(self, open_in_remove_tab=False):
-        self.process_input(PulsationDamperEditorInputs, open_in_remove_tab=open_in_remove_tab)
+    def pulsation_suppression_device_editor(self, device_to_delete=None):
+        self.process_input(PulsationSuppressionDeviceInputs, device_to_delete=device_to_delete)
+        
+    def pulsation_damper_editor(self, device_to_delete=None):
+        self.process_input(PulsationDamperEditorInputs, device_to_delete=device_to_delete)
 
     def analysis_setup(self):
 

@@ -4,18 +4,14 @@ from pulse import app, UI_DIR
 from PyQt5.QtCore import Qt, QTimer
 from pulse import app
 
-
-
-
-
-
 class PsdOrDamperDeletionErrorWindow(QDialog):
-    def __init__(self, selected_device, **kwargs):
+    def __init__(self, selected_device_type, selected_device_name, **kwargs):
         super().__init__()
 
         ui_path = UI_DIR / "messages/psd_or_damper_deletion_error_window.ui"
         uic.loadUi(ui_path, self)
-        self.selected_device = selected_device
+        self.selected_device_type = selected_device_type
+        self.selected_device_name = selected_device_name
 
         self.auto_close = kwargs.get("auto_close", False)
         app().main_window.set_input_widget(self)
@@ -42,10 +38,10 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _set_texts(self):
-        if self.selected_device == "psd":
+        if self.selected_device_type == "psd":
             message = "To delete a PSD or its parts, please use the dedicated editor."
         
-        elif self.selected_device == "damper":
+        elif self.selected_device_type == "damper":
             message = "To delete a pulsation damper or its parts, please use the dedicated editor."
 
         self.label_message.setText(message)
@@ -73,8 +69,8 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
             self.close()
 
     def open_editor_callback(self):
-        if self.selected_device == "psd":
-            app().main_window.input_ui.pulsation_suppression_device_editor(open_in_remove_tab=True)
+        if self.selected_device_type == "psd":
+            app().main_window.input_ui.pulsation_suppression_device_editor(device_to_delete=self.selected_device_name)
         
-        elif self.selected_device == "damper":
-            app().main_window.input_ui.pulsation_damper_editor(open_in_remove_tab=True)
+        elif self.selected_device_type == "damper":
+            app().main_window.input_ui.pulsation_damper_editor(device_to_delete=self.selected_device_name)

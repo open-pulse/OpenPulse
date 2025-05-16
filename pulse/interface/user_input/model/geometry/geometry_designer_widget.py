@@ -55,6 +55,7 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget = render_widget
         self.modified = False
         self.tmp_camera = None
+        self.selected_device_name = None
 
         self.pipeline = app().project.pipeline
 
@@ -624,7 +625,8 @@ class GeometryDesignerWidget(QWidget):
                 if tag != -1:
                     app().project.model.properties._remove_line(tag)
         
-        selected_device = None
+        selected_device_type = None
+        selected_device_name = None
 
         for structure in self.pipeline.structures:
             if "psd_name" not in structure.extra_info and "pulsation_damper_name" not in structure.extra_info:
@@ -632,28 +634,33 @@ class GeometryDesignerWidget(QWidget):
             
             if structure.selected:
                 if "psd_name" in structure.extra_info:
-                    selected_device = "psd"
+                    selected_device_type = "psd"
+                    selected_device_name = structure.extra_info["psd_name"]
                 else:
-                    selected_device = "damper"
+                    selected_device_type = "damper"
+                    selected_device_name = structure.extra_info["pulsation_damper_name"]
+
                 break
             
             for point in structure.get_points():
                 if point in self.pipeline.selected_points:
                     if "psd_name" in structure.extra_info:
-                        selected_device = "psd"
+                        selected_device_type = "psd"
+                        selected_device_name = structure.extra_info["psd_name"]
                     else:
-                        selected_device = "damper"
+                        selected_device_type = "damper"
+                        selected_device_name = structure.extra_info["pulsation_damper_name"]
+                        
                     break
 
-                # psd_parts.append(structure)
             
         self.pipeline.dismiss()
 
-        if selected_device is None:
+        if selected_device_type is None:
             self.pipeline.delete_selection()
             self.modified = True
         else: 
-            PsdOrDamperDeletionErrorWindow(selected_device)
+            PsdOrDamperDeletionErrorWindow(selected_device_type, selected_device_name)
 
         self._reset_xyz()
         self._update_permissions()

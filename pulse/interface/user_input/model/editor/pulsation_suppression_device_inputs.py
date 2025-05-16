@@ -19,7 +19,7 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class PulsationSuppressionDeviceInputs(QDialog):
-    def __init__(self, *args, open_in_remove_tab=False, **kwargs):
+    def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__(*args, **kwargs)
         
         ui_path = UI_DIR / "model/editor/pulsation_suppression_device_input.ui"
@@ -34,6 +34,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         self.error_title = None
         self.error_message = None
+        # self.device_to_delete = device_to_delete
 
         self._config_window()
         self._initialize()
@@ -47,8 +48,11 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.process_line_edits()
         self.selection_callback()
 
-        if open_in_remove_tab:
+        if device_to_delete is not None:
             self.tabWidget_main.setCurrentIndex(1)
+            devices = self.treeWidget_psd_info.findItems(device_to_delete, Qt.MatchExactly)
+            if devices:
+                self.treeWidget_psd_info.setCurrentItem(devices[0])
 
         while self.keep_window_open:
             self.exec()

@@ -20,7 +20,7 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class PulsationDamperEditorInputs(QDialog):
-    def __init__(self, *args, open_in_remove_tab=False, **kwargs):
+    def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__()
 
         ui_path = UI_DIR / "model/editor/pulsation_damper_editor_inputs.ui"
@@ -42,8 +42,12 @@ class PulsationDamperEditorInputs(QDialog):
         self.preview_callback()
         self.automatic_preview()
 
-        if open_in_remove_tab:
+        if device_to_delete is not None:
             self.tabWidget_main.setCurrentIndex(1)
+            devices = self.treeWidget_pulsation_damper_info.findItems(device_to_delete, Qt.MatchExactly)
+            if devices:
+                self.treeWidget_pulsation_damper_info.setCurrentItem(devices[0])
+
 
 
         while self.keep_window_open:
