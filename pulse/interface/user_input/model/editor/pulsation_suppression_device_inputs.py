@@ -34,7 +34,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         self.error_title = None
         self.error_message = None
-        # self.device_to_delete = device_to_delete
 
         self._config_window()
         self._initialize()

@@ -48,8 +48,6 @@ class PulsationDamperEditorInputs(QDialog):
             if devices:
                 self.treeWidget_pulsation_damper_info.setCurrentItem(devices[0])
 
-
-
         while self.keep_window_open:
             self.exec()
 
