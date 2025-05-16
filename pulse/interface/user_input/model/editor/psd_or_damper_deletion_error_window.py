@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QProgressBar, QPushButton
 from PyQt5 import uic
 from pulse import app, UI_DIR
 from PyQt5.QtCore import Qt, QTimer
+from pulse import app
 
 
 
@@ -10,7 +11,6 @@ from PyQt5.QtCore import Qt, QTimer
 
 class PsdOrDamperDeletionErrorWindow(QDialog):
     def __init__(self, **kwargs):
-        print("oie passei aqui")
         super().__init__()
 
         ui_path = UI_DIR / "messages/psd_or_damper_deletion_error_window.ui"
@@ -27,7 +27,6 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
         self.exec()
 
     def _define_qt_variables(self):
-
         # QFrame
         self.frame_button : QFrame
         self.frame_message : QFrame
@@ -53,10 +52,13 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
 
     def _create_connections(self):
         self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_open_editor.clicked.connect(self.open_editor_callback)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.message_close()
+            self.close()
         elif event.key() == Qt.Key_Escape:
             self.close()
 
+    def open_editor_callback(self):
+        psd_editor = app().main_window.input_ui.pulsation_suppression_device_editor()

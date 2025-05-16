@@ -1081,7 +1081,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.preview_widget.update()
 
             dt = time() - t0
-            print(f"Elapsed time (generate preview): {dt} s")
+            # print(f"Elapsed time (generate preview): {dt} s")
 
     def automatic_preview(self):
         for line_edit in self.findChildren(QLineEdit):
