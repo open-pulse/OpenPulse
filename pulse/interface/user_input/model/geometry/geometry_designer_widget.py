@@ -618,31 +618,43 @@ class GeometryDesignerWidget(QWidget):
         self._update_permissions()
 
     def delete_selection_callback(self):
-        # psd_parts = []
         for structure in self.pipeline.selected_structures:
             if not isinstance(structure, Point):
                 tag = structure.tag
                 if tag != -1:
                     app().project.model.properties._remove_line(tag)
         
-        psd_selection_error = False
+        selection_error = None
+
         for structure in self.pipeline.structures:
-            if "psd_name" not in structure.extra_info:
+            if "psd_name" not in structure.extra_info and "pulsation_damper_name" not in structure.extra_info:
                 continue
             
             if structure.selected:
-                psd_selection_error = True
+                if "psd_name" in structure.extra_info:
+                    selection_error = "psd"
+                    print("é psd1")
+                else:
+                    selection_error = "damper"
+                    print("é damper1")
                 break
             
             for point in structure.get_points():
                 if point in self.pipeline.selected_points:
-                    psd_selection_error = True
+                    if "psd_name" in structure.extra_info:
+                        selection_error = "psd"
+                        print("é psd2")
+                    else:
+                        selection_error = "damper"
+                        print("é damper")
                     break
 
                 # psd_parts.append(structure)
+            
+            print(selection_error)
         self.pipeline.dismiss()
 
-        if not psd_selection_error:
+        if selection_error is None:
             self.pipeline.delete_selection()
             self.modified = True
         else: 

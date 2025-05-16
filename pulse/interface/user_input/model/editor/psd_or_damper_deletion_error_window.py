@@ -22,7 +22,6 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
         self._config_window()
         self._define_qt_variables()
         self._create_connections()
-        # self._config_widgets()
         self._adjust_size(kwargs)
         self.exec()
 
@@ -39,6 +38,8 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
+        self.setWindowTitle("OpenPulse")
+
 
     def _adjust_size(self, kwargs: dict):
 

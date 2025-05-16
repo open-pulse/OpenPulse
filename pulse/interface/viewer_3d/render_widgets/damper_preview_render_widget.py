@@ -35,7 +35,6 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
 
         device = PulsationDamper(device_data)
         device.process_segment_data()
-
         damper = vtkAppendPolyData()
 
         connection_point = device_data["connecting_coords"]
