@@ -61,4 +61,4 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
             self.close()
 
     def open_editor_callback(self):
-        psd_editor = app().main_window.input_ui.pulsation_suppression_device_editor()
+        app().main_window.input_ui.pulsation_suppression_device_editor(open_in_remove_tab=True)

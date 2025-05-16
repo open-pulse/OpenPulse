@@ -19,7 +19,7 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class PulsationSuppressionDeviceInputs(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, open_in_remove_tab=False, **kwargs):
         super().__init__(*args, **kwargs)
         
         ui_path = UI_DIR / "model/editor/pulsation_suppression_device_input.ui"
@@ -46,6 +46,10 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.load_psd_info()
         self.process_line_edits()
         self.selection_callback()
+
+        if open_in_remove_tab:
+            self.tabWidget_main.setCurrentIndex(1)
+            self.treeWidget_psd_info.selectAll()
 
         while self.keep_window_open:
             self.exec()
