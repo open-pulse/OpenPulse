@@ -1,8 +1,17 @@
+# fmt: off
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
+
+from molde.interactor_styles import BoxSelectionInteractorStyle
+from molde.render_widgets import CommonRenderWidget
+
+from pulse import app, ICON_DIR
+from pulse.interface.viewer_3d.actors import SectionPlaneActor, ElementAxesActor, ElementLinesActor, NodesActor, PointsActor, TubeActor
+from pulse.utils.image_functions import removes_image_background
+
 from molde.colors import Color
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.render_widgets import CommonRenderWidget
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
 
 from pulse import ICON_DIR, app
 from pulse.interface.viewer_3d.actors import (
@@ -95,6 +104,9 @@ class MeshRenderWidget(CommonRenderWidget):
         self.update_theme()
         self.update()
 
+        if app().project.thumbnail is None:
+            self.save_thumbnail()
+
     def remove_all_actors(self):
         super().remove_all_actors()
 
@@ -181,6 +193,30 @@ class MeshRenderWidget(CommonRenderWidget):
         self.open_pulse_logo = self.create_logo(path)
         self.open_pulse_logo.SetPosition(0.845, 0.89)
         self.open_pulse_logo.SetPosition2(0.15, 0.15)
+    
+    def save_thumbnail(self):
+        thumbnail = app().project.thumbnail
+
+        if not self.isVisible():
+            return
+
+        self.render_interactor.GetRenderWindow().OffScreenRenderingOn()
+
+        color = Color(247, 0, 255)
+        self.renderer.SetBackground(color.to_rgb_f())
+        self.renderer.SetBackground2(color.to_rgb_f())
+        self.tubes_actor.set_color((255, 255, 255))
+        self.lines_actor.set_color((0, 0, 0))
+
+        self.disable_scale_bar()
+        thumbnail = self.get_thumbnail()
+        app().project.thumbnail = removes_image_background(thumbnail)
+        
+        if app().config.user_preferences.show_reference_scale_bar:
+            self.enable_scale_bar()
+
+        self.update_theme()
+        self.render_interactor.GetRenderWindow().OffScreenRenderingOff()
 
     def apply_user_preferences(self):
         self.update_open_pulse_logo_visibility()

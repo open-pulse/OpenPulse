@@ -1,24 +1,24 @@
-from PyQt5.QtWidgets import QDialog, QPushButton, QSlider, QSpinBox
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QPushButton, QSlider, QSpinBox
+from PySide6.QtCore import Qt, Signal
 
 from pulse import app, UI_DIR
 
+from molde import load_ui
+
 
 class SectionPlaneWidget(QDialog):
-    value_changed_2 = pyqtSignal()
+    value_changed_2 = Signal()
 
-    value_changed = pyqtSignal(float, float, float, float, float, float)
-    slider_released = pyqtSignal(float, float, float, float, float, float)
-    slider_pressed = pyqtSignal(float, float, float, float, float, float)
-    closed = pyqtSignal()
+    value_changed = Signal(float, float, float, float, float, float)
+    slider_released = Signal(float, float, float, float, float, float)
+    slider_pressed = Signal(float, float, float, float, float, float)
+    closed = Signal()
 
     def __init__(self):
         super().__init__()
 
         ui_path = UI_DIR / "render/section_plane_inputs.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.editing = False
         self.cutting = False
@@ -32,8 +32,7 @@ class SectionPlaneWidget(QDialog):
     def _config_window(self):
 
         self.setWindowFlags(
-            Qt.WindowModal
-            | Qt.CustomizeWindowHint
+            Qt.CustomizeWindowHint
             | Qt.WindowTitleHint
             | Qt.WindowStaysOnTopHint
             | Qt.WindowCloseButtonHint
@@ -42,7 +41,7 @@ class SectionPlaneWidget(QDialog):
         )
 
         self.setGeometry(200, 200, 400, 350)
-        self.setWindowModality(Qt.WindowModal)
+        self.setModal(1)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Section Plane")
 

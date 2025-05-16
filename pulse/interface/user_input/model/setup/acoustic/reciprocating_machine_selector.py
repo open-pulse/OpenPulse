@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 # from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
 
 import numpy as np
 
@@ -17,7 +18,7 @@ class ReciprocatingMachineSelector(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/acoustic/reciprocating_pump_selector.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
 
         self.machine_type = machine_type
 

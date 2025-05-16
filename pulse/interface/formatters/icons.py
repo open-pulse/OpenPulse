@@ -2,9 +2,9 @@ import os
 import numpy as np
 from PIL import Image
 from pathlib import Path
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtGui import QColor, QIcon, QPainter, QPixmap, QImage
-from PyQt5.QtCore import QSize
+from PySide6.QtWidgets import QWidget
+from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap, QImage
+from PySide6.QtCore import QSize
 from pulse import ICON_DIR
 
 def get_icons_path(filename):
@@ -71,6 +71,9 @@ def change_icon_color_for_widgets(widgets: list[QWidget], color: QColor):
             continue
         
         if not hasattr(widget, "setIcon") or not callable(widget.setIcon):
+            continue
+    
+        if hasattr(widget, "should_paint") and not widget.should_paint:
             continue
         
         icon = widget.icon()

@@ -481,6 +481,10 @@ class LoadProject:
 
         project_setup = self.project.file.read_project_setup_from_file()
         if project_setup is None:
+            title = "There is something wrong with your project"
+            message = "The project file is incompatible with the .pulse file structure. "
+            message += "As a result, the project data loading will be canceled."
+            PrintMessageInput([window_title_1, title, message])
             return True
 
         if "version" in project_setup.keys():
