@@ -18,6 +18,8 @@ from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section_simplified import SetCrossSectionSimplified
 from pulse.interface.user_input.model.setup.material.set_material_input_simplified import SetMaterialSimplified
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.model.editor.psd_or_damper_deletion_error_window import PsdOrDamperDeletionErrorWindow
 from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
 from pulse.editor.structures import (
@@ -54,6 +56,7 @@ class GeometryDesignerWidget(QWidget):
         self.render_widget = render_widget
         self.modified = False
         self.tmp_camera = None
+        self.selected_device_name = None
 
         self.pipeline = app().project.pipeline
 
@@ -622,10 +625,43 @@ class GeometryDesignerWidget(QWidget):
                 tag = structure.tag
                 if tag != -1:
                     app().project.model.properties._remove_line(tag)
+        
+        selected_device_type = None
+        selected_device_name = None
 
+        for structure in self.pipeline.structures:
+            if "psd_name" not in structure.extra_info and "pulsation_damper_name" not in structure.extra_info:
+                continue
+            
+            if structure.selected:
+                if "psd_name" in structure.extra_info:
+                    selected_device_type = "psd"
+                    selected_device_name = structure.extra_info["psd_name"]
+                else:
+                    selected_device_type = "damper"
+                    selected_device_name = structure.extra_info["pulsation_damper_name"]
+
+                break
+            
+            for point in structure.get_points():
+                if point in self.pipeline.selected_points:
+                    if "psd_name" in structure.extra_info:
+                        selected_device_type = "psd"
+                        selected_device_name = structure.extra_info["psd_name"]
+                    else:
+                        selected_device_type = "damper"
+                        selected_device_name = structure.extra_info["pulsation_damper_name"]
+                        
+                    break
+
+            
         self.pipeline.dismiss()
-        self.pipeline.delete_selection()
-        self.modified = True
+
+        if selected_device_type is None:
+            self.pipeline.delete_selection()
+            self.modified = True
+        else: 
+            PsdOrDamperDeletionErrorWindow(selected_device_type, selected_device_name)
 
         self._reset_xyz()
         self._update_permissions()

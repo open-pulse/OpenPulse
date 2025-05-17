@@ -48,5 +48,8 @@ class Pipe(LinearStructure):
 
         if "psd_name" in data.keys():
             structure.extra_info["psd_name"] = data["psd_name"]
-
+        
+        if "pulsation_damper_name" in data.keys():
+            structure.extra_info["pulsation_damper_name"] = data["pulsation_damper_name"]
+        
         return structure
