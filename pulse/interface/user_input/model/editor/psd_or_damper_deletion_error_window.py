@@ -8,9 +8,7 @@ from molde import load_ui
 
 class PsdOrDamperDeletionErrorWindow(QDialog):
     def __init__(self, selected_device_type, selected_device_name, **kwargs):
-        print("classe PSDOrDamperDeletionErrorWindow foi chamada")
         super().__init__()
-        print("Passou pelo init")
 
         ui_path = UI_DIR / "messages/psd_or_damper_deletion_error_window.ui"
         load_ui(ui_path, self)
@@ -51,7 +49,6 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
         self.label_message.setText(message)
         self.label_message.setAlignment(Qt.AlignCenter)
         
-            
     def _adjust_size(self, kwargs: dict):
 
         height = kwargs.get("height", None)
