@@ -1,15 +1,19 @@
-from PyQt5.QtWidgets import QDialog, QFrame, QLabel, QProgressBar, QPushButton
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QLabel, QPushButton
+from PySide6.QtCore import Qt
+
 from pulse import app, UI_DIR
-from PyQt5.QtCore import Qt, QTimer
-from pulse import app
+from pulse.interface.formatters.icons import *
+
+from molde import load_ui
 
 class PsdOrDamperDeletionErrorWindow(QDialog):
     def __init__(self, selected_device_type, selected_device_name, **kwargs):
+        print("classe PSDOrDamperDeletionErrorWindow foi chamada")
         super().__init__()
+        print("Passou pelo init")
 
         ui_path = UI_DIR / "messages/psd_or_damper_deletion_error_window.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self)
         self.selected_device_type = selected_device_type
         self.selected_device_name = selected_device_name
 
