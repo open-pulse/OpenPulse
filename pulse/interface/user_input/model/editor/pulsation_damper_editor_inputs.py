@@ -25,7 +25,7 @@ class PulsationDamperEditorInputs(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/editor/pulsation_damper_editor_inputs.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self, ui_path.parent)
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
@@ -43,6 +43,7 @@ class PulsationDamperEditorInputs(QDialog):
         self.update_pulsation_damper_label()
         self.preview_callback()
         self.automatic_preview()
+        self._store_deafult_parameters()
 
         while self.keep_window_open:
             self.exec()
@@ -102,7 +103,7 @@ class PulsationDamperEditorInputs(QDialog):
         self.lineEdit_selected_gas_fluid: QLineEdit
         self.lineEdit_selected_damper_label: QLabel
         self.lineEdit_damper_type: QLabel
-
+        
         # QPushButton
         self.pushButton_cancel: QPushButton
         self.pushButton_show_errors : QPushButton
@@ -122,6 +123,14 @@ class PulsationDamperEditorInputs(QDialog):
         # Qwidget
         self.preview_widget : DamperPreviewRenderWidget
 
+    def _store_deafult_parameters(self):
+        self.deafult_parameters = dict()
+        for key, value in self.__dict__.items():
+            if isinstance(value, QLineEdit):
+                self.deafult_parameters[key] = value.text()
+            elif isinstance(value, QComboBox):
+                self.deafult_parameters[key] = value.currentIndex()
+    
     def _create_connections(self):
         #
         self.comboBox_volume_sections.currentIndexChanged.connect(self.volume_sections_callback)
@@ -139,6 +148,7 @@ class PulsationDamperEditorInputs(QDialog):
         self.pushButton_get_liquid_fluid.clicked.connect(self.get_liquid_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_reset_entries.clicked.connect(self.reset_entries_callback)
 
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
@@ -756,7 +766,17 @@ class PulsationDamperEditorInputs(QDialog):
             self.remove_pulsation_damper_related_line_properties(damper_labels)
             self.remove_pulsation_damper_related_element_properties("_remove_all_")
             self.actions_to_finalize()
-
+    
+    def reset_entries_callback(self):
+        for key, value in self.__dict__.items():
+            if isinstance(value, QLineEdit):
+                value.setText(self.deafult_parameters[key])
+        for key, value in self.__dict__.items():
+            if isinstance(value, QComboBox):
+                value.setCurrentIndex(self.deafult_parameters[key])
+        
+        self.preview_callback()
+        
     def load_pulsation_damper_info(self):
 
         self.treeWidget_pulsation_damper_info.clear()
