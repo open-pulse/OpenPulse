@@ -1,10 +1,16 @@
-from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
+from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem, QTextEdit
+from PySide6.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen 
 from PySide6.QtCore import Qt, QSize, QRect, Signal, QObject
 from pathlib import Path
 
 from pulse.interface.formatters.icons import *
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
+from pulse.interface.menu.tool_tipos_model_setup_items import tool_tips
+from pulse import ICON_DIR
+
+from molde.colors import color_names
+
+import re
 
 
 class CommonMenuItems(QTreeWidget):
@@ -127,13 +133,22 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
     def __init__(self, name):
         super().__init__([name])
         self.clicked = CustomBoundSignal()
-
+        self.property_name = ""
+        
+    def set_property_name(self, name: str):
+        name = name.lower()
+        # just to erase set/add prefixe in name
+        name = re.match(r"(?:set|add)*(.+)", name).group(1)
+        name = name.strip()
+        name = name.replace(" ", "_")
+        self.property_name = name
+    
     def set_warning(self, cond):
         if cond:
             font = QFont()
             font.setBold(True)
             self.setFont(0, font)
-            self.setForeground(0, QColor(210, 144, 0))
+            self.setForeground(0, QColor(*color_names.YELLOW.to_rgb()))
             warning_icon = get_warning_icon()
             self.setIcon(0, warning_icon)
         else:
@@ -141,3 +156,18 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
             self.setData(0, Qt.FontRole, None)  # reset color
             self.setData(0, Qt.ForegroundRole, None)  # reset color
             self.setData(0, Qt.DecorationRole, None)
+    
+    def set_icon(self, visible: bool = True):
+        if visible:
+            path_image = str(Path(ICON_DIR / "model_setup_items" / str(self.property_name + ".png")))
+            self.setIcon(0, QIcon(path_image))
+        else:
+            self.setIcon(0, QIcon())
+
+        self.should_paint = False
+    
+    def set_tool_tip(self, requirement: bool = False, message_requirement: str = ""):
+        if requirement and message_requirement == "":
+            message_requirement = "<b style='color:red'>Required for the selected configuration.</b>"
+            
+        self.setToolTip(0, message_requirement + QTextEdit(markdown=(tool_tips.get(self.property_name))).toHtml())

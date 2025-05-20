@@ -320,3 +320,57 @@ class ModelSetupItems(CommonMenuItems):
         for item in self.top_level_items:
             item.setBackground(0, self.background_color)
             item.setData(0, border_role, border_pen)
+    
+    def _find_qtree_widget_item_name(self, qtree_widet_item):
+        for attr_name, attr_value in self.__dict__.items():
+            if attr_value == qtree_widet_item:
+                return attr_name
+    
+    def _contains_property(self, property_name):
+        # logic to check if the property is set
+        ...
+    
+    def _needs_property(self, property_name, analysis_type=None, physical_domain=None):
+        # logic to check if the property is needed
+        ...
+    
+    def update_items_appearance(self):
+        # It may happen that the analysis toolbar has not been created yet. If so, retrieve the analysis type and physical domain from the project
+        analysis_type = None
+        physical_domain = None
+        try:
+            analysis_type = app().main_window.analysis_toolbar.combo_box_analysis_type.currentText()
+            physical_domain = app().main_window.analysis_toolbar.combo_box_analysis_domain.currentText()
+        except Exception:
+            # analysis_type, physical_domain = app().project.get_analysis_type_and_physical_domain()
+            ...
+        
+        for top_level_items in self.top_level_items:
+            for index in range(top_level_items.childCount()):
+                item_child = top_level_items.child(index)
+                item_child_name = self._find_qtree_widget_item_name(item_child)
+
+                if item_child_name is None:
+                    continue
+                
+                item_child.set_warning(False)
+                
+                if self._contains_property(item_child.property_name):
+                    item_child.set_icon()
+                    item_child.set_tool_tip()
+                    
+                elif self._needs_property(item_child.property_name, analysis_type, physical_domain):
+                    item_child.set_warning(True)
+                    item_child.set_tool_tip(requirement=True)
+
+                else:
+                    item_child.set_icon(visible=False)
+                    item_child.set_tool_tip()
+    
+    def reset_items_appearance(self):
+        for top_level_items in self.top_level_items:
+            for index in range(top_level_items.childCount()):
+                item_child = top_level_items.child(index)
+                item_child.set_icon(visible=False)
+                item_child.set_warning(False)
+                item_child.set_tool_tip()

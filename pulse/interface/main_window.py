@@ -362,6 +362,7 @@ class MainWindow(QMainWindow):
         self.geometry_widget.update_plot(reset_camera)
         self.mesh_widget.update_plot(reset_camera)
         self.results_widget.update_plot(reset_camera)
+        self.model_setup_widget.model_setup_items.update_items_appearance()
 
     def selection_changed_callback(self):
         # TODO: implement something useful
@@ -997,6 +998,7 @@ class MainWindow(QMainWindow):
             self.update_plots()
 
         LoadingWindow(tmp).run()
+        self.model_setup_widget.model_setup_items.update_items_appearance()
 
     def open_project_dialog(self):
 

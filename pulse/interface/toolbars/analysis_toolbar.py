@@ -124,6 +124,7 @@ class AnalysisToolbar(QToolBar):
 
     def physical_domain_callback(self):
         self.update_run_analysis_button()
+        app().main_window.model_setup_widget.model_setup_items.update_items_appearance()
 
     def analysis_type_callback(self):
 
@@ -144,6 +145,7 @@ class AnalysisToolbar(QToolBar):
 
         self.update_run_analysis_button()
         self.combo_box_analysis_domain.blockSignals(False)
+        app().main_window.model_setup_widget.model_setup_items.update_items_appearance()
 
     def _config_widgets(self):
 
