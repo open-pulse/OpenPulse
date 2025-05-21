@@ -933,12 +933,15 @@ class MainWindow(QMainWindow):
         return False
 
     def new_project(self):
-        condition_1 = self.project.save_path is None
-        condition_2 = os.path.exists(TEMP_PROJECT_FILE)
-        condition_3 = self.project_data_modified
-        condition = (condition_1 and condition_2) or condition_3
 
-        if condition:
+        none_save_path = self.project.save_path is None
+        temp_file_exists = os.path.exists(TEMP_PROJECT_FILE)
+        data_modified = self.project_data_modified
+
+        condition = (none_save_path and temp_file_exists) or data_modified
+        empty_project = app().project.file.read_line_properties_from_file() is None
+
+        if condition and not empty_project:
             if self.save_project_data():
                 return
 
@@ -1123,12 +1126,14 @@ class MainWindow(QMainWindow):
         self.force_close = True
         self.close_dialogs()
 
-        condition_1 = self.project.save_path is None
-        condition_2 = os.path.exists(TEMP_PROJECT_FILE)
-        condition_3 = self.project_data_modified
-        condition = (condition_1 and condition_2) or condition_3
+        none_save_path = self.project.save_path is None
+        temp_file_exists = os.path.exists(TEMP_PROJECT_FILE)
+        data_modified = self.project_data_modified
 
-        if condition:
+        condition = (none_save_path and temp_file_exists) or data_modified
+        empty_project = app().project.file.read_line_properties_from_file() is None
+
+        if condition and not empty_project:
             if self.save_project_data():
                 return
 
