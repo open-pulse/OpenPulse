@@ -20,7 +20,7 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class PulsationSuppressionDeviceInputs(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__(*args, **kwargs)
         
         ui_path = UI_DIR / "model/editor/pulsation_suppression_device_input.ui"
@@ -47,6 +47,12 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.load_psd_info()
         self.process_line_edits()
         self.selection_callback()
+
+        if device_to_delete is not None:
+            self.tabWidget_main.setCurrentIndex(1)
+            devices = self.treeWidget_psd_info.findItems(device_to_delete, Qt.MatchExactly)
+            if devices:
+                self.treeWidget_psd_info.setCurrentItem(devices[0])
 
         while self.keep_window_open:
             self.exec()
@@ -1055,8 +1061,8 @@ class PulsationSuppressionDeviceInputs(QDialog):
                                 ]
 
     def preview_callback(self):
-        print()
-        print("preview_callback")
+        # print()
+        # print("preview_callback")
         t0 = time()
         if self.check_psd_inputs():
             dt = time() - t0
@@ -1085,7 +1091,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
             self.pushButton_show_errors.setDisabled(False)
             dt = time() - t0
-            print(f"Elapsed time (raised error): {dt} s")
+            # print(f"Elapsed time (raised error): {dt} s")
 
         else:
             for line_edit in self.findChildren(QLineEdit):
@@ -1097,7 +1103,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.preview_widget.update()
 
             dt = time() - t0
-            print(f"Elapsed time (generate preview): {dt} s")
+            # print(f"Elapsed time (generate preview): {dt} s")
 
     def automatic_preview(self):
         for line_edit in self.findChildren(QLineEdit):
