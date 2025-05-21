@@ -271,14 +271,32 @@ class MainWindow(QMainWindow):
         dt = time() - t0
         print(f"Time to process D: {round(dt, 6)} [s]")
 
-        if len(argv) > 1:
-            path = Path(argv[1])
-            if path.exists():
-                self.open_project(path)
-
-        elif not self.is_temporary_folder_empty():
+        if not self.is_temporary_folder_empty():
             self.recovery_dialog()
         
+        else:
+            self.try_to_open_argv_path()
+    
+    def try_to_open_argv_path(self):
+        '''
+        Check every argument passed in the command line and try to open it if it is a valid file.
+        '''
+
+        if len(argv) <= 1:
+            return
+        
+        for arg in argv[1:]:
+            path = Path(arg)
+            
+            if not path.is_file():
+                continue
+            
+            if not path.exists():
+                continue
+            
+            if path.suffix == ".pulse":
+                self.open_project(path)
+                break        
 
     def create_temporary_folder(self):
         create_new_folder(USER_PATH, "temp_pulse")
