@@ -17,7 +17,7 @@ class CheckBeamCriteriaInput(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "criterias/beam_criteria_assistant.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self, ui_path.parent)
 
         self.project = app().project
         app().main_window.set_input_widget(self)
