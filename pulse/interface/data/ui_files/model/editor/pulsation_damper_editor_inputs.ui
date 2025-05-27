@@ -49,7 +49,10 @@
       </font>
      </property>
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="3" column="0">
@@ -61,7 +64,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_10">
          <property name="leftMargin">
@@ -97,13 +103,12 @@
             <font>
              <family>MS Shell Dlg 2</family>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab_setup">
             <attribute name="title">
@@ -128,7 +133,7 @@
              <item row="0" column="0">
               <widget class="QScrollArea" name="scrollArea">
                <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <property name="widgetResizable">
                 <bool>true</bool>
@@ -138,7 +143,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>495</width>
+                  <width>496</width>
                   <height>658</height>
                  </rect>
                 </property>
@@ -167,7 +172,10 @@
                     </size>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
+                    <enum>QFrame::Shape::NoFrame</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Shadow::Raised</enum>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_14">
                     <property name="leftMargin">
@@ -187,6 +195,9 @@
                     </property>
                     <item row="0" column="0">
                      <spacer name="horizontalSpacer_11">
+                      <property name="orientation">
+                       <enum>Qt::Orientation::Horizontal</enum>
+                      </property>
                       <property name="sizeHint" stdset="0">
                        <size>
                         <width>40</width>
@@ -248,13 +259,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Gas volume:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -276,16 +289,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string>0.010</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -307,13 +322,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -335,16 +352,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string>0.04</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -366,13 +385,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -394,13 +415,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>0.014957</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -422,16 +445,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string>0.085</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -453,16 +478,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string>0.250</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -484,13 +511,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Outside diameter (liquid):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -512,13 +541,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -540,13 +571,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>Volume unit:</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -568,13 +601,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Neck height:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -596,7 +631,6 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
@@ -604,10 +638,16 @@
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Damper volume:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                      </property>
                      </widget>
                     </item>
                     <item row="0" column="4">
                      <spacer name="horizontalSpacer_10">
+                      <property name="orientation">
+                       <enum>Qt::Orientation::Horizontal</enum>
+                      </property>
                       <property name="sizeHint" stdset="0">
                        <size>
                         <width>40</width>
@@ -634,13 +674,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m³]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -662,13 +704,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>Damper main axis:</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -690,13 +734,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>Damper type:</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -718,13 +764,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Wall thickness (gas):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -746,13 +794,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -774,7 +824,6 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
@@ -814,7 +863,6 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
@@ -852,13 +900,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -880,16 +930,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string>0.012464</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -911,13 +963,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>Sections (liquid/gas):</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -939,7 +993,6 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
@@ -974,13 +1027,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Outside diameter (gas):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1002,13 +1057,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Outside diameter (neck):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1030,16 +1087,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string>0.250</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1061,13 +1120,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1089,7 +1150,6 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
@@ -1147,13 +1207,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Wall thickness (liquid):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1175,16 +1237,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string>0.010</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1206,13 +1270,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1222,7 +1288,10 @@
                  <item row="1" column="0">
                   <widget class="QFrame" name="frame_3">
                    <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
+                    <enum>QFrame::Shape::NoFrame</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Shadow::Raised</enum>
                    </property>
                    <layout class="QGridLayout" name="gridLayout">
                     <item row="4" column="2">
@@ -1243,16 +1312,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string>1.40</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1274,13 +1345,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Fluid data source:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1305,21 +1378,26 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string/>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="0">
                      <spacer name="horizontalSpacer_2">
+                      <property name="orientation">
+                       <enum>Qt::Orientation::Horizontal</enum>
+                      </property>
                       <property name="sizeHint" stdset="0">
                        <size>
                         <width>40</width>
@@ -1346,24 +1424,29 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="frameShape">
-                       <enum>QFrame::NoFrame</enum>
+                       <enum>QFrame::Shape::Box</enum>
                       </property>
                       <property name="text">
                        <string>Define the fluid properties</string>
                       </property>
                       <property name="textFormat">
-                       <enum>Qt::PlainText</enum>
+                       <enum>Qt::TextFormat::AutoText</enum>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
                     <item row="2" column="4">
                      <spacer name="horizontalSpacer">
+                      <property name="orientation">
+                       <enum>Qt::Orientation::Horizontal</enum>
+                      </property>
                       <property name="sizeHint" stdset="0">
                        <size>
                         <width>40</width>
@@ -1390,13 +1473,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;[--]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1418,16 +1503,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string>120</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1449,7 +1536,6 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
@@ -1484,13 +1570,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Selected liquid fluid:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1512,7 +1600,6 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
@@ -1580,13 +1667,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Gas temperature:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1608,16 +1697,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string>45</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1639,7 +1730,6 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
@@ -1679,13 +1769,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Gas pressure:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1707,7 +1799,6 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
@@ -1745,13 +1836,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Selected gas fluid:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1773,13 +1866,15 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="text">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Polytropic exponent:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1804,16 +1899,18 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="text">
                        <string/>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1835,7 +1932,6 @@
                        <font>
                         <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
-                        <weight>50</weight>
                         <italic>false</italic>
                         <bold>false</bold>
                        </font>
@@ -1901,7 +1997,10 @@
                 </size>
                </property>
                <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Shadow::Raised</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_5">
                 <property name="leftMargin">
@@ -1921,6 +2020,9 @@
                 </property>
                 <item row="0" column="3">
                  <spacer name="horizontalSpacer_8">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
                   <property name="sizeHint" stdset="0">
                    <size>
                     <width>40</width>
@@ -1931,6 +2033,9 @@
                 </item>
                 <item row="0" column="0">
                  <spacer name="horizontalSpacer_7">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
                   <property name="sizeHint" stdset="0">
                    <size>
                     <width>40</width>
@@ -1957,10 +2062,13 @@
                    </size>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::NoFocus</enum>
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
                   </property>
                   <property name="styleSheet">
                    <string notr="true"/>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -1981,6 +2089,9 @@
                   <property name="text">
                    <string>Damper label:</string>
                   </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                  </property>
                  </widget>
                 </item>
                 <item row="1" column="1">
@@ -1999,6 +2110,9 @@
                   </property>
                   <property name="text">
                    <string>Damper type:</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -2020,10 +2134,13 @@
                    </size>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::NoFocus</enum>
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
                   </property>
                   <property name="styleSheet">
                    <string notr="true"/>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -2033,7 +2150,10 @@
              <item row="1" column="0">
               <widget class="QFrame" name="frame_treeWidget">
                <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Shadow::Raised</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_8">
                 <property name="leftMargin">
@@ -2069,13 +2189,15 @@
                    <font>
                     <family>MS Shell Dlg 2</family>
                     <pointsize>9</pointsize>
-                    <weight>50</weight>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
                   </property>
                   <property name="frameShape">
-                   <enum>QFrame::NoFrame</enum>
+                   <enum>QFrame::Shape::StyledPanel</enum>
+                  </property>
+                  <property name="frameShadow">
+                   <enum>QFrame::Shadow::Sunken</enum>
                   </property>
                   <property name="indentation">
                    <number>0</number>
@@ -2104,7 +2226,6 @@
                     <font>
                      <family>MS Shell Dlg 2</family>
                      <pointsize>9</pointsize>
-                     <weight>50</weight>
                      <italic>false</italic>
                      <bold>false</bold>
                     </font>
@@ -2141,7 +2262,10 @@
                 </size>
                </property>
                <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Shadow::Raised</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_7">
                 <property name="leftMargin">
@@ -2174,7 +2298,6 @@
                    <font>
                     <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2211,7 +2334,6 @@
                    <font>
                     <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
-                    <weight>50</weight>
                     <italic>false</italic>
                     <bold>false</bold>
                    </font>
@@ -2257,7 +2379,10 @@
          </font>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="leftMargin">
@@ -2294,6 +2419,9 @@
            <property name="text">
             <string>Damper label:</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+           </property>
           </widget>
          </item>
          <item>
@@ -2316,10 +2444,10 @@
             </font>
            </property>
            <property name="text">
-            <string/>
+            <string>pulsation_damper_bladder</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -2335,7 +2463,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_15">
          <property name="leftMargin">
@@ -2375,6 +2506,9 @@
            <property name="text">
             <string>coord. z [m]</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
           </widget>
          </item>
          <item row="1" column="2">
@@ -2398,6 +2532,9 @@
            </property>
            <property name="text">
             <string>0</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -2423,6 +2560,9 @@
            <property name="text">
             <string>0</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
           </widget>
          </item>
          <item row="0" column="2">
@@ -2446,6 +2586,9 @@
            </property>
            <property name="text">
             <string>coord. y [m]</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -2471,6 +2614,9 @@
            <property name="text">
             <string>Connection:</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+           </property>
           </widget>
          </item>
          <item row="0" column="1">
@@ -2494,6 +2640,9 @@
            </property>
            <property name="text">
             <string>coord. x [m]</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -2519,6 +2668,9 @@
            <property name="text">
             <string>0</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
           </widget>
          </item>
         </layout>
@@ -2541,7 +2693,10 @@
       </font>
      </property>
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <property name="leftMargin">
@@ -2599,6 +2754,9 @@
         <property name="text">
          <string>Damper preview</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
         <property name="wordWrap">
          <bool>false</bool>
         </property>
@@ -2622,7 +2780,10 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="leftMargin">
@@ -2657,7 +2818,6 @@
         <property name="font">
          <font>
           <pointsize>10</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -2696,7 +2856,6 @@
         <property name="font">
          <font>
           <pointsize>10</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
@@ -2768,7 +2927,10 @@
       </font>
      </property>
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_12">
       <property name="leftMargin">
@@ -2798,19 +2960,21 @@
          <font>
           <family>MS Shell Dlg 2</family>
           <pointsize>11</pointsize>
-          <weight>50</weight>
           <italic>false</italic>
           <bold>false</bold>
          </font>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="text">
          <string>Pulsation damper editor</string>
         </property>
         <property name="textFormat">
-         <enum>Qt::PlainText</enum>
+         <enum>Qt::TextFormat::AutoText</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
