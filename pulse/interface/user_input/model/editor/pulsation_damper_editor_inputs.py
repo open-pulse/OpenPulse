@@ -541,7 +541,7 @@ class PulsationDamperEditorInputs(QDialog):
 
     def preview_callback(self):
         if self.check_pulsation_damper_geometric_inputs():
-            for line_edit in [le for le in self.findChildren(QLineEdit) if le != self.lineEdit_damper_label]:
+            for line_edit in self.findChildren(QLineEdit):
                 if line_edit.isEnabled() and (line_edit.text() == ""  or self.is_not_valid_number(line_edit.text())):
                     line_edit.setStyleSheet("border: 2px solid red")
 
@@ -568,7 +568,8 @@ class PulsationDamperEditorInputs(QDialog):
     def automatic_preview(self):
 
         for line_edit in self.findChildren(QLineEdit):
-            line_edit.textEdited.connect(self.preview_callback)
+            if line_edit is not self.lineEdit_damper_label:
+                line_edit.textEdited.connect(self.preview_callback)
         
         for combo_box in self.findChildren(QComboBox):
             combo_box.currentIndexChanged.connect(self.preview_callback)
