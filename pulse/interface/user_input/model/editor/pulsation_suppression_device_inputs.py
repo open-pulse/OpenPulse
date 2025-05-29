@@ -1047,7 +1047,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
         return False
 
     def process_line_edits(self):
-
         line_edits = list()
         for line_edit in self.findChildren(QLineEdit):
             line_edits.append(line_edit)
@@ -1077,12 +1076,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
                 line_edit : QLineEdit
                 if not line_edit.isEnabled():
                     continue
-                
-                # I have no idea why this object exists but it messes 
-                # up the QSpinBox appearance when the value is zero (?).
-                if line_edit.objectName() == "qt_spinbox_lineedit":
-                    continue
-                
+                                
                 include_zero = False
                 if line_edit in self.possible_zeros:
                     include_zero = True
