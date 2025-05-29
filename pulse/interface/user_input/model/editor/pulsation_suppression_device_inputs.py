@@ -1061,12 +1061,8 @@ class PulsationSuppressionDeviceInputs(QDialog):
                                 ]
 
     def preview_callback(self):
-        t0 = time()
         if self.check_psd_inputs():
-            dt = time() - t0
             self.preview_widget.turn_red()
-
-            dt = time() - t0
 
             for line_edit in self.line_edits:
                 line_edit : QLineEdit
@@ -1086,18 +1082,17 @@ class PulsationSuppressionDeviceInputs(QDialog):
                 line_edit.setStyleSheet(style_sheet)
 
             self.pushButton_show_errors.setDisabled(False)
-            dt = time() - t0
 
         else:
             for line_edit in self.findChildren(QLineEdit):
                 line_edit.setStyleSheet(self.default_stylesheet)
+                
                 
             self.pushButton_show_errors.setDisabled(True)
             self.preview_widget.build_device_preview(self._psd_data)
             self.preview_widget.config_view()
             self.preview_widget.update()
 
-            dt = time() - t0
 
     def automatic_preview(self):
         for line_edit in self.findChildren(QLineEdit):

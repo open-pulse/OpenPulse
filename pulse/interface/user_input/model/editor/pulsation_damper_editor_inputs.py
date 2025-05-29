@@ -540,7 +540,6 @@ class PulsationDamperEditorInputs(QDialog):
             return True
 
     def preview_callback(self):
-
         if self.check_pulsation_damper_geometric_inputs():
             for line_edit in [le for le in self.findChildren(QLineEdit) if le != self.lineEdit_damper_label]:
                 if line_edit.isEnabled() and (line_edit.text() == ""  or self.is_not_valid_number(line_edit.text())):

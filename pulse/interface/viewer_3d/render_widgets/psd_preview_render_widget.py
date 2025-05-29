@@ -34,7 +34,7 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
 
     def build_device_preview(self, device_data):
     
-        self.renderer.RemoveAllViewProps()
+        self.remove_all_actors()
 
         if "volume #2 parameters" in device_data.keys():
             device = DualVolumePSD(device_data)

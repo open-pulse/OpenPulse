@@ -31,7 +31,7 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
 
     def build_device_preview(self, device_data):
 
-        self.renderer.RemoveAllViewProps()
+        self.remove_all_actors()
 
         device = PulsationDamper(device_data)
         device.process_segment_data()
