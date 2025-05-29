@@ -1050,15 +1050,24 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         line_edits = list()
         for line_edit in self.findChildren(QLineEdit):
-            if line_edit != self.lineEdit_device_label:
-                line_edits.append(line_edit)
+            line_edits.append(line_edit)
+
+        for line_edit in self.findChildren(QDoubleSpinBox):
+            line_edits.append(line_edit)
 
         self.line_edits = line_edits
         self.line_edit_coords = [
-                                self.lineEdit_connecting_coord_x, 
-                                self.lineEdit_connecting_coord_y, 
-                                self.lineEdit_connecting_coord_z
-                                ]
+            self.lineEdit_connecting_coord_x, 
+            self.lineEdit_connecting_coord_y, 
+            self.lineEdit_connecting_coord_z
+        ]
+        
+        self.line_edit_rotation_angles_spinboxes = [
+            self.spinBox_pipe1_rotation_angle,
+            self.spinBox_pipe2_rotation_angle
+        ]
+
+        self.possible_zeros = self.line_edit_coords + self.line_edit_rotation_angles_spinboxes
 
     def preview_callback(self):
         if self.check_psd_inputs():
@@ -1069,16 +1078,17 @@ class PulsationSuppressionDeviceInputs(QDialog):
                 if not line_edit.isEnabled():
                     continue
                 
+                # I have no idea why this object exists but it messes 
+                # up the QSpinBox appearance when the value is zero (?).
+                if line_edit.objectName() == "qt_spinbox_lineedit":
+                    continue
+                
                 include_zero = False
-                if line_edit in self.line_edit_coords:
+                if line_edit in self.possible_zeros:
                     include_zero = True
-
+                
                 is_valid = self.is_valid_number(line_edit.text(), include_zero=include_zero)
-
-                style_sheet = "border: 2px solid red"
-                if is_valid:
-                    style_sheet = self.default_stylesheet
-
+                style_sheet = self.default_stylesheet if is_valid else "border: 2px solid red"
                 line_edit.setStyleSheet(style_sheet)
 
             self.pushButton_show_errors.setDisabled(False)
@@ -1096,7 +1106,8 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
     def automatic_preview(self):
         for line_edit in self.findChildren(QLineEdit):
-            line_edit.textEdited.connect(self.preview_callback)
+            if line_edit is not self.lineEdit_device_label:
+                line_edit.textEdited.connect(self.preview_callback)
 
         for combo_box in self.findChildren(QComboBox):
             combo_box.currentIndexChanged.connect(self.preview_callback)
