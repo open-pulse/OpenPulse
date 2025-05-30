@@ -222,6 +222,7 @@ class PulsationDamperEditorInputs(QDialog):
     def _config_widgets(self):
         # Replace placeholder widget with the actual render widget
         self.preview_widget = DamperPreviewRenderWidget()
+        self.preview_widget.set_isometric_view()
         self.preview_widget_placeholder.parent().layout().replaceWidget(
             self.preview_widget_placeholder, 
             self.preview_widget,
@@ -344,6 +345,9 @@ class PulsationDamperEditorInputs(QDialog):
 
             elif pu_index == 7:
                 pressure_value = pressure_Pa_g / 1
+            
+            else:
+                raise ValueError(f'Invalid pu_index "{pu_index}"')
 
             self.lineEdit_gas_pressure.setText(f"{pressure_value : .8e}")
 

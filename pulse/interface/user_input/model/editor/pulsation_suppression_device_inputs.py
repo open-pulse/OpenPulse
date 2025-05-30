@@ -193,6 +193,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
     def _config_widgets(self):
         # Replace placeholder widget with the actual render widget
         self.preview_widget = PSDPreviewRenderWidget()
+        self.preview_widget.set_isometric_view()
         self.preview_widget_placeholder.parent().layout().replaceWidget(
             self.preview_widget_placeholder, 
             self.preview_widget,

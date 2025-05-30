@@ -104,9 +104,6 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
         self.add_actors(damper_actor)
 
     def config_view(self):
-        camera = self.renderer.GetActiveCamera()
-        camera.SetPosition(1, 1, 1)
-        camera.SetFocalPoint(0, 0, 0) 
         self.renderer.ResetCamera()
         self.renderer.ResetCameraClippingRange()        
         self.renderer.ResetCameraScreenSpace()
