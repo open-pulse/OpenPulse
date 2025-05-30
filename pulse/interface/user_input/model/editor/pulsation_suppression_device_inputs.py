@@ -1080,6 +1080,14 @@ class PulsationSuppressionDeviceInputs(QDialog):
                 include_zero = False
                 if line_edit in self.possible_zeros:
                     include_zero = True
+
+                                
+                # I have no idea why this object exists but it messes 
+                # up the QSpinBox appearance when the value is zero (?).
+                if line_edit.objectName() == "qt_spinbox_lineedit":
+                    continue
+                
+
                 
                 is_valid = self.is_valid_number(line_edit.text(), include_zero=include_zero)
                 style_sheet = self.default_stylesheet if is_valid else "border: 2px solid red"
