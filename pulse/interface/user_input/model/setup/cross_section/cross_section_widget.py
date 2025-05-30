@@ -19,7 +19,7 @@ class CrossSectionWidget(QWidget):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/cross_section/cross_section_widget.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self, ui_path.parent)
 
         self.dialog = kwargs.get("dialog", None)
 

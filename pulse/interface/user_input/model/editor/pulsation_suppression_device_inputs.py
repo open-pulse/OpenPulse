@@ -24,7 +24,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         super().__init__(*args, **kwargs)
         
         ui_path = UI_DIR / "model/editor/pulsation_suppression_device_input.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self, ui_path.parent)
 
         app().main_window.set_input_widget(self)
         self.project = app().project

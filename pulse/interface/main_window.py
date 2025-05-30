@@ -1,5 +1,5 @@
 
-from PySide6.QtWidgets import QAbstractButton, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
+from PySide6.QtWidgets import QAbstractButton, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PySide6.QtCore import Qt, Signal, QEvent, QPoint
 from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
 
@@ -138,6 +138,7 @@ class MainWindow(QMainWindow):
         self.action_set_light_theme: QAction
         self.action_save_project: QAction
         self.action_save_project_as: QAction
+        self.action_capture_image: QAction
         self.action_show_mesh_data: QAction
         self.action_show_geometry_data: QAction
         self.action_show_lines: QAction
@@ -270,14 +271,32 @@ class MainWindow(QMainWindow):
         dt = time() - t0
         print(f"Time to process D: {round(dt, 6)} [s]")
 
-        if len(argv) > 1:
-            path = Path(argv[1])
-            if path.exists():
-                self.open_project(path)
-
-        elif not self.is_temporary_folder_empty():
+        if not self.is_temporary_folder_empty():
             self.recovery_dialog()
         
+        else:
+            self.try_to_open_argv_path()
+    
+    def try_to_open_argv_path(self):
+        '''
+        Check every argument passed in the command line and try to open it if it is a valid file.
+        '''
+
+        if len(argv) <= 1:
+            return
+        
+        for arg in argv[1:]:
+            path = Path(arg)
+            
+            if not path.is_file():
+                continue
+            
+            if not path.exists():
+                continue
+            
+            if path.suffix == ".pulse":
+                self.open_project(path)
+                break        
 
     def create_temporary_folder(self):
         create_new_folder(USER_PATH, "temp_pulse")
@@ -932,12 +951,15 @@ class MainWindow(QMainWindow):
         return False
 
     def new_project(self):
-        condition_1 = self.project.save_path is None
-        condition_2 = os.path.exists(TEMP_PROJECT_FILE)
-        condition_3 = self.project_data_modified
-        condition = (condition_1 and condition_2) or condition_3
 
-        if condition:
+        none_save_path = self.project.save_path is None
+        temp_file_exists = os.path.exists(TEMP_PROJECT_FILE)
+        data_modified = self.project_data_modified
+
+        condition = (none_save_path and temp_file_exists) or data_modified
+        empty_project = app().project.file.read_line_properties_from_file() is None
+
+        if condition and not empty_project:
             if self.save_project_data():
                 return
 
@@ -1080,6 +1102,25 @@ class MainWindow(QMainWindow):
             sleep(0.5)
 
         LoadingWindow(save_data).run(path)
+    
+    def action_capture_image_callback(self):
+        self.capture_image()
+    
+    def capture_image(self):
+        path, check = QFileDialog.getSaveFileName(
+            self,
+            "PNG",
+            filter="PNG (*.png)",
+        )
+        
+        if not check:
+            return
+
+        widget = self.render_widgets_stack.currentWidget()
+        if isinstance(widget, CommonRenderWidget):
+            image = widget.get_screenshot()
+            with open(path, "wb") as file:
+                image.save(file)
 
     def update_window_title(self, project_path : str | Path):
         if isinstance(project_path, str):
@@ -1103,12 +1144,14 @@ class MainWindow(QMainWindow):
         self.force_close = True
         self.close_dialogs()
 
-        condition_1 = self.project.save_path is None
-        condition_2 = os.path.exists(TEMP_PROJECT_FILE)
-        condition_3 = self.project_data_modified
-        condition = (condition_1 and condition_2) or condition_3
+        none_save_path = self.project.save_path is None
+        temp_file_exists = os.path.exists(TEMP_PROJECT_FILE)
+        data_modified = self.project_data_modified
 
-        if condition:
+        condition = (none_save_path and temp_file_exists) or data_modified
+        empty_project = app().project.file.read_line_properties_from_file() is None
+
+        if condition and not empty_project:
             if self.save_project_data():
                 return
 

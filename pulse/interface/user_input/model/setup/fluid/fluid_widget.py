@@ -584,7 +584,7 @@ class FluidWidget(QWidget):
         config = app().project.file.read_fluid_library_from_file()
 
         identifier = str(fluid.identifier)
-        if not identifier in config.sections():
+        if identifier not in config.sections():
             return
 
         self.reset_fluid_from_lines(int(identifier))
