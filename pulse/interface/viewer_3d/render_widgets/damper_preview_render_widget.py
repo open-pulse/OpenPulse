@@ -31,11 +31,10 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
 
     def build_device_preview(self, device_data):
 
-        self.renderer.RemoveAllViewProps()
+        self.remove_all_actors()
 
         device = PulsationDamper(device_data)
         device.process_segment_data()
-
         damper = vtkAppendPolyData()
 
         connection_point = device_data["connecting_coords"]
@@ -105,9 +104,6 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
         self.add_actors(damper_actor)
 
     def config_view(self):
-        camera = self.renderer.GetActiveCamera()
-        camera.SetPosition(1, 1, 1)
-        camera.SetFocalPoint(0, 0, 0) 
         self.renderer.ResetCamera()
         self.renderer.ResetCameraClippingRange()        
         self.renderer.ResetCameraScreenSpace()

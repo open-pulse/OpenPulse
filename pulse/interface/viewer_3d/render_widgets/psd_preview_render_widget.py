@@ -34,7 +34,7 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
 
     def build_device_preview(self, device_data):
     
-        self.renderer.RemoveAllViewProps()
+        self.remove_all_actors()
 
         if "volume #2 parameters" in device_data.keys():
             device = DualVolumePSD(device_data)
@@ -79,8 +79,6 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
                 sphere_actor.GetProperty().SetColor(1, 0, 0) 
 
                 self.add_actors(sphere_actor)
-
-
     
         mapper = vtkPolyDataMapper()
         filter_actor = vtkActor()
@@ -96,9 +94,6 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
         self.add_actors(filter_actor)
 
     def config_view(self):
-        camera = self.renderer.GetActiveCamera()
-        camera.SetPosition(1, 1, 1)
-        camera.SetFocalPoint(0, 0, 0) 
         self.renderer.ResetCamera()
         self.renderer.ResetCameraClippingRange()        
         self.renderer.ResetCameraScreenSpace()

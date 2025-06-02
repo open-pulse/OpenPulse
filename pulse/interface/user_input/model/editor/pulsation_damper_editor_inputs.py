@@ -21,7 +21,7 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class PulsationDamperEditorInputs(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__()
 
         ui_path = UI_DIR / "model/editor/pulsation_damper_editor_inputs.ui"
@@ -39,11 +39,18 @@ class PulsationDamperEditorInputs(QDialog):
         self._config_widgets()
 
         self.load_pulsation_damper_info()
+        self.process_line_edits()
         self.selection_callback()
         self.update_pulsation_damper_label()
         self.preview_callback()
         self.automatic_preview()
         self._store_deafult_parameters()
+
+        if device_to_delete is not None:
+            self.tabWidget_main.setCurrentIndex(1)
+            devices = self.treeWidget_pulsation_damper_info.findItems(device_to_delete, Qt.MatchExactly)
+            if devices:
+                self.treeWidget_pulsation_damper_info.setCurrentItem(devices[0])
 
         while self.keep_window_open:
             self.exec()
@@ -225,6 +232,7 @@ class PulsationDamperEditorInputs(QDialog):
     def _config_widgets(self):
         # Replace placeholder widget with the actual render widget
         self.preview_widget = DamperPreviewRenderWidget()
+        self.preview_widget.set_isometric_view()
         self.preview_widget_placeholder.parent().layout().replaceWidget(
             self.preview_widget_placeholder, 
             self.preview_widget,
@@ -347,6 +355,9 @@ class PulsationDamperEditorInputs(QDialog):
 
             elif pu_index == 7:
                 pressure_value = pressure_Pa_g / 1
+            
+            else:
+                raise ValueError(f'Invalid pu_index "{pu_index}"')
 
             self.lineEdit_gas_pressure.setText(f"{pressure_value : .8e}")
 
@@ -460,32 +471,32 @@ class PulsationDamperEditorInputs(QDialog):
     def check_geometric_entries(self):
 
         outside_diameter_liquid = self.check_inputs(self.lineEdit_outside_diameter_liquid, "'outside diameter (liquid)'", only_positive=False)
-        if outside_diameter_liquid is None:
+        if (outside_diameter_liquid is None or outside_diameter_liquid == 0) and self.lineEdit_outside_diameter_liquid.isEnabled():
             self.lineEdit_outside_diameter_liquid.setFocus()
             return True
 
         wall_thickness_liquid = self.check_inputs(self.lineEdit_wall_thickness_liquid, "'wall thickness (liquid)'", only_positive=False)
-        if wall_thickness_liquid is None:
+        if (wall_thickness_liquid is None or wall_thickness_liquid == 0) and self.lineEdit_wall_thickness_liquid.isEnabled():
             self.lineEdit_wall_thickness_liquid.setFocus()
             return True
 
         outside_diameter_gas = self.check_inputs(self.lineEdit_outside_diameter_gas, "'outside diameter (gas)'", only_positive=False)
-        if outside_diameter_gas is None:
+        if (outside_diameter_gas is None or outside_diameter_gas == 0) and self.lineEdit_outside_diameter_gas.isEnabled():
             self.lineEdit_outside_diameter_gas.setFocus()
             return True
 
         wall_thickness_gas = self.check_inputs(self.lineEdit_wall_thickness_gas, "'wall thickness (gas)'", only_positive=False)
-        if wall_thickness_gas is None:
+        if (wall_thickness_gas is None or wall_thickness_gas == 0) and self.lineEdit_wall_thickness_gas.isEnabled():
             self.lineEdit_wall_thickness_gas.setFocus()
             return True
 
         outside_diameter_neck = self.check_inputs(self.lineEdit_outside_diameter_neck, "'outside diameter (neck)'", only_positive=False)
-        if outside_diameter_neck is None:
+        if (outside_diameter_neck is None or outside_diameter_neck == 0) and self.lineEdit_outside_diameter_neck.isEnabled():
             self.lineEdit_outside_diameter_neck.setFocus()
             return True
 
         neck_height = self.check_inputs(self.lineEdit_neck_height, "'neck heght'", only_positive=False)
-        if neck_height is None:
+        if (neck_height is None or neck_height == 0) and self.lineEdit_neck_height.isEnabled():
             self.lineEdit_neck_height.setFocus()
             return True
 
@@ -536,30 +547,60 @@ class PulsationDamperEditorInputs(QDialog):
     def get_values(self, values: np.ndarray):
         return list(np.array(np.round(values, 6), dtype=float))
     
-    def is_not_valid_number(self, value: str):
-        try:
-            float(value.replace(",", "."))
+    def is_valid_number(self, value: str, include_zero: bool=True):
+        if value == "":
             return False
+
+        try:
+            _value = float(value.replace(",", "."))
+            if include_zero:
+                return True
+            elif _value > 0:
+                return True
         except:
-            return True
+            return False
+
+        return False
+
+    def process_line_edits(self):
+
+        line_edits = list()
+        for line_edit in self.findChildren(QLineEdit):
+            line_edits.append(line_edit)
+
+        self.line_edits = line_edits
+        self.possible_zeros = [
+            self.lineEdit_connecting_coord_x, 
+            self.lineEdit_connecting_coord_y, 
+            self.lineEdit_connecting_coord_z,
+            self.lineEdit_gas_temperature,
+        ]
+        
 
     def preview_callback(self):
-
         if self.check_pulsation_damper_geometric_inputs():
             for line_edit in [le for le in self.findChildren(QLineEdit) if le != self.lineEdit_damper_label]:
-                if line_edit.isEnabled() and (line_edit.text() == ""  or self.is_not_valid_number(line_edit.text())):
-                    line_edit.setStyleSheet("border: 2px solid red")
+                line_edit: QLineEdit
+                
+                if not line_edit.isEnabled():
+                    continue
 
+                include_zero = False
+                if line_edit in self.possible_zeros:
+                    include_zero = True
+
+                is_valid = self.is_valid_number(line_edit.text(), include_zero=include_zero)
+
+                style_sheet = self.default_style_sheet if is_valid else "border: 2px solid red"
+                line_edit.setStyleSheet(style_sheet)
             self.preview_widget.turn_red()
             self.pushButton_show_errors.setDisabled(False)
 
         else:
-
             for line_edit in self.findChildren(QLineEdit):
                 line_edit.setStyleSheet(self.default_style_sheet)
 
             self.pushButton_show_errors.setDisabled(True)
-
             self._pulsation_damper_data["liquid_fluid_id"] = 'placeholder'
             self._pulsation_damper_data["gas_fluid_id"] = 'placeholder'
 
@@ -573,7 +614,8 @@ class PulsationDamperEditorInputs(QDialog):
     def automatic_preview(self):
 
         for line_edit in self.findChildren(QLineEdit):
-            line_edit.textEdited.connect(self.preview_callback)
+            if line_edit is not self.lineEdit_damper_label:
+                line_edit.textEdited.connect(self.preview_callback)
         
         for combo_box in self.findChildren(QComboBox):
             combo_box.currentIndexChanged.connect(self.preview_callback)
@@ -581,17 +623,17 @@ class PulsationDamperEditorInputs(QDialog):
 
     def create_pulsation_damper_callback(self):
 
-        self.preview_widget.close_preview()
-
         stop, damper_label, _, _, _ = self.check_pulsation_damper_label()
         if stop:
             self.show_error_window_for_label()
             return
 
         if self.check_pulsation_damper_inputs():
+            self.show_error_window_for_parameters()
             self._pulsation_damper_data.clear()
             return
 
+        self.preview_widget.close_preview()
         aux = self.damper_data.copy()
         for key, data in aux.items():
             if data == self._pulsation_damper_data:

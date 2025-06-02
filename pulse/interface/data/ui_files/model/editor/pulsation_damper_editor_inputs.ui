@@ -2444,7 +2444,7 @@
             </font>
            </property>
            <property name="text">
-            <string>pulsation_damper_bladder</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignmentFlag::AlignCenter</set>

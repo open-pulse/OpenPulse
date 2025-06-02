@@ -20,7 +20,7 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 class PulsationSuppressionDeviceInputs(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__(*args, **kwargs)
         
         ui_path = UI_DIR / "model/editor/pulsation_suppression_device_input.ui"
@@ -47,6 +47,12 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.load_psd_info()
         self.process_line_edits()
         self.selection_callback()
+
+        if device_to_delete is not None:
+            self.tabWidget_main.setCurrentIndex(1)
+            devices = self.treeWidget_psd_info.findItems(device_to_delete, Qt.MatchExactly)
+            if devices:
+                self.treeWidget_psd_info.setCurrentItem(devices[0])
 
         while self.keep_window_open:
             self.exec()
@@ -187,6 +193,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
     def _config_widgets(self):
         # Replace placeholder widget with the actual render widget
         self.preview_widget = PSDPreviewRenderWidget()
+        self.preview_widget.set_isometric_view()
         self.preview_widget_placeholder.parent().layout().replaceWidget(
             self.preview_widget_placeholder, 
             self.preview_widget,
@@ -1041,67 +1048,69 @@ class PulsationSuppressionDeviceInputs(QDialog):
         return False
 
     def process_line_edits(self):
-
         line_edits = list()
         for line_edit in self.findChildren(QLineEdit):
-            if line_edit != self.lineEdit_device_label:
-                line_edits.append(line_edit)
+            line_edits.append(line_edit)
+
+        for line_edit in self.findChildren(QDoubleSpinBox):
+            line_edits.append(line_edit)
 
         self.line_edits = line_edits
         self.line_edit_coords = [
-                                self.lineEdit_connecting_coord_x, 
-                                self.lineEdit_connecting_coord_y, 
-                                self.lineEdit_connecting_coord_z
-                                ]
+            self.lineEdit_connecting_coord_x, 
+            self.lineEdit_connecting_coord_y, 
+            self.lineEdit_connecting_coord_z
+        ]
+        
+        self.line_edit_rotation_angles_spinboxes = [
+            self.spinBox_pipe1_rotation_angle,
+            self.spinBox_pipe2_rotation_angle
+        ]
+
+        self.possible_zeros = self.line_edit_coords + self.line_edit_rotation_angles_spinboxes
 
     def preview_callback(self):
-        print()
-        print("preview_callback")
-        t0 = time()
         if self.check_psd_inputs():
-            dt = time() - t0
-            print(f"Time 1: {dt} s")
             self.preview_widget.turn_red()
-
-            dt = time() - t0
-            print(f"Time 2: {dt} s")
 
             for line_edit in self.line_edits:
                 line_edit : QLineEdit
                 if not line_edit.isEnabled():
                     continue
-                
+                                
                 include_zero = False
-                if line_edit in self.line_edit_coords:
+                if line_edit in self.possible_zeros:
                     include_zero = True
 
+                                
+                # I have no idea why this object exists but it messes 
+                # up the QSpinBox appearance when the value is zero (?).
+                if line_edit.objectName() == "qt_spinbox_lineedit":
+                    continue
+                
+
+                
                 is_valid = self.is_valid_number(line_edit.text(), include_zero=include_zero)
-
-                style_sheet = "border: 2px solid red"
-                if is_valid:
-                    style_sheet = self.default_stylesheet
-
+                style_sheet = self.default_stylesheet if is_valid else "border: 2px solid red"
                 line_edit.setStyleSheet(style_sheet)
 
             self.pushButton_show_errors.setDisabled(False)
-            dt = time() - t0
-            print(f"Elapsed time (raised error): {dt} s")
 
         else:
             for line_edit in self.findChildren(QLineEdit):
                 line_edit.setStyleSheet(self.default_stylesheet)
+                
                 
             self.pushButton_show_errors.setDisabled(True)
             self.preview_widget.build_device_preview(self._psd_data)
             self.preview_widget.config_view()
             self.preview_widget.update()
 
-            dt = time() - t0
-            print(f"Elapsed time (generate preview): {dt} s")
 
     def automatic_preview(self):
         for line_edit in self.findChildren(QLineEdit):
-            line_edit.textEdited.connect(self.preview_callback)
+            if line_edit is not self.lineEdit_device_label:
+                line_edit.textEdited.connect(self.preview_callback)
 
         for combo_box in self.findChildren(QComboBox):
             combo_box.currentIndexChanged.connect(self.preview_callback)
