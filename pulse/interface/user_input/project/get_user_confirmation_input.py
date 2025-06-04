@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QDialog, QLabel, QPushButton
 from PySide6.QtGui import QIcon, QFont
-from PySide6.QtCore import Qt, QRect
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR, version
 
@@ -8,7 +8,7 @@ from molde import load_ui
 
 
 class GetUserConfirmationInput(QDialog):
-    def __init__(self, title, message, buttons_config={}, *args, **kwargs):
+    def __init__(self, title, message, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "messages/get_user_confirmation.ui"
@@ -16,7 +16,7 @@ class GetUserConfirmationInput(QDialog):
 
         self.title = title
         self.message = message
-        self.buttons_config = buttons_config
+        self.buttons_config = kwargs.get("buttons_config", dict())
         self.window_title = kwargs.get('window_title', f'OpenPulse v{version()}')
 
         app().main_window.set_input_widget(self)
