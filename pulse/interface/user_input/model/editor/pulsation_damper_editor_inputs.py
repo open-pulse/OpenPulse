@@ -173,9 +173,9 @@ class PulsationDamperEditorInputs(QDialog):
 
         if len(selected_nodes) == 1:
             node = self.preprocessor.nodes[selected_nodes[0]]
-            self.lineEdit_connecting_coord_x.setText(str(round(node.x, 6)))
-            self.lineEdit_connecting_coord_y.setText(str(round(node.y, 6)))
-            self.lineEdit_connecting_coord_z.setText(str(round(node.z, 6)))
+            self.lineEdit_connecting_coord_x.setText(f"{node.x:.3f}")
+            self.lineEdit_connecting_coord_y.setText(f"{node.y:.3f}")
+            self.lineEdit_connecting_coord_z.setText(f"{node.z:.3f}")
 
             elements = self.preprocessor.structural_elements_connected_to_node[node.external_index]
             self.selected_material = None
@@ -189,9 +189,9 @@ class PulsationDamperEditorInputs(QDialog):
 
         elif len(selected_points) == 1:
             point = selected_points[0]
-            self.lineEdit_connecting_coord_x.setText(str(round(point.x, 6)))
-            self.lineEdit_connecting_coord_y.setText(str(round(point.y, 6)))
-            self.lineEdit_connecting_coord_z.setText(str(round(point.z, 6)))
+            self.lineEdit_connecting_coord_x.setText(f"{point.x:.3f}")
+            self.lineEdit_connecting_coord_y.setText(f"{point.y:.3f}")
+            self.lineEdit_connecting_coord_z.setText(f"{point.z:.3f}")
 
         app().main_window.geometry_widget.left_released.connect(self.selection_callback)
 

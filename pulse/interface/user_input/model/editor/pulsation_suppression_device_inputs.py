@@ -180,15 +180,15 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
         if len(selected_nodes) == 1:
             node = self.preprocessor.nodes[selected_nodes[0]]
-            self.lineEdit_connecting_coord_x.setText(str(round(node.x, 6)))
-            self.lineEdit_connecting_coord_y.setText(str(round(node.y, 6)))
-            self.lineEdit_connecting_coord_z.setText(str(round(node.z, 6)))
+            self.lineEdit_connecting_coord_x.setText(f"{node.x:.3f}")
+            self.lineEdit_connecting_coord_y.setText(f"{node.y:.3f}")
+            self.lineEdit_connecting_coord_z.setText(f"{node.z:.3f}")
         
         elif len(selected_points) == 1:
             point = selected_points[0]
-            self.lineEdit_connecting_coord_x.setText(str(round(point.x, 6)))
-            self.lineEdit_connecting_coord_y.setText(str(round(point.y, 6)))
-            self.lineEdit_connecting_coord_z.setText(str(round(point.z, 6)))
+            self.lineEdit_connecting_coord_x.setText(f"{point.x:.3f}")
+            self.lineEdit_connecting_coord_y.setText(f"{point.y:.3f}")
+            self.lineEdit_connecting_coord_z.setText(f"{point.z:.3f}")
 
     def _config_widgets(self):
         # Replace placeholder widget with the actual render widget
