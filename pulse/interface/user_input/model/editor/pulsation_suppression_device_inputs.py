@@ -69,6 +69,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
             )
             if devices:
                 self.treeWidget_psd_info.setCurrentItem(devices[0])
+                self.on_click_item(devices[0])
 
         while self.keep_window_open:
             self.exec()
@@ -1103,6 +1104,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
 
             self.actions_to_finalize()
             app().main_window.update_plots()
+            self.pushButton_remove.setDisabled(True)
 
     def reset_callback(self):
         self.hide()

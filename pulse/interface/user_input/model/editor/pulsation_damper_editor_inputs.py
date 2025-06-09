@@ -69,6 +69,8 @@ class PulsationDamperEditorInputs(QDialog):
             )
             if devices:
                 self.treeWidget_pulsation_damper_info.setCurrentItem(devices[0])
+                self.on_click_item(devices[0])
+
 
         while self.keep_window_open:
             self.exec()
@@ -881,6 +883,7 @@ class PulsationDamperEditorInputs(QDialog):
             self.remove_pulsation_damper_related_line_properties(damper_label)
             self.remove_pulsation_damper_related_element_properties(damper_label)
             self.actions_to_finalize()
+            self.pushButton_remove.setDisabled(True)
 
     def reset_callback(self):
         self.hide()

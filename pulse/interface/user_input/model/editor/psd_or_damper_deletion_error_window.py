@@ -2,9 +2,10 @@ from PySide6.QtWidgets import QDialog, QLabel, QPushButton
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.icons import *
+# from pulse.interface.formatters.icons import *
 
 from molde import load_ui
+
 
 class PsdOrDamperDeletionErrorWindow(QDialog):
     def __init__(self, selected_device_type, selected_device_name, **kwargs):
@@ -27,7 +28,7 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
 
     def _define_qt_variables(self):
         # QPushButton
-        self.pushButton_cancel : QPushButton
+        self.pushButton_cancel: QPushButton
         self.pushButton_open_editor: QPushButton
 
         # QLabel
@@ -42,15 +43,14 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
     def _set_texts(self):
         if self.selected_device_type == "psd":
             message = "To delete a PSD or its parts, please use the dedicated editor."
-        
+
         elif self.selected_device_type == "damper":
             message = "To delete a pulsation damper or its parts, please use the dedicated editor."
 
         self.label_message.setText(message)
         self.label_message.setAlignment(Qt.AlignCenter)
-        
-    def _adjust_size(self, kwargs: dict):
 
+    def _adjust_size(self, kwargs: dict):
         height = kwargs.get("height", None)
         if isinstance(height, int):
             self.setFixedHeight(height)
@@ -71,7 +71,11 @@ class PsdOrDamperDeletionErrorWindow(QDialog):
 
     def open_editor_callback(self):
         if self.selected_device_type == "psd":
-            app().main_window.input_ui.pulsation_suppression_device_editor(device_to_delete=self.selected_device_name)
-        
+            app().main_window.input_ui.pulsation_suppression_device_editor(
+                device_to_delete=self.selected_device_name
+            )
+
         elif self.selected_device_type == "damper":
-            app().main_window.input_ui.pulsation_damper_editor(device_to_delete=self.selected_device_name)
+            app().main_window.input_ui.pulsation_damper_editor(
+                device_to_delete=self.selected_device_name
+            )
