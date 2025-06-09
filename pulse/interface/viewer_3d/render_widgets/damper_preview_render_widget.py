@@ -1,10 +1,9 @@
-from vtkmodules.vtkFiltersSources import vtkLineSource, vtkSphereSource
-from vtkmodules.vtkFiltersCore import vtkAppendPolyData, vtkTubeFilter
-from vtkmodules.vtkRenderingCore import vtkPolyDataMapper, vtkActor
-
 from molde.render_widgets import CommonRenderWidget
+from vtkmodules.vtkFiltersCore import vtkAppendPolyData, vtkTubeFilter
+from vtkmodules.vtkFiltersSources import vtkLineSource, vtkSphereSource
+from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
-from pulse import ICON_DIR, app
+from pulse import app
 from pulse.editor.pulsation_damper import PulsationDamper
 
 
@@ -75,12 +74,20 @@ class DamperPreviewRenderWidget(CommonRenderWidget):
                 
 
         sphere = vtkSphereSource()
+        sphere.SetPhiResolution(12)
+        sphere.SetThetaResolution(12)
         sphere.SetCenter(*connection_point)
         sphere.SetRadius(device_data["outside_diameter_neck"] / 4)
         sphere.Update()
 
         sphere_mapper = vtkPolyDataMapper()
         sphere_mapper.SetInputData(sphere.GetOutput())
+
+        sphere_mapper.SetResolveCoincidentTopologyToPolygonOffset()
+        sphere_mapper.SetRelativeCoincidentTopologyLineOffsetParameters(1, -66000)
+        sphere_mapper.SetRelativeCoincidentTopologyPolygonOffsetParameters(1, -66000)
+        sphere_mapper.SetRelativeCoincidentTopologyPointOffsetParameter(-66000)
+        sphere_mapper.Update()
 
         sphere_actor = vtkActor()
         sphere_actor.SetMapper(sphere_mapper)

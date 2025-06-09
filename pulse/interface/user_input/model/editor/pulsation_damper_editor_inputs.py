@@ -237,7 +237,7 @@ class PulsationDamperEditorInputs(QDialog):
                 float(_outside_diameter)
                 self.lineEdit_outside_diameter_gas.setText(_outside_diameter)
 
-            except:
+            except Exception:
                 self.lineEdit_outside_diameter_gas.setText("")
 
             try:
@@ -246,7 +246,7 @@ class PulsationDamperEditorInputs(QDialog):
                 float(_wall_thickness)
                 self.lineEdit_wall_thickness_gas.setText(_wall_thickness)
 
-            except:
+            except Exception:
                 self.lineEdit_wall_thickness_gas.setText("")
 
     def load_fluid_properties(self, fluid: Fluid):
@@ -644,7 +644,7 @@ class PulsationDamperEditorInputs(QDialog):
                 return True
             elif _value > 0:
                 return True
-        except:
+        except Exception:
             return False
 
         return False

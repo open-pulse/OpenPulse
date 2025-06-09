@@ -4,7 +4,7 @@ from vtkmodules.vtkRenderingCore import vtkPolyDataMapper, vtkActor
 
 from molde.render_widgets import CommonRenderWidget
 
-from pulse import ICON_DIR, app
+from pulse import app
 
 from pulse.editor.single_volume_psd import SingleVolumePSD
 from pulse.editor.dual_volume_psd import DualVolumePSD
@@ -66,12 +66,20 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
             
             if segment_label == connection_point:
                 sphere = vtkSphereSource()
+                sphere.SetPhiResolution(12)
+                sphere.SetThetaResolution(12)
                 sphere.SetCenter(*start_coords)
                 sphere.SetRadius(section_data[0] / 4)
                 sphere.Update()
 
                 sphere_mapper = vtkPolyDataMapper()
                 sphere_mapper.SetInputData(sphere.GetOutput())
+
+                sphere_mapper.SetResolveCoincidentTopologyToPolygonOffset()
+                sphere_mapper.SetRelativeCoincidentTopologyLineOffsetParameters(1, -66000)
+                sphere_mapper.SetRelativeCoincidentTopologyPolygonOffsetParameters(1, -66000)
+                sphere_mapper.SetRelativeCoincidentTopologyPointOffsetParameter(-66000)
+                sphere_mapper.Update()
 
                 sphere_actor = vtkActor()
                 sphere_actor.SetMapper(sphere_mapper)

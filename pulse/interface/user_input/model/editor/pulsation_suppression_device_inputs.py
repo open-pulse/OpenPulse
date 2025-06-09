@@ -8,7 +8,6 @@ from PySide6.QtWidgets import (
     QTabWidget,
     QTreeWidget,
     QTreeWidgetItem,
-    QFrame,
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
@@ -28,7 +27,6 @@ from pulse.interface.viewer_3d.render_widgets.psd_preview_render_widget import (
 from molde import load_ui
 
 import numpy as np
-from time import time
 
 
 window_title_1 = "Error"
@@ -325,7 +323,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
             choke_diam = float(self.lineEdit_pipe3_diameter.text())
             wall_thickness = (vol_diam - choke_diam) / 2
             self.lineEdit_pipe3_wall_thickness.setText(f"{round(wall_thickness, 6)}")
-        except:
+        except Exception:
             self.lineEdit_pipe3_wall_thickness.setText("")
 
     def tuned_filter_callback(self):
@@ -1142,7 +1140,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
                 return True
             elif _value > 0:
                 return True
-        except:
+        except Exception:
             return False
 
         return False
