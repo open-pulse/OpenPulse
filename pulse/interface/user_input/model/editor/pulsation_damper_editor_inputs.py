@@ -71,7 +71,6 @@ class PulsationDamperEditorInputs(QDialog):
                 self.treeWidget_pulsation_damper_info.setCurrentItem(devices[0])
                 self.on_click_item(devices[0])
 
-
         while self.keep_window_open:
             self.exec()
 
@@ -666,11 +665,7 @@ class PulsationDamperEditorInputs(QDialog):
 
     def preview_callback(self):
         if self.check_pulsation_damper_geometric_inputs():
-            for line_edit in [
-                le
-                for le in self.findChildren(QLineEdit)
-                if le != self.lineEdit_damper_label
-            ]:
+            for line_edit in self.findChildren(QLineEdit):
                 line_edit: QLineEdit
 
                 if not line_edit.isEnabled():
@@ -680,9 +675,13 @@ class PulsationDamperEditorInputs(QDialog):
                 if line_edit in self.possible_zeros:
                     include_zero = True
 
-                is_valid = self.is_valid_number(
-                    line_edit.text(), include_zero=include_zero
-                )
+                if line_edit == self.lineEdit_damper_label:
+                    is_valid = len(line_edit.text()) > 0
+
+                else:
+                    is_valid = self.is_valid_number(
+                        line_edit.text(), include_zero=include_zero
+                    )
 
                 style_sheet = (
                     self.default_style_sheet if is_valid else "border: 2px solid red"
