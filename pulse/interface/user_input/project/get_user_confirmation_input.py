@@ -9,7 +9,7 @@ from molde import load_ui
 
 class GetUserConfirmationInput(QDialog):
     def __init__(self, title, message, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args)
 
         ui_path = UI_DIR / "messages/get_user_confirmation.ui"
         load_ui(ui_path, self, UI_DIR)
