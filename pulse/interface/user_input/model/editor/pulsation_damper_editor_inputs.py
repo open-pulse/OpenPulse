@@ -1,3 +1,7 @@
+import numpy as np
+from molde import load_ui
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -8,29 +12,22 @@ from PySide6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
 )
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import UI_DIR, app
+from pulse.editor.pulsation_damper import PulsationDamper
+from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
+    SetFluidInputSimplified,
+)
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
-    SetFluidInputSimplified,
-)
-
-from pulse.editor.pulsation_damper import PulsationDamper
-from pulse.model.properties.fluid import Fluid
-from pulse.model.properties.material import Material
 from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget import (
     DamperPreviewRenderWidget,
 )
-
-
-from molde import load_ui
-
-import numpy as np
+from pulse.model.properties.fluid import Fluid
+from pulse.model.properties.material import Material
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -736,6 +733,12 @@ class PulsationDamperEditorInputs(QDialog):
         device = PulsationDamper(self._pulsation_damper_data)
 
         self.close()
+
+        geometry_handler = GeometryHandler(app().project)
+        geometry_handler.set_pipeline(geometry_handler.pipeline)
+        geometry_handler.set_length_unit(geometry_handler.length_unit)
+        geometry_handler.export_model_data_file()
+
         self.build_device(damper_label, device)
         self.actions_to_finalize()
 
