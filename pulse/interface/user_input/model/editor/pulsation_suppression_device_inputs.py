@@ -1,3 +1,7 @@
+import numpy as np
+from molde import load_ui
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
     QComboBox,
     QDialog,
@@ -9,13 +13,11 @@ from PySide6.QtWidgets import (
     QTreeWidget,
     QTreeWidgetItem,
 )
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QCloseEvent
 
-from pulse import app, UI_DIR
-from pulse.editor.single_volume_psd import SingleVolumePSD
+from pulse import UI_DIR, app
 from pulse.editor.dual_volume_psd import DualVolumePSD
-
+from pulse.editor.single_volume_psd import SingleVolumePSD
+from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -23,11 +25,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.viewer_3d.render_widgets.psd_preview_render_widget import (
     PSDPreviewRenderWidget,
 )
-
-from molde import load_ui
-
-import numpy as np
-
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -894,6 +891,12 @@ class PulsationSuppressionDeviceInputs(QDialog):
             device = SingleVolumePSD(self._psd_data)
 
         self.close()
+
+        geometry_handler = GeometryHandler(app().project)
+        geometry_handler.set_pipeline(geometry_handler.pipeline)
+        geometry_handler.set_length_unit(geometry_handler.length_unit)
+        geometry_handler.export_model_data_file()
+
         self.build_device(psd_label, device)
         self.actions_to_finalize()
 
@@ -1188,10 +1191,10 @@ class PulsationSuppressionDeviceInputs(QDialog):
                 # up the QSpinBox appearance when the value is zero (?).
                 if line_edit.objectName() == "qt_spinbox_lineedit":
                     continue
-                
+
                 if line_edit == self.lineEdit_device_label:
                     is_valid = len(line_edit.text()) > 0
-                
+
                 else:
                     is_valid = self.is_valid_number(
                         line_edit.text(),
