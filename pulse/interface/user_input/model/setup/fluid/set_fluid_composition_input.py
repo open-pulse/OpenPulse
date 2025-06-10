@@ -122,6 +122,7 @@ class SetFluidCompositionInput(QDialog):
         # QPushButton
         self.pushButton_add_gas : QPushButton
         self.pushButton_confirm : QPushButton
+        self.pushButton_exit : QPushButton
         self.pushButton_get_fluid_properties_info : QPushButton
         self.pushButton_load_composition : QPushButton
         self.pushButton_remove_gas : QPushButton
@@ -137,6 +138,7 @@ class SetFluidCompositionInput(QDialog):
         #
         self.pushButton_add_gas.clicked.connect(self.add_selected_fluid_button_callback)
         self.pushButton_confirm.clicked.connect(self.get_fluid_properties)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_load_composition.clicked.connect(self.load_fluid_composition_callback)
         self.pushButton_remove_gas.clicked.connect(self.remove_selected_gas)
         self.pushButton_reset_fluid.clicked.connect(self.reset_fluid)
