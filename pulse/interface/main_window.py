@@ -243,7 +243,7 @@ class MainWindow(QMainWindow):
         app().splash.update_progress(30)
         self._load_section_plane()
         dt = time() - t0
-        print(f"Time to process A: {round(dt, 6)} [s]")
+        # print(f"Time to process A: {round(dt, 6)} [s]")
 
         t1 = time()
         self._create_layout()
@@ -252,7 +252,7 @@ class MainWindow(QMainWindow):
         self._add_toolbars()
         app().splash.update_progress(70)
         dt = time() - t1
-        print(f"Time to process B: {round(dt, 6)} [s]")
+        # print(f"Time to process B: {round(dt, 6)} [s]")
 
         t2 = time()
         self.plot_lines_with_cross_sections()
@@ -261,7 +261,7 @@ class MainWindow(QMainWindow):
         self.create_temporary_folder()
         app().splash.update_progress(98)
         dt = time() - t2
-        print(f"Time to process C: {round(dt, 6)} [s]")
+        # print(f"Time to process C: {round(dt, 6)} [s]")
 
         app().splash.close()
         self.showMaximized()
@@ -269,7 +269,7 @@ class MainWindow(QMainWindow):
         app().processEvents()
         self.create_file_dialog()
         dt = time() - t0
-        print(f"Time to process D: {round(dt, 6)} [s]")
+        # print(f"Time to process D: {round(dt, 6)} [s]")
 
         if not self.is_temporary_folder_empty():
             self.recovery_dialog()
