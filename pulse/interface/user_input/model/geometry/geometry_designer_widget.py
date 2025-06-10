@@ -4,6 +4,8 @@ from PySide6.QtGui import QAction
 from vtkmodules.vtkRenderingCore import vtkCoordinate, vtkCamera
 from vtkmodules.vtkCommonDataModel import vtkRecti
 
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+
 import re
 from itertools import chain
 from numbers import Number
@@ -661,7 +663,32 @@ class GeometryDesignerWidget(QWidget):
             self.pipeline.delete_selection()
             self.modified = True
         else: 
-            PsdOrDamperDeletionErrorWindow(selected_device_type, selected_device_name)
+            print("deu error")
+            title = "Error"
+            if selected_device_type == "psd":
+                message = "To delete a PSD or its parts, please use the dedicated editor."
+            elif selected_device_type == "damper":
+                message = "To delete a pulsation damper or its parts, please use the dedicated editor."
+            print(message)
+            buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Open editor"}
+            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+            if read == read._cancel:
+                print("cancel")
+                return
+            
+            if read == read._continue:
+                print("continue")
+                if selected_device_type == "psd":
+                    app().main_window.input_ui.pulsation_suppression_device_editor(
+                        device_to_delete=selected_device_name
+                    )
+
+                elif selected_device_type == "damper":
+                    app().main_window.input_ui.pulsation_damper_editor(
+                        device_to_delete=selected_device_name
+                    )
+
 
         self._reset_xyz()
         self._update_permissions()

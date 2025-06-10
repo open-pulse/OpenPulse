@@ -2,12 +2,11 @@ from PySide6.QtWidgets import QDialog, QLabel, QPushButton
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
-# from pulse.interface.formatters.icons import *
-
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from molde import load_ui
 
 
-class PsdOrDamperDeletionErrorWindow(QDialog):
+class PsdOrDamperDeletionErrorWindow(GetUserConfirmationInput):
     def __init__(self, selected_device_type, selected_device_name, **kwargs):
         super().__init__()
 
