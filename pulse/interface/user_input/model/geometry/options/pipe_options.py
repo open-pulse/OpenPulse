@@ -104,7 +104,7 @@ class PipeOptions(StructureOptions):
     def _get_bending_radius(self, diameter):
         geometry_input_widget = app().main_window.geometry_input_wigdet
         bending_option = geometry_input_widget.bending_options_combobox.currentText().lower()
-        custom_bending_radius = geometry_input_widget.bending_radius_line_edit.text().lower()
+        custom_bending_radius = geometry_input_widget.bending_radius_line_edit.text().lower().replace(",", ".")
 
         if (bending_option == "long radius"):
             return 1.5 * diameter
