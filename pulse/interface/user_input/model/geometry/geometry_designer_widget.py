@@ -20,8 +20,6 @@ from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section_simplified import SetCrossSectionSimplified
 from pulse.interface.user_input.model.setup.material.set_material_input_simplified import SetMaterialSimplified
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.model.editor.psd_or_damper_deletion_error_window import PsdOrDamperDeletionErrorWindow
 from pulse.interface.viewer_3d.render_widgets._model_info_text import material_info_text
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget
 from pulse.editor.structures import (
@@ -359,7 +357,7 @@ class GeometryDesignerWidget(QWidget):
         try:
             section_parameters = self.cross_section_dialog.cross_section_widget.pipe_section_info["section_parameters"]
             diameter = section_parameters[0]
-        except:
+        except Exception:
             return None
 
         return diameter
@@ -663,22 +661,15 @@ class GeometryDesignerWidget(QWidget):
             self.pipeline.delete_selection()
             self.modified = True
         else: 
-            print("deu error")
             title = "Error"
             if selected_device_type == "psd":
                 message = "To delete a PSD or its parts, please use the dedicated editor."
             elif selected_device_type == "damper":
                 message = "To delete a pulsation damper or its parts, please use the dedicated editor."
-            print(message)
             buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Open editor"}
             read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
-
-            if read == read._cancel:
-                print("cancel")
-                return
             
-            if read == read._continue:
-                print("continue")
+            if read._continue:
                 if selected_device_type == "psd":
                     app().main_window.input_ui.pulsation_suppression_device_editor(
                         device_to_delete=selected_device_name
