@@ -143,7 +143,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>496</width>
+                  <width>434</width>
                   <height>658</height>
                  </rect>
                 </property>
@@ -2531,7 +2531,7 @@
             </font>
            </property>
            <property name="text">
-            <string>0</string>
+            <string>0.000</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -2558,7 +2558,7 @@
             </font>
            </property>
            <property name="text">
-            <string>0</string>
+            <string>0.000</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -2666,7 +2666,7 @@
             </font>
            </property>
            <property name="text">
-            <string>0</string>
+            <string>0.000</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignmentFlag::AlignCenter</set>
