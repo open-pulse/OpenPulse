@@ -116,9 +116,20 @@ class FrequencyResponsePlotter(QDialog):
         self._initial_config()
 
     def import_file(self):
-        if self.importer is None:
+
+        if isinstance(self.importer, QDialog):
+            if self.importer.isVisible():
+                if self.importer.isMinimized():
+                    self.importer.showNormal()
+                self.importer.raise_()
+            else:
+                self.importer.exec()
+            return
+
+        elif self.importer is None:
             self.importer = ImportDataToCompare(self)
-        self.importer.exec()
+            self.importer.exec()
+            app().main_window.set_input_widget(self)
 
     def _initial_config(self):
         self.aux_bool = False
