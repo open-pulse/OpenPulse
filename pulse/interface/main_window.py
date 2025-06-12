@@ -1,5 +1,5 @@
 
-from PySide6.QtWidgets import QAbstractButton, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
+from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
 from PySide6.QtCore import Qt, Signal, QEvent, QPoint
 from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
 
@@ -9,7 +9,14 @@ from molde.colors import color_names
 from molde import load_ui
 
 # TODO: remove this import
-from pulse import *
+from pulse import (
+    app,
+    UI_DIR,
+    QSS_DIR,
+    USER_PATH,
+    TEMP_PROJECT_DIR,
+    TEMP_PROJECT_FILE,
+)
 
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
@@ -1135,14 +1142,41 @@ class MainWindow(QMainWindow):
             self.dialog.setStyleSheet(self.combined_stylesheet)
 
     def close_dialogs(self):
-        if isinstance(self.dialog, (QDialog, QWidget)):
-            self.dialog.close()
-            self.set_input_widget(None)
+        for window in app().topLevelWidgets():
+            if isinstance(window, MainWindow):
+                continue
+
+            if isinstance(window, LoadingWindow):
+                continue
+
+            window.close()
+
+    def minimize_dialogs(self):
+        for window in app().topLevelWidgets():
+            if isinstance(window, MainWindow):
+                continue
+
+            if isinstance(window, LoadingWindow):
+                continue
+
+            if window.isVisible():
+                window.showMinimized()
+    
+    def restore_open_dialogs(self):
+        for window in app().topLevelWidgets():
+            if isinstance(window, MainWindow):
+                continue
+
+            if isinstance(window, LoadingWindow):
+                continue
+
+            if window.isVisible():
+                window.showNormal()
 
     def close_app(self):
 
         self.force_close = True
-        self.close_dialogs()
+        self.minimize_dialogs()
 
         none_save_path = self.project.save_path is None
         temp_file_exists = os.path.exists(TEMP_PROJECT_FILE)
@@ -1157,13 +1191,14 @@ class MainWindow(QMainWindow):
 
         else:
             close = QMessageBox.question(
-                                            self, 
-                                            "Quit", 
-                                            "Would you like to close the application?", 
-                                            QMessageBox.Yes | QMessageBox.No
-                                        )
+                self,
+                "Quit",
+                "Would you like to close the application?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            )
 
-            if close == QMessageBox.No:
+            if close == QMessageBox.StandardButton.No:
+                self.restore_open_dialogs()
                 self.force_close = False
                 return
 
