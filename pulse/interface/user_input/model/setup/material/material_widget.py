@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
 from PySide6.QtGui import QColor
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 
 from pulse import app, UI_DIR, TEMP_PROJECT_FILE
 
@@ -33,6 +33,7 @@ class MaterialWidget(QWidget):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/material/material_input_widget.ui"
+
         load_ui(ui_path, self, UI_DIR)
 
         self.project = app().project
@@ -44,6 +45,7 @@ class MaterialWidget(QWidget):
         self.define_qt_variables()
         self.create_connections()
         self._config_widgets()
+        self.load_data_from_materials_library()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
@@ -94,9 +96,14 @@ class MaterialWidget(QWidget):
         self.tableWidget_material_data.cellClicked.connect(self.cell_clicked_callback)
 
     def _config_widgets(self):
-        self.tableWidget_material_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
         self.tableWidget_material_data.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
-
+    
+    def _update_size_policy(self):
+        if len(self.library_materials) > 6 or self.tableWidget_material_data.columnCount()> 6:
+            self.tableWidget_material_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        else:
+            self.tableWidget_material_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        
     def config_table_of_material_data(self):
         return
         header = [
@@ -174,6 +181,7 @@ class MaterialWidget(QWidget):
                 item = QTableWidgetItem()
                 item.setBackground(QColor(*material.color))
                 item.setForeground(QColor(*material.color))
+                item.setSizeHint(QSize(80, 30))
                 self.tableWidget_material_data.setItem(6, j, item)
 
         for i in range(self.tableWidget_material_data.rowCount()):
@@ -181,6 +189,8 @@ class MaterialWidget(QWidget):
                 self.tableWidget_material_data.item(i, j).setTextAlignment(Qt.AlignCenter)
 
         self.tableWidget_material_data.blockSignals(False)
+
+        self._update_size_policy()
 
     def get_selected_column(self) -> int:
         selected_items = self.tableWidget_material_data.selectedIndexes()
@@ -217,6 +227,7 @@ class MaterialWidget(QWidget):
 
         for i in range(self.tableWidget_material_data.rowCount()):
             item = QTableWidgetItem()
+            item.setSizeHint(QSize(100, 30))
             self.tableWidget_material_data.setItem(i, last_col, item)
             self.tableWidget_material_data.item(i, last_col).setTextAlignment(Qt.AlignCenter)
 
@@ -235,6 +246,9 @@ class MaterialWidget(QWidget):
             # material, just remove the last line
             current_size = self.tableWidget_material_data.columnCount()
             self.tableWidget_material_data.setColumnCount(current_size - 1)
+
+            self._update_size_policy()
+            self.tableWidget_material_data.horizontalScrollBar().setSliderPosition(0)
             return
 
         item = self.tableWidget_material_data.item(1, selected_column)
@@ -243,6 +257,8 @@ class MaterialWidget(QWidget):
 
         self.remove_material_from_file(material)
         self.pushButton_cancel.setText("Exit")
+
+        self._update_size_policy()
 
     def item_changed_callback(self, item : QTableWidgetItem):
 
@@ -272,6 +288,7 @@ class MaterialWidget(QWidget):
         self.load_data_from_materials_library()
 
         self.tableWidget_material_data.blockSignals(False)
+        self.tableWidget_material_data.horizontalScrollBar().setSliderPosition(0)
 
     def go_to_next_cell(self, item : QTableWidgetItem):
 
@@ -437,7 +454,7 @@ class MaterialWidget(QWidget):
         for line_id, data in self.properties.line_properties.items():
             if "material_id" in data.keys():
                 material_id = data["material_id"]
-                if material_id in material_identifiers:
+                if material_id == material_identifiers:
                     if line_id not in lines_to_remove_material:
                         lines_to_remove_material.append(line_id)
 

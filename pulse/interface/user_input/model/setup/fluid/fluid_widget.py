@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
 from PySide6.QtGui import QColor
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QSize
 
 from pulse import app, UI_DIR, TEMP_PROJECT_FILE
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
@@ -48,8 +48,8 @@ class FluidWidget(QWidget):
         self._define_qt_variables()
         self._create_connections()
         self._load_state_properties(**kwargs)
-        self._config_widgets()
 
+        self._config_widgets()
         self.load_data_from_fluids_library()
 
     def _initialize(self):
@@ -105,8 +105,13 @@ class FluidWidget(QWidget):
         self.tableWidget_fluid_data.cellDoubleClicked.connect(self.cell_double_clicked_callback)
 
     def _config_widgets(self):
-        self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
         self.tableWidget_fluid_data.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
+    
+    def _update_size_policy(self):
+        if len(self.list_of_fluids) > 6 or self.tableWidget_fluid_data.columnCount() > 6:
+            self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        else:
+            self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
     def _load_state_properties(self, **kwargs):
         self.state_properties = kwargs.get("state_properties", dict())
@@ -262,6 +267,8 @@ class FluidWidget(QWidget):
 
         self.tableWidget_fluid_data.blockSignals(False)
 
+        self._update_size_policy()
+
     def get_selected_column(self) -> int:
         selected_items = self.tableWidget_fluid_data.selectedIndexes()
         if not selected_items:
@@ -282,7 +289,7 @@ class FluidWidget(QWidget):
         return self.list_of_fluids[identifier]
 
     def add_column(self):
-    
+
         self.tableWidget_fluid_data.blockSignals(True)
 
         table_size = self.tableWidget_fluid_data.columnCount()
@@ -297,6 +304,7 @@ class FluidWidget(QWidget):
 
         for i in range(self.tableWidget_fluid_data.rowCount()):
             item = QTableWidgetItem()
+            item.setSizeHint(QSize(100, 30))
             self.tableWidget_fluid_data.setItem(i, last_col, item)
             self.tableWidget_fluid_data.item(i, last_col).setTextAlignment(Qt.AlignCenter)
 
@@ -383,6 +391,9 @@ class FluidWidget(QWidget):
             # fluid, just remove the last line
             current_size = self.tableWidget_fluid_data.columnCount()
             self.tableWidget_fluid_data.setColumnCount(current_size - 1)
+            
+            self._update_size_policy()
+            self.tableWidget_fluid_data.horizontalScrollBar().setSliderPosition(0)
             return
 
         item = self.tableWidget_fluid_data.item(1, selected_column)
@@ -391,6 +402,8 @@ class FluidWidget(QWidget):
 
         self.remove_fluid_from_file(fluid)
         self.pushButton_cancel.setText("Exit")
+
+        self._update_size_policy()
 
     def item_changed_callback(self, item):
 
@@ -420,6 +433,7 @@ class FluidWidget(QWidget):
         self.load_data_from_fluids_library()
 
         self.tableWidget_fluid_data.blockSignals(False)
+        self.tableWidget_fluid_data.horizontalScrollBar().setSliderPosition(0)
     
     def go_to_next_cell(self, item):
 
