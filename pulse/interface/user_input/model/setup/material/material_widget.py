@@ -45,7 +45,6 @@ class MaterialWidget(QWidget):
         self.define_qt_variables()
         self.create_connections()
         self._config_widgets()
-        self.load_data_from_materials_library()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
