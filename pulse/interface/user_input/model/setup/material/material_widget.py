@@ -99,7 +99,7 @@ class MaterialWidget(QWidget):
         self.tableWidget_material_data.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
     
     def _update_size_policy(self):
-        if len(self.library_materials) > 6 or self.tableWidget_material_data.columnCount()> 6:
+        if len(self.library_materials) > 6:
             self.tableWidget_material_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         else:
             self.tableWidget_material_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
