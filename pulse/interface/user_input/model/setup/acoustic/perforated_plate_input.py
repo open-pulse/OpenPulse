@@ -1,9 +1,8 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
@@ -11,6 +10,8 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
+
+from molde import load_ui
 
 import os
 import numpy as np
@@ -25,13 +26,13 @@ class PerforatedPlateInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/acoustic/perforated_plate_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.valve_element_ids = kwargs.get("valve_element_ids", list())
 
         app().main_window.set_input_widget(self)
 
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
 
         self.before_run = app().project.get_pre_solution_model_checks()
@@ -714,7 +715,7 @@ class PerforatedPlateInput(QDialog):
 
             self.remove_table_files_from_elements([element_id])
             self.properties._remove_element_property("perforated_plate", element_id)
-            app().pulse_file.write_element_properties_in_file()
+            app().project.file.write_element_properties_in_file()
 
             self.preprocessor.set_perforated_plate_by_elements(element_id, None)
             self.actions_to_finalize()
@@ -753,7 +754,7 @@ class PerforatedPlateInput(QDialog):
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_element_properties_in_file()
+        app().project.file.write_element_properties_in_file()
         app().main_window.update_plots()
         self.load_elements_info()
         self.lineEdit_element_id.setText("")
@@ -764,7 +765,7 @@ class PerforatedPlateInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("acoustic", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def on_click_item(self, item):
         if item.text(0) != "":
@@ -962,7 +963,7 @@ class GetInformationOfGroup(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/info/get_perforated_plate_info.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self._config_window()
         self._define_qt_variables()

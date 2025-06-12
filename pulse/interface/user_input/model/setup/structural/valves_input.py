@@ -1,9 +1,8 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCloseEvent
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
 
 from pulse import app, UI_DIR
 # from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -11,6 +10,8 @@ from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input impo
 from pulse.model.cross_section import CrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+
+from molde import load_ui
 
 import numpy as np
 from collections import defaultdict
@@ -23,7 +24,7 @@ class ValvesInput(QDialog):
         super().__init__(*args)
 
         ui_path = UI_DIR / "model/setup/structural/valve_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.render_type = kwargs.get("render_type", "model")
 
@@ -424,7 +425,7 @@ class ValvesInput(QDialog):
             if self.valve_info:
                 for line_id in line_ids:
                     
-                    self.properties._set_line_property("section_type_label", "Valve", line_id)
+                    self.properties._set_line_property("section_type_label", "valve", line_id)
                     self.properties._set_line_property("structural_element_type", "valve", line_ids=line_id)
                     self.properties._set_line_property("valve_info", self.valve_info, line_ids=line_id)
 
@@ -445,15 +446,15 @@ class ValvesInput(QDialog):
 
     def actions_to_finalize(self):
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
-        # geometry_handler = GeometryHandler()
+        # geometry_handler = GeometryHandler(app().project)
         # geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         # geometry_handler.process_pipeline()
 
-        app().loader.load_project_data()
+        app().project.loader.load_project_data()
         app().project.initial_load_project_actions()
-        app().loader.load_mesh_dependent_properties()
+        app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         app().main_window.update_plots()
         self.complete = True
@@ -581,7 +582,7 @@ class ValvesInput(QDialog):
 
             if element_type == 'pipe_1' and isinstance(cross, CrossSection):
 
-                pipe_info = {   "section_type_label" : "Pipe",
+                pipe_info = {   "section_type_label" : "pipe",
                                 "section_parameters" : cross.section_parameters   }
 
                 self.properties._set_line_property("structural_element_type", element_type, line_id)
@@ -603,7 +604,7 @@ class ValvesInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("structural", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
         if self.lineEdit_selected_id.text() != "":
@@ -645,7 +646,6 @@ class ValvesInput(QDialog):
             if line_ids:
                 self.load_valves_info()
                 self.actions_to_finalize()
-                # self.close()
 
     def remove_valve_acoustic_effects_function(self, valve_names: list):
 

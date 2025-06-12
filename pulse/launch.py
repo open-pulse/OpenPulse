@@ -1,8 +1,10 @@
-import sys, os, platform
-from vtkmodules.vtkCommonCore import vtkObject, vtkLogger
-# import qdarktheme
 import logging
+import os
+import platform
+import sys
 from traceback import format_tb
+
+from vtkmodules.vtkCommonCore import vtkLogger, vtkObject
 
 from pulse import USER_PATH
 from pulse.interface.application import Application
@@ -83,11 +85,9 @@ def main():
     # Make the window scale evenly for every monitor
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
-    if platform.system() == "Windows":
-        sys.argv.append("--platform")
-        sys.argv.append("windows:dpiawareness=0")
+    if platform.system() == "Linux":
+        os.environ["QT_QPA_PLATFORM"] = "xcb"
 
-    # qdarktheme.enable_hi_dpi()
     app = Application(sys.argv)
     sys.exit(app.exec_())
 

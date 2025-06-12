@@ -1,7 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
+from PySide6.QtGui import QColor
+from PySide6.QtCore import Qt, QSize
 
 from pulse import app, UI_DIR, TEMP_PROJECT_FILE
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
@@ -12,6 +11,8 @@ from pulse.utils.common_utils import get_list_of_values_from_string
 
 from pulse.model.properties.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library
+
+from molde import load_ui
 
 from itertools import count
 from numbers import Number
@@ -35,9 +36,9 @@ class FluidWidget(QWidget):
         super().__init__()
         
         ui_path = UI_DIR  / "model/setup/fluid/fluid_input_widget.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
-        self.parent_widget = kwargs.get("parent_widget", None)
+        self.dialog = kwargs.get("dialog", None)
 
         self.main_window = app().main_window
         self.project = app().project
@@ -47,8 +48,8 @@ class FluidWidget(QWidget):
         self._define_qt_variables()
         self._create_connections()
         self._load_state_properties(**kwargs)
-        self._config_widgets()
 
+        self._config_widgets()
         self.load_data_from_fluids_library()
 
     def _initialize(self):
@@ -104,8 +105,13 @@ class FluidWidget(QWidget):
         self.tableWidget_fluid_data.cellDoubleClicked.connect(self.cell_double_clicked_callback)
 
     def _config_widgets(self):
-        self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
         self.tableWidget_fluid_data.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
+    
+    def _update_size_policy(self):
+        if len(self.list_of_fluids) > 6:
+            self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        else:
+            self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
     def _load_state_properties(self, **kwargs):
         self.state_properties = kwargs.get("state_properties", dict())
@@ -116,7 +122,7 @@ class FluidWidget(QWidget):
             self.reset_library_to_default()
             return
 
-        config = app().pulse_file.read_fluid_library_from_file()
+        config = app().project.file.read_fluid_library_from_file()
         if config is None:
             self.reset_library_to_default()
             return
@@ -240,14 +246,14 @@ class FluidWidget(QWidget):
                 self.tableWidget_fluid_data.setItem( 0, j, QTableWidgetItem(str(fluid.name)))
                 self.tableWidget_fluid_data.setItem( 1, j, QTableWidgetItem(str(fluid.identifier)))
                 self.tableWidget_fluid_data.setItem( 2, j, QTableWidgetItem(str(fluid.temperature)))
-                self.tableWidget_fluid_data.setItem( 3, j, QTableWidgetItem(f"{fluid.pressure : .8e}"))
+                self.tableWidget_fluid_data.setItem( 3, j, QTableWidgetItem(f"{fluid.pressure : .6e}"))
                 self.tableWidget_fluid_data.setItem( 4, j, QTableWidgetItem(str(fluid.density)))
                 self.tableWidget_fluid_data.setItem( 5, j, QTableWidgetItem(str(fluid.speed_of_sound)))
                 self.tableWidget_fluid_data.setItem( 6, j, QTableWidgetItem(str(fluid.isentropic_exponent)))
-                self.tableWidget_fluid_data.setItem( 7, j, QTableWidgetItem(f"{fluid.thermal_conductivity : .8e}"))
+                self.tableWidget_fluid_data.setItem( 7, j, QTableWidgetItem(f"{fluid.thermal_conductivity : .6e}"))
                 self.tableWidget_fluid_data.setItem( 8, j, QTableWidgetItem(str(fluid.specific_heat_Cp)))
-                self.tableWidget_fluid_data.setItem( 9, j, QTableWidgetItem(f"{fluid.dynamic_viscosity : .8e}"))
-                self.tableWidget_fluid_data.setItem(10, j, QTableWidgetItem(f"{fluid.bulk_modulus : .8e}"))
+                self.tableWidget_fluid_data.setItem( 9, j, QTableWidgetItem(f"{fluid.dynamic_viscosity : .6e}"))
+                self.tableWidget_fluid_data.setItem(10, j, QTableWidgetItem(f"{fluid.bulk_modulus : .6e}"))
                 self.tableWidget_fluid_data.setItem(11, j, QTableWidgetItem(str(fluid.molar_mass)))
 
                 item = QTableWidgetItem()
@@ -260,6 +266,8 @@ class FluidWidget(QWidget):
                 self.tableWidget_fluid_data.item(i, j).setTextAlignment(Qt.AlignCenter)
 
         self.tableWidget_fluid_data.blockSignals(False)
+
+        self._update_size_policy()
 
     def get_selected_column(self) -> int:
         selected_items = self.tableWidget_fluid_data.selectedIndexes()
@@ -281,7 +289,7 @@ class FluidWidget(QWidget):
         return self.list_of_fluids[identifier]
 
     def add_column(self):
-    
+
         self.tableWidget_fluid_data.blockSignals(True)
 
         table_size = self.tableWidget_fluid_data.columnCount()
@@ -296,6 +304,7 @@ class FluidWidget(QWidget):
 
         for i in range(self.tableWidget_fluid_data.rowCount()):
             item = QTableWidgetItem()
+            item.setSizeHint(QSize(100, 30))
             self.tableWidget_fluid_data.setItem(i, last_col, item)
             self.tableWidget_fluid_data.item(i, last_col).setTextAlignment(Qt.AlignCenter)
 
@@ -382,6 +391,9 @@ class FluidWidget(QWidget):
             # fluid, just remove the last line
             current_size = self.tableWidget_fluid_data.columnCount()
             self.tableWidget_fluid_data.setColumnCount(current_size - 1)
+            
+            self._update_size_policy()
+            self.tableWidget_fluid_data.horizontalScrollBar().setSliderPosition(0)
             return
 
         item = self.tableWidget_fluid_data.item(1, selected_column)
@@ -390,6 +402,8 @@ class FluidWidget(QWidget):
 
         self.remove_fluid_from_file(fluid)
         self.pushButton_cancel.setText("Exit")
+
+        self._update_size_policy()
 
     def item_changed_callback(self, item):
 
@@ -419,6 +433,7 @@ class FluidWidget(QWidget):
         self.load_data_from_fluids_library()
 
         self.tableWidget_fluid_data.blockSignals(False)
+        self.tableWidget_fluid_data.horizontalScrollBar().setSliderPosition(0)
     
     def go_to_next_cell(self, item):
 
@@ -566,10 +581,10 @@ class FluidWidget(QWidget):
                 if "vapor_pressure" in self.fluid_data_refprop.keys():
                     fluid_data["vapor_pressure"] = self.fluid_data_refprop["vapor_pressure"]
 
-            config = app().pulse_file.read_fluid_library_from_file()
+            config = app().project.file.read_fluid_library_from_file()
             config[identifier] = fluid_data
 
-            app().pulse_file.write_fluid_library_in_file(config)
+            app().project.file.write_fluid_library_in_file(config)
             self.pushButton_cancel.setText("Exit")
         
         except Exception as error_log:
@@ -580,16 +595,16 @@ class FluidWidget(QWidget):
 
     def remove_fluid_from_file(self, fluid: Fluid):
 
-        config = app().pulse_file.read_fluid_library_from_file()
+        config = app().project.file.read_fluid_library_from_file()
 
         identifier = str(fluid.identifier)
-        if not identifier in config.sections():
+        if identifier not in config.sections():
             return
 
         self.reset_fluid_from_lines(int(identifier))
 
         config.remove_section(identifier)
-        app().pulse_file.write_fluid_library_in_file(config)
+        app().project.file.write_fluid_library_in_file(config)
 
         self.load_data_from_fluids_library()
 
@@ -611,7 +626,7 @@ class FluidWidget(QWidget):
             self.properties._remove_line_property("fluid", _line_id)
             app().project.model.preprocessor.set_fluid_by_lines(line_id, None)
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         app().main_window.set_selection()
 
     def cell_clicked_callback(self, row, col):
@@ -623,15 +638,15 @@ class FluidWidget(QWidget):
         fluid_name = self.tableWidget_fluid_data.item(0, col).text()
 
         if fluid_name in self.fluid_name_to_refprop_data.keys():
-            if isinstance(self.parent_widget, QDialog):
-                self.parent_widget.hide()
+            if isinstance(self.dialog, QDialog):
+                self.dialog.hide()
 
             selected_fluid = self.fluid_name_to_refprop_data[fluid_name]
             self.refprop = SetFluidCompositionInput(selected_fluid_to_edit = selected_fluid,
                                                     state_properties = self.state_properties)
 
             if not self.refprop.complete:
-                app().main_window.set_input_widget(self.parent_widget)
+                app().main_window.set_input_widget(self.dialog)
                 return
 
             self.selected_column = col
@@ -692,7 +707,7 @@ class FluidWidget(QWidget):
 
     def reset_library_to_default(self):
 
-        config_cache = app().pulse_file.read_fluid_library_from_file()
+        config_cache = app().project.file.read_fluid_library_from_file()
 
         sections_cache = list()
         if config_cache is not None:
@@ -700,7 +715,7 @@ class FluidWidget(QWidget):
 
         default_fluid_library()
 
-        config = app().pulse_file.read_fluid_library_from_file()
+        config = app().project.file.read_fluid_library_from_file()
 
         fluid_identifiers = list()
         for section_cache in sections_cache:
@@ -713,17 +728,17 @@ class FluidWidget(QWidget):
         
     def call_refprop_interface(self):
 
-        if isinstance(self.parent_widget, QDialog):
-            self.parent_widget.hide()
+        if isinstance(self.dialog, QDialog):
+            self.dialog.hide()
 
         self.refprop = SetFluidCompositionInput(state_properties = self.state_properties)
 
         if app().main_window.force_close:
-            self.parent_widget.close()
+            self.dialog.close()
             return True
 
         if not self.refprop.complete:
-            app().main_window.set_input_widget(self.parent_widget)
+            app().main_window.set_input_widget(self.dialog)
             return True
 
         self.after_getting_fluid_properties_from_refprop()
@@ -783,7 +798,7 @@ class FluidWidget(QWidget):
             if source is None:
                 return
 
-            if isinstance(self.parent_widget, QDialog):
+            if isinstance(self.dialog, QDialog):
 
                 line_id = self.state_properties.get("line_id", None)
                 if isinstance(line_id, int):
@@ -801,12 +816,19 @@ class FluidWidget(QWidget):
                     elif source == "reciprocating_compressor":
                         title = f"Set a fluid for the reciprocating compressor ({connection_type})"
 
-                    self.parent_widget.setWindowTitle(title)
+                    self.dialog.setWindowTitle(title)
 
     def keyPressEvent(self, event):
+
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            return
+            if isinstance(self.dialog, QDialog):
+                self.dialog.attribute_callback()
+
         elif event.key() == Qt.Key_Delete:
             self.remove_selected_column()
+
         elif event.key() == Qt.Key_Escape:
-            self.close()
+            if isinstance(self.dialog, QDialog):
+                self.dialog.close()
+            else:
+                self.close()

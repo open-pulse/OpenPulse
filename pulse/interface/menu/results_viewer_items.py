@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
-from PyQt5.QtCore import Qt, QSize, QRect
+from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
+from PySide6.QtCore import Qt, QSize, QRect
 from pathlib import Path
 
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
@@ -132,12 +132,13 @@ class ResultsViewerItems(CommonMenuItems):
                 self.item_child_plot_transmission_loss.setDisabled(False)
                 self.item_child_shaking_forces_criteria.setDisabled(False)
 
-                for (property, *_) in app().project.model.properties.nodal_properties.keys():
+                for (property, *_), data in app().project.model.properties.nodal_properties.items():
                     if property == "reciprocating_compressor_excitation":
                         self.item_child_reciprocating_compressor_pulsation_criteria.setDisabled(False)
                     elif property == "reciprocating_pump_excitation":
                         self.item_child_reciprocating_pump_pulsation_criteria.setDisabled(False)
-                        self.item_child_reciprocating_pump_inlet_pressure_criteria.setDisabled(False)
+                        if isinstance(data, dict) and data.get("connection_type") == "suction":
+                            self.item_child_reciprocating_pump_inlet_pressure_criteria.setDisabled(False)
 
             elif self.project.analysis_id == 7:
                 self.item_child_plot_displacement_field.setDisabled(False)

@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QDialog, QWidget, QLabel, QPushButton, QComboBox, QLineEdit, QFrame
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QWidget, QLabel, QPushButton, QComboBox, QLineEdit
+from PySide6.QtCore import Qt
+
+from molde import load_ui
 
 from dataclasses import dataclass
 
@@ -28,7 +29,7 @@ class MeshInputCommon(QDialog):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         ui_path = UI_DIR / "common/mesh_input_common.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.filter = MeshInputFilter()
         self.item_indexes = dict()

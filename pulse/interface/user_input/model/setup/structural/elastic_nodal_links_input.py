@@ -1,11 +1,12 @@
-from PyQt5.QtWidgets import QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
-from PyQt5 import uic
+from PySide6.QtWidgets import QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt, QEvent, QObject, Signal
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+
+from molde import load_ui
 
 import os
 import numpy as np
@@ -19,7 +20,7 @@ class ElasticNodalLinksInput(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/structural/elastic_nodal_links_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
 
@@ -214,7 +215,7 @@ class ElasticNodalLinksInput(QDialog):
 
     def clickable(self, widget):
         class Filter(QObject):
-            clicked = pyqtSignal()
+            clicked = Signal()
 
             def eventFilter(self, obj, event):
                 if obj == widget and event.type() == QEvent.MouseButtonRelease and obj.rect().contains(event.pos()):
@@ -504,7 +505,6 @@ class ElasticNodalLinksInput(QDialog):
 
         self.reset_nodes_input_fields()
         self.actions_to_finalize()
-        # self.close()
 
     def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
 
@@ -792,7 +792,7 @@ class ElasticNodalLinksInput(QDialog):
                 self.properties._set_nodal_property("structural_damping_links", data, node_ids)
   
     def actions_to_finalize(self):
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
         app().main_window.update_plots()
         self.load_nodes_info()
 
@@ -918,7 +918,7 @@ class ElasticNodalLinksInput(QDialog):
                 self.properties._remove_nodal_property(_property, node_id)
                 self.process_table_file_removal(table_names)
 
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
 
     def remove_table_files_from_nodes(self, node_ids : list):
         for _property in ["structural_stiffness_links", "structural_damping_links"]:
@@ -929,7 +929,7 @@ class ElasticNodalLinksInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("structural", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 

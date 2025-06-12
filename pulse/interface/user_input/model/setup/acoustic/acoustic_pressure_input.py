@@ -1,11 +1,12 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+
+from molde import load_ui
 
 import os
 import numpy as np
@@ -20,7 +21,7 @@ class AcousticPressureInput(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/acoustic/acoustic_pressure_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
@@ -234,7 +235,6 @@ class AcousticPressureInput(QDialog):
             self.properties._set_nodal_property("acoustic_pressure", data, node_id)
 
         self.actions_to_finalize()
-
         print(f"[Set Acoustic Pressure] - defined at node(s) {node_ids}")
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
@@ -322,11 +322,11 @@ class AcousticPressureInput(QDialog):
             return None, None
 
     def update_analysis_setup_in_file(self, f_min, f_max, f_step):
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().project.file.read_analysis_setup_from_file()
         analysis_setup["f_min"] = f_min
         analysis_setup["f_max"] = f_max
         analysis_setup["f_step"] = f_step
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
     def load_acoustic_pressure_table(self):
         self.table_values, self.table_path = self.load_table(self.lineEdit_table_path)
@@ -415,7 +415,7 @@ class AcousticPressureInput(QDialog):
                 self.properties._remove_nodal_property(label, node_id)
                 self.process_table_file_removal(table_names)
 
-        # app().pulse_file.write_nodal_properties_in_file()
+        # app().project.file.write_nodal_properties_in_file()
 
     def remove_table_files_from_nodes(self, node_ids: list):
         table_names = self.properties.get_nodal_related_table_names("acoustic_pressure", node_ids)
@@ -425,7 +425,7 @@ class AcousticPressureInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("acoustic", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
@@ -468,8 +468,8 @@ class AcousticPressureInput(QDialog):
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_nodal_properties_in_file()
-        app().pulse_file.write_imported_table_data_in_file()
+        app().project.file.write_nodal_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
         self.pushButton_cancel.setText("Exit")

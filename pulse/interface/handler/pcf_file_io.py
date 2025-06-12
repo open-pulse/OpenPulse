@@ -43,7 +43,7 @@ class PCFFileIO:
                 structure.extra_info = dict(
                     structural_element_type = "pipe_1",
                     cross_section_info = dict(
-                        section_type_label = "Pipe",
+                        section_type_label = "pipe",
                         section_parameters = [structure.diameter, structure.thickness, 0, 0, 0, 0]
                     )
                 )
@@ -52,7 +52,7 @@ class PCFFileIO:
                 structure.extra_info = dict(
                     structural_element_type = "pipe_1",
                     cross_section_info = dict(
-                        section_type_label = "Reducer",
+                        section_type_label = "reducer",
                         section_parameters = [
                             structure.initial_diameter, structure.thickness, 0, 0, 
                             structure.final_diameter, structure.thickness, 0, 0, 0, 0
@@ -87,7 +87,7 @@ class PCFFileIO:
                         stiffening_factor = 10,
                     ),
                     cross_section_info = dict(
-                        section_type_label = "Valve",
+                        section_type_label = "valve",
                     )
                 )
 

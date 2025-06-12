@@ -1,7 +1,6 @@
-from PyQt5.QtWidgets import QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
+from PySide6.QtGui import QColor
+from PySide6.QtCore import Qt, QSize
 
 from pulse import app, UI_DIR, TEMP_PROJECT_FILE
 
@@ -11,6 +10,8 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 
 from pulse.libraries.default_libraries import default_material_library
 from pulse.model.properties.material import Material
+
+from molde import load_ui
 
 from itertools import count
 import os
@@ -29,13 +30,16 @@ def get_color_rgb(color):
 
 class MaterialWidget(QWidget):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
         ui_path = UI_DIR / "model/setup/material/material_input_widget.ui"
-        uic.loadUi(ui_path, self)
+
+        load_ui(ui_path, self, UI_DIR)
 
         self.project = app().project
         self.properties = app().project.model.properties
+
+        self.dialog = kwargs.get("dialog", None)
 
         self._initialize()
         self.define_qt_variables()
@@ -53,7 +57,7 @@ class MaterialWidget(QWidget):
 
     def _initialize(self):
 
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
 
         self.row = None
         self.col = None
@@ -91,9 +95,14 @@ class MaterialWidget(QWidget):
         self.tableWidget_material_data.cellClicked.connect(self.cell_clicked_callback)
 
     def _config_widgets(self):
-        self.tableWidget_material_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
         self.tableWidget_material_data.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
-
+    
+    def _update_size_policy(self):
+        if len(self.library_materials) > 6:
+            self.tableWidget_material_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
+        else:
+            self.tableWidget_material_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        
     def config_table_of_material_data(self):
         return
         header = [
@@ -123,7 +132,7 @@ class MaterialWidget(QWidget):
             self.reset_library_to_default()
             return
 
-        config = app().pulse_file.read_material_library_from_file()
+        config = app().project.file.read_material_library_from_file()
         if config is None:
             self.reset_library_to_default()
             return
@@ -171,6 +180,7 @@ class MaterialWidget(QWidget):
                 item = QTableWidgetItem()
                 item.setBackground(QColor(*material.color))
                 item.setForeground(QColor(*material.color))
+                item.setSizeHint(QSize(80, 30))
                 self.tableWidget_material_data.setItem(6, j, item)
 
         for i in range(self.tableWidget_material_data.rowCount()):
@@ -178,6 +188,8 @@ class MaterialWidget(QWidget):
                 self.tableWidget_material_data.item(i, j).setTextAlignment(Qt.AlignCenter)
 
         self.tableWidget_material_data.blockSignals(False)
+
+        self._update_size_policy()
 
     def get_selected_column(self) -> int:
         selected_items = self.tableWidget_material_data.selectedIndexes()
@@ -214,6 +226,7 @@ class MaterialWidget(QWidget):
 
         for i in range(self.tableWidget_material_data.rowCount()):
             item = QTableWidgetItem()
+            item.setSizeHint(QSize(100, 30))
             self.tableWidget_material_data.setItem(i, last_col, item)
             self.tableWidget_material_data.item(i, last_col).setTextAlignment(Qt.AlignCenter)
 
@@ -232,6 +245,9 @@ class MaterialWidget(QWidget):
             # material, just remove the last line
             current_size = self.tableWidget_material_data.columnCount()
             self.tableWidget_material_data.setColumnCount(current_size - 1)
+
+            self._update_size_policy()
+            self.tableWidget_material_data.horizontalScrollBar().setSliderPosition(0)
             return
 
         item = self.tableWidget_material_data.item(1, selected_column)
@@ -240,6 +256,8 @@ class MaterialWidget(QWidget):
 
         self.remove_material_from_file(material)
         self.pushButton_cancel.setText("Exit")
+
+        self._update_size_policy()
 
     def item_changed_callback(self, item : QTableWidgetItem):
 
@@ -269,6 +287,7 @@ class MaterialWidget(QWidget):
         self.load_data_from_materials_library()
 
         self.tableWidget_material_data.blockSignals(False)
+        self.tableWidget_material_data.horizontalScrollBar().setSliderPosition(0)
 
     def go_to_next_cell(self, item : QTableWidgetItem):
 
@@ -402,10 +421,10 @@ class MaterialWidget(QWidget):
 
             identifier = material_data["identifier"]
 
-            config = app().pulse_file.read_material_library_from_file()
+            config = app().project.file.read_material_library_from_file()
             config[identifier] = material_data
 
-            app().pulse_file.write_material_library_in_file(config)
+            app().project.file.write_material_library_in_file(config)
             self.pushButton_cancel.setText("Exit")
 
         except Exception as error_log:
@@ -416,7 +435,7 @@ class MaterialWidget(QWidget):
 
     def remove_material_from_file(self, material : Material):
 
-        config = app().pulse_file.read_material_library_from_file()
+        config = app().project.file.read_material_library_from_file()
 
         identifier = str(material.identifier)
         if not identifier in config.sections():
@@ -425,7 +444,7 @@ class MaterialWidget(QWidget):
         self.reset_material_from_lines(int(identifier))
         config.remove_section(identifier)
 
-        app().pulse_file.write_material_library_in_file(config)
+        app().project.file.write_material_library_in_file(config)
         self.load_data_from_materials_library()
 
     def reset_material_from_lines(self, material_identifiers: (list | int)):
@@ -434,7 +453,7 @@ class MaterialWidget(QWidget):
         for line_id, data in self.properties.line_properties.items():
             if "material_id" in data.keys():
                 material_id = data["material_id"]
-                if material_id in material_identifiers:
+                if material_id == material_identifiers:
                     if line_id not in lines_to_remove_material:
                         lines_to_remove_material.append(line_id)
 
@@ -443,7 +462,7 @@ class MaterialWidget(QWidget):
             self.properties._remove_line_property("material", line_id=_line_id)
             app().project.model.preprocessor.set_material_by_lines(line_id, None)
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         app().main_window.set_selection()
 
     def new_identifier(self):
@@ -501,7 +520,7 @@ class MaterialWidget(QWidget):
 
     def reset_library_to_default(self):
 
-        config_cache = app().pulse_file.read_material_library_from_file()
+        config_cache = app().project.file.read_material_library_from_file()
 
         sections_cache = list()
         if config_cache is not None:
@@ -509,7 +528,7 @@ class MaterialWidget(QWidget):
 
         default_material_library()
 
-        config = app().pulse_file.read_material_library_from_file()
+        config = app().project.file.read_material_library_from_file()
 
         material_identifiers = list()
         for section_cache in sections_cache:
@@ -521,12 +540,19 @@ class MaterialWidget(QWidget):
         self.load_data_from_materials_library()
 
     def keyPressEvent(self, event):
+
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            return
+            if isinstance(self.dialog, QDialog):
+                self.dialog.attribute_callback()
+
         elif event.key() == Qt.Key_Delete:
             self.remove_selected_column()
+
         elif event.key() == Qt.Key_Escape:
-            self.close()
+            if isinstance(self.dialog, QDialog):
+                self.dialog.close()
+            else:
+                self.close()
 
     def closeEvent(self, event):
         super().closeEvent(event)

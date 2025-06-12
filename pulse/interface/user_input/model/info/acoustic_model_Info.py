@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QLineEdit, QTreeWidget, QTreeWidgetItem
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+
+from molde import load_ui
 
 import numpy as np
 
@@ -12,7 +12,7 @@ class AcousticModelInfo(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/info/acoustic_model_info.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.project = app().project
         app().main_window.set_input_widget(self)
@@ -34,7 +34,7 @@ class AcousticModelInfo(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
 
     def _define_qt_variables(self):
 

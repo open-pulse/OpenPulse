@@ -1,14 +1,15 @@
 #fmt: off
 
-from PyQt5.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+
+from molde import load_ui
 
 import os
 import numpy as np
@@ -21,7 +22,7 @@ class PrescribedDofsInput(QDialog):
         super().__init__(*args, **kwargs)
         
         ui_path = UI_DIR / "model/setup/structural/prescribed_dofs_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
@@ -318,7 +319,7 @@ class PrescribedDofsInput(QDialog):
 
                 self.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
-            app().pulse_file.write_nodal_properties_in_file()
+            app().project.file.write_nodal_properties_in_file()
             self.load_nodes_info()
             app().main_window.update_plots(reset_camera=False)
             # self.close()
@@ -558,11 +559,9 @@ class PrescribedDofsInput(QDialog):
 
             self.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
 
         self.actions_to_finalize()
-        # self.close()
-
         print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")
 
     def text_label(self, mask):
@@ -679,7 +678,7 @@ class PrescribedDofsInput(QDialog):
 
                 self.process_table_file_removal(table_names)
 
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
 
     def remove_table_files_from_nodes(self, node_id: int):
         table_names = self.properties.get_nodal_related_table_names("prescribed_dofs", node_id)
@@ -689,7 +688,7 @@ class PrescribedDofsInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("structural", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
@@ -704,7 +703,6 @@ class PrescribedDofsInput(QDialog):
             self.properties._remove_nodal_property("prescribed_dofs", node_ids[0])
 
             self.actions_to_finalize()
-            # self.close()
 
     def reset_callback(self):
 
@@ -732,10 +730,9 @@ class PrescribedDofsInput(QDialog):
             self.properties._reset_nodal_property("prescribed_dofs")
 
             self.actions_to_finalize()
-            # self.close()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_nodal_properties_in_file()
+        app().project.file.write_nodal_properties_in_file()
         self.load_nodes_info()
         app().main_window.update_plots()
 

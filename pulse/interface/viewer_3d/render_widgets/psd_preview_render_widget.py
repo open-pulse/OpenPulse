@@ -4,7 +4,7 @@ from vtkmodules.vtkRenderingCore import vtkPolyDataMapper, vtkActor
 
 from molde.render_widgets import CommonRenderWidget
 
-from pulse import ICON_DIR, app
+from pulse import app
 
 from pulse.editor.single_volume_psd import SingleVolumePSD
 from pulse.editor.dual_volume_psd import DualVolumePSD
@@ -34,7 +34,7 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
 
     def build_device_preview(self, device_data):
     
-        self.renderer.RemoveAllViewProps()
+        self.remove_all_actors()
 
         if "volume #2 parameters" in device_data.keys():
             device = DualVolumePSD(device_data)
@@ -66,6 +66,8 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
             
             if segment_label == connection_point:
                 sphere = vtkSphereSource()
+                sphere.SetPhiResolution(12)
+                sphere.SetThetaResolution(12)
                 sphere.SetCenter(*start_coords)
                 sphere.SetRadius(section_data[0] / 4)
                 sphere.Update()
@@ -73,14 +75,18 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
                 sphere_mapper = vtkPolyDataMapper()
                 sphere_mapper.SetInputData(sphere.GetOutput())
 
+                sphere_mapper.SetResolveCoincidentTopologyToPolygonOffset()
+                sphere_mapper.SetRelativeCoincidentTopologyLineOffsetParameters(1, -66000)
+                sphere_mapper.SetRelativeCoincidentTopologyPolygonOffsetParameters(1, -66000)
+                sphere_mapper.SetRelativeCoincidentTopologyPointOffsetParameter(-66000)
+                sphere_mapper.Update()
+
                 sphere_actor = vtkActor()
                 sphere_actor.SetMapper(sphere_mapper)
 
                 sphere_actor.GetProperty().SetColor(1, 0, 0) 
 
                 self.add_actors(sphere_actor)
-
-
     
         mapper = vtkPolyDataMapper()
         filter_actor = vtkActor()
@@ -96,9 +102,6 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
         self.add_actors(filter_actor)
 
     def config_view(self):
-        camera = self.renderer.GetActiveCamera()
-        camera.SetPosition(1, 1, 1)
-        camera.SetFocalPoint(0, 0, 0) 
         self.renderer.ResetCamera()
         self.renderer.ResetCameraClippingRange()        
         self.renderer.ResetCameraScreenSpace()
@@ -135,7 +138,6 @@ class PSDPreviewRenderWidget(CommonRenderWidget):
         for actor in self.get_widget_actors():
             actor.GetProperty().SetColor(1, 0, 0)
             self.update_plot()
-
 
     def set_theme(self, *args, **kwargs):
         self.update_theme()

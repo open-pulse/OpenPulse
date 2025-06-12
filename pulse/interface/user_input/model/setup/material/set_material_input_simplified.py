@@ -1,12 +1,10 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialWidget
-from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -17,7 +15,7 @@ class SetMaterialSimplified(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/material/set_material_simplified.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.main_window = app().main_window
         self.main_window.set_input_widget(self)
@@ -30,8 +28,6 @@ class SetMaterialSimplified(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-
-        ConfigWidgetAppearance(self, tool_tip=True)
 
         # while self.keep_window_open:
         #     self.exec()
@@ -50,39 +46,39 @@ class SetMaterialSimplified(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_attribution_type = self.findChild(QComboBox, 'comboBox_attribution_type')
+        self.comboBox_attribution_type : QComboBox
 
         # QFrame
-        self.frame_main_widget = self.findChild(QFrame, 'frame_main_widget')
+        self.frame_main_widget : QFrame
 
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
         # QLineEdit
-        self.lineEdit_identifier = self.findChild(QLineEdit, 'lineEdit_identifier')
-        self.lineEdit_selected_name = self.findChild(QLineEdit, 'lineEdit_selected_name')
+        self.lineEdit_identifier : QLineEdit
+        self.lineEdit_selected_name : QLineEdit
 
         # QScrollArea
         self.scrollArea_table_of_materials : QScrollArea
         self.scrollArea_table_of_materials.setLayout(self.grid_layout)
-        self._add_material_input_widget()
+        self._add_material_widget()
         self.frame_main_widget.adjustSize()
         self.scrollArea_table_of_materials.adjustSize()
 
-        # QPushButton
-        # self.pushButton_attribute_material = self.findChild(QPushButton, 'pushButton_attribute_material')
-        # self.pushButton_remove_row = self.material_widget.findChild(QPushButton, 'pushButton_remove_row')
+        # # QPushButton
+        # self.pushButton_attribute = self.material_widget.pushButton_attribute
+        # self.pushButton_cancel = self.material_widget.pushButton_cancel
 
         # QTableWidget
-        self.tableWidget_material_data = self.findChild(QTableWidget, 'tableWidget_material_data')
+        self.tableWidget_material_data = self.material_widget.tableWidget_material_data
 
     def _create_connections(self):
         self.material_widget.pushButton_cancel.clicked.connect(self.close)
         self.tableWidget_material_data.currentCellChanged.connect(self.current_cell_changed)
 
-    def _add_material_input_widget(self):
-        self.material_widget = MaterialWidget()
+    def _add_material_widget(self):
+        self.material_widget = MaterialWidget(dialog=self)
         self.grid_layout.addWidget(self.material_widget)
         self.material_widget.pushButton_remove_column.clicked.connect(self.reset_selected_material_lineEdit)
 

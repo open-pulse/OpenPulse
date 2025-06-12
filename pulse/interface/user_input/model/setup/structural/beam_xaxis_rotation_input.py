@@ -1,14 +1,15 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+
+from molde import load_ui
 
 from collections import defaultdict
 
@@ -21,7 +22,7 @@ class BeamXaxisRotationInput(QDialog):
         super().__init__(*args, **kwargs)
         
         ui_path = UI_DIR / "model/setup/structural/xaxis_beam_rotation_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
 
@@ -256,7 +257,6 @@ class BeamXaxisRotationInput(QDialog):
             self.properties._set_line_property("beam_xaxis_rotation", rotation_angle, line_id)
 
         self.actions_to_finalize()
-        # self.close()
 
     def remove_callback(self):
 
@@ -297,7 +297,6 @@ class BeamXaxisRotationInput(QDialog):
             self.properties._remove_line_property("beam_xaxis_rotation", line_ids)
 
             self.actions_to_finalize()
-            # self.close()
 
     def load_lines_info(self):
         self.treeWidget_xaxis_rotation_angle.clear()
@@ -313,7 +312,7 @@ class BeamXaxisRotationInput(QDialog):
     def actions_to_finalize(self):
         self.lineEdit_actual_angle.setText("")
         self.preprocessor.process_all_rotation_matrices()
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
         self.load_lines_info()
         app().main_window.update_plots()
 

@@ -120,6 +120,7 @@
     <addaction name="action_save_project"/>
     <addaction name="action_save_project_as"/>
     <addaction name="action_reset"/>
+    <addaction name="action_capture_image"/>
     <addaction name="separator"/>
     <addaction name="action_import_geometry"/>
     <addaction name="action_export_geometry"/>
@@ -183,6 +184,15 @@
   <widget class="QToolBar" name="tool_bar">
    <property name="windowTitle">
     <string>Main toolbar</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"> QToolBar {
+ 	border-style: solid;
+ 	border-width: 1px;
+	border-color: #888888;
+}
+            
+ </string>
    </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -856,6 +866,15 @@
   <action name="action_pulsation_damper_editor">
    <property name="text">
     <string>Pulsation damper editor</string>
+   </property>
+  </action>
+  <action name="action_capture_image">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/cube-scan.png</normaloff>../icons/cube-scan.png</iconset>
+   </property>
+   <property name="text">
+    <string>Capture Image</string>
    </property>
   </action>
  </widget>

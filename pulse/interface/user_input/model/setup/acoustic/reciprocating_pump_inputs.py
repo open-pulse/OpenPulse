@@ -1,18 +1,18 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt, QEvent, QObject, pyqtSignal
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
 from pulse.interface.user_input.model.setup.acoustic.pulsation_damper_calculator_inputs import PulsationDamperCalculatorInputs
-from pulse.interface.user_input.plots.general.xy_plot import XYPlot
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
+
+from molde import load_ui
 
 import numpy as np
 
@@ -28,7 +28,7 @@ class ReciprocatingPumpInputs(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/acoustic/reciprocating_pump_inputs.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
@@ -451,7 +451,7 @@ class ReciprocatingPumpInputs(QDialog):
         if stop:
             return True, None
 
-        neigh_elements = app().project.preprocessor.structural_elements_connected_to_node[node_id]
+        neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
 
         if len(neigh_elements) == 1:
             return stop, node_id
@@ -643,7 +643,7 @@ class ReciprocatingPumpInputs(QDialog):
         self.pump_model.number_points = N
         self.pump_model.max_frequency = self.spinBox_max_frequency.value()
 
-        T_rev = 60/self.parameters['rotational_speed']
+        T_rev = 60 / self.parameters['rotational_speed']
         list_T = [10, 5, 2, 1, 0.5]
         list_df = [0.1, 0.2, 0.5, 1, 2]
 
@@ -652,13 +652,13 @@ class ReciprocatingPumpInputs(QDialog):
 
         if np.remainder(T_selected, T_rev) == 0:
             T = T_selected
-            df = 1/T
+            df = 1 / T
         else:
             i = 0
-            df = 1/(T_rev)
+            df = 1 / (T_rev)
             while df > df_selected:
                 i += 1
-                df = 1/(i*T_rev)
+                df = 1 / (i * T_rev)
 
         self.N_rev = i
 
@@ -696,7 +696,7 @@ class ReciprocatingPumpInputs(QDialog):
 
     def update_analysis_setup_in_file(self, f_min, f_max, f_step):
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().project.file.read_analysis_setup_from_file()
         if analysis_setup is None:
             analysis_setup = dict()
     
@@ -704,7 +704,7 @@ class ReciprocatingPumpInputs(QDialog):
         analysis_setup["f_max"] = f_max
         analysis_setup["f_step"] = f_step
 
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
     def attribute_callback(self):
 
@@ -783,8 +783,8 @@ class ReciprocatingPumpInputs(QDialog):
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
-        app().pulse_file.write_nodal_properties_in_file()
-        app().pulse_file.write_imported_table_data_in_file()
+        app().project.file.write_nodal_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
         app().main_window.set_selection()
         app().main_window.update_plots()
         self.load_reciprocating_pump_excitation_info()
@@ -794,7 +794,7 @@ class ReciprocatingPumpInputs(QDialog):
         for table_name in table_names:
             self.properties.remove_imported_tables("acoustic", table_name)
         # if table_names:
-        #     app().pulse_file.write_imported_table_data_in_file()
+        #     app().project.file.write_imported_table_data_in_file()
 
     def remove_conflicting_excitations(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "reciprocating_pump_excitation", "reciprocating_compressor_excitation"]:

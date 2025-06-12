@@ -1,12 +1,14 @@
-from PyQt5.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
-import numpy as np
+from PySide6.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
+
+import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -16,12 +18,12 @@ class SetInertialLoad(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/structural/inertial_load_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
         
         self._initialize()
         self._config_window()
@@ -160,14 +162,14 @@ class SetInertialLoad(QDialog):
 
         self.model.set_gravity_vector(self.gravity)
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
-        app().pulse_file.write_inertia_load_in_file(inertia_load)
+        app().project.file.write_inertia_load_in_file(inertia_load)
 
         self.complete = True
         self.close()
 
     def _load_inertia_load_setup(self):
 
-        key_stiffening = self.project.preprocessor.stress_stiffening_enabled
+        key_stiffening = self.project.model.preprocessor.stress_stiffening_enabled
         self.checkBox_stiffening_effect.setChecked(key_stiffening)
 
         if np.sum(self.gravity_vector) != 0:

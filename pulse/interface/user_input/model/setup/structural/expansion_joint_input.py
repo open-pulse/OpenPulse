@@ -1,15 +1,16 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.cross_section import CrossSection
+
+from molde import load_ui
 
 import numpy as np
 from pathlib import Path
@@ -23,7 +24,7 @@ class ExpansionJointInput(QDialog):
         super().__init__(*args)
 
         ui_path = UI_DIR / "model/setup/structural/expansion_joint_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.render_type = kwargs.get("render_type", "model")
 
@@ -639,7 +640,7 @@ class ExpansionJointInput(QDialog):
                 self.properties._remove_line_property("valve_info", line_id)
                 self.properties._remove_line_property("section_parameters", line_id)
                 self.properties._remove_line_property("section_properties", line_id)
-                self.properties._set_line_property("section_type_label", "Expansion joint", line_id)
+                self.properties._set_line_property("section_type_label", "expansion_joint", line_id)
                 self.properties._set_line_property("structural_element_type", "expansion_joint", line_id)
                 self.properties._set_line_property("expansion_joint_info", self.expansion_joint_info, line_id)
 
@@ -728,7 +729,7 @@ class ExpansionJointInput(QDialog):
                 self.preprocessor.set_cross_section_by_lines(line_id, cross)
                 self.preprocessor.set_structural_element_type_by_lines(line_id, "pipe_1")
 
-                pipe_info = {   "section_type_label" : "Pipe",
+                pipe_info = {   "section_type_label" : "pipe",
                                 "section_parameters" : cross.section_parameters   }
 
                 self.properties._set_line_property("structural_element_type", element_type, line_id)
@@ -751,7 +752,7 @@ class ExpansionJointInput(QDialog):
         if table_names:
             for table_name in table_names:
                 self.properties.remove_imported_tables("structural", table_name)
-            app().pulse_file.write_imported_table_data_in_file()
+            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
@@ -799,9 +800,9 @@ class ExpansionJointInput(QDialog):
 
     def actions_to_finalize(self):
 
-        app().pulse_file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
-        geometry_handler = GeometryHandler()
+        geometry_handler = GeometryHandler(app().project)
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
         geometry_handler.process_pipeline()
 
@@ -844,7 +845,7 @@ def get_cross_sections_to_plot_expansion_joint(joint_elements: list, effective_d
                 plot_key = "major"
 
         expansion_joint_info = [
-                                "Expansion joint", 
+                                "expansion_joint", 
                                 plot_key,
                                 effective_diameter 
                                 ]

@@ -1,12 +1,11 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
-from pulse.interface.formatters.config_widget_appearance import ConfigWidgetAppearance
 from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidget
-from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -23,7 +22,7 @@ class SetFluidInputSimplified(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/fluid/set_fluid_input_simplified.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.main_window = app().main_window
         self.main_window.set_input_widget(self)
@@ -37,8 +36,6 @@ class SetFluidInputSimplified(QDialog):
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-
-        ConfigWidgetAppearance(self, tool_tip=True)
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -55,18 +52,18 @@ class SetFluidInputSimplified(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_attribution_type = self.findChild(QComboBox, 'comboBox_attribution_type')
+        self.comboBox_attribution_type : QComboBox
 
         # QFrame
-        self.frame_main_widget = self.findChild(QFrame, 'frame_main_widget')
+        self.frame_main_widget : QFrame
 
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
         # QLineEdit
-        self.lineEdit_fluid_identifier = self.findChild(QLineEdit, 'lineEdit_fluid_identifier')
-        self.lineEdit_selected_fluid_name = self.findChild(QLineEdit, 'lineEdit_selected_fluid_name')
+        self.lineEdit_selected_id : QLineEdit
+        self.lineEdit_selected_fluid_name : QLineEdit
 
         # QScrollArea
         self.scrollArea_table_of_fluids : QScrollArea
@@ -75,18 +72,18 @@ class SetFluidInputSimplified(QDialog):
         self.frame_main_widget.adjustSize()
 
         # QPushButton
-        self.pushButton_attribute = self.findChild(QPushButton, 'pushButton_attribute')
-        self.pushButton_remove_row = self.fluid_widget.findChild(QPushButton, 'pushButton_remove_row')
+        self.pushButton_attribute = self.fluid_widget.pushButton_attribute
+        self.pushButton_cancel = self.fluid_widget.pushButton_cancel
 
         # QTableWidget
-        self.tableWidget_fluid_data = self.findChild(QTableWidget, 'tableWidget_fluid_data')
+        self.tableWidget_fluid_data = self.fluid_widget.tableWidget_fluid_data
 
     def _create_connections(self):
         self.fluid_widget.pushButton_cancel.clicked.connect(self.close)
         self.tableWidget_fluid_data.currentCellChanged.connect(self.current_cell_changed)
 
     def _add_fluid_input_widget(self):
-        self.fluid_widget = FluidWidget(parent_widget=self, state_properties=self.state_properties)
+        self.fluid_widget = FluidWidget(dialog=self, state_properties=self.state_properties)
         self.grid_layout.addWidget(self.fluid_widget)
         self.fluid_widget.pushButton_remove_column.clicked.connect(self.reset_selected_fluid_lineEdit)
 

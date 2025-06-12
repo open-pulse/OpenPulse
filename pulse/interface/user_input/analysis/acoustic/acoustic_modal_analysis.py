@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QPushButton
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
 
 from math import pi
 
@@ -16,7 +17,7 @@ class AcousticModalAnalysisInput(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "analysis/acoustic/modal_analysis.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
 
@@ -53,7 +54,7 @@ class AcousticModalAnalysisInput(QDialog):
         self.pushButton_run_analysis.clicked.connect(self.run_analysis)
 
     def _load_analysis_setup(self):
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().project.file.read_analysis_setup_from_file()
         if isinstance(analysis_setup, dict):
             if analysis_setup["analysis_id"] in [2, 4]:
                 modes = analysis_setup["modes"]
@@ -103,7 +104,7 @@ class AcousticModalAnalysisInput(QDialog):
                           "sigma_factor" : self.sigma_factor
                           }
 
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
         self.setup_defined = True
         self.close()

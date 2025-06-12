@@ -1,22 +1,21 @@
-from PyQt5.QtWidgets import QDialog, QLabel, QPushButton
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt, QRect
-from PyQt5 import uic
+from molde import load_ui
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QDialog, QLabel, QPushButton
 
-from pulse import app, UI_DIR, version
+from pulse import UI_DIR, app, version
 
 
 class GetUserConfirmationInput(QDialog):
-    def __init__(self, title, message, buttons_config={}, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, title, message, *args, **kwargs):
+        super().__init__(*args)
 
         ui_path = UI_DIR / "messages/get_user_confirmation.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.title = title
         self.message = message
-        self.buttons_config = buttons_config
-        self.window_title = kwargs.get('window_title', f'OpenPulse v{version()}')
+        self.buttons_config = kwargs.get("buttons_config", dict())
+        self.window_title = kwargs.get("window_title", f"OpenPulse v{version()}")
 
         app().main_window.set_input_widget(self)
 
@@ -40,14 +39,13 @@ class GetUserConfirmationInput(QDialog):
         self._cancel = True
 
     def _define_qt_variables(self):
-
         # QLabel
-        self.label_message : QLabel
-        self.label_title : QLabel
+        self.label_message: QLabel
+        self.label_title: QLabel
 
         # QPushButton
-        self.pushButton_rightButton : QPushButton
-        self.pushButton_leftButton : QPushButton
+        self.pushButton_rightButton: QPushButton
+        self.pushButton_leftButton: QPushButton
 
     def _create_connections(self):
         self.pushButton_rightButton.clicked.connect(self.right_callback)
@@ -56,17 +54,29 @@ class GetUserConfirmationInput(QDialog):
     def _configure_buttons(self):
         if self.buttons_config:
             if "left_button_label" in self.buttons_config.keys():
-                self.pushButton_leftButton.setText(self.buttons_config["left_button_label"])
+                self.pushButton_leftButton.setText(
+                    self.buttons_config["left_button_label"]
+                )
             if "right_button_label" in self.buttons_config.keys():
-                self.pushButton_rightButton.setText(self.buttons_config["right_button_label"])
+                self.pushButton_rightButton.setText(
+                    self.buttons_config["right_button_label"]
+                )
             if "left_toolTip" in self.buttons_config.keys():
-                self.pushButton_leftButton.setToolTip(self.buttons_config["left_toolTip"])
+                self.pushButton_leftButton.setToolTip(
+                    self.buttons_config["left_toolTip"]
+                )
             if "right_toolTip" in self.buttons_config.keys():
-                self.pushButton_rightButton.setToolTip(self.buttons_config["right_toolTip"])
+                self.pushButton_rightButton.setToolTip(
+                    self.buttons_config["right_toolTip"]
+                )
             if "left_button_size" in self.buttons_config.keys():
-                self.pushButton_leftButton.setFixedWidth(self.buttons_config["left_button_size"])
+                self.pushButton_leftButton.setFixedWidth(
+                    self.buttons_config["left_button_size"]
+                )
             if "right_button_size" in self.buttons_config.keys():
-                self.pushButton_rightButton.setFixedWidth(self.buttons_config["right_button_size"])
+                self.pushButton_rightButton.setFixedWidth(
+                    self.buttons_config["right_button_size"]
+                )
 
     def _configure_labels(self):
         self.label_title.setText(self.title)
@@ -85,6 +95,6 @@ class GetUserConfirmationInput(QDialog):
 
     def left_callback(self):
         self.close()
-    
+
     def closeEvent(self, a0):
         return super().closeEvent(a0)

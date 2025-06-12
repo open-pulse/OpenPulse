@@ -14,23 +14,27 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import *
 from pulse.utils.unit_conversion import *
 
-from pulse.model.mesh import Mesh
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.model.mesh import Mesh
 
 import logging
 import numpy as np
-from time import time
+
+# from time import time
 from collections import defaultdict, deque
 from scipy.spatial.transform import Rotation
 
 window_title_1 = "Error"
 
+
 class Preprocessor:
     """A preprocessor class.
     This class creates a acoustic and structural preprocessor object.
     """
-    def __init__(self):
+    def __init__(self, mesh: 'Mesh'):
 
-        self.mesh = None
+        self.mesh = mesh
         self.reset_variables()
 
     def reset_variables(self):
@@ -53,8 +57,8 @@ class Preprocessor:
         self.structural_elements_connected_to_node = defaultdict(list)
         self.acoustic_elements_connected_to_node = defaultdict(list)
 
-        if isinstance(self.mesh, Mesh):
-            self.mesh.reset_variables()
+        # if isinstance(self.mesh, Mesh):
+        self.mesh.reset_variables()
 
         self.number_structural_elements = 0
         self.number_acoustic_elements = 0
@@ -73,8 +77,8 @@ class Preprocessor:
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
 
-    def set_mesh(self, mesh: Mesh):
-        self.mesh = mesh
+    # def set_mesh(self, mesh: Mesh):
+    #     self.mesh = mesh
 
     def generate(self):
         """
@@ -567,8 +571,8 @@ class Preprocessor:
         """
 
         coord_matrix = self.nodal_coordinates_matrix_external
-        list_coordinates = coord_matrix[:,1:].tolist()
-        external_indexes = coord_matrix[:,0]
+        list_coordinates = coord_matrix[:, 1:].tolist()
+        external_indexes = coord_matrix[:, 0]
 
         if isinstance(coords, (np.ndarray, tuple)):
             coords = list(coords)
@@ -815,7 +819,7 @@ class Preprocessor:
         #     return
             # self.dict_structural_element_wall_formulation_to_lines.pop(wall_formulation)
 
-    def set_acoustic_element_type_by_element(self, elements, element_type, proportional_damping=None, vol_flow=None, remove=False):
+    def set_acoustic_element_type_by_element(self, elements, element_type, proportional_damping=None, volumetric_flow_rate=None):
         """
         This method attributes acoustic element type to a list of elements.
 
@@ -838,7 +842,9 @@ class Preprocessor:
         for element in slicer(self.acoustic_elements, elements):
             element.element_type = element_type
             element.proportional_damping = proportional_damping
-            element.vol_flow = vol_flow
+            structural_element_type = self.structural_elements[element.index].element_type
+            if structural_element_type != "beam_1":
+                element.volumetric_flow_rate = volumetric_flow_rate
 
     def set_cross_section_by_elements(self, elements, cross_section, **kwargs):
         """
@@ -973,7 +979,7 @@ class Preprocessor:
                                                 insulation_density
                                                 ]
 
-                    pipe_section_info_first = { "section_type_label" : "Reducer" ,
+                    pipe_section_info_first = { "section_type_label" : "reducer" ,
                                                 "section_parameters" : section_parameters_first }
 
                     section_parameters_last = [
@@ -985,7 +991,7 @@ class Preprocessor:
                                                 insulation_density
                                             ]
 
-                    pipe_section_info_last = { "section_type_label" : "Reducer" ,
+                    pipe_section_info_last = { "section_type_label" : "reducer" ,
                                                 "section_parameters" : section_parameters_last }
 
                     cross_section_first = CrossSection(pipe_section_info = pipe_section_info_first)
@@ -1037,7 +1043,7 @@ class Preprocessor:
             for element_id in line_elements:
                 valve_body_elements.append(element_id)
 
-        body_section_info = {   "section_type_label" : "Valve",
+        body_section_info = {   "section_type_label" : "valve",
                                 "section_parameters" : valve_info["body_section_parameters"]   }
 
         body_cross_section = CrossSection(valve_section_info=body_section_info)
@@ -1046,7 +1052,7 @@ class Preprocessor:
 
         if "flange_section_parameters" in valve_info.keys():
 
-            flange_section_info = { "section_type_label" : "Valve",
+            flange_section_info = { "section_type_label" : "valve",
                                     "section_parameters" : valve_info["flange_section_parameters"] }
 
             flange_cross_section = CrossSection(valve_section_info=flange_section_info)
@@ -1108,7 +1114,7 @@ class Preprocessor:
                                             line_ids: (int | list | tuple), 
                                             element_type: str, 
                                             proportional_damping = None, 
-                                            vol_flow = None, 
+                                            volumetric_flow_rate = None, 
                                            ):
         """
         This method attributes acoustic element type to all elements that belongs to a line/entity.
@@ -1134,7 +1140,7 @@ class Preprocessor:
             self.set_acoustic_element_type_by_element(  elements, 
                                                         element_type, 
                                                         proportional_damping = proportional_damping, 
-                                                        vol_flow = vol_flow  )
+                                                        volumetric_flow_rate = volumetric_flow_rate  )
 
     # Structural physical quantities
     def set_material_by_element(self, elements, material):
@@ -1558,16 +1564,16 @@ class Preprocessor:
         for element in slicer(self.acoustic_elements, element_ids):
             element.length_correction_data = data
 
-    def set_vol_flow_by_element(self, elements, vol_flow):
-        for element in slicer(self.acoustic_elements, elements):
-            if 'beam_1' not in self.structural_elements[element.index].element_type:
-                element.vol_flow = vol_flow
-            else:
-                element.vol_flow = None
-    
-    def set_vol_flow_by_line(self, lines, vol_flow):
-        for elements in slicer(self.mesh.elements_from_line, lines):
-            self.set_vol_flow_by_element(elements, vol_flow)
+    # def set_vol_flow_by_element(self, elements, vol_flow):
+    #     for element in slicer(self.acoustic_elements, elements):
+    #         if 'beam_1' not in self.structural_elements[element.index].element_type:
+    #             element.vol_flow = vol_flow
+    #         else:
+    #             element.vol_flow = None
+
+    # def set_vol_flow_by_line(self, lines, vol_flow):
+    #     for elements in slicer(self.mesh.elements_from_line, lines):
+    #         self.set_vol_flow_by_element(elements, vol_flow)
 
     def set_perforated_plate_by_elements(self, elements: int | list | tuple, perforated_plate: PerforatedPlate):
 
@@ -1590,7 +1596,7 @@ class Preprocessor:
             angle -= gimball_shift
         elif angle in [-90, -270]:
             angle += gimball_shift
-        angle *= np.pi/180
+        angle *= np.pi / 180
 
         for elements in slicer(self.mesh.elements_from_line, line_ids):
             self.set_beam_xaxis_rotation_by_elements(elements, angle)
@@ -2074,14 +2080,14 @@ class Preprocessor:
 
             if el_type == 'pipe_1':
                 pipe_section_info = {   
-                                     "section_type_label" : "Pipe",
+                                     "section_type_label" : "pipe",
                                      "section_parameters" : section_parameters
                                     }
                 cross_section = CrossSection(pipe_section_info = pipe_section_info)                             
 
             elif el_type == 'valve':
                 valve_section_info = {  
-                                      "section_type_label" : "Valve",
+                                      "section_type_label" : "valve",
                                       "section_parameters" : section_parameters
                                       }
                 cross_section = CrossSection(valve_section_info = valve_section_info)     

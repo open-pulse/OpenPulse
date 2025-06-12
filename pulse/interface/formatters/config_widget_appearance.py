@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QSlider, QSpinBox, QWidget
-from PyQt5.QtCore import Qt
+from PySide6.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton, QSlider, QSpinBox, QWidget
+from PySide6.QtCore import Qt
 
 from collections import defaultdict
 

@@ -1,13 +1,11 @@
-from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QTabWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QTabWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-import numpy as np
+from molde import load_ui
 
 window_title = "Error"
 
@@ -44,7 +42,7 @@ class AnalysisSetupInput(QDialog):
         else:
             return
 
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
 
@@ -143,7 +141,7 @@ class AnalysisSetupInput(QDialog):
 
     def enter_setup_callback(self):
 
-        analysis_setup = app().pulse_file.read_analysis_setup_from_file()
+        analysis_setup = app().project.file.read_analysis_setup_from_file()
         if analysis_setup is None:
             analysis_setup = dict()
         
@@ -225,7 +223,7 @@ class AnalysisSetupInput(QDialog):
             analysis_setup["modes"] = number_of_modes
 
         # t0 = time()
-        app().pulse_file.write_analysis_setup_in_file(analysis_setup)
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
         # dt = time() - t0
 
         app().main_window.analysis_toolbar.pushButton_run_analysis.setEnabled(True)

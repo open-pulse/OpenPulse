@@ -1,15 +1,16 @@
 # fmt: off
 
-from PyQt5.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse.model.structural_element import decoupling_matrix
+
+from molde import load_ui
 
 import numpy as np
 
@@ -22,7 +23,7 @@ class DecouplingRotationDOFsInput(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/structural/b2p_decoupling_rotation_dofs_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.preprocessor = app().project.model.preprocessor
@@ -203,7 +204,7 @@ class DecouplingRotationDOFsInput(QDialog):
                 self.preprocessor.set_B2P_rotation_decoupling(element_id, data)
                 self.properties._set_element_property("B2P_rotation_decoupling", data, element_ids=element_id)
 
-                app().pulse_file.write_element_properties_in_file()
+                app().project.file.write_element_properties_in_file()
                 self.load_decoupling_info()
                 app().main_window.set_selection()
                 self.lineEdit_element_id.setText("")
@@ -224,7 +225,7 @@ class DecouplingRotationDOFsInput(QDialog):
 
             self.properties._remove_element_property("B2P_rotation_decoupling", element_id)
 
-            app().pulse_file.write_element_properties_in_file()
+            app().project.file.write_element_properties_in_file()
             self.load_decoupling_info()
 
     def reset_callback(self):
@@ -255,7 +256,7 @@ class DecouplingRotationDOFsInput(QDialog):
 
                 self.properties._remove_element_property("B2P_rotation_decoupling", element_id)
 
-            app().pulse_file.write_element_properties_in_file()
+            app().project.file.write_element_properties_in_file()
             self.load_decoupling_info()
 
     def get_rotation_mask(self):

@@ -1,12 +1,12 @@
-from PyQt5.QtWidgets import QLineEdit, QPushButton, QRadioButton, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QLineEdit, QPushButton, QRadioButton, QWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
+
+from molde import load_ui
 
 
 class PlotNodalResultsForHarmonicAnalysis(QWidget):
@@ -14,7 +14,7 @@ class PlotNodalResultsForHarmonicAnalysis(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/results/structural/get_nodal_results_for_harmonic_analysis.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.project = app().project
@@ -29,9 +29,9 @@ class PlotNodalResultsForHarmonicAnalysis(QWidget):
     def _initialize(self):
         self.dof_labels = ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]
 
-        self.preprocessor = self.project.preprocessor
+        self.preprocessor = self.project.model.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.nodes = self.project.preprocessor.nodes
+        self.nodes = self.project.model.preprocessor.nodes
         self.analysisMethod = self.project.analysis_method_label
         self.frequencies = self.model.frequencies
         self.solution = self.project.get_structural_solution()

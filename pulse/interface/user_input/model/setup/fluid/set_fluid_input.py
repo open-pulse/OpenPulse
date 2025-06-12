@@ -1,12 +1,13 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -17,7 +18,7 @@ class SetFluidInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/fluid/set_fluid_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
         self.state_properties = kwargs.get("state_properties", dict())
@@ -57,18 +58,18 @@ class SetFluidInput(QDialog):
     def _define_qt_variables(self):
 
         # QComboBox
-        self.comboBox_attribution_type = self.findChild(QComboBox, 'comboBox_attribution_type')
+        self.comboBox_attribution_type : QComboBox
 
         # QFrame
-        self.frame_main_widget = self.findChild(QFrame, 'frame_main_widget')
+        self.frame_main_widget : QFrame
 
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
         # QLineEdit
-        self.lineEdit_selected_id = self.findChild(QLineEdit, 'lineEdit_selected_id')
-        self.lineEdit_selected_fluid_name = self.findChild(QLineEdit, 'lineEdit_selected_fluid_name')
+        self.lineEdit_selected_id : QLineEdit
+        self.lineEdit_selected_fluid_name : QLineEdit
 
         # QScrollArea
         self.scrollArea_table_of_fluids : QScrollArea
@@ -76,18 +77,16 @@ class SetFluidInput(QDialog):
         self._add_fluid_input_widget()
         self.frame_main_widget.adjustSize()
 
-        # QPushButtonget_comboBox_index
-        self.pushButton_attribute = self.findChild(QPushButton, 'pushButton_attribute')
-        self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
-        self.pushButton_remove_row = self.fluid_widget.findChild(QPushButton, 'pushButton_remove_row')
+        # QPushButton
+        self.pushButton_attribute = self.fluid_widget.pushButton_attribute
+        self.pushButton_cancel = self.fluid_widget.pushButton_cancel
 
         # QTableWidget
-        self.tableWidget_fluid_data = self.findChild(QTableWidget, 'tableWidget_fluid_data')
+        self.tableWidget_fluid_data = self.fluid_widget.tableWidget_fluid_data
 
     def _add_fluid_input_widget(self):
 
-        self.fluid_widget = FluidWidget(parent_widget=self,
-                                        state_properties = self.state_properties)
+        self.fluid_widget = FluidWidget(dialog = self, state_properties = self.state_properties)
 
         self.grid_layout.addWidget(self.fluid_widget)
 
@@ -185,7 +184,7 @@ class SetFluidInput(QDialog):
             app().project.model.preprocessor.set_fluid_by_lines(line_ids, selected_fluid)
             self.properties._set_line_property("fluid_id", selected_fluid.identifier, line_ids)
             self.properties._set_line_property("fluid", selected_fluid, line_ids)
-            app().pulse_file.write_line_properties_in_file()
+            app().project.file.write_line_properties_in_file()
             app().main_window.update_plots()
 
             self.complete = True

@@ -1,14 +1,14 @@
-from PyQt5.QtWidgets import QComboBox, QLabel, QLineEdit, QPushButton, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QLabel, QLineEdit, QPushButton, QWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+from pulse.model.properties.fluid import Fluid
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse.model.properties.fluid import Fluid
+from molde import load_ui
+
+from pulse.utils.signal_processing_utils import process_iFFT_of_onesided_spectrum
 
 import numpy as np
 
@@ -23,7 +23,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "criterias/reciprocating_pump_inlet_pressure_criteria_widget.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.project = app().project
@@ -81,7 +81,6 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
 
     def selection_callback(self):
 
-        # self.reset_input_fields()
 
         selected_nodes = app().main_window.list_selected_nodes()
         line_ids = self.preprocessor.get_line_from_node_id(selected_nodes)
@@ -90,9 +89,13 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
 
             node_id = selected_nodes[0]
             pump_data = self.properties._get_property("reciprocating_pump_excitation", node_ids=int(node_id))
+            if pump_data is None:
+                self.reset_input_fields()
+                return
 
             if isinstance(pump_data, dict):
-                if pump_data["connection_type"] == "discharge" and False:
+                if pump_data["connection_type"] == "discharge":
+                    self.reset_input_fields()
                     return
 
             if len(line_ids) > 0:
@@ -113,13 +116,15 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
     def get_acoustic_pressure(self, node_id: int):
 
         response = get_acoustic_frf(self.preprocessor, self.solution, node_id)
-        if complex(0) in response:
-            response += np.ones(len(response), dtype=float) * 1e-12
+
+        # remove DC component
+        response[0] = 0j
 
         return response
 
     def plot_inlet_pressure_criteria(self):
 
+        df = self.frequencies[1] - self.frequencies[0]
         node_ids = app().main_window.list_selected_nodes()
 
         if len(node_ids) == 1:
@@ -127,18 +132,8 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
             node_id = node_ids[0]
             acoustic_pressure = self.get_acoustic_pressure(node_id)
 
-            N = len(acoustic_pressure)
-
-            # processes the inverse Fourier transform of the one-sided spectrum
-            pressure_time = np.fft.irfft(acoustic_pressure) * (N - 1)
-            pressure_time -= np.average(pressure_time)
-
-            f_max = self.frequencies[-1]
-            df = self.frequencies[1] - self.frequencies[0]
-
-            # T = 1 / df
-            N_t = len(pressure_time)
-            time = np.arange(0, N_t) / (df * N_t)
+            # process the inverse Fourier transform of the one-sided spectrum
+            time, pressure_time = process_iFFT_of_onesided_spectrum(df, acoustic_pressure, remove_avg=False)
 
             fluid = self.get_fluid_from_line()
             if fluid is None:
@@ -177,7 +172,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(QWidget):
 
             self.model_results[key] = { 
                                         "x_data" : time,
-                                        "y_data" : P_min * np.ones(N_t, dtype=float),
+                                        "y_data" : P_min * np.ones_like(time),
                                         "x_label" : "Time [s]",
                                         "y_label" : "Pressure",
                                         "title" : title,

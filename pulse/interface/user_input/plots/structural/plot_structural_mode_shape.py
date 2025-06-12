@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+
+from molde import load_ui
 
 import numpy as np
 
@@ -15,7 +15,7 @@ class PlotStructuralModeShape(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/results/structural/plot_structural_mode_shape.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self._config_window()
         self._initialize()
@@ -94,7 +94,7 @@ class PlotStructuralModeShape(QWidget):
         self.frame_button.setVisible(False)
         self.lineEdit_natural_frequency.setDisabled(True)
 
-        widths = [80, 140]
+        widths = [100, 140]
         for i, width in enumerate(widths):
             self.treeWidget_frequencies.setColumnWidth(i, width)
             self.treeWidget_frequencies.headerItem().setTextAlignment(i, Qt.AlignCenter)

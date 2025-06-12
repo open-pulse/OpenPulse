@@ -1,7 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QComboBox, QFileDialog, QLabel, QLineEdit, QPushButton, QTableWidget, QTabWidget, QTableWidgetItem, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QTreeWidget, QTreeWidgetItem, QAbstractItemView, QHeaderView
+from PySide6.QtGui import QIcon, QFont
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.auxiliar.file_dialog import FileDialog
@@ -9,6 +8,8 @@ from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input i
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.utils.common_utils import get_new_path
+
+from molde import load_ui
 
 import os
 from pathlib import Path
@@ -21,7 +22,7 @@ class SetFluidCompositionInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/fluid/set_fluid_composition_input.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         self.state_properties = kwargs.get("state_properties", dict())
         self.selected_fluid_to_edit = kwargs.get("selected_fluid_to_edit", None)
@@ -121,6 +122,7 @@ class SetFluidCompositionInput(QDialog):
         # QPushButton
         self.pushButton_add_gas : QPushButton
         self.pushButton_confirm : QPushButton
+        self.pushButton_exit : QPushButton
         self.pushButton_get_fluid_properties_info : QPushButton
         self.pushButton_load_composition : QPushButton
         self.pushButton_remove_gas : QPushButton
@@ -136,6 +138,7 @@ class SetFluidCompositionInput(QDialog):
         #
         self.pushButton_add_gas.clicked.connect(self.add_selected_fluid_button_callback)
         self.pushButton_confirm.clicked.connect(self.get_fluid_properties)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_load_composition.clicked.connect(self.load_fluid_composition_callback)
         self.pushButton_remove_gas.clicked.connect(self.remove_selected_gas)
         self.pushButton_reset_fluid.clicked.connect(self.reset_fluid)
@@ -380,10 +383,10 @@ class SetFluidCompositionInput(QDialog):
         
         self.tableWidget_new_fluid.setColumnCount(len(header))
         self.tableWidget_new_fluid.setHorizontalHeaderLabels(header)
-        self.tableWidget_new_fluid.setSelectionBehavior(1)
+        self.tableWidget_new_fluid.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.tableWidget_new_fluid.resizeColumnsToContents()
 
-        self.tableWidget_new_fluid.horizontalHeader().setSectionResizeMode(0)
+        self.tableWidget_new_fluid.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
         self.tableWidget_new_fluid.horizontalHeader().setStretchLastSection(True)
 
         for j, width in enumerate([220, 120]):

@@ -14,7 +14,7 @@ class NodesActor(GhostActor):
 
         self.project = app().project
         self.user_preferences = app().main_window.config.user_preferences
-        self.nodes = self.project.preprocessor.nodes
+        self.nodes = self.project.model.preprocessor.nodes
 
         self.hidden_nodes = kwargs.get('hidden_nodes', set())
         self.show_deformed = show_deformed
@@ -48,7 +48,8 @@ class NodesActor(GhostActor):
 
         self.SetMapper(mapper)
         self.GetProperty().SetPointSize(10)
-        self.GetProperty().RenderPointsAsSpheresOn()
+        if not app().main_window.config.user_preferences.compatibility_mode:
+            self.GetProperty().RenderPointsAsSpheresOn()
         self.make_ghost()
         
         self.clear_colors()

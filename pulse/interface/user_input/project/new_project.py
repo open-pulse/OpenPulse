@@ -1,10 +1,11 @@
-from PyQt5.QtWidgets import QComboBox, QDialog, QFrame, QFileDialog, QLabel, QLineEdit, QPushButton
-from PyQt5.QtGui import QCloseEvent
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QFileDialog, QLabel, QLineEdit, QPushButton
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+from molde import load_ui
 
 import os
 from pathlib import Path
@@ -17,11 +18,11 @@ class NewProjectInput(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "project/new_project_input2.ui"
-        uic.loadUi(ui_path, self)
+        load_ui(ui_path, self, UI_DIR)
 
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
-        self.preprocessor = app().project.preprocessor
+        self.preprocessor = app().project.model.preprocessor
 
         self._config_window()
         self._initialize()
@@ -205,10 +206,10 @@ class NewProjectInput(QDialog):
             self.geometry_filename = os.path.basename(geometry_path)
             setup_data["geometry_filename"] = self.geometry_filename
 
-        app().pulse_file.write_project_setup_in_file(setup_data, geometry_path = geometry_path)
+        app().project.file.write_project_setup_in_file(setup_data, geometry_path = geometry_path)
         
         if import_type == 0:
-            setup_data["geometry_path"] = app().pulse_file.read_geometry_from_file()
+            setup_data["geometry_path"] = app().project.file.read_geometry_from_file()
 
         return setup_data
 
