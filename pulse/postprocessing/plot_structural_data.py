@@ -33,7 +33,6 @@ def get_structural_frf(preprocessor: "Preprocessor", solution: np.ndarray, node_
     imag_values = kwargs.get("imag_values", False)
 
     position = preprocessor.nodes[node_id].global_index * DOF_PER_NODE_STRUCTURAL + dof_index
-    print(node_id, position)
 
     if absolute:
         return np.abs(solution[position])
