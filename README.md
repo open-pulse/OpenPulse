@@ -45,83 +45,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 ## Installing through an executable
 
 - Install OpenPulse for Windows and Linux downloading the executables [here](https://github.com/open-pulse/OpenPulse/releases).
-
-## Installing through your Python IDE
-
-- **Install Python 3.9.0 or later** ([download](https://www.python.org/downloads/release/python-390/)).
-
-- **Install OpenPulse**.
-Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (preferably, **use PowerShell as administrator**). Start by installing the
-poetry module using the command:
-```
-pip install poetry
-```
-
-then enter the following command to install all dependencies:
-
-```
-poetry install
-```
-
-Note: if some warning was logged repeat the command 'poetry install' before trying to run OpenPulse.
-
-
-- **Run OpenPulse**.
-In the same folder, enter the following command in the terminal:
-```
-poetry run python pulse
-```
-
-## Conda environment
-
-Download and install the conda-forge ([conda-forge](https://conda-forge.org/download/)).
-It is recommended to check the option *Add Miniforge3 to my PATH environment variable* in the program installation setup.
-Once conda-forge was installed, it is possible to enable the MUMPS solver in Vibra. To enable this solver we need to use conda instead of poetry.
-To generate the conda environment, just run:
-```
-conda env create -f environment.yml
-```
-
-If you are using Windows, the following commands will only work on `cmd`, and not on `powershell`.
-To make this work propperly on powershell too, you need to run
-```
-conda init powershell
-```
-And then restart the `powershell` window.
-
-After environment generation, we can activate and run Vibra by running the following commands:
-```
-conda activate pulse
-```
-
-Finally, enter the following command to execute the application:
-```
-python -m pulse
-```
-
-If some package changed since the generation, the environment can be updated using the following command:
-```
-conda env update --f environment.yml --prune
-```
-
-
-## Creating a Windows installer (for maintainers)
-
-First you need to install InnoSetup with the following command:
-```
-winget install -e --id JRSoftware.InnoSetup
-```
-You may also need to add it to your Windows path.
-
-Then, run the following commands (these may take a while):
-```
-poetry run pyinstaller pulse.spec --noconfirm
-ISCC.exe /O"dist" /F"open-pulse-setup-x64" "pulse.iss"
-```
-Your installer will appear inside the `dist` folder, named as `open-pulse-setup-x64`.
-
-
-
+      
 ## Documentation
 - You can read the API reference [here](https://open-pulse.readthedocs.io/en/latest/index.html).
 
@@ -157,7 +81,7 @@ Your installer will appear inside the `dist` folder, named as `open-pulse-setup-
 - Internoise 2025, 24 - 27 August, São Paulo, Brazil.
 
 ## Questions
-If you have any questions you can open a new issue with the tag 'question'.
+If you have any questions you can open a new issue with the label 'question'.
 
 ## Authors
 
