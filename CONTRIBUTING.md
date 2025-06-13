@@ -54,7 +54,7 @@ conda env create -f environment.yml
 ```
 
 If you are using Windows, the following commands will only work on `cmd`, and not on `powershell`.
-To make this work propperly on powershell too, you need to run
+To make this work properly on powershell too, you need to run
 ```
 conda init powershell
 ```
