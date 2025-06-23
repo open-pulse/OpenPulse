@@ -108,6 +108,6 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Vinicius H. Ribeiro](linkedin.com/in/vinícius-henrique-ribeiro-385b67218) - Computer Scientist.
 
 <p align="center">
-   <img src="https://github.com/MOPT-UFSC/VIBRA/blob/olavosilva-patch-1/doc/MOPT4.PNG?raw=true" alt="MOPT logo" width="1100"/>
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/MOPT4.PNG?raw=true" alt="MOPT logo" width="1100"/>
 
 **
