@@ -23,7 +23,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 ## New geometry interface
 
 <p align="">
-   <img src="https://github.com/open-pulse/OpenPulse/tree/olavosilva-patch-1/doc/geometry.mp4" alt="OpenPulse logo" width="800"/>
+   <img src="https://github.com/open-pulse/OpenPulse/tree/olavosilva-patch-1/doc/ge0m_OP.gif" alt="OpenPulse logo" width="800"/>
 
 ## Enhanced FE/FETM modeling and representation
 
