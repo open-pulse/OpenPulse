@@ -3,7 +3,7 @@
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
-*V2.0.4 September 20th 2024*
+*v2.0.11 June 20th 2025*
 
 OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. It allows to create or/and import the geometry of the pipe system, insert materials properties, set standardized or customized sections, and import pressure/acceleration/force loads (from measurements or theory). OpenPulse performs an acoustic time-harmonic response analysis of the respective 1D acoustic domain using the Finite Element Transfer Matrix Method (FETM). The resulting pressure field is applied as a distributed load over the respective structural piping system, modeled with the Timoshenko beam theory and the Finite Element Method (FEM), in order to run a structural time-harmonic response analysis. In addition to simply boundary conditions as constraints on displacements, OpenPulse allows to insert lumped springs, masses and dampers along the domain.
 
@@ -11,21 +11,19 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 
 *What's new?*
 
-- New geometry interface: now the user can draw geometry through an intuitive interface, following the conventions of popular piping software.
-- Standardization of sections and materials, along with using various unit systems.
+- New geometry interface adjustments: the user can draw geometry following the conventions of popular piping software.
 - Adjustments and validation of the reciprocating compressor model.
-- Physics validation of several analysis after comparing with 3D FEM commercial softwares.
-- New interface and visualization tools.
-- Enhancements of project files management.
+- New reciprocating pump model for applications with liquids such as oil, fuels, and water.
+- New interface and visualization tools (enhanced symbols for boundary condition, excitation, etc).
+- Project file management improvements: structural and acoustic results can now be saved and retrieved.
 - Enhanced animation of results (real and imaginary parts, phase monitoring, etc).
 - Beam theory validity check assistant.
-- Pulsation suppression device editor.
-- Import and export PCF files.
+- Adjustments and validation of the pulsation suppression device editor.
 
 ## New geometry interface
 
 <p align="">
-   <img src="https://github.com/open-pulse/OpenPulse/blob/v2.0/doc/NOP_geom.png" alt="OpenPulse logo" width="800"/>
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/geom_OP.gif" alt="OpenPulse logo" width="800"/>
 
 ## Enhanced FE/FETM modeling and representation
 
@@ -40,7 +38,10 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 ## Enhanced results visualisation
 
 <p align="">
-   <img src="https://github.com/open-pulse/OpenPulse/blob/v2.0/doc/NOP_video.gif?raw=true" alt="OpenPulse logo" width="800"/>
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/vib1.gif?raw=true" alt="OpenPulse logo" width="500" height="400"/>
+
+
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/acous1.gif?raw=true" alt="OpenPulse logo" width="500" height="400"/>
 
 ## Installing through an executable
 
@@ -76,6 +77,14 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 
 - [Vargas \& Silva, 2023](https://appfa2023.silsystem.solutions/).
 
+## OpenSD 2025 - The 2nd Open-source Scientific Computing in Structural Dynamics Conference and Summer School
+
+- [Silva et al, 2025](https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/OpenSD_2025.pdf)
+
+<p align="">
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/OSD1.jpg?raw=true" alt="OpenPulse logo" width="200"/>  
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/OSD2.jpg?raw=true" alt="OpenPulse logo" width="355"/>  
+
 ## Next events
 
 - Internoise 2025, 24 - 27 August, São Paulo, Brazil.
@@ -102,6 +111,7 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Gustavo C. Martins](https://www.linkedin.com/in/gustavo-martins/) - Engineer;
    - [Vinicius H. Ribeiro](linkedin.com/in/vinícius-henrique-ribeiro-385b67218) - Computer Scientist.
 
-![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true)
+<p align="center">
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/MOPT4.PNG?raw=true" alt="MOPT logo" width="1100"/>
 
 **
