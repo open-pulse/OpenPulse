@@ -77,6 +77,10 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 
 - [Vargas \& Silva, 2023](https://appfa2023.silsystem.solutions/).
 
+## OpenSD 2025 - The 2nd Open-source Scientific Computing in Structural Dynamics Conference and Summer School
+
+- [Silva et al, 2025]
+
 ## Next events
 
 - Internoise 2025, 24 - 27 August, São Paulo, Brazil.
