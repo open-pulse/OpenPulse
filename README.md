@@ -107,6 +107,7 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
    - [Gustavo C. Martins](https://www.linkedin.com/in/gustavo-martins/) - Engineer;
    - [Vinicius H. Ribeiro](linkedin.com/in/vinícius-henrique-ribeiro-385b67218) - Computer Scientist.
 
-![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true)
+<p align="center">
+   <img src="https://github.com/MOPT-UFSC/VIBRA/blob/olavosilva-patch-1/doc/MOPT4.PNG?raw=true" alt="MOPT logo" width="1100"/>
 
 **
