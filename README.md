@@ -79,7 +79,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 
 ## OpenSD 2025 - The 2nd Open-source Scientific Computing in Structural Dynamics Conference and Summer School
 
-- [Silva et al, 2025]
+- [Silva et al, 2025](https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/OpenSD_2025.pdf)
 
 ## Next events
 
