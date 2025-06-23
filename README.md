@@ -81,6 +81,10 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 
 - [Silva et al, 2025](https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/OpenSD_2025.pdf)
 
+<p align="">
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/OSD1.jpg?raw=true" alt="OpenPulse logo" width="200"/>  
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/OSD2.jpg?raw=true" alt="OpenPulse logo" width="355"/>  
+
 ## Next events
 
 - Internoise 2025, 24 - 27 August, São Paulo, Brazil.
