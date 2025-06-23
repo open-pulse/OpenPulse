@@ -38,10 +38,10 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 ## Enhanced results visualisation
 
 <p align="">
-   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/vib1.gif?raw=true" alt="OpenPulse logo" width="400"/>
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/vib1.gif?raw=true" alt="OpenPulse logo" width="500" height="400"/>
 
 
-   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/acous1.gif?raw=true" alt="OpenPulse logo" width="400"/>
+   <img src="https://github.com/open-pulse/OpenPulse/blob/olavosilva-patch-1/doc/acous1.gif?raw=true" alt="OpenPulse logo" width="500" height="400"/>
 
 ## Installing through an executable
 
