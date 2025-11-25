@@ -53,6 +53,7 @@ from pulse.interface.user_input.plots.structural.plot_stresses_for_static_analys
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_mode_shape import PlotAcousticModeShape
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_pressure_field import PlotAcousticPressureField
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response import PlotAcousticFrequencyResponse
+from pulse.interface.user_input.plots.acoustic.acoustic_pressure_waveform_inputs import AcousticPressureWaveformInputs
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_frequency_response_function import PlotAcousticFrequencyResponseFunction
 from pulse.interface.user_input.plots.acoustic.plot_transmission_loss import PlotTransmissionLoss
 from pulse.interface.user_input.plots.acoustic.plot_acoustic_delta_pressure import PlotAcousticDeltaPressure
@@ -306,6 +307,15 @@ class InputUi:
             else:
                 app().main_window.results_widget.show_empty()
                 return self.process_input(PlotAcousticFrequencyResponseFunction)
+
+    def plot_acoustic_pressure_waveform(self):
+        if app().project.analysis_id in [3, 5, 6]:
+            solution = self.project.get_acoustic_solution()
+            if solution is None:
+                return None
+            else:
+                app().main_window.results_widget.show_empty()
+                return self.process_input(AcousticPressureWaveformInputs)
 
     def plot_acoustic_delta_pressures(self):
         if app().project.analysis_id in [3, 5, 6]:
