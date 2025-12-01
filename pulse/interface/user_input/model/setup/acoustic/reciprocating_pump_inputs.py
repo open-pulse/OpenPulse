@@ -310,8 +310,13 @@ class ReciprocatingPumpInputs(QDialog):
             if self.selected_fluid.name in self.fluid_dialog.fluid_widget.fluid_name_to_refprop_data.keys():
                 self.comboBox_fluid_data_source.setCurrentIndex(0)
 
+            if self.selected_fluid.adiabatic_bulk_modulus is None:
+                adiabatic_bulk_modulus = self.selected_fluid.bulk_modulus
+            else:
+                adiabatic_bulk_modulus = self.selected_fluid.adiabatic_bulk_modulus
+
             self.lineEdit_selected_fluid.setText(self.selected_fluid.name)
-            self.lineEdit_bulk_modulus.setText(f"{self.selected_fluid.bulk_modulus : .8e}")
+            self.lineEdit_bulk_modulus.setText(f"{adiabatic_bulk_modulus : .8e}")
 
     def change_aquisition_parameters_controls(self, _bool):
         self.pushButton_process_aquisition_parameters.setDisabled(_bool)
@@ -564,7 +569,7 @@ class ReciprocatingPumpInputs(QDialog):
             self.parameters['rotational_speed'] = self.value
 
         if check_all_entries:
-            if self.check_input_parameters(self.lineEdit_bulk_modulus, "Bulk modulus"):
+            if self.check_input_parameters(self.lineEdit_bulk_modulus, "Adiabatic bulk modulus"):
                 self.lineEdit_bulk_modulus.setFocus()
                 return True
             else:
@@ -877,13 +882,14 @@ class ReciprocatingPumpInputs(QDialog):
         self.lineEdit_selected_node_id.setText("")
         self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
-        self.tabWidget_main.setTabVisible(3, False)
         for (property, *_) in self.properties.nodal_properties.keys():
             if property == "reciprocating_pump_excitation":
                 self.tabWidget_main.setCurrentIndex(0)
-                self.tabWidget_main.setTabVisible(3, True)
+                self.tabWidget_main.setTabVisible(2, True)
                 return
+
         self.tabWidget_main.setCurrentIndex(0)
+        self.tabWidget_main.setTabVisible(2, False)
 
     def pulsation_damper_calculator_callback(self):
         self.hide()
@@ -1107,4 +1113,5 @@ class ReciprocatingPumpInputs(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
