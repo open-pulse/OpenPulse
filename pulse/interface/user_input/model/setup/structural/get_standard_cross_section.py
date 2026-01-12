@@ -59,6 +59,7 @@ class GetStandardCrossSection(QDialog):
         self.radioButton_stainless_steel : QRadioButton
 
         # QPushButton
+        self.pushButton_cancel : QPushButton
         self.pushButton_confirm_selection : QPushButton
 
         # QTreeWidget
@@ -68,6 +69,7 @@ class GetStandardCrossSection(QDialog):
         #
         self.comboBox_units.currentIndexChanged.connect(self.load_treeWidget)
         #
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_confirm_selection.clicked.connect(self.confirm_selection)
         #
         self.radioButton_carbon_steel.clicked.connect(self.load_treeWidget)
