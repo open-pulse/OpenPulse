@@ -39,6 +39,7 @@ class GetStandardCrossSection(QDialog):
         self.selected_id = None
         self.outside_diameter = 0.
         self.wall_thickness = 0.
+        self.nps = 0.
         self.highlight_section = defaultdict(list)
 
     def _config_window(self):
@@ -143,6 +144,7 @@ class GetStandardCrossSection(QDialog):
         data = self.std_data[_id]
         self.outside_diameter = data["Outside diameter (in)"]*(25.4/1000)
         self.wall_thickness = data["Wall thickness (in)"]*(25.4/1000)
+        self.nps = data["NPS"]*(25.4/1000)
         self.complete = True
         self.close()
 

@@ -266,6 +266,7 @@ class CrossSectionWidget(QWidget):
         if read.complete:
             outside_diameter = round(read.outside_diameter, 6)
             thickness = round(read.wall_thickness, 6)
+            self.nps = round(read.nps, 6)
             self.lineEdit_outside_diameter.setText(str(outside_diameter))
             self.lineEdit_wall_thickness.setText(str(thickness))
 
