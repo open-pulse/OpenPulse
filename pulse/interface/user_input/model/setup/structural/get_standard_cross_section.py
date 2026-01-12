@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.libraries.standard_cross_sections import StandardCrossSections
+from pulse.utils.unit_conversion import in_to_m
 
 from molde import load_ui
 
@@ -90,7 +91,8 @@ class GetStandardCrossSection(QDialog):
         self.std_data = dict()
         self.reset_treeWidget_data()
 
-        if self.radioButton_carbon_steel.isChecked():
+        carbon_steel = self.radioButton_carbon_steel.isChecked()
+        if carbon_steel:
             self.std_data = self.carbon_steel_cross_sections
         else:
             self.std_data = self.stainless_steel_cross_sections
@@ -101,13 +103,15 @@ class GetStandardCrossSection(QDialog):
         else:
             unit = "mm"
 
-        header_items = ["ID",
-                        "NPS", 
-                        "DN", 
-                        "Identification", 
-                        "Schedule", 
-                        f"Outside diameter ({unit})", 
-                        f"Wall thickness ({unit})"]
+        header_items = [
+            "ID",
+            "NPS", 
+            "DN", 
+            "Identification", 
+            "Schedule", 
+            f"Outside diameter ({unit})", 
+            f"Wall thickness ({unit})",
+            ]
             
         for i, text in enumerate(header_items):
             self.treeWidget_section_data.headerItem().setText(i, text)
@@ -121,88 +125,102 @@ class GetStandardCrossSection(QDialog):
                     if "mm" in key:
                         item_values.append(str(round(value, 4)))
                     elif key == "Identification":
-                        if self.radioButton_stainless_steel.isChecked():
-                            item_values.append("--")
-                        else:
+                        if carbon_steel:
                             item_values.append(str(value))
+                        else:
+                            item_values.append("--")
                     else:
                         item_values.append(str(value))
 
             new = QTreeWidgetItem(item_values)
             for i in range(len(item_values)):
                 new.setTextAlignment(i, Qt.AlignCenter)
-            
+
             self.treeWidget_section_data.addTopLevelItem(new)
 
         self.highlight_standard_section()
+
+    def get_std_data(self, data: dict):
+        outside_diameter = in_to_m(data.get("Outside diameter (in)", -1.0))
+        wall_thickness = in_to_m(data.get("Wall thickness (in)", -1.0))
+        nps = in_to_m(data.get("NPS", -1.0))
+        return outside_diameter, wall_thickness, nps
 
     def on_click_item(self, item):
         self.selected_id = int(item.text(0))  
 
     def on_double_click_item(self, item):
         _id = int(item.text(0))
-        data = self.std_data[_id]
-        self.outside_diameter = data["Outside diameter (in)"]*(25.4/1000)
-        self.wall_thickness = data["Wall thickness (in)"]*(25.4/1000)
-        self.nps = data["NPS"]*(25.4/1000)
+        data = self.std_data.get(_id)
+        if not isinstance(data, dict):
+            return
+
+        self.outside_diameter,  self.wall_thickness, self.nps = self.get_std_data(data)
         self.complete = True
         self.close()
 
     def confirm_selection(self):
-        if self.selected_id is not None:
-            data = self.std_data[self.selected_id]
-            self.outside_diameter = data["Outside diameter (in)"]*(25.4/1000)
-            self.wall_thickness = data["Wall thickness (in)"]*(25.4/1000)
-            self.complete = True
-            self.close()
+        if self.selected_id is None:
+            return
+    
+        data = self.std_data.get(self.selected_id)
+        if not isinstance(data, dict):
+            return
 
-    def check_section(self, section_data):
+        self.outside_diameter,  self.wall_thickness, self.nps = self.get_std_data(data)
+        self.complete = True
+        self.close()
 
-        self.highlight_section = defaultdict(list)
-        outside_diameter_1 = section_data["outside diameter"]
-        thickness_1 = section_data["wall thickness"]
+    def check_section(self, section_data: dict):
+
+        self.highlight_section.clear()
+        outside_diameter_1 = section_data.get("outside diameter")
+        thickness_1 = section_data.get("wall thickness")
 
         self.std_data_CS = self.carbon_steel_cross_sections
         for index, data in self.std_data_CS.items():
-            outside_diameter_2 = data["Outside diameter (in)"]*(25.4/1000)
-            thickness_2 = data["Wall thickness (in)"]*(25.4/1000)
+            outside_diameter_2, thickness_2, _ = self.get_std_data(data)
             if np.abs(outside_diameter_1 - outside_diameter_2) < 1e-4:
                 if np.abs(thickness_1 - thickness_2) < 1e-4:
-                    self.highlight_section["carbon steel pipe"].append(index-1)
+                    self.highlight_section["carbon steel pipe"].append(index - 1)
 
         self.std_data_SS = self.stainless_steel_cross_sections
         for index, data in self.std_data_SS.items():
-            outside_diameter_2 = data["Outside diameter (in)"]*(25.4/1000)
-            thickness_2 = data["Wall thickness (in)"]*(25.4/1000)
+            outside_diameter_2, thickness_2, _ = self.get_std_data(data)
             if np.abs(outside_diameter_1 - outside_diameter_2) < 1e-4:
                 if np.abs(thickness_1 - thickness_2) < 1e-4:
-                    self.highlight_section["stainless steel pipe"].append(index-1)
+                    self.highlight_section["stainless steel pipe"].append(index - 1)
 
-        if len(self.highlight_section) > 0:
+        if self.highlight_section:
             return False
-        else:
-            return True
+
+        return True
 
     def highlight_standard_section(self):
         """
         """
-        if len(self.highlight_section) > 0:
-            self.pushButton_confirm_selection.setDisabled(True)
-            for key, indexes in self.highlight_section.items():
-                if key == "carbon steel pipe" and self.radioButton_carbon_steel.isChecked():
-                    for index in indexes:
-                        item = self.treeWidget_section_data.topLevelItem(index)
-                        for i in range(7):
-                            item.setForeground(i, QBrush(QColor(255,0,0)))
-                            item.setBackground(i, QBrush(QColor(220,220,220)))
-                        self.treeWidget_section_data.setCurrentItem(item)
-                        self.treeWidget_section_data.setFocus()
+        if not self.highlight_section:
+            return
 
-                if key == "stainless steel pipe" and self.radioButton_stainless_steel.isChecked():
-                    for index in indexes:
-                        item = self.treeWidget_section_data.topLevelItem(index)
-                        for i in range(7):
-                            item.setForeground(i, QBrush(QColor(255,0,0)))
-                            item.setBackground(i, QBrush(QColor(220,220,220)))
-                        self.treeWidget_section_data.setCurrentItem(item)
-                        self.treeWidget_section_data.setFocus()
+        carbon_steel = self.radioButton_carbon_steel.isChecked()
+        stainless_steel = self.radioButton_stainless_steel.isChecked()
+
+        self.pushButton_confirm_selection.setDisabled(True)
+        for key, indexes in self.highlight_section.items():
+            if key == "carbon steel pipe" and carbon_steel:
+                for index in indexes:
+                    item = self.treeWidget_section_data.topLevelItem(index)
+                    for i in range(7):
+                        item.setForeground(i, QBrush(QColor(255,0,0)))
+                        item.setBackground(i, QBrush(QColor(220,220,220)))
+                    self.treeWidget_section_data.setCurrentItem(item)
+                    self.treeWidget_section_data.setFocus()
+
+            if key == "stainless steel pipe" and stainless_steel:
+                for index in indexes:
+                    item = self.treeWidget_section_data.topLevelItem(index)
+                    for i in range(7):
+                        item.setForeground(i, QBrush(QColor(255,0,0)))
+                        item.setBackground(i, QBrush(QColor(220,220,220)))
+                    self.treeWidget_section_data.setCurrentItem(item)
+                    self.treeWidget_section_data.setFocus()
