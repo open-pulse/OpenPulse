@@ -132,6 +132,8 @@ class CrossSectionWidget(QWidget):
         self.pushButton_confirm_pipe: QPushButton
         self.pushButton_confirm_beam: QPushButton
         # self.pushButton_cancel: QPushButton
+        self.pushButton_cancel_pipe: QPushButton
+        self.pushButton_cancel_beam: QPushButton
         self.pushButton_invert_input_values: QPushButton
         self.pushButton_load_section_info: QPushButton
         self.pushButton_plot_pipe_cross_section: QPushButton

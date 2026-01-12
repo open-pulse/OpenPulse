@@ -86,6 +86,8 @@ class SetCrossSectionInput(QDialog):
         self.lineEdit_selected_id : QLineEdit
 
         # QPushButton
+        self.pushButton_cancel_pipe = self.cross_section_widget.pushButton_cancel_pipe
+        self.pushButton_cancel_beam = self.cross_section_widget.pushButton_cancel_beam
         self.pushButton_confirm_pipe = self.cross_section_widget.pushButton_confirm_pipe
         self.pushButton_confirm_beam = self.cross_section_widget.pushButton_confirm_beam
         self.pushButton_load_section_info = self.cross_section_widget.pushButton_load_section_info
@@ -111,6 +113,8 @@ class SetCrossSectionInput(QDialog):
         #
         self.lineEdit_selected_id.editingFinished.connect(self.update_highlights)
         #
+        self.pushButton_cancel_pipe.clicked.connect(self.close)
+        self.pushButton_cancel_beam.clicked.connect(self.close)
         self.pushButton_confirm_pipe.clicked.connect(self.attribute_callback)
         self.pushButton_confirm_beam.clicked.connect(self.attribute_callback)
         self.pushButton_load_section_info.clicked.connect(self.load_section_info)
