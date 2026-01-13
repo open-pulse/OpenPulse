@@ -6494,7 +6494,7 @@
      </widget>
      <widget class="QWidget" name="tab_sections">
       <attribute name="title">
-       <string>Sections</string>
+       <string>Active sections</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_25">
        <property name="leftMargin">

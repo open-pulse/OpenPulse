@@ -32,6 +32,7 @@ class StandardCrossSections:
 
             if len(NPS_str) == 1:
                 _NPS = float(NPS_str[0])
+
             elif len(NPS_str) == 2:
                 if len(NPS_str[0]) == 1:
                     _NPS = float(NPS_str[0]) / float(NPS_str[1])
@@ -40,11 +41,12 @@ class StandardCrossSections:
                 else:
                     print(f"Invalid cross-section NPS: {NPS_str}")
                     return
+
             else:
                 print(f"Invalid cross-section NPS: {NPS_str}")
                 return
 
-            DN_str = line[1]#[1:-1]
+            DN_str = line[1]
             _DN = int(DN_str)
 
             id_str = line[2]
@@ -103,6 +105,7 @@ class StandardCrossSections:
 
             if len(NPS_str) == 1:
                 NPS = float(NPS_str[0])
+
             elif len(NPS_str) == 2:
                 if len(NPS_str[0]) == 1:
                     NPS = float(NPS_str[0]) / float(NPS_str[1])
@@ -111,11 +114,12 @@ class StandardCrossSections:
                 else:
                     print(f"Invalid cross-section NPS: {NPS_str}")
                     return
+
             else:
                 print(f"Invalid cross-section NPS: {NPS_str}")
                 return
 
-            DN_str = line[1]#[1:-1]
+            DN_str = line[1]
             DN = int(DN_str)
             
             schedule_str = line[2]
