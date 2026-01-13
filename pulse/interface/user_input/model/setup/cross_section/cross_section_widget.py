@@ -38,6 +38,8 @@ class CrossSectionWidget(QWidget):
         self._config_window()
 
     def _initialize(self):
+
+        self.nps = 0.
         
         self.section_type = None
         self.section_type_label = None
@@ -129,25 +131,24 @@ class CrossSectionWidget(QWidget):
         self.lineEdit_shear_coefficient: QLineEdit
 
         # QPushButton
-        self.pushButton_confirm_pipe: QPushButton
-        self.pushButton_confirm_beam: QPushButton
-        # self.pushButton_cancel: QPushButton
         self.pushButton_cancel_pipe: QPushButton
         self.pushButton_cancel_beam: QPushButton
+        self.pushButton_check_if_section_is_normalized: QPushButton
+        self.pushButton_confirm_pipe: QPushButton
+        self.pushButton_confirm_beam: QPushButton
+        self.pushButton_edit_section_data: QPushButton
         self.pushButton_invert_input_values: QPushButton
-        self.pushButton_load_section_info: QPushButton
+        self.pushButton_load_section_data: QPushButton
         self.pushButton_plot_pipe_cross_section: QPushButton
         self.pushButton_plot_beam_cross_section: QPushButton
         self.pushButton_select_standard_section: QPushButton
         self.pushButton_select_standard_section_initial: QPushButton
         self.pushButton_select_standard_section_final: QPushButton
-        self.pushButton_check_if_section_is_normalized: QPushButton
 
         # QTabWidget
         self.tabWidget_general: QTabWidget
         self.tabWidget_pipe_section: QTabWidget
         self.tabWidget_beam_section: QTabWidget
-        self.tabWidget_sections_data: QTabWidget
 
         # QTreeWidget
         self.treeWidget_sections_parameters_by_lines: QTreeWidget
@@ -165,93 +166,102 @@ class CrossSectionWidget(QWidget):
         self.config_treeWidget()
 
     def create_lists_of_entries(self):
-        self.list_pipe_section_entries = [  self.lineEdit_outside_diameter,
-                                            self.lineEdit_wall_thickness,
-                                            self.lineEdit_offset_y,
-                                            self.lineEdit_offset_z,
-                                            self.lineEdit_insulation_thickness,
-                                            self.lineEdit_insulation_density,
-                                            self.lineEdit_outside_diameter_initial,
-                                            self.lineEdit_wall_thickness_initial,
-                                            self.lineEdit_offset_y_initial,
-                                            self.lineEdit_offset_z_initial,
-                                            self.lineEdit_outside_diameter_final,
-                                            self.lineEdit_wall_thickness_final,
-                                            self.lineEdit_offset_y_final,
-                                            self.lineEdit_offset_z_final,
-                                            self.lineEdit_insulation_thickness_variable_section,
-                                            self.lineEdit_insulation_density_variable_section,
-                                            self.lineEdit_element_id_initial,
-                                            self.lineEdit_element_id_final  ] 
 
-        self.list_beam_section_entries = [  self.lineEdit_base_rectangular_section,
-                                            self.lineEdit_height_rectangular_section,
-                                            self.lineEdit_wall_thickness_rectangular_section,
-                                            self.lineEdit_offsety_rectangular_section,
-                                            self.lineEdit_offsetz_rectangular_section,
-                                            self.lineEdit_outside_diameter_circular_section,
-                                            self.lineEdit_wall_thickness_circular_section,
-                                            self.lineEdit_offsety_circular_section,
-                                            self.lineEdit_offsetz_circular_section,
-                                            self.lineEdit_height_C_section,
-                                            self.lineEdit_w1_C_section,
-                                            self.lineEdit_t1_C_section,
-                                            self.lineEdit_w2_C_section,
-                                            self.lineEdit_t2_C_section,
-                                            self.lineEdit_tw_C_section,
-                                            self.lineEdit_offsety_C_section,
-                                            self.lineEdit_offsetz_C_section,
-                                            self.lineEdit_height_I_section,
-                                            self.lineEdit_w1_I_section,
-                                            self.lineEdit_t1_I_section,
-                                            self.lineEdit_w2_I_section,
-                                            self.lineEdit_t2_I_section,
-                                            self.lineEdit_tw_I_section,
-                                            self.lineEdit_offsety_I_section,
-                                            self.lineEdit_offsetz_I_section,
-                                            self.lineEdit_height_T_section,
-                                            self.lineEdit_w1_T_section,
-                                            self.lineEdit_t1_T_section,
-                                            self.lineEdit_tw_T_section,
-                                            self.lineEdit_offsety_T_section,
-                                            self.lineEdit_offsetz_T_section,
-                                            self.lineEdit_area,
-                                            self.lineEdit_Iyy,
-                                            self.lineEdit_Izz,
-                                            self.lineEdit_Iyz,
-                                            self.lineEdit_shear_coefficient  ]     
+        self.list_pipe_section_entries = [  
+            self.lineEdit_outside_diameter,
+            self.lineEdit_wall_thickness,
+            self.lineEdit_offset_y,
+            self.lineEdit_offset_z,
+            self.lineEdit_insulation_thickness,
+            self.lineEdit_insulation_density,
+            self.lineEdit_outside_diameter_initial,
+            self.lineEdit_wall_thickness_initial,
+            self.lineEdit_offset_y_initial,
+            self.lineEdit_offset_z_initial,
+            self.lineEdit_outside_diameter_final,
+            self.lineEdit_wall_thickness_final,
+            self.lineEdit_offset_y_final,
+            self.lineEdit_offset_z_final,
+            self.lineEdit_insulation_thickness_variable_section,
+            self.lineEdit_insulation_density_variable_section,
+            self.lineEdit_element_id_initial,
+            self.lineEdit_element_id_final,
+            ] 
 
-        self.list_constant_pipe_entries =   [   self.lineEdit_outside_diameter,
-                                                self.lineEdit_wall_thickness,
-                                                self.lineEdit_offset_y,
-                                                self.lineEdit_offset_z,
-                                                self.lineEdit_insulation_thickness,
-                                                self.lineEdit_insulation_density    ]
+        self.list_beam_section_entries = [  
+            self.lineEdit_base_rectangular_section,
+            self.lineEdit_height_rectangular_section,
+            self.lineEdit_wall_thickness_rectangular_section,
+            self.lineEdit_offsety_rectangular_section,
+            self.lineEdit_offsetz_rectangular_section,
+            self.lineEdit_outside_diameter_circular_section,
+            self.lineEdit_wall_thickness_circular_section,
+            self.lineEdit_offsety_circular_section,
+            self.lineEdit_offsetz_circular_section,
+            self.lineEdit_height_C_section,
+            self.lineEdit_w1_C_section,
+            self.lineEdit_t1_C_section,
+            self.lineEdit_w2_C_section,
+            self.lineEdit_t2_C_section,
+            self.lineEdit_tw_C_section,
+            self.lineEdit_offsety_C_section,
+            self.lineEdit_offsetz_C_section,
+            self.lineEdit_height_I_section,
+            self.lineEdit_w1_I_section,
+            self.lineEdit_t1_I_section,
+            self.lineEdit_w2_I_section,
+            self.lineEdit_t2_I_section,
+            self.lineEdit_tw_I_section,
+            self.lineEdit_offsety_I_section,
+            self.lineEdit_offsetz_I_section,
+            self.lineEdit_height_T_section,
+            self.lineEdit_w1_T_section,
+            self.lineEdit_t1_T_section,
+            self.lineEdit_tw_T_section,
+            self.lineEdit_offsety_T_section,
+            self.lineEdit_offsetz_T_section,
+            self.lineEdit_area,
+            self.lineEdit_Iyy,
+            self.lineEdit_Izz,
+            self.lineEdit_Iyz,
+            self.lineEdit_shear_coefficient,
+            ]     
 
-        self.list_variable_pipe_entries =   [   self.lineEdit_outside_diameter_initial,
-                                                self.lineEdit_wall_thickness_initial,
-                                                self.lineEdit_offset_y_initial,
-                                                self.lineEdit_offset_z_initial,
-                                                self.lineEdit_outside_diameter_final,
-                                                self.lineEdit_wall_thickness_final,
-                                                self.lineEdit_offset_y_final,
-                                                self.lineEdit_offset_z_final,
-                                                self.lineEdit_insulation_thickness_variable_section,
-                                                self.lineEdit_insulation_density_variable_section   ]
-        
+        self.list_constant_pipe_entries =   [   
+            self.lineEdit_outside_diameter,
+            self.lineEdit_wall_thickness,
+            self.lineEdit_offset_y,
+            self.lineEdit_offset_z,
+            self.lineEdit_insulation_thickness,
+            self.lineEdit_insulation_density,
+            ]
+
+        self.list_variable_pipe_entries =   [   
+            self.lineEdit_outside_diameter_initial,
+            self.lineEdit_wall_thickness_initial,
+            self.lineEdit_offset_y_initial,
+            self.lineEdit_offset_z_initial,
+            self.lineEdit_outside_diameter_final,
+            self.lineEdit_wall_thickness_final,
+            self.lineEdit_offset_y_final,
+            self.lineEdit_offset_z_final,
+            self.lineEdit_insulation_thickness_variable_section,
+            self.lineEdit_insulation_density_variable_section,
+            ]
+
         self.left_variable_pipe_lineEdits = [
-                                             self.lineEdit_outside_diameter_initial,
-                                             self.lineEdit_wall_thickness_initial,
-                                             self.lineEdit_offset_y_initial,
-                                             self.lineEdit_offset_z_initial
-                                             ]
+            self.lineEdit_outside_diameter_initial,
+            self.lineEdit_wall_thickness_initial,
+            self.lineEdit_offset_y_initial,
+            self.lineEdit_offset_z_initial,
+            ]
 
         self.right_variable_pipe_lineEdits = [
-                                              self.lineEdit_outside_diameter_final,
-                                              self.lineEdit_wall_thickness_final,
-                                              self.lineEdit_offset_y_final,
-                                              self.lineEdit_offset_z_final
-                                              ]
+            self.lineEdit_outside_diameter_final,
+            self.lineEdit_wall_thickness_final,
+            self.lineEdit_offset_y_final,
+            self.lineEdit_offset_z_final,
+            ]
 
     def reset_all_input_texts(self):
         for lineEdit in self.list_pipe_section_entries:
