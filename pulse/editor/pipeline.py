@@ -1,4 +1,4 @@
-from itertools import chain, pairwise
+from itertools import chain
 from typing import Generator, TypeVar
 
 from pulse.editor.editor_delegate import (
@@ -11,10 +11,8 @@ from pulse.editor.editor_delegate import (
 )
 
 from pulse.editor.structures import (
-    Beam,
     Bend,
     Elbow,
-    Flange,
     Pipe,
     Point,
     Structure,
