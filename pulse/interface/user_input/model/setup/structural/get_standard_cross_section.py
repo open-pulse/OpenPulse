@@ -45,7 +45,7 @@ class GetStandardCrossSection(QDialog):
         self.complete = False
         self.selected_id = None
         self.nps_to_filter = None
-        self.cache_nps_filter = None
+        self.cache_selected_nps = None
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -169,11 +169,11 @@ class GetStandardCrossSection(QDialog):
             ]
 
         self.comboBox_nps_filter.addItems(nps_labels)
-        if self.cache_nps_filter is not None:
-            self.comboBox_nps_filter.setCurrentText(self.cache_nps_filter)
+        if self.cache_selected_nps is not None:
+            self.comboBox_nps_filter.setCurrentText(self.cache_selected_nps)
             if self.checkBox_nps_filter.isChecked():
-                self.cache_nps_filter = self.comboBox_nps_filter.currentText()
-                self.nps_to_filter = float(self.cache_nps_filter.split(" (")[0])
+                self.cache_selected_nps = self.comboBox_nps_filter.currentText()
+                self.nps_to_filter = float(self.cache_selected_nps.split(" (")[0])
 
         self.comboBox_nps_filter.blockSignals(False)
 
@@ -185,7 +185,7 @@ class GetStandardCrossSection(QDialog):
         std_data = StandardCrossSections()
         self.carbon_steel_cross_sections = std_data.carbon_steel_cross_sections
         self.stainless_steel_cross_sections = std_data.stainless_steel_cross_sections
-        self.filter_sections_based_on_nps()
+        # self.filter_sections_based_on_nps()
 
     def filter_sections_based_on_nps(self):
         self.nps_based_cs_pipe_section = defaultdict(list)
@@ -205,14 +205,15 @@ class GetStandardCrossSection(QDialog):
             self.nps_based_ss_pipe_section[NPS].append(index)
 
     def nps_filter_callback(self):
-        self.cache_nps_filter = None
+        self.cache_selected_nps = None
         self.nps_to_filter = None
         nps_filter = self.checkBox_nps_filter.isChecked()
         self.comboBox_nps_filter.setEnabled(nps_filter)
 
         if nps_filter:
-            self.cache_nps_filter = self.comboBox_nps_filter.currentText()
-            self.nps_to_filter = float(self.cache_nps_filter.split(" (")[0])
+            selected_nps = self.comboBox_nps_filter.currentText()
+            self.cache_selected_nps = selected_nps
+            self.nps_to_filter = float(selected_nps.split(" (")[0])
 
         self.load_standardized_section_data()
 
