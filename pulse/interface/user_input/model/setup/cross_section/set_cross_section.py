@@ -477,10 +477,15 @@ class SetCrossSectionInput(QDialog):
         for line_id in line_ids:
             center_coords = self.properties._get_property("center_coords", line_id=line_id)
             corner_coords = self.properties._get_property("corner_coords", line_id=line_id)
+            mid_coords = self.properties._get_property("mid_coords", line_id=line_id)
 
-            if (center_coords, corner_coords).count(None) == 2:
-                section_label = section_info["section_type_label"]
+            if (center_coords, corner_coords, mid_coords).count(None) == 3:
+                section_label = section_info.get("section_type_label")
                 self.properties._set_line_property("structure_name", section_label, line_id)
+
+            elif isinstance(mid_coords, list):
+                self.properties._set_line_property("structure_name", "arc_bend", line_id)
+
             else:
                 self.properties._set_line_property("structure_name", "bend", line_id)
 
