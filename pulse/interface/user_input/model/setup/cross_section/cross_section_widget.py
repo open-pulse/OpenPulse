@@ -6,7 +6,7 @@ from pulse.model.cross_section import get_beam_section_properties, get_points_to
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.interface_utils import check_inputs
-
+from pulse.interface.user_input.model.setup.cross_section.cross_section_plotter import CrossSectionPlotter
 from molde import load_ui
 
 import numpy as np
@@ -780,11 +780,7 @@ class CrossSectionWidget(QWidget):
         read = GetStandardCrossSection(section_data=section_data)
 
     def plot_section(self):
-        import matplotlib.pyplot as plt
-
-        plt.ion()
-
-        plt.close()
+        plotter = CrossSectionPlotter()
 
         if self.tabWidget_general.currentIndex() == 0:
             if self.get_constant_section_pipe_parameters():
@@ -794,43 +790,11 @@ class CrossSectionWidget(QWidget):
             if self.get_beam_section_parameters():
                 return
 
-        if self.section_type_label in ["pipe", "reducer"]:
-            Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
-        else:
-            Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
+        points = get_points_to_plot_section(self.section_type_label, self.section_parameters)
 
-        _max = np.max(np.abs(np.array([Yp, Zp])))
+        plotter.plot_cross_section(points, self.section_type_label, self.section_type)
+        plotter.show()
 
-        fig = plt.figure(figsize=[8,8])
-        ax = fig.add_subplot(1,1,1)
-
-        first_plot, = plt.fill(Yp, Zp, color=[0.2,0.2,0.2], linewidth=2, zorder=2)
-        second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
-        third_plot = plt.scatter(0, 0, marker="+", linewidth=1.5, zorder=4, color=[0,0,1], s=120)
-        
-        if self.section_type_label in ["pipe", "reducer"] and Yp_ins is not None:
-            fourth, = plt.fill(Yp_ins, Zp_ins, color=[0.5,1,1], linewidth=2, zorder=5) 
-            _max = np.max(np.abs(np.array([Zp_ins, Yp_ins])))*1.2
-            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
-            fourth.set_label("Insulation material")
-            plt.legend(handles=[second_plot, fourth], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
-        else:
-            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
-            plt.legend(handles=[second_plot], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
-
-        ax.set_title('CROSS-SECTION PLOT', fontsize = 18, fontweight = 'bold')
-        ax.set_xlabel('y [m]', fontsize = 16, fontweight = 'bold')
-        ax.set_ylabel('z [m]', fontsize = 16, fontweight = 'bold')
-        
-        f = 1.25
-        if self.section_type == 3:
-            plt.xlim(-(1/2)*_max, (3/2)*_max)
-        else:
-            plt.xlim(-_max*f, _max*f)
-
-        plt.ylim(-_max*f, _max*f)
-        plt.grid()
-        plt.show()
 
     def keyPressEvent(self, event):
         if isinstance(self.dialog, QDialog):
