@@ -780,6 +780,11 @@ class CrossSectionWidget(QWidget):
         read = GetStandardCrossSection(section_data=section_data)
 
     def plot_section(self):
+        
+        # hide the QDialog before showing the cross-section plotter
+        if isinstance(self.dialog, QDialog):
+            self.dialog.hide()
+
         plotter = CrossSectionPlotter()
 
         if self.tabWidget_general.currentIndex() == 0:
@@ -793,8 +798,11 @@ class CrossSectionWidget(QWidget):
         points = get_points_to_plot_section(self.section_type_label, self.section_parameters)
 
         plotter.plot_cross_section(points, self.section_type_label, self.section_type)
-        plotter.show()
+        plotter.exec()
 
+        # show the QDialog after closing the cross-section plotter
+        if isinstance(self.dialog, QDialog):
+            self.dialog.show()
 
     def keyPressEvent(self, event):
         if isinstance(self.dialog, QDialog):
