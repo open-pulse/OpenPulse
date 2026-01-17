@@ -1,13 +1,15 @@
-import numpy as np
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
-from molde import load_ui
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QDialog, QToolButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QDialog, QPushButton, QToolButton, QVBoxLayout, QWidget
 
 from pulse import UI_DIR, app
 from pulse.interface.formatters import icons
+
+from molde import load_ui
+
+import numpy as np
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
 
 
 class CrossSectionPlotter(QDialog):
@@ -22,6 +24,7 @@ class CrossSectionPlotter(QDialog):
         self._config_window()
         self._initialize()
         self._define_qt_variables()
+        self._create_connections()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -33,7 +36,13 @@ class CrossSectionPlotter(QDialog):
         app().main_window.theme_changed.connect(self.paint_toolbar_icons)
 
     def _define_qt_variables(self):
+        # QPushButton
+        self.close_button: QPushButton
+        # QWidget
         self.widget_plot: QWidget
+
+    def _create_connections(self):
+        self.close_button.clicked.connect(self.close)
 
     def paint_toolbar_icons(self, *args, **kwargs):
         from pulse.interface.user_input.plots.general.custom_navigation_toolbar import (
@@ -65,8 +74,10 @@ class CrossSectionPlotter(QDialog):
             layout = QVBoxLayout()
             self.widget_plot.setLayout(layout)
 
-        fig = Figure(figsize=(8, 8))
+        fig = Figure(figsize=(8, 8), tight_layout=True)
         ax = fig.add_subplot(1, 1, 1)
+        ax.set_aspect("equal")
+
         canvas = FigureCanvasQTAgg(fig)
         layout.addWidget(canvas)
 
@@ -122,11 +133,11 @@ class CrossSectionPlotter(QDialog):
                 title=r"$\bf{Centroid}$ $\bf{coordinates:}$",
             )
 
-        ax.set_title("CROSS-SECTION PLOT", fontsize=18, fontweight="bold")
-        ax.set_xlabel("y [m]", fontsize=16, fontweight="bold")
-        ax.set_ylabel("z [m]", fontsize=16, fontweight="bold")
+        # ax.set_title("CROSS-SECTION PLOT", fontsize=12, fontweight="bold")
+        ax.set_xlabel("y [m]", fontsize=12, fontweight="bold")
+        ax.set_ylabel("z [m]", fontsize=12, fontweight="bold")
 
-        f = 1.25
+        f = 1.4
         if section_type == 3:
             ax.set_xlim(-(1 / 2) * _max, (3 / 2) * _max)
         else:
