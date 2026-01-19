@@ -176,6 +176,14 @@ class Pipeline:
         indexes.reverse()
         return indexes
 
+    def get_structures_of_point(self, point: Point) -> list[Structure]:
+        # TODO: make this faster than O(n).
+        structures = []
+        for structure in self.structures:
+            if point in structure.get_points():
+                structures.append(structure)
+        return structures
+
     # Main Editor
     def add_structure_deltas(self, structure_type, deltas, **kwargs):
         return self.main_editor.add_structure_deltas(structure_type, deltas, **kwargs)
