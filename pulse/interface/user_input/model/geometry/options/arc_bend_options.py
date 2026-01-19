@@ -38,7 +38,7 @@ class ArcBendOptions(StructureOptions):
         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
         self.cross_section_widget.lineEdit_outside_diameter.setFocus()
         self.load_data_from_reducer_section()
-        self.cross_section_widget.exec()
+        self.cross_section_dialog.exec()
 
         if not self.cross_section_dialog.complete:
             return

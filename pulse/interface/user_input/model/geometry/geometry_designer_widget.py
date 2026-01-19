@@ -385,12 +385,17 @@ class GeometryDesignerWidget(QWidget):
 
     def get_pipe_diameter(self):
         try:
-            section_parameters = (
-                self.cross_section_dialog.cross_section_widget.pipe_section_info[
-                    "section_parameters"
-                ]
-            )
-            diameter = section_parameters[0]
+            nps = self.cross_section_dialog.cross_section_widget.nps
+            if nps:
+                diameter = nps
+            else:
+                section_parameters = (
+                    self.cross_section_dialog.cross_section_widget.pipe_section_info[
+                        "section_parameters"
+                    ]
+                )
+                diameter = section_parameters[0]
+        
         except Exception:
             return None
 

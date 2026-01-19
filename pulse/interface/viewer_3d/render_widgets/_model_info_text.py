@@ -25,7 +25,7 @@ def nodes_info_text() -> str:
         node_id, *_ = nodes
         node = preprocessor.nodes[node_id]
         tree = TreeInfo(f"Node {node_id}")
-        tree.add_item(f"Position", "[{:.3f}, {:.3f}, {:.3f}]".format(*node.coordinates), "m")
+        tree.add_item(f"Position", "[{:.4f}, {:.4f}, {:.4f}]".format(*node.coordinates), "m")
         info_text += str(tree)
 
         key = ("prescribed_dofs", node_id)
@@ -135,11 +135,11 @@ def elements_info_text() -> str:
 
         tree = TreeInfo(f"ELEMENT {_id}")
         tree.add_item( f"First Node - {first_node.external_index:>5}",
-                        "[{:.3f}, {:.3f}, {:.3f}]".format(*first_node.coordinates),
+                        "[{:.4f}, {:.4f}, {:.4f}]".format(*first_node.coordinates),
                         "m" )
 
         tree.add_item( f"Last Node  - {last_node.external_index:>5}",
-                        "[{:.3f}, {:.3f}, {:.3f}]".format(*last_node.coordinates),
+                        "[{:.4f}, {:.4f}, {:.4f}]".format(*last_node.coordinates),
                         "m" )
 
         info_text += str(tree)
@@ -178,7 +178,7 @@ def lines_info_text() -> str:
             line_length = mm_to_m(project.model.mesh.curve_length[line])
             total_length += line_length
         
-        info_text += f"TOTAL LENGTH: {total_length : .3f} [m]\n\n"
+        info_text += f"TOTAL LENGTH: {total_length : .6f} [m]\n\n"
 
     elif len(lines) == 1:
 
@@ -186,11 +186,9 @@ def lines_info_text() -> str:
 
         properties = project.model.properties
         length = mm_to_m(project.model.mesh.curve_length[line_id])
+        radius_of_curvature = properties._get_property("curvature_radius", line_id=line_id)
 
-        # info_text += f"LINE {line_id}\n"
-        # info_text += f"Length: {length : .3f} [m]\n\n"
-
-        info_text += line_info_text(line_id, length)
+        info_text += line_info_text(line_id, length, radius_of_curvature)
 
         material = properties._get_property("material", line_id=line_id)
         if material is not None:
@@ -220,10 +218,13 @@ def lines_info_text() -> str:
 
     return info_text
 
-def line_info_text(line_id, length):
+def line_info_text(line_id, length, radius_of_curvature):
     tree = TreeInfo("Line")
     tree.add_item("Identifier", line_id)
-    tree.add_item("Length", f"{length : .4f}", "m")
+    tree.add_item("Length", f"{length : .6f}", "m")
+    if radius_of_curvature is not None:
+        tree.add_item("Radius of curvature", f"{radius_of_curvature : .6f}", "m")
+
     return str(tree)
 
 def material_info_text(material) -> str:
