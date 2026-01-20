@@ -16,8 +16,8 @@ from molde import load_ui
 
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
+warning_title = "Warning"
 
 psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
@@ -467,7 +467,7 @@ class ReciprocatingPumpInputs(QDialog):
             message = "The selected node does not correspond to the piping endings. "
             message += "It is necessary to change the selection to proceed with the "
             message += "reciprocating pump excitation attribution."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             lineEdit.setText("")
             return True, None
 
@@ -504,18 +504,18 @@ class ReciprocatingPumpInputs(QDialog):
 
                 if value < 0:
                     message = f"You cannot input a negative value to the {label}."
-                    PrintMessageInput([window_title_1, title, message])
+                    PrintMessageInput([error_title, title, message])
                     return True
                 else:
                     self.value = value
 
             except Exception:
                 message = f"You have typed an invalid value to the {label}."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True
         else:
             message = f"None value has been typed to the {label}."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
         return False
 
@@ -685,7 +685,7 @@ class ReciprocatingPumpInputs(QDialog):
             message += "different from the others already imported ones. The current "
             message += "project frequency setup is not going to be modified."
             message += f"\n\n{table_name}"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
 
         self.update_analysis_setup_in_file(f_min, f_max, f_step)
@@ -767,6 +767,10 @@ class ReciprocatingPumpInputs(QDialog):
 
             freq, flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
 
+            # remove dc component
+            _freq = freq[1:]
+            _flow_rate = flow_rate[1:]
+
             table_name = f"pump_excitation_{connection_type}_node_{node_id}"
 
             node = app().project.model.preprocessor.nodes[node_id]
@@ -781,7 +785,7 @@ class ReciprocatingPumpInputs(QDialog):
 
             self.remove_conflicting_excitations(node_id)
 
-            if self.save_table_values(table_name, freq, flow_rate):
+            if self.save_table_values(table_name, _freq, _flow_rate):
                 return
 
             self.properties._set_nodal_property("reciprocating_pump_excitation", data, node_id)
@@ -817,7 +821,7 @@ class ReciprocatingPumpInputs(QDialog):
             title = "Empty node selection"
             message = "You should to select a node from the list "
             message += "to proceed with the removal."
-            PrintMessageInput([window_title_2, title, message])
+            PrintMessageInput([warning_title, title, message])
             return
             
         node_id = int(self.lineEdit_selected_node_id.text())
