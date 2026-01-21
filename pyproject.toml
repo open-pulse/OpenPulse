@@ -32,6 +32,8 @@ fileboxes = "^0.1.4"
 ordered-set = "^4.1.0"
 pypardiso-mopt = "^0.1.0"
 pyside6 = "^6.8.1.1"
+polars = "^1.37.1"
+pyarrow = "^23.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.3.0"

@@ -125,8 +125,7 @@ class ImportDataToCompare(QDialog):
         self.update_treeWidget_info()
 
     def import_results(self, imported_path: str):
-
-        from pandas import read_excel
+        from polars import read_excel
         from openpyxl import load_workbook
 
         try:
@@ -162,15 +161,13 @@ class ImportDataToCompare(QDialog):
                                 sheet_data = read_excel(
                                                         imported_path, 
                                                         sheet_name = sheetname, 
-                                                        header = skiprows, 
-                                                        usecols = [0,1,2]
+                                                        columns = [0,1,2]
                                                         ).to_numpy()
                             except:
                                 sheet_data = read_excel(
                                                         imported_path, 
                                                         sheet_name = sheetname, 
-                                                        header = skiprows, 
-                                                        usecols = [0,1]
+                                                        columns = [0,1]
                                                         ).to_numpy()
 
                             key = self.get_data_index()
