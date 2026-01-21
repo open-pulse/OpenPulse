@@ -15,7 +15,7 @@ class PlotReactionsForStaticAnalysis(QWidget):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/results/structural/get_reactions_for_static_analysis.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self)
         
         app().main_window.set_input_widget(self)
 

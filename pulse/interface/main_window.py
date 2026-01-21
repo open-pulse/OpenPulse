@@ -62,7 +62,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         ui_path = UI_DIR / 'main_window.ui'
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self)
 
         self.selected_nodes = set()
         self.selected_lines = set()

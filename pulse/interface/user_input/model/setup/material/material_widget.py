@@ -34,7 +34,7 @@ class MaterialWidget(QWidget):
 
         ui_path = UI_DIR / "model/setup/material/material_input_widget.ui"
 
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self)
 
         self.project = app().project
         self.properties = app().project.model.properties

@@ -14,7 +14,7 @@ class NomeDaClasse(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "nome_do_ui_path.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self)
 
         self.project = app().project
 

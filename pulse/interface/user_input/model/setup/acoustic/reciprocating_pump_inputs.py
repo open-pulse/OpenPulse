@@ -13,6 +13,7 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
 
 from molde import load_ui
+from pathlib import Path
 
 import numpy as np
 
@@ -28,7 +29,7 @@ class ReciprocatingPumpInputs(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/acoustic/reciprocating_pump_inputs.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties

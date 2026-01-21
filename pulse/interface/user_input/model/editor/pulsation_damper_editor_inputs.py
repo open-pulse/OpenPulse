@@ -38,7 +38,7 @@ class PulsationDamperEditorInputs(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/editor/pulsation_damper_editor_inputs.ui"
-        load_ui(ui_path, self, ui_path.parent)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
