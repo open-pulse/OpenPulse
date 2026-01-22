@@ -1692,8 +1692,6 @@ class Preprocessor:
 
             acoustic_element = self.structural_to_acoustic_element[element]
             acoustic_elements.append(acoustic_element)
-            # if element.element_type == "valve":
-            #     print(element.element_type, element.index)
 
         return acoustic_elements   
 

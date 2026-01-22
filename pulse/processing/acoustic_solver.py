@@ -46,9 +46,9 @@ class AcousticSolver:
 
         self.nl_pp_elements = self.check_non_linear_perforated_plate()
 
-        self._initialize()
+        self.reset_variables()
 
-    def _initialize(self):
+    def reset_variables(self):
 
         self.solution = None
         self.modal_shapes = None
@@ -194,7 +194,7 @@ class AcousticSolver:
             Modal shapes
         """
 
-        modes = kwargs.get("modes", 40)
+        modes = kwargs.get("modes_number", 40)
         which = kwargs.get("which", "LM")
         sigma_factor = kwargs.get("sigma_factor", 1e-4)
 

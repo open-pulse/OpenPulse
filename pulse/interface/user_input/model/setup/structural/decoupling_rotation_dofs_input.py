@@ -245,7 +245,6 @@ class DecouplingRotationDOFsInput(QDialog):
             
             element_ids = list()
             for (property, element_id) in self.properties.element_properties.keys():
-                print(property, property == "B2P_rotation_decoupling")
                 if property == "B2P_rotation_decoupling":
                     element_ids.append(element_id)
 
