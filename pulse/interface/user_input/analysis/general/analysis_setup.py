@@ -112,7 +112,7 @@ class AnalysisSetupInput(QDialog):
 
     def load_analysis_setup(self):
 
-        analysis_setup = app().project.analysis_setup
+        analysis_setup = app().project.model.analysis_setup
 
         f_min = analysis_setup.get("f_min", 1)
         f_max = analysis_setup.get("f_max", 200)
@@ -258,8 +258,9 @@ class AnalysisSetupInput(QDialog):
 
         if app().project.model.properties.check_if_there_are_tables_at_the_model():
             self.frequencies = self.model.frequencies
+
         else:
-            self.model.set_frequency_setup(analysis_setup)
+            self.model.set_analysis_setup(analysis_setup)
 
         if self.analysis_id in [1, 6]:
             analysis_setup["modes_number"] = number_of_modes

@@ -40,7 +40,6 @@ class Project:
         self.reset()
 
     def _initialize(self):
-        self.analysis_setup = dict()
         self.structural_reactions = dict()
         self.natural_frequencies_acoustic = list()
         self.natural_frequencies_structural = list()
@@ -91,7 +90,7 @@ class Project:
         if self.structural_solver is not None:
             self.structural_solver.reset_variables()
 
-        if not self.analysis_setup:
+        if not self.model.analysis_setup:
             return
 
         # self.create_solver()
@@ -330,10 +329,6 @@ class Project:
 
         return False
 
-    def set_analysis_setup(self, analysis_setup: dict):
-        self.analysis_setup = analysis_setup
-        self.model.set_analysis_setup(analysis_setup)
-
     def get_structural_elements(self):
         return self.model.preprocessor.structural_elements
     
@@ -539,11 +534,11 @@ class Project:
 
     @property
     def analysis_id(self):
-        return self.analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
+        return self.model.analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
 
     @property
     def analysis_method(self):
-        return self.analysis_setup.get("analysis_method", "--")
+        return self.model.analysis_setup.get("analysis_method", "--")
 
     def initialize_solver(self):
 
@@ -596,7 +591,7 @@ class Project:
 
     def process_analysis(self):
 
-        if not self.analysis_setup:
+        if not self.model.analysis_setup:
             return
 
         if self.analysis_id == AnalysisID.STRUCTURAL_HARMONIC:

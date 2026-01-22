@@ -102,11 +102,13 @@ class ModalAnalysisInput(QDialog):
         
         analysis_id = app().main_window.analysis_toolbar.get_current_analysis_id()
 
-        self.analysis_setup = {
+        analysis_setup = {
             "analysis_id": analysis_id,
             "modes_number": self.modes_number,
             "sigma_factor": self.sigma_factor,
         }
+
+        app().project.model.set_analysis_setup(analysis_setup)
 
         self.setup_defined = True
         app().main_window.analysis_toolbar.enable_pushbutons.emit()
