@@ -36,9 +36,18 @@ class Project:
         self.frames = 40
         self.cycles = 3
 
-        self.analysis_setup = dict()
-
+        self._initialize()
         self.reset()
+
+    def _initialize(self):
+        self.analysis_setup = dict()
+        self.structural_reactions = dict()
+        self.natural_frequencies_acoustic = list()
+        self.natural_frequencies_structural = list()
+        self.complex_natural_frequencies_acoustic = list()
+
+        self.preferences = dict()
+        self.color_scale_setup = dict()
 
     def reset(self, reset_all=False):
 
@@ -47,8 +56,8 @@ class Project:
             self.model.preprocessor.reset_variables()
             #TODO: reset nodal, element and line properties
 
-        self.preferences = dict()
-        self.color_scale_setup = dict()
+        self.preferences.clear()
+        self.color_scale_setup.clear()
 
         self.perforated_plate_data_log = None
         self.none_project_action = False
@@ -61,28 +70,20 @@ class Project:
 
         self.reset_analysis_setup()
         self.reset_solvers()
-        self.reset_solution()
+        self.reset_solutions()
 
     def reset_solvers(self):
         self.acoustic_solver = None
         self.structural_solver = None
 
-    def reset_solution(self):
+    def reset_solutions(self):
         self.structural_solution = None
         self.acoustic_solution = None
 
-        self.natural_frequencies_acoustic = list()
-        self.natural_frequencies_structural = list()
-        self.complex_natural_frequencies_acoustic = list()
-
-        self.acoustic_harmonic_solution = None
-        self.acoustic_modal_solution = None
-        self.structural_harmonic_solution = None
-        self.structural_modal_solution = None
-        self.structural_static_solution = None
-        self.structural_reactions = dict()
-
-    def reset_solutions(self):
+        self.natural_frequencies_acoustic.clear()
+        self.natural_frequencies_structural.clear()
+        self.complex_natural_frequencies_acoustic.clear()
+        self.structural_reactions.clear()
 
         if self.acoustic_solver is not None:
             self.acoustic_solver.reset_variables()
@@ -161,6 +162,7 @@ class Project:
         self.model.preprocessor.generate()
         if app() is None:
             return
+
         app().main_window.update_status_bar_info()
         # dt = time()-t0
         # print(f"Time to process_geometry_and_mesh: {dt} [s]")
@@ -511,21 +513,6 @@ class Project:
     def get_structural_solution(self):
         return self.structural_solution
 
-    def get_acoustic_harmonic_solution(self):
-        return self.acoustic_harmonic_solution
-
-    def get_acoustic_modal_solution(self):
-        return self.acoustic_modal_solution
-
-    def get_structural_harmonic_solution(self):
-        return self.structural_harmonic_solution
-
-    def get_structural_modal_solution(self):
-        return self.structural_modal_solution
-
-    def get_structural_static_solution(self):
-        return self.structural_static_solution
-
     def get_acoustic_solution(self):
         return self.acoustic_solution
 
@@ -548,8 +535,7 @@ class Project:
         elif self.structural_solution is not None:
             return True
 
-        else:
-            return False
+        return False
 
     @property
     def analysis_id(self):
@@ -620,7 +606,6 @@ class Project:
                 self.structural_solver.mode_superposition(self.modes)
 
             self.structural_solution = self.structural_solver.solution
-            # self.structural_harmonic_solution = self.structural_solver.solution
 
         elif self.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
             self.acoustic_solver.direct_method()
@@ -639,25 +624,21 @@ class Project:
                 self.structural_solver.mode_superposition(self.modes)
 
             self.structural_solution = self.structural_solver.solution
-            # self.structural_harmonic_solution = self.structural_solver.solution
 
         elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
             self.structural_solver.modal_analysis(modes = self.modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_structural = self.structural_solver.natural_frequencies
             self.structural_solution = self.structural_solver.modal_shapes
-            # self.structural_modal_solution = self.structural_solver.modal_shapes
 
         elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
             self.acoustic_solver.modal_analysis(modes = self.modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_acoustic = self.acoustic_solver.natural_frequencies
             self.complex_natural_frequencies_acoustic = self.acoustic_solver.complex_natural_frequencies
             self.acoustic_solution = self.acoustic_solver.modal_shapes
-            # self.structural_modal_solution = self.acoustic_solver.modal_shapes
 
         elif self.analysis_id == AnalysisID.STRUCTURAL_STATIC:
             self.structural_solver.static_analysis()
             self.structural_solution = self.structural_solver.solution
-            # self.structural_static_solution = self.structural_solver.solution
 
         else:
             raise NotImplementedError("Not implemented analysis")
@@ -706,7 +687,7 @@ class Project:
         self.file.write_results_data_in_file()
 
         if self.model.preprocessor.stop_processing:
-            self.reset_solution()
+            self.reset_solutions()
             self.model.preprocessor.stop_processing = False
             return
 
@@ -778,10 +759,5 @@ class Project:
 
         self.after_run = self.get_post_solution_model_checks()
         self.after_run.check_all_acoustic_criterias()
-
-        app().main_window.use_results_workspace()
-        app().main_window.results_widget.show_empty()
-        app().main_window.results_viewer_widget.bottom_widget.hide()
-        app().main_window.results_viewer_widget.results_viewer_items._update_items()
 
 # fmt: on
