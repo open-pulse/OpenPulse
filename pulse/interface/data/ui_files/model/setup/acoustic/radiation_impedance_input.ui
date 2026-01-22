@@ -425,7 +425,7 @@
               <widget class="QComboBox" name="comboBox_radiation_impedance_type">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>100</width>
                  <height>26</height>
                 </size>
                </property>
