@@ -171,7 +171,7 @@ class AnalysisToolbar(QToolBar):
         self.combo_box_physical_domain.currentTextChanged.connect(self.check_analysis_setup_callback)
         #
         self.pushButton_configure_analysis.clicked.connect(self.configure_analysis)
-        self.pushButton_reset_solution.clicked.connect(self.project_solution_data_reset_callback)
+        self.pushButton_reset_solution.clicked.connect(self.project_solution_data_reset)
         self.pushButton_run_analysis.clicked.connect(self.run_analysis)
         #
         self.enable_pushbutons.connect(self.check_analysis_setup_callback)
@@ -279,11 +279,19 @@ class AnalysisToolbar(QToolBar):
 
     def run_analysis(self):
         app().project.run_analysis()
-
         self.post_processing_analysis()
 
     def post_processing_analysis(self):
         logging.info("Post-processing results... [10/100]")
+        app().main_window.update_results_workspace_button_accessibility()
+        
+        logging.info("Post-processing results... [50/100]")
+        app().main_window.use_results_workspace()
+        app().main_window.results_widget.show_empty()
+        app().main_window.results_viewer_widget.bottom_widget.hide()
+        
+        logging.info("Post-processing results... [95/100]")
+        app().main_window.results_viewer_widget.results_viewer_items._update_items()
         self.set_pushbutton_reset_solution_enabled()
 
     def update_run_analysis_button(self):
@@ -340,7 +348,7 @@ class AnalysisToolbar(QToolBar):
         setup_complete = app().project.is_analysis_setup_complete()
         self.pushButton_run_analysis.setEnabled(setup_complete)
 
-    def project_solution_data_reset_callback(self):
+    def project_solution_data_reset(self):
 
         title = "Removal of project solution data"
         message = "Would you like to delete all solution data from this project? "
@@ -368,6 +376,7 @@ class AnalysisToolbar(QToolBar):
         self.pushButton_reset_solution.setDisabled(True)
         app().main_window.project_data_modified = True
         app().main_window.use_model_setup_workspace()
+        app().main_window.update_results_workspace_button_accessibility()
 
     def configure_analysis(self):
 
