@@ -11,11 +11,10 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 
 from molde import load_ui
 
-from collections import defaultdict
 
+error_title = "Error"
+warning_title = "Warning"
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class BeamXaxisRotationInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -200,7 +199,7 @@ class BeamXaxisRotationInput(QDialog):
             title = f"Invalid X-axis Rotation Angle"
             message = f"Please, inform a valid number at the 'Rotation angle' input field to continue.\n\n"
             message += f"{str(error_log)}"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True, None
         return False, rotation_angle
 
@@ -217,7 +216,7 @@ class BeamXaxisRotationInput(QDialog):
                 title = "Invalid lines selected"
                 message = "No beam lines have been detected in the current selection. "
                 message += "To proceed, it is necessary to change the lines selection."
-                PrintMessageInput([window_title_2, title, message])                
+                PrintMessageInput([warning_title, title, message])                
 
         except:
             return True, beam_lines

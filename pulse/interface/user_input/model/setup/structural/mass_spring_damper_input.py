@@ -12,8 +12,9 @@ import os
 import numpy as np
 from pathlib import Path
 
-window_title_1 ="Error"
-window_title_2 ="Warning"
+
+error_title ="Error"
+
 
 class MassSpringDamperInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -419,7 +420,7 @@ class MassSpringDamperInput(QDialog):
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for {label}."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True, None
         else:
             value = 0
@@ -591,7 +592,7 @@ class MassSpringDamperInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one external element\n"
             message += "before confirming the input!"
-            PrintMessageInput([window_title_1, title, message]) 
+            PrintMessageInput([error_title, title, message]) 
             return
 
         self.actions_to_finalize()
@@ -630,16 +631,12 @@ class MassSpringDamperInput(QDialog):
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 lineEdit.setFocus()
                 return None, None
 
-            imported_values = imported_file[:,1] + 1j*imported_file[:,2]
-
-            self.frequencies = imported_file[:,0]
-            f_min = self.frequencies[0]
-            f_max = self.frequencies[-1]
-            f_step = self.frequencies[1] - self.frequencies[0] 
+            self.frequencies = imported_file[:, 0]
+            complex_values = imported_file[:, 1] + 1j * imported_file[:, 2]
             
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
@@ -652,22 +649,19 @@ class MassSpringDamperInput(QDialog):
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
 
-                frequency_setup = { "f_min" : f_min,
-                                    "f_max" : f_max,
-                                    "f_step" : f_step }
+                analysis_setup = app().project.model.analysis_setup
+                app().project.file.write_analysis_setup_in_file(analysis_setup)
 
-                app().project.model.set_frequency_setup(frequency_setup)
-            
-            return imported_values, path_imported_table
+            return complex_values, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -834,11 +828,11 @@ class MassSpringDamperInput(QDialog):
                 coords = np.round(node.coordinates, 5)
 
                 _data = {
-                        "coords" : list(coords),
-                        "table_names" : table_names,
-                        "table_paths" : table_paths,
-                        "values" : values
-                        }
+                    "coords" : list(coords),
+                    "table_names" : table_names,
+                    "table_paths" : table_paths,
+                    "values" : values,
+                    }
 
                 self.properties._set_nodal_property("lumped_masses", _data, node_id)
 
@@ -988,7 +982,7 @@ class MassSpringDamperInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one external element\n" 
             message += "table path before confirming the input!"
-            PrintMessageInput([window_title_1, title, message]) 
+            PrintMessageInput([error_title, title, message]) 
             return
 
         self.actions_to_finalize()

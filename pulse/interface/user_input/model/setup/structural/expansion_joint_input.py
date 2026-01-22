@@ -16,8 +16,9 @@ import numpy as np
 from pathlib import Path
 from os.path import basename
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+
+error_title = "Error"
+
 
 class ExpansionJointInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -161,7 +162,7 @@ class ExpansionJointInput(QDialog):
         except Exception as log_error:
             title = "Error in 'update' function"
             message = str(log_error) 
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
     def _configure_appearance(self):
 
@@ -264,7 +265,7 @@ class ExpansionJointInput(QDialog):
         except Exception as error_log:
             title = "Error while loading info from entity"
             message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
     def check_input_parameters(self, lineEdit: QLineEdit, label: str, _float=True):
 
@@ -294,7 +295,7 @@ class ExpansionJointInput(QDialog):
             message += "You should to enter a positive value to proceed."
 
         if message != "":
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True, None
         else:
             return False, value
@@ -416,21 +417,17 @@ class ExpansionJointInput(QDialog):
 
             imported_filename = basename(path_imported_table)
             lineEdit.setText(path_imported_table)         
-            imported_file = np.loadtxt(path_imported_table, delimiter=",")
+            imported_data = np.loadtxt(path_imported_table, delimiter=",")
         
-            if imported_file.shape[1] < 3:
+            if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 lineEdit.setFocus()
                 return None, None
 
-            imported_values = imported_file[:,1] + 1j*imported_file[:,2]
-
-            self.frequencies = imported_file[:,0]
-            f_min = self.frequencies[0]
-            f_max = self.frequencies[-1]
-            f_step = self.frequencies[1] - self.frequencies[0] 
+            self.frequencies = imported_data[:, 0]
+            complex_values = imported_data[:, 1] + 1j * imported_data[:, 2]
             
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
@@ -443,22 +440,19 @@ class ExpansionJointInput(QDialog):
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
 
-                frequency_setup = { "f_min" : f_min,
-                                    "f_max" : f_max,
-                                    "f_step" : f_step }
+                analysis_setup = app().project.model.analysis_setup
+                app().project.file.write_analysis_setup_in_file(analysis_setup)
 
-                app().project.model.set_frequency_setup(frequency_setup)
-
-            return imported_values, path_imported_table
+            return complex_values, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -592,7 +586,7 @@ class ExpansionJointInput(QDialog):
         except Exception as log_error:
             title = "Error while loading stiffness table of values"
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
 
     def process_line_length(self, line_id: int):

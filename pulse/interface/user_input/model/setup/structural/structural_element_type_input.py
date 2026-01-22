@@ -11,8 +11,10 @@ from molde import load_ui
 
 from collections import defaultdict
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+
+error_title = "Error"
+warning_title = "Warning"
+
 
 class StructuralElementTypeInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -234,7 +236,7 @@ class StructuralElementTypeInput(QDialog):
 
                 message += "has been modified, therefore, it is necessary to update \n"
                 message += "the cross-section(s) of this(ese) line(s) to continue."
-                PrintMessageInput([window_title_2, title, message])
+                PrintMessageInput([warning_title, title, message])
 
     def update_modified_cross_sections(self, lines_to_reset: list):
         app().project.model.preprocessor.set_cross_section_by_lines(lines_to_reset, None)
@@ -407,12 +409,12 @@ class StructuralElementTypeInput(QDialog):
             else:
                 title = "Invalid selection"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([window_title_2, title, message])
+                PrintMessageInput([warning_title, title, message])
 
         except Exception as error_log:
             title = "Error while getting information of selected group"
             message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
         self.show()
 

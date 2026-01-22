@@ -10,8 +10,8 @@ from molde import load_ui
 
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
+warning_title = "Warning"
 
 class SetInertialLoad(QDialog):
     def __init__(self, *args, **kwargs):
@@ -98,7 +98,7 @@ class SetInertialLoad(QDialog):
         #     message = "Dear user, you should to enter a valid gravity setup to proceed. The null "
         #     message += "gravity vector does not provide an effective static loading."
         #     #
-        #     text_info = [title, message, window_title_2]
+        #     text_info = [title, message, warning_title]
         #     PrintMessageInput(text_info)
         #     #
         #     return True
@@ -142,7 +142,7 @@ class SetInertialLoad(QDialog):
 
         title = "Invalid input to the analysis setup"
         if message != "":
-            PrintMessageInput([window_title_1, title, message])                   
+            PrintMessageInput([error_title, title, message])                   
             self.stop = True
             return None
 
