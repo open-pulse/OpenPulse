@@ -232,7 +232,7 @@ def test_coupled_harmonic_analysis():
 
     # analysis_setup = {
     #                   "analysis_id" : 4,
-    #                   "modes" : 40,
+    #                   "modes_number" : 40,
     #                   "sigma_factor" : 1e-2
     #                   }
 
