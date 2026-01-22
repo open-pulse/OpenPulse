@@ -100,9 +100,17 @@ def nodes_info_text() -> str:
         key = ("radiation_impedance", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            impedance_type = data["impedance_type"]
-            labels = ["anechoic termination", "flanged pipe", "unflanged pipe"]
-            info_text += _acoustic_format("Radiation impedance", labels[impedance_type], "Type", "")
+
+            impedance_type = data.get("impedance_type")
+            if impedance_type == "anechoic":
+                impedance_label = "anechoic termination"
+            elif impedance_type == "flanged":
+                impedance_label = "flanged pipe"
+            elif impedance_type == "unflanged":
+                impedance_label = "unflanged pipe"
+
+            if isinstance(impedance_type, str):
+                info_text += _acoustic_format("Radiation impedance", impedance_label, "Type", "")
 
         key = ("reciprocating_compressor_excitation", node_id)
         if key in properties.nodal_properties.keys():

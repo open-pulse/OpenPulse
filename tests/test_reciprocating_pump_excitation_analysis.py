@@ -279,7 +279,7 @@ def test_coupled_harmonic_analysis():
 
         data = {
                 "coords" : list(coords),
-                "impedance_type" : 0,
+                "impedance_type" : "anechoic",
                 }
 
         model.properties._set_nodal_property("radiation_impedance", data, node_id)
