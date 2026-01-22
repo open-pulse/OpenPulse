@@ -43,7 +43,7 @@ class PlotTransmissionLoss(QWidget):
         self.unit_label = "dB"
         self.frequencies = self.model.frequencies
         self.elements = self.preprocessor.acoustic_elements
-        self.analysis_method = self.project.analysis_method_label
+        self.analysis_method = self.project.analysis_method
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -263,7 +263,7 @@ class PlotTransmissionLoss(QWidget):
 
     def join_model_data(self):
         self.model_results = dict()
-        self.title = "Acoustic frequency response - {}".format(self.analysis_method)
+        self.title = f"Acoustic frequency response - {self.analysis_method} method"
         legend_label = "{} between nodes {} and {}".format(self.y_label,
                                                            self.input_node_id, 
                                                            self.output_node_id)

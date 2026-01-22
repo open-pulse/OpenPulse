@@ -268,14 +268,14 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
             return
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
-        self.plotter._set_model_results_data_to_plot(app().project.model_results)
+        self.plotter._set_model_results_data_to_plot(self.model_results)
 
     def call_data_exporter(self):
         if self.check_inputs():
             return
         self.join_model_data()
         self.exporter = ExportModelResults()
-        self.exporter._set_data_to_export(app().project.model_results)
+        self.exporter._set_data_to_export(self.model_results)
 
     def check_inputs(self):
         
@@ -326,24 +326,24 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
 
     def join_model_data(self):
 
-        app().project.model_results = dict()
-        analysis_method = app().project.analysis_method_label
-        self.title = f"Structural frequency response - {analysis_method}"
+        self.model_results = dict()
+
+        self.title = f"Structural frequency response - {app().project.analysis_method} method"
         legend_label = f"Reaction {self.local_dof_label} at node {self.node_id}"
 
         key = ("node", self.node_id)
-        app().project.model_results[key] = {
-                                    "x_data" : app().project.model.frequencies,
-                                    "y_data" : self.get_reactions(),
-                                    "x_label" : "Frequency [Hz]",
-                                    "y_label" : "Reaction",
-                                    "title" : self.title,
-                                    "data_information" : legend_label,
-                                    "legend" : legend_label,
-                                    "unit" : self.unit_label,
-                                    "color" : self.get_color(0),
-                                    "linestyle" : "-"  
-                                    }
+        self.model_results[key] = {
+            "x_data" : app().project.model.frequencies,
+            "y_data" : self.get_reactions(),
+            "x_label" : "Frequency [Hz]",
+            "y_label" : "Reaction",
+            "title" : self.title,
+            "data_information" : legend_label,
+            "legend" : legend_label,
+            "unit" : self.unit_label,
+            "color" : self.get_color(0),
+            "linestyle" : "-"  
+            }
 
     def get_color(self, index):
 

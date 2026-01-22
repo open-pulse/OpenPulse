@@ -31,21 +31,21 @@ class PlotStressesForHarmonicAnalysis(QWidget):
     def _initialize(self):
         
         self.keys = np.arange(7)
-        self.labels = np.array(["Normal axial", 
-                                "Normal bending y", 
-                                "Normal bending z", 
-                                "Hoop", 
-                                "Torsional shear", 
-                                "Transversal shear xy", 
-                                "Transversal shear xz"])
-        
+        self.labels = np.array([
+            "Normal axial", 
+            "Normal bending y", 
+            "Normal bending z", 
+            "Hoop", 
+            "Torsional shear", 
+            "Transversal shear xy", 
+            "Transversal shear xz"
+            ])
+
         self.stress_data = list()
 
         self.before_run = app().project.get_pre_solution_model_checks()
-
         self.frequencies = app().project.model.frequencies
-        self.analysis_method = app().project.analysis_method_label
-    
+
     def _load_structural_solver(self):
 
         if app().project.structural_solver is None:
@@ -132,7 +132,7 @@ class PlotStressesForHarmonicAnalysis(QWidget):
     def join_model_data(self):
 
         self.model_results = dict()
-        title = f"Structural frequency response - {self.analysis_method}"
+        title = f"Structural frequency response - {app().project.analysis_method} method"
 
         for k, element_id in enumerate(self.element_ids):
                 
