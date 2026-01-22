@@ -146,30 +146,31 @@ class PlotTransmissionLoss(QWidget):
         if self.comboBox_processing_selector.currentIndex() == 0:
 
             vv_data = app().project.model.properties._get_property("volume_velocity", node_ids=self.input_node_id)
-            input_at = app().project.model.properties._get_property("radiation_impedance", node_ids=self.input_node_id)
+            input_impedance = app().project.model.properties._get_property("radiation_impedance", node_ids=self.input_node_id)
+            output_impedance = app().project.model.properties._get_property("radiation_impedance", node_ids=self.output_node_id)
             
-            if (vv_data, input_at).count(None):
+            if (vv_data, input_impedance).count(None):
                 self.input_node_id = None
                 self.lineEdit_input_node_id.setText("")
 
             elif "values" in vv_data.keys():
                 self.input_volume_velocity = np.real(vv_data["values"])
-                input_impedance_type = input_at["impedance_type"]
-                if input_impedance_type != 0:
-                    self.input_node_id = None
-                    self.lineEdit_input_node_id.setText("")
+                input_impedance_type = input_impedance["impedance_type"]
+                if isinstance(input_impedance_type, str):
+                    if input_impedance_type != "anechoic":
+                        self.input_node_id = None
+                        self.lineEdit_input_node_id.setText("")
 
-            output_at = app().project.model.properties._get_property("radiation_impedance", node_ids=self.output_node_id)
-
-            if output_at is None:
+            if output_impedance is None:
                 self.output_node_id = None
                 self.lineEdit_output_node_id.setText("")
 
-            elif "impedance_type" in output_at.keys():
-                output_impedance_type = output_at["impedance_type"]
-                if output_impedance_type != 0:
-                    self.output_node_id = None
-                    self.lineEdit_output_node_id.setText("")
+            elif isinstance(output_impedance, dict):
+                output_impedance_type = output_impedance.get("impedance_type")
+                if isinstance(output_impedance_type, str):
+                    if output_impedance_type != "anechoic":
+                        self.output_node_id = None
+                        self.lineEdit_output_node_id.setText("")
 
         else:
 

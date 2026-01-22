@@ -70,7 +70,7 @@ class AddAcousticTransferElementInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_invert_selection: QPushButton
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
@@ -86,7 +86,7 @@ class AddAcousticTransferElementInput(QDialog):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_invert_selection.clicked.connect(self.invert_selection_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_search.clicked.connect(self.search_callback)
@@ -378,7 +378,6 @@ class AddAcousticTransferElementInput(QDialog):
         app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodal_info()
-        self.pushButton_cancel.setText("Exit")
 
     def on_click_item(self, item):
         input_node_id = int(item.text(1))

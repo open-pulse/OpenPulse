@@ -66,7 +66,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute : QPushButton
-        self.pushButton_cancel : QPushButton
+        self.pushButton_exit : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
 
@@ -79,7 +79,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -269,7 +269,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
         app().main_window.set_selection()
         self.load_elements_info()
         self.lineEdit_element_id.setText("")
-        self.pushButton_cancel.setText("Exit")
 
     def maps_correction_type_to_elements(self):
 

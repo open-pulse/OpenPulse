@@ -111,7 +111,7 @@ class PerforatedPlateInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute : QPushButton
-        self.pushButton_cancel : QPushButton
+        self.pushButton_exit : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
         self.pushButton_load_table : QPushButton
@@ -147,7 +147,7 @@ class PerforatedPlateInput(QDialog):
         self.lineEdit_hole_diameter.textChanged.connect(self.single_hole_perforated_plate_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_load_table.clicked.connect(self.load_table_button_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
@@ -758,7 +758,6 @@ class PerforatedPlateInput(QDialog):
         app().main_window.update_plots()
         self.load_elements_info()
         self.lineEdit_element_id.setText("")
-        self.pushButton_cancel.setText("Exit")
         self.complete = True   
 
     def process_table_file_removal(self, table_names : list):

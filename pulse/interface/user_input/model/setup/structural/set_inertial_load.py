@@ -57,11 +57,11 @@ class SetInertialLoad(QDialog):
 
         # QPushButton
         self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
 
     def _create_connections(self):
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
 
     def _config_widgets(self):
         pass

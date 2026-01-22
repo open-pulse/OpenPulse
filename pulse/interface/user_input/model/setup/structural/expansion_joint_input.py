@@ -105,7 +105,7 @@ class ExpansionJointInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_load_table_axial_stiffness: QPushButton
@@ -125,7 +125,7 @@ class ExpansionJointInput(QDialog):
         self.comboBox_axial_stop_rod.currentIndexChanged.connect(self.axial_stop_rod_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #

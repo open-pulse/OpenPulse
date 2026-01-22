@@ -1007,7 +1007,7 @@
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QPushButton" name="pushButton_cancel_tab0">
+              <widget class="QPushButton" name="pushButton_exit_tab0">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -1029,7 +1029,7 @@
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Cancel</string>
+                <string>Exit</string>
                </property>
                <property name="autoDefault">
                 <bool>false</bool>
@@ -1131,7 +1131,7 @@
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QPushButton" name="pushButton_cancel_tab1">
+              <widget class="QPushButton" name="pushButton_exit_tab1">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -1153,7 +1153,7 @@
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Cancel</string>
+                <string>Exit</string>
                </property>
                <property name="autoDefault">
                 <bool>false</bool>
@@ -2195,7 +2195,7 @@
   <tabstop>lineEdit_real_mz</tabstop>
   <tabstop>lineEdit_imag_mz</tabstop>
   <tabstop>pushButton_constant_value_confirm</tabstop>
-  <tabstop>pushButton_cancel_tab0</tabstop>
+  <tabstop>pushButton_exit_tab0</tabstop>
   <tabstop>lineEdit_path_table_fx</tabstop>
   <tabstop>pushButton_load_fx_table</tabstop>
   <tabstop>lineEdit_path_table_fy</tabstop>
@@ -2209,7 +2209,7 @@
   <tabstop>lineEdit_path_table_mz</tabstop>
   <tabstop>pushButton_load_mz_table</tabstop>
   <tabstop>pushButton_table_values_confirm</tabstop>
-  <tabstop>pushButton_cancel_tab1</tabstop>
+  <tabstop>pushButton_exit_tab1</tabstop>
   <tabstop>treeWidget_nodal_info</tabstop>
   <tabstop>pushButton_remove</tabstop>
   <tabstop>pushButton_reset</tabstop>

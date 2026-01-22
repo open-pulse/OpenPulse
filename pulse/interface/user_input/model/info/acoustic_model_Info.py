@@ -116,12 +116,14 @@ class AcousticModelInfo(QDialog):
 
             if property == "radiation_impedance":
                 node_id = args[0]
-                index = data["impedance_type"]
-                impedance_types = ["Anechoic", "Unflanged", "Flanged"]    
-                item = QTreeWidgetItem([str(node_id), impedance_types[index]])
-                for i in range(2):
-                    item.setTextAlignment(i, Qt.AlignCenter)
-                self.treeWidget_radiation_impedance.addTopLevelItem(item)
+                impedance_type = data.get("impedance_type")
+                if isinstance(impedance_type, str):
+                    impedance_type = impedance_type.capitalize()
+                    item = QTreeWidgetItem([str(node_id), impedance_type])
+                    for i in range(2):
+                        item.setTextAlignment(i, Qt.AlignCenter)
+
+                    self.treeWidget_radiation_impedance.addTopLevelItem(item)
 
     def load_elements_properties(self):
 

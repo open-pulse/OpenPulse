@@ -121,7 +121,7 @@
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton_cancel">
+       <widget class="QPushButton" name="pushButton_exit">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -150,7 +150,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Cancel</string>
+         <string>Exit</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>

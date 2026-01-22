@@ -894,7 +894,7 @@
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QPushButton" name="pushButton_cancel">
+              <widget class="QPushButton" name="pushButton_exit">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -920,7 +920,7 @@
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Cancel</string>
+                <string>Exit</string>
                </property>
                <property name="autoDefault">
                 <bool>false</bool>
@@ -1133,7 +1133,7 @@
   <tabstop>tabWidget_inputs</tabstop>
   <tabstop>lineEdit_real_value</tabstop>
   <tabstop>lineEdit_imag_value</tabstop>
-  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_exit</tabstop>
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>lineEdit_table_path</tabstop>
   <tabstop>pushButton_search</tabstop>

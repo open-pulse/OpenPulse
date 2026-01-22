@@ -63,7 +63,7 @@ class VolumeVelocityInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_search: QPushButton
@@ -83,7 +83,7 @@ class VolumeVelocityInput(QDialog):
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_search.clicked.connect(self.load_volume_velocity_table)
@@ -469,7 +469,6 @@ class VolumeVelocityInput(QDialog):
         app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
-        self.pushButton_cancel.setText("Exit")
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.setText("")

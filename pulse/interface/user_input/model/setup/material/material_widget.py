@@ -77,7 +77,7 @@ class MaterialWidget(QWidget):
 
         # QPushButton
         self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_add_column: QPushButton
         self.pushButton_remove_column: QPushButton
         self.pushButton_reset_library: QPushButton
@@ -255,8 +255,6 @@ class MaterialWidget(QWidget):
         material = self.library_materials[identifier]
 
         self.remove_material_from_file(material)
-        self.pushButton_cancel.setText("Exit")
-
         self._update_size_policy()
 
     def item_changed_callback(self, item : QTableWidgetItem):
@@ -425,7 +423,6 @@ class MaterialWidget(QWidget):
             config[identifier] = material_data
 
             app().project.file.write_material_library_in_file(config)
-            self.pushButton_cancel.setText("Exit")
 
         except Exception as error_log:
             title = "Error while writing material data in file"
@@ -514,8 +511,8 @@ class MaterialWidget(QWidget):
     def reset_library_callback(self):
         if self.get_confirmation_to_proceed():
             self.reset_library_to_default()
-            self.pushButton_cancel.setText("Exit")
             return True
+
         return False
 
     def reset_library_to_default(self):

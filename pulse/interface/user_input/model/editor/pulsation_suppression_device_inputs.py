@@ -135,7 +135,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.lineEdit_selection: QLineEdit
 
         # QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_show_errors: QPushButton
         self.pushButton_create_psd: QPushButton
         self.pushButton_remove: QPushButton
@@ -183,7 +183,7 @@ class PulsationSuppressionDeviceInputs(QDialog):
             self.update_tuned_filter_callback
         )
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_show_errors.clicked.connect(self.show_errors_callback)
         self.pushButton_create_psd.clicked.connect(self.create_psd_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
@@ -389,10 +389,10 @@ class PulsationSuppressionDeviceInputs(QDialog):
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 0:
-            self.pushButton_cancel.setDisabled(False)
+            self.pushButton_exit.setDisabled(False)
             self.pushButton_create_psd.setDisabled(False)
         else:
-            self.pushButton_cancel.setDisabled(True)
+            self.pushButton_exit.setDisabled(True)
             self.pushButton_create_psd.setDisabled(True)
 
     def on_click_item(self, item):

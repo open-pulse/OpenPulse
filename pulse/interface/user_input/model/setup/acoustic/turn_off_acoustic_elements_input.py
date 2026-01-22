@@ -66,7 +66,7 @@ class TurnOffAcousticElementsInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute : QPushButton
-        self.pushButton_cancel : QPushButton
+        self.pushButton_exit : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
 
@@ -79,7 +79,7 @@ class TurnOffAcousticElementsInput(QDialog):
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -191,7 +191,6 @@ class TurnOffAcousticElementsInput(QDialog):
         app().project.file.write_element_properties_in_file()
         app().main_window.update_plots()
         self.load_elements_info()
-        self.pushButton_cancel.setText("Exit")
 
     def load_elements_info(self):
 
