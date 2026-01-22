@@ -174,10 +174,13 @@ class ImportDataToCompare(QDialog):
                                                         ).to_numpy()
 
                             key = self.get_data_index()
-                            self.imported_results[key] = {  "data" : sheet_data,
-                                                            "filename" : filename,
-                                                            "sheetname" : sheetname,
-                                                            "extension" : sufix  }
+
+                            self.imported_results[key] = {  
+                                "data" : sheet_data,
+                                "filename" : filename,
+                                "sheetname" : sheetname,
+                                "extension" : sufix  
+                                }
 
                     self.spinBox_skiprows.setValue(int(skiprows))
                     run = False

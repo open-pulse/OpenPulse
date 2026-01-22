@@ -1,6 +1,7 @@
 #fmt: off
 
 from pulse import app
+from pulse.model import AnalysisID
 from pulse.utils.unit_conversion import mm_to_m
 
 from molde.utils import TreeInfo, format_long_sequence
@@ -348,7 +349,11 @@ def analysis_info_text(frequency_index: int):
     project = app().project
     tree = TreeInfo(project.analysis_type_label)
 
-    if project.analysis_id in [2, 4]:
+    if project.analysis_id in [
+        AnalysisID.STRUCTURAL_MODAL,
+        AnalysisID.ACOUSTIC_MODAL,
+        ]:
+
         if project.analysis_type_label == "Structural Modal Analysis":
             frequencies = list(project.natural_frequencies_structural)
 
@@ -387,8 +392,8 @@ def analysis_info_text(frequency_index: int):
         if frequency_index >= len(frequencies):
             return ""
 
-        if project.analysis_method_label is not None:
-            tree.add_item("Method", project.analysis_method_label)
+        if project.analysis_method is not None:
+            tree.add_item("Method", project.analysis_method)
 
         frequency = frequencies[frequency_index]
         tree.add_item("Frequency", f"{frequency:.2f}", "Hz")
