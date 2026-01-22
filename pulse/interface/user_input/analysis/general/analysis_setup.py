@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt
 from pulse import app, UI_DIR
 from pulse.model import AnalysisID
 
-from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
+from pulse.interface.user_input.analysis.static_analysis_input import StaticAnalysisInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from molde import load_ui

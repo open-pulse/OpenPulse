@@ -130,12 +130,16 @@ class HarmonicAnalysisSetupInput(QDialog):
     def load_analysis_type(self):
 
         self.comboBox_method.blockSignals(True)
+        analysis_id = app().main_window.analysis_toolbar.get_current_analysis_id()
 
-        if self.project.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
+        if analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
             self.comboBox_method.removeItem(1)
             self.tabWidget_main.setTabVisible(1, False)
 
-        elif self.project.analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+        elif analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC, 
+            AnalysisID.COUPLED_HARMONIC,
+            ]:
             mode_sup = self.analysis_setup.get("analysis_method") == "mode_superposition"
             self.comboBox_method.setCurrentIndex(int(mode_sup))
 
