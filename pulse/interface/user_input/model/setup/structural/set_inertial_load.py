@@ -35,7 +35,7 @@ class SetInertialLoad(QDialog):
 
     def _initialize(self):
         self.complete = False
-        self.global_damping = [0, 0, 0, 0]
+        self.global_damping = [0., 0., 0.]
         # self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
         self.gravity_vector = self.model.gravity_vector
 

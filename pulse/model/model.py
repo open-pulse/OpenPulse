@@ -37,7 +37,7 @@ class Model:
         self.frequencies = None
         self.list_frequencies = list()
 
-        self.global_damping = [0., 0., 0., 0.]
+        self.global_damping = [0., 0., 0.]
 
         self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
@@ -66,20 +66,29 @@ class Model:
 
     def set_frequency_setup(self, analysis_setup: dict):
 
+        self.frequencies = None
         self.f_min = analysis_setup.get("f_min", None)
         self.f_max = analysis_setup.get("f_max", None)
         self.f_step = analysis_setup.get("f_step", None)
-        self.frequencies = analysis_setup.get("frequencies", None)
 
         if "frequencies" in analysis_setup.keys():
             self.frequencies = analysis_setup["frequencies"]
 
-        elif (self.f_min, self.f_max, self.f_step).count(None) != 3:
-            frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step)
-            self.frequencies = frequencies[frequencies <= self.f_max]
+        elif (self.f_min, self.f_max, self.f_step).count(None) == 0:
+
+            try:
+                self.frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step)
+
+                # filters the frequencies vector to mitigate the already identified rounding errors
+                mask = self.frequencies <= self.f_max
+                self.frequencies = self.frequencies[mask]
+
+            except:
+                self.frequencies = None
+                return
 
     def set_global_damping(self, analysis_setup: dict):
-        self.global_damping = analysis_setup.get("global_damping", [0., 0., 0., 0.])
+        self.global_damping = analysis_setup.get("global_damping", [0., 0., 0.])
 
     def set_static_analysis_setup(self, analysis_setup: dict):
         self.static_analysis_setup = analysis_setup
