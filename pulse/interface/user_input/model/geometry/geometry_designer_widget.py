@@ -709,10 +709,12 @@ class GeometryDesignerWidget(QWidget):
                 )
             elif selected_device_type == "damper":
                 message = "To delete a pulsation damper or its parts, please use the dedicated editor."
+
             buttons_config = {
                 "left_button_label": "Cancel",
                 "right_button_label": "Open editor",
             }
+
             read = GetUserConfirmationInput(
                 title, message, buttons_config=buttons_config
             )
