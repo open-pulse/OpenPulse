@@ -309,7 +309,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Cancel</string>
+         <string>Exit</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>

@@ -119,7 +119,7 @@ class ReciprocatingCompressorInputs(QDialog):
         self.pushButton_plot_volume_crank_end_angle: QPushButton
         self.pushButton_process_aquisition_parameters: QPushButton
         #
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_confirm: QPushButton
         self.pushButton_get_fluid: QPushButton
         self.pushButton_remove: QPushButton
@@ -176,7 +176,7 @@ class ReciprocatingCompressorInputs(QDialog):
         self.pushButton_plot_volume_crank_end_angle.clicked.connect(self.plot_volume_crank_end_angle)
         self.pushButton_process_aquisition_parameters.clicked.connect(self.process_aquisition_parameters)
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.attribute_callback)
         self.pushButton_get_fluid.clicked.connect(self.get_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
@@ -236,10 +236,10 @@ class ReciprocatingCompressorInputs(QDialog):
         return
 
         if self.tabWidget_compressor.currentIndex() == 2:
-            self.pushButton_cancel.setDisabled(True)
+            self.pushButton_exit.setDisabled(True)
             self.pushButton_confirm.setDisabled(True)
         else:
-            self.pushButton_cancel.setDisabled(False)
+            self.pushButton_exit.setDisabled(False)
             self.pushButton_confirm.setDisabled(False)
 
     def update_compressing_cylinders_setup(self):
@@ -878,7 +878,6 @@ class ReciprocatingCompressorInputs(QDialog):
         app().main_window.set_selection()
         app().main_window.update_plots()
         self.load_compressor_excitation_info()
-        self.pushButton_cancel.setText("Exit")
 
     def process_table_file_removal(self, table_names: list):
         for table_name in table_names:

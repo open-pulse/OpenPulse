@@ -111,8 +111,8 @@ class NodalLoadsInput(QDialog):
         self._create_list_lineEdits()
 
         # QPushButton
-        self.pushButton_cancel_tab0: QPushButton
-        self.pushButton_cancel_tab1: QPushButton
+        self.pushButton_exit_tab0: QPushButton
+        self.pushButton_exit_tab1: QPushButton
         self.pushButton_load_fx_table: QPushButton
         self.pushButton_load_fy_table: QPushButton
         self.pushButton_load_fz_table: QPushButton
@@ -148,8 +148,8 @@ class NodalLoadsInput(QDialog):
 
     def _create_connections(self):
         #
-        self.pushButton_cancel_tab0.clicked.connect(self.close)
-        self.pushButton_cancel_tab1.clicked.connect(self.close)
+        self.pushButton_exit_tab0.clicked.connect(self.close)
+        self.pushButton_exit_tab1.clicked.connect(self.close)
         self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
         self.pushButton_load_fx_table.clicked.connect(self.load_fx_table)
         self.pushButton_load_fy_table.clicked.connect(self.load_fy_table)

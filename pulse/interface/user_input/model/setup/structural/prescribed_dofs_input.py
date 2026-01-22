@@ -118,8 +118,8 @@ class PrescribedDofsInput(QDialog):
         self._create_list_lineEdits()
 
         # QPushButton
-        self.pushButton_cancel_tab0: QPushButton
-        self.pushButton_cancel_tab1: QPushButton
+        self.pushButton_exit_tab0: QPushButton
+        self.pushButton_exit_tab1: QPushButton
         self.pushButton_load_ux_table: QPushButton
         self.pushButton_load_uy_table: QPushButton
         self.pushButton_load_uz_table: QPushButton
@@ -160,8 +160,8 @@ class PrescribedDofsInput(QDialog):
 
     def _create_connections(self):
         #
-        self.pushButton_cancel_tab0.clicked.connect(self.close)
-        self.pushButton_cancel_tab1.clicked.connect(self.close)
+        self.pushButton_exit_tab0.clicked.connect(self.close)
+        self.pushButton_exit_tab1.clicked.connect(self.close)
         self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
         self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)

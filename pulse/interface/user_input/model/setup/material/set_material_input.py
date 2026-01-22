@@ -73,7 +73,7 @@ class SetMaterialInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute = self.material_widget.pushButton_attribute
-        self.pushButton_cancel = self.material_widget.pushButton_cancel
+        self.pushButton_exit = self.material_widget.pushButton_exit
 
         # QTableWidget
         self.tableWidget_material_data = self.material_widget.tableWidget_material_data
@@ -88,7 +88,7 @@ class SetMaterialInput(QDialog):
         self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         #
         # self.tableWidget_material_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_material_data.currentCellChanged.connect(self.current_cell_changed)
@@ -188,8 +188,6 @@ class SetMaterialInput(QDialog):
             geometry_handler = GeometryHandler(app().project)
             geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
             geometry_handler.process_pipeline()
-
-            self.pushButton_cancel.setText("Exit")
 
             if self.comboBox_attribution_type.currentIndex() == 0:
                 self.close()

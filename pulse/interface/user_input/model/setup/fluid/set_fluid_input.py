@@ -79,7 +79,7 @@ class SetFluidInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute = self.fluid_widget.pushButton_attribute
-        self.pushButton_cancel = self.fluid_widget.pushButton_cancel
+        self.pushButton_exit = self.fluid_widget.pushButton_exit
 
         # QTableWidget
         self.tableWidget_fluid_data = self.fluid_widget.tableWidget_fluid_data
@@ -95,7 +95,7 @@ class SetFluidInput(QDialog):
         self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         #
         # self.tableWidget_fluid_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_fluid_data.currentCellChanged.connect(self.current_cell_changed)
@@ -191,8 +191,6 @@ class SetFluidInput(QDialog):
 
             if self.state_properties:
                 self.close()
-
-            self.pushButton_cancel.setText("Exit")
 
         except Exception as error_log:
             title = "Error detected on fluid list data"

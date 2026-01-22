@@ -119,7 +119,7 @@ class ReciprocatingPumpInputs(QDialog):
         self.pushButton_process_aquisition_parameters: QPushButton
         self.pushButton_plot_fluctuating_volume: QPushButton
         self.pushButton_pulsation_damper_calculator: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_confirm: QPushButton
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
@@ -171,7 +171,7 @@ class ReciprocatingPumpInputs(QDialog):
         self.pushButton_process_fluctuating_volume.clicked.connect(self.process_fluctuating_volume)
         self.pushButton_pulsation_damper_calculator.clicked.connect(self.pulsation_damper_calculator_callback)
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.attribute_callback)
         self.pushButton_get_fluid.clicked.connect(self.get_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
@@ -228,10 +228,10 @@ class ReciprocatingPumpInputs(QDialog):
         return
 
         if self.tabWidget_compressor.currentIndex() == 2:
-            self.pushButton_cancel.setDisabled(True)
+            self.pushButton_exit.setDisabled(True)
             self.pushButton_confirm.setDisabled(True)
         else:
-            self.pushButton_cancel.setDisabled(False)
+            self.pushButton_exit.setDisabled(False)
             self.pushButton_confirm.setDisabled(False)
 
     def pressure_unit_callback(self):
@@ -797,7 +797,6 @@ class ReciprocatingPumpInputs(QDialog):
         app().main_window.set_selection()
         app().main_window.update_plots()
         self.load_reciprocating_pump_excitation_info()
-        self.pushButton_cancel.setText("Exit")
 
     def process_table_file_removal(self, table_names: list):
         for table_name in table_names:

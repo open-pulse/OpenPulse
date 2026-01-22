@@ -65,7 +65,7 @@ class ImportDataToCompare(QDialog):
 
         # PushButton
         self.pushButton_add_imported_data_to_plot: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_reset_imported_data: QPushButton
         self.pushButton_search_file_to_import: QPushButton
 
@@ -81,7 +81,7 @@ class ImportDataToCompare(QDialog):
         self.checkBox_skiprows.clicked.connect(self.update_skiprows_visibility)
         #
         self.pushButton_search_file_to_import.clicked.connect(self.choose_path_to_import_results)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_reset_imported_data.clicked.connect(self.reset_imported_data)
         self.pushButton_add_imported_data_to_plot.clicked.connect(self.add_imported_data_to_plot)
         #

@@ -95,7 +95,7 @@ class ValvesInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_remove: QPushButton
 
@@ -111,7 +111,7 @@ class ValvesInput(QDialog):
         self.comboBox_flange_setup.currentIndexChanged.connect(self.valve_setup_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #

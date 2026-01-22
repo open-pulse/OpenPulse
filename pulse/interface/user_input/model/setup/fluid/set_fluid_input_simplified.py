@@ -73,13 +73,13 @@ class SetFluidInputSimplified(QDialog):
 
         # QPushButton
         self.pushButton_attribute = self.fluid_widget.pushButton_attribute
-        self.pushButton_cancel = self.fluid_widget.pushButton_cancel
+        self.pushButton_exit = self.fluid_widget.pushButton_exit
 
         # QTableWidget
         self.tableWidget_fluid_data = self.fluid_widget.tableWidget_fluid_data
 
     def _create_connections(self):
-        self.fluid_widget.pushButton_cancel.clicked.connect(self.close)
+        self.fluid_widget.pushButton_exit.clicked.connect(self.close)
         self.tableWidget_fluid_data.currentCellChanged.connect(self.current_cell_changed)
 
     def _add_fluid_input_widget(self):

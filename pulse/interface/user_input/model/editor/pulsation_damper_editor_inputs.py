@@ -126,7 +126,7 @@ class PulsationDamperEditorInputs(QDialog):
         self.lineEdit_damper_type: QLabel
 
         # QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_show_errors: QPushButton
         self.pushButton_create: QPushButton
         self.pushButton_get_liquid_fluid: QPushButton
@@ -174,7 +174,7 @@ class PulsationDamperEditorInputs(QDialog):
             self.update_sections_info_callback
         )
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_show_errors.clicked.connect(
             self.show_error_window_for_parameters
         )
@@ -329,10 +329,10 @@ class PulsationDamperEditorInputs(QDialog):
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 0:
-            self.pushButton_cancel.setDisabled(False)
+            self.pushButton_exit.setDisabled(False)
             self.pushButton_create.setDisabled(False)
         else:
-            self.pushButton_cancel.setDisabled(True)
+            self.pushButton_exit.setDisabled(True)
             self.pushButton_create.setDisabled(True)
 
     def on_click_item(self, item):
@@ -1076,8 +1076,7 @@ class PulsationDamperEditorInputs(QDialog):
         self.load_pulsation_damper_info()
 
         app().main_window.update_plots()
-        self.pushButton_cancel.setText("Exit")
-
+ 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.create_pulsation_damper_callback()

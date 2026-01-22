@@ -68,13 +68,13 @@ class SetMaterialSimplified(QDialog):
 
         # # QPushButton
         # self.pushButton_attribute = self.material_widget.pushButton_attribute
-        # self.pushButton_cancel = self.material_widget.pushButton_cancel
+        # self.pushButton_exit = self.material_widget.pushButton_exit
 
         # QTableWidget
         self.tableWidget_material_data = self.material_widget.tableWidget_material_data
 
     def _create_connections(self):
-        self.material_widget.pushButton_cancel.clicked.connect(self.close)
+        self.material_widget.pushButton_exit.clicked.connect(self.close)
         self.tableWidget_material_data.currentCellChanged.connect(self.current_cell_changed)
 
     def _add_material_widget(self):

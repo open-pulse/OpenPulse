@@ -53,7 +53,7 @@ class CheckBeamCriteriaInput(QDialog):
         self.lineEdit_section_id: QLineEdit
 
         # QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_check_criteria: QPushButton
         self.pushButton_more_info: QPushButton
 
@@ -63,7 +63,7 @@ class CheckBeamCriteriaInput(QDialog):
 
     def create_connections(self):
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_check_criteria.clicked.connect(self.check_beam_theory_criteria)
         self.pushButton_more_info.clicked.connect(self.get_beam_validity_criteria_info)
         #

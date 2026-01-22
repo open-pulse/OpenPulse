@@ -49,12 +49,12 @@ class LoadFluidCompositionInput(QDialog):
         self.lineEdit_file_path : QLineEdit
 
         # QPushButton
-        self.pushButton_cancel : QPushButton
+        self.pushButton_exit : QPushButton
         self.pushButton_confirm : QPushButton
         self.pushButton_search : QPushButton
 
     def _create_connections(self):
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.confirm_button_callback)
         self.pushButton_search.clicked.connect(self.search_button_callback)
 
