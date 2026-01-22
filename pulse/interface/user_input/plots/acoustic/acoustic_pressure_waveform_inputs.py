@@ -1,9 +1,8 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton
 
 from pulse import app, UI_DIR
-from pulse.model import AnalysisID
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -31,7 +30,6 @@ class AcousticPressureWaveformInputs(QDialog):
 
         self._initialize()
         self._create_connections()
-        self._load_analysis_setup_and_solution()
     
     def _initialize(self):
 
@@ -43,18 +41,18 @@ class AcousticPressureWaveformInputs(QDialog):
         self.frequencies = self.model.frequencies
         self.solution = self.project.get_acoustic_solution()
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.analysis_method = self.project.analysis_method_label
+        self.analysis_method = self.project.analysis_method
 
     def showEvent(self, event):
         super().showEvent(event)
 
-    def _load_analysis_setup_and_solution(self):
+    def _list_qt_variables(self):
+        # QLineEdit
+        self.lineEdit_selection_id : QLineEdit
 
-        self.analysis_method = ""
-        analysis_setup = app().project.analysis_setup
-        if "analysis_id" in analysis_setup.keys():
-            if analysis_setup["analysis_id"] == AnalysisID.ACOUSTIC_HARMONIC:
-                self.analysis_method = "Direct method"
+        # QPushButton
+        self.pushButton_export_data : QPushButton
+        self.pushButton_plot_data : QPushButton
 
     def _create_connections(self):
         #
