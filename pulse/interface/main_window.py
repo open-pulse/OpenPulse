@@ -1004,6 +1004,8 @@ class MainWindow(QMainWindow):
 
                 if app().project.loader.check_file_version():
                     self.reset_temporary_folder()
+                    self.project.reset(reset_all = True)
+                    self.project.model.properties._reset_variables()
 
                     if app().config.remove_path_from_config_file(project_path):
                         self.welcome_widget.update_recent_projects()
