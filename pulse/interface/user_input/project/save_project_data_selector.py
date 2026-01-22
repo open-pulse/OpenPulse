@@ -55,10 +55,15 @@ class SaveProjectDataSelector(QDialog):
         self.lineEdit_required_memory.setDisabled(True)
 
         # QPushButton
+        self.pushButton_cancel : QPushButton
         self.pushButton_proceed : QPushButton
 
     def _create_connections(self):
+        # QCheckBox
         self.checkBox_mesh_data.stateChanged.connect(self.remove_solution_data)
+
+        # QCheckBox
+        self.pushButton_cancel.clicked.connect(self.close)
         self.pushButton_proceed.clicked.connect(self.proceed_callback)
 
     def get_required_memory(self):
