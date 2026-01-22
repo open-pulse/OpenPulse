@@ -16,8 +16,9 @@ from molde import load_ui
 import numpy as np
 from collections import defaultdict
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+
+error_title = "Error"
+
 
 class ValvesInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -317,7 +318,7 @@ class ValvesInput(QDialog):
             message += "You should to enter a positive value to proceed."
 
         if message != "":
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True, None
         else:
             return False, value

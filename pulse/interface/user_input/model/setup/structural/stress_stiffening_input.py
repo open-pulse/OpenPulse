@@ -10,8 +10,9 @@ from molde import load_ui
 
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+
+error_title = "Error"
+
 
 class StressStiffeningInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -170,18 +171,18 @@ class StressStiffeningInput(QDialog):
                     if zero_included:
                         if out < 0:
                             message += "\n\nZero value is allowed."
-                            PrintMessageInput([window_title_1, title, message])
+                            PrintMessageInput([error_title, title, message])
                             return True, None
                     else:
                         if out <= 0:
                             message += "\n\nZero value is not allowed."
-                            PrintMessageInput([window_title_1, title, message])
+                            PrintMessageInput([error_title, title, message])
                             return True, None
 
             except Exception as log_error:
                 message = f"Wrong input for {label}.\n\n"
                 message += str(log_error)
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True, None
 
         else:
@@ -189,7 +190,7 @@ class StressStiffeningInput(QDialog):
                 return False, float(0)
             else:
                 message = f"Insert some value at the {label} input field."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True, None
 
         return False, out
@@ -212,7 +213,7 @@ class StressStiffeningInput(QDialog):
             title = "Empty entries at the input pressure fields"
             message = f"You should to insert a value different from zero at the external or internal "
             message += "pressure field inputs to continue."
-            PrintMessageInput([window_title_1, title, message])  
+            PrintMessageInput([error_title, title, message])  
             return
         
         parameters = {  "external_pressure" : external_pressure,

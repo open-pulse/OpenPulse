@@ -16,9 +16,6 @@ import numpy as np
 from pathlib import Path
 from traceback import print_exception
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
 
 class ProjectFile:
     

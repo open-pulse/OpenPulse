@@ -674,10 +674,6 @@ class ReciprocatingPumpInputs(QDialog):
 
     def save_table_values(self, table_name: str, frequencies: np.ndarray, complex_values: np.ndarray):
 
-        f_min = frequencies[0]
-        f_max = frequencies[-1]
-        f_step = frequencies[1] - frequencies[0] 
-
         if app().project.model.change_analysis_frequency_setup(list(frequencies)):
 
             title = "Project frequency setup cannot be modified"
@@ -688,7 +684,8 @@ class ReciprocatingPumpInputs(QDialog):
             PrintMessageInput([error_title, title, message])
             return True
 
-        self.update_analysis_setup_in_file(f_min, f_max, f_step)
+        analysis_setup = app().project.model.analysis_setup
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
         real_values = np.real(complex_values)
         imag_values = np.imag(complex_values)
@@ -698,18 +695,6 @@ class ReciprocatingPumpInputs(QDialog):
         self.properties.add_imported_tables("acoustic", table_name, data)
 
         return False
-
-    def update_analysis_setup_in_file(self, f_min, f_max, f_step):
-
-        analysis_setup = app().project.file.read_analysis_setup_from_file()
-        if analysis_setup is None:
-            analysis_setup = dict()
-    
-        analysis_setup["f_min"] = f_min
-        analysis_setup["f_max"] = f_max
-        analysis_setup["f_step"] = f_step
-
-        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
     def attribute_callback(self):
 

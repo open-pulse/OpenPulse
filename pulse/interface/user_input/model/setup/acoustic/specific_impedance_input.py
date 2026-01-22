@@ -12,8 +12,8 @@ import os
 import numpy as np
 from pathlib import Path
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
+
 
 class SpecificImpedanceInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -166,7 +166,7 @@ class SpecificImpedanceInput(QDialog):
             except Exception:
                 self.hide()
                 message = "Wrong input for real part of specific impedace."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 lineEdit_real.setFocus()
                 app().main_window.set_input_widget(self)
                 return True, None
@@ -183,7 +183,7 @@ class SpecificImpedanceInput(QDialog):
             except Exception:
                 self.hide()
                 message = "Wrong input for imaginary part of specific impedace."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 lineEdit_imag.setFocus()
                 app().main_window.set_input_widget(self)
                 return True, None
@@ -194,7 +194,7 @@ class SpecificImpedanceInput(QDialog):
             self.hide()
             message = "You must inform at least one specific impedace " 
             message += "before confirming the input!"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             self.lineEdit_real_value.setFocus()
             app().main_window.set_input_widget(self)
             return True, None
@@ -286,15 +286,12 @@ class SpecificImpedanceInput(QDialog):
             if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum"
                 message += " data must have only two columns to the frequencies and values."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
-            complex_values = imported_data[:,1] + 1j * imported_data[:, 2]
-
-            self.frequencies = imported_data[:, 0]
-            f_min = self.frequencies[0]
-            f_max = self.frequencies[-1]
-            f_step = self.frequencies[1] - self.frequencies[0] 
+            mask = imported_data[:, 0] > 0
+            self.frequencies = imported_data[mask, 0]
+            complex_values = imported_data[mask, 1] + 1j * imported_data[mask, 2]
 
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
@@ -307,23 +304,20 @@ class SpecificImpedanceInput(QDialog):
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
 
-                frequency_setup = { "f_min" : f_min,
-                                    "f_max" : f_max,
-                                    "f_step" : f_step }
-
-                app().project.model.set_frequency_setup(frequency_setup)
+                analysis_setup = app().project.model.analysis_setup
+                app().project.file.write_analysis_setup_in_file(analysis_setup)
 
             return complex_values, imported_filename
 
         except Exception as log_error:
             title = "Error reached while loading 'specific impedance' table"
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -380,7 +374,7 @@ class SpecificImpedanceInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one specific impedance " 
             message += "table path before confirming the input!"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             self.lineEdit_table_path.setFocus()
 
     def text_label(self, value):

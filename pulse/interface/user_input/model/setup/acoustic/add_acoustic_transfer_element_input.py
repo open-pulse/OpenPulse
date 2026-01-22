@@ -14,8 +14,8 @@ import os
 import numpy as np
 from pathlib import Path
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+
+error_title = "Error"
 
 
 class AddAcousticTransferElementInput(QDialog):
@@ -162,7 +162,7 @@ class AddAcousticTransferElementInput(QDialog):
                 title = "Invalid data imported"
                 message = "An invalid data has been imported to the acoustic transfer element. "
                 message += "Check the acoustic element transfer data type and modify it if necessary."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return
 
     def remove_table_files_from_nodes(self, node_id : list):
@@ -269,15 +269,10 @@ class AddAcousticTransferElementInput(QDialog):
                                         ).to_numpy()
 
                 self.element_transfer_data[sheetname] = sheet_data
-        
-    def update_frequency_setup(self, values: np.ndarray, path: str):
 
-        self.frequencies = values[:, 0]
-        f_min = self.frequencies[0]
-        f_max = self.frequencies[-1]
-        f_step = self.frequencies[1] - self.frequencies[0]
+    def update_frequency_setup(self, frequencies: np.ndarray, path: str):
 
-        if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
+        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
 
             self.lineEdit_spreadsheet_path.setText("")
 
@@ -286,18 +281,15 @@ class AddAcousticTransferElementInput(QDialog):
             message += "different from the others already imported ones. The current\n"
             message += "project frequency setup is not going to be modified."
             message += f"\n\n{os.path.basename(path)}"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return None, None
 
         else:
 
-            frequency_setup = { "f_min" : f_min,
-                                "f_max" : f_max,
-                                "f_step" : f_step }
+            analysis_setup = app().project.model.analysis_setup
+            app().project.file.write_analysis_setup_in_file(analysis_setup)
 
-            app().project.model.set_frequency_setup(frequency_setup)
-
-    def process_acoustic_element_transfer_data(self, path):
+    def process_acoustic_element_transfer_data(self, path: str):
 
         aux = dict()
         table_names = list()
@@ -308,27 +300,39 @@ class AddAcousticTransferElementInput(QDialog):
 
         for k, (sheetname, et_data) in enumerate(self.element_transfer_data.items()):
 
+            if not isinstance(et_data, np.ndarray):
+                continue
+
+            freq_mask = et_data[:, 0] > 0
+            _et_data = et_data[freq_mask, :]
+
             if k == 0:
-                self.update_frequency_setup(et_data, path)
+                self.update_frequency_setup(_et_data[:, 0], path)
 
             if self.comboBox_data_type.currentIndex() == 1:                 
                 if et_data.shape[1] == 9:
                     for i, aij_label in enumerate(self.aij_labels):
-                        data_ij = np.array([et_data[:,0], et_data[:,2*i+1], et_data[:,2*i+2]], dtype=float).T
+
+                        data_ij = np.array([
+                            _et_data[:, 0], 
+                            _et_data[:, 2*i+1], 
+                            _et_data[:, 2*i+2]
+                            ], dtype=float).T
+
                         table_name = f"admittance_matrix_data_{aij_label}_nodes_{linked_nodes}"
                         aux[aij_label] = {
-                                          "values" : data_ij,
-                                          "table_name" : table_name
-                                          }
+                            "values" : data_ij,
+                            "table_name" : table_name,
+                            }
 
                 elif et_data.shape[1] in [3, 4]:
                     for aij_abel in self.aij_labels:
                         if aij_abel in sheetname:
                             table_name = f"admittance_matrix_data_{aij_abel}_nodes_{linked_nodes}"
                             aux[aij_abel] = {
-                                             "values" : data_ij,
-                                             "table_name" : table_name
-                                             }
+                                "values" : data_ij,
+                                "table_name" : table_name,
+                                }
                             break
 
             else:
@@ -337,9 +341,9 @@ class AddAcousticTransferElementInput(QDialog):
                     if hij_label in sheetname:
                         table_name = f"transfer_function_{hij_label}_nodes_{linked_nodes}"
                         aux[hij_label] = {
-                                          "values" : et_data,
-                                          "table_name" : table_name
-                                          }
+                            "values" : et_data,
+                            "table_name" : table_name,
+                            }
 
         for _data in aux.values():
             values = _data["values"]
@@ -365,11 +369,11 @@ class AddAcousticTransferElementInput(QDialog):
                 table_names.append(aux[key]["table_name"])
 
         data = {
-                "coords" : coords,
-                "table_names" : table_names,
-                "table_paths" : [path],
-                "element_transfer_data_source" : data_source
-                }
+            "coords" : coords,
+            "table_names" : table_names,
+            "table_paths" : [path],
+            "element_transfer_data_source" : data_source,
+            }
 
         self.properties._set_nodal_property("acoustic_transfer_element", data, node_ids)
 

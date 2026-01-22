@@ -15,8 +15,8 @@ from molde import load_ui
 import numpy as np
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
+
 
 class DecouplingRotationDOFsInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -160,7 +160,7 @@ class DecouplingRotationDOFsInput(QDialog):
             self.hide()
             title = "Invalid element selected"
             message = f"To proceed, selecting a beam element connected to the pipe is necessary."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return
 
         lineEdit = self.lineEdit_element_id.text()
@@ -184,7 +184,7 @@ class DecouplingRotationDOFsInput(QDialog):
             title = "Invalid element selected"
             message = "The beam-to-pipe decoupling of rotation dofs can only " 
             message += "be applied to the T connections."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return
 
         element_type = element.element_type
@@ -269,7 +269,7 @@ class DecouplingRotationDOFsInput(QDialog):
             title = "Invalid decoupling setup"
             message = "There are no rotation DOFs decoupling in the current setup. "
             message += "You should tick at least one rotation DOF before continue."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return None
 
         else:
