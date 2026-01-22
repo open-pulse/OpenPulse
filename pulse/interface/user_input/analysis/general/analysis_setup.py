@@ -2,6 +2,8 @@ from PySide6.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QTabWidge
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+from pulse.model import AnalysisID
+
 from pulse.interface.user_input.analysis.structural.static_analysis_input import StaticAnalysisInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -54,8 +56,8 @@ class AnalysisSetupInput(QDialog):
         self._define_qt_variables()
         self._create_connections()
 
-        self.update_frequency_setup_input_texts()
-        self.update_damping_input_texts()
+        self.load_analysis_setup()
+        # self.update_damping_input_texts()
         self.exec()
 
     def _initialize(self):
@@ -75,7 +77,7 @@ class AnalysisSetupInput(QDialog):
         self.label_title : QLabel
         self.label_subtitle : QLabel
         self.label_title.setText(app().project.analysis_type_label)
-        self.label_subtitle.setText(app().project.analysis_method_label)
+        self.label_subtitle.setText(app().project.analysis_method)
         
         # QLineEdit
 
@@ -108,6 +110,19 @@ class AnalysisSetupInput(QDialog):
     def tabEvent(self):
         self.currentTab = self.tabWidget.currentIndex()
 
+    def load_analysis_setup(self):
+
+        analysis_setup = app().project.analysis_setup
+
+        f_min = analysis_setup.get("f_min", 1)
+        f_max = analysis_setup.get("f_max", 200)
+        f_step = analysis_setup.get("f_step", 1)
+        global_damping = analysis_setup.get("global_damping", (0, 0, 0))
+
+        # self.load_analysis_type()
+        self.load_damping_inputs(self.analysis_id, global_damping)
+        self.load_frequency_setup_inputs(f_min, f_max, f_step)
+
     def update_damping_input_texts(self):
         if self.analysis_id not in [2, 3, 4]:
             if self.model.global_damping != [0, 0, 0, 0]:
@@ -115,6 +130,33 @@ class AnalysisSetupInput(QDialog):
                 self.lineEdit_bv.setText(str(self.model.global_damping[1]))
                 self.lineEdit_ah.setText(str(self.model.global_damping[2]))
                 self.lineEdit_bh.setText(str(self.model.global_damping[3]))
+
+    def load_damping_inputs(self, analysis_id: int, global_damping: tuple | list):
+        if sum(global_damping) and analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC, 
+            AnalysisID.COUPLED_HARMONIC,          
+        ]:
+
+            if global_damping[0]:
+                self.lineEdit_mass_multiplier.setText(str(global_damping[0]))
+
+            if global_damping[1]:
+                self.lineEdit_stiffness_multiplier.setText(str(global_damping[1]))
+
+            if global_damping[2]:
+                self.lineEdit_constant_structural_coefficient.setText(str(global_damping[2]))
+
+    def load_frequency_setup_inputs(self, f_min: float, f_max: float, f_step: float):
+
+        self.lineEdit_fmin.setText("{}".format(round(f_min, 14)))
+        self.lineEdit_fmax.setText("{}".format(round(f_max, 14)))
+        self.lineEdit_fstep.setText("{}".format(round(f_step, 14)))
+
+        key = app().project.model.properties.check_if_there_are_tables_at_the_model()
+
+        self.lineEdit_fmin.setDisabled(key)
+        self.lineEdit_fmax.setDisabled(key)
+        self.lineEdit_fstep.setDisabled(key)
 
     def update_frequency_setup_input_texts(self):
 
@@ -220,7 +262,7 @@ class AnalysisSetupInput(QDialog):
             self.model.set_frequency_setup(analysis_setup)
 
         if self.analysis_id in [1, 6]:
-            analysis_setup["modes"] = number_of_modes
+            analysis_setup["modes_number"] = number_of_modes
 
         # t0 = time()
         app().project.file.write_analysis_setup_in_file(analysis_setup)

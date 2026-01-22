@@ -3,6 +3,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+from pulse.model import AnalysisID
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from molde import load_ui
@@ -57,7 +58,7 @@ class AcousticModalAnalysisInput(QDialog):
         analysis_setup = app().project.file.read_analysis_setup_from_file()
         if isinstance(analysis_setup, dict):
             if analysis_setup["analysis_id"] in [2, 4]:
-                modes = analysis_setup["modes"]
+                modes = analysis_setup["modes_number"]
                 sigma = analysis_setup["sigma_factor"]
                 self.lineEdit_number_modes.setText(str(modes))
                 self.lineEdit_sigma_factor.setText(str(sigma))
@@ -94,15 +95,11 @@ class AcousticModalAnalysisInput(QDialog):
         if self.check_analysis_inputs():
             return
 
-        analysis_id = 4
-
-        app().project.set_analysis_id(analysis_id)
-
         analysis_setup = {
-                          "analysis_id" : analysis_id,
-                          "modes" : self.modes,
-                          "sigma_factor" : self.sigma_factor
-                          }
+            "analysis_id" : AnalysisID.ACOUSTIC_MODAL,
+            "modes_number" : self.modes,
+            "sigma_factor" : self.sigma_factor
+            }
 
         app().project.file.write_analysis_setup_in_file(analysis_setup)
 
