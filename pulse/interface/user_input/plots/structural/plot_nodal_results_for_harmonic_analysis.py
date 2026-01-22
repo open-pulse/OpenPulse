@@ -32,7 +32,6 @@ class PlotNodalResultsForHarmonicAnalysis(QWidget):
         self.preprocessor = self.project.model.preprocessor
         self.before_run = self.project.get_pre_solution_model_checks()
         self.nodes = self.project.model.preprocessor.nodes
-        self.analysisMethod = self.project.analysis_method_label
         self.frequencies = self.model.frequencies
         self.solution = self.project.get_structural_solution()
 
@@ -131,7 +130,7 @@ class PlotNodalResultsForHarmonicAnalysis(QWidget):
     def join_model_data(self):
 
         self.model_results = dict()
-        self.title = f"Structural frequency response - {self.analysisMethod}"
+        self.title = f"Structural frequency response - {self.project.analysis_method} method"
         data_information = f"Structural nodal response {self.local_dof_label} at node {self.node_ids}"
 
         for k, node_id in enumerate(self.node_ids):

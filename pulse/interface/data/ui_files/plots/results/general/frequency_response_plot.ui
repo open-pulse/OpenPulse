@@ -319,7 +319,7 @@
                     <property name="font">
                      <font>
                       <family>MS Shell Dlg 2</family>
-                      <pointsize>11</pointsize>
+                      <pointsize>10</pointsize>
                       <weight>50</weight>
                       <italic>false</italic>
                       <bold>false</bold>
@@ -757,7 +757,7 @@
                     <property name="font">
                      <font>
                       <family>MS Shell Dlg 2</family>
-                      <pointsize>11</pointsize>
+                      <pointsize>10</pointsize>
                       <weight>50</weight>
                       <italic>false</italic>
                       <bold>false</bold>
@@ -1337,7 +1337,7 @@
                     </property>
                     <property name="font">
                      <font>
-                      <pointsize>11</pointsize>
+                      <pointsize>10</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>

@@ -30,7 +30,7 @@ class PlotAcousticDeltaPressure(QWidget):
 
     def _initialize(self):
         self.unit_label = "Pa"
-        self.analysis_method = self.project.analysis_method_label
+        self.analysis_method = self.project.analysis_method
         self.frequencies = self.model.frequencies
         self.solution = self.project.get_acoustic_solution()
         self.preprocessor = self.project.model.preprocessor
@@ -142,7 +142,7 @@ class PlotAcousticDeltaPressure(QWidget):
 
     def join_model_data(self):
 
-        self.title = f"Acoustic frequency response - {self.analysis_method}"        
+        self.title = f"Acoustic frequency response - {self.analysis_method} method"        
         legend_label = f"Delta pressure between nodes {self.input_node_id} and {self.output_node_id}"
         unit_label = "--"
         y_label = "Acoustic pressure ratio"
