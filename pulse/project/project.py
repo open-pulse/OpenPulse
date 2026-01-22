@@ -1,6 +1,7 @@
 # fmt: off
 
 from pulse import app, TEMP_PROJECT_FILE
+from pulse.model import AnalysisID
 from pulse.interface.file.project_file import ProjectFile
 from pulse.project.load_project import LoadProject
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -26,11 +27,16 @@ class Project:
 
         self.pipeline = Pipeline()
         self.model = Model(self)
-        # self.preprocessor = self.model.preprocessor
 
         self.name = None
         self.save_path = None
         self.thumbnail = None
+
+        # default animation settings
+        self.frames = 40
+        self.cycles = 3
+
+        self.analysis_setup = dict()
 
         self.reset()
 
@@ -52,10 +58,6 @@ class Project:
         self.max_stress = ""
         self.stress_label = ""
         self.stresses_values_for_color_table = None
-
-        # default animation settings
-        self.frames = 40
-        self.cycles = 3
 
         self.reset_analysis_setup()
         self.reset_solvers()
@@ -80,12 +82,24 @@ class Project:
         self.structural_static_solution = None
         self.structural_reactions = dict()
 
+    def reset_solutions(self):
+
+        if self.acoustic_solver is not None:
+            self.acoustic_solver.reset_variables()
+
+        if self.structural_solver is not None:
+            self.structural_solver.reset_variables()
+
+        if not self.analysis_setup:
+            return
+
+        # self.create_solver()
+
     def reset_analysis_setup(self):
         self.modes = 0
-        self.global_damping = [0, 0, 0, 0]
-        self.analysis_id = None
+        self.sigma_factor = 1e-2
+        self.global_damping = [0., 0., 0.]
         self.analysis_type_label = ""
-        self.analysis_method_label = ""
 
     def initialize_pulse_file_and_loader(self):   
         self.file = ProjectFile(self, TEMP_PROJECT_FILE) 
@@ -96,7 +110,6 @@ class Project:
         try:
 
             self.reset(reset_all = True)
-            self.loader.load_analysis_id()
             self.loader.load_analysis_results()
 
             if self.file.check_pipeline_data():
@@ -257,14 +270,67 @@ class Project:
         return False
 
     def is_analysis_setup_complete(self):
-        self.analysis_setup = self.file.read_analysis_setup_from_file()
-        if isinstance(self.analysis_setup, dict):
-            if "analysis_id" in self.analysis_setup.keys():
-                self.analysis_id = self.analysis_setup["analysis_id"]
-                self.modes = self.analysis_setup.get("modes", 40)
-                self.sigma_factor = self.analysis_setup.get("sigma_factor", 1e-2)
+
+        analysis_setup = app().project.file.read_analysis_setup_from_file()
+
+        if isinstance(analysis_setup, dict):
+            analysis_id = analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
+
+            if analysis_id in [
+                AnalysisID.STRUCTURAL_MODAL,
+                AnalysisID.ACOUSTIC_MODAL,
+            ]:
+                if "modes_number" in analysis_setup.keys():
+                    if not isinstance(analysis_setup["modes_number"], int):
+                        return False
+                else:
+                    return False
+
+                if "sigma_factor" in analysis_setup.keys():
+                    if not isinstance(analysis_setup["sigma_factor"], int | float):
+                        return False
+                else:
+                    return False
+
                 return True
+
+            elif analysis_id in [
+                AnalysisID.STRUCTURAL_HARMONIC,
+                AnalysisID.ACOUSTIC_HARMONIC,
+                AnalysisID.COUPLED_HARMONIC,
+                ]:
+
+                for f_type in ["f_min", "f_max", "f_step"]:    
+                    if f_type in analysis_setup.keys():
+                        if not isinstance(analysis_setup[f_type], int | float):
+                            return False
+                    else:
+                        return False
+
+                if self.analysis_method == "mode_superposition":
+
+                    if "modes_number" in analysis_setup.keys():
+                        if not isinstance(analysis_setup["modes_number"], int):
+                            return False
+                    else:
+                        return False
+
+                    if "sigma_factor" in analysis_setup.keys():
+                        if not isinstance(analysis_setup["sigma_factor"], int | float):
+                            return False
+                    else:
+                        return False
+
+                return True
+            
+            elif analysis_id == AnalysisID.STRUCTURAL_STATIC:
+                return True
+
         return False
+
+    def set_analysis_setup(self, analysis_setup: dict):
+        self.analysis_setup = analysis_setup
+        self.model.set_analysis_setup(analysis_setup)
 
     def get_structural_elements(self):
         return self.model.preprocessor.structural_elements
@@ -311,37 +377,120 @@ class Project:
             points[i] = self.model.preprocessor.nodes[i]
         return points
 
-    def set_analysis_id(self, analysis_id: int):
+    def is_there_a_valid_solution(self):
 
-        self.analysis_id = analysis_id
+        analysis_setup = self.file.read_analysis_setup_from_file()
+        if analysis_setup is None:
+            return
 
-        if analysis_id in [0, 1]:
-            self.analysis_type_label = "Structural Harmonic Analysis"
-        elif analysis_id == 2:
-            self.analysis_type_label = "Structural Modal Analysis"
-        elif analysis_id == 3:
-            self.analysis_type_label = "Acoustic Harmonic Analysis"
-        elif analysis_id == 4:
-            self.analysis_type_label = "Acoustic Modal Analysis"
-        elif analysis_id in [5, 6]:
-            self.analysis_type_label = "Coupled Harmonic Analysis"
-        elif analysis_id == 7:
-            self.analysis_type_label = "Structural Static Analysis"
+        solvers = [
+            self.acoustic_solver,
+            self.structural_solver,
+            ]
+
+        if not any(solvers):
+            return False
+
+        analysis_id = analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
+
+        if analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.STRUCTURAL_MODAL,
+            AnalysisID.STRUCTURAL_STATIC,
+            ]:
+            if self.structural_solver is None:
+                return
+
+            solution  = self.structural_solver.solution
+            if solution is not None:
+                return True
+
+        elif analysis_id in [
+            AnalysisID.ACOUSTIC_HARMONIC,
+            AnalysisID.ACOUSTIC_MODAL,
+            AnalysisID.COUPLED_HARMONIC,
+            ]:
+            if self.acoustic_solver is None:
+                return
+
+            solution  = self.acoustic_solver.solution
+            if solution is not None:
+                return True
+
+        return False
+
+    def get_analysis_type_and_physical_domain(self):
+
+        analysis_setup = self.file.read_analysis_setup_from_file()
+        if not isinstance(analysis_setup, dict):
+            return "", ""
+
+        analysis_id = analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
+        if analysis_id == AnalysisID.NO_ANALYSIS:
+            return "", ""
+
+        if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+            analysis_type = "harmonic"
+
+        elif analysis_id == AnalysisID.STRUCTURAL_STATIC:
+            analysis_type = "static"
+
         else:
-            self.analysis_type_label = None
+            analysis_type = "modal"
 
-        if self.analysis_id in [0, 5, 3]:
-            self.analysis_method_label = "Direct method"
-        elif self.analysis_id in [1, 6]:
-            self.analysis_method_label = "Mode superposition method"
+        if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.ACOUSTIC_MODAL]:
+            physical_domain = "acoustic"
+
+        elif analysis_id == AnalysisID.COUPLED_HARMONIC:
+            physical_domain = "coupled"
+
         else:
-            self.analysis_method_label = None
+            physical_domain = "structural"
 
-    def load_analysis_setup(self):
-        self.analysis_setup = self.file.read_analysis_setup_from_file()
-        self.analysis_id = self.analysis_setup.get("analysis_id")
-        self.modes = self.analysis_setup.get("modes", 40)
-        self.sigma_factor = self.analysis_setup.get("sigma_factor", 0.01)
+        return analysis_type, physical_domain
+
+    def is_there_a_valid_analysis_setup(self, **kwargs):
+
+        current_analysis_id = kwargs.get("current_analysis_id", None)
+
+        analysis_setup = self.file.read_analysis_setup_from_file()
+        if analysis_setup is None:
+            return False
+
+        analysis_id = analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
+        if analysis_id == AnalysisID.NO_ANALYSIS:
+            return False
+
+        if isinstance(current_analysis_id, int):
+            if analysis_id != current_analysis_id:
+                return False
+
+        if analysis_id in [
+            AnalysisID.ACOUSTIC_HARMONIC, 
+            AnalysisID.STRUCTURAL_HARMONIC, 
+            AnalysisID.COUPLED_HARMONIC
+            ]:
+
+            for key in ["f_min", "f_max", "f_step"]:
+                if key not in analysis_setup.keys():
+                    return False
+            return True
+
+        elif analysis_id in [
+            AnalysisID.ACOUSTIC_MODAL, 
+            AnalysisID.STRUCTURAL_MODAL
+            ]:
+
+            for key in ["modes_number", "sigma_factor"]:
+                if key not in analysis_setup.keys():
+                    return False
+            return True
+        
+        elif analysis_id == AnalysisID.STRUCTURAL_STATIC:
+            return True
+
+        else:
+            raise NotImplementedError("Not implemented analysis")
 
     def get_pre_solution_model_checks(self):
         return BeforeRun()
@@ -353,10 +502,11 @@ class Project:
         return AcousticSolver(self.model)
 
     def get_structural_solver(self) -> StructuralSolver:
-        if self.analysis_id in [5, 6]:
-            return StructuralSolver(self.model, acoustic_solution=self.acoustic_solution)
-        else:
-            return StructuralSolver(self.model)
+        acoustic_solution = None
+        if self.analysis_id == AnalysisID.COUPLED_HARMONIC:
+            acoustic_solution = self.acoustic_solution
+
+        return StructuralSolver(self.model, acoustic_solution=acoustic_solution)
 
     def get_structural_solution(self):
         return self.structural_solution
@@ -401,24 +551,22 @@ class Project:
         else:
             return False
 
-    def get_harmonic_analysis_method(self):
+    @property
+    def analysis_id(self):
+        return self.analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
 
-        analysis_setup = self.file.read_analysis_setup_from_file()
-        if isinstance(analysis_setup, dict):
-            analysis_id = analysis_setup.get("analysis_id", None)
-
-        if analysis_id is None:
-            return ""
-        
-        elif analysis_id in [0, 3, 5]:
-            return "Direct method"
-        
-        elif analysis_id in [1, 6]:
-            return "Mode superposition method"
+    @property
+    def analysis_method(self):
+        return self.analysis_setup.get("analysis_method", "--")
 
     def initialize_solver(self):
 
-        if self.analysis_id in [0, 1, 3, 5, 6]:
+        if self.analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.ACOUSTIC_HARMONIC,
+            AnalysisID.COUPLED_HARMONIC,
+            ]:
+
             if self.model.frequencies is None:
                 return
 
@@ -426,79 +574,87 @@ class Project:
                 return
 
         if self.model.preprocessor._process_beam_nodes_and_indexes():
-            if self.analysis_id not in [0, 1, 2]:
+            if self.analysis_id not in [
+                AnalysisID.STRUCTURAL_MODAL,
+                AnalysisID.STRUCTURAL_HARMONIC,
+                AnalysisID.STRUCTURAL_STATIC,
+                ]:
+
                 title = "Invalid analysis type"
                 message = "There are only BEAM_1 elements in the model, therefore, "
-                message += "only structural analysis are allowable."
+                message += "only structural analysis will be allowable."
                 info_text = [window_title_2, title, message]
                 PrintMessageInput(info_text)
                 return
 
-        if self.analysis_id == 2:
+        if self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
             self.model.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.structural_solver = self.get_structural_solver()
 
-        elif self.analysis_id in [3, 4]:
+        elif self.analysis_id in [
+            AnalysisID.ACOUSTIC_MODAL,
+            AnalysisID.ACOUSTIC_HARMONIC,
+            ]:
             self.acoustic_solver = self.get_acoustic_solver()
 
-        elif self.analysis_id in [5, 6]:
+        elif self.analysis_id in [AnalysisID.COUPLED_HARMONIC]:
             self.model.preprocessor.enable_fluid_mass_adding_effect()
             self.acoustic_solver = self.get_acoustic_solver()
 
-        else:
+        elif self.analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.STRUCTURAL_STATIC,
+            ]:
             self.model.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.structural_solver = self.get_structural_solver()
 
     def process_analysis(self):
 
-        if self.analysis_id == 0: # Structural Harmonic Analysis - Direct Method
-            self.structural_solver.direct_method()
+        if not self.analysis_setup:
+            return
+
+        if self.analysis_id == AnalysisID.STRUCTURAL_HARMONIC:
+            if self.analysis_method == "direct":
+                self.structural_solver.direct_method()
+            else:
+                self.structural_solver.mode_superposition(self.modes)
+
             self.structural_solution = self.structural_solver.solution
             # self.structural_harmonic_solution = self.structural_solver.solution
 
-        elif self.analysis_id == 1: # Structural Harmonic Analysis - Mode Superposition Method
-            self.structural_solver.mode_superposition(self.modes)
-            self.structural_solution = self.structural_solver.solution
-            # self.structural_harmonic_solution = self.structural_solver.solution
-
-        elif self.analysis_id == 3: # Acoustic Harmonic Analysis - Direct Method
+        elif self.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
             self.acoustic_solver.direct_method()
             self.acoustic_solution = self.acoustic_solver.solution
             self.perforated_plate_data_log = self.acoustic_solver.convergence_data_log
 
-        elif self.analysis_id == 5: # Coupled Harmonic Analysis - Direct Method
+        elif self.analysis_id == AnalysisID.COUPLED_HARMONIC:
             self.acoustic_solver.direct_method()
             self.acoustic_solution = self.acoustic_solver.solution
             self.perforated_plate_data_log = self.acoustic_solver.convergence_data_log
 
             self.structural_solver = self.get_structural_solver()
-            self.structural_solver.direct_method()
+            if self.analysis_method == "direct":
+                self.structural_solver.direct_method()
+            else:
+                self.structural_solver.mode_superposition(self.modes)
+
             self.structural_solution = self.structural_solver.solution
             # self.structural_harmonic_solution = self.structural_solver.solution
 
-        elif self.analysis_id == 6: # Coupled Harmonic Analysis - Mode Superposition Method
-            self.acoustic_solver.direct_method()
-            self.acoustic_solution = self.acoustic_solver.solution
-            self.perforated_plate_data_log = self.acoustic_solver.convergence_data_log
-            self.structural_solver = self.get_structural_solver()
-            self.structural_solver.mode_superposition(self.modes)
-            self.structural_solution = self.structural_solver.solution
-            # self.structural_harmonic_solution = self.structural_solver.solution
-
-        elif self.analysis_id == 2: # Structural Modal Analysis
+        elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
             self.structural_solver.modal_analysis(modes = self.modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_structural = self.structural_solver.natural_frequencies
             self.structural_solution = self.structural_solver.modal_shapes
             # self.structural_modal_solution = self.structural_solver.modal_shapes
 
-        elif self.analysis_id == 4: # Acoustic Modal Analysis
+        elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
             self.acoustic_solver.modal_analysis(modes = self.modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_acoustic = self.acoustic_solver.natural_frequencies
             self.complex_natural_frequencies_acoustic = self.acoustic_solver.complex_natural_frequencies
             self.acoustic_solution = self.acoustic_solver.modal_shapes
             # self.structural_modal_solution = self.acoustic_solver.modal_shapes
 
-        elif self.analysis_id == 7: # Static Analysis
+        elif self.analysis_id == AnalysisID.STRUCTURAL_STATIC:
             self.structural_solver.static_analysis()
             self.structural_solution = self.structural_solver.solution
             # self.structural_static_solution = self.structural_solver.solution
@@ -507,7 +663,11 @@ class Project:
             raise NotImplementedError("Not implemented analysis")
 
         if isinstance(self.acoustic_solver, AcousticSolver):
-            if self.analysis_id in [3, 5, 6]:
+            if self.analysis_id in [
+                AnalysisID.ACOUSTIC_HARMONIC, 
+                AnalysisID.COUPLED_HARMONIC,
+                ]:
+
                 from time import sleep
                 if self.acoustic_solver.nl_pp_elements:
                     sleep(1)
@@ -535,7 +695,7 @@ class Project:
         if self.model.preprocessor.process_cross_sections_mapping():
             self.model.preprocessor.stop_processing = False
             return
-
+        
         logging.info("Initializing the problem solver [30%]")
         self.initialize_solver()
 
@@ -561,17 +721,17 @@ class Project:
     def check_warnings(self):
 
         message = ""
-        if self.analysis_id in [0, 1]:
+        if self.analysis_id in [AnalysisID.STRUCTURAL_HARMONIC]:
             if self.structural_solver.warning_mode_sup_prescribed_dofs != "":
                 message = self.structural_solver.warning_mode_sup_prescribed_dofs
             if self.structural_solver.flag_Clump and self.analysis_id==1:
                 message = self.structural_solver.warning_Clump
 
-        elif self.analysis_id in [2]:
+        elif self.analysis_id in [AnalysisID.STRUCTURAL_MODAL]:
             if self.structural_solver.warning_modal_prescribed_dofs != "":
                 message = self.structural_solver.warning_modal_prescribed_dofs
 
-        elif self.analysis_id in [3]:
+        elif self.analysis_id in [AnalysisID.ACOUSTIC_HARMONIC]:
             if self.acoustic_solver.warning_modal_prescribed_pressures != "":
                 message = self.acoustic_solver.warning_modal_prescribed_pressures
 
@@ -584,10 +744,7 @@ class Project:
         if self.structural_solution is None:
             return
 
-        if self.analysis_id == 7:
-            static_analysis = True
-        else:
-            static_analysis = False
+        static_analysis = self.analysis_id == AnalysisID.STRUCTURAL_STATIC
 
         logging.info("Evaluating the structural reactions for constrained dofs [60%]")
         self.structural_solver.get_reactions_at_constrained_dofs(static_analysis=static_analysis)
@@ -603,13 +760,20 @@ class Project:
 
     def post_solution_actions(self):
 
-        if self.analysis_id == 2:
+        if self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
             self.before_run.check_modal_analysis_imported_data()
 
-        elif self.analysis_id in [3, 5, 6]:
+        elif self.analysis_id in [
+            AnalysisID.ACOUSTIC_HARMONIC,
+            AnalysisID.COUPLED_HARMONIC,
+            ]:
             self.before_run.check_all_acoustic_criteria()
 
-        if self.analysis_id in [0, 1, 5, 6, 7]:
+        if self.analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.COUPLED_HARMONIC,
+            AnalysisID.STRUCTURAL_STATIC,
+            ]:
             self.calculate_structural_reactions()
 
         self.after_run = self.get_post_solution_model_checks()
