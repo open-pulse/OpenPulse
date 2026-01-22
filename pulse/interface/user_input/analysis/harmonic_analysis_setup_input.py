@@ -19,21 +19,7 @@ class HarmonicAnalysisSetupInput(QDialog):
 
         self.project = app().project
         self.model = app().project.model
-        self.analysis_setup = app().project.analysis_setup
 
-        """
-        |--------------------------------------------------------------------|
-        |                    Analysis ID codification                        |
-        |--------------------------------------------------------------------|
-        |    0 - Structural - Harmonic analysis through direct method        |
-        |    1 - Structural - Harmonic analysis through mode superposition   |
-        |    2 - Structural - Modal analysis                                 |
-        |    3 - Acoustic - Harmonic analysis through direct method          |
-        |    4 - Acoustic - Modal analysis                                   |
-        |    5 - Coupled - Harmonic analysis through direct method           |
-        |    6 - Coupled - Harmonic analysis through mode superposition      |
-        |--------------------------------------------------------------------|
-        """
         app().main_window.close_dialogs()
         app().main_window.set_input_widget(self)
 
@@ -118,10 +104,10 @@ class HarmonicAnalysisSetupInput(QDialog):
 
     def load_analysis_setup(self):
 
-        f_min = self.analysis_setup.get("f_min", 1)
-        f_max = self.analysis_setup.get("f_max", 300)
-        f_step = self.analysis_setup.get("f_step", 1)
-        global_damping = self.analysis_setup.get("global_damping", (0, 0, 0))
+        f_min = self.model.analysis_setup.get("f_min", 1)
+        f_max = self.model.analysis_setup.get("f_max", 300)
+        f_step = self.model.analysis_setup.get("f_step", 1)
+        global_damping = self.model.analysis_setup.get("global_damping", (0, 0, 0))
 
         self.load_analysis_type()
         self.load_damping_inputs(self.project.analysis_id, global_damping)
@@ -140,7 +126,9 @@ class HarmonicAnalysisSetupInput(QDialog):
             AnalysisID.STRUCTURAL_HARMONIC, 
             AnalysisID.COUPLED_HARMONIC,
             ]:
-            mode_sup = self.analysis_setup.get("analysis_method") == "mode_superposition"
+
+            analysis_setup = app().project.model.analysis_setup
+            mode_sup = analysis_setup.get("analysis_method") == "mode_superposition"
             self.comboBox_method.setCurrentIndex(int(mode_sup))
 
         self.comboBox_method.blockSignals(False)
@@ -301,7 +289,7 @@ class HarmonicAnalysisSetupInput(QDialog):
         #     self.model.set_analysis_setup(analysis_setup)
 
         app().project.file.write_analysis_setup_in_file(analysis_setup)
-        self.project.set_analysis_setup(analysis_setup)
+        self.project.model.set_analysis_setup(analysis_setup)
         # self.project.create_solver()
 
         self.setup_defined = True

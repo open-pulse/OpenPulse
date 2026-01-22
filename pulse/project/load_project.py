@@ -528,7 +528,7 @@ class LoadProject:
     def load_analysis_setup(self):
         analysis_setup = self.project.file.load_analysis_file()
         if isinstance(analysis_setup, dict):
-            self.project.set_analysis_setup(analysis_setup)
+            self.project.model.set_analysis_setup(analysis_setup)
 
 
     def get_psd_related_lines(self):

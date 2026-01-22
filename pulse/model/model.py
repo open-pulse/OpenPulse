@@ -117,11 +117,13 @@ class Model:
             f_max = frequencies[-1]
             f_step = frequencies[1] - frequencies[0]
 
-            frequency_setup = { "f_min" : f_min,
-                                "f_max" : f_max,
-                                "f_step" : f_step }
+            frequency_setup = { 
+                "f_min" : f_min,
+                "f_max" : f_max,
+                "f_step" : f_step,
+                }
 
-            self.set_frequency_setup(frequency_setup)
+            self.set_analysis_setup(frequency_setup)
 
             self.list_frequencies = frequencies
 
