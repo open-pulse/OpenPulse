@@ -808,7 +808,7 @@ tbb = "==2022.*"
 
 [[package]]
 name = "molde"
-version = "0.1.4"
+version = "0.1.18"
 description = ""
 optional = false
 python-versions = ">=3.10"
@@ -819,7 +819,6 @@ develop = false
 [package.dependencies]
 moviepy = "^1.0.3"
 numpy = "^2.0"
-pyside6 = {version = "^6.8.1", markers = "python_version >= \"3.10\" and python_version < \"3.14\""}
 qtpy = "^2.4.2"
 vtk = "^9.3.1"
 
@@ -827,7 +826,7 @@ vtk = "^9.3.1"
 type = "git"
 url = "https://github.com/andrefpf/molde.git"
 reference = "main"
-resolved_reference = "8ca9bd37dd68ff2f56f72b89074050c248ef3960"
+resolved_reference = "5205aec44584092bc86e4708bfba2a84aa2f61b0"
 
 [[package]]
 name = "moviepy"
