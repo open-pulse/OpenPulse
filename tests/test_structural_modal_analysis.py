@@ -179,7 +179,7 @@ def test_structural_modal_analysis():
 
     analysis_setup = {
                       "analysis_id" : 2,
-                      "modes" : 40,
+                      "modes_number" : 40,
                       "sigma_factor" : 1e-2
                       }
 

@@ -640,7 +640,7 @@ def check_is_there_a_group_of_elements_inside_list_elements(input_list):
 def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
     """
     This method process the fillet parameters, respectiveliy, start point, center point and end point of the arc circle.
-    For a given two pair of points P1P2 and P2P3, P2 is the commom point.
+    For a given two pair of points P1P2 and P2P3, where P2 is the commom point.
 
     Inputs: np.ndarray(3x3)
     P1, P2, P3: 3d nodal coordinates of each point in which the P2 point is the common one of both lines
