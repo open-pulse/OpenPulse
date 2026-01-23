@@ -300,7 +300,7 @@ def test_coupled_harmonic_analysis():
 
     # analysis_setup = {
     #                   "analysis_id" : AnalysisID.ACOUSTIC_MODAL,
-    #                   "modes_number" : 40,
+    #                   "number_of_modes" : 40,
     #                   "sigma_factor" : 1e-2
     #                   }
 
