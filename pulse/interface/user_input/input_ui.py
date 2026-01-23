@@ -37,8 +37,6 @@ from pulse.interface.user_input.model.criteria.reciprocating_pump_pulsation_crit
 from pulse.interface.user_input.model.criteria.reciprocating_pump_inlet_pressure_criteria import ReciprocatingPumpInletPressureCriteriaInput
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
 #
-from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
-#
 from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
 from pulse.interface.user_input.plots.structural.plot_nodal_results_field_for_harmonic_analysis import PlotNodalResultsFieldForHarmonicAnalysis
 from pulse.interface.user_input.plots.structural.plot_nodal_results_for_harmonic_analysis import PlotNodalResultsForHarmonicAnalysis
@@ -192,22 +190,6 @@ class InputUi:
         
     def pulsation_damper_editor(self, device_to_delete=None):
         self.process_input(PulsationDamperEditorInputs, device_to_delete=device_to_delete)
-
-    def analysis_setup(self):
-
-        if self.project.analysis_id in [
-            AnalysisID.STRUCTURAL_MODAL, 
-            AnalysisID.ACOUSTIC_MODAL,
-            ]:
-            return False
-
-        read = self.process_input(AnalysisSetupInput)
-
-        if read.complete:
-            if read.flag_run:
-                app().project.run_analysis()
-
-        return read.complete
 
     def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")
