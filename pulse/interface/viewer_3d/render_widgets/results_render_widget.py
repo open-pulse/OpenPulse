@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QApplication
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 from pulse import ICON_DIR, app
+from pulse.model import AnalysisID
 from pulse.interface.viewer_3d.actors import (
     SectionPlaneActor,
     ElementLinesActor,
@@ -119,9 +120,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             # update the data according to the current analysis
             if self.analysis_mode == AnalysisMode.DISPLACEMENT:
 
-                if analysis_id in [0, 1, 5, 6, 7]:
+                if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
                     unit_label = "Unit: [m]"
-                elif analysis_id in [2]:
+
+                elif analysis_id == AnalysisID.STRUCTURAL_MODAL:
                     unit_label = "Unit: [--]"
 
                 deformed = True
@@ -131,7 +133,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
             elif self.analysis_mode == AnalysisMode.STRESS:
 
-                if analysis_id in [0, 1, 5, 6, 7]:
+                if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
                     unit_label = "Unit: [Pa]"
 
                 deformed = True
@@ -141,9 +143,10 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
             elif self.analysis_mode == AnalysisMode.PRESURE:
 
-                if analysis_id in [3, 5, 6]:
+                if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
                     unit_label = "Unit: [Pa]"
-                elif analysis_id in [4]:
+
+                elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
                     unit_label = "Unit: [--]"
 
                 color_table = self._compute_pressure_field(
