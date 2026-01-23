@@ -122,6 +122,12 @@ class Pipeline:
     def remove_structure(self, structure: Structure, rejoin=True):
         if not isinstance(structure, Structure):
             return
+        
+        neighbours_to_remove = []
+        if isinstance(structure, Pipe):
+            for curve in self.structures_of_type(Bend | Elbow):
+                if (structure.start in curve.get_points()) or (structure.end in curve.get_points()):
+                    neighbours_to_remove.append(curve)
 
         if rejoin and isinstance(structure, Bend | Elbow):
             structure.colapse()
@@ -131,6 +137,8 @@ class Pipeline:
 
         if rejoin and isinstance(structure, Bend | Elbow):
             self.attatch_point(structure.corner)
+        
+        self.remove_structures(neighbours_to_remove)
 
     def delete_selection(self):
         for structure in self.selected_structures:
