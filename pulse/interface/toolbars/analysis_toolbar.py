@@ -438,9 +438,6 @@ class AnalysisToolbar(QToolBar):
     def modal_structural(self):
         modal = ModalAnalysisInput()
 
-        if modal.modes_number is None:
-            return
-
         if modal.setup_defined:
             self.pushButton_run_analysis.setEnabled(True)
             self.final_actions()
@@ -452,9 +449,6 @@ class AnalysisToolbar(QToolBar):
 
     def modal_acoustic(self):
         modal = ModalAnalysisInput()
-
-        if modal.modes_number is None:
-            return
 
         if modal.setup_defined:
             self.pushButton_run_analysis.setEnabled(True)
