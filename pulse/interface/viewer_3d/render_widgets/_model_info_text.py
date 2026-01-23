@@ -357,6 +357,9 @@ def analysis_info_text(frequency_index: int):
     project = app().project
     tree = TreeInfo(project.analysis_type_label)
 
+    if not project.is_the_solution_finished():
+        return ""
+
     if project.analysis_id in [
         AnalysisID.STRUCTURAL_MODAL,
         AnalysisID.ACOUSTIC_MODAL,
@@ -401,7 +404,7 @@ def analysis_info_text(frequency_index: int):
             return ""
 
         if project.analysis_method is not None:
-            tree.add_item("Method", project.analysis_method)
+            tree.add_item("Method", project.analysis_method.replace("_", " "))
 
         frequency = frequencies[frequency_index]
         tree.add_item("Frequency", f"{frequency : .4f}", "Hz")
