@@ -39,9 +39,9 @@ class Project:
 
     def _initialize(self):
         self.structural_reactions = dict()
-        self.natural_frequencies_acoustic = list()
-        self.natural_frequencies_structural = list()
-        self.complex_natural_frequencies_acoustic = list()
+        self.natural_frequencies_acoustic = np.ndarray([])
+        self.natural_frequencies_structural = np.ndarray([])
+        self.complex_natural_frequencies_acoustic = np.ndarray([])
 
         self.preferences = dict()
         self.color_scale_setup = dict()
@@ -65,7 +65,6 @@ class Project:
         self.stress_label = ""
         self.stresses_values_for_color_table = None
 
-        self.reset_analysis_setup()
         self.reset_solvers()
         self.reset_solutions()
 
@@ -77,9 +76,9 @@ class Project:
         self.structural_solution = None
         self.acoustic_solution = None
 
-        self.natural_frequencies_acoustic.clear()
-        self.natural_frequencies_structural.clear()
-        self.complex_natural_frequencies_acoustic.clear()
+        self.natural_frequencies_acoustic = np.ndarray([])
+        self.natural_frequencies_structural = np.ndarray([])
+        self.complex_natural_frequencies_acoustic = np.ndarray([])
         self.structural_reactions.clear()
 
         if self.acoustic_solver is not None:
@@ -94,9 +93,31 @@ class Project:
         # self.create_solver()
 
     def reset_analysis_setup(self):
-        self.modes = 0
-        self.sigma_factor = 1e-2
-        self.global_damping = [0., 0., 0.]
+        self.model.reset_analysis_setup()
+
+    @property
+    def analysis_id(self):
+        return self.model.analysis_id
+
+    @property
+    def analysis_type_label(self):
+        return self.model.analysis_type_label
+
+    @property
+    def analysis_method(self):
+        return self.model.analysis_method
+
+    @property
+    def number_of_modes(self):
+        return self.model.number_of_modes
+
+    @property
+    def sigma_factor(self):
+        return self.model.sigma_factor
+
+    @property
+    def global_damping(self):
+        return self.model.global_damping
 
     def initialize_pulse_file_and_loader(self):   
         self.file = ProjectFile(self, TEMP_PROJECT_FILE) 
@@ -278,10 +299,10 @@ class Project:
                 AnalysisID.STRUCTURAL_MODAL,
                 AnalysisID.ACOUSTIC_MODAL,
             ]:
-                if "modes_number" in analysis_setup.keys():
-                    if not isinstance(analysis_setup["modes_number"], int):
-                        return False
-                else:
+                if not "number_of_modes" in analysis_setup.keys():
+                    return False
+
+                if not isinstance(analysis_setup["number_of_modes"], int):
                     return False
 
                 if "sigma_factor" in analysis_setup.keys():
@@ -304,20 +325,18 @@ class Project:
                             return False
                     else:
                         return False
-
+                    
                 if self.analysis_method == "mode_superposition":
 
-                    if "modes_number" in analysis_setup.keys():
-                        if not isinstance(analysis_setup["modes_number"], int):
-                            return False
-                    else:
+                    if not "number_of_modes" in analysis_setup.keys():
+                        return False
+
+                    if not isinstance(analysis_setup["number_of_modes"], int):
                         return False
 
                     if "sigma_factor" in analysis_setup.keys():
                         if not isinstance(analysis_setup["sigma_factor"], int | float):
                             return False
-                    else:
-                        return False
 
                 return True
             
@@ -475,7 +494,7 @@ class Project:
             AnalysisID.STRUCTURAL_MODAL
             ]:
 
-            for key in ["modes_number", "sigma_factor"]:
+            for key in ["number_of_modes", "sigma_factor"]:
                 if key not in analysis_setup.keys():
                     return False
             return True
@@ -528,29 +547,6 @@ class Project:
             return True
 
         return False
-
-    @property
-    def analysis_id(self):
-        return self.model.analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
-
-    @property
-    def analysis_type_label(self):
-        if self.analysis_id == AnalysisID.STRUCTURAL_HARMONIC:
-            return "Structural Harmonic Analysis"
-        elif self.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
-            return "Acoustic Harmonic Analysis"
-        elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
-            return "Structural Modal Analysis"
-        elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
-            return "Acoustic Modal Analysis"
-        elif self.analysis_id == AnalysisID.STRUCTURAL_STATIC:
-            return "Structural Static Analysis"
-        else:
-            return "Analysis not identified"
-
-    @property
-    def analysis_method(self):
-        return self.model.analysis_setup.get("analysis_method", "--")
 
     def initialize_solver(self):
 
@@ -610,7 +606,7 @@ class Project:
             if self.analysis_method == "direct":
                 self.structural_solver.direct_method()
             else:
-                self.structural_solver.mode_superposition(self.modes)
+                self.structural_solver.mode_superposition()
 
             self.structural_solution = self.structural_solver.solution
 
@@ -628,17 +624,17 @@ class Project:
             if self.analysis_method == "direct":
                 self.structural_solver.direct_method()
             else:
-                self.structural_solver.mode_superposition(self.modes)
+                self.structural_solver.mode_superposition(self.number_of_modes)
 
             self.structural_solution = self.structural_solver.solution
 
         elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
-            self.structural_solver.modal_analysis(modes = self.modes, sigma_factor = self.sigma_factor)
+            self.structural_solver.modal_analysis(modes = self.number_of_modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_structural = self.structural_solver.natural_frequencies
             self.structural_solution = self.structural_solver.modal_shapes
 
         elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
-            self.acoustic_solver.modal_analysis(modes = self.modes, sigma_factor = self.sigma_factor)
+            self.acoustic_solver.modal_analysis(modes = self.number_of_modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_acoustic = self.acoustic_solver.natural_frequencies
             self.complex_natural_frequencies_acoustic = self.acoustic_solver.complex_natural_frequencies
             self.acoustic_solution = self.acoustic_solver.modal_shapes
