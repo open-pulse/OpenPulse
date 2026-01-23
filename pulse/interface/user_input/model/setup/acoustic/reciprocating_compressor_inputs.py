@@ -231,17 +231,14 @@ class ReciprocatingCompressorInputs(QDialog):
                 self.update_compressor_inputs(data)
 
     def tab_event_callback(self):
-        # self.lineEdit_selected_surface_id.setText("")
-        # self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
-        return
-
         if self.tabWidget_compressor.currentIndex() == 2:
-            self.pushButton_exit.setDisabled(True)
+            self.lineEdit_selected_node_id.setText("")
+            self.lineEdit_connection_type.setText("")
             self.pushButton_confirm.setDisabled(True)
-        else:
-            self.pushButton_exit.setDisabled(False)
-            self.pushButton_confirm.setDisabled(False)
+            return
+
+        self.pushButton_confirm.setEnabled(True)
 
     def update_compressing_cylinders_setup(self):
 
@@ -948,15 +945,15 @@ class ReciprocatingCompressorInputs(QDialog):
         self.pushButton_remove.setDisabled(False)
 
     def update_tabs_visibility(self):
-        self.lineEdit_selected_node_id.setText("")
-        self.lineEdit_connection_type.setText("")
-        self.pushButton_remove.setDisabled(True)
-        self.tabWidget_compressor.setTabVisible(3, False)
+        self.tabWidget_compressor.setTabVisible(2, False)
         for (property, *_) in self.properties.nodal_properties.keys():
-            if property == "reciprocating_compressor_excitation":
-                self.tabWidget_compressor.setCurrentIndex(0)
-                self.tabWidget_compressor.setTabVisible(3, True)
-                return
+            if property != "reciprocating_compressor_excitation":
+                continue
+
+            self.tabWidget_compressor.setCurrentIndex(0)
+            self.tabWidget_compressor.setTabVisible(2, True)
+            return
+
         self.tabWidget_compressor.setCurrentIndex(0)
 
     def spinBox_event_number_of_points(self):
