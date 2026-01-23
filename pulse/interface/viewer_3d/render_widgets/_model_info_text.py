@@ -362,10 +362,10 @@ def analysis_info_text(frequency_index: int):
         AnalysisID.ACOUSTIC_MODAL,
         ]:
 
-        if project.analysis_type_label == "Structural Modal Analysis":
+        if project.analysis_id == AnalysisID.STRUCTURAL_MODAL:
             frequencies = list(project.natural_frequencies_structural)
 
-        if project.analysis_type_label == "Acoustic Modal Analysis":
+        if project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
             if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
                 frequencies = list(project.complex_natural_frequencies_acoustic)
             else:
@@ -404,7 +404,7 @@ def analysis_info_text(frequency_index: int):
             tree.add_item("Method", project.analysis_method)
 
         frequency = frequencies[frequency_index]
-        tree.add_item("Frequency", f"{frequency:.2f}", "Hz")
+        tree.add_item("Frequency", f"{frequency : .4f}", "Hz")
 
     return str(tree)
 

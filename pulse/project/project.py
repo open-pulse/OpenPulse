@@ -20,8 +20,6 @@ import logging
 from collections import defaultdict
 
 
-window_title = "Error"
-
 class Project:
     def __init__(self):
 
@@ -99,7 +97,6 @@ class Project:
         self.modes = 0
         self.sigma_factor = 1e-2
         self.global_damping = [0., 0., 0.]
-        self.analysis_type_label = ""
 
     def initialize_pulse_file_and_loader(self):   
         self.file = ProjectFile(self, TEMP_PROJECT_FILE) 
@@ -124,7 +121,7 @@ class Project:
 
             title = "Error while processing initial load project actions"
             message = str(log_error)
-            PrintMessageInput([window_title, title, message])
+            PrintMessageInput([error_title, title, message])
             return False
 
     def load_project(self):
@@ -537,6 +534,21 @@ class Project:
         return self.model.analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
 
     @property
+    def analysis_type_label(self):
+        if self.analysis_id == AnalysisID.STRUCTURAL_HARMONIC:
+            return "Structural Harmonic Analysis"
+        elif self.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
+            return "Acoustic Harmonic Analysis"
+        elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
+            return "Structural Modal Analysis"
+        elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
+            return "Acoustic Modal Analysis"
+        elif self.analysis_id == AnalysisID.STRUCTURAL_STATIC:
+            return "Structural Static Analysis"
+        else:
+            return "Analysis not identified"
+
+    @property
     def analysis_method(self):
         return self.model.analysis_setup.get("analysis_method", "--")
 
@@ -564,7 +576,7 @@ class Project:
                 title = "Invalid analysis type"
                 message = "There are only BEAM_1 elements in the model, therefore, "
                 message += "only structural analysis will be allowable."
-                info_text = [window_title_2, title, message]
+                info_text = [warning_title, title, message]
                 PrintMessageInput(info_text)
                 return
 
@@ -659,7 +671,7 @@ class Project:
             title = "Incomplete analysis setup" 
             message = "Please, it is necessary to choose an analysis type "
             message += "and setup it before trying to solve the model."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return
 
         if not running_by_script:
@@ -713,7 +725,7 @@ class Project:
 
         if message != "":
             title = self.analysis_type_label
-            PrintMessageInput([window_title_2, title, message])
+            PrintMessageInput([warning_title, title, message])
 
     def calculate_structural_reactions(self):
 

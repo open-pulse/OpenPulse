@@ -127,7 +127,6 @@ class PlotStructuralModeShape(QWidget):
         if self.lineEdit_natural_frequency.text() == "":
             return
 
-        app().project.analysis_type_label = "Structural Modal Analysis"
         frequency = self.selected_natural_frequency
         self.mode_index = self.natural_frequencies.index(frequency)
         color_scale_setup = self.get_user_color_scale_setup()

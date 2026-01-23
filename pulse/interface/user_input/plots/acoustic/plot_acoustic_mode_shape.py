@@ -133,8 +133,7 @@ class PlotAcousticModeShape(QWidget):
         self.update_animation_widget_visibility()
         if self.lineEdit_natural_frequency.text() == "":
             return
-        
-        app().project.analysis_type_label = "Acoustic Modal Analysis"
+
         self.mode_index = self.natural_frequencies.index(self.selected_frequency)
             
         color_scale_setup = self.get_user_color_scale_setup()
