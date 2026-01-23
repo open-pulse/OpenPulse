@@ -93,7 +93,7 @@ class HarmonicAnalysisSetupInput(QDialog):
 
         if self.project.analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
             if analysis_setup.get("analysis_method") == "mode_superposition":
-                modes_to_expand = analysis_setup.get("modes_number")
+                modes_to_expand = analysis_setup.get("number_of_modes")
                 self.lineEdit_modes_to_expand.setText(f"{modes_to_expand}")
         else:
             self.lineEdit_modes_to_expand.setText(f"")
@@ -107,10 +107,9 @@ class HarmonicAnalysisSetupInput(QDialog):
         f_min = self.model.analysis_setup.get("f_min", 1)
         f_max = self.model.analysis_setup.get("f_max", 300)
         f_step = self.model.analysis_setup.get("f_step", 1)
-        global_damping = self.model.analysis_setup.get("global_damping", (0., 0., 0.))
 
         self.load_analysis_type()
-        self.load_damping_inputs(self.project.analysis_id, global_damping)
+        self.load_damping_inputs()
         self.load_frequency_setup_inputs(f_min, f_max, f_step)
 
     def load_analysis_type(self):
@@ -134,20 +133,23 @@ class HarmonicAnalysisSetupInput(QDialog):
         self.comboBox_method.blockSignals(False)
         self.analysis_method_callback()
 
-    def load_damping_inputs(self, analysis_id: int, global_damping: tuple | list):
-        if sum(global_damping) and analysis_id in [
-            AnalysisID.STRUCTURAL_HARMONIC, 
-            AnalysisID.COUPLED_HARMONIC,          
-        ]:
+    def load_damping_inputs(self):
 
-            if global_damping[0]:
-                self.lineEdit_mass_multiplier.setText(str(global_damping[0]))
+        global_damping = self.model.global_damping
+        if not sum(global_damping):
+            return
 
-            if global_damping[1]:
-                self.lineEdit_stiffness_multiplier.setText(str(global_damping[1]))
+        if not self.model.analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+            return
 
-            if global_damping[2]:
-                self.lineEdit_constant_structural_coefficient.setText(str(global_damping[2]))
+        if global_damping[0]:
+            self.lineEdit_mass_multiplier.setText(str(global_damping[0]))
+
+        if global_damping[1]:
+            self.lineEdit_stiffness_multiplier.setText(str(global_damping[1]))
+
+        if global_damping[2]:
+            self.lineEdit_constant_structural_coefficient.setText(str(global_damping[2]))
 
     def load_frequency_setup_inputs(self, f_min: float, f_max: float, f_step: float):
 
@@ -182,17 +184,17 @@ class HarmonicAnalysisSetupInput(QDialog):
             }
 
         if analysis_method == "mode_superposition":
-            modes_number = self.check_inputs(
+            number_of_modes = self.check_inputs(
                 self.lineEdit_modes_to_expand, 
                 "modes to expand",
                 int_value = True,
                 )
 
-            if modes_number is None:
+            if number_of_modes is None:
                 self.lineEdit_modes_to_expand.setFocus()
                 return True
 
-            analysis_setup["modes_number"] = modes_number
+            analysis_setup["number_of_modes"] = number_of_modes
 
         f_min = f_max = f_step = 0.
 

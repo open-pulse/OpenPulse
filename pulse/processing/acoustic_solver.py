@@ -194,7 +194,7 @@ class AcousticSolver:
             Modal shapes
         """
 
-        modes = kwargs.get("modes_number", 40)
+        modes = kwargs.get("number_of_modes", 40)
         which = kwargs.get("which", "LM")
         sigma_factor = kwargs.get("sigma_factor", 1e-4)
 

@@ -29,7 +29,7 @@ class ModalAnalysisInput(QDialog):
         self.exec()
 
     def _initialize(self):
-        self.modes_number = None
+        self.number_of_modes = None
         self.setup_defined = False
         self.proceed_solution = False
 
@@ -63,9 +63,9 @@ class ModalAnalysisInput(QDialog):
                 AnalysisID.STRUCTURAL_MODAL,
                 AnalysisID.ACOUSTIC_MODAL,
             ]:
-                modes_number = analysis_setup["modes_number"]
+                number_of_modes = analysis_setup["number_of_modes"]
                 sigma = analysis_setup["sigma_factor"]
-                self.lineEdit_number_modes.setText(str(modes_number))
+                self.lineEdit_number_modes.setText(str(number_of_modes))
                 self.lineEdit_sigma_factor.setText(str(sigma))
 
     def check_analysis_inputs(self):
@@ -80,7 +80,7 @@ class ModalAnalysisInput(QDialog):
         else:
 
             try:
-                self.modes_number = int(self.lineEdit_number_modes.text())
+                self.number_of_modes = int(self.lineEdit_number_modes.text())
             except Exception:
                 message = "Invalid input value for number of modes."
                 PrintMessageInput([error_title, title, message])
@@ -104,10 +104,11 @@ class ModalAnalysisInput(QDialog):
 
         analysis_setup = {
             "analysis_id": analysis_id,
-            "modes_number": self.modes_number,
+            "number_of_modes": self.number_of_modes,
             "sigma_factor": self.sigma_factor,
         }
 
+        app().project.model.reset_analysis_setup()
         app().project.model.set_analysis_setup(analysis_setup)
 
         self.setup_defined = True

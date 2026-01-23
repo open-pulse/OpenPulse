@@ -227,7 +227,7 @@ class StructuralSolver:
 
         K = kwargs.get("K", list())
         M = kwargs.get("M", list())
-        modes = kwargs.get("modes_number", 40)
+        modes = kwargs.get("number_of_modes", 40)
         which = kwargs.get("which", "LM")
         sigma_factor = kwargs.get("sigma_factor", 1e-2)
         harmonic_analysis = kwargs.get("harmonic_analysis", False)
@@ -336,19 +336,13 @@ class StructuralSolver:
         return self.solution
 
 
-    def mode_superposition(self, modes, fastest=True):
+    def mode_superposition(self, **kwargs):
         """
-        This method evaluates the harmonic analysis through mode superposition method. It is suitable for Viscous Proportional and Hysteretic Proportional damping models.
+        This method evaluates the harmonic analysis through mode superposition method. It is suitable for Viscous 
+        Proportional and Hysteretic Proportional damping models.
 
         Parameters
         ----------
-        global_damping : list of floats.
-            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
-
-        F_loaded : ,optional.
-            
-            Default None.
-
         fastest : boll, optional.
             True if 3D matrix solution procedure must be used. False otherwise.
             Default True.
@@ -358,6 +352,10 @@ class StructuralSolver:
         array
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
+
+        fastest = kwargs.get("fastest", True)
+
+        number_of_modes = self.model.number_of_modes
         global_damping = self.model.global_damping
         alpha, beta, eta = global_damping
 
@@ -386,12 +384,12 @@ class StructuralSolver:
 
         #TODO: in the future version implement lets F_loaded operational
 
-        natural_frequencies, modal_shape = self.modal_analysis(K=Kadd_lump, M=Madd_lump, modes=modes, harmonic_analysis=True)
+        natural_frequencies, modal_shape = self.modal_analysis(K=Kadd_lump, M=Madd_lump, modes=number_of_modes, harmonic_analysis=True)
         rows = Kadd_lump.shape[0]
         cols = len(self.frequencies)
 
-        if fastest:    
-        
+        if fastest:
+
             number_modes = len(natural_frequencies)
             omega = 2 * np.pi * self.frequencies.reshape(cols,1,1)
             omega_n = 2 * np.pi * natural_frequencies
