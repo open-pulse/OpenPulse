@@ -222,9 +222,13 @@ class AddAcousticTransferElementInput(QDialog):
                                                                         )
 
         if not check:
+            info_message = "Select the spreadsheet file to import "
+            info_message += "the acoustic transfer element data."
+            self.lineEdit_spreadsheet_path.setToolTip(info_message)
             return True
 
         self.lineEdit_spreadsheet_path.setText(path)
+        self.lineEdit_spreadsheet_path.setToolTip(path)
     
         app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path)
 
