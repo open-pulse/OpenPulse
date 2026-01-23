@@ -188,26 +188,30 @@ class TurnOffAcousticElementsInput(QDialog):
                     self.actions_to_finalize()
 
     def actions_to_finalize(self):
+        self.load_elements_info()
         app().project.file.write_element_properties_in_file()
         app().main_window.update_plots()
-        self.load_elements_info()
 
     def load_elements_info(self):
 
         self.treeWidget_elements_info.clear()
         for (property, element_id), data in self.properties.element_properties.items():
-            if property == "acoustic_element_turned_off":
+            if property != "acoustic_element_turned_off":
+                continue
 
-                if data["turned_off"]:
-                    action_label = "Turned-off"
-                else:
-                    continue
+            if not isinstance(data, dict):
+                continue
 
-                item = QTreeWidgetItem([str(element_id), action_label])
-                for i in range(3):
-                    item.setTextAlignment(i, Qt.AlignCenter)
+            if data.get("turned_off"):
+                action_label = "Turned-off"
+            else:
+                continue
 
-                self.treeWidget_elements_info.addTopLevelItem(item)
+            item = QTreeWidgetItem([str(element_id), action_label])
+            for i in range(3):
+                item.setTextAlignment(i, Qt.AlignCenter)
+
+            self.treeWidget_elements_info.addTopLevelItem(item)
 
         self.update_tabs_visibility()         
 
