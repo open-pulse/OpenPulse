@@ -231,14 +231,13 @@ class ReciprocatingCompressorInputs(QDialog):
                 self.update_compressor_inputs(data)
 
     def tab_event_callback(self):
-        self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_compressor.currentIndex() == 2:
-            self.lineEdit_selected_node_id.setText("")
-            self.lineEdit_connection_type.setText("")
-            self.pushButton_confirm.setDisabled(True)
+        if self.tabWidget_compressor.currentIndex() != 2:
+            self.pushButton_confirm.setEnabled(True)
             return
 
-        self.pushButton_confirm.setEnabled(True)
+        self.pushButton_confirm.setDisabled(True)
+        self.lineEdit_selected_node_id.setText("")
+        self.lineEdit_connection_type.setText("")
 
     def update_compressing_cylinders_setup(self):
 
