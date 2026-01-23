@@ -10,8 +10,8 @@ from scipy.spatial.transform import Rotation
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
+warning_title = "Warning"
 
 def split_sequence(sequence, size):
     ''' 
@@ -446,48 +446,6 @@ def transformation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
 #     msg_box.setText(msg)
 #     msg_box.setWindowTitle(title)
 #     msg_box.exec_()
-
-
-def remove_bc_from_file(typed_values, path, keys_to_remove, message, equals_keys=False):
-    try:
-
-        if isinstance(typed_values, int):
-            typed_values = [typed_values]
-
-        bc_removed = False
-        config = configparser.ConfigParser()
-        config.read(path)
-        sections = config.sections()
-        for typed_value in typed_values: 
-            _typed_value = str(typed_value)
-            if _typed_value in sections:
-                keys = config[_typed_value].keys()
-                for key_to_remove in keys_to_remove:
-                    for key in keys:
-                        if key_to_remove in key:
-                            if equals_keys:
-                                if key_to_remove != key:
-                                    continue
-                            bc_removed = True
-                            config.remove_option(section=_typed_value, option=key)
-                            if list(config[_typed_value].keys()) == []:
-                                config.remove_section(section=_typed_value)
-                                        
-            if bc_removed:
-                if len(list(config.sections())):    
-                    with open(path, 'w') as config_file:
-                        config.write(config_file)
-                else:
-                    os.remove(path)
-
-        if message is not None and bc_removed:
-            title = "Removal of selected boundary condition"
-            PrintMessageInput([window_title_2, title, message])
-
-    except Exception as log_error:
-        title = "Error while removing BC from file"
-        PrintMessageInput([window_title_1, title, str(log_error)])
-
 
 def getColorRGB(color):
     temp = color[1:-1] #Remove "[ ]"
