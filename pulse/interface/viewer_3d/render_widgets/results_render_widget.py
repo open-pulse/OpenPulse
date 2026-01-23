@@ -108,59 +108,56 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if not project.get_structural_elements():
             return
 
-        try:
+        # Default behavior
+        self.colorbar_actor.VisibilityOn()
+        deformed = False
 
-            # Default behavior
-            self.colorbar_actor.VisibilityOn()
-            deformed = False
-    
-            unit_label = ""
-            analysis_id = project.analysis_id
+        unit_label = ""
+        analysis_id = project.analysis_id
 
-            # update the data according to the current analysis
-            if self.analysis_mode == AnalysisMode.DISPLACEMENT:
+        # update the data according to the current analysis
+        if self.analysis_mode == AnalysisMode.DISPLACEMENT:
 
-                if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
-                    unit_label = "Unit: [m]"
+            if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                unit_label = "Unit: [m]"
 
-                elif analysis_id == AnalysisID.STRUCTURAL_MODAL:
-                    unit_label = "Unit: [--]"
+            elif analysis_id == AnalysisID.STRUCTURAL_MODAL:
+                unit_label = "Unit: [--]"
 
-                deformed = True
-                color_table = self._compute_displacement_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
+            deformed = True
+            color_table = self._compute_displacement_field(
+                self.current_frequency_index,
+                self.current_phase_step,
+            )
 
-            elif self.analysis_mode == AnalysisMode.STRESS:
+        elif self.analysis_mode == AnalysisMode.STRESS:
 
-                if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
-                    unit_label = "Unit: [Pa]"
+            if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                unit_label = "Unit: [Pa]"
 
-                deformed = True
-                color_table = self._compute_stress_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
+            deformed = True
+            color_table = self._compute_stress_field(
+                self.current_frequency_index,
+                self.current_phase_step,
+            )
 
-            elif self.analysis_mode == AnalysisMode.PRESURE:
+        elif self.analysis_mode == AnalysisMode.PRESURE:
 
-                if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
-                    unit_label = "Unit: [Pa]"
+            if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                unit_label = "Unit: [Pa]"
 
-                elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
-                    unit_label = "Unit: [--]"
+            elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
+                unit_label = "Unit: [--]"
 
-                color_table = self._compute_pressure_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
+            color_table = self._compute_pressure_field(
+                self.current_frequency_index,
+                self.current_phase_step,
+            )
 
-            else:
-                # Empty color table
-                color_table = ColorTable([], [0, 0], self.colormap)
-                self.colorbar_actor.VisibilityOff()
-
-        except Exception as error_log:
-            print(str(error_log))
-            return
+        else:
+            # Empty color table
+            color_table = ColorTable([], [0, 0], self.colormap)
+            self.colorbar_actor.VisibilityOff()
 
         acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
 
