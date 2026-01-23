@@ -32,8 +32,9 @@ PhysicalDomain = Literal[
 
 
 """
+
 |-----------------------------------------------------------|
-|                  Analysis ID codification                 |
+|                  Analysis ID mapping                      |
 |-----------------------------------------------------------|
 |    0 - Structural - Modal analysis                        |
 |    1 - Structural - Harmonic analysis                     |
@@ -42,6 +43,7 @@ PhysicalDomain = Literal[
 |    4 - Coupled - Harmonic analysis                        |
 |    5 - Structural - Static analysis                       |
 |-----------------------------------------------------------|
+
 """
 
 class AnalysisToolbar(QToolBar):

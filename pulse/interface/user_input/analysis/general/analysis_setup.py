@@ -16,19 +16,20 @@ class AnalysisSetupInput(QDialog):
         super().__init__()
 
         """
-        |--------------------------------------------------------------------|
-        |                    Analysis ID codification                        |
-        |--------------------------------------------------------------------|
-        |    0 - Structural - Harmonic analysis through direct method        |
-        |    1 - Structural - Harmonic analysis through mode superposition   |
-        |    2 - Structural - Modal analysis                                 |
-        |    3 - Acoustic - Harmonic analysis through direct method          |
-        |    4 - Acoustic - Modal analysis (convetional FE 1D)               |
-        |    5 - Coupled - Harmonic analysis through direct method           |
-        |    6 - Coupled - Harmonic analysis through mode superposition      |
-        |    7 - Structural - Static analysis (under development)            |
-        |--------------------------------------------------------------------|
+
+        |-----------------------------------------------------------|
+        |                  Analysis ID mapping                      |
+        |-----------------------------------------------------------|
+        |    0 - Structural - Modal analysis                        |
+        |    1 - Structural - Harmonic analysis                     |
+        |    2 - Acoustic - Modal analysis (convetional FE 1D)      |
+        |    3 - Acoustic - Harmonic analysis (FETM)                |
+        |    4 - Coupled - Harmonic analysis                        |
+        |    5 - Structural - Static analysis                       |
+        |-----------------------------------------------------------|
+
         """
+
         self.analysis_id = app().project.analysis_id
 
         if self.analysis_id in [1, 6]:

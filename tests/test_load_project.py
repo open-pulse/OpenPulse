@@ -1,4 +1,5 @@
 
+from pulse.model import AnalysisID
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
@@ -63,29 +64,14 @@ def test_coupled_harmonic_analysis(project_path: str | Path):
     model.properties._set_nodal_property("reciprocating_pump_excitation", data, node_id)
 
 
-    """
-    |--------------------------------------------------------------------|
-    |                    Analysis ID codification                        |
-    |--------------------------------------------------------------------|
-    |    0 - Structural - Harmonic analysis through direct method        |
-    |    1 - Structural - Harmonic analysis through mode superposition   |
-    |    2 - Structural - Modal analysis                                 |
-    |    3 - Acoustic - Harmonic analysis through direct method          |
-    |    4 - Acoustic - Modal analysis (convetional FE 1D)               |
-    |    5 - Coupled - Harmonic analysis through direct method           |
-    |    6 - Coupled - Harmonic analysis through mode superposition      |
-    |    7 - Structural - Static analysis (under development)            |
-    |--------------------------------------------------------------------|
-    """
-
     ## Analysis setup for acoustic harmonic analysis
 
     analysis_setup = {
-                      "analysis_id" : 3,
+                      "analysis_id" : AnalysisID.COUPLED_HARMONIC,
                     #   "f_min" : 1,
                     #   "f_max" : 300,
                     #   "f_step" : 1,
-                      "global_damping" : [1e-3, 1e-5, 0., 0.],
+                      "global_damping" : [1e-3, 1e-5, 0.],
                       }
     
     model.set_analysis_setup(analysis_setup)

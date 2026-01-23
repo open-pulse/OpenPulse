@@ -107,7 +107,7 @@ class HarmonicAnalysisSetupInput(QDialog):
         f_min = self.model.analysis_setup.get("f_min", 1)
         f_max = self.model.analysis_setup.get("f_max", 300)
         f_step = self.model.analysis_setup.get("f_step", 1)
-        global_damping = self.model.analysis_setup.get("global_damping", (0, 0, 0))
+        global_damping = self.model.analysis_setup.get("global_damping", (0., 0., 0.))
 
         self.load_analysis_type()
         self.load_damping_inputs(self.project.analysis_id, global_damping)

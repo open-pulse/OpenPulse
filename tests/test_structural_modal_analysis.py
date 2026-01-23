@@ -1,4 +1,5 @@
 
+from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
@@ -178,7 +179,7 @@ def test_structural_modal_analysis():
     ## Analysis setup for structural modal analysis
 
     analysis_setup = {
-                      "analysis_id" : 2,
+                      "analysis_id" : AnalysisID.STRUCTURAL_MODAL,
                       "modes_number" : 40,
                       "sigma_factor" : 1e-2
                       }
@@ -186,13 +187,13 @@ def test_structural_modal_analysis():
     ## Analysis setup for structural harmonic analysis
 
     # analysis_setup = {
-    #                   "analysis_id" : 0,
+    #                   "analysis_id" : AnalysisID.STRUCTURAL_HARMONIC,
     #                   "f_min" : 1,
     #                   "f_max" : 300,
     #                   "f_step" : 1,
-    #                   "global_damping" : [1e-3, 1e-5, 0., 0.],
+    #                   "global_damping" : [1e-3, 1e-5, 0.],
     #                   }
-    
+
     model.set_analysis_setup(analysis_setup = analysis_setup)
 
     ## Write project data in the temp_pulse folder
