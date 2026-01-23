@@ -1,6 +1,6 @@
 # fmt: off
 
-from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
@@ -123,9 +123,6 @@ class PerforatedPlateInput(QDialog):
         self.radioButton_absortion : QRadioButton
         self.radioButton_plotReal : QRadioButton
         self.radioButton_plotImag : QRadioButton
-
-        # QSpinBox
-        self.spinBox_skiprows : QSpinBox
 
         # QTabWidget
         self.tabWidget_dimensionless : QTabWidget
