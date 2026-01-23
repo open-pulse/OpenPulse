@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
@@ -67,9 +67,6 @@ class SpecificImpedanceInput(QDialog):
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_search: QPushButton
-
-        # QSpinBox
-        self.spinBox_skip_wors: QSpinBox
 
         # QTabWidget
         self.tabWidget_inputs: QTabWidget
