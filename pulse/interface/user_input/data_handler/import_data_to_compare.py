@@ -131,27 +131,32 @@ class ImportDataToCompare(QDialog):
 
         try:
 
+            run = True
             message = ""
 
-            run = True
+            skiprows = 0
+            maximum_lines_to_skip = 100
+
             if self.checkBox_skiprows.isChecked():
                 skiprows = self.spinBox_skiprows.value()
-            else:
-                skiprows = 0
-            maximum_lines_to_skip = 100
             
             while run:
                 try:
                     sufix = Path(imported_path).suffix
                     filename = os.path.basename(imported_path)
                     if sufix in [".txt", ".dat", ".csv"]:
-                        loaded_data = np.loadtxt(imported_path, 
-                                                 delimiter = ",", 
-                                                 skiprows = skiprows)
+                        loaded_data = np.loadtxt(
+                            imported_path, 
+                            delimiter = ",", 
+                            skiprows = skiprows,
+                            )
+
                         key = self.get_data_index()
-                        self.imported_results[key] = {  "data" : loaded_data,
-                                                        "filename" : filename,
-                                                        "extension" : sufix  }
+                        self.imported_results[key] = {  
+                            "data" : loaded_data,
+                            "filename" : filename,
+                            "extension" : sufix,
+                            }
 
                     elif sufix in [".xls", ".xlsx"]:
                         wb = load_workbook(imported_path)
@@ -160,18 +165,19 @@ class ImportDataToCompare(QDialog):
 
                             try:
                                 sheet_data = read_excel(
-                                                        imported_path, 
-                                                        sheet_name = sheetname, 
-                                                        header = skiprows, 
-                                                        usecols = [0,1,2]
-                                                        ).to_numpy()
+                                    imported_path, 
+                                    sheet_name = sheetname, 
+                                    header = skiprows, 
+                                    usecols = [0, 1, 2]
+                                    ).to_numpy()
+
                             except:
                                 sheet_data = read_excel(
-                                                        imported_path, 
-                                                        sheet_name = sheetname, 
-                                                        header = skiprows, 
-                                                        usecols = [0,1]
-                                                        ).to_numpy()
+                                    imported_path, 
+                                    sheet_name = sheetname, 
+                                    header = skiprows, 
+                                    usecols = [0, 1]
+                                    ).to_numpy()
 
                             key = self.get_data_index()
 
