@@ -674,6 +674,7 @@ class ValvesInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
 
     def get_valve_diameters(self, valve_elements: list, valve_diameter: float, flange_elements = list(), flange_thickness = 0) -> dict:
