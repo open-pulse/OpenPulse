@@ -72,8 +72,12 @@ class StaticAnalysisInput(QDialog):
         external_nodal_load = self.checkBox_external_nodal_loads.isChecked()
         distributed_load = self.checkBox_distributed_element.isChecked()
 
+        analysis_domain = app().main_window.analysis_toolbar.combo_box_physical_domain.currentText().lower()
+
         analysis_setup = { 
             "analysis_id" : AnalysisID.STRUCTURAL_STATIC,
+            "analysis_type" : "static",
+            "analysis_domain" : analysis_domain,
             "weight_load" : weight_load,
             "internal_pressure_load" : internal_pressure_load,
             "external_pressure_load" : external_nodal_load,

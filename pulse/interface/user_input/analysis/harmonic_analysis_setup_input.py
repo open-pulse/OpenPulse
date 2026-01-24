@@ -177,10 +177,13 @@ class HarmonicAnalysisSetupInput(QDialog):
 
         analysis_id = app().main_window.analysis_toolbar.get_current_analysis_id()
         analysis_method = "direct" if self.comboBox_method.currentIndex() == 0 else "mode_superposition"
+        analysis_domain = app().main_window.analysis_toolbar.combo_box_physical_domain.currentText().lower()
 
         analysis_setup = {
             "analysis_id" : analysis_id,
+            "analysis_type" : "harmonic",
             "analysis_method" : analysis_method,
+            "analysis_domain" : analysis_domain,
             }
 
         if analysis_method == "mode_superposition":
@@ -284,11 +287,6 @@ class HarmonicAnalysisSetupInput(QDialog):
                 return True
 
             analysis_setup["global_damping"] = [alpha, beta, eta]
-
-        # if app().project.model.properties.check_if_there_are_tables_at_the_model():
-        #     self.frequencies = self.model.frequencies
-        # else:
-        #     self.model.set_analysis_setup(analysis_setup)
 
         app().project.file.write_analysis_setup_in_file(analysis_setup)
         self.project.model.set_analysis_setup(analysis_setup)
