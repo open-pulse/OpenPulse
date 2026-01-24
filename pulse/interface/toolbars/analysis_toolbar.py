@@ -163,12 +163,6 @@ class AnalysisToolbar(QToolBar):
     
     def _create_connections(self):
         #
-        # self.combo_box_analysis_type.currentIndexChanged.connect(self.analysis_type_callback)
-        # self.combo_box_physical_domain.currentIndexChanged.connect(self.physical_domain_callback)
-        #
-        # self.pushButton_run_analysis.clicked.connect(self.run_analysis_callback)
-        # self.pushButton_configure_analysis.clicked.connect(self.configure_analysis_callback)
-        #
         self.combo_box_analysis_type.currentTextChanged.connect(self.analysis_type_callback)
         self.combo_box_physical_domain.currentTextChanged.connect(self.check_analysis_setup_callback)
         #
@@ -178,8 +172,6 @@ class AnalysisToolbar(QToolBar):
         #
         self.enable_pushbutons.connect(self.check_analysis_setup_callback)
         self.enable_pushbutons.connect(self.set_pushbutton_reset_solution_enabled)
-        #
-        # self.analysis_type_callback()
 
     def _load_analysis_types(self):
 
