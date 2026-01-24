@@ -519,6 +519,12 @@ class PulsationDamperEditorInputs(QDialog):
         )
         self._pulsation_damper_data["gas_volume"] = gas_volume * volume_unit_factor
 
+        if gas_volume > damper_volume:
+            self.error_title = "Invalid gas volume"
+            self.error_message = "The gas volume must be less than the damper volume."
+            self.lineEdit_gas_volume.setFocus()
+            return True
+
     def check_geometric_entries(self):
         outside_diameter_liquid = self.check_inputs(
             self.lineEdit_outside_diameter_liquid,
