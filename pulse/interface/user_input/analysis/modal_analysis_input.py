@@ -101,9 +101,12 @@ class ModalAnalysisInput(QDialog):
             return True
         
         analysis_id = app().main_window.analysis_toolbar.get_current_analysis_id()
+        analysis_domain = app().main_window.analysis_toolbar.combo_box_physical_domain.currentText().lower()
 
         analysis_setup = {
             "analysis_id": analysis_id,
+            "analysis_type" : "modal",
+            "analysis_domain" : analysis_domain,
             "number_of_modes": self.number_of_modes,
             "sigma_factor": self.sigma_factor,
         }
