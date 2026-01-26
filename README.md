@@ -52,24 +52,24 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 
 - **Install OpenPulse**.
 Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (preferably, **use PowerShell as administrator**). Start by installing the
-poetry module using the command:
+uv module using the command:
 ```
-pip install poetry
+pip install uv
 ```
 
 then enter the following command to install all dependencies:
 
 ```
-poetry install
+uv sync
 ```
 
-Note: if some warning was logged repeat the command 'poetry install' before trying to run OpenPulse.
+Note: if some warning was logged repeat the command 'uv sync' before trying to run OpenPulse.
 
 
 - **Run OpenPulse**.
 In the same folder, enter the following command in the terminal:
 ```
-poetry run python pulse
+uv run pulse
 ```
 
 ## Conda environment
