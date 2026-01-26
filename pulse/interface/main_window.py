@@ -29,6 +29,7 @@ from pulse.interface.others.status_bar import StatusBar
 from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
 from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
 from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
+from pulse.interface.toolbars.render_tools_toolbar import RenderToolsToolbar
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
@@ -612,6 +613,7 @@ class MainWindow(QMainWindow):
         self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
         self.animation_toolbar.setDisabled(True)
+        self.render_tools_toolbar.show_selection_tool()
 
         self.action_geometry_editor_workspace.setEnabled(False)
         if not self.action_model_setup_workspace.isEnabled():
@@ -633,7 +635,8 @@ class MainWindow(QMainWindow):
         self.tool_bar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.animation_toolbar.setDisabled(True)
-        
+        self.render_tools_toolbar.show_selection_tool()
+
         self.action_model_setup_workspace.setEnabled(False)
         if not self.action_geometry_editor_workspace.isEnabled():
             self.action_geometry_editor_workspace.setEnabled(True)
@@ -652,6 +655,7 @@ class MainWindow(QMainWindow):
             self.results_widget.update_selection()
             self.results_viewer_wigdet.update_visibility_items()
             self.animation_toolbar.setEnabled(False)    
+            self.render_tools_toolbar.hide_selection_tool()
 
             self.action_results_workspace.setEnabled(False)
             if not self.action_geometry_editor_workspace.isEnabled():
@@ -847,11 +851,29 @@ class MainWindow(QMainWindow):
         self.animation_toolbar = AnimationToolbar()
         self.addToolBar(self.animation_toolbar)
         self.insertToolBarBreak(self.animation_toolbar)
+    
+    def _add_render_tools_toolbar(self):
+        self.render_tools_toolbar = RenderToolsToolbar()
+        self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.render_tools_toolbar)
+        self.render_tools_toolbar.setVisible(False)
+
+        for render in self.get_renderer_widgets():
+            self.render_tools_toolbar.render_tool_changed.connect(render.add_render_tool)
 
     def _add_toolbars(self):
         self._add_mesh_toolbar()
         self._add_analysis_toolbar()
         self._add_animation_toolbar()
+        self._add_render_tools_toolbar()
+
+    def show_render_tools_toolbar(self):
+        self.render_tools_toolbar.setVisible(True)
+    
+    def get_renderer_widgets(self):
+        return [
+            self.geometry_widget, 
+            self.mesh_widget,
+            self.results_widget]
 
     def _create_status_bar(self):
         self.status_bar = StatusBar(self)
@@ -981,6 +1003,7 @@ class MainWindow(QMainWindow):
             return
 
         self.action_geometry_editor_workspace_callback()
+        self.show_render_tools_toolbar()
         return obj.complete
 
     def open_project(self, project_path: str | Path | None = None):
@@ -1022,6 +1045,7 @@ class MainWindow(QMainWindow):
 
             logging.info("Configuring visualization [95%]")
             self.action_model_setup_workspace_callback()
+            self.show_render_tools_toolbar()
             self.update_plots()
 
         LoadingWindow(tmp).run()
@@ -1043,6 +1067,7 @@ class MainWindow(QMainWindow):
             return True
 
         self.open_project(project_path)
+        self.show_render_tools_toolbar()
 
     def save_project_dialog(self):
         if self.project.save_path is None:

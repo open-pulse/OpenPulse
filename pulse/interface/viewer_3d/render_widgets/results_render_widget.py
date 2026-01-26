@@ -15,6 +15,9 @@ from pulse.interface.viewer_3d.actors import (
     PointsActor,
     TubeActorResults,
 )
+from pulse.interface.viewer_3d.render_tools import (
+    SelectionTool,
+    RenderTool)
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.postprocessing.plot_acoustic_data import (
@@ -82,6 +85,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.create_scale_bar()
         self.create_logos()
         self.create_color_bar()
+        self.set_default_render_tool()
+
         self.apply_user_preferences()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
@@ -677,3 +682,14 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_actor.GetProperty().SetColor(0.5, 0.5, 0.5)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
+    
+    def add_render_tool(self, tool_class):
+        if tool_class == SelectionTool:
+            super().add_render_tool(RenderTool)
+        else:
+            super().add_render_tool(tool_class)
+    
+    def set_default_render_tool(self):
+        tool = RenderTool()
+        self.set_interactor_style(tool)
+        tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)

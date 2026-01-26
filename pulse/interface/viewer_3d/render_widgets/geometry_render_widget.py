@@ -9,6 +9,7 @@ from molde.render_widgets import CommonRenderWidget
 from molde import Color
 
 from pulse.interface.viewer_3d.actors import EditorPointsActor, EditorStagedPointsActor, EditorSelectedPointsActor
+from pulse.interface.viewer_3d.render_tools import SelectionTool
 
 from pulse import ICON_DIR, app
 
@@ -35,6 +36,7 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.create_axes()
         self.create_logos()
         self.create_camera_light(0.1, 0.1)
+        self.set_default_render_tool()
     
         self.apply_user_preferences()
         self._create_connections()
@@ -181,6 +183,12 @@ class GeometryRenderWidget(CommonRenderWidget):
         self.mouse_click = x, y
 
     def selection_callback(self, x, y):
+        if not isinstance(self.interactor_style, SelectionTool):
+            return
+        
+        if not self.interactor_style.is_selecting:
+            return
+
         modifiers = QApplication.keyboardModifiers()
         ctrl_pressed = bool(modifiers & Qt.ControlModifier)
         shift_pressed = bool(modifiers & Qt.ShiftModifier)
@@ -277,3 +285,8 @@ class GeometryRenderWidget(CommonRenderWidget):
     def update_selection(self):
         self.selection_changed.emit()
         self.update_plot(reset_camera=False)
+    
+    def set_default_render_tool(self):
+        tool = SelectionTool()
+        self.set_interactor_style(tool)
+        tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)
