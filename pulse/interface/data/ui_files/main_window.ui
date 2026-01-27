@@ -28,7 +28,7 @@
        <number>1</number>
       </property>
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
       <property name="opaqueResize">
        <bool>true</bool>
@@ -44,7 +44,7 @@
         </sizepolicy>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::DefaultContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
        </property>
        <property name="styleSheet">
         <string notr="true"/>
@@ -97,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>1044</width>
-     <height>21</height>
+     <height>33</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_project">
@@ -203,6 +203,8 @@
    <addaction name="action_new_project"/>
    <addaction name="action_open_project"/>
    <addaction name="action_reset"/>
+   <addaction name="action_save_project"/>
+   <addaction name="action_save_project_as"/>
    <addaction name="separator"/>
    <addaction name="action_top_view"/>
    <addaction name="action_bottom_view"/>
@@ -280,7 +282,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>../data/icons/common/save.png</normaloff>../data/icons/common/save.png</iconset>
+     <normaloff>../icons/common/save.png</normaloff>../icons/common/save.png</iconset>
    </property>
    <property name="text">
     <string>Save Project</string>
