@@ -1,4 +1,4 @@
-from itertools import chain, pairwise
+from itertools import chain
 from typing import Generator, TypeVar
 
 from pulse.editor.editor_delegate import (
@@ -11,10 +11,8 @@ from pulse.editor.editor_delegate import (
 )
 
 from pulse.editor.structures import (
-    Beam,
     Bend,
     Elbow,
-    Flange,
     Pipe,
     Point,
     Structure,
@@ -124,6 +122,12 @@ class Pipeline:
     def remove_structure(self, structure: Structure, rejoin=True):
         if not isinstance(structure, Structure):
             return
+        
+        neighbours_to_remove = []
+        if isinstance(structure, Pipe):
+            for curve in self.structures_of_type(Bend | Elbow):
+                if (structure.start in curve.get_points()) or (structure.end in curve.get_points()):
+                    neighbours_to_remove.append(curve)
 
         if rejoin and isinstance(structure, Bend | Elbow):
             structure.colapse()
@@ -133,6 +137,8 @@ class Pipeline:
 
         if rejoin and isinstance(structure, Bend | Elbow):
             self.attatch_point(structure.corner)
+        
+        self.remove_structures(neighbours_to_remove)
 
     def delete_selection(self):
         for structure in self.selected_structures:
