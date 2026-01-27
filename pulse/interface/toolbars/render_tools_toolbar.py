@@ -11,6 +11,8 @@ from pulse.interface.viewer_3d.render_tools import (
     SelectionTool
 )
 
+from pulse import app
+
 
 class RenderToolsToolbar(QToolBar):
     render_tool_changed = Signal(RenderTool)
@@ -97,7 +99,11 @@ class RenderToolsToolbar(QToolBar):
 
     def action_selection_tool_callback(self):
         self.discheck_all_actions_of_render_tools_toolbar_except(self.action_selection_tool)
-        self.render_tool_changed.emit(SelectionTool)
+
+        if not app().main_window.use_base_render_tool:
+            self.render_tool_changed.emit(SelectionTool)
+        else:
+            self.render_tool_changed.emit(RenderTool)
 
     def action_rotation_tool_callback(self):
         if self.action_rotation_tool.isChecked():
@@ -121,7 +127,10 @@ class RenderToolsToolbar(QToolBar):
     
     def show_selection_tool(self):
         self.action_selection_tool.setVisible(True)
+        app().main_window.use_base_render_tool = False
 
     def hide_selection_tool(self):
         self.action_selection_tool.setVisible(False)
+        app().main_window.use_base_render_tool = True
+
 

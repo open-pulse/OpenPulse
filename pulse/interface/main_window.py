@@ -92,6 +92,8 @@ class MainWindow(QMainWindow):
         self.last_index = None
         self.last_render_index = None
 
+        self.use_base_render_tool = False
+
         self.project_data_modified = False
 
     def _load_stylesheets(self):

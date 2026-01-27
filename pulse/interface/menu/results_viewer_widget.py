@@ -192,6 +192,8 @@ class ResultsViewerWidget(QWidget):
         lines = app().main_window.action_plot_lines.isChecked()
         lines_with_cross_sections = app().main_window.action_plot_lines_with_cross_section.isChecked()
 
+        app().main_window.use_base_render_tool = False
+
         if set_by == "nodes":
             if not (mesh_data or geometry_data):
                 # app().main_window.plot_mesh()
@@ -206,3 +208,6 @@ class ResultsViewerWidget(QWidget):
         else:
             app().main_window.plot_results()
             app().main_window.render_tools_toolbar.hide_selection_tool()
+            app().main_window.use_base_render_tool = True
+
+        app().main_window.results_widget.set_default_render_tool(base_tool = set_by not in ["nodes", "lines"])

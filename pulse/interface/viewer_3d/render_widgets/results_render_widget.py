@@ -438,6 +438,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if not self._actor_exists():
             return
 
+        if not isinstance(self.interactor_style, SelectionTool):
+            return
+        
+        if not self.interactor_style.is_selecting:
+            return
+
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
         visualization_filter = app().main_window.visualization_filter
@@ -684,12 +690,13 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.update()
     
     def add_render_tool(self, tool_class):
-        if tool_class == SelectionTool:
-            super().add_render_tool(RenderTool)
-        else:
-            super().add_render_tool(tool_class)
+        super().add_render_tool(tool_class)
     
-    def set_default_render_tool(self):
-        tool = RenderTool()
+    def set_default_render_tool(self, base_tool = False):
+        if not base_tool:
+            tool = SelectionTool()
+        else:
+            tool = RenderTool()
+
         self.set_interactor_style(tool)
         tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)
