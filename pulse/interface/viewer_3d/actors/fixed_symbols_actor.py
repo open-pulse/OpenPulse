@@ -30,6 +30,7 @@ class FixedSymbolsActor(vtkActor):
             self.create_psd_structural_links(),
             self.create_perforated_plates(),
             self.create_valves(),
+            self.create_acoustic_transfer_element(),
         ):
             source.AddInputData(symbol)
 

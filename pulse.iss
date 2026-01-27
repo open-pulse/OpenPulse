@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Open Pulse"
-#define MyAppVersion "2.0.10"
+#define MyAppVersion "2.0.12"
 #define MyAppPublisher "MOPT - Multidisciplinary Optimization Group"
 #define MyAppURL "https://mopt.paginas.ufsc.br/"
 #define MyAppExeName "OpenPulse.exe"

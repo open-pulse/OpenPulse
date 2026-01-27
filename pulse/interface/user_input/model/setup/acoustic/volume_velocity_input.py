@@ -278,20 +278,20 @@ class VolumeVelocityInput(QDialog):
             if path_imported_table == "":
                 return None, None
 
+            lineEdit.setText(path_imported_table)       
             imported_filename = os.path.basename(path_imported_table)
-            lineEdit.setText(path_imported_table)         
-            imported_file = np.loadtxt(path_imported_table, delimiter=",")
+            imported_data = np.loadtxt(path_imported_table, delimiter=",")
 
-            title = "Error reached while loading 'volume velocity' table"
-            if imported_file.shape[1] < 3:
+            title = "Error reached while loading 'acoustic pressure' table"
+            if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum"
                 message += " data must have only two columns to the frequencies and values."
                 PrintMessageInput([window_title_1, title, message])
                 return None, None
 
-            imported_values = imported_file[:,1]
+            complex_values = imported_data[:,1] + 1j * imported_data[:, 2]
 
-            self.frequencies = imported_file[:,0]
+            self.frequencies = imported_data[:, 0]
             f_min = self.frequencies[0]
             f_max = self.frequencies[-1]
             f_step = self.frequencies[1] - self.frequencies[0] 
@@ -318,7 +318,7 @@ class VolumeVelocityInput(QDialog):
 
                 app().project.model.set_frequency_setup(frequency_setup)
 
-            return imported_values, imported_filename
+            return complex_values, imported_filename
 
         except Exception as log_error:
             title = "Error reached while loading 'volume velocity' table"

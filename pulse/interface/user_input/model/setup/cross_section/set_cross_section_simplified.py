@@ -66,11 +66,15 @@ class SetCrossSectionSimplified(QDialog):
         # self.frame_main_widget.adjustSize()
         # self.scrollArea_cross_section.adjustSize()
 
-        # # QPushButton
+        # QPushButton
+        self.pushButton_cancel_pipe = self.cross_section_widget.pushButton_cancel_pipe
+        self.pushButton_cancel_beam = self.cross_section_widget.pushButton_cancel_beam
         self.pushButton_confirm_beam = self.cross_section_widget.pushButton_confirm_beam
         self.pushButton_confirm_pipe = self.cross_section_widget.pushButton_confirm_pipe
 
     def _create_connections(self):
+        self.pushButton_cancel_pipe.clicked.connect(self.close)
+        self.pushButton_cancel_beam.clicked.connect(self.close)
         self.pushButton_confirm_beam.clicked.connect(self.attribute_callback)
         self.pushButton_confirm_pipe.clicked.connect(self.attribute_callback)
 

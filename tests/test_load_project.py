@@ -4,7 +4,7 @@ from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
-from pulse.utils.signal_processing_utils import *
+from pulse.utils.signal_processing import *
 
 # import pytest
 import numpy as np
