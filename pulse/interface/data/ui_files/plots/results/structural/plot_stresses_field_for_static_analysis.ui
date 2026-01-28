@@ -254,27 +254,27 @@
            </property>
            <item>
             <property name="text">
-             <string> Animation (absolute)</string>
+             <string>Animation (absolute)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Animation (non absolute)</string>
+             <string>Animation (non absolute)</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Absolute values</string>
+             <string>Absolute values</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Real values</string>
+             <string>Real values</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Imaginary values</string>
+             <string>Imaginary values</string>
             </property>
            </item>
           </widget>

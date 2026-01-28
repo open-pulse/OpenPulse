@@ -133,8 +133,7 @@ class PlotAcousticModeShape(QWidget):
         self.update_animation_widget_visibility()
         if self.lineEdit_natural_frequency.text() == "":
             return
-        
-        app().project.analysis_type_label = "Acoustic Modal Analysis"
+
         self.mode_index = self.natural_frequencies.index(self.selected_frequency)
             
         color_scale_setup = self.get_user_color_scale_setup()
@@ -148,26 +147,14 @@ class PlotAcousticModeShape(QWidget):
 
     def get_user_color_scale_setup(self):
 
-        absolute = False
-        real_values = False
-        imag_values = False
-        absolute_animation = False
+        color_scale = self.comboBox_color_scale.currentText()
 
-        index = self.comboBox_color_scale.currentIndex()
-
-        if index == 0:
-            absolute_animation = True
-        if index == 2:
-            absolute = True
-        elif index == 3:
-            real_values = True
-        elif index == 4:
-            imag_values = True
-
-        color_scale_setup = {   "absolute" : absolute,
-                                "real_values" : real_values,
-                                "imag_values" : imag_values,
-                                "absolute_animation" : absolute_animation   }
+        color_scale_setup = {   
+            "absolute" : color_scale == "Absolute values",
+            "real_values" : color_scale == "Real values",
+            "imag_values" : color_scale == "Imaginary values",
+            "absolute_animation" : color_scale == "Animation (absolute)",
+            }
 
         return color_scale_setup
 

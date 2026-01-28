@@ -80,12 +80,11 @@ class PulsationDamperCalculatorInputs(QDialog):
         self.lineEdit_temperature: QLineEdit
 
         # QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_confirm: QPushButton
         self.pushButton_get_fluid: QPushButton
         #
         self.pushButton_confirm.setVisible(False)
-        self.pushButton_cancel.setText("Exit")
 
     def _create_connections(self):
         #
@@ -100,7 +99,7 @@ class PulsationDamperCalculatorInputs(QDialog):
         #
         self.lineEdit_fluctuating_volume.textChanged.connect(self.calculate_effective_volume)
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_get_fluid.clicked.connect(self.get_fluid_callback)
 
     def get_fluid_callback(self):

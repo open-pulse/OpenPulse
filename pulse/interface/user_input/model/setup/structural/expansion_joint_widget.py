@@ -71,7 +71,7 @@ class ExpansionJointWidget(QWidget):
 
         # QPushButton
         self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_load_table_axial_stiffness: QPushButton

@@ -16,8 +16,9 @@ from molde import load_ui
 import numpy as np
 from collections import defaultdict
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+
+error_title = "Error"
+
 
 class ValvesInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -95,7 +96,7 @@ class ValvesInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_remove: QPushButton
 
@@ -111,7 +112,7 @@ class ValvesInput(QDialog):
         self.comboBox_flange_setup.currentIndexChanged.connect(self.valve_setup_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -317,7 +318,7 @@ class ValvesInput(QDialog):
             message += "You should to enter a positive value to proceed."
 
         if message != "":
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True, None
         else:
             return False, value
@@ -673,6 +674,7 @@ class ValvesInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
 
     def get_valve_diameters(self, valve_elements: list, valve_diameter: float, flange_elements = list(), flange_thickness = 0) -> dict:

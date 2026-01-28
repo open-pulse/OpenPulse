@@ -120,7 +120,7 @@ class ReciprocatingPumpInputs(QDialog):
         self.pushButton_process_aquisition_parameters: QPushButton
         self.pushButton_plot_fluctuating_volume: QPushButton
         self.pushButton_pulsation_damper_calculator: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_confirm: QPushButton
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
@@ -172,7 +172,7 @@ class ReciprocatingPumpInputs(QDialog):
         self.pushButton_process_fluctuating_volume.clicked.connect(self.process_fluctuating_volume)
         self.pushButton_pulsation_damper_calculator.clicked.connect(self.pulsation_damper_calculator_callback)
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.attribute_callback)
         self.pushButton_get_fluid.clicked.connect(self.get_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
@@ -229,10 +229,10 @@ class ReciprocatingPumpInputs(QDialog):
         return
 
         if self.tabWidget_compressor.currentIndex() == 2:
-            self.pushButton_cancel.setDisabled(True)
+            self.pushButton_exit.setDisabled(True)
             self.pushButton_confirm.setDisabled(True)
         else:
-            self.pushButton_cancel.setDisabled(False)
+            self.pushButton_exit.setDisabled(False)
             self.pushButton_confirm.setDisabled(False)
 
     def pressure_unit_callback(self):
@@ -675,10 +675,6 @@ class ReciprocatingPumpInputs(QDialog):
 
     def save_table_values(self, table_name: str, frequencies: np.ndarray, complex_values: np.ndarray):
 
-        f_min = frequencies[0]
-        f_max = frequencies[-1]
-        f_step = frequencies[1] - frequencies[0] 
-
         if app().project.model.change_analysis_frequency_setup(list(frequencies)):
 
             title = "Project frequency setup cannot be modified"
@@ -689,7 +685,8 @@ class ReciprocatingPumpInputs(QDialog):
             PrintMessageInput([error_title, title, message])
             return True
 
-        self.update_analysis_setup_in_file(f_min, f_max, f_step)
+        analysis_setup = app().project.model.analysis_setup
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
         real_values = np.real(complex_values)
         imag_values = np.imag(complex_values)
@@ -699,18 +696,6 @@ class ReciprocatingPumpInputs(QDialog):
         self.properties.add_imported_tables("acoustic", table_name, data)
 
         return False
-
-    def update_analysis_setup_in_file(self, f_min, f_max, f_step):
-
-        analysis_setup = app().project.file.read_analysis_setup_from_file()
-        if analysis_setup is None:
-            analysis_setup = dict()
-    
-        analysis_setup["f_min"] = f_min
-        analysis_setup["f_max"] = f_max
-        analysis_setup["f_step"] = f_step
-
-        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
     def attribute_callback(self):
 
@@ -798,7 +783,6 @@ class ReciprocatingPumpInputs(QDialog):
         app().main_window.set_selection()
         app().main_window.update_plots()
         self.load_reciprocating_pump_excitation_info()
-        self.pushButton_cancel.setText("Exit")
 
     def process_table_file_removal(self, table_names: list):
         for table_name in table_names:

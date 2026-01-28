@@ -31,7 +31,7 @@ class PlotAcousticFrequencyResponse(QWidget):
     def _initialize(self):
         self.solution = self.project.get_acoustic_solution()
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.analysis_method = self.project.analysis_method_label
+        self.analysis_method = self.project.analysis_method
         self.frequencies = self.model.frequencies
 
     def _config_window(self):
@@ -94,7 +94,7 @@ class PlotAcousticFrequencyResponse(QWidget):
 
     def join_model_data(self):
 
-        self.title = f"Acoustic frequency response - {self.analysis_method}"
+        self.title = f"Acoustic frequency response - {self.analysis_method} method"
         y_label = "Acoustic pressure"
         unit_label = "Pa"
 

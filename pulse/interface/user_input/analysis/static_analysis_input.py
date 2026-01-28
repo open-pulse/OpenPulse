@@ -3,6 +3,7 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+from pulse.model import AnalysisID
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
 from molde import load_ui
@@ -22,6 +23,7 @@ class StaticAnalysisInput(QDialog):
         
         self._config_window()
         self._initialize()
+
         self._define_qt_variables()
         self._create_connections()
         self._load_current_state()
@@ -65,21 +67,22 @@ class StaticAnalysisInput(QDialog):
 
     def enter_setup_callback(self):
 
-        analysis_id = 7
-        app().project.set_analysis_id(analysis_id)
-
         weight_load = self.checkBox_self_weight_load.isChecked()
         internal_pressure_load = self.checkBox_internal_pressure_load.isChecked()
         external_nodal_load = self.checkBox_external_nodal_loads.isChecked()
         distributed_load = self.checkBox_distributed_element.isChecked()
 
+        analysis_domain = app().main_window.analysis_toolbar.combo_box_physical_domain.currentText().lower()
+
         analysis_setup = { 
-                          "analysis_id" : analysis_id,
-                          "weight_load" : weight_load,
-                          "internal_pressure_load" : internal_pressure_load,
-                          "external_pressure_load" : external_nodal_load,
-                          "distributed_load" : distributed_load
-                          }
+            "analysis_id" : AnalysisID.STRUCTURAL_STATIC,
+            "analysis_type" : "static",
+            "analysis_domain" : analysis_domain,
+            "weight_load" : weight_load,
+            "internal_pressure_load" : internal_pressure_load,
+            "external_pressure_load" : external_nodal_load,
+            "distributed_load" : distributed_load
+            }
 
         app().project.model.set_analysis_setup(analysis_setup)
         app().project.file.write_analysis_setup_in_file(analysis_setup)

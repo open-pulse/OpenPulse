@@ -115,10 +115,10 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
     def load_user_preference_colormap(self):
         try:
             colormap = app().config.user_preferences.color_map
-            print(colormap)
             if colormap in self.colormaps:
                 index = self.colormaps.index(colormap)
                 self.comboBox_colormaps.setCurrentIndex(index)
+
         except:
             self.comboBox_colormaps.setCurrentIndex(0)
 
@@ -155,26 +155,14 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
 
     def get_user_color_scale_setup(self):
 
-        absolute = False
-        real_values = False
-        imag_values = False
-        absolute_animation = False
+        color_scale = self.comboBox_color_scale.currentText()
 
-        index = self.comboBox_color_scale.currentIndex()
-
-        if index == 0:
-            absolute_animation = True
-        if index == 2:
-            absolute = True
-        elif index == 3:
-            real_values = True
-        elif index == 4:
-            imag_values = True
-        
-        color_scale_setup = {   "absolute" : absolute,
-                                "real_values" : real_values,
-                                "imag_values" : imag_values,
-                                "absolute_animation" : absolute_animation   }
+        color_scale_setup = {   
+            "absolute" : color_scale == "Absolute values",
+            "real_values" : color_scale == "Real values",
+            "imag_values" : color_scale == "Imaginary values",
+            "absolute_animation" : color_scale == "Animation (absolute)",
+            }
 
         return color_scale_setup
 

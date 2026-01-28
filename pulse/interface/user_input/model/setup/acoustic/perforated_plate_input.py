@@ -1,6 +1,6 @@
 # fmt: off
 
-from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
@@ -17,9 +17,9 @@ import os
 import numpy as np
 from pathlib import Path
 
+error_title = "Error"
+warning_title = "Warning"
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class PerforatedPlateInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -111,7 +111,7 @@ class PerforatedPlateInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute : QPushButton
-        self.pushButton_cancel : QPushButton
+        self.pushButton_exit : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
         self.pushButton_load_table : QPushButton
@@ -123,9 +123,6 @@ class PerforatedPlateInput(QDialog):
         self.radioButton_absortion : QRadioButton
         self.radioButton_plotReal : QRadioButton
         self.radioButton_plotImag : QRadioButton
-
-        # QSpinBox
-        self.spinBox_skiprows : QSpinBox
 
         # QTabWidget
         self.tabWidget_dimensionless : QTabWidget
@@ -147,7 +144,7 @@ class PerforatedPlateInput(QDialog):
         self.lineEdit_hole_diameter.textChanged.connect(self.single_hole_perforated_plate_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_load_table.clicked.connect(self.load_table_button_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
@@ -394,7 +391,7 @@ class PerforatedPlateInput(QDialog):
             message += "You should to enter a positive value to proceed."
 
         if message != "":
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True, value
         else:
             return False, value
@@ -406,7 +403,7 @@ class PerforatedPlateInput(QDialog):
             except Exception:
                 title = "Input error"
                 message = "Wrong input for real part of dimensionless impedance."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 self.lineEdit_impedance_real.setFocus()
                 return True
         else:
@@ -418,7 +415,7 @@ class PerforatedPlateInput(QDialog):
             except Exception:
                 title = "Input error"
                 message = "Wrong input for imaginary part of dimensionless impedance."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 self.lineEdit_impedance_imag.setFocus()
                 return True
         else:
@@ -447,9 +444,11 @@ class PerforatedPlateInput(QDialog):
                     last_path = Path.home()
 
                 caption = 'Choose a table to import the dimensionless impedance'
-                imported_table_path, check = app().main_window.file_dialog.get_open_file_name(  caption, 
-                                                                                                last_path, 
-                                                                                                'Files (*.csv; *.dat; *.txt)'  )
+                imported_table_path, check = app().main_window.file_dialog.get_open_file_name(  
+                    caption, 
+                    last_path, 
+                    'Files (*.csv; *.dat; *.txt)',
+                    )
                 
                 if not check:
                     return None, None
@@ -459,27 +458,21 @@ class PerforatedPlateInput(QDialog):
 
             if imported_table_path == "":
                 return None, None
-
-            skiprows = int(self.spinBox_skiprows.text())                
-            imported_file = np.loadtxt(imported_table_path, delimiter=",", skiprows=skiprows)
  
             imported_filename = os.path.basename(imported_table_path)
             self.lineEdit_load_table_path.setText(imported_table_path)         
-            imported_file = np.loadtxt(imported_table_path, delimiter=",")
+            imported_data = np.loadtxt(imported_table_path, delimiter=",")
         
-            if imported_file.shape[1] < 3:
+            if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 self.lineEdit_load_table_path.setFocus()
                 return None, None
-
-            imported_values = imported_file[:,1] + 1j*imported_file[:,2]
-
-            self.frequencies = imported_file[:,0]
-            f_min = self.frequencies[0]
-            f_max = self.frequencies[-1]
-            f_step = self.frequencies[1] - self.frequencies[0] 
+            
+            mask = imported_data[:, 0] > 0
+            self.frequencies = imported_data[mask, 0]
+            complex_values = imported_data[mask, 1] + 1j * imported_data[mask, 2]
             
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", imported_table_path)
 
@@ -492,26 +485,23 @@ class PerforatedPlateInput(QDialog):
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
 
-                frequency_setup = { "f_min" : f_min,
-                                    "f_max" : f_max,
-                                    "f_step" : f_step }
+                analysis_setup = app().project.model.analysis_setup
+                app().project.file.write_analysis_setup_in_file(analysis_setup)
 
-                app().project.model.set_frequency_setup(frequency_setup)
-            
         except Exception as log_error:
             title = "Dimensionless impedance Input error"
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return
         
-        self.perforated_plate_inputs['dimensionless_impedance'] = imported_values
+        self.perforated_plate_inputs['dimensionless_impedance'] = complex_values
 
-        return imported_values, imported_table_path
+        return complex_values, imported_table_path
 
     def save_table_file(self, element_id: int, values: np.ndarray):
 
@@ -555,7 +545,7 @@ class PerforatedPlateInput(QDialog):
             if hole_diameter > min(elements_diameter):
                 title = "Invalid hole diameter value"
                 message = "The hole diameter must be less than element inner diameter."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 self.lineEdit_hole_diameter.setFocus()
                 return True
 
@@ -583,7 +573,7 @@ class PerforatedPlateInput(QDialog):
                     if np.abs(length - plate_thickness)/length > 0.01:
                         title = "Plate thickness different from element length"
                         message = "If possible, use plate thickness equal to the element length for better precision."
-                        PrintMessageInput([window_title_2, title, message])
+                        PrintMessageInput([warning_title, title, message])
                         self.lineEdit_plate_thickness.setFocus()
 
                 self.perforated_plate_inputs['plate_thickness'] = plate_thickness
@@ -598,7 +588,7 @@ class PerforatedPlateInput(QDialog):
                     if area_porosity >= 1:
                         title = "Invalid area porosity value"
                         message = "The area porosity must be less than 1."
-                        PrintMessageInput([window_title_1, title, message])
+                        PrintMessageInput([error_title, title, message])
                         self.lineEdit_area_porosity.setFocus()
                         return True
 
@@ -613,7 +603,7 @@ class PerforatedPlateInput(QDialog):
                 if discharge_coefficient > 1:
                     title = "Invalid discharge coefficient value"
                     message = "The discharge coefficient must be less than or equal to 1."
-                    PrintMessageInput([window_title_1, title, message])
+                    PrintMessageInput([error_title, title, message])
                     self.lineEdit_discharge_coefficient.setFocus()
                     return True
 
@@ -629,7 +619,7 @@ class PerforatedPlateInput(QDialog):
                 if nl_discharge_coefficient > 1:
                     title = "Invalid nonlinear discharge coefficient value"
                     message = "The nonlinear discharge coefficient must be less than or equal to 1."
-                    PrintMessageInput([window_title_1, title, message])
+                    PrintMessageInput([error_title, title, message])
                     self.lineEdit_nonlin_discharge.setFocus()
                     return True
 
@@ -704,7 +694,7 @@ class PerforatedPlateInput(QDialog):
         except Exception as log_error:
             title = "Error with the perforated plate data"
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return
 
     def remove_callback(self):
@@ -758,7 +748,6 @@ class PerforatedPlateInput(QDialog):
         app().main_window.update_plots()
         self.load_elements_info()
         self.lineEdit_element_id.setText("")
-        self.pushButton_cancel.setText("Exit")
         self.complete = True   
 
     def process_table_file_removal(self, table_names : list):
@@ -793,7 +782,7 @@ class PerforatedPlateInput(QDialog):
         if self.frequencies is None:
             title = "Frequencies definition"
             message = "The frequencies of analysis must be defined to run the preview."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
         else:
             return False
@@ -928,7 +917,7 @@ class PerforatedPlateInput(QDialog):
         except Exception as log_error:
             title = "Error while getting information of the selected perforated plate"
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
     def reset_input_fields(self):
         self.lineEdit_hole_diameter.setText("")
@@ -955,6 +944,7 @@ class PerforatedPlateInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
 
 

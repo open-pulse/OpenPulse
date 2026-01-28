@@ -123,7 +123,7 @@
           <property name="spacing">
            <number>4</number>
           </property>
-          <item row="0" column="0">
+          <item row="0" column="1">
            <widget class="QPushButton" name="pushButton_plot_pipe_cross_section">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -160,7 +160,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
+          <item row="0" column="3">
            <widget class="QPushButton" name="pushButton_confirm_pipe">
             <property name="minimumSize">
              <size>
@@ -197,8 +197,8 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="pushButton_cancel_pipe">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="pushButton_exit_pipe">
             <property name="minimumSize">
              <size>
               <width>140</width>
@@ -224,7 +224,7 @@
              <string notr="true"/>
             </property>
             <property name="text">
-             <string>Cancel</string>
+             <string>Exit</string>
             </property>
             <property name="shortcut">
              <string>Ctrl+Return</string>
@@ -6390,7 +6390,7 @@
           <property name="spacing">
            <number>4</number>
           </property>
-          <item row="0" column="2">
+          <item row="0" column="3">
            <widget class="QPushButton" name="pushButton_confirm_beam">
             <property name="minimumSize">
              <size>
@@ -6423,7 +6423,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
+          <item row="0" column="1">
            <widget class="QPushButton" name="pushButton_plot_beam_cross_section">
             <property name="minimumSize">
              <size>
@@ -6454,8 +6454,8 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="pushButton_cancel_beam">
+          <item row="0" column="0">
+           <widget class="QPushButton" name="pushButton_exit_beam">
             <property name="minimumSize">
              <size>
               <width>140</width>
@@ -6477,7 +6477,7 @@
              <string notr="true"/>
             </property>
             <property name="text">
-             <string>Cancel</string>
+             <string>Exit</string>
             </property>
             <property name="shortcut">
              <string>Ctrl+Return</string>

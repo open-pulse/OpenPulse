@@ -497,7 +497,6 @@ class CrossSection:
         self.polar_moment_area = Iy + Iz
         self.y_centroid = Qz/A
         self.z_centroid = Qy/A
-        # print(A, Iy, Iz, Iyz, Qy, Qz, Qz/A, Qy/A)
 
     def assembly_indexes(self):
         """
