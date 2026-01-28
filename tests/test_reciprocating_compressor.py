@@ -1,4 +1,5 @@
 
+import pytest
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
 
 import os
@@ -38,8 +39,8 @@ def load_default_compressor_setup(crank_angle=0):
 
     return compressor
 
+@pytest.mark.skip
 def test_PV_diagram(print_log=True, export_data=True):
-    return
         
     for angle in [0, 90, 180, 270]:
     
@@ -106,10 +107,8 @@ def test_PV_diagram(print_log=True, export_data=True):
             np.savetxt(f"teste_head_end_{angle}.dat", data_HE, delimiter=",")
             np.savetxt(f"teste_crank_end_{angle}.dat", data_CE, delimiter=",")       
 
-
+@pytest.mark.skip
 def test_suction_flow_rate():
-    return
-    
     crank_angle = 0
     reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
     reciprocating_compressor.number_points = 1023
@@ -138,9 +137,8 @@ def test_suction_flow_rate():
     plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
 
 
+@pytest.mark.skip
 def test_discharge_flow_rate():
-    return
-    
     crank_angle = 0
     reciprocating_compressor = load_default_compressor_setup(crank_angle = crank_angle)
     reciprocating_compressor.number_points = 1023

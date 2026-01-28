@@ -15,8 +15,6 @@ from pulse.processing.structural_solver import StructuralSolver
 # Setting up model
 @pytest.fixture
 def current_model():
-    return
-
     section_parameters = [0.08, 0.008, 0, 0, 0, 0]
     pipe_section_info = {  "section_type_label" : "pipe" ,
                             "section_parameters" : section_parameters  }
@@ -57,10 +55,8 @@ def current_model():
 
     return preprocessor
 
-# start testing 
+@pytest.mark.skip
 def test_modal_analysis(current_model):
-    #TODO: update this test
-    return
     project = current_model.project
     model = current_model.model
     solution = StructuralSolver(model, None)
@@ -73,9 +69,8 @@ def test_modal_analysis(current_model):
     assert np.allclose(natural_frequencies, correct_natural_frequencies)
     assert np.allclose(eigen_vectors, correct_eigen_vectors)
 
+@pytest.mark.skip
 def test_direct_method(current_model):
-    #TODO: update this test
-    return
     project = current_model.project
     model = current_model.model
     frequencies = np.linspace(0, 200, 201)
@@ -87,9 +82,8 @@ def test_direct_method(current_model):
     correct_solution = project.solution_structural
     assert np.allclose(solution, correct_solution)
 
+@pytest.mark.skip
 def test_mode_superposition(current_model, modes=60):
-    #TODO: update this test
-    return
     project = current_model.project
     model = current_model.model
     frequencies = np.linspace(0, 200, 201)
