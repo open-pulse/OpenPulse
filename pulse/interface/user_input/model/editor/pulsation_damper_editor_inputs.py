@@ -38,7 +38,7 @@ class PulsationDamperEditorInputs(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/editor/pulsation_damper_editor_inputs.ui"
-        load_ui(ui_path, self, ui_path.parent)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
@@ -518,6 +518,12 @@ class PulsationDamperEditorInputs(QDialog):
             damper_volume * volume_unit_factor
         )
         self._pulsation_damper_data["gas_volume"] = gas_volume * volume_unit_factor
+
+        if gas_volume > damper_volume:
+            self.error_title = "Invalid gas volume"
+            self.error_message = "The gas volume must be less than the damper volume."
+            self.lineEdit_gas_volume.setFocus()
+            return True
 
     def check_geometric_entries(self):
         outside_diameter_liquid = self.check_inputs(

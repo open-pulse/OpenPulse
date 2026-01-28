@@ -17,7 +17,7 @@ class CrossSectionPlotter(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "plots/model/cross_section_plotter.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self)
 
         app().main_window.set_input_widget(self)
 

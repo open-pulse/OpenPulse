@@ -23,7 +23,10 @@ t_structure = TypeVar("t_structure", bound=type[Structure])
 class ConnectionEditor(Editor):
     def connect_structure(self, structure_type: t_structure, **kwargs) -> list[t_structure]:
         if issubclass(structure_type, Pipe):
-            self.connect_bent_pipes(**kwargs)
+            if self.is_bend_allowed(self.pipeline.selected_points):
+                self.connect_bent_pipes(**kwargs)
+            else:
+                self.connect_pipes(**kwargs)
         else:
             self._generic_structure_connection(structure_type, **kwargs)
 

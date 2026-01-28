@@ -229,7 +229,7 @@ class LoadProject:
             if "section_type_label" in data.keys() and "section_parameters" in data.keys():
                 section_type_label = self.fix_data_for_backwards_compatibility(data)
 
-                if data.get("structure_name") in ["pipe", "bend", "flange"]:
+                if data.get("structure_name") in ["pipe", "bend", "arc_bend", "flange"]:
                     pipe_section_info = {   "section_type_label" : section_type_label,
                                             "section_parameters" : data["section_parameters"]   }
 
