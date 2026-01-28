@@ -16,8 +16,6 @@ class PlotTransmissionLoss(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        main_window = app().main_window
-
         ui_path = UI_DIR / "plots/results/acoustic/plot_transmission_loss.ui"
         load_ui(ui_path, self)
 

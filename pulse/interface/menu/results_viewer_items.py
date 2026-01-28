@@ -42,6 +42,7 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_acoustic_mode_shapes = self.add_item("Plot acoustic mode shapes")
         self.item_child_plot_acoustic_pressure_field = self.add_item("Plot acoustic pressure field")
         self.item_child_plot_acoustic_frequency_response = self.add_item("Plot acoustic frequency response")
+        self.item_child_plot_acoustic_pressure_waveform = self.add_item("Plot acoustic pressure waveform")
         self.item_child_plot_acoustic_frequency_response_function = self.add_item("Plot acoustic frequency response function")
         self.item_child_plot_acoustic_delta_pressures = self.add_item("Plot acoustic delta pressures")
         self.item_child_plot_transmission_loss = self.add_item("Plot transmission loss")
@@ -68,6 +69,7 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_top_results_viewer_acoustic.setHidden(True)
         self.item_child_plot_acoustic_mode_shapes.setDisabled(True)
         self.item_child_plot_acoustic_frequency_response.setDisabled(True)
+        self.item_child_plot_acoustic_pressure_waveform.setDisabled(True)
         self.item_child_plot_acoustic_frequency_response_function.setDisabled(True)
         self.item_child_plot_acoustic_pressure_field.setDisabled(True)
         self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
@@ -126,6 +128,7 @@ class ResultsViewerItems(CommonMenuItems):
                     self.item_child_plot_perforated_plate_convergence_data.setHidden(False)
 
                 self.item_child_plot_acoustic_frequency_response.setDisabled(False)
+                self.item_child_plot_acoustic_pressure_waveform.setDisabled(False)
                 self.item_child_plot_acoustic_frequency_response_function.setDisabled(False)
                 self.item_child_plot_acoustic_pressure_field.setDisabled(False)
                 self.item_child_plot_acoustic_delta_pressures.setDisabled(False)

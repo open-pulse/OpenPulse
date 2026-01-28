@@ -617,6 +617,7 @@ class Project:
 
         app().main_window.use_results_workspace()
         app().main_window.results_widget.show_empty()
-        app().main_window.results_viewer_wigdet.bottom_widget.hide()
+        app().main_window.results_viewer_widget.bottom_widget.hide()
+        app().main_window.results_viewer_widget.results_viewer_items._update_items()
 
 # fmt: on

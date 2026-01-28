@@ -17,6 +17,7 @@ from vtkmodules.vtkCommonDataModel import vtkRecti
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import re
 from itertools import chain
@@ -385,12 +386,17 @@ class GeometryDesignerWidget(QWidget):
 
     def get_pipe_diameter(self):
         try:
-            section_parameters = (
-                self.cross_section_dialog.cross_section_widget.pipe_section_info[
-                    "section_parameters"
-                ]
-            )
-            diameter = section_parameters[0]
+            nps = self.cross_section_dialog.cross_section_widget.nps
+            if nps:
+                diameter = nps
+            else:
+                section_parameters = (
+                    self.cross_section_dialog.cross_section_widget.pipe_section_info[
+                        "section_parameters"
+                    ]
+                )
+                diameter = section_parameters[0]
+        
         except Exception:
             return None
 
@@ -406,6 +412,14 @@ class GeometryDesignerWidget(QWidget):
             self.xyz_changed_callback()
 
     def xyz_changed_callback(self):
+        if self.forbidden_structure():
+            self._reset_xyz()
+            window_title = "Invalid Location"
+            title = "Protected Structure"
+            message = "This location belongs to a PSD or Pulsation Damper, please use the dedicated editor to modify it."
+            PrintMessageInput([window_title, title, message])
+            return
+
         try:
             self.update_bending_radius_visibility()
             xyz = self._get_xyz()
@@ -974,3 +988,35 @@ class GeometryDesignerWidget(QWidget):
         app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         self.complete = True
+
+    def forbidden_structure(self):
+        forbidden_parts = [
+            # "pipe #1",
+            # "pipe #2",
+            "volume #1",
+            "volume #2",
+            "pipe #3",
+            # "neck",
+            "liquid_filled",
+            "gas_filled",
+        ]
+        for point in self.pipeline.selected_points:
+            structures = self.pipeline.get_structures_of_point(point)
+            for structure in structures:
+                if "psd_name" in structure.extra_info.keys():
+                    line_properties = app().project.model.properties.line_properties
+                    if structure.tag in line_properties:
+                        psd_segment = line_properties[structure.tag].get("psd_segment")
+                        if psd_segment in forbidden_parts:
+                            return True
+
+                elif "pulsation_damper_name" in structure.extra_info.keys():
+                    line_properties = app().project.model.properties.line_properties
+                    if structure.tag in line_properties:
+                        damper_segment = line_properties[structure.tag].get(
+                            "pulsation_damper_segment"
+                        )
+                        if damper_segment in forbidden_parts:
+                            return True
+
+        return False

@@ -6,7 +6,7 @@ from pulse.model.cross_section import get_beam_section_properties, get_points_to
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.interface_utils import check_inputs
-
+from pulse.interface.user_input.model.setup.cross_section.cross_section_plotter import CrossSectionPlotter
 from molde import load_ui
 
 import numpy as np
@@ -38,6 +38,8 @@ class CrossSectionWidget(QWidget):
         self._config_window()
 
     def _initialize(self):
+
+        self.nps = 0.
         
         self.section_type = None
         self.section_type_label = None
@@ -129,23 +131,24 @@ class CrossSectionWidget(QWidget):
         self.lineEdit_shear_coefficient: QLineEdit
 
         # QPushButton
+        self.pushButton_cancel_pipe: QPushButton
+        self.pushButton_cancel_beam: QPushButton
+        self.pushButton_check_if_section_is_normalized: QPushButton
         self.pushButton_confirm_pipe: QPushButton
         self.pushButton_confirm_beam: QPushButton
-        # self.pushButton_cancel: QPushButton
+        self.pushButton_edit_section_data: QPushButton
         self.pushButton_invert_input_values: QPushButton
-        self.pushButton_load_section_info: QPushButton
+        self.pushButton_load_section_data: QPushButton
         self.pushButton_plot_pipe_cross_section: QPushButton
         self.pushButton_plot_beam_cross_section: QPushButton
         self.pushButton_select_standard_section: QPushButton
         self.pushButton_select_standard_section_initial: QPushButton
         self.pushButton_select_standard_section_final: QPushButton
-        self.pushButton_check_if_section_is_normalized: QPushButton
 
         # QTabWidget
         self.tabWidget_general: QTabWidget
         self.tabWidget_pipe_section: QTabWidget
         self.tabWidget_beam_section: QTabWidget
-        self.tabWidget_sections_data: QTabWidget
 
         # QTreeWidget
         self.treeWidget_sections_parameters_by_lines: QTreeWidget
@@ -163,93 +166,102 @@ class CrossSectionWidget(QWidget):
         self.config_treeWidget()
 
     def create_lists_of_entries(self):
-        self.list_pipe_section_entries = [  self.lineEdit_outside_diameter,
-                                            self.lineEdit_wall_thickness,
-                                            self.lineEdit_offset_y,
-                                            self.lineEdit_offset_z,
-                                            self.lineEdit_insulation_thickness,
-                                            self.lineEdit_insulation_density,
-                                            self.lineEdit_outside_diameter_initial,
-                                            self.lineEdit_wall_thickness_initial,
-                                            self.lineEdit_offset_y_initial,
-                                            self.lineEdit_offset_z_initial,
-                                            self.lineEdit_outside_diameter_final,
-                                            self.lineEdit_wall_thickness_final,
-                                            self.lineEdit_offset_y_final,
-                                            self.lineEdit_offset_z_final,
-                                            self.lineEdit_insulation_thickness_variable_section,
-                                            self.lineEdit_insulation_density_variable_section,
-                                            self.lineEdit_element_id_initial,
-                                            self.lineEdit_element_id_final  ] 
 
-        self.list_beam_section_entries = [  self.lineEdit_base_rectangular_section,
-                                            self.lineEdit_height_rectangular_section,
-                                            self.lineEdit_wall_thickness_rectangular_section,
-                                            self.lineEdit_offsety_rectangular_section,
-                                            self.lineEdit_offsetz_rectangular_section,
-                                            self.lineEdit_outside_diameter_circular_section,
-                                            self.lineEdit_wall_thickness_circular_section,
-                                            self.lineEdit_offsety_circular_section,
-                                            self.lineEdit_offsetz_circular_section,
-                                            self.lineEdit_height_C_section,
-                                            self.lineEdit_w1_C_section,
-                                            self.lineEdit_t1_C_section,
-                                            self.lineEdit_w2_C_section,
-                                            self.lineEdit_t2_C_section,
-                                            self.lineEdit_tw_C_section,
-                                            self.lineEdit_offsety_C_section,
-                                            self.lineEdit_offsetz_C_section,
-                                            self.lineEdit_height_I_section,
-                                            self.lineEdit_w1_I_section,
-                                            self.lineEdit_t1_I_section,
-                                            self.lineEdit_w2_I_section,
-                                            self.lineEdit_t2_I_section,
-                                            self.lineEdit_tw_I_section,
-                                            self.lineEdit_offsety_I_section,
-                                            self.lineEdit_offsetz_I_section,
-                                            self.lineEdit_height_T_section,
-                                            self.lineEdit_w1_T_section,
-                                            self.lineEdit_t1_T_section,
-                                            self.lineEdit_tw_T_section,
-                                            self.lineEdit_offsety_T_section,
-                                            self.lineEdit_offsetz_T_section,
-                                            self.lineEdit_area,
-                                            self.lineEdit_Iyy,
-                                            self.lineEdit_Izz,
-                                            self.lineEdit_Iyz,
-                                            self.lineEdit_shear_coefficient  ]     
+        self.list_pipe_section_entries = [  
+            self.lineEdit_outside_diameter,
+            self.lineEdit_wall_thickness,
+            self.lineEdit_offset_y,
+            self.lineEdit_offset_z,
+            self.lineEdit_insulation_thickness,
+            self.lineEdit_insulation_density,
+            self.lineEdit_outside_diameter_initial,
+            self.lineEdit_wall_thickness_initial,
+            self.lineEdit_offset_y_initial,
+            self.lineEdit_offset_z_initial,
+            self.lineEdit_outside_diameter_final,
+            self.lineEdit_wall_thickness_final,
+            self.lineEdit_offset_y_final,
+            self.lineEdit_offset_z_final,
+            self.lineEdit_insulation_thickness_variable_section,
+            self.lineEdit_insulation_density_variable_section,
+            self.lineEdit_element_id_initial,
+            self.lineEdit_element_id_final,
+            ] 
 
-        self.list_constant_pipe_entries =   [   self.lineEdit_outside_diameter,
-                                                self.lineEdit_wall_thickness,
-                                                self.lineEdit_offset_y,
-                                                self.lineEdit_offset_z,
-                                                self.lineEdit_insulation_thickness,
-                                                self.lineEdit_insulation_density    ]
+        self.list_beam_section_entries = [  
+            self.lineEdit_base_rectangular_section,
+            self.lineEdit_height_rectangular_section,
+            self.lineEdit_wall_thickness_rectangular_section,
+            self.lineEdit_offsety_rectangular_section,
+            self.lineEdit_offsetz_rectangular_section,
+            self.lineEdit_outside_diameter_circular_section,
+            self.lineEdit_wall_thickness_circular_section,
+            self.lineEdit_offsety_circular_section,
+            self.lineEdit_offsetz_circular_section,
+            self.lineEdit_height_C_section,
+            self.lineEdit_w1_C_section,
+            self.lineEdit_t1_C_section,
+            self.lineEdit_w2_C_section,
+            self.lineEdit_t2_C_section,
+            self.lineEdit_tw_C_section,
+            self.lineEdit_offsety_C_section,
+            self.lineEdit_offsetz_C_section,
+            self.lineEdit_height_I_section,
+            self.lineEdit_w1_I_section,
+            self.lineEdit_t1_I_section,
+            self.lineEdit_w2_I_section,
+            self.lineEdit_t2_I_section,
+            self.lineEdit_tw_I_section,
+            self.lineEdit_offsety_I_section,
+            self.lineEdit_offsetz_I_section,
+            self.lineEdit_height_T_section,
+            self.lineEdit_w1_T_section,
+            self.lineEdit_t1_T_section,
+            self.lineEdit_tw_T_section,
+            self.lineEdit_offsety_T_section,
+            self.lineEdit_offsetz_T_section,
+            self.lineEdit_area,
+            self.lineEdit_Iyy,
+            self.lineEdit_Izz,
+            self.lineEdit_Iyz,
+            self.lineEdit_shear_coefficient,
+            ]     
 
-        self.list_variable_pipe_entries =   [   self.lineEdit_outside_diameter_initial,
-                                                self.lineEdit_wall_thickness_initial,
-                                                self.lineEdit_offset_y_initial,
-                                                self.lineEdit_offset_z_initial,
-                                                self.lineEdit_outside_diameter_final,
-                                                self.lineEdit_wall_thickness_final,
-                                                self.lineEdit_offset_y_final,
-                                                self.lineEdit_offset_z_final,
-                                                self.lineEdit_insulation_thickness_variable_section,
-                                                self.lineEdit_insulation_density_variable_section   ]
-        
+        self.list_constant_pipe_entries =   [   
+            self.lineEdit_outside_diameter,
+            self.lineEdit_wall_thickness,
+            self.lineEdit_offset_y,
+            self.lineEdit_offset_z,
+            self.lineEdit_insulation_thickness,
+            self.lineEdit_insulation_density,
+            ]
+
+        self.list_variable_pipe_entries =   [   
+            self.lineEdit_outside_diameter_initial,
+            self.lineEdit_wall_thickness_initial,
+            self.lineEdit_offset_y_initial,
+            self.lineEdit_offset_z_initial,
+            self.lineEdit_outside_diameter_final,
+            self.lineEdit_wall_thickness_final,
+            self.lineEdit_offset_y_final,
+            self.lineEdit_offset_z_final,
+            self.lineEdit_insulation_thickness_variable_section,
+            self.lineEdit_insulation_density_variable_section,
+            ]
+
         self.left_variable_pipe_lineEdits = [
-                                             self.lineEdit_outside_diameter_initial,
-                                             self.lineEdit_wall_thickness_initial,
-                                             self.lineEdit_offset_y_initial,
-                                             self.lineEdit_offset_z_initial
-                                             ]
+            self.lineEdit_outside_diameter_initial,
+            self.lineEdit_wall_thickness_initial,
+            self.lineEdit_offset_y_initial,
+            self.lineEdit_offset_z_initial,
+            ]
 
         self.right_variable_pipe_lineEdits = [
-                                              self.lineEdit_outside_diameter_final,
-                                              self.lineEdit_wall_thickness_final,
-                                              self.lineEdit_offset_y_final,
-                                              self.lineEdit_offset_z_final
-                                              ]
+            self.lineEdit_outside_diameter_final,
+            self.lineEdit_wall_thickness_final,
+            self.lineEdit_offset_y_final,
+            self.lineEdit_offset_z_final,
+            ]
 
     def reset_all_input_texts(self):
         for lineEdit in self.list_pipe_section_entries:
@@ -266,6 +278,7 @@ class CrossSectionWidget(QWidget):
         if read.complete:
             outside_diameter = round(read.outside_diameter, 6)
             thickness = round(read.wall_thickness, 6)
+            self.nps = round(read.nps, 6)
             self.lineEdit_outside_diameter.setText(str(outside_diameter))
             self.lineEdit_wall_thickness.setText(str(thickness))
 
@@ -767,11 +780,12 @@ class CrossSectionWidget(QWidget):
         read = GetStandardCrossSection(section_data=section_data)
 
     def plot_section(self):
-        import matplotlib.pyplot as plt
+        
+        # hide the QDialog before showing the cross-section plotter
+        if isinstance(self.dialog, QDialog):
+            self.dialog.hide()
 
-        plt.ion()
-
-        plt.close()
+        plotter = CrossSectionPlotter()
 
         if self.tabWidget_general.currentIndex() == 0:
             if self.get_constant_section_pipe_parameters():
@@ -781,43 +795,14 @@ class CrossSectionWidget(QWidget):
             if self.get_beam_section_parameters():
                 return
 
-        if self.section_type_label in ["pipe", "reducer"]:
-            Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
-        else:
-            Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
+        points = get_points_to_plot_section(self.section_type_label, self.section_parameters)
 
-        _max = np.max(np.abs(np.array([Yp, Zp])))
+        plotter.plot_cross_section(points, self.section_type_label, self.section_type)
+        plotter.exec()
 
-        fig = plt.figure(figsize=[8,8])
-        ax = fig.add_subplot(1,1,1)
-
-        first_plot, = plt.fill(Yp, Zp, color=[0.2,0.2,0.2], linewidth=2, zorder=2)
-        second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
-        third_plot = plt.scatter(0, 0, marker="+", linewidth=1.5, zorder=4, color=[0,0,1], s=120)
-        
-        if self.section_type_label in ["pipe", "reducer"] and Yp_ins is not None:
-            fourth, = plt.fill(Yp_ins, Zp_ins, color=[0.5,1,1], linewidth=2, zorder=5) 
-            _max = np.max(np.abs(np.array([Zp_ins, Yp_ins])))*1.2
-            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
-            fourth.set_label("Insulation material")
-            plt.legend(handles=[second_plot, fourth], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
-        else:
-            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
-            plt.legend(handles=[second_plot], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
-
-        ax.set_title('CROSS-SECTION PLOT', fontsize = 18, fontweight = 'bold')
-        ax.set_xlabel('y [m]', fontsize = 16, fontweight = 'bold')
-        ax.set_ylabel('z [m]', fontsize = 16, fontweight = 'bold')
-        
-        f = 1.25
-        if self.section_type == 3:
-            plt.xlim(-(1/2)*_max, (3/2)*_max)
-        else:
-            plt.xlim(-_max*f, _max*f)
-
-        plt.ylim(-_max*f, _max*f)
-        plt.grid()
-        plt.show()
+        # show the QDialog after closing the cross-section plotter
+        if isinstance(self.dialog, QDialog):
+            self.dialog.show()
 
     def keyPressEvent(self, event):
         if isinstance(self.dialog, QDialog):

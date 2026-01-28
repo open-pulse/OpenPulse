@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         self.force_close = False
 
         self.model_setup_widget = None
-        self.results_viewer_wigdet = None
+        self.results_viewer_widget = None
 
         self.interface_theme = None
         self.last_index = None
@@ -214,7 +214,7 @@ class MainWindow(QMainWindow):
 
     def _create_layout(self):
         self.model_setup_widget = ModelSetupWidget()
-        self.results_viewer_wigdet = ResultsViewerWidget()
+        self.results_viewer_widget = ResultsViewerWidget()
         self.input_ui = InputUi(self)
         self.mesh_widget = MeshRenderWidget()
         self.results_widget = ResultsRenderWidget()
@@ -230,7 +230,7 @@ class MainWindow(QMainWindow):
         self.geometry_input_wigdet = GeometryDesignerWidget(self.geometry_widget, self)
         self.setup_widgets_stack.addWidget(self.geometry_input_wigdet)
         self.setup_widgets_stack.addWidget(self.model_setup_widget)
-        self.setup_widgets_stack.addWidget(self.results_viewer_wigdet)
+        self.setup_widgets_stack.addWidget(self.results_viewer_widget)
 
         self.splitter.setSizes([100, 400])
         self.splitter.widget(0).setMinimumWidth(360)
@@ -650,7 +650,7 @@ class MainWindow(QMainWindow):
         if self.project.is_the_solution_finished():
 
             self.results_widget.update_selection()
-            self.results_viewer_wigdet.update_visibility_items()
+            self.results_viewer_widget.update_visibility_items()
             self.animation_toolbar.setEnabled(False)    
 
             self.action_results_workspace.setEnabled(False)
@@ -659,9 +659,9 @@ class MainWindow(QMainWindow):
             elif not self.action_model_setup_workspace.isEnabled():
                 self.action_model_setup_workspace.setEnabled(True)
 
-            self.setup_widgets_stack.setCurrentWidget(self.results_viewer_wigdet)
+            self.setup_widgets_stack.setCurrentWidget(self.results_viewer_widget)
             self.render_widgets_stack.setCurrentWidget(self.results_widget)
-            self.results_viewer_wigdet.update_visibility_items()
+            self.results_viewer_widget.update_visibility_items()
             self._configure_visualization(tubes=True)
 
     def render_changed_callback(self, new_index):

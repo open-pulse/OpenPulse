@@ -1,6 +1,5 @@
-from collections import defaultdict
 from copy import deepcopy
-from dataclasses import dataclass, fields
+from dataclasses import fields
 
 import numpy as np
 
@@ -143,7 +142,7 @@ class PipelineEditor:
 
     # STRUCTURES
     def add_pipe(self, deltas=None):
-        if deltas != None:
+        if deltas is not None:
             self.deltas = deltas
 
         if self.anchor not in self.pipeline.control_points:
@@ -160,7 +159,7 @@ class PipelineEditor:
         return new_pipe
 
     def add_i_beam(self, deltas=None, **kwargs):
-        if deltas != None:
+        if deltas is not None:
             self.deltas = deltas
 
         if self.anchor not in self.pipeline.control_points:
@@ -252,7 +251,7 @@ class PipelineEditor:
         return new_flange
 
     def add_bent_pipe(self, deltas=None, curvature_radius=0.3):
-        if deltas != None:
+        if deltas is not None:
             self.set_deltas(deltas)
 
         if all(self.deltas == (0, 0, 0)):
