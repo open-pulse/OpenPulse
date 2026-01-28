@@ -16,29 +16,33 @@ git clone https://github.com/open-pulse/OpenPulse.git
 
 # Running from source
 
-## Poetry
-The dependencies and environments in this project are managed mainly using Poetry.
-If you do not have poetry installed, you can install it running:
+## uv
+The dependencies and environments in this project are managed mainly using uv.
+If you do not have uv installed, you can install it running:
 ```
-pip install poetry
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+Or on Windows:
+```
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 To download and install all dependencies in a local environment run:
 ```
-poetry install
+uv sync
 ```
-This command is also usefull to reinstall the packages if some dependency changed.
+This command is also useful to reinstall the packages if some dependency changed.
 
-When the dependencies are installed in a local virtual environment poetry can run commands
+When the dependencies are installed in a local virtual environment uv can run commands
 inside this environment as follows: 
 ```
-poetry run <you command here>
+uv run <your command here>
 ```
-For example, to run VIBRA the following command is required:
+For example, to run OpenPulse the following command is required:
 ```
-poetry run python -m vibra
+uv run python -m pulse
 ```
-For more information check out [poetry documentation](https://python-poetry.org/docs/).
+For more information check out [uv documentation](https://docs.astral.sh/uv/).
 
 
 ## Conda forge
@@ -47,7 +51,7 @@ only available through repositories such as conda forge.
 
 Download and install [conda-forge](https://conda-forge.org/download/).
 It is recommended to check the option *Add Miniforge3 to my PATH environment variable* in the program installation setup.
-Once conda-forge was installed, it is possible to enable the MUMPS solver in Vibra. To enable this solver we need to use conda instead of poetry.
+Once conda-forge was installed, it is possible to enable the MUMPS solver in OpenPulse. To enable this solver we need to use conda instead of uv.
 To generate the conda environment, just run:
 ```
 conda env create -f environment.yml
@@ -60,14 +64,14 @@ conda init powershell
 ```
 And then restart the `powershell` window.
 
-After environment generation, we can activate and run Vibra by running the following commands:
+After environment generation, we can activate and run OpenPulse by running the following commands:
 ```
-conda activate VIBRA
+conda activate pulse
 ```
 
 Finally, enter the following command to execute the application:
 ```
-python -m vibra
+python -m pulse
 ```
 
 If some package changed since the generation, the environment can be updated using the following command: 
@@ -82,7 +86,7 @@ Broader tests, that depend on the interpretation of the developer, are located i
 
 To run automated tests execute: 
 ```
-poetry run pytest
+uv run pytest
 ```
 For more information check out [pytest documentation](https://docs.pytest.org/en/stable/).
 
@@ -90,7 +94,7 @@ For more information check out [pytest documentation](https://docs.pytest.org/en
 The interfaces depend on `.ui` files that are created using Qt Designer.
 Qt Designer is a tool that is installed with PySide6, and can be started with: 
 ```
-poetry run pyside6-designer
+uv run pyside6-designer
 ```
 
 After the `.ui` files are created they are compiled to `*_UI.py` files containing the classes 
@@ -98,7 +102,7 @@ that represent each QWidget. These classes can be then specialized inside the so
 
 The compilation process is executed with: 
 ```
-poetry run invoke ui-compile
+uv run invoke ui-compile
 ```
 
 
@@ -109,7 +113,7 @@ Pyinstaller is used to create executables.
 In linux run the following command to create a folder containing 
 a executable and its dependencies.
 ```
-poetry run pyinstaller vibra.spec --no-confirm
+uv run pyinstaller pulse.spec --no-confirm
 ```
 
 ## Windows
@@ -124,8 +128,8 @@ You may also need to add it to your Windows path.
 Given that InnoSetup is correctly installed and set to path, 
 to create a installer in windows run:
 ```
-poetry run pyinstaller vibra.spec --noconfirm
-ISCC.exe /O"dist" /F"vibra-setup" "vibra.iss"
+uv run pyinstaller pulse.spec --noconfirm
+ISCC.exe /O"dist" /F"pulse-setup" "pulse.iss"
 ```
 This process might take a while, but in the end your installer will appear inside the `dist` folder, named as `open-pulse-setup-x64`.
 
