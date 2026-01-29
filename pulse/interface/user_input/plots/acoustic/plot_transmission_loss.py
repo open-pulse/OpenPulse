@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Signal, QEvent, QObject, Qt
 
 from pulse import app, UI_DIR
+from pulse.model import RadiationImpedanceType
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -155,9 +156,9 @@ class PlotTransmissionLoss(QWidget):
 
             elif "values" in vv_data.keys():
                 self.input_volume_velocity = np.real(vv_data["values"])
-                input_impedance_type = input_impedance["impedance_type"]
+                input_impedance_type = input_impedance.get("impedance_type")
                 if isinstance(input_impedance_type, str):
-                    if input_impedance_type != "anechoic":
+                    if input_impedance_type != RadiationImpedanceType.ANECHOIC:
                         self.input_node_id = None
                         self.lineEdit_input_node_id.setText("")
 
@@ -168,7 +169,7 @@ class PlotTransmissionLoss(QWidget):
             elif isinstance(output_impedance, dict):
                 output_impedance_type = output_impedance.get("impedance_type")
                 if isinstance(output_impedance_type, str):
-                    if output_impedance_type != "anechoic":
+                    if output_impedance_type != RadiationImpedanceType.ANECHOIC:
                         self.output_node_id = None
                         self.lineEdit_output_node_id.setText("")
 

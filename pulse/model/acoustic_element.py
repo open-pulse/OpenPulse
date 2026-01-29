@@ -1,7 +1,8 @@
 # fmt: off
 
-from pulse.model.perforated_plate import Foks_function
+from pulse.model import RadiationImpedanceType
 from pulse.model.node import Node, distance
+from pulse.model.perforated_plate import Foks_function
 
 from numpy import sqrt, pi
 import numpy as np
@@ -986,7 +987,7 @@ class AcousticElement:
         kr = kappa_complex * radius
         return impedance_complex * (1 - jv(1, 2 * kr) / kr  + 1j * H1(2 * kr) / kr  ) + 0j 
 
-    def get_radiation_impedance(self, impedance_type: str | int, frequencies: np.ndarray | None) -> (np.ndarray | complex):
+    def get_radiation_impedance(self, impedance_type: int, frequencies: np.ndarray | None) -> (np.ndarray | complex):
 
         """
         This method returns the radiation impedance attributed to the element node termination 
@@ -1024,13 +1025,13 @@ class AcousticElement:
             kappa_complex, impedance_complex = self.get_fetm_thermoviscous_damping_data(frequencies)
 
         # the integer numbers ensure the backwards compatibility
-        if impedance_type in ["anechoic", 0]:
+        if impedance_type == RadiationImpedanceType.ANECHOIC:
             return impedance_complex + 0j
 
-        elif impedance_type in ["flanged", 1]:
+        elif impedance_type == RadiationImpedanceType.FLANGED:
             return self.flanged_termination_impedance(kappa_complex, impedance_complex)
 
-        elif impedance_type in ["unflanged", 2]:
+        elif impedance_type == RadiationImpedanceType.UNFLANGED:
             return self.unflanged_termination_impedance(kappa_complex, impedance_complex)
 
 # fmt: on

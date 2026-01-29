@@ -1,7 +1,7 @@
 #fmt: off
 
 from pulse import app
-from pulse.model import AnalysisID
+from pulse.model import AnalysisID, RadiationImpedanceType
 from pulse.utils.unit_conversion import mm_to_m
 
 from molde.utils import TreeInfo, format_long_sequence
@@ -102,11 +102,11 @@ def nodes_info_text() -> str:
             data = properties.nodal_properties[key]
 
             impedance_type = data.get("impedance_type")
-            if impedance_type == "anechoic":
+            if impedance_type == RadiationImpedanceType.ANECHOIC:
                 impedance_label = "anechoic termination"
-            elif impedance_type == "flanged":
+            elif impedance_type == RadiationImpedanceType.FLANGED:
                 impedance_label = "flanged pipe"
-            elif impedance_type == "unflanged":
+            elif impedance_type == RadiationImpedanceType.UNFLANGED:
                 impedance_label = "unflanged pipe"
 
             if isinstance(impedance_type, str):

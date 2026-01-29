@@ -3,14 +3,13 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+from pulse.model import RadiationImpedanceType
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from molde import load_ui
 
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class RadiationImpedanceInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -91,15 +90,15 @@ class RadiationImpedanceInput(QDialog):
             if len(selected_nodes) == 1:
                 for (_property, *args), data in self.properties.nodal_properties.items():
                     if _property == "radiation_impedance" and selected_nodes == args:
+                                    
+                        if not isinstance(data, dict):
+                            continue
 
                         impedance_type = data.get("impedance_type")
                         if impedance_type is None:
                             continue
 
-                        if isinstance(impedance_type, str):
-                            impedance_type = impedance_type.capitalize()
-
-                        self.comboBox_radiation_impedance_type.setCurrentText(impedance_type)
+                        self.comboBox_radiation_impedance_type.setCurrentIndex(impedance_type)
 
     def tab_event_callback(self):
         self.lineEdit_node_ids.setText("")
@@ -126,9 +125,10 @@ class RadiationImpedanceInput(QDialog):
                     continue
 
                 if isinstance(impedance_type, str):
-                    impedance_type = impedance_type.capitalize()
+                    impedance_text = self.get_radiation_type_text(impedance_type)
+                    impedance_text = impedance_text.capitalize()
 
-                    new = QTreeWidgetItem([str(args[0]), impedance_type])
+                    new = QTreeWidgetItem([str(args[0]), impedance_text])
                     new.setTextAlignment(0, Qt.AlignCenter)
                     new.setTextAlignment(1, Qt.AlignCenter)
                     self.treeWidget_nodal_info.addTopLevelItem(new)
@@ -153,7 +153,7 @@ class RadiationImpedanceInput(QDialog):
         
         self.remove_conflicting_excitations(node_ids)
 
-        impedance_type = self.comboBox_radiation_impedance_type.currentText().lower()
+        impedance_type = self.comboBox_radiation_impedance_type.currentIndex()
 
         for node_id in node_ids:
 
@@ -169,6 +169,16 @@ class RadiationImpedanceInput(QDialog):
 
         self.actions_to_finalize()
         print(f"[Set Radiation Impedance] - defined at node(s) {node_ids}")
+
+    def get_radiation_type_text(self, index: int):
+        if index == RadiationImpedanceType.ANECHOIC:
+            return "anechoic"
+        elif index == RadiationImpedanceType.FLANGED:
+            return "flanged"
+        elif index == RadiationImpedanceType.UNFLANGED:
+            return "unflanged"
+        else:
+            return "invalid impedance type"
 
     def text_label(self, value):
         text = ""
