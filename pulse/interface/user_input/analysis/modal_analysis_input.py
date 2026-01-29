@@ -15,7 +15,7 @@ class ModalAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "analysis/structural/modal_analysis.ui"
+        ui_path = UI_DIR / "analysis/modal_analysis_setup_input.ui"
         load_ui(ui_path, self)
 
         app().main_window.close_dialogs()
