@@ -8,6 +8,7 @@ src/
 *.mtl
 .config
 test.py
+*.md5
 
 .idea/
 
