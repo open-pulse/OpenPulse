@@ -75,6 +75,9 @@ def main():
         Todo:
             Fix the HighDPI part to not blurry the screen. See more by searching "PyQt5 HighDPI".
     """
+    # Import enabling compiled qt resources to be found from path `:/icons/{filepath_relative_to_qrc}`
+    import pulse.interface.data.icons.resources_rc  # noqa: F401
+
     configure_logs()
 
     # disables vtk terrible error handler
