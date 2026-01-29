@@ -624,7 +624,7 @@ class Project:
             if self.analysis_method == "direct":
                 self.structural_solver.direct_method()
             else:
-                self.structural_solver.mode_superposition(self.number_of_modes)
+                self.structural_solver.mode_superposition()
 
             self.structural_solution = self.structural_solver.solution
 

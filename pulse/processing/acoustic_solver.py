@@ -89,7 +89,7 @@ class AcousticSolver:
         # self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] for i in range(len(self.frequencies))]
         self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] + self.T_link[i] for i in range(len(self.frequencies))]
 
-    def _reinsert_prescribed_dofs(self, solution, modal_analysis = False):
+    def _reinsert_prescribed_dofs(self, solution: np.ndarray, modal_analysis: bool=False):
         """
         This method reinsert the value of the prescribed degree of freedom in the solution. If modal analysis is performed, the values are zeros.
 
@@ -98,7 +98,7 @@ class AcousticSolver:
         solution : array
             Solution data from the direct method, modal superposition or modal shapes from modal analysis.
 
-        modal_analysis : boll, optional
+        modal_analysis : bool, optional
             True if the modal analysis was evaluated.
 
         Returns
