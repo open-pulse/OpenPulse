@@ -261,15 +261,15 @@ class BeforeRun():
 
         Parameters
         ----------
-        acoustic : boll, optional
+        acoustic : bool, optional
             True if a acoustic analysis will be performed. False otherwise.
             Default is False.
 
-        structural : boll, optional
+        structural : bool, optional
             True if a structural analysis will be performed. False otherwise.
             Default is False.
 
-        coupled : boll, optional
+        coupled : bool, optional
             True if a coupled analysis will be performed. False otherwise.
             Default is False.
         """
