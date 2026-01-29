@@ -11,8 +11,7 @@ from scipy.sparse import triu
 from scipy.sparse.linalg import eigs, spsolve
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
 
 class StructuralSolver:
     """ This class creates a Structural Solution object from input data.
@@ -76,7 +75,7 @@ class StructuralSolver:
         solution : array
             Solution data from the direct method, modal superposition or modal shapes from modal analysis.
 
-        modal_analysis : boll, optional
+        modal_analysis : bool, optional
             True if the modal analysis was evaluated.
 
         Returns
@@ -212,7 +211,7 @@ class StructuralSolver:
         sigma : float, optional
             Find eigenvalues near sigma in (rad/s)^2 using shift-invert mode. 
 
-        harmonic_analysis : boll, optional
+        harmonic_analysis : bool, optional
             True when the modal analysis is used to perform mode superposition. False otherwise.
             Default is False.
 
@@ -336,14 +335,14 @@ class StructuralSolver:
         return self.solution
 
 
-    def mode_superposition(self, **kwargs):
+    def mode_superposition(self, fastest: bool=True):
         """
         This method evaluates the harmonic analysis through mode superposition method. It is suitable for Viscous 
         Proportional and Hysteretic Proportional damping models.
 
         Parameters
         ----------
-        fastest : boll, optional.
+        fastest : bool, optional.
             True if 3D matrix solution procedure must be used. False otherwise.
             Default True.
 
@@ -352,9 +351,6 @@ class StructuralSolver:
         array
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
-
-        fastest = kwargs.get("fastest", True)
-
         number_of_modes = self.model.number_of_modes
         global_damping = self.model.global_damping
         alpha, beta, eta = global_damping
@@ -421,7 +417,7 @@ class StructuralSolver:
                 F_cg = 1j * ((eta + beta * omega) * (omega_n**2) + (omega * alpha)) 
                 data = np.divide(1, (F_kg + F_mg + F_cg))
                 diag = np.diag(data)
-                solution[:,i] = modal_shape @ (diag @ F_aux[:,i])
+                solution[:, i] = modal_shape @ (diag @ F_aux[:,i])
 
                 if self.stop_processing():
                     return None
@@ -623,7 +619,7 @@ class StructuralSolver:
             Static pressure difference between atmosphere and the fluid in the pipeline.
             Default is 0.
             
-        damping : boll, optional.
+        damping : bool, optional.
             True if the damping must be considered when evaluating the stresses. False otherwise.
             Default is False
 
@@ -680,7 +676,7 @@ class StructuralSolver:
                 if self.solution is None:
                     title = "Empty solution"
                     message = "A strutural analysis must be performed to obtain the stress field."
-                    PrintMessageInput([window_title_1, title, message])
+                    PrintMessageInput([error_title, title, message])
                     return {}
 
                 u = self.solution[structural_dofs, :]
