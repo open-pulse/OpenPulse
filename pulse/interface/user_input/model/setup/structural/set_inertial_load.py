@@ -10,8 +10,8 @@ from molde import load_ui
 
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
+warning_title = "Warning"
 
 class SetInertialLoad(QDialog):
     def __init__(self, *args, **kwargs):
@@ -35,7 +35,7 @@ class SetInertialLoad(QDialog):
 
     def _initialize(self):
         self.complete = False
-        self.global_damping = [0, 0, 0, 0]
+        self.global_damping = [0., 0., 0.]
         # self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
         self.gravity_vector = self.model.gravity_vector
 
@@ -57,11 +57,11 @@ class SetInertialLoad(QDialog):
 
         # QPushButton
         self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
 
     def _create_connections(self):
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
 
     def _config_widgets(self):
         pass
@@ -98,7 +98,7 @@ class SetInertialLoad(QDialog):
         #     message = "Dear user, you should to enter a valid gravity setup to proceed. The null "
         #     message += "gravity vector does not provide an effective static loading."
         #     #
-        #     text_info = [title, message, window_title_2]
+        #     text_info = [title, message, warning_title]
         #     PrintMessageInput(text_info)
         #     #
         #     return True
@@ -142,7 +142,7 @@ class SetInertialLoad(QDialog):
 
         title = "Invalid input to the analysis setup"
         if message != "":
-            PrintMessageInput([window_title_1, title, message])                   
+            PrintMessageInput([error_title, title, message])                   
             self.stop = True
             return None
 

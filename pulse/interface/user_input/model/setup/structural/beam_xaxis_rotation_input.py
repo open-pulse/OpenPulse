@@ -11,11 +11,10 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 
 from molde import load_ui
 
-from collections import defaultdict
 
+error_title = "Error"
+warning_title = "Warning"
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class BeamXaxisRotationInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -72,7 +71,7 @@ class BeamXaxisRotationInput(QDialog):
         self.lineEdit_actual_angle: QLineEdit
 
         # QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_attribute: QPushButton
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
@@ -95,7 +94,7 @@ class BeamXaxisRotationInput(QDialog):
         self.comboBox_selection.currentIndexChanged.connect(self.change_selection_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -200,7 +199,7 @@ class BeamXaxisRotationInput(QDialog):
             title = f"Invalid X-axis Rotation Angle"
             message = f"Please, inform a valid number at the 'Rotation angle' input field to continue.\n\n"
             message += f"{str(error_log)}"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True, None
         return False, rotation_angle
 
@@ -217,7 +216,7 @@ class BeamXaxisRotationInput(QDialog):
                 title = "Invalid lines selected"
                 message = "No beam lines have been detected in the current selection. "
                 message += "To proceed, it is necessary to change the lines selection."
-                PrintMessageInput([window_title_2, title, message])                
+                PrintMessageInput([warning_title, title, message])                
 
         except:
             return True, beam_lines
@@ -326,6 +325,7 @@ class BeamXaxisRotationInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
     
 # fmt: on

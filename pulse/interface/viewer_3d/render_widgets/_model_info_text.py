@@ -1,6 +1,7 @@
 #fmt: off
 
 from pulse import app
+from pulse.model import AnalysisID, RadiationImpedanceType
 from pulse.utils.unit_conversion import mm_to_m
 
 from molde.utils import TreeInfo, format_long_sequence
@@ -99,9 +100,17 @@ def nodes_info_text() -> str:
         key = ("radiation_impedance", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            impedance_type = data["impedance_type"]
-            labels = ["anechoic termination", "flanged pipe", "unflanged pipe"]
-            info_text += _acoustic_format("Radiation impedance", labels[impedance_type], "Type", "")
+
+            impedance_type = data.get("impedance_type")
+            if impedance_type == RadiationImpedanceType.ANECHOIC:
+                impedance_label = "anechoic termination"
+            elif impedance_type == RadiationImpedanceType.FLANGED:
+                impedance_label = "flanged pipe"
+            elif impedance_type == RadiationImpedanceType.UNFLANGED:
+                impedance_label = "unflanged pipe"
+
+            if isinstance(impedance_type, str):
+                info_text += _acoustic_format("Radiation impedance", impedance_label, "Type", "")
 
         key = ("reciprocating_compressor_excitation", node_id)
         if key in properties.nodal_properties.keys():
@@ -348,11 +357,18 @@ def analysis_info_text(frequency_index: int):
     project = app().project
     tree = TreeInfo(project.analysis_type_label)
 
-    if project.analysis_id in [2, 4]:
-        if project.analysis_type_label == "Structural Modal Analysis":
+    if not project.is_the_solution_finished():
+        return ""
+
+    if project.analysis_id in [
+        AnalysisID.STRUCTURAL_MODAL,
+        AnalysisID.ACOUSTIC_MODAL,
+        ]:
+
+        if project.analysis_id == AnalysisID.STRUCTURAL_MODAL:
             frequencies = list(project.natural_frequencies_structural)
 
-        if project.analysis_type_label == "Acoustic Modal Analysis":
+        if project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
             if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
                 frequencies = list(project.complex_natural_frequencies_acoustic)
             else:
@@ -387,11 +403,11 @@ def analysis_info_text(frequency_index: int):
         if frequency_index >= len(frequencies):
             return ""
 
-        if project.analysis_method_label is not None:
-            tree.add_item("Method", project.analysis_method_label)
+        if project.analysis_method is not None:
+            tree.add_item("Method", project.analysis_method.replace("_", " "))
 
         frequency = frequencies[frequency_index]
-        tree.add_item("Frequency", f"{frequency:.2f}", "Hz")
+        tree.add_item("Frequency", f"{frequency : .4f}", "Hz")
 
     return str(tree)
 

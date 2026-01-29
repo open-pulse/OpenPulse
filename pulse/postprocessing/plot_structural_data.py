@@ -57,9 +57,10 @@ def get_min_max_resultant_displacements(solution: np.ndarray, column: int, **kwa
     uy_imag_values = kwargs.get("uy_imag_values", False)
     uz_imag_values = kwargs.get("uz_imag_values", False)
     absolute_animation = kwargs.get("absolute_animation", False)
-    
+   
     try:
         color_scale_setup = get_color_scale_setup()
+
         if color_scale_setup:
             absolute = color_scale_setup["absolute"]
             ux_abs_values = color_scale_setup["ux_abs_values"]
@@ -75,6 +76,7 @@ def get_min_max_resultant_displacements(solution: np.ndarray, column: int, **kwa
             ux_animation = color_scale_setup["ux_animation"]
             uy_animation = color_scale_setup["uy_animation"]
             uz_animation = color_scale_setup["uz_animation"]
+
     except:
         absolute_animation = True
 

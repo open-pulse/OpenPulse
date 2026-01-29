@@ -1,4 +1,5 @@
 
+from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
@@ -206,45 +207,30 @@ def test_coupled_harmonic_analysis():
 
         data = {
                 "coords" : list(coords),
-                "impedance_type" : 1,
+                "impedance_type" : "flanged",
                 }
 
         model.properties._set_nodal_property("radiation_impedance", data, node_id)
-
-    """
-    |--------------------------------------------------------------------|
-    |                    Analysis ID codification                        |
-    |--------------------------------------------------------------------|
-    |    0 - Structural - Harmonic analysis through direct method        |
-    |    1 - Structural - Harmonic analysis through mode superposition   |
-    |    2 - Structural - Modal analysis                                 |
-    |    3 - Acoustic - Harmonic analysis through direct method          |
-    |    4 - Acoustic - Modal analysis (convetional FE 1D)               |
-    |    5 - Coupled - Harmonic analysis through direct method           |
-    |    6 - Coupled - Harmonic analysis through mode superposition      |
-    |    7 - Structural - Static analysis (under development)            |
-    |--------------------------------------------------------------------|
-    """
 
     ## Analysis setup for acoustic harmonic analysis
 
     ## Analysis setup for structural modal analysis
 
     # analysis_setup = {
-    #                   "analysis_id" : 4,
-    #                   "modes" : 40,
+    #                   "analysis_id" : AnalysisID.ACOUSTIC_MODAL,
+    #                   "number_of_modes" : 40,
     #                   "sigma_factor" : 1e-2
     #                   }
 
     ## Analysis setup for coupled harmonic analysis
     analysis_setup = {
-                      "analysis_id" : 5,
+                      "analysis_id" : AnalysisID.COUPLED_MODAL,
                       "f_min" : 1,
                       "f_max" : 300,
                       "f_step" : 1,
-                      "global_damping" : [1e-3, 1e-5, 0., 0.],
+                      "global_damping" : [1e-3, 1e-5, 0.],
                       }
-    
+
     model.set_analysis_setup(analysis_setup = analysis_setup)
 
     # write data in file

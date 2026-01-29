@@ -131,8 +131,8 @@ class CrossSectionWidget(QWidget):
         self.lineEdit_shear_coefficient: QLineEdit
 
         # QPushButton
-        self.pushButton_cancel_pipe: QPushButton
-        self.pushButton_cancel_beam: QPushButton
+        self.pushButton_exit_pipe: QPushButton
+        self.pushButton_exit_beam: QPushButton
         self.pushButton_check_if_section_is_normalized: QPushButton
         self.pushButton_confirm_pipe: QPushButton
         self.pushButton_confirm_beam: QPushButton

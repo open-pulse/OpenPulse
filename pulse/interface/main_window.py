@@ -647,22 +647,29 @@ class MainWindow(QMainWindow):
 
     def action_results_workspace_callback(self):
 
-        if self.project.is_the_solution_finished():
+        if not self.project.is_the_solution_finished():
+            return
 
-            self.results_widget.update_selection()
-            self.results_viewer_widget.update_visibility_items()
-            self.animation_toolbar.setEnabled(False)    
+        self.results_widget.update_selection()
+        self.results_viewer_widget.update_visibility_items()
+        self.animation_toolbar.setEnabled(False)    
 
-            self.action_results_workspace.setEnabled(False)
-            if not self.action_geometry_editor_workspace.isEnabled():
-                self.action_geometry_editor_workspace.setEnabled(True)
-            elif not self.action_model_setup_workspace.isEnabled():
-                self.action_model_setup_workspace.setEnabled(True)
+        self.action_results_workspace.setEnabled(False)
+        if not self.action_geometry_editor_workspace.isEnabled():
+            self.action_geometry_editor_workspace.setEnabled(True)
+        elif not self.action_model_setup_workspace.isEnabled():
+            self.action_model_setup_workspace.setEnabled(True)
 
-            self.setup_widgets_stack.setCurrentWidget(self.results_viewer_widget)
-            self.render_widgets_stack.setCurrentWidget(self.results_widget)
-            self.results_viewer_widget.update_visibility_items()
-            self._configure_visualization(tubes=True)
+        self.setup_widgets_stack.setCurrentWidget(self.results_viewer_widget)
+        self.render_widgets_stack.setCurrentWidget(self.results_widget)
+        self.results_viewer_widget.update_visibility_items()
+        self._configure_visualization(tubes=True)
+
+    def update_results_workspace_button_accessibility(self, solution_exists: bool | None = None):
+        if solution_exists is None:
+            solution_exists = self.project.is_the_solution_finished()
+
+        self.action_results_workspace.setEnabled(solution_exists)
 
     def render_changed_callback(self, new_index):
         if self.last_render_index is None:
@@ -981,6 +988,8 @@ class MainWindow(QMainWindow):
             return
 
         self.action_geometry_editor_workspace_callback()
+        self.update_results_workspace_button_accessibility()
+
         return obj.complete
 
     def open_project(self, project_path: str | Path | None = None):
@@ -995,6 +1004,8 @@ class MainWindow(QMainWindow):
 
                 if app().project.loader.check_file_version():
                     self.reset_temporary_folder()
+                    self.project.reset(reset_all = True)
+                    self.project.model.properties._reset_variables()
 
                     if app().config.remove_path_from_config_file(project_path):
                         self.welcome_widget.update_recent_projects()
@@ -1022,6 +1033,7 @@ class MainWindow(QMainWindow):
 
             logging.info("Configuring visualization [95%]")
             self.action_model_setup_workspace_callback()
+            self.update_results_workspace_button_accessibility()
             self.update_plots()
 
         LoadingWindow(tmp).run()

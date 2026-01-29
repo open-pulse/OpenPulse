@@ -16,12 +16,13 @@ from molde import load_ui
 import numpy as np
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
+
 
 psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
+
 
 class ReciprocatingCompressorInputs(QDialog):
     def __init__(self, *args, **kwargs):
@@ -119,7 +120,7 @@ class ReciprocatingCompressorInputs(QDialog):
         self.pushButton_plot_volume_crank_end_angle: QPushButton
         self.pushButton_process_aquisition_parameters: QPushButton
         #
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_confirm: QPushButton
         self.pushButton_get_fluid: QPushButton
         self.pushButton_remove: QPushButton
@@ -176,7 +177,7 @@ class ReciprocatingCompressorInputs(QDialog):
         self.pushButton_plot_volume_crank_end_angle.clicked.connect(self.plot_volume_crank_end_angle)
         self.pushButton_process_aquisition_parameters.clicked.connect(self.process_aquisition_parameters)
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.attribute_callback)
         self.pushButton_get_fluid.clicked.connect(self.get_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
@@ -230,17 +231,13 @@ class ReciprocatingCompressorInputs(QDialog):
                 self.update_compressor_inputs(data)
 
     def tab_event_callback(self):
-        # self.lineEdit_selected_surface_id.setText("")
-        # self.lineEdit_connection_type.setText("")
-        self.pushButton_remove.setDisabled(True)
-        return
+        if self.tabWidget_compressor.currentIndex() != 2:
+            self.pushButton_confirm.setEnabled(True)
+            return
 
-        if self.tabWidget_compressor.currentIndex() == 2:
-            self.pushButton_cancel.setDisabled(True)
-            self.pushButton_confirm.setDisabled(True)
-        else:
-            self.pushButton_cancel.setDisabled(False)
-            self.pushButton_confirm.setDisabled(False)
+        self.pushButton_confirm.setDisabled(True)
+        self.lineEdit_selected_node_id.setText("")
+        self.lineEdit_connection_type.setText("")
 
     def update_compressing_cylinders_setup(self):
 
@@ -504,7 +501,7 @@ class ReciprocatingCompressorInputs(QDialog):
             message = "The selected node does not correspond to the piping endings. "
             message += "It is necessary to change the selection to proceed with the "
             message += "compressor excitation attribution."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             lineEdit.setText("")
             return True, None
 
@@ -541,18 +538,18 @@ class ReciprocatingCompressorInputs(QDialog):
 
                 if value < 0:
                     message = f"You cannot input a negative value to the {label}."
-                    PrintMessageInput([window_title_1, title, message])
+                    PrintMessageInput([error_title, title, message])
                     return True
                 else:
                     self.value = value
 
             except Exception:
                 message = f"You have typed an invalid value to the {label}."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True
         else:
             message = f"None value has been typed to the {label}."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
         return False
 
@@ -728,10 +725,6 @@ class ReciprocatingCompressorInputs(QDialog):
 
     def save_table_values(self, table_name: str, frequencies: np.ndarray, complex_values: np.ndarray):
 
-        f_min = frequencies[0]
-        f_max = frequencies[-1]
-        f_step = frequencies[1] - frequencies[0] 
-
         if app().project.model.change_analysis_frequency_setup(list(frequencies)):
 
             title = "Project frequency setup cannot be modified"
@@ -739,10 +732,11 @@ class ReciprocatingCompressorInputs(QDialog):
             message += "different from the others already imported ones. The current "
             message += "project frequency setup is not going to be modified."
             message += f"\n\n{table_name}"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
 
-        self.update_analysis_setup_in_file(f_min, f_max, f_step)
+        analysis_setup = app().project.model.analysis_setup
+        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
         real_values = np.real(complex_values)
         imag_values = np.imag(complex_values)
@@ -752,18 +746,6 @@ class ReciprocatingCompressorInputs(QDialog):
         self.properties.add_imported_tables("acoustic", table_name, data)
 
         return False
-
-    def update_analysis_setup_in_file(self, f_min, f_max, f_step):
-
-        analysis_setup = app().project.file.read_analysis_setup_from_file()
-        if analysis_setup is None:
-            analysis_setup = dict()
-    
-        analysis_setup["f_min"] = f_min
-        analysis_setup["f_max"] = f_max
-        analysis_setup["f_step"] = f_step
-
-        app().project.file.write_analysis_setup_in_file(analysis_setup)
 
     def update_state_properties_at_discharge(self):
 
@@ -820,16 +802,16 @@ class ReciprocatingCompressorInputs(QDialog):
         line_id = app().project.model.preprocessor.get_line_from_node_id(node_id)
 
         compressor_info = { 
-                            "temperature_at_suction" : self.T_suction,
-                            "suction_pressure" : self.P_suction,
-                            "line_id" : line_id[0],
-                            "node_id" : node_id,
-                            "connection_type" : connection_type,
-                            "isentropic_exponent" : self.parameters.get('isentropic_exponent', None),
-                            "pressure_ratio" : self.parameters['pressure_ratio'],
-                            "source" : "reciprocating_compressor",
-                            "check_ideal_gas" : True
-                            }
+            "temperature_at_suction" : self.T_suction,
+            "suction_pressure" : self.P_suction,
+            "line_id" : line_id[0],
+            "node_id" : node_id,
+            "connection_type" : connection_type,
+            "isentropic_exponent" : self.parameters.get('isentropic_exponent', None),
+            "pressure_ratio" : self.parameters['pressure_ratio'],
+            "source" : "reciprocating_compressor",
+            "check_ideal_gas" : True
+            }
 
         self.hide()
         read = SetFluidInput(state_properties = compressor_info)
@@ -850,7 +832,11 @@ class ReciprocatingCompressorInputs(QDialog):
             self.parameters['points_per_revolution'] = self.compressor.number_points
             self.compressor.process_state_properties_in_SI_units(self.parameters)
 
-            freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
+            freq, flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
+
+            # remove dc component
+            _freq = freq[1:]
+            _flow_rate = flow_rate[1:]
 
             table_name = f"compressor_excitation_{connection_type}_node_{node_id}"
 
@@ -858,15 +844,15 @@ class ReciprocatingCompressorInputs(QDialog):
             coords = list(np.round(node.coordinates, 5))
 
             data = {
-                    "coords" : coords,
-                    "connection_type" : connection_type,
-                    "table_names" : [table_name],
-                    "parameters" : self.parameters
-                    }
+                "coords" : coords,
+                "connection_type" : connection_type,
+                "table_names" : [table_name],
+                "parameters" : self.parameters,
+                }
 
             self.remove_conflicting_excitations(node_id)
 
-            if self.save_table_values(table_name, freq, in_flow_rate):
+            if self.save_table_values(table_name, _freq, _flow_rate):
                 return
 
             self.properties._set_nodal_property("reciprocating_compressor_excitation", data, node_id)
@@ -878,7 +864,6 @@ class ReciprocatingCompressorInputs(QDialog):
         app().main_window.set_selection()
         app().main_window.update_plots()
         self.load_compressor_excitation_info()
-        self.pushButton_cancel.setText("Exit")
 
     def process_table_file_removal(self, table_names: list):
         for table_name in table_names:
@@ -959,15 +944,15 @@ class ReciprocatingCompressorInputs(QDialog):
         self.pushButton_remove.setDisabled(False)
 
     def update_tabs_visibility(self):
-        self.lineEdit_selected_node_id.setText("")
-        self.lineEdit_connection_type.setText("")
-        self.pushButton_remove.setDisabled(True)
-        self.tabWidget_compressor.setTabVisible(3, False)
+        self.tabWidget_compressor.setTabVisible(2, False)
         for (property, *_) in self.properties.nodal_properties.keys():
-            if property == "reciprocating_compressor_excitation":
-                self.tabWidget_compressor.setCurrentIndex(0)
-                self.tabWidget_compressor.setTabVisible(3, True)
-                return
+            if property != "reciprocating_compressor_excitation":
+                continue
+
+            self.tabWidget_compressor.setCurrentIndex(0)
+            self.tabWidget_compressor.setTabVisible(2, True)
+            return
+
         self.tabWidget_compressor.setCurrentIndex(0)
 
     def spinBox_event_number_of_points(self):
@@ -1128,4 +1113,5 @@ class ReciprocatingCompressorInputs(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)

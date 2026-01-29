@@ -66,7 +66,7 @@ class TurnOffAcousticElementsInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute : QPushButton
-        self.pushButton_cancel : QPushButton
+        self.pushButton_exit : QPushButton
         self.pushButton_remove : QPushButton
         self.pushButton_reset : QPushButton
 
@@ -79,7 +79,7 @@ class TurnOffAcousticElementsInput(QDialog):
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -188,27 +188,30 @@ class TurnOffAcousticElementsInput(QDialog):
                     self.actions_to_finalize()
 
     def actions_to_finalize(self):
+        self.load_elements_info()
         app().project.file.write_element_properties_in_file()
         app().main_window.update_plots()
-        self.load_elements_info()
-        self.pushButton_cancel.setText("Exit")
 
     def load_elements_info(self):
 
         self.treeWidget_elements_info.clear()
         for (property, element_id), data in self.properties.element_properties.items():
-            if property == "acoustic_element_turned_off":
+            if property != "acoustic_element_turned_off":
+                continue
 
-                if data["turned_off"]:
-                    action_label = "Turned-off"
-                else:
-                    continue
+            if not isinstance(data, dict):
+                continue
 
-                item = QTreeWidgetItem([str(element_id), action_label])
-                for i in range(3):
-                    item.setTextAlignment(i, Qt.AlignCenter)
+            if data.get("turned_off"):
+                action_label = "Turned-off"
+            else:
+                continue
 
-                self.treeWidget_elements_info.addTopLevelItem(item)
+            item = QTreeWidgetItem([str(element_id), action_label])
+            for i in range(3):
+                item.setTextAlignment(i, Qt.AlignCenter)
+
+            self.treeWidget_elements_info.addTopLevelItem(item)
 
         self.update_tabs_visibility()         
 
@@ -244,4 +247,5 @@ class TurnOffAcousticElementsInput(QDialog):
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
         app().main_window.set_selection()
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)

@@ -9,3 +9,9 @@ class AnalysisID(IntEnum):
     ACOUSTIC_HARMONIC = 3
     COUPLED_HARMONIC = 4
     STRUCTURAL_STATIC = 5
+
+
+class RadiationImpedanceType(IntEnum):
+    ANECHOIC = 0
+    FLANGED = 1
+    UNFLANGED = 2

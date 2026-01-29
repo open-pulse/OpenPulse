@@ -37,8 +37,6 @@ from pulse.interface.user_input.model.criteria.reciprocating_pump_pulsation_crit
 from pulse.interface.user_input.model.criteria.reciprocating_pump_inlet_pressure_criteria import ReciprocatingPumpInletPressureCriteriaInput
 from pulse.interface.user_input.model.criteria.shaking_forces_criteria import ShakingForcesCriteriaInput
 #
-from pulse.interface.user_input.analysis.general.analysis_setup import AnalysisSetupInput
-#
 from pulse.interface.user_input.plots.structural.plot_structural_mode_shape import PlotStructuralModeShape
 from pulse.interface.user_input.plots.structural.plot_nodal_results_field_for_harmonic_analysis import PlotNodalResultsFieldForHarmonicAnalysis
 from pulse.interface.user_input.plots.structural.plot_nodal_results_for_harmonic_analysis import PlotNodalResultsForHarmonicAnalysis
@@ -67,11 +65,10 @@ from pulse.interface.user_input.model.criteria.check_beam_criteria_input import 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 #
 from pulse import app
+from pulse.model import AnalysisID
 
 import logging
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class InputUi:
     def __init__(self, parent=None):
@@ -194,144 +191,189 @@ class InputUi:
     def pulsation_damper_editor(self, device_to_delete=None):
         self.process_input(PulsationDamperEditorInputs, device_to_delete=device_to_delete)
 
-    def analysis_setup(self):
-
-        if self.project.analysis_id in [None, 2, 4]:
-            return False
-
-        read = self.process_input(AnalysisSetupInput)
-
-        if read.complete:
-            if read.flag_run:
-                app().project.run_analysis()
-        #     return True
-        # else:
-        #     return False
-        return read.complete
-
     def plot_structural_mode_shapes(self):
         self.project.set_min_max_type_stresses("", "", "")
         solution = self.project.get_structural_solution()
-        if app().project.analysis_id in [2, 4]:
+        if app().project.analysis_id in [
+            AnalysisID.STRUCTURAL_MODAL, 
+            AnalysisID.ACOUSTIC_MODAL
+            ]:
+
             if solution is None:
                 return None
-            else:
-                app().main_window.results_widget.show_empty()
-                return self.process_input(PlotStructuralModeShape)      
+
+            app().main_window.results_widget.show_empty()
+            return self.process_input(PlotStructuralModeShape)      
 
     def plot_displacement_field(self):
         self.project.set_min_max_type_stresses("", "", "")
         solution = self.project.get_structural_solution()
-        if app().project.analysis_id in [0, 1, 5, 6, 7]:
+        if app().project.analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.COUPLED_HARMONIC,
+            AnalysisID.STRUCTURAL_STATIC,
+            ]:
+
             if solution is None:
                 return None
-            else:
-                app().main_window.results_widget.show_empty()
-                return self.process_input(PlotNodalResultsFieldForHarmonicAnalysis)
+
+            app().main_window.results_widget.show_empty()
+            return self.process_input(PlotNodalResultsFieldForHarmonicAnalysis)
 
     def plot_structural_frequency_response(self):
-        if app().project.analysis_id in [0, 1, 5, 6, 7]:
+        if app().project.analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.COUPLED_HARMONIC,
+            AnalysisID.STRUCTURAL_STATIC,
+            ]:
+
             solution = self.project.get_structural_solution()
             if solution is None:
                 return None
-            elif app().project.analysis_id == 7:
+
+            if app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
                 app().main_window.results_widget.show_empty()
                 return self.process_input(PlotNodalResultsForStaticAnalysis)
-            else:
-                app().main_window.results_widget.show_empty()
-                return self.process_input(PlotNodalResultsForHarmonicAnalysis)
+
+            app().main_window.results_widget.show_empty()
+            return self.process_input(PlotNodalResultsForHarmonicAnalysis)
 
     def plot_reaction_frequency_response(self):
-        if app().project.analysis_id in [0, 1, 5, 6]:
+        if app().project.analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.COUPLED_HARMONIC,
+            ]:
+
             app().main_window.results_widget.show_empty()
             return self.process_input(PlotReactionsForHarmonicAnalysis)
-        elif app().project.analysis_id == 7:
+
+        elif app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
             app().main_window.results_widget.show_empty()
             return self.process_input(PlotReactionsForStaticAnalysis)  
 
     def plot_stress_field(self):
-        if app().project.analysis_id in [0, 1, 5, 6, 7]:
+        if app().project.analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.COUPLED_HARMONIC,
+            AnalysisID.STRUCTURAL_STATIC,
+            ]:
+
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            elif app().project.analysis_id == 7:
+
+            elif app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
                 return self.process_input(PlotStressesFieldForStaticAnalysis)
-            else:
-                return self.process_input(PlotStressesFieldForHarmonicAnalysis)
+
+            return self.process_input(PlotStressesFieldForHarmonicAnalysis)
 
     def plot_stress_frequency_response(self):
         solution = self.project.get_structural_solution()
-        if app().project.analysis_id in [0, 1, 5, 6, 7]:
+        if app().project.analysis_id in [
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.COUPLED_HARMONIC,
+            AnalysisID.STRUCTURAL_STATIC,
+            ]:
+
             if solution is None:
                 return
-            elif app().project.analysis_id == 7:
+
+            elif app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
                 app().main_window.results_widget.show_empty()
                 return self.process_input(PlotStressesForStaticAnalysis)
-            else:
-                app().main_window.results_widget.show_empty()
-                return self.process_input(PlotStressesForHarmonicAnalysis)     
+
+            app().main_window.results_widget.show_empty()
+            return self.process_input(PlotStressesForHarmonicAnalysis)     
 
     def plot_acoustic_mode_shapes(self):
         solution = self.project.get_acoustic_solution()
-        if app().project.analysis_id in [2, 4]:
+        if app().project.analysis_id in [
+            AnalysisID.STRUCTURAL_MODAL, 
+            AnalysisID.ACOUSTIC_MODAL,
+            ]:
+
             if solution is None:
                 return None
-            else:
-                app().main_window.results_widget.show_empty()
-                return self.process_input(PlotAcousticModeShape)           
+
+            app().main_window.results_widget.show_empty()
+            return self.process_input(PlotAcousticModeShape)           
 
     def plot_acoustic_pressure_field(self):
         self.project.set_min_max_type_stresses("", "", "")
         solution = self.project.get_acoustic_solution()
-        if app().project.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [
+            AnalysisID.ACOUSTIC_HARMONIC, 
+            AnalysisID.COUPLED_HARMONIC
+            ]:
+
             if solution is None:
                 return None
-            else:
-                app().main_window.results_widget.show_empty()
-                return self.process_input(PlotAcousticPressureField)
+
+            app().main_window.results_widget.show_empty()
+            return self.process_input(PlotAcousticPressureField)
 
     def plot_acoustic_frequency_response(self):
-        if app().project.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [
+            AnalysisID.ACOUSTIC_HARMONIC, 
+            AnalysisID.COUPLED_HARMONIC,
+            ]:
+
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
-            else:
-                app().main_window.results_widget.show_empty()
-                return self.process_input(PlotAcousticFrequencyResponse)
+
+            app().main_window.results_widget.show_empty()
+            return self.process_input(PlotAcousticFrequencyResponse)
 
     def plot_acoustic_frequency_response_function(self):
-        if app().project.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [
+            AnalysisID.ACOUSTIC_HARMONIC, 
+            AnalysisID.COUPLED_HARMONIC
+            ]:
+
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
-            else:
-                app().main_window.results_widget.show_empty()
-                return self.process_input(PlotAcousticFrequencyResponseFunction)
+
+            app().main_window.results_widget.show_empty()
+            return self.process_input(PlotAcousticFrequencyResponseFunction)
 
     def plot_acoustic_pressure_waveform(self):
-        if app().project.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [
+            AnalysisID.ACOUSTIC_HARMONIC, 
+            AnalysisID.COUPLED_HARMONIC
+            ]:
+
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
-            else:
-                app().main_window.results_widget.show_empty()
-                return self.process_input(AcousticPressureWaveformInputs)
+
+            app().main_window.results_widget.show_empty()
+            return self.process_input(AcousticPressureWaveformInputs)
 
     def plot_acoustic_delta_pressures(self):
-        if app().project.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [
+            AnalysisID.ACOUSTIC_HARMONIC, 
+            AnalysisID.COUPLED_HARMONIC
+            ]:
+
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
-            else:
-                return self.process_input(PlotAcousticDeltaPressure)
+
+            return self.process_input(PlotAcousticDeltaPressure)
 
     def plot_transmission_loss(self):
-        if app().project.analysis_id in [3, 5, 6]:
+        if app().project.analysis_id in [
+            AnalysisID.ACOUSTIC_HARMONIC, 
+            AnalysisID.COUPLED_HARMONIC
+            ]:
+
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return None
-            else:
-                return self.process_input(PlotTransmissionLoss)
+
+            return self.process_input(PlotTransmissionLoss)
 
     def reciprocating_compressor_pulsation_criteria(self):
         return self.process_input(ReciprocatingCompressorPulsationCriteriaInput)

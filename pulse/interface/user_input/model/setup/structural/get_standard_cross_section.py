@@ -64,7 +64,7 @@ class GetStandardCrossSection(QDialog):
         self.comboBox_units : QComboBox
 
         # QPushButton
-        self.pushButton_cancel : QPushButton
+        self.pushButton_exit : QPushButton
         self.pushButton_confirm_selection : QPushButton
 
         # QTreeWidget
@@ -78,7 +78,7 @@ class GetStandardCrossSection(QDialog):
         self.comboBox_pipe_material.currentIndexChanged.connect(self.pipe_material_callback)
         self.comboBox_units.currentIndexChanged.connect(self.load_standardized_section_data)
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_confirm_selection.clicked.connect(self.confirm_selection)
         #
         self.treeWidget_section_data.itemClicked.connect(self.on_click_item)

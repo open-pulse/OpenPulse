@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QDialog, QLineEdit, QTreeWidget, QTreeWidgetItem
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
-
+from pulse.model import RadiationImpedanceType
 from molde import load_ui
 
 import numpy as np
@@ -116,12 +116,14 @@ class AcousticModelInfo(QDialog):
 
             if property == "radiation_impedance":
                 node_id = args[0]
-                index = data["impedance_type"]
-                impedance_types = ["Anechoic", "Unflanged", "Flanged"]    
-                item = QTreeWidgetItem([str(node_id), impedance_types[index]])
-                for i in range(2):
-                    item.setTextAlignment(i, Qt.AlignCenter)
-                self.treeWidget_radiation_impedance.addTopLevelItem(item)
+                impedance_type = data.get("impedance_type")
+                if isinstance(impedance_type, str):
+                    impedance_text = self.get_radiation_type_text(impedance_type)
+                    item = QTreeWidgetItem([str(node_id), impedance_text.capitalize()])
+                    for i in range(2):
+                        item.setTextAlignment(i, Qt.AlignCenter)
+
+                    self.treeWidget_radiation_impedance.addTopLevelItem(item)
 
     def load_elements_properties(self):
 
@@ -152,6 +154,16 @@ class AcousticModelInfo(QDialog):
         self.nodes = self.preprocessor.get_nodes_relative_to_acoustic_elements()
         self.lineEdit_number_nodes.setText(str(len(self.nodes)))
         self.lineEdit_number_elements.setText(str(len(self.acoustic_elements)))
+
+    def get_radiation_type_text(self, index: int):
+        if index == RadiationImpedanceType.ANECHOIC:
+            return "anechoic"
+        elif index == RadiationImpedanceType.FLANGED:
+            return "flanged"
+        elif index == RadiationImpedanceType.UNFLANGED:
+            return "unflanged"
+        else:
+            return "invalid impedance type"
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F4:
