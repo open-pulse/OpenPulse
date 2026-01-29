@@ -19,10 +19,12 @@ git clone https://github.com/open-pulse/OpenPulse.git
 ## uv
 The dependencies and environments in this project are managed mainly using uv.
 If you do not have uv installed, you can install it running:
+
+- Linux:
 ```
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
-Or on Windows:
+- Windows:
 ```
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
