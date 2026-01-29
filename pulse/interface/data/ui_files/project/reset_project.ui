@@ -333,6 +333,6 @@
   <tabstop>cancel_button</tabstop>
   <tabstop>reset_project_button</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -977,6 +977,6 @@
   <tabstop>lineEdit_dimensionless_impedance</tabstop>
   <tabstop>pushButton_close</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

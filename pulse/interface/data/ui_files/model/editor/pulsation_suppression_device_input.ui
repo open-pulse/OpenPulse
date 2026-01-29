@@ -2781,6 +2781,6 @@
   <tabstop>lineEdit_volume1_distance_2</tabstop>
   <tabstop>lineEdit_volume1_distance</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

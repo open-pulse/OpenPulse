@@ -411,6 +411,6 @@
   <tabstop>checkBox_resultant_force</tabstop>
   <tabstop>pushButton_confirm</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

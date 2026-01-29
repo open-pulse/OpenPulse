@@ -1243,8 +1243,6 @@
   <tabstop>pushButton_enter_setup</tabstop>
   <tabstop>pushButton_run_analysis</tabstop>
  </tabstops>
- <resources>
-  <include location="../../../icons/resources.qrc"/>
- </resources>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -1034,7 +1034,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+              <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -1075,7 +1075,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+              <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -1116,7 +1116,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+              <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -1313,7 +1313,7 @@
             </property>
             <property name="icon">
              <iconset>
-              <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+              <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
             </property>
             <property name="iconSize">
              <size>
@@ -1485,6 +1485,6 @@
   <tabstop>lineEdit_path_table_angular_stiffness</tabstop>
   <tabstop>pushButton_load_table_angular_stiffness</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

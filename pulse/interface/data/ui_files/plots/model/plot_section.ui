@@ -387,6 +387,6 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

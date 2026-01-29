@@ -1364,7 +1364,7 @@
                        </property>
                        <property name="icon">
                         <iconset>
-                         <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+                         <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -1503,7 +1503,7 @@
                        </property>
                        <property name="icon">
                         <iconset>
-                         <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+                         <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -1616,7 +1616,7 @@
                        </property>
                        <property name="icon">
                         <iconset>
-                         <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+                         <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -1690,7 +1690,7 @@
                        </property>
                        <property name="icon">
                         <iconset>
-                         <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+                         <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -2162,6 +2162,6 @@
   <tabstop>treeWidget_expansion_joints_info</tabstop>
   <tabstop>scrollArea</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

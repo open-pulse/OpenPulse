@@ -958,7 +958,7 @@
   <tabstop>pushButton_exit</tabstop>
   <tabstop>pushButton_apply</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections>
   <connection>
    <sender>relative_plane_position_x_slider</sender>

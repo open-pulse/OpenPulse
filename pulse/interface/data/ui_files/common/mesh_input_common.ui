@@ -199,6 +199,6 @@
   <tabstop>apply_button</tabstop>
   <tabstop>confirm_button</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -3554,6 +3554,6 @@
   <tabstop>treeWidget_structural_stiffness_links</tabstop>
   <tabstop>treeWidget_structural_damping_links</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

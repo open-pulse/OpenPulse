@@ -2296,7 +2296,7 @@
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>../../../../icons/common/swap_horizontal_arrows.png</normaloff>../../../../icons/common/swap_horizontal_arrows.png</iconset>
+                     <normaloff>:/icons/common/swap_horizontal_arrows.png</normaloff>:/icons/common/swap_horizontal_arrows.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -6784,6 +6784,6 @@
   <tabstop>lineEdit_shear_coefficient</tabstop>
   <tabstop>pushButton_load_section_data</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

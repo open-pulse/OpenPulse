@@ -2619,6 +2619,6 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
   <tabstop>spinBox_number_elements_node</tabstop>
   <tabstop>treeWidget_flange_by_elements</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -4871,6 +4871,6 @@
   <tabstop>treeWidget_masses</tabstop>
   <tabstop>tabWidget_table_values</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>
