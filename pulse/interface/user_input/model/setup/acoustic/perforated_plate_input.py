@@ -26,7 +26,7 @@ class PerforatedPlateInput(QDialog):
         super().__init__()
 
         ui_path = UI_DIR / "model/setup/acoustic/perforated_plate_input.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self)
 
         self.valve_element_ids = kwargs.get("valve_element_ids", list())
 
@@ -953,7 +953,7 @@ class GetInformationOfGroup(QDialog):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/info/get_perforated_plate_info.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self)
 
         self._config_window()
         self._define_qt_variables()

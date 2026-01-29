@@ -15,7 +15,7 @@ class HarmonicAnalysisSetupInput(QDialog):
         super().__init__(*args)
 
         ui_path = UI_DIR / "analysis/harmonic_analysis_setup_input.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self)
 
         self.project = app().project
         self.model = app().project.model

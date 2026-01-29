@@ -62,7 +62,7 @@ class LoadingWindow(QWidget):
         super().__init__()
 
         ui_path = UI_DIR / "messages/new_loading_window.ui"
-        load_ui(ui_path, self, UI_DIR)
+        load_ui(ui_path, self)
 
         self._function = _function
         self._config_window()

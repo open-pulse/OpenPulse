@@ -642,34 +642,38 @@ class GeometryHandler:
 
             tag += 1
 
-        if structures_data:
+        # reset all model properties before reload the structures data
+        self.project.model.properties._reset_variables()
 
-            # self.remove_lines(structures_data)
-            for line_id, structure_data in structures_data.items():
-                structure_data: dict
-                for key, values in structure_data.items():
-                    self.project.model.properties._set_line_property(key, values, line_ids=line_id)
+        if not structures_data:
+            return
+        
+        # self.remove_lines(structures_data)
+        for line_id, structure_data in structures_data.items():
+            structure_data: dict
+            for key, values in structure_data.items():
+                self.project.model.properties._set_line_property(key, values, line_ids=line_id)
 
-            for line_id, cross_data in section_info.items():
-                self.project.model.properties._set_multiple_line_properties(cross_data, line_ids=line_id)
+        for line_id, cross_data in section_info.items():
+            self.project.model.properties._set_multiple_line_properties(cross_data, line_ids=line_id)
 
-            for element_type, line_ids in element_type_info.items():
-                self.project.model.properties._set_line_property("structural_element_type", element_type, line_ids=line_ids)
+        for element_type, line_ids in element_type_info.items():
+            self.project.model.properties._set_line_property("structural_element_type", element_type, line_ids=line_ids)
 
-            for material_id, line_ids in material_info.items():
-                self.project.model.properties._set_line_property("material_id", material_id, line_ids=line_ids)
+        for material_id, line_ids in material_info.items():
+            self.project.model.properties._set_line_property("material_id", material_id, line_ids=line_ids)
 
-            for line_id, ej_data in expansion_joint_info.items():
-                self.project.model.properties._set_line_property("expansion_joint_info", ej_data, line_ids=line_id)
+        for line_id, ej_data in expansion_joint_info.items():
+            self.project.model.properties._set_line_property("expansion_joint_info", ej_data, line_ids=line_id)
 
-            for line_id, valve_data in valve_info.items():
-                self.project.model.properties._set_line_property("valve_info", valve_data, line_ids=line_id)
+        for line_id, valve_data in valve_info.items():
+            self.project.model.properties._set_line_property("valve_info", valve_data, line_ids=line_id)
 
-            for line_id, psd_label in psd_info.items():
-                self.project.model.properties._set_line_property("psd_name", psd_label, line_ids=line_id)
+        for line_id, psd_label in psd_info.items():
+            self.project.model.properties._set_line_property("psd_name", psd_label, line_ids=line_id)
 
-            self.project.file.write_line_properties_in_file()
-            self.project.file.modify_project_attributes(import_type = 1)
+        self.project.file.write_line_properties_in_file()
+        self.project.file.modify_project_attributes(import_type = 1)
 
     def get_pipeline_data(self, structure):
 
