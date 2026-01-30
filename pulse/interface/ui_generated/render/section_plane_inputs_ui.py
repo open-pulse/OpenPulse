@@ -15,9 +15,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
-    QPushButton, QSizePolicy, QSlider, QSpinBox,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
+    QLabel, QPushButton, QSizePolicy, QSlider,
+    QSpinBox, QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -432,10 +432,10 @@ class Ui_Form(object):
 
 
 
-class SectionPlaneInputs_UI(QWidget, Ui_Form):
+class SectionPlaneInputs_UI(QDialog, Ui_Form):
     """
     Component Hierarchy:
-    - Form: QWidget
+    - Form: QDialog
         - (Layout): QGridLayout
                 - frame_4: QFrame
                     - (Layout): QGridLayout

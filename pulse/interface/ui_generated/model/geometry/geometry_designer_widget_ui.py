@@ -16,10 +16,11 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QGridLayout,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QScrollArea, QSizePolicy, QSlider, QSpacerItem,
-    QSpinBox, QStackedWidget, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
+    QGridLayout, QHBoxLayout, QLabel, QLineEdit,
+    QPushButton, QScrollArea, QSizePolicy, QSlider,
+    QSpacerItem, QSpinBox, QStackedWidget, QVBoxLayout,
+    QWidget)
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -825,10 +826,10 @@ class Ui_Form(object):
 
 
 
-class GeometryDesignerWidget_UI(QWidget, Ui_Form):
+class GeometryDesignerWidget_UI(QDialog, Ui_Form):
     """
     Component Hierarchy:
-    - Form: QWidget
+    - Form: QDialog
         - (Layout): QVBoxLayout
                 - scrollArea: QScrollArea
                     - scrollAreaWidgetContents: QWidget
