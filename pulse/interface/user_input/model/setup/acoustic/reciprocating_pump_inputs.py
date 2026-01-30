@@ -13,6 +13,7 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
 
 from molde import load_ui
+from pathlib import Path
 
 import numpy as np
 

@@ -247,8 +247,7 @@ class AddAcousticTransferElementInput(QDialog):
             return True
 
     def import_element_transfer_data(self, imported_path: str):
-
-        from pandas import read_excel
+        from polars import read_excel
         from openpyxl import load_workbook
 
         self.element_transfer_data.clear()
@@ -267,9 +266,8 @@ class AddAcousticTransferElementInput(QDialog):
 
                 sheet_data = read_excel(
                                         imported_path, 
-                                        sheet_name = sheetname, 
-                                        header = 0, 
-                                        usecols = cols
+                                        sheet_name = sheetname,  
+                                        columns = cols
                                         ).to_numpy()
 
                 self.element_transfer_data[sheetname] = sheet_data
