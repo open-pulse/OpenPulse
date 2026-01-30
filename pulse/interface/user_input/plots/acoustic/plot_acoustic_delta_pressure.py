@@ -1,21 +1,17 @@
 from PySide6.QtWidgets import QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Signal, QEvent, QObject, Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_delta_pressures_ui import GetAcousticDeltaPressures_UI
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from molde import load_ui
 
 
-class PlotAcousticDeltaPressure(QWidget):
+class PlotAcousticDeltaPressure(GetAcousticDeltaPressures_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_delta_pressures.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model

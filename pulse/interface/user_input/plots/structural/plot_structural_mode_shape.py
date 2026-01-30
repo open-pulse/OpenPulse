@@ -1,22 +1,18 @@
 from PySide6.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.plot_structural_mode_shape_ui import PlotStructuralModeShape_UI
 
-from molde import load_ui
 
 import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PlotStructuralModeShape(QWidget):
+class PlotStructuralModeShape(PlotStructuralModeShape_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/plot_structural_mode_shape.ui"
-        load_ui(ui_path, self)
-
         self._config_window()
         self._initialize()
         self._define_qt_variables()

@@ -3,22 +3,18 @@ from PySide6.QtGui import QCloseEvent, QColor, QAction
 from PySide6.QtCore import Qt
 from pathlib import Path
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.project.get_started_input_ui import GetStartedInput_UI
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 
-class GetStartedInput(QDialog):
+class GetStartedInput(GetStartedInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "project/get_started_input.ui"
-        load_ui(ui_path, self)
-
         # app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 

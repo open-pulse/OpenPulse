@@ -6,7 +6,6 @@ from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
 from molde.render_widgets import CommonRenderWidget
 from molde import stylesheets
 from molde.colors import color_names
-from molde import load_ui
 
 # TODO: remove this import
 from pulse import (
@@ -17,6 +16,7 @@ from pulse import (
     TEMP_PROJECT_DIR,
     TEMP_PROJECT_FILE,
 )
+from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
 
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
@@ -54,16 +54,13 @@ from sys import argv
 from time import time
 
 
-class MainWindow(QMainWindow):
+class MainWindow(MainWindow_UI):
     theme_changed = Signal(str)
     visualization_changed = Signal()
     selection_changed = Signal()
 
     def __init__(self):
         super().__init__()
-
-        ui_path = UI_DIR / 'main_window.ui'
-        load_ui(ui_path, self)
 
         self.selected_nodes = set()
         self.selected_lines = set()

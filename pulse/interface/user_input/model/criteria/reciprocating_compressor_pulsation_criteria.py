@@ -1,11 +1,11 @@
 from PySide6.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.criterias.pulsation_criteria_widget_ui import PulsationCriteriaWidget_UI
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from molde import load_ui
 
 import numpy as np
 
@@ -15,13 +15,9 @@ window_title_2 = "Warning"
 psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
 
-class ReciprocatingCompressorPulsationCriteriaInput(QWidget):
+class ReciprocatingCompressorPulsationCriteriaInput(PulsationCriteriaWidget_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "criterias/pulsation_criteria_widget.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model

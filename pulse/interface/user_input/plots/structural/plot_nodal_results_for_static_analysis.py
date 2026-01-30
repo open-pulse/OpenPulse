@@ -1,20 +1,16 @@
 from PySide6.QtWidgets import QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.get_nodal_results_for_static_analysis_ui import GetNodalResultsForStaticAnalysis_UI
 
-from molde import load_ui
 
 import numpy as np
 
 
-class PlotNodalResultsForStaticAnalysis(QWidget):
+class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/get_nodal_results_for_static_analysis.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 

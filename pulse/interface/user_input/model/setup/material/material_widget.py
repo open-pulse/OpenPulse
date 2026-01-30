@@ -2,7 +2,8 @@ from PySide6.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetIt
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 
-from pulse import app, UI_DIR, TEMP_PROJECT_FILE
+from pulse import app, TEMP_PROJECT_FILE
+from pulse.interface.ui_generated.model.setup.material.material_input_widget_ui import MaterialInputWidget_UI
 
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -11,7 +12,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 from pulse.libraries.default_libraries import default_material_library
 from pulse.model.properties.material import Material
 
-from molde import load_ui
 
 from itertools import count
 import os
@@ -28,14 +28,9 @@ def get_color_rgb(color):
     tokens = color.split(',')
     return list(map(int, tokens))
 
-class MaterialWidget(QWidget):
+class MaterialWidget(MaterialInputWidget_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/material/material_input_widget.ui"
-
-        load_ui(ui_path, self)
-
         self.project = app().project
         self.properties = app().project.model.properties
 

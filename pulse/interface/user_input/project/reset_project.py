@@ -1,20 +1,16 @@
 from PySide6.QtWidgets import QCheckBox, QDialog, QPushButton
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.project.reset_project_ui import ResetProject_UI
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 
-class ResetProjectInput(QDialog):
+class ResetProjectInput(ResetProject_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "project/reset_project.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 

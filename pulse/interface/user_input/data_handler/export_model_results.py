@@ -5,8 +5,6 @@ from PySide6.QtCore import Qt
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
-
 from pathlib import Path
 import os
 import numpy as np

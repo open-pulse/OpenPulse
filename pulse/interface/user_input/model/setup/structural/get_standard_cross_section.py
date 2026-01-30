@@ -2,22 +2,18 @@ from PySide6.QtWidgets import QCheckBox, QComboBox, QDialog, QPushButton, QRadio
 from PySide6.QtGui import QIcon, QBrush, QColor
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.standard_cross_section_input_ui import StandardCrossSectionInput_UI
 from pulse.libraries.standard_cross_sections import StandardCrossSections
 from pulse.utils.unit_conversion import in_to_m
 
-from molde import load_ui
 
 import numpy as np
 from collections import defaultdict
 
-class GetStandardCrossSection(QDialog):
+class GetStandardCrossSection(StandardCrossSectionInput_UI):
     def __init__(self, *args, **kwargs):
         super(GetStandardCrossSection, self).__init__()
-        
-        ui_path = UI_DIR / "model/setup/structural/standard_cross_section_input.ui"
-        load_ui(ui_path, self)
-
         section_data = kwargs.get("section_data", None)
 
         self._initialize()

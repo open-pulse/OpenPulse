@@ -27,9 +27,9 @@ import math
 
 from molde.stylesheets import set_qproperty
 from molde.utils import TreeInfo
-from molde import load_ui
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.geometry.geometry_designer_widget_ui import GeometryDesignerWidget_UI
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section_simplified import (
     SetCrossSectionSimplified,
@@ -63,13 +63,9 @@ from pulse.interface.user_input.model.geometry.options import (
 )
 
 
-class GeometryDesignerWidget(QWidget):
+class GeometryDesignerWidget(GeometryDesignerWidget_UI):
     def __init__(self, render_widget: GeometryRenderWidget, parent=None):
         super().__init__(parent)
-
-        ui_path = UI_DIR / "model/geometry/geometry_designer_widget.ui"
-        load_ui(ui_path, self)
-
         self.render_widget = render_widget
         self.modified = False
         self.tmp_camera = None

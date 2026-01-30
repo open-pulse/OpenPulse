@@ -1,18 +1,14 @@
 from PySide6.QtWidgets import QDialog, QPushButton
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.geometry.help.geometry_editor_help_ui import GeometryEditorHelp_UI
 
-from molde import load_ui
 
 
-class GeometryEditorHelp(QDialog):
+class GeometryEditorHelp(GeometryEditorHelp_UI):
     def __init__(self, parent=None):
         super().__init__(parent)
-        
-        ui_path = UI_DIR / "model/geometry/help/geometry_editor_help.ui"
-        load_ui(ui_path, self)
-
         self.main_window = app().main_window
         self.project = app().project
 

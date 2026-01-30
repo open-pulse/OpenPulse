@@ -2,23 +2,19 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QDialog, QPushButton, QToolButton, QVBoxLayout, QWidget
 
-from pulse import UI_DIR, app
+from pulse import app
+from pulse.interface.ui_generated.plots.model.cross_section_plotter_ui import CrossSectionPlotter_UI
 from pulse.interface.formatters import icons
 
-from molde import load_ui
 
 import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 
-class CrossSectionPlotter(QDialog):
+class CrossSectionPlotter(CrossSectionPlotter_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/model/cross_section_plotter.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self._config_window()

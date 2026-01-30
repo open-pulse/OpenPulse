@@ -2,26 +2,22 @@ from PySide6.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineE
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.pulsation_damper_calculator_inputs_ui import PulsationDamperCalculatorInputs_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
 
 from pulse.model.properties.fluid import Fluid
 
-from molde import load_ui
 
 import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PulsationDamperCalculatorInputs(QDialog):
+class PulsationDamperCalculatorInputs(PulsationDamperCalculatorInputs_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/acoustic/pulsation_damper_calculator_inputs.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 

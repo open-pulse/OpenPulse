@@ -2,12 +2,12 @@ from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.structural_element_type_input_ui import StructuralElementTypeInput_UI
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 from collections import defaultdict
 
@@ -16,13 +16,9 @@ error_title = "Error"
 warning_title = "Warning"
 
 
-class StructuralElementTypeInput(QDialog):
+class StructuralElementTypeInput(StructuralElementTypeInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/structural_element_type_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model

@@ -1,17 +1,13 @@
 from PySide6.QtWidgets import QFrame, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.menus.left_menu_widget_ui import LeftMenuWidget_UI
 from pulse.interface.menu.results_viewer_items import ResultsViewerItems
 
-from molde import load_ui
-
-class ResultsViewerWidget(QWidget):
+class ResultsViewerWidget(LeftMenuWidget_UI):
     def __init__(self):
         super().__init__()
-
-        ui_path = UI_DIR / "menus/left_menu_widget.ui"
-        load_ui(ui_path, self)
 
         self._reset()
         self._define_qt_variables()

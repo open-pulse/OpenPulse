@@ -4,13 +4,13 @@ from PySide6.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton, QTabWi
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.b2p_decoupling_rotation_dofs_input_ui import B2pDecouplingRotationDofsInput_UI
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse.model.structural_element import decoupling_matrix
 
-from molde import load_ui
 
 import numpy as np
 
@@ -18,13 +18,9 @@ import numpy as np
 error_title = "Error"
 
 
-class DecouplingRotationDOFsInput(QDialog):
+class DecouplingRotationDOFsInput(B2pDecouplingRotationDofsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/b2p_decoupling_rotation_dofs_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties

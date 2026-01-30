@@ -1,5 +1,4 @@
 import numpy as np
-from molde import load_ui
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
@@ -13,7 +12,8 @@ from PySide6.QtWidgets import (
     QTreeWidgetItem,
 )
 
-from pulse import UI_DIR, app
+from pulse import app
+from pulse.interface.ui_generated.model.editor.pulsation_damper_editor_inputs_ui import PulsationDamperEditorInputs_UI
 from pulse.editor.pulsation_damper import PulsationDamper
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
@@ -33,13 +33,9 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class PulsationDamperEditorInputs(QDialog):
+class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
     def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/editor/pulsation_damper_editor_inputs.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor

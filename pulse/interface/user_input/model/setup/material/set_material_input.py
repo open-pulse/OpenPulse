@@ -2,24 +2,20 @@ from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.material.set_material_ui import SetMaterial_UI
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class SetMaterialInput(QDialog):
+class SetMaterialInput(SetMaterial_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/material/set_material.ui"
-        load_ui(ui_path, self)
-
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
 
         app().main_window.set_input_widget(self)

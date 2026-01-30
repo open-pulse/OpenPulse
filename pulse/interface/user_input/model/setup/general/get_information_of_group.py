@@ -2,21 +2,17 @@ from PySide6.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QRadioBut
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.info.get_group_information_ui import GetGroupInformation_UI
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class GetInformationOfGroup(QDialog):
+class GetInformationOfGroup(GetGroupInformation_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/info/get_group_information.ui"
-        load_ui(ui_path, self)
-
         self.group_label = kwargs.get("group_label", "")
         self.selection_label = kwargs.get("selection_label", "")
         self.header_labels = kwargs.get("header_labels", list())

@@ -4,14 +4,14 @@ from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLi
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.perforated_plate_input_ui import PerforatedPlateInput_UI
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 
-from molde import load_ui
 
 import os
 import numpy as np
@@ -21,13 +21,9 @@ error_title = "Error"
 warning_title = "Warning"
 
 
-class PerforatedPlateInput(QDialog):
+class PerforatedPlateInput(PerforatedPlateInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/acoustic/perforated_plate_input.ui"
-        load_ui(ui_path, self)
-
         self.valve_element_ids = kwargs.get("valve_element_ids", list())
 
         app().main_window.set_input_widget(self)
@@ -951,10 +947,6 @@ class PerforatedPlateInput(QDialog):
 class GetInformationOfGroup(QDialog):
     def __init__(self, element_id, pp_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/info/get_perforated_plate_info.ui"
-        load_ui(ui_path, self)
-
         self._config_window()
         self._define_qt_variables()
         self._create_connections()

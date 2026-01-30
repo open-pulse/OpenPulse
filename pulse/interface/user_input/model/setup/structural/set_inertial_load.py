@@ -2,24 +2,20 @@ from PySide6.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.inertial_load_input_ui import InertialLoadInput_UI
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 import numpy as np
 
 error_title = "Error"
 warning_title = "Warning"
 
-class SetInertialLoad(QDialog):
+class SetInertialLoad(InertialLoadInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/inertial_load_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model

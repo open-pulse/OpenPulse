@@ -9,18 +9,14 @@ from PySide6.QtWidgets import (
     QComboBox,
 )
 
-from pulse import UI_DIR
+from pulse.interface.ui_generated.model.setup.structural.expansion_joint_widget_ui import ExpansionJointWidget_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 
-class ExpansionJointWidget(QWidget):
+class ExpansionJointWidget(ExpansionJointWidget_UI):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        ui_path = UI_DIR / "model/setup/structural/expansion_joint_widget.ui"
-        load_ui(ui_path, self)
-
         self._define_qt_variables()
         self._create_connections()
 

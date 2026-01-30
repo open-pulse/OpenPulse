@@ -1,26 +1,22 @@
 from PySide6.QtWidgets import QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget, QDialog
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.cross_section.cross_section_widget_ui import CrossSectionWidget_UI
 from pulse.model.cross_section import get_beam_section_properties, get_points_to_plot_section
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.interface_utils import check_inputs
 from pulse.interface.user_input.model.setup.cross_section.cross_section_plotter import CrossSectionPlotter
-from molde import load_ui
 
 import numpy as np
 
 window_title = "Error"
 window_title2 = "Warning"
 
-class CrossSectionWidget(QWidget):
+class CrossSectionWidget(CrossSectionWidget_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/cross_section/cross_section_widget.ui"
-        load_ui(ui_path, self)
-
         self.dialog = kwargs.get("dialog", None)
 
         self._initialize()

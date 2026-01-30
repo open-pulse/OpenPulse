@@ -4,13 +4,13 @@ from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPu
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_ui import ExpansionJointInput_UI
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.cross_section import CrossSection
 
-from molde import load_ui
 
 import numpy as np
 from pathlib import Path
@@ -20,13 +20,9 @@ from os.path import basename
 error_title = "Error"
 
 
-class ExpansionJointInput(QDialog):
+class ExpansionJointInput(ExpansionJointInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
-
-        ui_path = UI_DIR / "model/setup/structural/expansion_joint_input.ui"
-        load_ui(ui_path, self)
-
         self.render_type = kwargs.get("render_type", "model")
 
         app().main_window.set_input_widget(self)

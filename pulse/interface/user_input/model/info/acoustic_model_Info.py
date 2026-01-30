@@ -1,19 +1,16 @@
 from PySide6.QtWidgets import QDialog, QLineEdit, QTreeWidget, QTreeWidgetItem
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
 from pulse.model import RadiationImpedanceType
-from molde import load_ui
+from pulse.interface.ui_generated.model.info.acoustic_model_info_ui import AcousticModelInfo_UI
 
 import numpy as np
 
-class AcousticModelInfo(QDialog):
+
+class AcousticModelInfo(AcousticModelInfo_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/info/acoustic_model_info.ui"
-        load_ui(ui_path, self)
-
         self.project = app().project
         app().main_window.set_input_widget(self)
 

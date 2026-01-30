@@ -2,11 +2,11 @@ from PySide6.QtWidgets import QCheckBox, QDialog, QFrame, QLineEdit, QPushButton
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.mass_spring_damper_input_ui import MassSpringDamperInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 import numpy as np
@@ -16,13 +16,9 @@ from pathlib import Path
 error_title ="Error"
 
 
-class MassSpringDamperInput(QDialog):
+class MassSpringDamperInput(MassSpringDamperInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        ui_path = UI_DIR / "model/setup/structural/mass_spring_damper_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self.preprocessor = app().project.model.preprocessor

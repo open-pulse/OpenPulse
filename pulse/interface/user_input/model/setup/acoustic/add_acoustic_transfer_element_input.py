@@ -4,11 +4,11 @@ from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt, QEvent, QObject, Signal
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.acoustic_transfer_element_input_ui import AcousticTransferElementInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 import numpy as np
@@ -18,13 +18,9 @@ from pathlib import Path
 error_title = "Error"
 
 
-class AddAcousticTransferElementInput(QDialog):
+class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/acoustic_transfer_element_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor

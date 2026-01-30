@@ -2,23 +2,19 @@ from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTreeWidget, QTre
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.criterias.beam_criteria_assistant_ui import BeamCriteriaAssistant_UI
 from pulse.model.before_run import BeforeRun
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class CheckBeamCriteriaInput(QDialog):
+class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "criterias/beam_criteria_assistant.ui"
-        load_ui(ui_path, self)
-
         self.project = app().project
         app().main_window.set_input_widget(self)
 

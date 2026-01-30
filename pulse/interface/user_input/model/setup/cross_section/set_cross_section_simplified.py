@@ -2,23 +2,19 @@ from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.cross_section.set_cross_section_simplified_ui import SetCrossSectionSimplified_UI
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class SetCrossSectionSimplified(QDialog):
+class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/cross_section/set_cross_section_simplified.ui"
-        load_ui(ui_path, self)
-
         self.main_window = app().main_window
         self.main_window.set_input_widget(self)
 

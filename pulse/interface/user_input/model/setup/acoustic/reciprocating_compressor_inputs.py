@@ -2,7 +2,8 @@ from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_compressor_inputs_ui import ReciprocatingCompressorInputs_UI
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -11,7 +12,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
 
-from molde import load_ui
 
 import numpy as np
 
@@ -24,13 +24,9 @@ kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 
 
-class ReciprocatingCompressorInputs(QDialog):
+class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/reciprocating_compressor_inputs.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 

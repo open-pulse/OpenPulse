@@ -2,22 +2,18 @@
 from PySide6.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.analysis.structural.modal_analysis_ui import ModalAnalysis_UI
 from pulse.model import AnalysisID
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 error_title = "Error"
 
 
-class ModalAnalysisInput(QDialog):
+class ModalAnalysisInput(ModalAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "analysis/modal_analysis_setup_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.close_dialogs()
         app().main_window.set_input_widget(self)
 

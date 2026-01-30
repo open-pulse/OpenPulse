@@ -1,12 +1,12 @@
 from PySide6.QtWidgets import QDialog, QPushButton, QSlider, QSpinBox
 from PySide6.QtCore import Qt, Signal
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.render.section_plane_inputs_ui import SectionPlaneInputs_UI
 
-from molde import load_ui
 
 
-class SectionPlaneWidget(QDialog):
+class SectionPlaneWidget(SectionPlaneInputs_UI):
     value_changed_2 = Signal()
 
     value_changed = Signal(float, float, float, float, float, float)
@@ -16,10 +16,6 @@ class SectionPlaneWidget(QDialog):
 
     def __init__(self):
         super().__init__()
-
-        ui_path = UI_DIR / "render/section_plane_inputs.ui"
-        load_ui(ui_path, self)
-
         self.editing = False
         self.cutting = False
         self.invert_value = False

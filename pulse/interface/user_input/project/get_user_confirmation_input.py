@@ -1,17 +1,13 @@
-from molde import load_ui
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QLabel, QPushButton
 
-from pulse import UI_DIR, app, version
+from pulse import app, version
+from pulse.interface.ui_generated.messages.get_user_confirmation_ui import GetUserConfirmation_UI
 
 
-class GetUserConfirmationInput(QDialog):
+class GetUserConfirmationInput(GetUserConfirmation_UI):
     def __init__(self, title, message, *args, **kwargs):
         super().__init__(*args)
-
-        ui_path = UI_DIR / "messages/get_user_confirmation.ui"
-        load_ui(ui_path, self)
-
         self.title = title
         self.message = message
         self.buttons_config = kwargs.get("buttons_config", dict())

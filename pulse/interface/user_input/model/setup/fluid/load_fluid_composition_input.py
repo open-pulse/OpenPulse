@@ -3,20 +3,16 @@ from PySide6.QtGui import QCloseEvent, QIcon
 from PySide6.QtCore import Qt
 from pathlib import Path
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.fluid.load_fluid_composition_ui import LoadFluidComposition_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 
-class LoadFluidCompositionInput(QDialog):
+class LoadFluidCompositionInput(LoadFluidComposition_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/fluid/load_fluid_composition.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self.file_path = kwargs.get("file_path", "")

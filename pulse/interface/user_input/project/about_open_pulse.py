@@ -2,22 +2,18 @@ from PySide6.QtWidgets import QDialog, QLabel, QPushButton
 from PySide6.QtGui import QCloseEvent, QDesktopServices
 from PySide6.QtCore import Qt, QUrl
 
-from pulse import app, UI_DIR, version, release_date
+from pulse import app, version, release_date
+from pulse.interface.ui_generated.project.about_open_pulse_ui import AboutOpenPulse_UI
 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class AboutOpenPulseInput(QDialog):
+class AboutOpenPulseInput(AboutOpenPulse_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "project/about_open_pulse.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 

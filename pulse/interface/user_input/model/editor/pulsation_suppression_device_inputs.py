@@ -1,5 +1,4 @@
 import numpy as np
-from molde import load_ui
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
@@ -14,7 +13,8 @@ from PySide6.QtWidgets import (
     QTreeWidgetItem,
 )
 
-from pulse import UI_DIR, app
+from pulse import app
+from pulse.interface.ui_generated.model.editor.pulsation_suppression_device_input_ui import PulsationSuppressionDeviceInput_UI
 from pulse.editor.dual_volume_psd import DualVolumePSD
 from pulse.editor.single_volume_psd import SingleVolumePSD
 from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -30,13 +30,9 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class PulsationSuppressionDeviceInputs(QDialog):
+class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
     def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/editor/pulsation_suppression_device_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
 

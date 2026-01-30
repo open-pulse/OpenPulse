@@ -2,7 +2,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.acoustic.acoustic_pressure_waveform_inputs_ui import AcousticPressureWaveformInputs_UI
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -10,18 +11,13 @@ from pulse.interface.ui_generated.plots.acoustic.acoustic_pressure_waveform_inpu
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 from pulse.utils.signal_processing import process_ifft_from_one_sided_spectrum_signal
-from molde import load_ui
 
 import numpy as np
 
 
-class AcousticPressureWaveformInputs(QDialog):
+class AcousticPressureWaveformInputs(AcousticPressureWaveformInputs_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/acoustic/acoustic_pressure_waveform_inputs.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self.project = app().project

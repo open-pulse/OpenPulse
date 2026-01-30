@@ -1,11 +1,11 @@
 from PySide6.QtWidgets import QDialog, QWidget, QLabel, QPushButton, QComboBox, QLineEdit
 from PySide6.QtCore import Qt
 
-from molde import load_ui
 
 from dataclasses import dataclass
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.common.mesh_input_common_ui import MeshInputCommon_UI
 
 
 @dataclass
@@ -18,7 +18,7 @@ class MeshInputFilter:
     selected_elements: bool = False
 
 
-class MeshInputCommon(QDialog):
+class MeshInputCommon(MeshInputCommon_UI):
     """
     A lot of input interfaces have in common the funcionality
     of attribute things to nodes, lines and/or elements.
@@ -28,9 +28,6 @@ class MeshInputCommon(QDialog):
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        ui_path = UI_DIR / "common/mesh_input_common.ui"
-        load_ui(ui_path, self)
-
         self.filter = MeshInputFilter()
         self.item_indexes = dict()
 

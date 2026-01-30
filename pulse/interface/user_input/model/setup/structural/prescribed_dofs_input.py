@@ -4,12 +4,12 @@ from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton, QTabWi
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.prescribed_dofs_input_ui import PrescribedDofsInput_UI
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 import numpy as np
@@ -32,13 +32,9 @@ class TabType(IntEnum):
     LIST = 2
 
 
-class PrescribedDofsInput(QDialog):
+class PrescribedDofsInput(PrescribedDofsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        ui_path = UI_DIR / "model/setup/structural/prescribed_dofs_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 

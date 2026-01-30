@@ -4,14 +4,14 @@ from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLi
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.valve_input_ui import ValveInput_UI
 # from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.model.cross_section import CrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import numpy as np
 from collections import defaultdict
@@ -20,13 +20,9 @@ from collections import defaultdict
 error_title = "Error"
 
 
-class ValvesInput(QDialog):
+class ValvesInput(ValveInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
-
-        ui_path = UI_DIR / "model/setup/structural/valve_input.ui"
-        load_ui(ui_path, self)
-
         self.render_type = kwargs.get("render_type", "model")
 
         app().main_window.set_input_widget(self)

@@ -1,24 +1,20 @@
 from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.model.plot_section_ui import PlotSection_UI
 from pulse.model.cross_section import get_points_to_plot_section
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PlotCrossSectionInput(QDialog):
+class PlotCrossSectionInput(PlotSection_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/model/plot_section.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model

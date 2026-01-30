@@ -2,14 +2,14 @@ from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton
 from PySide6.QtGui import QIcon, QFont
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.fluid.set_fluid_composition_input_ui import SetFluidCompositionInput_UI
 from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import LoadFluidCompositionInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.utils.common_utils import get_new_path
 
-from molde import load_ui
 
 import os
 from pathlib import Path
@@ -17,13 +17,9 @@ from pathlib import Path
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class SetFluidCompositionInput(QDialog):
+class SetFluidCompositionInput(SetFluidCompositionInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/fluid/set_fluid_composition_input.ui"
-        load_ui(ui_path, self)
-
         self.state_properties = kwargs.get("state_properties", dict())
         self.selected_fluid_to_edit = kwargs.get("selected_fluid_to_edit", None)
 

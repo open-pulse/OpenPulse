@@ -4,10 +4,10 @@ from PySide6.QtWidgets import QDialog, QToolButton, QVBoxLayout, QWidget
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.graphs.plot_xy_widget_ui import PlotXyWidget_UI
 from pulse.interface.formatters import icons
 
-from molde import load_ui
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 from matplotlib.figure import Figure
@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 plt.rcParams.update({'font.size': 10})
 
 
-class MplCanvas(FigureCanvasQTAgg):
+class MplCanvas(PlotXyWidget_UI):
 
     def __init__(self, parent=None, width=5, height=4, dpi=None, secondary_axis=False):
         fig = Figure()#(figsize=(width+5, height+5), dpi=dpi)
@@ -31,10 +31,6 @@ class XYPlot(QWidget):
 
     def __init__(self, plot_config: dict, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "plots/graphs/plot_xy_widget.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         app().main_window.theme_changed.connect(self.paint_toolbar_icons)
 

@@ -2,11 +2,11 @@ from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTabWidget, QTree
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.specific_impedance_input_ui import SpecificImpedanceInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 import numpy as np
@@ -15,13 +15,9 @@ from pathlib import Path
 error_title = "Error"
 
 
-class SpecificImpedanceInput(QDialog):
+class SpecificImpedanceInput(SpecificImpedanceInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/specific_impedance_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 
