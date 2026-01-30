@@ -1,6 +1,3 @@
-#
-from pulse.interface.user_input.model.geometry.geometry_editor_help import GeometryEditorHelp
-#
 from pulse.interface.user_input.model.setup.material.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
@@ -395,9 +392,6 @@ class InputUi:
 
     def check_beam_criteria(self):
         self.process_input(CheckBeamCriteriaInput)
-
-    def geometry_editor_help(self):
-        self.process_input(GeometryEditorHelp)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'
