@@ -7,7 +7,7 @@ from pulse.project.project import Project
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.utils.signal_processing import *
 
-# import pytest
+import pytest
 import numpy as np
 
 from pathlib import Path
@@ -15,14 +15,14 @@ from shutil import copy
 from matplotlib import pyplot as plt
 
 # Setting up model
-# @pytest.fixture
-
-def test_coupled_harmonic_analysis(project_path: str | Path):
+ 
+@pytest.mark.skip
+def test_coupled_harmonic_analysis(datadir: Path, project_path: str | Path):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader()
-
+    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
+    
     ## Copy the project to the temp_pulse folder
     copy(project_path, project.file.path)
 

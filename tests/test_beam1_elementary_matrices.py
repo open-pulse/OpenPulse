@@ -11,11 +11,11 @@ from pathlib import Path
 # Setting up model
 # @pytest.fixture
 
-def test_elementary_matrices_for_beam1_element():
+def test_elementary_matrices_for_beam1_element(datadir: Path):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader()
+    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
 
     ## Define usefull objects
     model = project.model

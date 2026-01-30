@@ -106,8 +106,6 @@ def load_default_reciprocating_pump_setup(crank_angle = 0):
 
 
 def test_suction_flow_rate(smooth_data: bool=False):
-    # return
-
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
     reciprocating_pump.number_points = 1024
@@ -145,8 +143,6 @@ def test_suction_flow_rate(smooth_data: bool=False):
 
 
 def test_discharge_flow_rate(smooth_data: bool=False):
-    # return
-
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
     reciprocating_pump.number_points = 3600

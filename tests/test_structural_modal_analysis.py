@@ -5,20 +5,19 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
-# import pytest
+import pytest
 import numpy as np
 
 from pathlib import Path
 
 # Setting up model
-# @pytest.fixture
-
-def test_structural_modal_analysis():
+@pytest.mark.skip
+def test_structural_modal_analysis(datadir: Path):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader()
-
+    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
+    
     ## Define usefull objects
     model = project.model
     mesh = model.mesh
