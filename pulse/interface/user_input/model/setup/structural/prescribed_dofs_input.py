@@ -14,9 +14,16 @@ from molde import load_ui
 import os
 import numpy as np
 from pathlib import Path
+from enum import IntEnum
 
 
 error_title = "Error"
+
+
+class DOFSetup(IntEnum):
+    VALUE = 0
+    FREE = 1
+    FIXED = 2
 
 
 class PrescribedDofsInput(QDialog):
@@ -53,6 +60,34 @@ class PrescribedDofsInput(QDialog):
 
         self.list_Nones = [None, None, None, None, None, None]
         self.dofs_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
+
+        self.value_comboboxes = [
+            self.comboBox_displacement_ux,
+            self.comboBox_displacement_uy,
+            self.comboBox_displacement_uz,
+            self.comboBox_rotation_rx,
+            self.comboBox_rotation_ry,
+            self.comboBox_rotation_rz,
+        ]
+
+        self.constant_line_edits = {
+            "Ux": [self.lineEdit_real_ux, self.lineEdit_imag_ux],
+            "Uy": [self.lineEdit_real_uy, self.lineEdit_imag_uy],
+            "Uz": [self.lineEdit_real_uz, self.lineEdit_imag_uz],
+            "Rx": [self.lineEdit_real_rx, self.lineEdit_imag_rx],
+            "Ry": [self.lineEdit_real_ry, self.lineEdit_imag_ry],
+            "Rz": [self.lineEdit_real_rz, self.lineEdit_imag_rz],
+        }
+
+        self.dof_setup_combo_boxes = { 
+            "Ux" : self.comboBox_displacement_ux,
+            "Uy" : self.comboBox_displacement_uy,
+            "Uz" : self.comboBox_displacement_uz,
+            "Rx" : self.comboBox_rotation_rx,
+            "Ry" : self.comboBox_rotation_ry,
+            "Rz" : self.comboBox_rotation_rz,
+        }
+
 
         self.reset_table_variables()
         self.before_run = app().project.get_pre_solution_model_checks()
@@ -92,6 +127,12 @@ class PrescribedDofsInput(QDialog):
         # QComboBox
         self.comboBox_linear_data_type: QComboBox
         self.comboBox_angular_data_type: QComboBox
+        self.comboBox_displacement_ux: QComboBox
+        self.comboBox_displacement_uy: QComboBox
+        self.comboBox_displacement_uz: QComboBox
+        self.comboBox_rotation_rx: QComboBox
+        self.comboBox_rotation_ry: QComboBox
+        self.comboBox_rotation_rz: QComboBox
 
         # QLineEdit
         self.lineEdit_node_ids: QLineEdit
@@ -132,6 +173,8 @@ class PrescribedDofsInput(QDialog):
         self.pushButton_reset: QPushButton
         self.pushButton_constant_value_confirm: QPushButton
         self.pushButton_table_values_confirm: QPushButton
+        self.pushButton_all_dof_free: QPushButton
+        self.pushButton_all_dof_fixed: QPushButton
 
         # QTabWidget
         self.tabWidget_prescribed_dofs: QTabWidget
@@ -174,6 +217,15 @@ class PrescribedDofsInput(QDialog):
         self.pushButton_load_ry_table.clicked.connect(self.load_ry_table)
         self.pushButton_load_rz_table.clicked.connect(self.load_rz_table)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_all_dof_free.clicked.connect(self.all_dof_free_callback)
+        self.pushButton_all_dof_fixed.clicked.connect(self.all_dof_fixed_callback)
+        self.comboBox_displacement_ux.currentIndexChanged.connect(self.displacement_ux_callback)
+        self.comboBox_displacement_uy.currentIndexChanged.connect(self.displacement_uy_callback)
+        self.comboBox_displacement_uz.currentIndexChanged.connect(self.displacement_uz_callback)
+        self.comboBox_rotation_rx.currentIndexChanged.connect(self.rotation_rx_callback)
+        self.comboBox_rotation_ry.currentIndexChanged.connect(self.rotation_ry_callback)
+        self.comboBox_rotation_rz.currentIndexChanged.connect(self.rotation_rz_callback)
+
         #
         self.tabWidget_prescribed_dofs.currentChanged.connect(self.tab_event_callback)
         #
@@ -211,33 +263,42 @@ class PrescribedDofsInput(QDialog):
                                     lineEdit_imag.setText(str(np.imag(values[index])))
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
+        input_real = lineEdit_real.text()
+        _real = None
 
         stop = False
-        if lineEdit_real.text() != "":
-            try:
-                _real = float(lineEdit_real.text())
-            except Exception:
-                title = f"Invalid entry to the {label}"
-                message = f"Wrong input for real part of {label}."
-                PrintMessageInput([error_title, title, message])
-                lineEdit_real.setFocus()
-                stop = True
-                return stop, None
-        else:
-            _real = None
+        if input_real != "":
+            if input_real == "fixed":
+                _real = 0.
+            elif input_real != "free":
+                try:
+                    _real = float(input_real)
+                except Exception:
+                    title = f"Invalid entry to the {label}"
+                    message = f"Wrong input for real part of {label}."
+                    PrintMessageInput([error_title, title, message])
+                    lineEdit_real.setFocus()
+                    stop = True
+                    return stop, None
+        
 
-        if lineEdit_imag.text() != "":
-            try:
-                _imag = float(lineEdit_imag.text())
-            except Exception:
-                title = f"Invalid entry to the {label}"
-                message = f"Wrong input for imaginary part of {label}."
-                PrintMessageInput([error_title, title, message])
-                lineEdit_imag.setFocus()
-                stop = True
-                return stop, None
-        else:
-            _imag = None
+        _imag = None
+        input_imag = lineEdit_imag.text()
+
+        if input_imag != "":
+            if input_imag == "fixed":
+                _imag = 0.
+            elif input_imag != "free":
+                    
+                try:
+                    _imag = float(input_imag)
+                except Exception:
+                    title = f"Invalid entry to the {label}"
+                    message = f"Wrong input for imaginary part of {label}."
+                    PrintMessageInput([error_title, title, message])
+                    lineEdit_imag.setFocus()
+                    stop = True
+                    return stop, None
         
         if label == 'all dofs':
 
@@ -272,33 +333,28 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_node_ids.setFocus()
             return
 
-        if self.lineEdit_real_alldofs.text() != "" or self.lineEdit_imag_alldofs.text() != "":
-            stop, prescribed_dofs = self.check_complex_entries(self.lineEdit_real_alldofs, self.lineEdit_imag_alldofs, "all dofs")
-            if stop:
-                return 
-        else:    
 
-            stop, ux = self.check_complex_entries(self.lineEdit_real_ux, self.lineEdit_imag_ux, "Ux")
-            if stop:
-                return
-            stop, uy = self.check_complex_entries(self.lineEdit_real_uy, self.lineEdit_imag_uy, "Uy")
-            if stop:
-                return        
-            stop, uz = self.check_complex_entries(self.lineEdit_real_uz, self.lineEdit_imag_uz, "Uz")
-            if stop:
-                return        
-                
-            stop, rx = self.check_complex_entries(self.lineEdit_real_rx, self.lineEdit_imag_rx, "Rx")
-            if stop:
-                return        
-            stop, ry = self.check_complex_entries(self.lineEdit_real_ry, self.lineEdit_imag_ry, "Ry")
-            if stop:
-                return        
-            stop, rz = self.check_complex_entries(self.lineEdit_real_rz, self.lineEdit_imag_rz, "Rz")
-            if stop:
-                return
+        stop, ux = self.check_complex_entries(self.lineEdit_real_ux, self.lineEdit_imag_ux, "Ux")
+        if stop:
+            return
+        stop, uy = self.check_complex_entries(self.lineEdit_real_uy, self.lineEdit_imag_uy, "Uy")
+        if stop:
+            return        
+        stop, uz = self.check_complex_entries(self.lineEdit_real_uz, self.lineEdit_imag_uz, "Uz")
+        if stop:
+            return        
+            
+        stop, rx = self.check_complex_entries(self.lineEdit_real_rx, self.lineEdit_imag_rx, "Rx")
+        if stop:
+            return        
+        stop, ry = self.check_complex_entries(self.lineEdit_real_ry, self.lineEdit_imag_ry, "Ry")
+        if stop:
+            return        
+        stop, rz = self.check_complex_entries(self.lineEdit_real_rz, self.lineEdit_imag_rz, "Rz")
+        if stop:
+            return
 
-            prescribed_dofs = [ux, uy, uz, rx, ry, rz]
+        prescribed_dofs = [ux, uy, uz, rx, ry, rz]
 
         if prescribed_dofs.count(None) != 6:
 
@@ -558,6 +614,65 @@ class PrescribedDofsInput(QDialog):
 
         self.actions_to_finalize()
         print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")
+
+    def all_dof_free_callback(self):
+        for combobox in self.value_comboboxes:
+            combobox.setCurrentIndex(DOFSetup.FREE)
+
+        for lineEdit_real, lineEdit_imag in self.constant_line_edits.values():
+            lineEdit_real.setText("free")
+            lineEdit_imag.setText("free")
+    
+    def all_dof_fixed_callback(self):
+        for combobox in self.value_comboboxes:
+            combobox.setCurrentIndex(DOFSetup.FIXED)
+
+        for lineEdit_real, lineEdit_imag in self.constant_line_edits.values():
+            lineEdit_real.setText("fixed")
+            lineEdit_imag.setText("fixed")
+
+    def combo_box_callback(self, unit_label: str):
+
+        combo_box = self.dof_setup_combo_boxes[unit_label]
+        value_based = combo_box.currentIndex() == DOFSetup.VALUE
+
+        line_edit_real, line_edit_imag = self.constant_line_edits.get(unit_label, (None, None))
+        if (line_edit_real, line_edit_imag).count(None) == 2:
+            return
+
+        line_edit_real.setText("")
+        line_edit_imag.setText("")
+        line_edit_real.setEnabled(value_based)   
+        line_edit_imag.setEnabled(value_based)
+
+        if value_based:
+            return
+
+        if combo_box.currentIndex() == DOFSetup.FIXED:
+            line_edit_real.setText("fixed")
+            line_edit_imag.setText("fixed")
+
+        elif combo_box.currentIndex() == DOFSetup.FREE:
+            line_edit_real.setText("free")
+            line_edit_imag.setText("free")
+
+    def displacement_ux_callback(self):
+        self.combo_box_callback("Ux")
+
+    def displacement_uy_callback(self):
+        self.combo_box_callback("Uy")
+
+    def displacement_uz_callback(self):
+        self.combo_box_callback("Uz")
+
+    def rotation_rx_callback(self):
+        self.combo_box_callback("Rx")
+
+    def rotation_ry_callback(self):
+        self.combo_box_callback("Ry")
+
+    def rotation_rz_callback(self):
+        self.combo_box_callback("Rz")
 
     def text_label(self, mask):
 
