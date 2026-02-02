@@ -869,7 +869,11 @@ class PrescribedDofsInput(QDialog):
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            if self.tabWidget_prescribed_dofs.currentIndex() == TabType.LIST:
+                return
+
             self.attribution_callback()
+
         elif event.key() == Qt.Key_Delete:
             self.remove_callback()
 
