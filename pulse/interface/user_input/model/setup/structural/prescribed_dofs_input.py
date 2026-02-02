@@ -721,20 +721,22 @@ class PrescribedDofsInput(QDialog):
 
     def tab_event_callback(self):
 
-        self.lineEdit_node_ids.setText("")
+        tab_list = self.tabWidget_prescribed_dofs.currentIndex() == TabType.LIST
+        self.lineEdit_node_ids.setDisabled(tab_list)
+        self.pushButton_exit_tab0.setDisabled(tab_list)
+        self.pushButton_exit_tab1.setDisabled(tab_list)
         self.pushButton_remove.setDisabled(True)
 
-        if self.tabWidget_prescribed_dofs.currentIndex() == TabType.LIST:
-            self.lineEdit_node_ids.setDisabled(True)
-            items = self.treeWidget_nodal_info.selectedItems()
-            if items == list():
-                self.lineEdit_node_ids.setText("")
-            else:
-                self.on_click_item(items[0])
-
-        else:
+        if not tab_list:
             self.lineEdit_node_ids.setEnabled(True)
             self.selection_callback()
+            return
+    
+        selected_items = self.treeWidget_nodal_info.selectedItems()
+        if selected_items == list():
+            self.lineEdit_node_ids.setText("")
+        else:
+            self.on_click_item(selected_items[0])
 
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
