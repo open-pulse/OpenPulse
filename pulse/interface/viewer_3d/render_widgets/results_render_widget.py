@@ -702,9 +702,6 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if hasattr(tool, "current_cursor"):
             tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)
     
-    def add_render_tool(self, tool_class):
-        super().add_render_tool(tool_class)
-    
     def set_default_render_tool(self, base_tool = False):
         tool = RenderTool()
         self.set_interactor_style(tool)
