@@ -655,10 +655,10 @@ class MainWindow(QMainWindow):
         if not self.project.is_the_solution_finished():
             return
 
-            self.results_widget.update_selection()
-            self.results_viewer_wigdet.update_visibility_items()
-            self.animation_toolbar.setEnabled(False)    
-            self.render_tools_toolbar.hide_selection_tool()
+        self.results_widget.update_selection()
+        self.results_viewer_widget.update_visibility_items()
+        self.animation_toolbar.setEnabled(False)    
+        self.render_tools_toolbar.hide_selection_tool()
 
         self.action_results_workspace.setEnabled(False)
         if not self.action_geometry_editor_workspace.isEnabled():
