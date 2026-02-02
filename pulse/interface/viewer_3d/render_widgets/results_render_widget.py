@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QApplication
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 from pulse import ICON_DIR, app
+from pulse.model import AnalysisID
 from pulse.interface.viewer_3d.actors import (
     SectionPlaneActor,
     ElementLinesActor,
@@ -112,57 +113,56 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if not project.get_structural_elements():
             return
 
-        try:
+        # Default behavior
+        self.colorbar_actor.VisibilityOn()
+        deformed = False
 
-            # Default behavior
-            self.colorbar_actor.VisibilityOn()
-            deformed = False
-    
-            unit_label = ""
-            analysis_id = project.analysis_id
+        unit_label = ""
+        analysis_id = project.analysis_id
 
-            # update the data according to the current analysis
-            if self.analysis_mode == AnalysisMode.DISPLACEMENT:
+        # update the data according to the current analysis
+        if self.analysis_mode == AnalysisMode.DISPLACEMENT:
 
-                if analysis_id in [0, 1, 5, 6, 7]:
-                    unit_label = "Unit: [m]"
-                elif analysis_id in [2]:
-                    unit_label = "Unit: [--]"
+            if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                unit_label = "Unit: [m]"
 
-                deformed = True
-                color_table = self._compute_displacement_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
+            elif analysis_id == AnalysisID.STRUCTURAL_MODAL:
+                unit_label = "Unit: [--]"
 
-            elif self.analysis_mode == AnalysisMode.STRESS:
+            deformed = True
+            color_table = self._compute_displacement_field(
+                self.current_frequency_index,
+                self.current_phase_step,
+            )
 
-                if analysis_id in [0, 1, 5, 6, 7]:
-                    unit_label = "Unit: [Pa]"
+        elif self.analysis_mode == AnalysisMode.STRESS:
 
-                deformed = True
-                color_table = self._compute_stress_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
+            if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                unit_label = "Unit: [Pa]"
 
-            elif self.analysis_mode == AnalysisMode.PRESURE:
+            deformed = True
+            color_table = self._compute_stress_field(
+                self.current_frequency_index,
+                self.current_phase_step,
+            )
 
-                if analysis_id in [3, 5, 6]:
-                    unit_label = "Unit: [Pa]"
-                elif analysis_id in [4]:
-                    unit_label = "Unit: [--]"
+        elif self.analysis_mode == AnalysisMode.PRESURE:
 
-                color_table = self._compute_pressure_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
+            if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                unit_label = "Unit: [Pa]"
 
-            else:
-                # Empty color table
-                color_table = ColorTable([], [0, 0], self.colormap)
-                self.colorbar_actor.VisibilityOff()
+            elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
+                unit_label = "Unit: [--]"
 
-        except Exception as error_log:
-            print(str(error_log))
-            return
+            color_table = self._compute_pressure_field(
+                self.current_frequency_index,
+                self.current_phase_step,
+            )
+
+        else:
+            # Empty color table
+            color_table = ColorTable([], [0, 0], self.colormap)
+            self.colorbar_actor.VisibilityOff()
 
         acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
 

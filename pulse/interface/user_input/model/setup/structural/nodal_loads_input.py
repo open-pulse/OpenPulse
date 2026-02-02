@@ -15,7 +15,9 @@ import os
 import numpy as np
 from pathlib import Path
 
-window_title = "Error"
+
+error_title = "Error"
+
 
 class NodalLoadsInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -111,8 +113,8 @@ class NodalLoadsInput(QDialog):
         self._create_list_lineEdits()
 
         # QPushButton
-        self.pushButton_cancel_tab0: QPushButton
-        self.pushButton_cancel_tab1: QPushButton
+        self.pushButton_exit_tab0: QPushButton
+        self.pushButton_exit_tab1: QPushButton
         self.pushButton_load_fx_table: QPushButton
         self.pushButton_load_fy_table: QPushButton
         self.pushButton_load_fz_table: QPushButton
@@ -148,8 +150,8 @@ class NodalLoadsInput(QDialog):
 
     def _create_connections(self):
         #
-        self.pushButton_cancel_tab0.clicked.connect(self.close)
-        self.pushButton_cancel_tab1.clicked.connect(self.close)
+        self.pushButton_exit_tab0.clicked.connect(self.close)
+        self.pushButton_exit_tab1.clicked.connect(self.close)
         self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
         self.pushButton_load_fx_table.clicked.connect(self.load_fx_table)
         self.pushButton_load_fy_table.clicked.connect(self.load_fy_table)
@@ -211,7 +213,7 @@ class NodalLoadsInput(QDialog):
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for real part of {label}."
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([error_title, title, message])
                 stop = True
                 return stop, None
         else:
@@ -223,7 +225,7 @@ class NodalLoadsInput(QDialog):
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for imaginary part of {label}."
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([error_title, title, message])
                 stop = True
                 return stop, None
         else:
@@ -297,7 +299,7 @@ class NodalLoadsInput(QDialog):
             title = "Additional inputs required"
             message = "You must to inform at least one nodal load " 
             message += "before confirming the input!"
-            PrintMessageInput([window_title, title, message]) 
+            PrintMessageInput([error_title, title, message]) 
             
     def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
 
@@ -328,21 +330,17 @@ class NodalLoadsInput(QDialog):
 
             imported_filename = os.path.basename(path_imported_table)
             lineEdit.setText(path_imported_table)         
-            imported_file = np.loadtxt(path_imported_table, delimiter=",")
+            imported_data = np.loadtxt(path_imported_table, delimiter=",")
         
-            if imported_file.shape[1] < 3:
+            if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([error_title, title, message])
                 lineEdit.setFocus()
                 return None, None
 
-            imported_values = imported_file[:,1] + 1j*imported_file[:,2]
-
-            self.frequencies = imported_file[:,0]
-            f_min = self.frequencies[0]
-            f_max = self.frequencies[-1]
-            f_step = self.frequencies[1] - self.frequencies[0] 
+            self.frequencies = imported_data[:, 0]
+            complex_values = imported_data[:, 1] + 1j * imported_data[:, 2]
             
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
@@ -355,22 +353,19 @@ class NodalLoadsInput(QDialog):
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
 
-                frequency_setup = { "f_min" : f_min,
-                                    "f_max" : f_max,
-                                    "f_step" : f_step }
+                analysis_setup = app().project.model.analysis_setup
+                app().project.file.write_analysis_setup_in_file(analysis_setup)
 
-                app().project.model.set_frequency_setup(frequency_setup)
-            
-            return imported_values, path_imported_table
+            return complex_values, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([window_title, title, message])
+            PrintMessageInput([error_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -481,7 +476,7 @@ class NodalLoadsInput(QDialog):
                 title = "Additional inputs required"
                 message = "You must inform at least one nodal load "
                 message += "table path before confirming the input!"
-                PrintMessageInput([window_title, title, message]) 
+                PrintMessageInput([error_title, title, message]) 
                 return
 
             node = app().project.model.preprocessor.nodes[node_id]
@@ -600,7 +595,7 @@ class NodalLoadsInput(QDialog):
         except Exception as error_log:
             title = "Error while gathering nodal loads information"
             message = str(error_log)
-            PrintMessageInput([window_title, title, message])
+            PrintMessageInput([error_title, title, message])
             return
 
         self.show()
@@ -695,6 +690,7 @@ class NodalLoadsInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
 
 #fmt: on

@@ -51,13 +51,15 @@ class FrequencyResponsePlotter(QDialog):
         self.title = ""
         self.font_weight = "normal"
 
-        self.colors = [ [0,0,1],
-                        [0,0,0],
-                        [1,0,0],
-                        [0,1,1],
-                        [0.75,0.75,0.75],
-                        [0.5, 0.5, 0.5],
-                        [0.25, 0.25, 0.25] ]
+        self.colors = [ 
+            [0,0,1],
+            [0,0,0],
+            [1,0,0],
+            [0,1,1],
+            [0.75,0.75,0.75],
+            [0.5, 0.5, 0.5],
+            [0.25, 0.25, 0.25],
+            ]
 
     def _define_qt_variables(self):
 
@@ -148,6 +150,7 @@ class FrequencyResponsePlotter(QDialog):
         if self.aux_bool:
             self.comboBox_plot_type.setDisabled(True)
             self.comboBox_plot_type.setCurrentIndex(2)
+
         else:
             self.comboBox_plot_type.setDisabled(False)
             self.comboBox_plot_type.setCurrentIndex(0)
@@ -353,7 +356,7 @@ class FrequencyResponsePlotter(QDialog):
             self.ax.set_ylabel(self.y_label, fontsize = 11, fontweight = self.font_weight)
             
             if self.title != "":
-                self.ax.set_title(self.title, fontsize = 12, fontweight = self.font_weight)
+                self.ax.set_title(self.title, fontsize = 11, fontweight = self.font_weight)
 
             if self.checkBox_grid.isChecked():
                 self.ax.grid()

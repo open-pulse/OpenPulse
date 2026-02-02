@@ -57,13 +57,16 @@ class ResultsViewerWidget(QWidget):
 
         self.results_viewer_items.item_child_plot_acoustic_pressure_field.clicked.connect(
             self.add_acoustic_pressure_field_widget)
-        
+
         self.results_viewer_items.item_child_plot_acoustic_frequency_response.clicked.connect(
             self.add_acoustic_frequency_response_widget)
 
+        self.results_viewer_items.item_child_plot_acoustic_pressure_waveform.clicked.connect(
+            self.add_acoustic_pressure_waveform_widget)
+
         self.results_viewer_items.item_child_plot_acoustic_frequency_response_function.clicked.connect(
             self.add_acoustic_frequency_response_function_widget)
-        
+
         self.results_viewer_items.item_child_plot_acoustic_delta_pressures.clicked.connect(
             self.add_acoustic_delta_pressures_widget)
 
@@ -131,6 +134,11 @@ class ResultsViewerWidget(QWidget):
     def add_acoustic_frequency_response_widget(self):
         self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_acoustic_frequency_response()
+        self.add_widget(widget)
+
+    def add_acoustic_pressure_waveform_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
+        widget = app().main_window.input_ui.plot_acoustic_pressure_waveform()
         self.add_widget(widget)
 
     def add_acoustic_frequency_response_function_widget(self):

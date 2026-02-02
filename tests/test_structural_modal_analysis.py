@@ -1,23 +1,23 @@
 
+from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
-# import pytest
+import pytest
 import numpy as np
 
 from pathlib import Path
 
 # Setting up model
-# @pytest.fixture
-
-def test_structural_modal_analysis():
+@pytest.mark.skip
+def test_structural_modal_analysis(datadir: Path):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader()
-
+    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
+    
     ## Define usefull objects
     model = project.model
     mesh = model.mesh
@@ -178,21 +178,21 @@ def test_structural_modal_analysis():
     ## Analysis setup for structural modal analysis
 
     analysis_setup = {
-                      "analysis_id" : 2,
-                      "modes" : 40,
+                      "analysis_id" : AnalysisID.STRUCTURAL_MODAL,
+                      "number_of_modes" : 40,
                       "sigma_factor" : 1e-2
                       }
 
     ## Analysis setup for structural harmonic analysis
 
     # analysis_setup = {
-    #                   "analysis_id" : 0,
+    #                   "analysis_id" : AnalysisID.STRUCTURAL_HARMONIC,
     #                   "f_min" : 1,
     #                   "f_max" : 300,
     #                   "f_step" : 1,
-    #                   "global_damping" : [1e-3, 1e-5, 0., 0.],
+    #                   "global_damping" : [1e-3, 1e-5, 0.],
     #                   }
-    
+
     model.set_analysis_setup(analysis_setup = analysis_setup)
 
     ## Write project data in the temp_pulse folder

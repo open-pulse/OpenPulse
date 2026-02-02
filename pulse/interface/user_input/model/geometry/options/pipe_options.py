@@ -24,12 +24,18 @@ class PipeOptions(StructureOptions):
         if parameters is None:
             return
 
+        nps = self.cross_section_widget.nps
+        if nps:
+            bending_radius_base = nps
+        else:
+            bending_radius_base = parameters[0] # outside diameter
+
         return dict(
             diameter = parameters[0],
             thickness = parameters[1],
             offset_y=parameters[2],
             offset_z=parameters[3],
-            curvature_radius = self._get_bending_radius(parameters[0]),
+            curvature_radius = self._get_bending_radius(bending_radius_base),
             extra_info = self._get_extra_info(),
         )
 

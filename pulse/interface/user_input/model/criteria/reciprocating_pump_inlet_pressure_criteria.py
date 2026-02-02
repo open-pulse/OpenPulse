@@ -8,7 +8,7 @@ from pulse.interface.user_input.plots.general.frequency_response_plotter import 
 
 from molde import load_ui
 
-from pulse.utils.signal_processing_utils import process_iFFT_of_onesided_spectrum
+from pulse.utils.signal_processing import process_iFFT_of_onesided_spectrum
 
 import numpy as np
 

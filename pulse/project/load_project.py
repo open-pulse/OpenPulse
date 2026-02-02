@@ -61,7 +61,7 @@ class LoadProject:
         self.load_element_properties()
         self.load_nodal_properties()
         #
-        self.load_analysis_file()
+        self.load_analysis_setup()
         self.load_inertia_load_setup()
 
 
@@ -229,7 +229,7 @@ class LoadProject:
             if "section_type_label" in data.keys() and "section_parameters" in data.keys():
                 section_type_label = self.fix_data_for_backwards_compatibility(data)
 
-                if data.get("structure_name") in ["pipe", "bend", "flange"]:
+                if data.get("structure_name") in ["pipe", "bend", "arc_bend", "flange"]:
                     pipe_section_info = {   "section_type_label" : section_type_label,
                                             "section_parameters" : data["section_parameters"]   }
 
@@ -525,17 +525,10 @@ class LoadProject:
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
 
 
-    def load_analysis_file(self):
+    def load_analysis_setup(self):
         analysis_setup = self.project.file.load_analysis_file()
         if isinstance(analysis_setup, dict):
-            self.project.model.set_frequency_setup(analysis_setup)
-            self.project.model.set_global_damping(analysis_setup)
-
-
-    def load_analysis_id(self):
-        analysis_setup = self.project.file.load_analysis_file()
-        if isinstance(analysis_setup, dict):
-            self.project.set_analysis_id(analysis_setup.get("analysis_id", None))
+            self.project.model.set_analysis_setup(analysis_setup)
 
 
     def get_psd_related_lines(self):
@@ -780,8 +773,6 @@ class LoadProject:
                     if len(node_label) == 2:
                         new_key = (property, _elem_id)
                         aux_elements[new_key] = data
-
-                    # print(_elem_id, _element_node, data)
 
         if aux_elements != self.properties.element_properties:
 

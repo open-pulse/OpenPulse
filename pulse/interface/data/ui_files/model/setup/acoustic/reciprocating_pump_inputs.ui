@@ -195,7 +195,7 @@
        </widget>
       </item>
       <item row="0" column="0">
-       <widget class="QPushButton" name="pushButton_cancel">
+       <widget class="QPushButton" name="pushButton_exit">
         <property name="minimumSize">
          <size>
           <width>100</width>
@@ -220,7 +220,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Cancel</string>
+         <string>Exit</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>
@@ -350,7 +350,7 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>0</y>
+                  <y>-464</y>
                   <width>476</width>
                   <height>876</height>
                  </rect>
@@ -1961,7 +1961,7 @@
                        <enum>Qt::StrongFocus</enum>
                       </property>
                       <property name="text">
-                       <string>2541031616.236133</string>
+                       <string>2.541031616e9</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
@@ -2605,7 +2605,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>480</width>
+                  <width>448</width>
                   <height>512</height>
                  </rect>
                 </property>
@@ -4227,7 +4227,7 @@ at suction</string>
   <tabstop>lineEdit_clearance_crank_end</tabstop>
   <tabstop>spinBox_tdc1_crank_angle</tabstop>
   <tabstop>lineEdit_rotational_speed</tabstop>
-  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_exit</tabstop>
   <tabstop>pushButton_confirm</tabstop>
   <tabstop>treeWidget_nodal_info</tabstop>
   <tabstop>pushButton_reset</tabstop>

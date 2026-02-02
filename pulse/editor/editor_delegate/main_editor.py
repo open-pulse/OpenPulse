@@ -18,6 +18,7 @@ from pulse.editor.structures import (
     LinearStructure,
     Fillet,
     Arc,
+    ArcBend,
 )
 from pulse.utils.math_utils import normalize
 
@@ -38,8 +39,11 @@ class MainEditor(Editor):
             return
 
         if issubclass(structure_type, Pipe):
-            return self.add_bent_pipe(deltas, **kwargs)
-        
+            if self.is_bend_allowed(self.pipeline.selected_points):
+                return self.add_bent_pipe(deltas, **kwargs)
+            else:
+                return self.add_pipe(deltas, **kwargs)
+    
         elif issubclass(structure_type, Bend):
             return self.add_bend(**kwargs)
         
@@ -342,3 +346,4 @@ class MainEditor(Editor):
             dangling = False
 
         return vec_a, vec_b, dangling
+    

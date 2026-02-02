@@ -3,14 +3,13 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+from pulse.model import RadiationImpedanceType
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from molde import load_ui
 
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 class RadiationImpedanceInput(QDialog):
     def __init__(self, *args, **kwargs):
@@ -53,7 +52,7 @@ class RadiationImpedanceInput(QDialog):
 
         # QPushButton
         self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
         self.pushButton_search: QPushButton
@@ -69,7 +68,7 @@ class RadiationImpedanceInput(QDialog):
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -91,8 +90,14 @@ class RadiationImpedanceInput(QDialog):
             if len(selected_nodes) == 1:
                 for (_property, *args), data in self.properties.nodal_properties.items():
                     if _property == "radiation_impedance" and selected_nodes == args:
+                                    
+                        if not isinstance(data, dict):
+                            continue
 
-                        impedance_type = data["impedance_type"]
+                        impedance_type = data.get("impedance_type")
+                        if impedance_type is None:
+                            continue
+
                         self.comboBox_radiation_impedance_type.setCurrentIndex(impedance_type)
 
     def tab_event_callback(self):
@@ -108,18 +113,29 @@ class RadiationImpedanceInput(QDialog):
     def load_nodes_info(self):
 
         self.treeWidget_nodal_info.clear()
-        radiation_impedances = ["Anechoic", "Flanged", "Unflanged"]
 
         for (property, *args), data in self.properties.nodal_properties.items():
 
-            if property == "radiation_impedance":
-                index = data["impedance_type"]
-                text = radiation_impedances[index]
+            if not isinstance(data, dict):
+                continue
 
-                new = QTreeWidgetItem([str(args[0]), text])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_nodal_info.addTopLevelItem(new)
+            if property == "radiation_impedance":
+                impedance_type = data.get("impedance_type")
+                if impedance_type is None:
+                    continue
+
+                if isinstance(impedance_type, str):
+                    impedance_text = self.get_radiation_type_text(impedance_type)
+                    impedance_text = impedance_text.capitalize()
+
+                    new = QTreeWidgetItem([str(args[0]), impedance_text])
+                    new.setTextAlignment(0, Qt.AlignCenter)
+                    new.setTextAlignment(1, Qt.AlignCenter)
+                    self.treeWidget_nodal_info.addTopLevelItem(new)
+
+        self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
 
         self.tabWidget_main.setTabVisible(1, False)
         for (property, *args) in self.properties.nodal_properties.keys():
@@ -145,14 +161,24 @@ class RadiationImpedanceInput(QDialog):
             coords = list(np.round(node.coordinates, 5))
 
             data = {
-                    "coords" : coords,
-                    "impedance_type": impedance_type
-                    }
+                "coords" : coords,
+                "impedance_type": impedance_type
+                }
 
             self.properties._set_nodal_property("radiation_impedance", data, node_id)
 
         self.actions_to_finalize()
         print(f"[Set Radiation Impedance] - defined at node(s) {node_ids}")
+
+    def get_radiation_type_text(self, index: int):
+        if index == RadiationImpedanceType.ANECHOIC:
+            return "anechoic"
+        elif index == RadiationImpedanceType.FLANGED:
+            return "flanged"
+        elif index == RadiationImpedanceType.UNFLANGED:
+            return "unflanged"
+        else:
+            return "invalid impedance type"
 
     def text_label(self, value):
         text = ""
@@ -234,7 +260,6 @@ class RadiationImpedanceInput(QDialog):
         app().project.file.write_nodal_properties_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
-        self.pushButton_cancel.setText("Exit")
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -246,4 +271,5 @@ class RadiationImpedanceInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)

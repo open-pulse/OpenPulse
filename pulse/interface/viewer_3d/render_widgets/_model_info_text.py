@@ -1,6 +1,7 @@
 #fmt: off
 
 from pulse import app
+from pulse.model import AnalysisID, RadiationImpedanceType
 from pulse.utils.unit_conversion import mm_to_m
 
 from molde.utils import TreeInfo, format_long_sequence
@@ -25,7 +26,7 @@ def nodes_info_text() -> str:
         node_id, *_ = nodes
         node = preprocessor.nodes[node_id]
         tree = TreeInfo(f"Node {node_id}")
-        tree.add_item(f"Position", "[{:.3f}, {:.3f}, {:.3f}]".format(*node.coordinates), "m")
+        tree.add_item(f"Position", "[{:.4f}, {:.4f}, {:.4f}]".format(*node.coordinates), "m")
         info_text += str(tree)
 
         key = ("prescribed_dofs", node_id)
@@ -99,9 +100,17 @@ def nodes_info_text() -> str:
         key = ("radiation_impedance", node_id)
         if key in properties.nodal_properties.keys():
             data = properties.nodal_properties[key]
-            impedance_type = data["impedance_type"]
-            labels = ["anechoic termination", "flanged pipe", "unflanged pipe"]
-            info_text += _acoustic_format("Radiation impedance", labels[impedance_type], "Type", "")
+
+            impedance_type = data.get("impedance_type")
+            if impedance_type == RadiationImpedanceType.ANECHOIC:
+                impedance_label = "anechoic termination"
+            elif impedance_type == RadiationImpedanceType.FLANGED:
+                impedance_label = "flanged pipe"
+            elif impedance_type == RadiationImpedanceType.UNFLANGED:
+                impedance_label = "unflanged pipe"
+
+            if isinstance(impedance_type, str):
+                info_text += _acoustic_format("Radiation impedance", impedance_label, "Type", "")
 
         key = ("reciprocating_compressor_excitation", node_id)
         if key in properties.nodal_properties.keys():
@@ -135,11 +144,11 @@ def elements_info_text() -> str:
 
         tree = TreeInfo(f"ELEMENT {_id}")
         tree.add_item( f"First Node - {first_node.external_index:>5}",
-                        "[{:.3f}, {:.3f}, {:.3f}]".format(*first_node.coordinates),
+                        "[{:.4f}, {:.4f}, {:.4f}]".format(*first_node.coordinates),
                         "m" )
 
         tree.add_item( f"Last Node  - {last_node.external_index:>5}",
-                        "[{:.3f}, {:.3f}, {:.3f}]".format(*last_node.coordinates),
+                        "[{:.4f}, {:.4f}, {:.4f}]".format(*last_node.coordinates),
                         "m" )
 
         info_text += str(tree)
@@ -178,7 +187,7 @@ def lines_info_text() -> str:
             line_length = mm_to_m(project.model.mesh.curve_length[line])
             total_length += line_length
         
-        info_text += f"TOTAL LENGTH: {total_length : .3f} [m]\n\n"
+        info_text += f"TOTAL LENGTH: {total_length : .6f} [m]\n\n"
 
     elif len(lines) == 1:
 
@@ -186,11 +195,9 @@ def lines_info_text() -> str:
 
         properties = project.model.properties
         length = mm_to_m(project.model.mesh.curve_length[line_id])
+        radius_of_curvature = properties._get_property("curvature_radius", line_id=line_id)
 
-        # info_text += f"LINE {line_id}\n"
-        # info_text += f"Length: {length : .3f} [m]\n\n"
-
-        info_text += line_info_text(line_id, length)
+        info_text += line_info_text(line_id, length, radius_of_curvature)
 
         material = properties._get_property("material", line_id=line_id)
         if material is not None:
@@ -220,10 +227,13 @@ def lines_info_text() -> str:
 
     return info_text
 
-def line_info_text(line_id, length):
+def line_info_text(line_id, length, radius_of_curvature):
     tree = TreeInfo("Line")
     tree.add_item("Identifier", line_id)
-    tree.add_item("Length", f"{length : .4f}", "m")
+    tree.add_item("Length", f"{length : .6f}", "m")
+    if radius_of_curvature is not None:
+        tree.add_item("Radius of curvature", f"{radius_of_curvature : .6f}", "m")
+
     return str(tree)
 
 def material_info_text(material) -> str:
@@ -347,11 +357,18 @@ def analysis_info_text(frequency_index: int):
     project = app().project
     tree = TreeInfo(project.analysis_type_label)
 
-    if project.analysis_id in [2, 4]:
-        if project.analysis_type_label == "Structural Modal Analysis":
+    if not project.is_the_solution_finished():
+        return ""
+
+    if project.analysis_id in [
+        AnalysisID.STRUCTURAL_MODAL,
+        AnalysisID.ACOUSTIC_MODAL,
+        ]:
+
+        if project.analysis_id == AnalysisID.STRUCTURAL_MODAL:
             frequencies = list(project.natural_frequencies_structural)
 
-        if project.analysis_type_label == "Acoustic Modal Analysis":
+        if project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
             if isinstance(project.complex_natural_frequencies_acoustic, np.ndarray):
                 frequencies = list(project.complex_natural_frequencies_acoustic)
             else:
@@ -386,11 +403,11 @@ def analysis_info_text(frequency_index: int):
         if frequency_index >= len(frequencies):
             return ""
 
-        if project.analysis_method_label is not None:
-            tree.add_item("Method", project.analysis_method_label)
+        if project.analysis_method is not None:
+            tree.add_item("Method", project.analysis_method.replace("_", " "))
 
         frequency = frequencies[frequency_index]
-        tree.add_item("Frequency", f"{frequency:.2f}", "Hz")
+        tree.add_item("Frequency", f"{frequency : .4f}", "Hz")
 
     return str(tree)
 

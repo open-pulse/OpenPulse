@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QCheckBox, QComboBox, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QStackedWidget, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
@@ -342,7 +342,6 @@ class AcousticElementTypeInput(QDialog):
 
     def actions_to_finalize(self):
         app().project.file.write_line_properties_in_file()
-        self.pushButton_exit.setText("Exit")
         self.complete = True
         self.close()
 
@@ -490,4 +489,5 @@ class AcousticElementTypeInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)

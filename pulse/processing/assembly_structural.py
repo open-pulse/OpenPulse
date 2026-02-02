@@ -264,7 +264,7 @@ class AssemblyStructural:
         Cr_lump  : list
             List of lumped damping matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
 
-        flag_Clump  : boll
+        flag_Clump  : bool
             This flag returns True if the damping matrices are non zero, and False otherwise.
         """
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
@@ -390,7 +390,7 @@ class AssemblyStructural:
             Static pressure difference between atmosphere and the fluid in the pipeline.
             Default is 0.
 
-        loads_matrix3D : boll, optional
+        loads_matrix3D : bool, optional
             
             Default is False.
 
@@ -422,7 +422,7 @@ class AssemblyStructural:
             Static pressure difference between atmosphere and the fluid in the pipeline.
             Default is 0.
 
-        loads_matrix3D : boll, optional
+        loads_matrix3D : bool, optional
             
             Default is False.
 
@@ -487,7 +487,7 @@ class AssemblyStructural:
             Static pressure difference between atmosphere and the fluid in the pipeline.
             Default is 0.
 
-        loads_matrix3D : boll, optional
+        loads_matrix3D : bool, optional
             
             Default is False.
 
@@ -577,7 +577,7 @@ class AssemblyStructural:
             Static pressure difference between atmosphere and the fluid in the pipeline.
             Default is 0.
 
-        loads_matrix3D : boll, optional
+        loads_matrix3D : bool, optional
             
             Default is False.
 

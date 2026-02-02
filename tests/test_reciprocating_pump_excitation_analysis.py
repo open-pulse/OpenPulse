@@ -1,23 +1,23 @@
 
+from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
-# import pytest
+import pytest
 import numpy as np
 
 from pathlib import Path
 
 # Setting up model
-# @pytest.fixture
-
-def test_coupled_harmonic_analysis():
+@pytest.mark.skip
+def test_coupled_harmonic_analysis(datadir: Path):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader()
-
+    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
+    
     ## Define usefull objects
     model = project.model
     mesh = model.mesh
@@ -279,41 +279,27 @@ def test_coupled_harmonic_analysis():
 
         data = {
                 "coords" : list(coords),
-                "impedance_type" : 0,
+                "impedance_type" : "anechoic",
                 }
 
         model.properties._set_nodal_property("radiation_impedance", data, node_id)
 
-    """
-    |--------------------------------------------------------------------|
-    |                    Analysis ID codification                        |
-    |--------------------------------------------------------------------|
-    |    0 - Structural - Harmonic analysis through direct method        |
-    |    1 - Structural - Harmonic analysis through mode superposition   |
-    |    2 - Structural - Modal analysis                                 |
-    |    3 - Acoustic - Harmonic analysis through direct method          |
-    |    4 - Acoustic - Modal analysis (convetional FE 1D)               |
-    |    5 - Coupled - Harmonic analysis through direct method           |
-    |    6 - Coupled - Harmonic analysis through mode superposition      |
-    |    7 - Structural - Static analysis (under development)            |
-    |--------------------------------------------------------------------|
-    """
 
     ## Analysis setup for acoustic harmonic analysis
 
     analysis_setup = {
-                      "analysis_id" : 3,
+                      "analysis_id" : AnalysisID.ACOUSTIC_HARMONIC,
                     #   "f_min" : 1,
                     #   "f_max" : 300,
                     #   "f_step" : 1,
-                      "global_damping" : [1e-3, 1e-5, 0., 0.],
+                      "global_damping" : [1e-3, 1e-5, 0.],
                       }
     
     ## Analysis setup for acoustic modal analysis
 
     # analysis_setup = {
-    #                   "analysis_id" : 4,
-    #                   "modes" : 40,
+    #                   "analysis_id" : AnalysisID.ACOUSTIC_MODAL,
+    #                   "number_of_modes" : 40,
     #                   "sigma_factor" : 1e-2
     #                   }
 

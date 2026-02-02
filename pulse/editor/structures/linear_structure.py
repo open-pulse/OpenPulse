@@ -9,7 +9,7 @@ import numpy as np
 
 class LinearStructure(Structure):
     """
-    Abstract class to handle structures represented by a stright line.
+    Abstract class to handle structures represented by a straight line.
     """
 
     start: Point

@@ -105,14 +105,12 @@ def load_default_reciprocating_pump_setup(crank_angle = 0):
 #             np.savetxt(f"teste_crank_end_{angle}.dat", data_CE, delimiter=",")       
 
 
-def test_suction_flow_rate():
-    # return
-
+def test_suction_flow_rate(smooth_data: bool=False):
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
     reciprocating_pump.number_points = 1024
 
-    flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('in_flow', smooth_data=False)
+    flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('in_flow', smooth_data=smooth_data)
     if flow_rate is None:
         return
 
@@ -144,14 +142,12 @@ def test_suction_flow_rate():
     plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
 
 
-def test_discharge_flow_rate():
-    # return
-
+def test_discharge_flow_rate(smooth_data: bool=False):
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
     reciprocating_pump.number_points = 3600
 
-    flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('out_flow', smooth_data=False)
+    flow_rate = reciprocating_pump.process_sum_of_volumetric_flow_rate('out_flow', smooth_data=smooth_data)
     if flow_rate is None:
         return
 
@@ -213,8 +209,8 @@ def check_angles():
     reciprocating_pump.get_cycles_boundary_data(acting_label="HE")
 
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
     # test_PV_diagram(print_log=True, export_data=True)
-    # test_suction_flow_rate()
-    # test_discharge_flow_rate()
+    test_suction_flow_rate(smooth_data=True)
+    test_discharge_flow_rate(smooth_data=True)
     # check_angles()

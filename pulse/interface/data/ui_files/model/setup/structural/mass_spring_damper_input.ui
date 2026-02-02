@@ -4314,7 +4314,7 @@
                  </widget>
                 </item>
                 <item row="0" column="0">
-                 <widget class="QPushButton" name="pushButton_cancel">
+                 <widget class="QPushButton" name="pushButton_exit">
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
@@ -4336,7 +4336,7 @@
                    <string notr="true"/>
                   </property>
                   <property name="text">
-                   <string>Cancel</string>
+                   <string>Exit</string>
                   </property>
                   <property name="autoDefault">
                    <bool>false</bool>
@@ -4856,7 +4856,7 @@
   <tabstop>lineEdit_path_table_Crz</tabstop>
   <tabstop>pushButton_load_Crz_table</tabstop>
   <tabstop>pushButton_attribute</tabstop>
-  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_exit</tabstop>
   <tabstop>tabWidget_main</tabstop>
   <tabstop>tabWidget_inputs</tabstop>
   <tabstop>tabWidget_constant_values</tabstop>

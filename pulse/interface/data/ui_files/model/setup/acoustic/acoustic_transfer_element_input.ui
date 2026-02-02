@@ -266,6 +266,9 @@
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the spreadsheet fle to import the acoustic transfer element data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
@@ -286,6 +289,19 @@
              </item>
              <item row="0" column="0">
               <spacer name="horizontalSpacer_7">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="3">
+              <spacer name="horizontalSpacer_8">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
                </property>
@@ -321,6 +337,9 @@
                  <bold>false</bold>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the spreadsheet fle to import the acoustic transfer element data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
@@ -328,19 +347,6 @@
                 <set>Qt::AlignCenter</set>
                </property>
               </widget>
-             </item>
-             <item row="0" column="3">
-              <spacer name="horizontalSpacer_8">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
              </item>
             </layout>
            </widget>
@@ -384,36 +390,6 @@
              <property name="verticalSpacing">
               <number>2</number>
              </property>
-             <item row="1" column="2">
-              <widget class="QLineEdit" name="lineEdit_output_node_id">
-               <property name="minimumSize">
-                <size>
-                 <width>120</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true"/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
              <item row="0" column="2">
               <widget class="QComboBox" name="comboBox_data_type">
                <property name="minimumSize">
@@ -454,58 +430,18 @@
                </item>
               </widget>
              </item>
-             <item row="0" column="3">
-              <widget class="QFrame" name="frame_6">
-               <property name="minimumSize">
+             <item row="0" column="0">
+              <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
-                 <height>30</height>
+                 <height>20</height>
                 </size>
                </property>
-               <property name="maximumSize">
-                <size>
-                 <width>40</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLabel" name="label_10">
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>120</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <family>MS Shell Dlg 2</family>
-                 <pointsize>10</pointsize>
-                 <weight>50</weight>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Output node ID:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
+              </spacer>
              </item>
              <item row="0" column="1">
               <widget class="QLabel" name="label_2">
@@ -547,19 +483,6 @@
                </property>
               </spacer>
              </item>
-             <item row="0" column="0">
-              <spacer name="horizontalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
              <item row="2" column="1">
               <widget class="QLabel" name="label_15">
                <property name="minimumSize">
@@ -588,39 +511,6 @@
                </property>
                <property name="alignment">
                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QLineEdit" name="lineEdit_input_node_id">
-               <property name="minimumSize">
-                <size>
-                 <width>120</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>150</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <pointsize>10</pointsize>
-                 <weight>50</weight>
-                 <italic>false</italic>
-                 <bold>false</bold>
-                </font>
-               </property>
-               <property name="styleSheet">
-                <string notr="true"/>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -668,6 +558,122 @@
                </property>
                <property name="flat">
                 <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="2">
+              <widget class="QLineEdit" name="lineEdit_input_node_id">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>150</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="3">
+              <widget class="QFrame" name="frame_6">
+               <property name="minimumSize">
+                <size>
+                 <width>40</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>40</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="2">
+              <widget class="QLineEdit" name="lineEdit_output_node_id">
+               <property name="minimumSize">
+                <size>
+                 <width>120</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>150</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QLabel" name="label_10">
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>120</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>MS Shell Dlg 2</family>
+                 <pointsize>10</pointsize>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Output node ID:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
@@ -745,7 +751,7 @@
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QPushButton" name="pushButton_cancel">
+              <widget class="QPushButton" name="pushButton_exit">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -771,7 +777,7 @@
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Cancel</string>
+                <string>Exit</string>
                </property>
                <property name="flat">
                 <bool>false</bool>

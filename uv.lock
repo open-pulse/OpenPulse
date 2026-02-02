@@ -263,6 +263,19 @@ wheels = [
 ]
 
 [[package]]
+name = "fastexcel"
+version = "0.19.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0d/c8/3b09911348e9c64dbf41096d3e8f0e93c141a23990ec9f32514111bd5f55/fastexcel-0.19.0.tar.gz", hash = "sha256:216c3719ee90963bd93a0bf8c10b177233046ac975b67651152fdaedd3c99aa1", size = 60323, upload-time = "2026-01-20T11:17:37.253Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d1/e0/3820e93ea606549cfddb8c437141dd69f2b245e74785efc8bd7511ba909d/fastexcel-0.19.0-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:68601072a0b4b4277c165b68f1055f88ef7ffe7ed6f08c1eeda0f0271e3f7da0", size = 3082362, upload-time = "2026-01-20T11:17:27.157Z" },
+    { url = "https://files.pythonhosted.org/packages/66/0f/b42dc09515879192919942157292912393584045fd8bad98bd92961d4c30/fastexcel-0.19.0-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:c8a87d94445678e7e3f46a6aa39d2afaee5b88a983ec3661143a6488d8955f44", size = 2864365, upload-time = "2026-01-20T11:17:28.786Z" },
+    { url = "https://files.pythonhosted.org/packages/8e/4a/bc358b20fcff64b4c14ff7d7a0e1f797792b8b77e30ae755873c02362538/fastexcel-0.19.0-cp310-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:e94fc1be6642555f277af792c22a9f80ec9b4d640d9690f00abb822b6d865069", size = 3186426, upload-time = "2026-01-20T11:17:19.087Z" },
+    { url = "https://files.pythonhosted.org/packages/58/ae/d2ffdc5ad14190153e2422fc90a1052a4b0c3086d24cb8ae8967575321d8/fastexcel-0.19.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:334f9f40cd68b5924a712b6c104949757a0b8ad8a7e3fa3f3fad1c1ebc00258b", size = 3365628, upload-time = "2026-01-20T11:17:21.116Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/67/5f6d4e7760dc3dd8244cd124dabdd5bb7622bf1197edcc2513648847690e/fastexcel-0.19.0-cp310-abi3-win_amd64.whl", hash = "sha256:fbbdf9de79c3ef3572809bb187927c0dc5840968ffe513ea015a383024b7c6b0", size = 2905173, upload-time = "2026-01-20T11:17:33.687Z" },
+]
+
+[[package]]
 name = "fileboxes"
 version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -931,10 +944,11 @@ wheels = [
 
 [[package]]
 name = "pulse"
-version = "2.0.11"
+version = "2.0.12"
 source = { editable = "." }
 dependencies = [
     { name = "ctrefprop" },
+    { name = "fastexcel" },
     { name = "fileboxes" },
     { name = "gmsh" },
     { name = "h5py" },
@@ -959,12 +973,14 @@ dev = [
     { name = "isort" },
     { name = "pyinstaller" },
     { name = "pytest" },
+    { name = "pytest-datadir" },
     { name = "tuna" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "ctrefprop", specifier = ">=0.10.2,<0.11" },
+    { name = "fastexcel", specifier = ">=0.19.0" },
     { name = "fileboxes", specifier = ">=0.1.4,<0.2" },
     { name = "gmsh", specifier = ">=4.13.1,<5" },
     { name = "h5py", specifier = ">=3.12.1,<4" },
@@ -989,6 +1005,7 @@ dev = [
     { name = "isort", specifier = ">=5.12.0,<6" },
     { name = "pyinstaller", marker = "python_full_version >= '3.10' and python_full_version < '3.14'", specifier = ">=6.4.0,<7" },
     { name = "pytest", specifier = ">=7.4.1,<8" },
+    { name = "pytest-datadir", specifier = ">=1.7.2,<2" },
     { name = "tuna", specifier = ">=0.5.11,<0.6" },
 ]
 
@@ -1174,6 +1191,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/80/1f/9d8e98e4133ffb16c90f3b405c43e38d3abb715bb5d7a63a5a684f7e46a3/pytest-7.4.4.tar.gz", hash = "sha256:2cf0005922c6ace4a3e2ec8b4080eb0d9753fdc93107415332f50ce9e7994280", size = 1357116, upload-time = "2023-12-31T12:00:18.035Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/51/ff/f6e8b8f39e08547faece4bd80f89d5a8de68a38b2d179cc1c4490ffa3286/pytest-7.4.4-py3-none-any.whl", hash = "sha256:b090cdf5ed60bf4c45261be03239c2c1c22df034fbffe691abe93cd80cea01d8", size = 325287, upload-time = "2023-12-31T12:00:13.963Z" },
+]
+
+[[package]]
+name = "pytest-datadir"
+version = "1.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pytest" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b4/46/db060b291999ca048edd06d6fa9ee95945d088edc38b1172c59eeb46ec45/pytest_datadir-1.8.0.tar.gz", hash = "sha256:7a15faed76cebe87cc91941dd1920a9a38eba56a09c11e9ddf1434d28a0f78eb", size = 11848, upload-time = "2025-07-30T13:52:12.518Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8f/7a/33895863aec26ac3bb5068a73583f935680d6ab6af2a9567d409430c3ee1/pytest_datadir-1.8.0-py3-none-any.whl", hash = "sha256:5c677bc097d907ac71ca418109adc3abe34cf0bddfe6cf78aecfbabd96a15cf0", size = 6512, upload-time = "2025-07-30T13:52:11.525Z" },
 ]
 
 [[package]]

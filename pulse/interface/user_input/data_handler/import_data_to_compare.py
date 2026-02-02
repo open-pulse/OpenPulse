@@ -65,7 +65,7 @@ class ImportDataToCompare(QDialog):
 
         # PushButton
         self.pushButton_add_imported_data_to_plot: QPushButton
-        self.pushButton_cancel: QPushButton
+        self.pushButton_exit: QPushButton
         self.pushButton_reset_imported_data: QPushButton
         self.pushButton_search_file_to_import: QPushButton
 
@@ -81,7 +81,7 @@ class ImportDataToCompare(QDialog):
         self.checkBox_skiprows.clicked.connect(self.update_skiprows_visibility)
         #
         self.pushButton_search_file_to_import.clicked.connect(self.choose_path_to_import_results)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_reset_imported_data.clicked.connect(self.reset_imported_data)
         self.pushButton_add_imported_data_to_plot.clicked.connect(self.add_imported_data_to_plot)
         #
@@ -130,27 +130,32 @@ class ImportDataToCompare(QDialog):
 
         try:
 
+            run = True
             message = ""
 
-            run = True
+            skiprows = 0
+            maximum_lines_to_skip = 100
+
             if self.checkBox_skiprows.isChecked():
                 skiprows = self.spinBox_skiprows.value()
-            else:
-                skiprows = 0
-            maximum_lines_to_skip = 100
             
             while run:
                 try:
                     sufix = Path(imported_path).suffix
                     filename = os.path.basename(imported_path)
                     if sufix in [".txt", ".dat", ".csv"]:
-                        loaded_data = np.loadtxt(imported_path, 
-                                                 delimiter = ",", 
-                                                 skiprows = skiprows)
+                        loaded_data = np.loadtxt(
+                            imported_path, 
+                            delimiter = ",", 
+                            skiprows = skiprows,
+                            )
+
                         key = self.get_data_index()
-                        self.imported_results[key] = {  "data" : loaded_data,
-                                                        "filename" : filename,
-                                                        "extension" : sufix  }
+                        self.imported_results[key] = {  
+                            "data" : loaded_data,
+                            "filename" : filename,
+                            "extension" : sufix,
+                            }
 
                     elif sufix in [".xls", ".xlsx"]:
                         wb = load_workbook(imported_path)
@@ -171,10 +176,13 @@ class ImportDataToCompare(QDialog):
                                                         ).to_numpy()
 
                             key = self.get_data_index()
-                            self.imported_results[key] = {  "data" : sheet_data,
-                                                            "filename" : filename,
-                                                            "sheetname" : sheetname,
-                                                            "extension" : sufix  }
+
+                            self.imported_results[key] = {  
+                                "data" : sheet_data,
+                                "filename" : filename,
+                                "sheetname" : sheetname,
+                                "extension" : sufix  
+                                }
 
                     self.spinBox_skiprows.setValue(int(skiprows))
                     run = False

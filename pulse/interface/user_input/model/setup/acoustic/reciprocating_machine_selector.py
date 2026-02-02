@@ -10,9 +10,6 @@ from molde import load_ui
 import numpy as np
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
 class ReciprocatingMachineSelector(QDialog):
     def __init__(self, machine_type: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -148,4 +145,5 @@ class ReciprocatingMachineSelector(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
