@@ -723,8 +723,7 @@ class PrescribedDofsInput(QDialog):
 
         tab_list = self.tabWidget_prescribed_dofs.currentIndex() == TabType.LIST
         self.lineEdit_node_ids.setDisabled(tab_list)
-        self.pushButton_exit_tab0.setDisabled(tab_list)
-        self.pushButton_exit_tab1.setDisabled(tab_list)
+        self.pushButton_attribute.setDisabled(tab_list)
         self.pushButton_remove.setDisabled(True)
 
         if not tab_list:
