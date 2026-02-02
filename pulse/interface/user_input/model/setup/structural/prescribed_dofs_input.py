@@ -177,8 +177,7 @@ class PrescribedDofsInput(QDialog):
         self.pushButton_load_rz_table: QPushButton
         self.pushButton_remove: QPushButton
         self.pushButton_reset: QPushButton
-        self.pushButton_constant_value_confirm: QPushButton
-        self.pushButton_table_values_confirm: QPushButton
+        self.pushButton_attribute: QPushButton
         self.pushButton_all_dof_free: QPushButton
         self.pushButton_all_dof_fixed: QPushButton
 
@@ -216,9 +215,7 @@ class PrescribedDofsInput(QDialog):
     def _create_connections(self):
         #
         self.pushButton_exit_tab0.clicked.connect(self.close)
-        self.pushButton_exit_tab1.clicked.connect(self.close)
-        self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
-        self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
+        self.pushButton_attribute.clicked.connect(self.attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_load_ux_table.clicked.connect(self.load_ux_table)
         self.pushButton_load_uy_table.clicked.connect(self.load_uy_table)
@@ -620,6 +617,13 @@ class PrescribedDofsInput(QDialog):
         self.actions_to_finalize()
         print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")
 
+    def attribution_callback(self):
+        if self.tabWidget_prescribed_dofs.currentIndex() == TabType.CONSTANT:
+            self.constant_values_attribution_callback()
+
+        elif self.tabWidget_prescribed_dofs.currentIndex() == TabType.TABULAR:
+            self.table_values_attribution_callback()
+
     def all_dof_free_callback(self):
         for combobox in self.value_comboboxes:
             combobox.setCurrentIndex(DOFSetup.FREE)
@@ -865,12 +869,7 @@ class PrescribedDofsInput(QDialog):
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_prescribed_dofs.currentIndex() == TabType.CONSTANT:
-                self.constant_values_attribution_callback()
-
-            elif self.tabWidget_prescribed_dofs.currentIndex() == TabType.TABULAR:
-                self.table_values_attribution_callback()
-
+            self.attribution_callback()
         elif event.key() == Qt.Key_Delete:
             self.remove_callback()
 
