@@ -217,5 +217,6 @@ class ResultsViewerWidget(QWidget):
             app().main_window.plot_results()
             app().main_window.render_tools_toolbar.hide_selection_tool()
             app().main_window.use_base_render_tool = True
+        
+        app().main_window.results_widget.update_render_tool_according_to_results_viewer_widget(has_selection = set_by in ["nodes", "lines"])
 
-        app().main_window.results_widget.set_default_render_tool(base_tool = set_by not in ["nodes", "lines"])

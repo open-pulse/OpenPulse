@@ -688,15 +688,24 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_actor.GetProperty().SetColor(0.5, 0.5, 0.5)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
+
+    def update_render_tool_according_to_results_viewer_widget(self, has_selection = True):
+        if has_selection and type(self.interactor_style) is RenderTool:
+            tool = SelectionTool()
+        elif not has_selection and type(self.interactor_style) is SelectionTool:
+            tool = RenderTool()
+        else:
+            tool = self.interactor_style
+
+        self.set_interactor_style(tool)
+
+        if hasattr(tool, "current_cursor"):
+            tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)
     
     def add_render_tool(self, tool_class):
         super().add_render_tool(tool_class)
     
     def set_default_render_tool(self, base_tool = False):
-        if not base_tool:
-            tool = SelectionTool()
-        else:
-            tool = RenderTool()
-
+        tool = RenderTool()
         self.set_interactor_style(tool)
         tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)
