@@ -4,6 +4,8 @@ from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.data_handler.file_manager import FileManager
+from pulse.interface.user_input.data_handler.imported_file import ImportedFile
 
 from molde import load_ui
 
@@ -42,7 +44,7 @@ class ImportDataToCompare(QDialog):
         self.keep_window_open = True
         self.imported_data = None
 
-        self.imported_results = dict()
+        self.imported_results: dict[int, ImportedFile] = dict()
         self.ids_to_checkBox = dict()
         self.checkButtons_state = dict()
 
@@ -80,7 +82,7 @@ class ImportDataToCompare(QDialog):
         #
         self.checkBox_skiprows.clicked.connect(self.update_skiprows_visibility)
         #
-        self.pushButton_search_file_to_import.clicked.connect(self.choose_path_to_import_results)
+        self.pushButton_search_file_to_import.clicked.connect(self.import_results)
         self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_reset_imported_data.clicked.connect(self.reset_imported_data)
         self.pushButton_add_imported_data_to_plot.clicked.connect(self.add_imported_data_to_plot)
@@ -100,109 +102,22 @@ class ImportDataToCompare(QDialog):
     def update_skiprows_visibility(self):
         self.spinBox_skiprows.setDisabled(not self.checkBox_skiprows.isChecked())
 
-    def choose_path_to_import_results(self):
+    def import_results(self):
 
-        path = app().config.get_last_folder_for("imported_data_folder")
-        if path is None:
-            folder_path = os.path.expanduser("~")
-        else:
-            folder_path = path
+        last_folder = "imported_data_folder"
+        file_extensions = ["csv", "dat", "txt", "xlsx", "xls"]
 
-        imported_path, check = QFileDialog.getOpenFileName( None, 
-                                                            'Open file', 
-                                                            folder_path, 
-                                                            'Files (*.csv *.dat *.txt *.xlsx *.xls)' )
+        imported_file = FileManager.import_single_file(last_folder, file_extensions)
 
-        if not check:
-            return
-
-        app().config.write_last_folder_path_in_file("imported_data_folder", imported_path)
-
-        self.import_name = os.path.basename(imported_path)
-        self.lineEdit_import_results_path.setText(imported_path)
-
-        self.import_results(imported_path)
-        self.update_treeWidget_info()
-
-    def import_results(self, imported_path: str):
-        from polars import read_excel
-        from openpyxl import load_workbook
-
-        try:
-
-            run = True
-            message = ""
-
-            skiprows = 0
-            maximum_lines_to_skip = 100
-
-            if self.checkBox_skiprows.isChecked():
-                skiprows = self.spinBox_skiprows.value()
-            
-            while run:
-                try:
-                    sufix = Path(imported_path).suffix
-                    filename = os.path.basename(imported_path)
-                    if sufix in [".txt", ".dat", ".csv"]:
-                        loaded_data = np.loadtxt(
-                            imported_path, 
-                            delimiter = ",", 
-                            skiprows = skiprows,
-                            )
-
-                        key = self.get_data_index()
-                        self.imported_results[key] = {  
-                            "data" : loaded_data,
-                            "filename" : filename,
-                            "extension" : sufix,
-                            }
-
-                    elif sufix in [".xls", ".xlsx"]:
-                        wb = load_workbook(imported_path)
-                        sheetnames = wb.sheetnames
-                        for sheetname in sheetnames:
-
-                            try:
-                                sheet_data = read_excel(
-                                                        imported_path, 
-                                                        sheet_name = sheetname, 
-                                                        columns = [0,1,2]
-                                                        ).to_numpy()
-                            except:
-                                sheet_data = read_excel(
-                                                        imported_path, 
-                                                        sheet_name = sheetname, 
-                                                        columns = [0,1]
-                                                        ).to_numpy()
-
-                            key = self.get_data_index()
-
-                            self.imported_results[key] = {  
-                                "data" : sheet_data,
-                                "filename" : filename,
-                                "sheetname" : sheetname,
-                                "extension" : sufix  
-                                }
-
-                    self.spinBox_skiprows.setValue(int(skiprows))
-                    run = False
-
-                except:
-                    skiprows += 1
-                    if skiprows >= maximum_lines_to_skip:
-                        run = False
-                        title = "Error while loading data from file"
-                        message = "The maximum number of rows to skip has been reached and no valid data has "
-                        message += "been found. Please, verify the data in the imported file to proceed."
-                        message += "Maximum number of header rows: 100"
-
-        except Exception as log_error:
-            title = "Error while loading data from file"
-            message = str(log_error)
+        if not imported_file:
             return
         
-        if message != "":
-            PrintMessageInput([window_title_1, title, message])
+        self.lineEdit_import_results_path.setText(imported_file.filename)
+
+        key = self.get_data_index()
+        self.imported_results[key] = imported_file
+
+        self.update_treeWidget_info()
 
     def update_treeWidget_info(self):
         self.cache_checkButtons_state()
@@ -210,7 +125,7 @@ class ImportDataToCompare(QDialog):
         self.treeWidget_import_sheet_files.clear()
         #
         if len(self.imported_results) > 0:
-            for i, (id, data) in enumerate(self.imported_results.items()):
+            for i, (id, file) in enumerate(self.imported_results.items()):
                 # Creates the QCheckButtons to control data to be plotted
                 self.ids_to_checkBox[id] = QCheckBox()
                 self.ids_to_checkBox[id].setStyleSheet("margin-left:40%; margin-right:50%;")
@@ -218,12 +133,12 @@ class ImportDataToCompare(QDialog):
                 if id in self.checkButtons_state.keys():
                     self.ids_to_checkBox[id].setChecked(self.checkButtons_state[id])
 
-                if "sheetname" in data.keys():
-                    _item = QTreeWidgetItem([str(data["filename"]), str(data["sheetname"])])
+                if file.sheetname:
+                    _item = QTreeWidgetItem([file.filename, file.sheetname])
                     self.treeWidget_import_sheet_files.addTopLevelItem(_item)
                     self.treeWidget_import_sheet_files.setItemWidget(_item, 2, self.ids_to_checkBox[id])
                 else:
-                    _item = QTreeWidgetItem([str(data["filename"])])
+                    _item = QTreeWidgetItem(file.filename)
                     self.treeWidget_import_text_files.addTopLevelItem(_item)
                     self.treeWidget_import_text_files.setItemWidget(_item, 1, self.ids_to_checkBox[id])                  
 
@@ -231,17 +146,7 @@ class ImportDataToCompare(QDialog):
                     _item.setTextAlignment(i, Qt.AlignCenter)
 
     def get_data_index(self):
-        index = 1
-        run = True
-        while run:
-            # if index in self.plotter.model_results_data.keys() or index in self.imported_results.keys():
-            if index in self.imported_results.keys():
-                index += 1
-            else:
-                key = index
-                run = False
-                
-        return key
+        return len(self.imported_results) + 1
     
     def join_imported_data(self):
         j = 0
@@ -256,7 +161,7 @@ class ImportDataToCompare(QDialog):
                 else:
                     color = np.random.randint(0,255,3)/255
 
-                data = self.imported_results[id]["data"]
+                data = self.imported_results[id].data
                 cols = data.shape[1]
                 x_values = data[:, 0]
                 if cols == 2:
@@ -264,11 +169,11 @@ class ImportDataToCompare(QDialog):
                 else:
                     y_values = data[:, 1] + 1j*data[:, 2]
 
-                if "sheetname" in self.imported_results[id].keys():
-                    sheetname = self.imported_results[id]["sheetname"]
+                if self.imported_results[id].sheetname:
+                    sheetname = self.imported_results[id].sheetname
                     legend_label = f"{sheetname}"
                 else:
-                    legend_label = self.imported_results[id]["filename"]
+                    legend_label = self.imported_results[id].filename
 
                 temp_dict = {   "type" : "imported_data",
                                 "x_data" : x_values,
