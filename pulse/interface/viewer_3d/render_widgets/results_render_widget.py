@@ -69,6 +69,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.current_phase_step = 0
         self._result_min = 0
         self._result_max = 0
+        self.is_complex_result = False
 
         self._animation_color_map = None
         self._animation_current_frequency = None
@@ -125,7 +126,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 unit_label = "Unit: [--]"
 
             deformed = True
-            color_table = self._compute_displacement_field(
+            color_table, self.is_complex_result = self._compute_displacement_field(
                 self.current_frequency_index,
                 self.current_phase_step,
             )
@@ -136,7 +137,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 unit_label = "Unit: [Pa]"
 
             deformed = True
-            color_table = self._compute_stress_field(
+            color_table, self.is_complex_result = self._compute_stress_field(
                 self.current_frequency_index,
                 self.current_phase_step,
             )
@@ -149,7 +150,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
                 unit_label = "Unit: [--]"
 
-            color_table = self._compute_pressure_field(
+            color_table, self.is_complex_result = self._compute_pressure_field(
                 self.current_frequency_index,
                 self.current_phase_step,
             )
@@ -205,6 +206,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         with self.update_lock:
             for frame in range(self._animation_total_frames):
+                if frame in self._animation_cached_data:
+                    continue
+
                 logging.info(f"Caching animation frames [{frame}/{self._animation_total_frames}]")
                 d_theta = 2 * np.pi / self._animation_total_frames
                 phase_step = frame * d_theta
@@ -214,6 +218,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 cached = vtkPolyData()
                 cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
                 self._animation_cached_data[frame] = cached
+                
+                if not self.is_complex_result:
+                    mirrored_frame = self._animation_total_frames - frame - 1
+                    self._animation_cached_data[mirrored_frame] = self._animation_cached_data[frame]
+
         self._animation_current_cycle = 0
 
     def stop_animation(self):
@@ -569,7 +578,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                                  self.colormap,
                                  )
 
-        return color_table
+        is_complex_result = np.imag(solution).any()
+
+        return color_table, is_complex_result
 
     def _compute_stress_field(self, frequency_index, phase_step):
         project = app().project
@@ -596,7 +607,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                                  stress_field_plot = True,
                                  )
 
-        return color_table
+        is_complex_result = np.imag(solution).any()
+
+        return color_table, is_complex_result
 
     def _compute_pressure_field(self, frequency_index, phase_step):
 
@@ -618,7 +631,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                                  pressure_field_plot=True,
                                 )
 
-        return color_table
+        is_complex_result = np.imag(solution).any()
+
+        return color_table, is_complex_result
 
     def _reset_min_max_values(self):
         self.count_cycles = 0
