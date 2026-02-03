@@ -125,12 +125,12 @@ class RenderToolsToolbar(QToolBar):
 
         action.setChecked(True)
     
-    def show_selection_tool(self):
-        self.action_selection_tool.setVisible(True)
+    def enable_selection_tool(self):
+        self.action_selection_tool.setEnabled(True)
         app().main_window.use_base_render_tool = False
 
-    def hide_selection_tool(self):
-        self.action_selection_tool.setVisible(False)
+    def disable_selection_tool(self):
+        self.action_selection_tool.setEnabled(False)
         app().main_window.use_base_render_tool = True
 
 

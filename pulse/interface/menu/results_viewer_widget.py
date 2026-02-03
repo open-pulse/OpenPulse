@@ -206,16 +206,16 @@ class ResultsViewerWidget(QWidget):
             if not (mesh_data or geometry_data):
                 # app().main_window.plot_mesh()
                 app().main_window.plot_geometry_points()
-                app().main_window.render_tools_toolbar.show_selection_tool()
+                app().main_window.render_tools_toolbar.enable_selection_tool()
 
         elif set_by == "lines":
             if not (lines or lines_with_cross_sections):
                 app().main_window.plot_lines_with_cross_sections()
-                app().main_window.render_tools_toolbar.show_selection_tool()
+                app().main_window.render_tools_toolbar.enable_selection_tool()
 
         else:
             app().main_window.plot_results()
-            app().main_window.render_tools_toolbar.hide_selection_tool()
+            app().main_window.render_tools_toolbar.disable_selection_tool()
             app().main_window.use_base_render_tool = True
         
         app().main_window.results_widget.update_render_tool_according_to_results_viewer_widget(has_selection = set_by in ["nodes", "lines"])

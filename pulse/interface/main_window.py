@@ -615,7 +615,7 @@ class MainWindow(QMainWindow):
         self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
         self.animation_toolbar.setDisabled(True)
-        self.render_tools_toolbar.show_selection_tool()
+        self.render_tools_toolbar.enable_selection_tool()
 
         self.action_geometry_editor_workspace.setEnabled(False)
         if not self.action_model_setup_workspace.isEnabled():
@@ -637,7 +637,7 @@ class MainWindow(QMainWindow):
         self.tool_bar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.animation_toolbar.setDisabled(True)
-        self.render_tools_toolbar.show_selection_tool()
+        self.render_tools_toolbar.enable_selection_tool()
 
         self.action_model_setup_workspace.setEnabled(False)
         if not self.action_geometry_editor_workspace.isEnabled():
@@ -658,7 +658,7 @@ class MainWindow(QMainWindow):
         self.results_widget.update_selection()
         self.results_viewer_widget.update_visibility_items()
         self.animation_toolbar.setEnabled(False)    
-        self.render_tools_toolbar.hide_selection_tool()
+        self.render_tools_toolbar.disable_selection_tool()
 
         self.action_results_workspace.setEnabled(False)
         if not self.action_geometry_editor_workspace.isEnabled():
