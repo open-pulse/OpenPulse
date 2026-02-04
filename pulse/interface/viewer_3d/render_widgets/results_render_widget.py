@@ -16,6 +16,9 @@ from pulse.interface.viewer_3d.actors import (
     PointsActor,
     TubeActorResults,
 )
+from pulse.interface.viewer_3d.render_tools import (
+    SelectionTool,
+    RenderTool)
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.postprocessing.plot_acoustic_data import (
@@ -83,6 +86,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.create_scale_bar()
         self.create_logos()
         self.create_color_bar()
+        self.set_default_render_tool()
+
         self.apply_user_preferences()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
@@ -433,6 +438,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if not self._actor_exists():
             return
 
+        if not isinstance(self.interactor_style, SelectionTool):
+            return
+        
+        if not self.interactor_style.is_selecting:
+            return
+
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
         visualization_filter = app().main_window.visualization_filter
@@ -677,3 +688,21 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_actor.GetProperty().SetColor(0.5, 0.5, 0.5)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
+
+    def update_render_tool_according_to_results_viewer_widget(self, has_selection = True):
+        if has_selection and type(self.interactor_style) is RenderTool:
+            tool = SelectionTool()
+        elif not has_selection and type(self.interactor_style) is SelectionTool:
+            tool = RenderTool()
+        else:
+            tool = self.interactor_style
+
+        self.set_interactor_style(tool)
+
+        if hasattr(tool, "current_cursor"):
+            tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)
+    
+    def set_default_render_tool(self, base_tool = False):
+        tool = RenderTool()
+        self.set_interactor_style(tool)
+        tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)
