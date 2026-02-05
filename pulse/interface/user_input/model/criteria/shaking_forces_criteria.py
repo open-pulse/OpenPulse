@@ -55,18 +55,7 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
             #     self.structural_solver.solution = app().project.structural_solution
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_force_Fx : QCheckBox
-        self.checkBox_force_Fy : QCheckBox
-        self.checkBox_force_Fz : QCheckBox
-        self.checkBox_resultant_force : QCheckBox
-
-        # QLineEdit
-        self.lineEdit_selection_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_confirm : QPushButton
+        pass
 
     def _create_connections(self):
         self.pushButton_confirm.clicked.connect(self.plot_force_spectrum)

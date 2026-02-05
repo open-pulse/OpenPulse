@@ -46,31 +46,7 @@ class StressStiffeningInput(StressStiffeningInput_UI):
         self.keep_window_open = True
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type: QComboBox
-
-        # QLabel
-        self.label_attribute_to: QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_external_pressure: QLineEdit
-        self.lineEdit_internal_pressure: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_remove: QPushButton
-
-        # QTabWidget
-        self.tabWidget_groups: QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_stress_stiffening: QTreeWidget
+        pass
 
     def _create_connections(self):
         #

@@ -93,42 +93,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.fluid_to_row = dict()
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_temperature_units : QComboBox
-        self.comboBox_pressure_units : QComboBox
-
-        # QLabel
-        self.label_selected_fluid : QLabel
-        self.label_title_remaining_fraction : QLabel
-        self.label_remaining_composition : QLabel
-        self.label_discharge : QLabel
-        self.label_suction : QLabel
-        self.label_spacing : QLabel
-
-        # QLineEdit
-        self.lineEdit_fluid_name : QLineEdit
-        self.lineEdit_temperature : QLineEdit
-        self.lineEdit_pressure : QLineEdit
-        self.lineEdit_pressure_disch : QLineEdit
-        self.lineEdit_temperature_disch : QLineEdit
-        self.lineEdit_temperature_test : QLineEdit
-        self.lineEdit_pressure_test : QLineEdit
-
-        # QPushButton
-        self.pushButton_add_gas : QPushButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_exit : QPushButton
-        self.pushButton_get_fluid_properties_info : QPushButton
-        self.pushButton_load_composition : QPushButton
-        self.pushButton_remove_gas : QPushButton
-        self.pushButton_reset_fluid : QPushButton
-
-        # QTableWidget
-        self.tableWidget_new_fluid : QTableWidget
-
-        # QTreeWidget
-        self.treeWidget_reference_gases : QTreeWidget
+        pass
 
     def _create_connections(self):
         #

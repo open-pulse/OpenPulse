@@ -41,19 +41,7 @@ class ReciprocatingMachineSelector(ReciprocatingPumpSelector_UI):
         self.before_run = app().project.get_pre_solution_model_checks()
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_connection_type: QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_volumetric_flow_rate: QLineEdit
-
-        # QPushButton
-        self.pushButton_select: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_reset_selection: QPushButton
-
-        # QTreeWidget
-        self.treeWidget_reciprocating_machine_data: QTreeWidget
+        pass
 
     def _create_connections(self):
         #

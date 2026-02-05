@@ -42,19 +42,7 @@ class GetInformationOfGroup(GetGroupInformation_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QLabel
-        self.label_selected_id : QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_close : QPushButton
-        self.pushButton_remove : QPushButton
-
-        # QTreeWidget
-        self.treeWidget_group_info : QTreeWidget
+        pass
 
     def _create_connections(self):
         #

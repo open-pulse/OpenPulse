@@ -33,18 +33,7 @@ class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_node_id : QLineEdit
-        self.lineEdit_response_ux : QLineEdit
-        self.lineEdit_response_uy : QLineEdit
-        self.lineEdit_response_uz : QLineEdit
-        self.lineEdit_response_rx : QLineEdit
-        self.lineEdit_response_ry : QLineEdit
-        self.lineEdit_response_rz : QLineEdit
-
-        # QPushButton
-        self.pushButton_reset : QPushButton
+        pass
 
     def _create_connections(self):
         #

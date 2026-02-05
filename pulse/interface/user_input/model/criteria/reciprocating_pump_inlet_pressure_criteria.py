@@ -44,27 +44,9 @@ class ReciprocatingPumpInletPressureCriteriaInput(ReciprocatingPumpInletPressure
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_line_ids: QComboBox
-        self.comboBox_pressure_units: QComboBox
-        self.comboBox_temperature_units: QComboBox
-
-        # QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_fluid_name: QLineEdit
-        self.lineEdit_vapor_pressure : QLineEdit
-        self.lineEdit_temperature: QLineEdit
-        #
         self.lineEdit_fluid_name.setDisabled(True)
         # self.lineEdit_vapor_pressure.setDisabled(True)
         self.lineEdit_temperature.setDisabled(True)
-
-        # QPushButton
-        self.pushButton_plot_criteria : QPushButton
 
     def _create_connections(self):
         #

@@ -55,7 +55,6 @@ class SetCrossSectionInput(SetCrossSection_UI):
         self.section_data_lines = dict()
 
     def _define_qt_variables(self):
-
         # QAction
         self.action_all_lines = QAction(self)
         # self.action_all_lines.setVisible(False)
@@ -63,23 +62,11 @@ class SetCrossSectionInput(SetCrossSection_UI):
         self.action_all_lines.triggered.connect(self.select_all_lines_callback)
         self.addAction(self.action_all_lines)
 
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # QFrame
-        self.main_frame : QFrame
-
         # QGridLayout
         self.grid_layout = self.main_frame.layout()
         self.grid_layout.setContentsMargins(0,0,0,0)
         self.main_frame.setLayout(self.grid_layout)
         self.grid_layout.addWidget(self.cross_section_widget)
-
-        # QLabel
-        self.label_selected_id : QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
 
         # QPushButton
         self.pushButton_exit_pipe = self.cross_section_widget.pushButton_exit_pipe
@@ -397,7 +384,7 @@ class SetCrossSectionInput(SetCrossSection_UI):
                     title = "PSD cross-section edition not allowed"
                     message = "The PSD line sections could not be edited in the cross-section setup interface. "
                     message += "You must switch to the PSD configuration interface for this specific section editing."
-                    PrintMessageInput([window_title_2, title, message])
+                    PrintMessageInput([window_title, title, message])
                     return True
 
     def select_all_lines_callback(self):

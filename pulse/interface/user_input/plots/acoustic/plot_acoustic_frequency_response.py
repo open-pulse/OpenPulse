@@ -36,17 +36,7 @@ class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
 
     def _define_qt_variables(self):
-
-        # QFrame
-        self.frame_denominator : QFrame
-        self.frame_numerator : QFrame
-
-        # QLineEdit
-        self.lineEdit_node_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_data : QPushButton
-        self.pushButton_export_data : QPushButton
+        pass
 
     def _create_connections(self):
         #

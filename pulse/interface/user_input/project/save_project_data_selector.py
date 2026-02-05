@@ -41,18 +41,7 @@ class SaveProjectDataSelector(SaveProjectDataSelector_UI):
         self.complete = False
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_mesh_data : QCheckBox
-        self.checkBox_solution_data : QCheckBox
-
-        # QLineEdit
-        self.lineEdit_required_memory : QLineEdit
         self.lineEdit_required_memory.setDisabled(True)
-
-        # QPushButton
-        self.pushButton_cancel : QPushButton
-        self.pushButton_proceed : QPushButton
 
     def _create_connections(self):
         # QCheckBox

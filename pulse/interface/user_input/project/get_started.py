@@ -48,25 +48,7 @@ class GetStartedInput(GetStartedInput_UI):
         self.setWindowTitle("Get started")
         
     def _define_qt_variables(self):
-
-        # QLabel
-        self.recents_label : QLabel
-        self.project_path_label_1 : QLabel
-        self.project_path_label_2 : QLabel
-        self.project_path_label_3 : QLabel
-        self.project_path_label_4 : QLabel
-        self.project_path_label_5 : QLabel
-
-        # QPushButton
-        self.create_button : QPushButton
-        self.load_button : QPushButton
-        self.about_button : QPushButton
-        self.project_button_1 : QPushButton
-        self.project_button_2 : QPushButton
-        self.project_button_3 : QPushButton
-        self.project_button_4 : QPushButton
-        self.project_button_5 : QPushButton
-        self.reset_list_projects_button : QPushButton
+        pass
 
     def _create_connections(self):
         self.create_button.clicked.connect(self.new_project)

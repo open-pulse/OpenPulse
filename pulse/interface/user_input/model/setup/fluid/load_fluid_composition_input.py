@@ -37,17 +37,7 @@ class LoadFluidCompositionInput(LoadFluidComposition_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_sheet_names : QComboBox
-
-        # QLineEdit
-        self.lineEdit_file_path : QLineEdit
-
-        # QPushButton
-        self.pushButton_exit : QPushButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_search : QPushButton
+        pass
 
     def _create_connections(self):
         self.pushButton_exit.clicked.connect(self.close)

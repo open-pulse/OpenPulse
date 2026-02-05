@@ -41,18 +41,7 @@ class PlotCrossSectionInput(PlotSection_UI):
         self.structural_elements = self.project.model.preprocessor.structural_elements
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_selection : QComboBox
-
-        # QLabel
-        self.label_selected_id : QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_cross_section : QPushButton 
+        pass
 
     def _create_connections(self):
         #

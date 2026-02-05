@@ -36,43 +36,12 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_node_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_data : QPushButton
-        self.pushButton_export_data : QPushButton
-
-        # QRadioButton
-        self.radioButton_Fx : QRadioButton
-        self.radioButton_Fy : QRadioButton
-        self.radioButton_Fz : QRadioButton
-        self.radioButton_Mx : QRadioButton
-        self.radioButton_My : QRadioButton
-        self.radioButton_Mz : QRadioButton
-
         self.list_radioButtons = [  self.radioButton_Fx, 
                                     self.radioButton_Fy, 
                                     self.radioButton_Fz,
                                     self.radioButton_Mx, 
                                     self.radioButton_My, 
                                     self.radioButton_Mz  ]
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-        self.tabWidget_springs_dampers: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_reactions_at_constrained_dofs: QTreeWidget
-        self.treeWidget_reactions_at_dampers: QTreeWidget
-        self.treeWidget_reactions_at_springs: QTreeWidget
-
-        # QWidget
-        self.tab_external_springs_dampers: QWidget
-        self.tab_constrained_dofs: QWidget
-        self.tab_reactions_at_springs: QWidget
-        self.tab_reactions_at_dampers: QWidget
 
     def _create_connections(self):
         #

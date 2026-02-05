@@ -69,53 +69,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
         self.Kryz_filename = None
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_axial_stop_rod: QComboBox
-
-        # QFrame
-        self.selection_frame: QFrame
-
-        # QLabel
-        self.label_selected_id: QLabel
-        self.label_selection: QLabel
-        self.label_axial_lock_criteria: QLabel
-
-        # QLineEdit 
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_expansion_joint_name: QLineEdit
-        #
-        self.lineEdit_effective_diameter: QLineEdit
-        self.lineEdit_joint_mass: QLineEdit
-        self.lineEdit_axial_locking_criteria: QLineEdit
-        #
-        self.lineEdit_axial_stiffness: QLineEdit
-        self.lineEdit_transversal_stiffness: QLineEdit
-        self.lineEdit_torsional_stiffness: QLineEdit
-        self.lineEdit_angular_stiffness: QLineEdit
-        #
-        self.lineEdit_path_table_axial_stiffness: QLineEdit
-        self.lineEdit_path_table_transversal_stiffness: QLineEdit
-        self.lineEdit_path_table_torsional_stiffness: QLineEdit
-        self.lineEdit_path_table_angular_stiffness: QLineEdit
         self._create_lists_of_lineEdits()
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_load_table_axial_stiffness: QPushButton
-        self.pushButton_load_table_transversal_stiffness: QPushButton
-        self.pushButton_load_table_torsional_stiffness: QPushButton
-        self.pushButton_load_table_angular_stiffness: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-        self.tabWidget_inputs: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_expansion_joints_info: QTreeWidget
 
     def _create_connections(self):
         #

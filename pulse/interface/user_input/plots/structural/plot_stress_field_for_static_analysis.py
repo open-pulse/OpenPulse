@@ -71,21 +71,7 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_color_scale : QComboBox
-        self.comboBox_colormaps : QComboBox
-        self.comboBox_stress_type : QComboBox
-
-        # QFrame
-        self.frame_button : QFrame
         self.frame_button.setVisible(False)
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QSlider
-        self.slider_transparency : QSlider
 
     def _create_connections(self):
         #

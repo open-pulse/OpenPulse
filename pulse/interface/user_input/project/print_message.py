@@ -31,23 +31,6 @@ class PrintMessageInput(PrintMessage_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
 
     def _define_qt_variables(self):
-
-        # QFrame
-        self.frame_button : QFrame
-        self.frame_message : QFrame
-        self.frame_progress_bar : QFrame
-        self.frame_title : QFrame
-
-        # QLabel
-        self.label_title : QLabel
-        self.label_message : QLabel
-
-        # QProgressBar
-        self.progress_bar_timer : QProgressBar
-
-        # QPushButton
-        self.pushButton_close : QPushButton
-
         # QTimer
         self.timer = QTimer()
 

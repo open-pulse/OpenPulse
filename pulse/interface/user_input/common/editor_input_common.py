@@ -19,12 +19,7 @@ class EditorInputCommon(EditorInputCommon_UI):
         self._create_connections()
 
     def _define_qt_variables(self):
-        self.title_label: QLabel
-
-        self.cancel_button: QPushButton
-        self.confirm_button: QPushButton
-
-        self.central_widget: QWidget
+        pass
 
     def _create_connections(self):
         self.cancel_button.clicked.connect(self.cancel_button_callback)

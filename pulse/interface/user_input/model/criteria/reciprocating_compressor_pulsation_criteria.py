@@ -44,23 +44,7 @@ class ReciprocatingCompressorPulsationCriteriaInput(PulsationCriteriaWidget_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_line_ids : QComboBox
-
-        # QLineEdit
-        self.lineEdit_compressor_node_id : QLineEdit
-        self.lineEdit_pressure_ratio : QLineEdit
-        self.lineEdit_unfiltered_criteria : QLineEdit
-        #        
-        self.lineEdit_nozzle_id : QLineEdit
-        self.lineEdit_line_pressure : QLineEdit
-        self.lineEdit_speed_of_sound : QLineEdit
-        self.lineEdit_internal_diameter : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_unfiltered_criteria : QPushButton
-        self.pushButton_plot_filtered_criteria : QPushButton
+        pass
 
     def _create_connections(self):
         #

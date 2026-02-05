@@ -32,10 +32,7 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
         app().main_window.theme_changed.connect(self.paint_toolbar_icons)
 
     def _define_qt_variables(self):
-        # QPushButton
-        self.close_button: QPushButton
-        # QWidget
-        self.widget_plot: QWidget
+        pass
 
     def _create_connections(self):
         self.close_button.clicked.connect(self.close)

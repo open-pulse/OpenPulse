@@ -43,29 +43,7 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         self.setWindowTitle("Analysis setup")
 
     def _list_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_method : QComboBox
-
-        # QLabel
-        self.label_modes_to_expand : QLabel
-        self.label_title : QLabel
-
-        # QLineEdit
-        self.lineEdit_fmin : QLineEdit
-        self.lineEdit_fmax : QLineEdit
-        self.lineEdit_fstep : QLineEdit
-        self.lineEdit_modes_to_expand : QLineEdit
-        self.lineEdit_mass_multiplier : QLineEdit
-        self.lineEdit_stiffness_multiplier : QLineEdit
-        self.lineEdit_constant_structural_coefficient : QLineEdit
-
-        # QPushButton
-        self.pushButton_enter_setup : QPushButton
-        self.pushButton_run_analysis : QPushButton
-
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
+        pass
 
     def _create_connections(self):
         #

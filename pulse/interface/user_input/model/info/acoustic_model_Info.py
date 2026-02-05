@@ -34,18 +34,7 @@ class AcousticModelInfo(AcousticModelInfo_UI):
         self.preprocessor = self.project.model.preprocessor
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_number_nodes : QLineEdit
-        self.lineEdit_number_elements : QLineEdit
-
-        # QTreeWidget
-        self.treeWidget_acoustic_pressure : QTreeWidget
-        self.treeWidget_volume_velocity : QTreeWidget
-        self.treeWidget_specific_impedance : QTreeWidget
-        self.treeWidget_radiation_impedance : QTreeWidget
-        self.treeWidget_perforated_plate : QTreeWidget
-        self.treeWidget_element_length_correction : QTreeWidget
+        pass
 
     def _create_connections(self):
         pass

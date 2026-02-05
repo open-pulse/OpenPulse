@@ -33,16 +33,7 @@ class StructuralModelInfo(StructuralModelInfo_UI):
         self.preprocessor = app().project.model.preprocessor
 
     def _define_qt_variables(self):
-        # QLineEdit
-        self.lineEdit_number_nodes : QLineEdit
-        self.lineEdit_number_elements : QLineEdit
-        # QTreeWidget
-        self.treeWidget_prescribed_dofs : QTreeWidget
-        self.treeWidget_constrained_dofs : QTreeWidget
-        self.treeWidget_nodal_loads : QTreeWidget
-        self.treeWidget_masses : QTreeWidget
-        self.treeWidget_springs : QTreeWidget
-        self.treeWidget_dampers : QTreeWidget
+        pass
 
     def _create_connections(self):
         pass

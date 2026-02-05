@@ -72,8 +72,7 @@ class LoadingWindow(NewLoadingWindow_UI):
         self.progress_bar.setValue(0)
 
     def _define_qt_variables(self):
-        self.progress_bar: QProgressBar
-        self.progress_label: QLabel
+        pass
 
     def update_position(self):
         '''

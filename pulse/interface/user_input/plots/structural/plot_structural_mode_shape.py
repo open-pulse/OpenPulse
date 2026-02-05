@@ -43,31 +43,7 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_color_scale : QComboBox
-        self.comboBox_colormaps : QComboBox
-
-        # QFrame
-        self.frame_button : QFrame
-
-        # QLineEdit
-        self.lineEdit_natural_frequency : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QLineEdit
-        self.lineEdit_selected_frequency : QLineEdit
-
-        # QSlider
-        self.slider_transparency : QSlider
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QTreeWidget
-        self.treeWidget_frequencies : QTreeWidget
+        pass
 
     def _create_connections(self):
         #

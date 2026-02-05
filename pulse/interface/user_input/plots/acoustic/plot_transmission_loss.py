@@ -49,20 +49,7 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_processing_selector : QComboBox
-
-        # QLineEdit
-        self.lineEdit_input_node_id : QLineEdit  
-        self.lineEdit_output_node_id : QLineEdit
         self.current_lineEdit = self.lineEdit_input_node_id
-
-        # QPushButton
-        self.pushButton_help : QPushButton
-        self.pushButton_plot_data : QPushButton
-        self.pushButton_export_data : QPushButton
-        self.pushButton_flip_nodes : QPushButton
 
     def _create_connections(self):
         #

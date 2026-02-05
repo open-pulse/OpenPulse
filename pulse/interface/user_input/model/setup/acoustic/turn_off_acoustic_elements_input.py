@@ -50,27 +50,7 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
         self.before_run = app().project.get_pre_solution_model_checks()
     
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_action_selector :  QComboBox
-
-        # QLabel
-        self.label_selection : QLabel
-
-        # QLineEdit
-        self.lineEdit_element_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute : QPushButton
-        self.pushButton_exit : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_elements_info : QTreeWidget
+        pass
 
     def _create_connections(self):
         #

@@ -50,21 +50,7 @@ class GetStandardCrossSection(StandardCrossSectionInput_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_nps_filter : QCheckBox
-
-        # QComboBox
-        self.comboBox_pipe_material : QComboBox
-        self.comboBox_nps_filter : QComboBox
-        self.comboBox_units : QComboBox
-
-        # QPushButton
-        self.pushButton_exit : QPushButton
-        self.pushButton_confirm_selection : QPushButton
-
-        # QTreeWidget
-        self.treeWidget_section_data : QTreeWidget
+        pass
 
     def _create_connections(self):
         #

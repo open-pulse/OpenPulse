@@ -38,21 +38,7 @@ class PlotNodalResultsForHarmonicAnalysis(GetNodalResultsForHarmonicAnalysis_UI)
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # LineEdit
-        self.lineEdit_node_id : QLineEdit
-
-        # PushButton
-        self.pushButton_export_data : QPushButton
-        self.pushButton_plot_data : QPushButton
-
-        # RadioButton
-        self.radioButton_ux : QRadioButton
-        self.radioButton_uy : QRadioButton
-        self.radioButton_uz : QRadioButton
-        self.radioButton_rx : QRadioButton
-        self.radioButton_ry : QRadioButton
-        self.radioButton_rz : QRadioButton
+        pass
 
     def _create_connections(self):
         #

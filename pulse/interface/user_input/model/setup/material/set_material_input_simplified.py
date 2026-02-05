@@ -40,23 +40,10 @@ class SetMaterialSimplified(SetMaterialSimplified_UI):
         self.keep_window_open = True
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # QFrame
-        self.frame_main_widget : QFrame
-
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
-        # QLineEdit
-        self.lineEdit_identifier : QLineEdit
-        self.lineEdit_selected_name : QLineEdit
-
-        # QScrollArea
-        self.scrollArea_table_of_materials : QScrollArea
         self.scrollArea_table_of_materials.setLayout(self.grid_layout)
         self._add_material_widget()
         self.frame_main_widget.adjustSize()

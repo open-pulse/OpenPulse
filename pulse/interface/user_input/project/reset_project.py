@@ -26,15 +26,6 @@ class ResetProjectInput(ResetProject_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-        # QCheckBox
-        self.reset_fluids_checkbox : QCheckBox
-        self.reset_materials_checkbox : QCheckBox
-        self.reset_acoustic_model_checkbox : QCheckBox
-        self.reset_structural_model_checkbox : QCheckBox
-        self.reset_analysis_setup_checkbox : QCheckBox
-        # QPushButton
-        self.cancel_button : QPushButton
-        self.reset_project_button : QPushButton
         warning_message = "Warning: this process will be irreversible once the button has been pressed."
         self.reset_project_button.setToolTip(warning_message)
 

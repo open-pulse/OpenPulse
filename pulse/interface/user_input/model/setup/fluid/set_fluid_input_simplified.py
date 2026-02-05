@@ -46,23 +46,10 @@ class SetFluidInputSimplified(SetFluidInputSimplified_UI):
         self.keep_window_open = False
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # QFrame
-        self.frame_main_widget : QFrame
-
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-        self.lineEdit_selected_fluid_name : QLineEdit
-
-        # QScrollArea
-        self.scrollArea_table_of_fluids : QScrollArea
         self.scrollArea_table_of_fluids.setLayout(self.grid_layout)
         self._add_fluid_input_widget()
         self.frame_main_widget.adjustSize()

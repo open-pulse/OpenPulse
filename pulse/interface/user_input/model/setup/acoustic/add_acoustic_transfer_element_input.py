@@ -50,33 +50,8 @@ class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
         self.before_run = app().project.get_pre_solution_model_checks()
     
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_data_type:  QComboBox
-
-        # QLabel
-        self.label_selection: QLabel
-
-        # QLineEdit
-        self.lineEdit_input_node_id: QLineEdit
-        self.lineEdit_output_node_id: QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_spreadsheet_path: QLineEdit
         self.current_lineEdit = self.lineEdit_output_node_id
 
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_invert_selection: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_search: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
 
     def _create_connections(self):
         #

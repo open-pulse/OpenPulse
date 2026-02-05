@@ -69,16 +69,7 @@ class MaterialWidget(MaterialInputWidget_UI):
                                     ]
 
     def define_qt_variables(self):
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_add_column: QPushButton
-        self.pushButton_remove_column: QPushButton
-        self.pushButton_reset_library: QPushButton
-
-        # QTableWidget
-        self.tableWidget_material_data: QTableWidget
+        pass
 
     def create_connections(self):
         #

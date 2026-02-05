@@ -65,19 +65,7 @@ class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_damping_effect : QCheckBox
-
-        # QComboBox
-        self.comboBox_stress_type : QComboBox
-
-        # QLineEdit
-        self.lineEdit_element_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_export_data : QPushButton
-        self.pushButton_plot_data : QPushButton
+        pass
 
     def _create_connections(self):
         #

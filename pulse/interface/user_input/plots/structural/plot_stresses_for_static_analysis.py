@@ -54,19 +54,7 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_element_id : QLineEdit
-        self.lineEdit_axial_stress : QLineEdit
-        self.lineEdit_bending_stress_y : QLineEdit
-        self.lineEdit_bending_stress_z : QLineEdit
-        self.lineEdit_hoop_stress : QLineEdit
-        self.lineEdit_torsional_stress : QLineEdit
-        self.lineEdit_shear_stress_xy : QLineEdit
-        self.lineEdit_shear_stress_yz : QLineEdit
-
-        # QPushButton
-        self.pushButton_reset : QPushButton
+        pass
 
     def _create_list_lineEdits(self):
         self.lineEdits = [  self.lineEdit_element_id,

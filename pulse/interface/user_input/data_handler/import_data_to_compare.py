@@ -51,26 +51,7 @@ class ImportDataToCompare(ImportDataToCompare_UI):
                         [0.25, 0.25, 0.25] ]
 
     def _define_qt_variables(self):
-
-        # CheckBox
-        self.checkBox_skiprows: QCheckBox
-
-        # LineEdit
-        self.lineEdit_import_results_path: QLineEdit
         self.lineEdit_import_results_path.setDisabled(True)
-
-        # PushButton
-        self.pushButton_add_imported_data_to_plot: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_reset_imported_data: QPushButton
-        self.pushButton_search_file_to_import: QPushButton
-
-        # SpinBox
-        self.spinBox_skiprows: QSpinBox
-
-        # TreeWidget
-        self.treeWidget_import_text_files: QTreeWidget
-        self.treeWidget_import_sheet_files: QTreeWidget
 
     def _create_connections(self):
         #

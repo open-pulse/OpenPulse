@@ -58,49 +58,7 @@ class ValvesInput(ValveInput_UI):
         self.keep_window_open = True
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_remove_valve_acoustic_effects: QCheckBox
-
-        # QComboBox
-        self.comboBox_acoustic_behavior: QComboBox
-        self.comboBox_flange_setup: QComboBox
-
-        # QFrame
-        self.main_frame: QFrame
-        self.selection_frame: QFrame
-
-        # QLabel
-        self.label_selected_id: QLabel
-        self.label_flange_diameter: QLabel
-        self.label_flange_diameter_unit: QLabel
-        self.label_flange_length: QLabel
-        self.label_flange_length_unit: QLabel
-        self.label_valve_internal_length: QLabel
-        self.label_valve_internal_length_unit: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_valve_name: QLineEdit
-        self.lineEdit_stiffening_factor: QLineEdit
-        self.lineEdit_valve_mass: QLineEdit
-        self.lineEdit_effective_diameter: QLineEdit
-        self.lineEdit_wall_thickness: QLineEdit
-        self.lineEdit_internal_valve_length: QLineEdit
-        self.lineEdit_flange_length: QLineEdit
-        self.lineEdit_flange_diameter: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_remove: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_valves_info: QTreeWidget
+        pass
 
     def _create_connections(self):
         #

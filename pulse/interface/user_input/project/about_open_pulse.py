@@ -46,19 +46,9 @@ class AboutOpenPulseInput(AboutOpenPulse_UI):
         self.main_info += "solved in the current version. Further information is available in the OpenPulse repository at GitHub."
 
     def _define_qt_variables(self):
-
-        # QLabel
-        self.label_licensing_information: QLabel
-        self.label_main_info: QLabel
-        self.label_version_information: QLabel
-        self.logo_label: QLabel
-        #
         self.label_licensing_information.setText(self.licensing_info)
         self.label_main_info.setText(self.main_info)
         self.label_version_information.setText(self.version_info)
-
-        # QPushButton
-        self.pushButton_repository: QPushButton
 
     def _create_connections(self):
         self.pushButton_repository.clicked.connect(self.open_gitHub_repository)

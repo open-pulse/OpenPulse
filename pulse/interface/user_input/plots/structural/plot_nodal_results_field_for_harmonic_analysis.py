@@ -41,26 +41,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicA
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_color_scale : QComboBox
-        self.comboBox_colormaps : QComboBox
-
-        # QFrame
-        self.frame_button : QFrame
         self.frame_button.setVisible(False)
-
-        # QLineEdit
-        self.lineEdit_selected_frequency : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QSlider
-        self.slider_transparency : QSlider
-
-        # QTreeWidget
-        self.treeWidget_frequencies : QTreeWidget
         self._config_treeWidget()
 
     def _create_connections(self):

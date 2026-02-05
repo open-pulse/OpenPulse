@@ -44,19 +44,7 @@ class ReciprocatingPumpPulsationCriteriaInput(ReciprocatingPumpPulsationCriteria
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_line_ids: QComboBox
-
-        # QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_internal_diameter : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_criteria : QPushButton
+        pass
 
     def _create_connections(self):
         #

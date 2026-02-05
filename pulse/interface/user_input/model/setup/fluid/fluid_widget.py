@@ -80,18 +80,6 @@ class FluidWidget(FluidInputWidget_UI):
                                 ]
 
     def _define_qt_variables(self):
-
-        # QPushButton
-        self.pushButton_add_column: QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_duplicate: QPushButton
-        self.pushButton_refprop: QPushButton
-        self.pushButton_remove_column: QPushButton
-        self.pushButton_reset_library: QPushButton
-
-        # QTableWidget
-        self.tableWidget_fluid_data: QTableWidget
         self.tableWidget_fluid_data.setStyleSheet("")
 
     def _create_connections(self):

@@ -24,9 +24,7 @@ class SplashScreen(Splash_UI):
                                         """)
 
     def _define_qt_variables(self):
-        self.label_loading : QLabel
-        self.logo_label: QLabel
-        self.progressBar : QProgressBar
+        pass
     
     def _config_logo_label(self):
         logo_text = f"""<html><head/><body style=\" font-size:60pt; font-family: 'Bauhaus 93'\"><p align="center"><span style=\"

@@ -66,37 +66,7 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
         self.before_run = app().project.get_pre_solution_model_checks()
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_element_type: QComboBox
-        self.comboBox_selection: QComboBox
-
-        # QLabel
-        self.label_proportional_damping: QLabel
-        self.label_volumetric_flow_rate: QLabel
-        self.label_volume_rate_unit: QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_volumetric_flow_rate: QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_proportional_damping: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_get_volumetric_flow_rate: QPushButton
-
-        # QStackedWidget
-        self.stackedWidget_main: QStackedWidget
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_element_type: QTreeWidget
+        pass
 
     def _create_connections(self):
         #

@@ -31,10 +31,7 @@ class NomeDaClasse(QDialog):
 
     def _define_qt_variables(self):
         # Defina as variáveis do Qt
-        # QLineEdit
-        self.lineEdit : QLineEdit
-        # QPushButton
-        self.pushButton : QPushButton
+        pass
 
     def _create_connections(self):
         # Crie as conexões

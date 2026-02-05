@@ -39,17 +39,7 @@ class MeshInputCommon(MeshInputCommon_UI):
         self.setWindowModality(Qt.WindowModal)
 
     def _define_qt_variables(self):
-        self.title_label: QLabel
-        self.attribute_to_label: QLabel
-        self.selected_label: QLabel
-        self.attribute_to_combobox: QComboBox
-        self.selected_lineedit: QLineEdit
-
-        self.cancel_button: QPushButton
-        self.apply_button: QPushButton
-        self.confirm_button: QPushButton
-
-        self.central_widget: QWidget
+        pass
 
     def _create_connections(self):
         self.cancel_button.clicked.connect(self.cancel_button_callback)

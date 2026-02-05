@@ -42,21 +42,9 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.keep_window_open = True
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # # QFrame
-        self.frame_main_widget : QFrame
-
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
-
-        # QLineEdit
-
-        # QScrollArea
-        self.scrollArea_cross_section : QScrollArea
         self.scrollArea_cross_section.setLayout(self.grid_layout)
         self._add_cross_section_widget()
         # self.frame_main_widget.adjustSize()

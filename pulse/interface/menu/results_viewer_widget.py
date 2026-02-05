@@ -19,11 +19,6 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
     def _define_qt_variables(self):
 
         self.main_frame = QFrame()
-
-        # QWidget
-        self.top_widget: QWidget
-        self.bottom_widget: QWidget
-
         self.results_viewer_items = ResultsViewerItems()
         self.layout().replaceWidget(self.top_widget, self.results_viewer_items)
         self.adjustSize()

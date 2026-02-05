@@ -40,29 +40,7 @@ class NewProjectInput(NewProjectInput_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_length_unit : QComboBox
-        self.comboBox_start_project : QComboBox
-
-        # QFrame
-        self.frame_geometry_file : QFrame
-        self.frame_element_size : QFrame
-        self.frame_geometry_tolerance : QFrame
-
-        # QLabel
-        self.label_element_size : QLabel
-        self.label_geometry_tolerance : QLabel
-
-        # QLineEdit
-        self.lineEdit_geometry_path : QLineEdit
-        self.lineEdit_element_size : QLineEdit
-        self.lineEdit_geometry_tolerance : QLineEdit
-
-        # QPushButton
-        self.pushButton_import_geometry : QPushButton
-        self.pushButton_cancel : QPushButton
-        self.pushButton_start_project : QPushButton
+        pass
 
     def _create_connections(self):
         #

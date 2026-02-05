@@ -11,7 +11,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 
-
 error_title = "Error"
 warning_title = "Warning"
 
@@ -53,30 +52,7 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         self.element_type = 'pipe_1'
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_selection: QComboBox
-
-        # QLabel
-        self.label_attribute_to: QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_increment_angle: QLineEdit
-        self.lineEdit_actual_angle: QLineEdit
-
-        # QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QTreeWidget
-        self.treeWidget_xaxis_rotation_angle: QTreeWidget
-
-        # QTabWidget
-        self.tabWidget_xaxis_rotation_angle: QTabWidget
+        pass
 
     def _config_widgets(self):
         #

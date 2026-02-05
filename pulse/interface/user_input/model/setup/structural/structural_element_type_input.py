@@ -50,34 +50,7 @@ class StructuralElementTypeInput(StructuralElementTypeInput_UI):
         self.before_run = app().project.get_pre_solution_model_checks()
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_selection: QComboBox
-        self.comboBox_element_type: QComboBox
-        self.comboBox_capped_end: QComboBox
-        self.comboBox_force_offset: QComboBox
-        self.comboBox_wall_formulation: QComboBox
-
-        # QLabel
-        self.label_selected_id: QLabel
-        self.label_capped_end: QLabel
-        self.label_force_offset: QLabel
-        self.label_wall_formulation: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_element_type: QTreeWidget
+        pass
 
     def _create_connections(self):
         #

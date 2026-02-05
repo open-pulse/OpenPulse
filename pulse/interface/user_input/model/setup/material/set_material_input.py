@@ -46,23 +46,10 @@ class SetMaterialInput(SetMaterial_UI):
         self.before_run = app().project.get_pre_solution_model_checks()
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # QFrame
-        self.frame_main_widget : QFrame
-
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-        self.lineEdit_selected_material_name : QLineEdit
-
-        # QScrollArea
-        self.scrollArea_table_of_materials : QScrollArea
         self.scrollArea_table_of_materials.setLayout(self.grid_layout)
         self._add_material_input_widget()
         self.scrollArea_table_of_materials.adjustSize()

@@ -58,37 +58,7 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
             ]
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_grid : QCheckBox
-        self.checkBox_legends : QCheckBox
-        self.checkBox_cursor_legends : QCheckBox
-
-        # QComboBox
-        self.comboBox_plot_type : QComboBox
-        self.comboBox_differentiate_data : QComboBox
-
-        # QFrame
-        self.frame_vertical_lines : QFrame
-
-        # QPushButton
-        self.pushButton_import_data : QPushButton
-
-        # QRadioButton
-        self.radioButton_absolute : QRadioButton
-        self.radioButton_real : QRadioButton
-        self.radioButton_imaginary : QRadioButton
-        self.radioButton_decibel_scale : QRadioButton
-        self.radioButton_disable_cursors : QRadioButton
-        self.radioButton_cross_cursor : QRadioButton
-        self.radioButton_harmonic_cursor : QRadioButton
-        self.pushButton_export_data : QPushButton
-
-        # QSpinBox
-        self.spinBox_vertical_lines : QSpinBox
-
-        # QWidget
-        self.widget_plot : QWidget
+        pass
 
     def _create_connections(self):
         #

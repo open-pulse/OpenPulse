@@ -33,16 +33,6 @@ class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-        
-        # QLineEdit
-        self.lineEdit_node_id: QLineEdit
-        self.lineEdit_reaction_fx: QLineEdit
-        self.lineEdit_reaction_fy: QLineEdit
-        self.lineEdit_reaction_fz: QLineEdit
-        self.lineEdit_reaction_mx: QLineEdit
-        self.lineEdit_reaction_my: QLineEdit
-        self.lineEdit_reaction_mz: QLineEdit
-
         self.lineEdits = [  self.lineEdit_node_id,
                             self.lineEdit_reaction_fx,
                             self.lineEdit_reaction_fy,
@@ -50,24 +40,6 @@ class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
                             self.lineEdit_reaction_mx,
                             self.lineEdit_reaction_my,
                             self.lineEdit_reaction_mz  ]
-
-        # QPushButton
-        self.pushButton_reset: QPushButton
-        
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-        self.tabWidget_springs_dampers: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_reactions_at_constrained_dofs: QTreeWidget
-        self.treeWidget_reactions_at_dampers: QTreeWidget
-        self.treeWidget_reactions_at_springs: QTreeWidget
-
-        # QWidget
-        self.tab_external_springs_dampers: QWidget
-        self.tab_constrained_dofs: QWidget
-        self.tab_reactions_at_springs: QWidget
-        self.tab_reactions_at_dampers: QWidget
 
     def _create_connections(self):
         #

@@ -43,12 +43,7 @@ class AcousticPressureWaveformInputs(AcousticPressureWaveformInputs_UI):
         super().showEvent(event)
 
     def _list_qt_variables(self):
-        # QLineEdit
-        self.lineEdit_selection_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_export_data : QPushButton
-        self.pushButton_plot_data : QPushButton
+        pass
 
     def _create_connections(self):
         #

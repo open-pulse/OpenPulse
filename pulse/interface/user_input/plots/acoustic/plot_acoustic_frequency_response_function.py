@@ -40,20 +40,7 @@ class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction
         self.setWindowIcon(app().main_window.pulse_icon)
 
     def _define_qt_variables(self):
-
-        # QFrame
-        self.frame_denominator : QFrame
-        self.frame_numerator : QFrame
-
-        # QLineEdit
-        self.lineEdit_input_node_id : QLineEdit
-        self.lineEdit_output_node_id : QLineEdit
         self.current_lineEdit = self.lineEdit_output_node_id
-
-        # QPushButton
-        self.pushButton_flip_nodes : QPushButton
-        self.pushButton_export_data : QPushButton
-        self.pushButton_plot_data : QPushButton
 
     def _create_connections(self):
         #

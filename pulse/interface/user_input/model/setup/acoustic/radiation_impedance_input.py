@@ -39,25 +39,6 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_radiation_impedance_type: QComboBox
-
-        # QLineEdit
-        self.lineEdit_node_ids: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_search: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
         self.treeWidget_nodal_info.setColumnWidth(1, 20)
         self.treeWidget_nodal_info.setColumnWidth(2, 80)
 

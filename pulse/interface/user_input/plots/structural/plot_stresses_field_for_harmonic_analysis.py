@@ -78,31 +78,8 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_damping_effect : QCheckBox
-        self.comboBox_colormaps : QComboBox
-
-        # QComboBox
-        self.comboBox_color_scale : QComboBox
-        self.comboBox_stress_type : QComboBox
-
-        # QFrame
-        self.frame_button : QFrame
         self.frame_button.setVisible(False)
 
-        # QLineEdit
-        self.lineEdit_selected_frequency : QLineEdit
-
-        # QSlider
-        self.slider_transparency : QSlider
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QTreeWidget
-        self.treeWidget_frequencies : QTreeWidget
-    
     def _create_connection(self):
         #
         self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)

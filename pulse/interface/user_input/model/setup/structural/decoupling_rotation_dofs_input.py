@@ -50,28 +50,7 @@ class DecouplingRotationDOFsInput(B2pDecouplingRotationDofsInput_UI):
         self.before_run = app().project.get_pre_solution_model_checks() 
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_rotation_x: QCheckBox
-        self.checkBox_rotation_y: QCheckBox
-        self.checkBox_rotation_z: QCheckBox
-
-        # QLineEdit
-        self.lineEdit_selected_id_to_remove: QLineEdit
-        self.lineEdit_element_id: QLineEdit
-        self.lineEdit_tjoint_node_id: QLineEdit
-
-        # QPushButton       
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_elements_info: QTreeWidget
+        pass
 
     def _create_connections(self):
         #

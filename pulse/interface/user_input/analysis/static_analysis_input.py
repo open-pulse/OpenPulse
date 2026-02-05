@@ -8,7 +8,6 @@ from pulse.model import AnalysisID
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
 
-
 class StaticAnalysisInput(StaticAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,16 +39,7 @@ class StaticAnalysisInput(StaticAnalysis_UI):
         self.gravity_vector = app().project.model.gravity_vector
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_self_weight_load: QCheckBox
-        self.checkBox_internal_pressure_load: QCheckBox
-        self.checkBox_external_nodal_loads: QCheckBox
-        self.checkBox_distributed_element: QCheckBox
-
-        # QPushButton
-        self.pushButton_enter_setup: QPushButton
-        self.pushButton_run_analysis: QPushButton
+        pass
 
     def _create_connections(self):
         self.pushButton_enter_setup.clicked.connect(self.enter_setup_callback)

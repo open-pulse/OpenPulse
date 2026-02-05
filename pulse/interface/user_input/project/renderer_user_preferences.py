@@ -38,36 +38,7 @@ class RendererUserPreferencesInput(RendererUserPreferences_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
 
     def _define_qt_variables(self):
-        # QCheckBox
-        self.checkBox_OpenPulse_logo : QCheckBox
-        self.checkBox_reference_scale : QCheckBox
-        self.checkBox_compatibility_mode : QCheckBox
-
-        # QFrame
-        self.frame_background_color : QFrame
-
-        # QSlider
-        self.slider_transparency : QSlider
-
-        # QLineEdit
-        self.lineEdit_renderer_background_color_1 : QLineEdit
-        self.lineEdit_renderer_background_color_2 : QLineEdit
-        self.lineEdit_renderer_font_color : QLineEdit
-        self.lineEdit_nodes_points_color : QLineEdit
-        self.lineEdit_lines_color : QLineEdit
-        self.lineEdit_tubes_color : QLineEdit
-        self.lineEdit_renderer_font_size: QLineEdit
-
-        # QPushButton
-        self.pushButton_renderer_background_color_1 : QPushButton
-        self.pushButton_renderer_background_color_2 : QPushButton
-        self.pushButton_renderer_font_color : QPushButton
-        self.pushButton_nodes_points_color : QPushButton
-        self.pushButton_lines_color : QPushButton
-        self.pushButton_tubes_color : QPushButton
-        self.pushButton_reset_to_default : QPushButton
-        self.pushButton_update_settings : QPushButton
-        self.pushButton_apply_settings: QPushButton
+        pass
 
     def _create_connections(self):
         self.pushButton_renderer_background_color_1.clicked.connect(self.update_renderer_background_color_1)

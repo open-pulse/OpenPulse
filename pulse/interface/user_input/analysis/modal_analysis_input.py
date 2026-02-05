@@ -36,13 +36,7 @@ class ModalAnalysisInput(ModalAnalysis_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):       
-        # QLineEdit   
-        self.lineEdit_number_modes : QLineEdit
-        self.lineEdit_sigma_factor : QLineEdit
-
-        # QPushButton
-        self.pushButton_enter_setup : QPushButton
-        self.pushButton_run_analysis : QPushButton
+        pass
 
     def _create_connections(self):
         self.pushButton_run_analysis.clicked.connect(self.run_analysis)

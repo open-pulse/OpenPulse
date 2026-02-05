@@ -49,37 +49,6 @@ class PulsationDamperCalculatorInputs(PulsationDamperCalculatorInputs_UI):
         self.state_properties = dict()
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_compression_type: QComboBox
-        self.comboBox_fluid_data_source: QComboBox
-        self.comboBox_volume_unit: QComboBox
-        self.comboBox_pressure_units: QComboBox
-        self.comboBox_temperature_units: QComboBox
-
-        # QDoubleSpinBox
-        self.doubleSpinBox_pressure_ratio: QDoubleSpinBox
-        self.doubleSpinBox_isentropic_exponent: QDoubleSpinBox
-        self.doubleSpinBox_residual_pulsation: QDoubleSpinBox
-
-        # QLabel
-        self.label_polytropic_exponent: QLabel
-        self.label_effective_volume_unit: QLabel
-        self.label_volume_avg_pressure_unit: QLabel
-
-        # QLineEdit
-        self.lineEdit_fluctuating_volume: QLineEdit
-        self.lineEdit_effective_volume: QLineEdit
-        self.lineEdit_volume_at_average_pressure: QLineEdit
-        self.lineEdit_selected_fluid: QLineEdit
-        self.lineEdit_pressure: QLineEdit
-        self.lineEdit_temperature: QLineEdit
-
-        # QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_confirm: QPushButton
-        self.pushButton_get_fluid: QPushButton
-        #
         self.pushButton_confirm.setVisible(False)
 
     def _create_connections(self):

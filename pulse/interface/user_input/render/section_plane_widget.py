@@ -5,7 +5,6 @@ from pulse import app
 from pulse.interface.ui_generated.render.section_plane_inputs_ui import SectionPlaneInputs_UI
 
 
-
 class SectionPlaneWidget(SectionPlaneInputs_UI):
     value_changed_2 = Signal()
 
@@ -42,29 +41,7 @@ class SectionPlaneWidget(SectionPlaneInputs_UI):
         self.setWindowTitle("Section Plane")
 
     def _define_qt_variables(self):
-        # QPushButton
-        self.pushButton_apply: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_invert: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QSlider
-        self.relative_plane_position_x_slider: QSlider
-        self.relative_plane_position_y_slider: QSlider
-        self.relative_plane_position_z_slider: QSlider
-
-        self.plane_rotation_x_slider: QSlider
-        self.plane_rotation_y_slider: QSlider
-        self.plane_rotation_z_slider: QSlider
-
-        # QSpinBox
-        self.relative_plane_position_x_spinbox: QSpinBox
-        self.relative_plane_position_y_spinbox: QSpinBox
-        self.relative_plane_position_z_spinbox: QSpinBox
-
-        self.plane_rotation_x_spinbox: QSpinBox
-        self.plane_rotation_y_spinbox: QSpinBox
-        self.plane_rotation_z_spinbox: QSpinBox
+        pass
 
     def _create_connections(self):
         for slider in self._sliders():

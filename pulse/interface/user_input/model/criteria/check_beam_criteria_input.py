@@ -43,19 +43,9 @@ class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
         self.before_run = BeforeRun()
 
     def define_qt_variables(self):
+        pass
 
-        # QLineEdit
-        self.lineEdit_beam_criteria: QLineEdit
-        self.lineEdit_section_id: QLineEdit
 
-        # QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_check_criteria: QPushButton
-        self.pushButton_more_info: QPushButton
-
-        # QTreeWidget
-        self.treeWidget_non_beam_segments: QTreeWidget
-        self.treeWidget_sections_parameters_by_lines: QTreeWidget
 
     def create_connections(self):
         #
