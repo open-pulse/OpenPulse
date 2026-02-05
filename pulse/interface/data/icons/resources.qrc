@@ -10,6 +10,8 @@
         <file>common/reset-image.png</file>
         <file>common/lines_blue.png</file>
         <file>common/image-plus.png</file>
+        <file>common/grab_icon.png</file>
+        <file>common/selection_icon.png</file>
         <file>common/tube_cut.png</file>
         <file>common/recent.png</file>
         <file>common/show_symbols_old.png</file>
@@ -38,6 +40,7 @@
         <file>common/left.png</file>
         <file>common/reset_icon.png</file>
         <file>common/plot_lines.png</file>
+        <file>common/zoom_icon copy.png</file>
         <file>common/import.png</file>
         <file>common/pause.png</file>
         <file>common/faces.png</file>
@@ -63,6 +66,7 @@
         <file>common/plot_mesh.png</file>
         <file>common/delete.png</file>
         <file>common/geometry_icon.png</file>
+        <file>common/rotation_icon.png</file>
         <file>common/fluid.png</file>
         <file>help/question.png</file>
         <file>help/help_desk_icon.png</file>
@@ -124,6 +128,9 @@
         <file>logos/OpenPulse_logo3.png</file>
         <file>logos/mopt_logo.png</file>
         <file>mpltoolbar/copy_icon.png</file>
+        <file>cursors/pan_cursor.png</file>
+        <file>cursors/rotation_cursor.png</file>
+        <file>cursors/zoom_cursor.png</file>
         <file>views/back.png</file>
         <file>views/left.png</file>
         <file>views/top.png</file>
