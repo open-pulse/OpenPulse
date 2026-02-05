@@ -1,11 +1,8 @@
-from PySide6.QtWidgets import QDialog, QCheckBox, QPushButton
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.analysis.structural.static_analysis_ui import StaticAnalysis_UI
 from pulse.model import AnalysisID
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 
 
 class StaticAnalysisInput(StaticAnalysis_UI):

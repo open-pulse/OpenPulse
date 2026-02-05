@@ -3,7 +3,7 @@ import re
 from time import sleep
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QLabel, QProgressBar, QWidget
+from PySide6.QtWidgets import QApplication
 
 from pulse import app
 from pulse.interface.ui_generated.messages.new_loading_window_ui import NewLoadingWindow_UI

@@ -1,12 +1,5 @@
 from PySide6.QtWidgets import (
-    QWidget,
-    QFrame,
-    QLabel,
     QLineEdit,
-    QPushButton,
-    QTabWidget,
-    QTreeWidget,
-    QComboBox,
 )
 
 from pulse.interface.ui_generated.model.setup.structural.expansion_joint_widget_ui import ExpansionJointWidget_UI

@@ -1,5 +1,4 @@
 from PySide6.QtWidgets import QFrame, QWidget
-from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.menus.left_menu_widget_ui import LeftMenuWidget_UI

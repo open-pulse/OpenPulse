@@ -1,11 +1,10 @@
 from PySide6.QtCore import QSize, Qt, Signal, QByteArray
-from PySide6.QtGui import QFont, QIcon, QImage, QPixmap
+from PySide6.QtGui import QIcon, QImage, QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget, QBoxLayout
 from fileboxes import Filebox
 
 from pulse import app, EXAMPLES_DIR, ICON_DIR
 
-import numpy as np
 import io
 from PIL import Image, ImageDraw, ImageFont
 

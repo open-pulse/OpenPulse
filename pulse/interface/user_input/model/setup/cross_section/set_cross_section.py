@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent, QAction
+from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt
 
 from pulse import app

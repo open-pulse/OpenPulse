@@ -1,6 +1,5 @@
 from pulse import app, version
 from pulse.model import AnalysisID
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import *
 
 from typing import TYPE_CHECKING
@@ -14,7 +13,6 @@ import h5py
 import numpy as np
 
 from pathlib import Path
-from traceback import print_exception
 
 
 class ProjectFile:

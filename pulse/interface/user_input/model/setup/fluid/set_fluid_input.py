@@ -1,11 +1,10 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
+from PySide6.QtWidgets import QGridLayout
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.fluid.set_fluid_input_ui import SetFluidInput_UI
 from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidget
-from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 

@@ -1,11 +1,8 @@
-from PySide6.QtWidgets import QDialog, QFileDialog, QLabel, QLineEdit, QPushButton
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QFileDialog
 
-from pulse import app, UI_DIR
+from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pathlib import Path
 import os
 import numpy as np
 

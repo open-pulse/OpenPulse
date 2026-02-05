@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import Qt
 
 from pulse import app

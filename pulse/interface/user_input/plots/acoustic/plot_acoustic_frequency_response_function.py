@@ -1,6 +1,5 @@
 # fmt: off
 
-from PySide6.QtWidgets import QFrame, QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Qt, QEvent, QObject, Signal
 
 from pulse import app

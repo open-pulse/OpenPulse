@@ -1,5 +1,3 @@
-from PySide6.QtWidgets import QDialog, QFrame, QLabel, QProgressBar, QPushButton
-from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QTimer
 
 from pulse import app

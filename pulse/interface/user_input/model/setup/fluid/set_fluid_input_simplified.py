@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
+from PySide6.QtWidgets import QGridLayout
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 

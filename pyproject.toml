@@ -54,6 +54,7 @@ dev = [
     "pyinstaller>=6.4.0,<7 ; python_full_version >= '3.10' and python_full_version < '3.14'",
     "tuna>=0.5.11,<0.6",
     "invoke>=2.2.1",
+    "ruff>=0.15.0",
 ]
 
 [tool.uv]
@@ -67,3 +68,9 @@ build-backend = "hatchling.build"
 
 [tool.isort]
 profile = "black"
+
+[tool.ruff]
+exclude = [
+    "__pycache__",
+    "pulse/interface/ui_generated",
+]

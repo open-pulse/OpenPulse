@@ -1,10 +1,8 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QTreeWidget, QTreeWidgetItem, QAbstractItemView, QHeaderView
-from PySide6.QtGui import QIcon, QFont
+from PySide6.QtWidgets import QTableWidgetItem, QTreeWidgetItem, QAbstractItemView, QHeaderView
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.fluid.set_fluid_composition_input_ui import SetFluidCompositionInput_UI
-from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import LoadFluidCompositionInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput

@@ -9,7 +9,7 @@ from pulse.interface.ui_generated.plots.graphs.plot_xy_widget_ui import PlotXyWi
 from pulse.interface.formatters import icons
 
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 

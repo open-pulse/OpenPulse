@@ -18,7 +18,6 @@ from pulse.editor.structures import (
     LinearStructure,
     Fillet,
     Arc,
-    ArcBend,
 )
 from pulse.utils.math_utils import normalize
 

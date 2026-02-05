@@ -1,6 +1,4 @@
 from pulse import app
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from time import time
 

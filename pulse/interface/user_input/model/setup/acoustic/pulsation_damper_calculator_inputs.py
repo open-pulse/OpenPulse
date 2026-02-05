@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QDoubleSpinBox, QLabel, QLineEdit, QPushButton
+from PySide6.QtWidgets import QLineEdit
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
@@ -10,7 +10,6 @@ from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified imp
 from pulse.model.properties.fluid import Fluid
 
 
-import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"

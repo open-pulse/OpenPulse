@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
@@ -8,7 +8,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
-import numpy as np
 
 
 error_title = "Error"

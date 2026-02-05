@@ -1,9 +1,7 @@
-from PySide6.QtWidgets import QDialog, QWidget, QLabel, QPushButton
+from PySide6.QtWidgets import QWidget
 
 
-from dataclasses import dataclass
 
-from pulse import app
 from pulse.interface.ui_generated.common.editor_input_common_ui import EditorInputCommon_UI
 
 
