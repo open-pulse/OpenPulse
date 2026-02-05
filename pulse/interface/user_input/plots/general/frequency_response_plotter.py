@@ -21,7 +21,6 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
         self._config_window()
         self._initialize()
         self._initialize_canvas()
-        self._define_qt_variables()
         self._create_connections()
 
     def _config_window(self):
@@ -56,9 +55,6 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
             [0.5, 0.5, 0.5],
             [0.25, 0.25, 0.25],
             ]
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

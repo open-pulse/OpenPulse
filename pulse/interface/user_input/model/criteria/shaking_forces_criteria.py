@@ -22,7 +22,6 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
         self._config_window()
         self._initialize()
         self._load_structural_solver()
-        self._define_qt_variables()
         self._create_connections()
         # self._config_widgets()
 
@@ -53,9 +52,6 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
             # self.structural_solver = app().project.get_structural_solver()
             # if self.structural_solver.solution is None:
             #     self.structural_solver.solution = app().project.structural_solution
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         self.pushButton_confirm.clicked.connect(self.plot_force_spectrum)

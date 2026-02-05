@@ -32,7 +32,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widget()
         self.selection_callback()
@@ -56,9 +55,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.not_update_event = False
 
         self.before_run = app().project.get_pre_solution_model_checks()    
-
-    def _define_qt_variables(self):
-        pass
 
     def _config_widget(self):
         self.treeWidget_compressor_excitation.setColumnWidth(0, 100)

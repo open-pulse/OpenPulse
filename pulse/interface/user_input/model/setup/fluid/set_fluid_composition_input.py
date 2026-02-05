@@ -28,7 +28,6 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -91,9 +90,6 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.remaining_molar_fraction = 1
         self.fluid_to_composition = dict()
         self.fluid_to_row = dict()
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

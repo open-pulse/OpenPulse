@@ -27,7 +27,6 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._config_widgets()
         self._create_connections()
         self.selection_callback()
@@ -50,9 +49,6 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         self.beam_to_pipe = False
 
         self.element_type = 'pipe_1'
-
-    def _define_qt_variables(self):
-        pass
 
     def _config_widgets(self):
         #

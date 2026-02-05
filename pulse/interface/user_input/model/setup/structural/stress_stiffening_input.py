@@ -26,7 +26,6 @@ class StressStiffeningInput(StressStiffeningInput_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -44,9 +43,6 @@ class StressStiffeningInput(StressStiffeningInput_UI):
 
     def _initialize(self):
         self.keep_window_open = True
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

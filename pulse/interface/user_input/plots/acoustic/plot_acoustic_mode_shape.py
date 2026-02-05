@@ -15,7 +15,6 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_natural_frequencies()
@@ -35,9 +34,6 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
                           "PuOR",
                           "grayscale",
                           ]
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

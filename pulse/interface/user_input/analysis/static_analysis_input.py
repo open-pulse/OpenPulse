@@ -19,7 +19,6 @@ class StaticAnalysisInput(StaticAnalysis_UI):
         self._config_window()
         self._initialize()
 
-        self._define_qt_variables()
         self._create_connections()
         self._load_current_state()
         self.exec()
@@ -37,9 +36,6 @@ class StaticAnalysisInput(StaticAnalysis_UI):
 
         # self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
         self.gravity_vector = app().project.model.gravity_vector
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         self.pushButton_enter_setup.clicked.connect(self.enter_setup_callback)

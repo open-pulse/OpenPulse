@@ -71,9 +71,6 @@ class LoadingWindow(NewLoadingWindow_UI):
         self.update_position()
         self.progress_bar.setValue(0)
 
-    def _define_qt_variables(self):
-        pass
-
     def update_position(self):
         '''
         Place the window on the center of the screen.

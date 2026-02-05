@@ -21,7 +21,6 @@ class PlotCrossSectionInput(PlotSection_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
         self.exec()
@@ -39,9 +38,6 @@ class PlotCrossSectionInput(PlotSection_UI):
         self.before_run = self.project.get_pre_solution_model_checks()
         
         self.structural_elements = self.project.model.preprocessor.structural_elements
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

@@ -16,7 +16,6 @@ class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_list_lineEdits()
         self._create_connections()
         self._config_widgets()
@@ -31,9 +30,6 @@ class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

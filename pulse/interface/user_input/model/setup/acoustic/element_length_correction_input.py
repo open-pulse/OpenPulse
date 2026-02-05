@@ -24,7 +24,6 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_elements_info()
@@ -49,9 +48,6 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
 
         self.before_run = app().project.get_pre_solution_model_checks()
     
-    def _define_qt_variables(self):
-        pass
-
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)

@@ -18,7 +18,6 @@ class ModalAnalysisInput(ModalAnalysis_UI):
         app().main_window.set_input_widget(self)
 
         self._initialize()
-        self._define_qt_variables()
         self._config_window()
         self._create_connections()
         self._load_analysis_setup()
@@ -34,9 +33,6 @@ class ModalAnalysisInput(ModalAnalysis_UI):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):       
-        pass
 
     def _create_connections(self):
         self.pushButton_run_analysis.clicked.connect(self.run_analysis)

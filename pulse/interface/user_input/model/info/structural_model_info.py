@@ -16,7 +16,6 @@ class StructuralModelInfo(StructuralModelInfo_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_nodal_properties()
@@ -31,9 +30,6 @@ class StructuralModelInfo(StructuralModelInfo_UI):
 
     def _initialize(self):
         self.preprocessor = app().project.model.preprocessor
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         pass

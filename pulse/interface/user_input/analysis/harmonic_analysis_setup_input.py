@@ -42,9 +42,6 @@ class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Analysis setup")
 
-    def _list_qt_variables(self):
-        pass
-
     def _create_connections(self):
         #
         self.comboBox_method.currentIndexChanged.connect(self.analysis_method_callback)

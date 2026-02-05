@@ -19,7 +19,6 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
 
     def _config_window(self):
@@ -30,9 +29,6 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
 
     def _initialize(self):
         app().main_window.theme_changed.connect(self.paint_toolbar_icons)
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         self.close_button.clicked.connect(self.close)

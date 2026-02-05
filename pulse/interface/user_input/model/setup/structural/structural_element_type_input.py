@@ -26,7 +26,6 @@ class StructuralElementTypeInput(StructuralElementTypeInput_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
 
         self.element_type_change_callback()
@@ -48,9 +47,6 @@ class StructuralElementTypeInput(StructuralElementTypeInput_UI):
         self.beam_to_pipe = False
 
         self.before_run = app().project.get_pre_solution_model_checks()
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

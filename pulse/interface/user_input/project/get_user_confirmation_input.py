@@ -17,7 +17,6 @@ class GetUserConfirmationInput(GetUserConfirmation_UI):
 
         self._config_window()
         self._reset_variables()
-        self._define_qt_variables()
         self._create_connections()
 
         self._configure_labels()
@@ -33,9 +32,6 @@ class GetUserConfirmationInput(GetUserConfirmation_UI):
     def _reset_variables(self):
         self._continue = False
         self._cancel = True
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         self.pushButton_rightButton.clicked.connect(self.right_callback)

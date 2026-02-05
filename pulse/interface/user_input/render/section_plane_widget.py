@@ -21,7 +21,6 @@ class SectionPlaneWidget(SectionPlaneInputs_UI):
         self.keep_section_plane = False
 
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
 
     def _config_window(self):
@@ -39,9 +38,6 @@ class SectionPlaneWidget(SectionPlaneInputs_UI):
         self.setModal(1)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Section Plane")
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         for slider in self._sliders():

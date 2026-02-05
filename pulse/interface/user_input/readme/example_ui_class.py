@@ -19,7 +19,6 @@ class NomeDaClasse(QDialog):
         self.project = app().project
 
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -28,10 +27,6 @@ class NomeDaClasse(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-        # Defina as variáveis do Qt
-        pass
 
     def _create_connections(self):
         # Crie as conexões

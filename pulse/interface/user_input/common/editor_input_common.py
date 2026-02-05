@@ -15,11 +15,7 @@ class EditorInputCommon(EditorInputCommon_UI):
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self._define_qt_variables()
         self._create_connections()
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         self.cancel_button.clicked.connect(self.cancel_button_callback)

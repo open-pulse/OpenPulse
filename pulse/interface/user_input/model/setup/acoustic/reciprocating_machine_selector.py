@@ -20,7 +20,6 @@ class ReciprocatingMachineSelector(ReciprocatingPumpSelector_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -39,9 +38,6 @@ class ReciprocatingMachineSelector(ReciprocatingPumpSelector_UI):
         self.complete = False
         self.volumetric_flow_rate = None
         self.before_run = app().project.get_pre_solution_model_checks()
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

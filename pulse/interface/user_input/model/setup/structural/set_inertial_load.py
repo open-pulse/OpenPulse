@@ -23,7 +23,6 @@ class SetInertialLoad(InertialLoadInput_UI):
         
         self._initialize()
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self._load_inertia_load_setup()
@@ -40,9 +39,6 @@ class SetInertialLoad(InertialLoadInput_UI):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         self.pushButton_attribute.clicked.connect(self.attribute_callback)

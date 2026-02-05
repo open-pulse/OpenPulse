@@ -37,7 +37,6 @@ class MaterialWidget(MaterialInputWidget_UI):
         self.dialog = kwargs.get("dialog", None)
 
         self._initialize()
-        self.define_qt_variables()
         self.create_connections()
         self._config_widgets()
 
@@ -67,9 +66,6 @@ class MaterialWidget(MaterialInputWidget_UI):
                                     "thermal_expansion_coefficient",
                                     "color"
                                     ]
-
-    def define_qt_variables(self):
-        pass
 
     def create_connections(self):
         #

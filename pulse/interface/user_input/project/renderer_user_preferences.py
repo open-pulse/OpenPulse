@@ -27,7 +27,6 @@ class RendererUserPreferencesInput(RendererUserPreferences_UI):
         self.renderer_font_size = None
 
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self.load_user_preferences()
         self.exec()
@@ -36,9 +35,6 @@ class RendererUserPreferencesInput(RendererUserPreferences_UI):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         self.pushButton_renderer_background_color_1.clicked.connect(self.update_renderer_background_color_1)

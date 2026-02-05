@@ -20,7 +20,6 @@ class CrossSectionWidget(CrossSectionWidget_UI):
         self.dialog = kwargs.get("dialog", None)
 
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self.create_lists_of_entries()
 
@@ -49,9 +48,6 @@ class CrossSectionWidget(CrossSectionWidget_UI):
         self.section_data_lines = dict()
         self.section_data_elements = dict()
         self.variable_parameters = list()
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

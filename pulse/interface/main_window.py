@@ -120,17 +120,6 @@ class MainWindow(MainWindow_UI):
         self.pulse_icon = icons.get_openpulse_icon()
         self.setWindowIcon(self.pulse_icon)
 
-    def _define_qt_variables(self):
-        '''
-        This function is doing nothing. Every variable was
-        already defined in the UI file.
-
-        Despite that, it is nice to list the variables to
-        help future maintainers and the code editor with
-        type inference.
-        '''
-        pass
-
     def _connect_actions(self):
         '''
         Instead of connecting every action manually, one by one,
@@ -194,7 +183,6 @@ class MainWindow(MainWindow_UI):
         t0 = time()
         # self._load_stylesheets()
         self._config_window()
-        self._define_qt_variables()
         self._connect_actions()
         app().splash.update_progress(30)
         self._load_section_plane()

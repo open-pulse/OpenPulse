@@ -20,7 +20,6 @@ class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
 
         self._initialize()
         self._config_window()
-        self.define_qt_variables()
         self.create_connections()
         self._config_widgets()
 
@@ -41,11 +40,6 @@ class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
     def _initialize(self):
         self.keep_window_open = True
         self.before_run = BeforeRun()
-
-    def define_qt_variables(self):
-        pass
-
-
 
     def create_connections(self):
         #

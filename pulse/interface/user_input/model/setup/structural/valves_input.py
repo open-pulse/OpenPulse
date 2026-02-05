@@ -33,7 +33,6 @@ class ValvesInput(ValveInput_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._configure_appearance()
 
@@ -56,9 +55,6 @@ class ValvesInput(ValveInput_UI):
     def _initialize(self):
         self.complete = False
         self.keep_window_open = True
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

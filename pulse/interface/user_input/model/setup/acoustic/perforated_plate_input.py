@@ -35,7 +35,6 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -67,9 +66,6 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
         self.perforated_plate_inputs['dimensionless_impedance'] = None
 
         self.frequencies = app().project.model.frequencies
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #
@@ -891,7 +887,6 @@ class GetInformationOfGroup(QDialog):
     def __init__(self, element_id, pp_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_group_info(element_id, pp_data)
@@ -902,13 +897,6 @@ class GetInformationOfGroup(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon) 
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-        pass
-
-
-
-
 
     def _create_connections(self):
         self.pushButton_close.clicked.connect(self.close)

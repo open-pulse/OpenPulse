@@ -23,7 +23,6 @@ class GetStartedInput(GetStartedInput_UI):
         self._initialize()
         self._load_icons()
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self.initial_actions()
 
@@ -47,9 +46,6 @@ class GetStartedInput(GetStartedInput_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Get started")
         
-    def _define_qt_variables(self):
-        pass
-
     def _create_connections(self):
         self.create_button.clicked.connect(self.new_project)
         self.load_button.clicked.connect(self.open_project)

@@ -32,14 +32,10 @@ class MeshInputCommon(MeshInputCommon_UI):
         self.item_indexes = dict()
 
         self._config_window()
-        self._define_qt_variables()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         self.cancel_button.clicked.connect(self.cancel_button_callback)

@@ -42,9 +42,6 @@ class AcousticPressureWaveformInputs(AcousticPressureWaveformInputs_UI):
     def showEvent(self, event):
         super().showEvent(event)
 
-    def _list_qt_variables(self):
-        pass
-
     def _create_connections(self):
         #
         self.pushButton_export_data.clicked.connect(self.export_data_callback)

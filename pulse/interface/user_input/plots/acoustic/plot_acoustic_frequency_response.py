@@ -20,7 +20,6 @@ class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
 
         self._initialize()
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
 
@@ -34,9 +33,6 @@ class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_connections(self):
         #

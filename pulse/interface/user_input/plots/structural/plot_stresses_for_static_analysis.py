@@ -17,7 +17,6 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
         self._config_window()
         self._initialize()
         self._load_structural_solver()
-        self._define_qt_variables()
         self._create_list_lineEdits()
         self._create_connections()
         self.selection_callback()
@@ -52,9 +51,6 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-        pass
 
     def _create_list_lineEdits(self):
         self.lineEdits = [  self.lineEdit_element_id,
