@@ -1,21 +1,21 @@
 from PySide6.QtWidgets import QFileDialog
 
-from pulse import app
 from pulse.interface.user_input.data_handler.imported_file import ImportedFile
 
 from typing import List
 from pathlib import Path
+from polars import DataFrame as PolarsDataFrame
 import numpy as np
 import platform
 import os
 import h5py
 
-
+()
 class FileManager:
 
 
     @staticmethod
-    def import_single_file(last_folder: str, file_extensions: List[str], caption: str = "Open file") -> ImportedFile | None:
+    def import_single_file(file_extensions: List[str], caption: str = "Open file", last_folder: str = None) -> ImportedFile | None:
         imported_data = FileManager.__import_files(caption, last_folder, file_extensions)
 
         if isinstance(imported_data, list):
@@ -24,30 +24,31 @@ class FileManager:
         return None
     
     @staticmethod
-    def import_multiple_files(last_folder: str, file_extensions: List[str], caption: str = "Open file") -> List[ImportedFile]:
+    def import_multiple_files(file_extensions: List[str], caption: str = "Open file", last_folder: str = None) -> List[ImportedFile]:
         return FileManager.__import_files(caption, last_folder, file_extensions, True)
     
     @staticmethod
     def __import_files(caption: str, last_folder: str, file_extensions: List[str], multiple_files: bool = False):
-        imported_paths, file_extension = FileManager.__get_file_paths(caption, last_folder, file_extensions, multiple_files)
+        imported_paths, file_extension = FileManager.get_file_paths(last_folder, file_extensions, caption, multiple_files)
         if not file_extension:
             return
 
         imported_data = list()
         if isinstance(imported_paths, list):
             for imported_path in imported_paths:
-                imported_data.extend(FileManager.__read_data_in_file(imported_path, use_first_sheet=False))
+                imported_data.extend(FileManager.read_data_in_file(imported_path, use_first_sheet=False))
 
         else:
-            imported_data.extend(FileManager.__read_data_in_file(imported_paths, use_first_sheet=True))
+            imported_data.extend(FileManager.read_data_in_file(imported_paths, use_first_sheet=True))
 
         return imported_data
 
     @staticmethod
-    def __get_file_paths(caption: str, last_folder: str, file_extensions: List[str], multiple_files: bool = False):
-        folder_path = app().config.get_last_folder_for(last_folder)
-        if folder_path is None:
-            folder_path = os.path.expanduser("~")
+    def get_file_paths(file_extensions: List[str], caption: str = "Open file", multiple_files: bool = False, 
+                       last_folder: str = None, open_file: bool = True):
+
+        if last_folder is None:
+            last_folder = os.path.expanduser("~")
 
         kwargs = dict()
         if platform.system() == "Linux":
@@ -63,32 +64,38 @@ class FileManager:
         str_extensions += ")"
 
         imported_paths, file_extension = None, None
-        if (multiple_files):
-            imported_paths, file_extension = QFileDialog.getOpenFileNames(
-                None,
-                caption,
-                folder_path,
-                str_extensions,
-                **kwargs
-                )
-    
+
+        if open_file:
+            if multiple_files:
+                imported_paths, file_extension = QFileDialog.getOpenFileNames(
+                    None,
+                    caption,
+                    last_folder,
+                    str_extensions,
+                    **kwargs
+                    )
+        
+            else:
+                imported_paths, file_extension = QFileDialog.getOpenFileName(
+                    None,
+                    caption,
+                    last_folder,
+                    str_extensions,
+                    **kwargs
+                    )
         else:
-            imported_paths, file_extension = QFileDialog.getOpenFileName(
+            imported_paths, file_extensions = QFileDialog.getSaveFileName(
                 None,
                 caption,
-                folder_path,
+                last_folder,
                 str_extensions,
                 **kwargs
-                )
-
-        if file_extension:
-            last_imported_file = imported_paths if isinstance(imported_paths, str) else imported_paths[-1]
-            app().config.write_last_folder_path_in_file(last_folder, last_imported_file)
-
+            )
+            
         return imported_paths, file_extension
 
     @staticmethod
-    def __read_data_in_file(file_path: str, use_first_sheet: bool = True):
+    def read_data_in_file(file_path: str, use_first_sheet: bool = True) -> ImportedFile | list[ImportedFile]:
         import warnings
 
         output_data = list()
@@ -116,7 +123,11 @@ class FileManager:
                 wb = load_workbook(file_path)
                 
                 for sheetname in wb.sheetnames:
-                    for cols in [(0, 1, 2), (0, 1)]:
+                    max_cols = wb[sheetname].max_column
+
+                    for i in range(max_cols, 1, -1):
+                        cols = list(range(i))
+
                         try:
                             sheet_data = read_excel(
                                                     file_path, 
@@ -228,3 +239,33 @@ class FileManager:
             imported_results[sheetname] = sheet_data
 
         return imported_results
+
+    @staticmethod
+    def export_text_data(export_path: str, exported_data: np.array, delimiter: str = ",", header: str = ""):
+        export_path = Path(export_path)
+
+        if not export_path.parent.exists():
+            raise FileNotFoundError(f"The path {export_path.parent} does not exist")
+        
+        if export_path.suffix not in [".txt", ".dat", ".csv"]:
+            raise ValueError(
+            f"Invalid suffix {export_path.suffix}. Use .txt, .dat or .csv"
+        )
+        
+        np.savetxt(str(export_path), exported_data, delimiter=delimiter, header=header)
+
+    def export_spreadsheet_data(export_path: str, sheet_name: str, exported_data: PolarsDataFrame, row_indexes: bool = False):
+        export_path = Path(export_path)
+
+        if not export_path.parent.exists():
+            raise FileNotFoundError(f"The path {export_path.parent} does not exist")
+        
+        if export_path.suffix not in [".xls", ".xlsx"]:
+            raise ValueError(
+            f"Invalid suffix {export_path.suffix}. Use .xls, or .xlsx"
+        )
+
+        from pandas import ExcelWriter
+
+        with ExcelWriter(str(export_path)) as writer:
+            exported_data.to_pandas().to_excel(writer, sheet_name=sheet_name, index=row_indexes)
