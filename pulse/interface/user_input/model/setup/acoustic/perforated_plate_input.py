@@ -4,14 +4,14 @@ from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLi
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.perforated_plate_input_ui import PerforatedPlateInput_UI
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 
-from molde import load_ui
 
 import os
 import numpy as np
@@ -21,13 +21,9 @@ error_title = "Error"
 warning_title = "Warning"
 
 
-class PerforatedPlateInput(QDialog):
+class PerforatedPlateInput(PerforatedPlateInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/acoustic/perforated_plate_input.ui"
-        load_ui(ui_path, self)
-
         self.valve_element_ids = kwargs.get("valve_element_ids", list())
 
         app().main_window.set_input_widget(self)
@@ -39,7 +35,6 @@ class PerforatedPlateInput(QDialog):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -71,66 +66,6 @@ class PerforatedPlateInput(QDialog):
         self.perforated_plate_inputs['dimensionless_impedance'] = None
 
         self.frequencies = app().project.model.frequencies
-
-    def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_remove_valve_structural_effects : QCheckBox
-        self.checkBox_single_hole : QCheckBox
-        self.checkBox_bias_flow_coefficient : QCheckBox
-        self.checkBox_dimensionless_impedance : QCheckBox
-        self.checkBox_nonlinear_discharge_coefficient : QCheckBox
-
-        # QComboBox
-        self.comboBox_perforated_plate_model : QComboBox
-
-        # QLabel
-        self.label_selection : QLabel
-        self.label_area_porosity: QLabel
-        self.label_non_linear_discharge_coefficient : QLabel
-        self.label_correction_factor : QLabel
-        self.label_bias_flow_coefficient : QLabel
-
-        # QFrame
-        self.selection_frame: QFrame
-
-        # QLineEdit
-        self.lineEdit_element_id : QLineEdit
-        self.lineEdit_element_id_plot : QLineEdit
-        self.lineEdit_nonlin_discharge : QLineEdit
-        self.lineEdit_correction_factor : QLineEdit
-        self.lineEdit_impedance_real : QLineEdit
-        self.lineEdit_impedance_imag : QLineEdit
-        self.lineEdit_load_table_path : QLineEdit
-        self.lineEdit_specify_element_id : QLineEdit
-        self.lineEdit_bias_flow_coefficient : QLineEdit
-        self.lineEdit_hole_diameter : QLineEdit
-        self.lineEdit_plate_thickness : QLineEdit
-        self.lineEdit_area_porosity : QLineEdit
-        self.lineEdit_discharge_coefficient : QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute : QPushButton
-        self.pushButton_exit : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_load_table : QPushButton
-        self.pushButton_plot_impedance : QPushButton
-        self.pushButton_plot_absorption_coefficient : QPushButton
-
-        # QRadioButton
-        self.radioButton_impedance : QRadioButton
-        self.radioButton_absortion : QRadioButton
-        self.radioButton_plotReal : QRadioButton
-        self.radioButton_plotImag : QRadioButton
-
-        # QTabWidget
-        self.tabWidget_dimensionless : QTabWidget
-        self.tabWidget_main : QTabWidget
-        self.tabWidget_setup : QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_elements_info : QTreeWidget
 
     def _create_connections(self):
         #
@@ -951,12 +886,7 @@ class PerforatedPlateInput(QDialog):
 class GetInformationOfGroup(QDialog):
     def __init__(self, element_id, pp_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/info/get_perforated_plate_info.ui"
-        load_ui(ui_path, self)
-
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_group_info(element_id, pp_data)
@@ -967,29 +897,6 @@ class GetInformationOfGroup(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon) 
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QLabel
-        self.title_label : QLabel
-
-        # QLineEdit
-        self.lineEdit_perforated_plate_elements : QLineEdit
-        self.lineEdit_hole_diameter : QLineEdit
-        self.lineEdit_plate_thickness : QLineEdit
-        self.lineEdit_area_porosity : QLineEdit
-        self.lineEdit_discharge_coefficient : QLineEdit
-        self.lineEdit_single_hole : QLineEdit
-        self.lineEdit_non_linear_discharge_coefficient : QLineEdit
-        self.lineEdit_correction_factor : QLineEdit
-        self.lineEdit_bias_flow_coefficient : QLineEdit
-        self.lineEdit_dimensionless_impedance : QLineEdit
-
-        # QPushButton
-        self.pushButton_close : QPushButton
-
-        # QTreeWidget
-        self.treeWidget_info : QTreeWidget
 
     def _create_connections(self):
         self.pushButton_close.clicked.connect(self.close)

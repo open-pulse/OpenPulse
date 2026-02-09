@@ -1,22 +1,18 @@
 from PySide6.QtWidgets import QCheckBox, QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.plot_stresses_field_for_harmonic_analysis_ui import PlotStressesFieldForHarmonicAnalysis_UI
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
-from molde import load_ui
 
 import logging
 import numpy as np
 
 
-class PlotStressesFieldForHarmonicAnalysis(QWidget):
+class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/plot_stresses_field_for_harmonic_analysis.ui"
-        load_ui(ui_path, self)
-
         self._config_window()
         self._initialize()
         self._load_structural_solver()
@@ -82,31 +78,8 @@ class PlotStressesFieldForHarmonicAnalysis(QWidget):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_damping_effect : QCheckBox
-        self.comboBox_colormaps : QComboBox
-
-        # QComboBox
-        self.comboBox_color_scale : QComboBox
-        self.comboBox_stress_type : QComboBox
-
-        # QFrame
-        self.frame_button : QFrame
         self.frame_button.setVisible(False)
 
-        # QLineEdit
-        self.lineEdit_selected_frequency : QLineEdit
-
-        # QSlider
-        self.slider_transparency : QSlider
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QTreeWidget
-        self.treeWidget_frequencies : QTreeWidget
-    
     def _create_connection(self):
         #
         self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)

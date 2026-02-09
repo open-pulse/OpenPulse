@@ -287,8 +287,8 @@
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="../../../../../../../../VIBRA/vibra/interface/data/icons/resources.qrc">
-             <normaloff>:/icons/save_as.png</normaloff>:/icons/save_as.png</iconset>
+             <iconset>
+               <normaloff>:/icons/save_as.png</normaloff>:/icons/save_as.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -528,8 +528,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../../../../../../../VIBRA/vibra/interface/data/icons/resources.qrc"/>
- </resources>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

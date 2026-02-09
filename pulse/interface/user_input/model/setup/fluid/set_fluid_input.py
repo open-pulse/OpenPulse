@@ -2,24 +2,20 @@ from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.fluid.set_fluid_input_ui import SetFluidInput_UI
 from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class SetFluidInput(QDialog):
+class SetFluidInput(SetFluidInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/fluid/set_fluid_input.ui"
-        load_ui(ui_path, self)
-
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
         self.state_properties = kwargs.get("state_properties", dict())
 
@@ -56,23 +52,10 @@ class SetFluidInput(QDialog):
         self.complete = False
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # QFrame
-        self.frame_main_widget : QFrame
-
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-        self.lineEdit_selected_fluid_name : QLineEdit
-
-        # QScrollArea
-        self.scrollArea_table_of_fluids : QScrollArea
         self.scrollArea_table_of_fluids.setLayout(self.grid_layout)
         self._add_fluid_input_widget()
         self.frame_main_widget.adjustSize()

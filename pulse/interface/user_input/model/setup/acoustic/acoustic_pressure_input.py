@@ -2,11 +2,11 @@ from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTabWidget, QTree
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.acoustic_pressure_input_ui import AcousticPressureInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 import numpy as np
@@ -16,13 +16,9 @@ from pathlib import Path
 error_title = "Error"
 
 
-class AcousticPressureInput(QDialog):
+class AcousticPressureInput(AcousticPressureInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/acoustic_pressure_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 
@@ -55,26 +51,6 @@ class AcousticPressureInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_imag_value: QLineEdit
-        self.lineEdit_real_value: QLineEdit
-        self.lineEdit_node_ids: QLineEdit
-        self.lineEdit_table_path: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_search: QPushButton
-
-        # QTabWidget
-        self.tabWidget_inputs: QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info : QTreeWidget
         self.treeWidget_nodal_info.setColumnWidth(1, 20)
         self.treeWidget_nodal_info.setColumnWidth(2, 80)
 

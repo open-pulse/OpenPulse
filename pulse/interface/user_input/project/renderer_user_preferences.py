@@ -1,21 +1,17 @@
 from PySide6.QtWidgets import QDialog, QCheckBox, QFrame, QLineEdit, QPushButton, QSlider
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.project.render.renderer_user_preferences_ui import RendererUserPreferences_UI
 
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 
-from molde import load_ui
 from molde.colors import Color
 
 
-class RendererUserPreferencesInput(QDialog):
+class RendererUserPreferencesInput(RendererUserPreferences_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "project/render/renderer_user_preferences.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self.main_window = app().main_window
@@ -31,7 +27,6 @@ class RendererUserPreferencesInput(QDialog):
         self.renderer_font_size = None
 
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self.load_user_preferences()
         self.exec()
@@ -40,38 +35,6 @@ class RendererUserPreferencesInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
-
-    def _define_qt_variables(self):
-        # QCheckBox
-        self.checkBox_OpenPulse_logo : QCheckBox
-        self.checkBox_reference_scale : QCheckBox
-        self.checkBox_compatibility_mode : QCheckBox
-
-        # QFrame
-        self.frame_background_color : QFrame
-
-        # QSlider
-        self.slider_transparency : QSlider
-
-        # QLineEdit
-        self.lineEdit_renderer_background_color_1 : QLineEdit
-        self.lineEdit_renderer_background_color_2 : QLineEdit
-        self.lineEdit_renderer_font_color : QLineEdit
-        self.lineEdit_nodes_points_color : QLineEdit
-        self.lineEdit_lines_color : QLineEdit
-        self.lineEdit_tubes_color : QLineEdit
-        self.lineEdit_renderer_font_size: QLineEdit
-
-        # QPushButton
-        self.pushButton_renderer_background_color_1 : QPushButton
-        self.pushButton_renderer_background_color_2 : QPushButton
-        self.pushButton_renderer_font_color : QPushButton
-        self.pushButton_nodes_points_color : QPushButton
-        self.pushButton_lines_color : QPushButton
-        self.pushButton_tubes_color : QPushButton
-        self.pushButton_reset_to_default : QPushButton
-        self.pushButton_update_settings : QPushButton
-        self.pushButton_apply_settings: QPushButton
 
     def _create_connections(self):
         self.pushButton_renderer_background_color_1.clicked.connect(self.update_renderer_background_color_1)

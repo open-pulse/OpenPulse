@@ -2,22 +2,18 @@ from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton, QTabWi
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
 from pulse.model import RadiationImpedanceType
+from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import RadiationImpedanceInput_UI
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import numpy as np
 
 
-class RadiationImpedanceInput(QDialog):
+class RadiationImpedanceInput(RadiationImpedanceInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/radiation_impedance_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 
@@ -43,25 +39,6 @@ class RadiationImpedanceInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_radiation_impedance_type: QComboBox
-
-        # QLineEdit
-        self.lineEdit_node_ids: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_search: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
         self.treeWidget_nodal_info.setColumnWidth(1, 20)
         self.treeWidget_nodal_info.setColumnWidth(2, 80)
 

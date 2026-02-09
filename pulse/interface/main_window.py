@@ -6,7 +6,6 @@ from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
 from molde.render_widgets import CommonRenderWidget
 from molde import stylesheets
 from molde.colors import color_names
-from molde import load_ui
 
 # TODO: remove this import
 from pulse import (
@@ -17,6 +16,7 @@ from pulse import (
     TEMP_PROJECT_DIR,
     TEMP_PROJECT_FILE,
 )
+from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
 
 from pulse.interface.formatters import icons
 from pulse.interface.auxiliar.file_dialog import FileDialog
@@ -54,16 +54,13 @@ from sys import argv
 from time import time
 
 
-class MainWindow(QMainWindow):
+class MainWindow(MainWindow_UI):
     theme_changed = Signal(str)
     visualization_changed = Signal()
     selection_changed = Signal()
 
     def __init__(self):
         super().__init__()
-
-        ui_path = UI_DIR / 'main_window.ui'
-        load_ui(ui_path, self)
 
         self.selected_nodes = set()
         self.selected_lines = set()
@@ -122,68 +119,6 @@ class MainWindow(QMainWindow):
         self.installEventFilter(self)
         self.pulse_icon = icons.get_openpulse_icon()
         self.setWindowIcon(self.pulse_icon)
-
-    def _define_qt_variables(self):
-        '''
-        This function is doing nothing. Every variable was
-        already defined in the UI file.
-
-        Despite that, it is nice to list the variables to
-        help future maintainers and the code editor with
-        type inference.
-        '''
-        
-        # QAction
-        self.action_open_project: QAction
-        self.action_geometry_editor_workspace: QAction
-        self.action_model_setup_workspace: QAction
-        self.action_analysis_setup_workspace: QAction
-        self.action_results_workspace: QAction
-        self.action_check_refprop: QAction
-        self.action_export_geometry: QAction
-        self.action_import_geometry: QAction
-        self.action_export_pcf: QAction
-        self.action_import_pcf: QAction
-        self.action_set_dark_theme: QAction
-        self.action_set_light_theme: QAction
-        self.action_save_project: QAction
-        self.action_save_project_as: QAction
-        self.action_capture_image: QAction
-        self.action_show_mesh_data: QAction
-        self.action_show_geometry_data: QAction
-        self.action_show_lines: QAction
-        self.action_show_tubes: QAction
-        self.action_show_symbols: QAction
-        self.action_show_transparent: QAction
-        self.action_select_elements: QAction
-        self.action_plot_geometry_editor: QAction
-        self.action_plot_lines: QAction
-        self.action_plot_lines_with_cross_section: QAction
-        self.action_plot_mesh: QAction
-        self.action_export_piping: QAction
-        self.action_user_preferences: QAction
-        self.action_pulsation_suppression_device_editor: QAction
-        self.action_pulsation_damper_editor: QAction
-        self.action_section_plane: QAction
-        self.action_exit: QAction
-
-        # QMenu
-        self.menu_recent: QMenu
-        self.menu_project: QMenu
-        self.menu_plots: QMenu
-        self.menu_settings: QMenu
-        self.menu_model_info: QMenu
-        self.menu_help: QMenu
-
-        # QSplitter
-        self.splitter: QSplitter
-
-        # QStackedWidget
-        self.setup_widgets_stack: QStackedWidget
-        self.render_widgets_stack: QStackedWidget
-
-        # QToolBar
-        self.tool_bar: QToolBar
 
     def _connect_actions(self):
         '''
@@ -248,7 +183,6 @@ class MainWindow(QMainWindow):
         t0 = time()
         # self._load_stylesheets()
         self._config_window()
-        self._define_qt_variables()
         self._connect_actions()
         app().splash.update_progress(30)
         self._load_section_plane()

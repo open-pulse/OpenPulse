@@ -1,22 +1,18 @@
 from PySide6.QtWidgets import QComboBox, QFrame, QPushButton, QSlider, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.plot_stresses_field_for_static_analysis_ui import PlotStressesFieldForStaticAnalysis_UI
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
-from molde import load_ui
 
 import logging
 import numpy as np
 
 
-class PlotStressesFieldForStaticAnalysis(QWidget):
+class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/plot_stresses_field_for_static_analysis.ui"
-        load_ui(ui_path, self)
-
         self._config_window()
         self._initialize()
         self._load_structural_solver()
@@ -75,21 +71,7 @@ class PlotStressesFieldForStaticAnalysis(QWidget):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_color_scale : QComboBox
-        self.comboBox_colormaps : QComboBox
-        self.comboBox_stress_type : QComboBox
-
-        # QFrame
-        self.frame_button : QFrame
         self.frame_button.setVisible(False)
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QSlider
-        self.slider_transparency : QSlider
 
     def _create_connections(self):
         #

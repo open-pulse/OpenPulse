@@ -1015,6 +1015,6 @@
   <tabstop>lineEdit_table_path</tabstop>
   <tabstop>pushButton_search</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

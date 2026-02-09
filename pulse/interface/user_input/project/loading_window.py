@@ -5,9 +5,9 @@ from time import sleep
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QLabel, QProgressBar, QWidget
 
-from pulse import UI_DIR, app
+from pulse import app
+from pulse.interface.ui_generated.messages.new_loading_window_ui import NewLoadingWindow_UI
 
-from molde import load_ui
 
 # Catches every message that contains something like [n/N]
 PROGRESS_FRACTION_REGEX = re.compile(r"\[\d+/\d+\]")
@@ -16,7 +16,7 @@ PROGRESS_FRACTION_REGEX = re.compile(r"\[\d+/\d+\]")
 PROGRESS_PERCENTAGE_REGEX = re.compile(r"\d+%")
 
 
-class LoadingWindow(QWidget):
+class LoadingWindow(NewLoadingWindow_UI):
     """
     This function is intended to be called for functions that take
     a long time to run and should run together with a progress bar.
@@ -60,10 +60,6 @@ class LoadingWindow(QWidget):
 
     def __init__(self, _function):
         super().__init__()
-
-        ui_path = UI_DIR / "messages/new_loading_window.ui"
-        load_ui(ui_path, self)
-
         self._function = _function
         self._config_window()
 
@@ -74,10 +70,6 @@ class LoadingWindow(QWidget):
         self.setWindowModality(Qt.ApplicationModal)
         self.update_position()
         self.progress_bar.setValue(0)
-
-    def _define_qt_variables(self):
-        self.progress_bar: QProgressBar
-        self.progress_label: QLabel
 
     def update_position(self):
         '''

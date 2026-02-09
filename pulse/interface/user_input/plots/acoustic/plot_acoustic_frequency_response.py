@@ -1,30 +1,25 @@
 from PySide6.QtWidgets import QFrame, QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_ui import GetAcousticFrequencyResponse_UI
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PlotAcousticFrequencyResponse(QWidget):
+class PlotAcousticFrequencyResponse(GetAcousticFrequencyResponse_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_frequency_response.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
 
         self._initialize()
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
 
@@ -38,19 +33,6 @@ class PlotAcousticFrequencyResponse(QWidget):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
-
-    def _define_qt_variables(self):
-
-        # QFrame
-        self.frame_denominator : QFrame
-        self.frame_numerator : QFrame
-
-        # QLineEdit
-        self.lineEdit_node_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_data : QPushButton
-        self.pushButton_export_data : QPushButton
 
     def _create_connections(self):
         #

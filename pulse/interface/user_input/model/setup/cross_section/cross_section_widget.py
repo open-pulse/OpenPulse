@@ -1,30 +1,25 @@
 from PySide6.QtWidgets import QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget, QDialog
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.cross_section.cross_section_widget_ui import CrossSectionWidget_UI
 from pulse.model.cross_section import get_beam_section_properties, get_points_to_plot_section
 from pulse.interface.user_input.model.setup.structural.get_standard_cross_section import GetStandardCrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.interface_utils import check_inputs
 from pulse.interface.user_input.model.setup.cross_section.cross_section_plotter import CrossSectionPlotter
-from molde import load_ui
 
 import numpy as np
 
 window_title = "Error"
 window_title2 = "Warning"
 
-class CrossSectionWidget(QWidget):
+class CrossSectionWidget(CrossSectionWidget_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/cross_section/cross_section_widget.ui"
-        load_ui(ui_path, self)
-
         self.dialog = kwargs.get("dialog", None)
 
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self.create_lists_of_entries()
 
@@ -53,105 +48,6 @@ class CrossSectionWidget(QWidget):
         self.section_data_lines = dict()
         self.section_data_elements = dict()
         self.variable_parameters = list()
-
-    def _define_qt_variables(self):
-
-        # QFrame
-        self.bottom_frame: QFrame
-        self.top_frame: QFrame
-        self.selection_frame: QFrame
-
-        # QLabel
-        self.label_element_id: QLabel
-        
-        # QLineEdit
-        self.lineEdit_element_id_initial: QLineEdit
-        self.lineEdit_element_id_final: QLineEdit
-        
-        self.lineEdit_outside_diameter: QLineEdit
-        self.lineEdit_wall_thickness: QLineEdit
-        self.lineEdit_offset_y: QLineEdit
-        self.lineEdit_offset_z: QLineEdit
-        self.lineEdit_insulation_density: QLineEdit
-        self.lineEdit_insulation_thickness: QLineEdit
-
-        self.lineEdit_outside_diameter_initial: QLineEdit
-        self.lineEdit_wall_thickness_initial: QLineEdit
-        self.lineEdit_offset_y_initial: QLineEdit
-        self.lineEdit_offset_z_initial: QLineEdit
-
-        self.lineEdit_outside_diameter_final: QLineEdit
-        self.lineEdit_wall_thickness_final: QLineEdit
-        self.lineEdit_offset_y_final: QLineEdit
-        self.lineEdit_offset_z_final: QLineEdit
-
-        self.lineEdit_insulation_thickness_variable_section: QLineEdit
-        self.lineEdit_insulation_density_variable_section: QLineEdit
-
-        self.lineEdit_base_rectangular_section: QLineEdit
-        self.lineEdit_height_rectangular_section: QLineEdit
-        self.lineEdit_wall_thickness_rectangular_section: QLineEdit
-        self.lineEdit_offsety_rectangular_section: QLineEdit
-        self.lineEdit_offsetz_rectangular_section: QLineEdit
-
-        self.lineEdit_outside_diameter_circular_section: QLineEdit
-        self.lineEdit_wall_thickness_circular_section: QLineEdit
-        self.lineEdit_offsety_circular_section: QLineEdit
-        self.lineEdit_offsetz_circular_section: QLineEdit
-
-        self.lineEdit_height_C_section: QLineEdit
-        self.lineEdit_w1_C_section: QLineEdit
-        self.lineEdit_t1_C_section: QLineEdit
-        self.lineEdit_w2_C_section: QLineEdit
-        self.lineEdit_t2_C_section: QLineEdit 
-        self.lineEdit_tw_C_section: QLineEdit      
-        self.lineEdit_offsety_C_section: QLineEdit
-        self.lineEdit_offsetz_C_section: QLineEdit
-
-        self.lineEdit_height_I_section: QLineEdit
-        self.lineEdit_w1_I_section: QLineEdit
-        self.lineEdit_t1_I_section: QLineEdit
-        self.lineEdit_w2_I_section: QLineEdit
-        self.lineEdit_t2_I_section: QLineEdit  
-        self.lineEdit_tw_I_section: QLineEdit
-        self.lineEdit_offsety_I_section: QLineEdit
-        self.lineEdit_offsetz_I_section: QLineEdit
-
-        self.lineEdit_height_T_section: QLineEdit
-        self.lineEdit_w1_T_section: QLineEdit
-        self.lineEdit_t1_T_section: QLineEdit
-        self.lineEdit_tw_T_section: QLineEdit 
-        self.lineEdit_offsety_T_section: QLineEdit
-        self.lineEdit_offsetz_T_section: QLineEdit
-
-        self.lineEdit_area: QLineEdit
-        self.lineEdit_Iyy: QLineEdit
-        self.lineEdit_Izz: QLineEdit
-        self.lineEdit_Iyz: QLineEdit
-        self.lineEdit_shear_coefficient: QLineEdit
-
-        # QPushButton
-        self.pushButton_exit_pipe: QPushButton
-        self.pushButton_exit_beam: QPushButton
-        self.pushButton_check_if_section_is_normalized: QPushButton
-        self.pushButton_confirm_pipe: QPushButton
-        self.pushButton_confirm_beam: QPushButton
-        self.pushButton_edit_section_data: QPushButton
-        self.pushButton_invert_input_values: QPushButton
-        self.pushButton_load_section_data: QPushButton
-        self.pushButton_plot_pipe_cross_section: QPushButton
-        self.pushButton_plot_beam_cross_section: QPushButton
-        self.pushButton_select_standard_section: QPushButton
-        self.pushButton_select_standard_section_initial: QPushButton
-        self.pushButton_select_standard_section_final: QPushButton
-
-        # QTabWidget
-        self.tabWidget_general: QTabWidget
-        self.tabWidget_pipe_section: QTabWidget
-        self.tabWidget_beam_section: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_sections_parameters_by_lines: QTreeWidget
 
     def _create_connections(self):
         #

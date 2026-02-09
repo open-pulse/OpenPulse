@@ -4,12 +4,12 @@ from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton, QTabWi
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.prescribed_dofs_input_ui import PrescribedDofsInput_UI
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 import numpy as np
@@ -32,13 +32,9 @@ class TabType(IntEnum):
     LIST = 2
 
 
-class PrescribedDofsInput(QDialog):
+class PrescribedDofsInput(PrescribedDofsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        ui_path = UI_DIR / "model/setup/structural/prescribed_dofs_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 
@@ -129,63 +125,7 @@ class PrescribedDofsInput(QDialog):
         self.rz_table_name = None
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_linear_data_type: QComboBox
-        self.comboBox_angular_data_type: QComboBox
-        self.comboBox_displacement_ux: QComboBox
-        self.comboBox_displacement_uy: QComboBox
-        self.comboBox_displacement_uz: QComboBox
-        self.comboBox_rotation_rx: QComboBox
-        self.comboBox_rotation_ry: QComboBox
-        self.comboBox_rotation_rz: QComboBox
-
-        # QLineEdit
-        self.lineEdit_node_ids: QLineEdit
-        self.lineEdit_real_ux: QLineEdit
-        self.lineEdit_real_uy: QLineEdit
-        self.lineEdit_real_uz: QLineEdit
-        self.lineEdit_real_rx: QLineEdit
-        self.lineEdit_real_ry: QLineEdit
-        self.lineEdit_real_rz: QLineEdit
-        self.lineEdit_real_alldofs: QLineEdit
-        #
-        self.lineEdit_imag_ux: QLineEdit
-        self.lineEdit_imag_uy: QLineEdit
-        self.lineEdit_imag_uz: QLineEdit
-        self.lineEdit_imag_rx: QLineEdit
-        self.lineEdit_imag_ry: QLineEdit
-        self.lineEdit_imag_rz: QLineEdit
-        #
-        self.lineEdit_imag_alldofs: QLineEdit
-        self.lineEdit_path_table_ux: QLineEdit
-        self.lineEdit_path_table_uy: QLineEdit
-        self.lineEdit_path_table_uz: QLineEdit
-        self.lineEdit_path_table_rx: QLineEdit
-        self.lineEdit_path_table_ry: QLineEdit
-        self.lineEdit_path_table_rz: QLineEdit
         self._create_list_lineEdits()
-
-        # QPushButton
-        self.pushButton_exit_tab0: QPushButton
-        self.pushButton_exit_tab1: QPushButton
-        self.pushButton_load_ux_table: QPushButton
-        self.pushButton_load_uy_table: QPushButton
-        self.pushButton_load_uz_table: QPushButton
-        self.pushButton_load_rx_table: QPushButton
-        self.pushButton_load_ry_table: QPushButton
-        self.pushButton_load_rz_table: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_all_dof_free: QPushButton
-        self.pushButton_all_dof_fixed: QPushButton
-
-        # QTabWidget
-        self.tabWidget_prescribed_dofs: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
 
     def _create_list_lineEdits(self):
         self.list_lineEdit_constant_values = [  

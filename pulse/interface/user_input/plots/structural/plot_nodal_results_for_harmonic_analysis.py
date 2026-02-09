@@ -1,28 +1,23 @@
 from PySide6.QtWidgets import QLineEdit, QPushButton, QRadioButton, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.get_nodal_results_for_harmonic_analysis_ui import GetNodalResultsForHarmonicAnalysis_UI
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from molde import load_ui
 
 
-class PlotNodalResultsForHarmonicAnalysis(QWidget):
+class PlotNodalResultsForHarmonicAnalysis(GetNodalResultsForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/get_nodal_results_for_harmonic_analysis.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
 
         self._initialize()
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
 
@@ -40,23 +35,6 @@ class PlotNodalResultsForHarmonicAnalysis(QWidget):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # LineEdit
-        self.lineEdit_node_id : QLineEdit
-
-        # PushButton
-        self.pushButton_export_data : QPushButton
-        self.pushButton_plot_data : QPushButton
-
-        # RadioButton
-        self.radioButton_ux : QRadioButton
-        self.radioButton_uy : QRadioButton
-        self.radioButton_uz : QRadioButton
-        self.radioButton_rx : QRadioButton
-        self.radioButton_ry : QRadioButton
-        self.radioButton_rz : QRadioButton
 
     def _create_connections(self):
         #

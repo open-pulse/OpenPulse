@@ -1,27 +1,22 @@
 from PySide6.QtWidgets import QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.get_stresses_for_static_analysis_ui import GetStressesForStaticAnalysis_UI
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
-from molde import load_ui
 
 import logging
 import numpy as np
 
-class PlotStressesForStaticAnalysis(QWidget):
+class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/get_stresses_for_static_analysis.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self._config_window()
         self._initialize()
         self._load_structural_solver()
-        self._define_qt_variables()
         self._create_list_lineEdits()
         self._create_connections()
         self.selection_callback()
@@ -56,21 +51,6 @@ class PlotStressesForStaticAnalysis(QWidget):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_element_id : QLineEdit
-        self.lineEdit_axial_stress : QLineEdit
-        self.lineEdit_bending_stress_y : QLineEdit
-        self.lineEdit_bending_stress_z : QLineEdit
-        self.lineEdit_hoop_stress : QLineEdit
-        self.lineEdit_torsional_stress : QLineEdit
-        self.lineEdit_shear_stress_xy : QLineEdit
-        self.lineEdit_shear_stress_yz : QLineEdit
-
-        # QPushButton
-        self.pushButton_reset : QPushButton
 
     def _create_list_lineEdits(self):
         self.lineEdits = [  self.lineEdit_element_id,

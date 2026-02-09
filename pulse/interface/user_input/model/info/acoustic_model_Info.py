@@ -1,25 +1,21 @@
 from PySide6.QtWidgets import QDialog, QLineEdit, QTreeWidget, QTreeWidgetItem
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
 from pulse.model import RadiationImpedanceType
-from molde import load_ui
+from pulse.interface.ui_generated.model.info.acoustic_model_info_ui import AcousticModelInfo_UI
 
 import numpy as np
 
-class AcousticModelInfo(QDialog):
+
+class AcousticModelInfo(AcousticModelInfo_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/info/acoustic_model_info.ui"
-        load_ui(ui_path, self)
-
         self.project = app().project
         app().main_window.set_input_widget(self)
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_nodal_properties()
@@ -35,20 +31,6 @@ class AcousticModelInfo(QDialog):
 
     def _initialize(self):
         self.preprocessor = self.project.model.preprocessor
-
-    def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_number_nodes : QLineEdit
-        self.lineEdit_number_elements : QLineEdit
-
-        # QTreeWidget
-        self.treeWidget_acoustic_pressure : QTreeWidget
-        self.treeWidget_volume_velocity : QTreeWidget
-        self.treeWidget_specific_impedance : QTreeWidget
-        self.treeWidget_radiation_impedance : QTreeWidget
-        self.treeWidget_perforated_plate : QTreeWidget
-        self.treeWidget_element_length_correction : QTreeWidget
 
     def _create_connections(self):
         pass

@@ -2,24 +2,20 @@ from PySide6.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.inertial_load_input_ui import InertialLoadInput_UI
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 import numpy as np
 
 error_title = "Error"
 warning_title = "Warning"
 
-class SetInertialLoad(QDialog):
+class SetInertialLoad(InertialLoadInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/inertial_load_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -27,7 +23,6 @@ class SetInertialLoad(QDialog):
         
         self._initialize()
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self._load_inertia_load_setup()
@@ -44,20 +39,6 @@ class SetInertialLoad(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_stiffening_effect: QCheckBox
-
-        # QLineEdit
-        self.lineEdit_acceleration_x_axis: QLineEdit
-        self.lineEdit_acceleration_y_axis: QLineEdit
-        self.lineEdit_acceleration_z_axis: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
 
     def _create_connections(self):
         self.pushButton_attribute.clicked.connect(self.attribute_callback)

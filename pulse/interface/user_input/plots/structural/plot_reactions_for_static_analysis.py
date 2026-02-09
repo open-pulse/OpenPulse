@@ -1,22 +1,18 @@
 from PySide6.QtWidgets import QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.get_reactions_for_static_analysis_ui import GetReactionsForStaticAnalysis_UI
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
-from molde import load_ui
 
 import logging
 import numpy as np
 
 
-class PlotReactionsForStaticAnalysis(QWidget):
+class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/get_reactions_for_static_analysis.ui"
-        load_ui(ui_path, self)
-        
         app().main_window.set_input_widget(self)
 
         self._initialize()
@@ -37,16 +33,6 @@ class PlotReactionsForStaticAnalysis(QWidget):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-        
-        # QLineEdit
-        self.lineEdit_node_id: QLineEdit
-        self.lineEdit_reaction_fx: QLineEdit
-        self.lineEdit_reaction_fy: QLineEdit
-        self.lineEdit_reaction_fz: QLineEdit
-        self.lineEdit_reaction_mx: QLineEdit
-        self.lineEdit_reaction_my: QLineEdit
-        self.lineEdit_reaction_mz: QLineEdit
-
         self.lineEdits = [  self.lineEdit_node_id,
                             self.lineEdit_reaction_fx,
                             self.lineEdit_reaction_fy,
@@ -54,24 +40,6 @@ class PlotReactionsForStaticAnalysis(QWidget):
                             self.lineEdit_reaction_mx,
                             self.lineEdit_reaction_my,
                             self.lineEdit_reaction_mz  ]
-
-        # QPushButton
-        self.pushButton_reset: QPushButton
-        
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-        self.tabWidget_springs_dampers: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_reactions_at_constrained_dofs: QTreeWidget
-        self.treeWidget_reactions_at_dampers: QTreeWidget
-        self.treeWidget_reactions_at_springs: QTreeWidget
-
-        # QWidget
-        self.tab_external_springs_dampers: QWidget
-        self.tab_constrained_dofs: QWidget
-        self.tab_reactions_at_springs: QWidget
-        self.tab_reactions_at_dampers: QWidget
 
     def _create_connections(self):
         #

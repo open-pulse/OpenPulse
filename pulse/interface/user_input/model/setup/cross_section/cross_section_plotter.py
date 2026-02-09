@@ -2,28 +2,23 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QDialog, QPushButton, QToolButton, QVBoxLayout, QWidget
 
-from pulse import UI_DIR, app
+from pulse import app
+from pulse.interface.ui_generated.plots.model.cross_section_plotter_ui import CrossSectionPlotter_UI
 from pulse.interface.formatters import icons
 
-from molde import load_ui
 
 import numpy as np
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 
-class CrossSectionPlotter(QDialog):
+class CrossSectionPlotter(CrossSectionPlotter_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/model/cross_section_plotter.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
 
     def _config_window(self):
@@ -34,12 +29,6 @@ class CrossSectionPlotter(QDialog):
 
     def _initialize(self):
         app().main_window.theme_changed.connect(self.paint_toolbar_icons)
-
-    def _define_qt_variables(self):
-        # QPushButton
-        self.close_button: QPushButton
-        # QWidget
-        self.widget_plot: QWidget
 
     def _create_connections(self):
         self.close_button.clicked.connect(self.close)

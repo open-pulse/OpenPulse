@@ -1,21 +1,17 @@
 from PySide6.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.plot_nodal_results_field_for_harmonic_analysis_ui import PlotNodalResultsFieldForHarmonicAnalysis_UI
 from pulse.model import AnalysisID
 
-from molde import load_ui
 
 import numpy as np
 
 
-class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
+class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/plot_nodal_results_field_for_harmonic_analysis.ui"
-        load_ui(ui_path, self)
-
         self._initialize()
         self._config_window()
         self._define_qt_variables()
@@ -45,26 +41,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_color_scale : QComboBox
-        self.comboBox_colormaps : QComboBox
-
-        # QFrame
-        self.frame_button : QFrame
         self.frame_button.setVisible(False)
-
-        # QLineEdit
-        self.lineEdit_selected_frequency : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QSlider
-        self.slider_transparency : QSlider
-
-        # QTreeWidget
-        self.treeWidget_frequencies : QTreeWidget
         self._config_treeWidget()
 
     def _create_connections(self):

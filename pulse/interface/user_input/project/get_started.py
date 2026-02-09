@@ -3,22 +3,18 @@ from PySide6.QtGui import QCloseEvent, QColor, QAction
 from PySide6.QtCore import Qt
 from pathlib import Path
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.project.get_started_input_ui import GetStartedInput_UI
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 
-class GetStartedInput(QDialog):
+class GetStartedInput(GetStartedInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "project/get_started_input.ui"
-        load_ui(ui_path, self)
-
         # app().main_window.set_input_widget(self)
         self.project = app().main_window.project
 
@@ -27,7 +23,6 @@ class GetStartedInput(QDialog):
         self._initialize()
         self._load_icons()
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self.initial_actions()
 
@@ -51,27 +46,6 @@ class GetStartedInput(QDialog):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Get started")
         
-    def _define_qt_variables(self):
-
-        # QLabel
-        self.recents_label : QLabel
-        self.project_path_label_1 : QLabel
-        self.project_path_label_2 : QLabel
-        self.project_path_label_3 : QLabel
-        self.project_path_label_4 : QLabel
-        self.project_path_label_5 : QLabel
-
-        # QPushButton
-        self.create_button : QPushButton
-        self.load_button : QPushButton
-        self.about_button : QPushButton
-        self.project_button_1 : QPushButton
-        self.project_button_2 : QPushButton
-        self.project_button_3 : QPushButton
-        self.project_button_4 : QPushButton
-        self.project_button_5 : QPushButton
-        self.reset_list_projects_button : QPushButton
-
     def _create_connections(self):
         self.create_button.clicked.connect(self.new_project)
         self.load_button.clicked.connect(self.open_project)

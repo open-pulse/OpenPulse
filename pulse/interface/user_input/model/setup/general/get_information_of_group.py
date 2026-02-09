@@ -2,21 +2,17 @@ from PySide6.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QRadioBut
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.info.get_group_information_ui import GetGroupInformation_UI
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class GetInformationOfGroup(QDialog):
+class GetInformationOfGroup(GetGroupInformation_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/info/get_group_information.ui"
-        load_ui(ui_path, self)
-
         self.group_label = kwargs.get("group_label", "")
         self.selection_label = kwargs.get("selection_label", "")
         self.header_labels = kwargs.get("header_labels", list())
@@ -30,7 +26,6 @@ class GetInformationOfGroup(QDialog):
 
         self._initialize()
         self._config_windows()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_group_info()
@@ -44,21 +39,6 @@ class GetInformationOfGroup(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QLabel
-        self.label_selected_id : QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_close : QPushButton
-        self.pushButton_remove : QPushButton
-
-        # QTreeWidget
-        self.treeWidget_group_info : QTreeWidget
 
     def _create_connections(self):
         #

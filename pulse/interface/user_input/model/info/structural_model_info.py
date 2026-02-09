@@ -1,26 +1,21 @@
 from PySide6.QtWidgets import QDialog, QLineEdit, QTreeWidget, QTreeWidgetItem
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.info.structural_model_Info_ui import StructuralModelInfo_UI
 
-from molde import load_ui
 
 import numpy as np
 
-class StructuralModelInfo(QDialog):
+class StructuralModelInfo(StructuralModelInfo_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        ui_path = UI_DIR / "model/info/structural_model_Info.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self.project = app().project
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_nodal_properties()
@@ -35,18 +30,6 @@ class StructuralModelInfo(QDialog):
 
     def _initialize(self):
         self.preprocessor = app().project.model.preprocessor
-
-    def _define_qt_variables(self):
-        # QLineEdit
-        self.lineEdit_number_nodes : QLineEdit
-        self.lineEdit_number_elements : QLineEdit
-        # QTreeWidget
-        self.treeWidget_prescribed_dofs : QTreeWidget
-        self.treeWidget_constrained_dofs : QTreeWidget
-        self.treeWidget_nodal_loads : QTreeWidget
-        self.treeWidget_masses : QTreeWidget
-        self.treeWidget_springs : QTreeWidget
-        self.treeWidget_dampers : QTreeWidget
 
     def _create_connections(self):
         pass

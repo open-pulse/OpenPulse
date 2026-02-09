@@ -1,21 +1,18 @@
 from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget
 from PySide6.QtGui import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.analysis.harmonic_analysis_setup_input_ui import HarmonicAnalysisSetupInput_UI
 from pulse.model import AnalysisID
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 error_title = "Error"
 
 
-class HarmonicAnalysisSetupInput(QDialog):
+class HarmonicAnalysisSetupInput(HarmonicAnalysisSetupInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
-
-        ui_path = UI_DIR / "analysis/harmonic_analysis_setup_input.ui"
-        load_ui(ui_path, self)
 
         self.project = app().project
         self.model = app().project.model
@@ -44,31 +41,6 @@ class HarmonicAnalysisSetupInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Analysis setup")
-
-    def _list_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_method : QComboBox
-
-        # QLabel
-        self.label_modes_to_expand : QLabel
-        self.label_title : QLabel
-
-        # QLineEdit
-        self.lineEdit_fmin : QLineEdit
-        self.lineEdit_fmax : QLineEdit
-        self.lineEdit_fstep : QLineEdit
-        self.lineEdit_modes_to_expand : QLineEdit
-        self.lineEdit_mass_multiplier : QLineEdit
-        self.lineEdit_stiffness_multiplier : QLineEdit
-        self.lineEdit_constant_structural_coefficient : QLineEdit
-
-        # QPushButton
-        self.pushButton_enter_setup : QPushButton
-        self.pushButton_run_analysis : QPushButton
-
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
 
     def _create_connections(self):
         #

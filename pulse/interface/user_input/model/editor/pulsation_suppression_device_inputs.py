@@ -1,5 +1,4 @@
 import numpy as np
-from molde import load_ui
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
@@ -14,7 +13,8 @@ from PySide6.QtWidgets import (
     QTreeWidgetItem,
 )
 
-from pulse import UI_DIR, app
+from pulse import app
+from pulse.interface.ui_generated.model.editor.pulsation_suppression_device_input_ui import PulsationSuppressionDeviceInput_UI
 from pulse.editor.dual_volume_psd import DualVolumePSD
 from pulse.editor.single_volume_psd import SingleVolumePSD
 from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -30,13 +30,9 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class PulsationSuppressionDeviceInputs(QDialog):
+class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
     def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/editor/pulsation_suppression_device_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
 
@@ -83,75 +79,6 @@ class PulsationSuppressionDeviceInputs(QDialog):
         self.nodes_from_removed_lines = list()
 
     def _define_qt_variables(self):
-        # QComboBox
-        self.comboBox_main_axis: QComboBox
-        self.comboBox_connection_pipe: QComboBox
-        self.comboBox_number_volumes: QComboBox
-        self.comboBox_volumes_connection: QComboBox
-        self.comboBox_pipe1_connection: QComboBox
-        self.comboBox_pipe2_connection: QComboBox
-        self.comboBox_tuned_filter: QComboBox
-
-        # QLabel
-        self.label_pipe3: QLabel
-        self.label_rotation_plane: QLabel
-        self.label_rotation_angle_pipe1: QLabel
-        self.label_rotation_angle_pipe2: QLabel
-        self.label_rotation_angle_pipe1_unit: QLabel
-        self.label_rotation_angle_pipe2_unit: QLabel
-        self.label_volumes_connection: QLabel
-        self.label_volumes_spacing: QLabel
-        self.label_volumes_spacing_unit: QLabel
-        self.label_volume1: QLabel
-        self.label_volume2: QLabel
-
-        # QLineEdit
-        self.lineEdit_device_label: QLineEdit
-        self.lineEdit_connecting_coord_x: QLineEdit
-        self.lineEdit_connecting_coord_y: QLineEdit
-        self.lineEdit_connecting_coord_z: QLineEdit
-
-        self.lineEdit_volume1_length: QLineEdit
-        self.lineEdit_volume2_length: QLineEdit
-        self.lineEdit_volume1_diameter: QLineEdit
-        self.lineEdit_volume2_diameter: QLineEdit
-        self.lineEdit_volume1_wall_thickness: QLineEdit
-        self.lineEdit_volume2_wall_thickness: QLineEdit
-
-        self.lineEdit_pipe1_length: QLineEdit
-        self.lineEdit_pipe2_length: QLineEdit
-        self.lineEdit_pipe3_length: QLineEdit
-        self.lineEdit_pipe1_diameter: QLineEdit
-        self.lineEdit_pipe2_diameter: QLineEdit
-        self.lineEdit_pipe3_diameter: QLineEdit
-        self.lineEdit_pipe1_wall_thickness: QLineEdit
-        self.lineEdit_pipe2_wall_thickness: QLineEdit
-        self.lineEdit_pipe3_wall_thickness: QLineEdit
-        self.lineEdit_pipe1_distance: QLineEdit
-        self.lineEdit_pipe2_distance: QLineEdit
-        self.lineEdit_pipe3_distance: QLineEdit
-
-        self.lineEdit_rotation_plane: QLineEdit
-        self.lineEdit_selection: QLineEdit
-
-        # QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_show_errors: QPushButton
-        self.pushButton_create_psd: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QSpinBox
-        self.spinBox_pipe1_rotation_angle: QDoubleSpinBox
-        self.spinBox_pipe2_rotation_angle: QDoubleSpinBox
-        self.spinBox_volumes_spacing: QDoubleSpinBox
-
-        # QTavbWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_psd_info: QTreeWidget
-
         # QWidget
         self.preview_widget: PSDPreviewRenderWidget
 
