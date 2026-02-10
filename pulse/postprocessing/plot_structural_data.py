@@ -195,6 +195,9 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
     phases = np.angle(solution)
     _phases = np.array([phases[ind+0, column], phases[ind+1, column], phases[ind+2, column], 
                         phases[ind+3, column], phases[ind+4, column], phases[ind+5, column]]).T
+    
+    _idx_max = np.argmax(np.abs(solution[:, column]))
+    _delta = -np.angle(solution[_idx_max, column])
 
     if new_scf is None:
         scf = preprocessor.structure_principal_diagonal / 50
@@ -213,7 +216,7 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
     if phase_step is None:
         factor = magnif_factor
     else:
-        factor = magnif_factor*np.cos(phase_step + _phases)
+        factor = magnif_factor*np.cos(phase_step + _phases + _delta)
     
     coord_def[:,0] = coord[:,0]
     coord_def[:,1] = coord[:,1] + np.abs(u_x)*factor[:, 0]
