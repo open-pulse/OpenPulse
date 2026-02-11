@@ -1,4 +1,4 @@
-from vtkmodules.vtkRenderingCore import vtkActor, vtkTextActor
+from vtkmodules.vtkRenderingCore import vtkActor
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QApplication
@@ -6,7 +6,6 @@ from PySide6.QtWidgets import QApplication
 from molde.interactor_styles import BoxSelectionInteractorStyle
 from molde.pickers import CellAreaPicker, CellPropertyAreaPicker
 from molde.render_widgets import CommonRenderWidget
-from molde import Color
 
 from pulse.interface.viewer_3d.actors import EditorPointsActor, EditorStagedPointsActor, EditorSelectedPointsActor
 from pulse.interface.viewer_3d.render_tools import SelectionTool

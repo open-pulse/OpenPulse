@@ -1,6 +1,5 @@
-from vtkmodules.vtkCommonDataModel import vtkPolyData
-from vtkmodules.vtkFiltersCore import vtkAppendPolyData, vtkTubeFilter
-from vtkmodules.vtkFiltersSources import vtkArcSource, vtkDiskSource
+from vtkmodules.vtkFiltersCore import vtkTubeFilter
+from vtkmodules.vtkFiltersSources import vtkArcSource
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
 from pulse.utils.cell_utils import paint_data

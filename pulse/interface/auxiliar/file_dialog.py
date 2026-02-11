@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QFileDialog
+from PySide6.QtWidgets import QFileDialog
 from PySide6.QtCore import Qt
 
 from pulse import app

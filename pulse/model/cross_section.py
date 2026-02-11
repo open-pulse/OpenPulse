@@ -1,11 +1,8 @@
-from time import time
 
 import numpy as np
-from math import pi, sqrt, cos, sin, atan, isnan, isinf
+from math import pi, sqrt, cos, sin, atan
 from numpy.linalg import inv, pinv, norm
-from scipy.sparse import csc_matrix, coo_matrix
-from scipy.sparse.linalg import spilu, svds, splu, spsolve
-from scipy.linalg import svd
+from scipy.sparse import coo_matrix
 
 rows, cols = 4, 2
 Nint_points = 4

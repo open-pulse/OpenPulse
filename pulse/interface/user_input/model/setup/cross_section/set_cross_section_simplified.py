@@ -1,11 +1,9 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QGridLayout
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.cross_section.set_cross_section_simplified_ui import SetCrossSectionSimplified_UI
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
 window_title_1 = "Error"

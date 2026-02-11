@@ -1,10 +1,7 @@
-from PySide6.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton
-from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.inertial_load_input_ui import InertialLoadInput_UI
-from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 

@@ -1,5 +1,5 @@
 
-from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
+from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QFileDialog, QMessageBox
 from PySide6.QtCore import Qt, Signal, QEvent, QPoint
 from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
 
@@ -33,7 +33,6 @@ from pulse.interface.toolbars.render_tools_toolbar import RenderToolsToolbar
 from pulse.interface.user_input.input_ui import InputUi
 from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
-from pulse.interface.user_input.project.get_started import GetStartedInput
 from pulse.interface.user_input.project.new_project import NewProjectInput
 from pulse.interface.user_input.project.reset_project import ResetProjectInput
 from pulse.interface.user_input.project.import_geometry import ImportGeometry
@@ -42,7 +41,7 @@ from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
-from pulse.utils.interface_utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
+from pulse.utils.interface_utils import VisualizationFilter, SelectionFilter, ColorMode
 
 import logging
 import os

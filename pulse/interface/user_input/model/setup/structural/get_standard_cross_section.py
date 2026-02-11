@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QCheckBox, QComboBox, QDialog, QPushButton, QRadioButton, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QIcon, QBrush, QColor
+from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtGui import QBrush, QColor
 from PySide6.QtCore import Qt
 
 from pulse import app

@@ -1,8 +1,7 @@
 from pathlib import Path
 
-import numpy as np
 
-from pulse.editor.structures import Bend, Elbow, Flange, Pipe, Point, Valve, Reducer
+from pulse.editor.structures import Bend, Elbow, Flange, Pipe, Valve, Reducer
 
 
 class PCFExporter:

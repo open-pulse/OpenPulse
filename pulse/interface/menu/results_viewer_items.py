@@ -1,11 +1,7 @@
-from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
-from PySide6.QtCore import Qt, QSize, QRect
-from pathlib import Path
+from PySide6.QtGui import QColor, QPen
+from PySide6.QtCore import Qt
 
-from pulse.interface.menu.border_item_delegate import BorderItemDelegate
 from pulse.interface.menu.common_menu_items import CommonMenuItems
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse import app
 from pulse.model import AnalysisID

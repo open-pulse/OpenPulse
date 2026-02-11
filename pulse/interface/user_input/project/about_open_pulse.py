@@ -1,4 +1,3 @@
-from PySide6.QtWidgets import QDialog, QLabel, QPushButton
 from PySide6.QtGui import QCloseEvent, QDesktopServices
 from PySide6.QtCore import Qt, QUrl
 

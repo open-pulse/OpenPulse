@@ -1,14 +1,11 @@
 import numpy as np
 
-from vtkmodules.vtkCommonDataModel import vtkPolyData
-from vtkmodules.vtkFiltersCore import vtkAppendPolyData, vtkTubeFilter
+from vtkmodules.vtkFiltersCore import vtkTubeFilter
 from vtkmodules.vtkFiltersSources import vtkArcSource, vtkLineSource
 from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
 
 from pulse.utils.cell_utils import paint_data
-from pulse.utils.rotations import align_vtk_geometry
 from pulse.editor.structures import ArcBend
-from pulse.utils.cross_section_sources import closed_pipe_data
 
 
 

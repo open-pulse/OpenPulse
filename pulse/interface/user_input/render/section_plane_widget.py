@@ -1,4 +1,3 @@
-from PySide6.QtWidgets import QDialog, QPushButton, QSlider, QSpinBox
 from PySide6.QtCore import Qt, Signal
 
 from pulse import app

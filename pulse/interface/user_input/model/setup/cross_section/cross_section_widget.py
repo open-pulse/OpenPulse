@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QWidget, QDialog
+from PySide6.QtWidgets import QDialog
 from PySide6.QtCore import Qt
 
 from pulse import app
