@@ -1006,7 +1006,7 @@ requires-dist = [
     { name = "pyqtdarktheme", marker = "python_full_version >= '3.10' and python_full_version < '3.12'", specifier = ">=2.1.0,<3" },
     { name = "pyside6", specifier = ">=6.8.1.1,<7" },
     { name = "scipy", specifier = ">=1.11.2,<2" },
-    { name = "vtk", specifier = ">=9.4.0,<10" },
+    { name = "vtk", specifier = ">=9,<9.5" },
 ]
 
 [package.metadata.requires-dev]
