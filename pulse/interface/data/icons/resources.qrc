@@ -5,6 +5,10 @@
         <file>lines.png</file>
         <file>plus-thick.png</file>
         <file>delete.png</file>
+        <file>render_selector/plot_lines_with_sections.PNG</file>
+        <file>render_selector/raw_geometry.PNG</file>
+        <file>render_selector/plot_lines.PNG</file>
+        <file>render_selector/plot_mesh.PNG</file>
         <file>common/save_as.png</file>
         <file>common/show_mesh_points.png</file>
         <file>common/reset-image.png</file>
@@ -125,8 +129,15 @@
         <file>logos/OpenPulse_logo2.png</file>
         <file>logos/mopt_logo2.png</file>
         <file>logos/mopt_logo_white.png</file>
+        <file>logos/MOPT.PNG</file>
         <file>logos/OpenPulse_logo3.png</file>
         <file>logos/mopt_logo.png</file>
+        <file>figures/Circular.PNG</file>
+        <file>figures/T_profile.PNG</file>
+        <file>figures/Rectangular.PNG</file>
+        <file>figures/Pipe.PNG</file>
+        <file>figures/C_profile.PNG</file>
+        <file>figures/I_profile.PNG</file>
         <file>mpltoolbar/copy_icon.png</file>
         <file>cursors/pan_cursor.png</file>
         <file>cursors/rotation_cursor.png</file>
@@ -142,5 +153,16 @@
         <file>pulse/pulse.png</file>
         <file>pulse/pulse_icon.png</file>
         <file>pulse/pulse_icon2.png</file>
+        <file>figures/base/Circular.PNG</file>
+        <file>figures/base/T_profile.PNG</file>
+        <file>figures/base/Rectangular.PNG</file>
+        <file>figures/base/C_profile.PNG</file>
+        <file>figures/base/I_profile.PNG</file>
+        <file>figures/backup/Circular.PNG</file>
+        <file>figures/backup/T_profile.PNG</file>
+        <file>figures/backup/Rectangular.PNG</file>
+        <file>figures/backup/Pipe.PNG</file>
+        <file>figures/backup/C_profile.PNG</file>
+        <file>figures/backup/I_profile.PNG</file>
     </qresource>
 </RCC>
