@@ -73,6 +73,9 @@ def ui_compile(c):
         print("❌ The specified directory does not exist.")
         return
 
+    # Clean up orphaned generated files
+    clean_orphaned_files(root_dir, output_root)
+
     for dirpath, _, filenames in os.walk(root_dir):
         for filename in filenames:
             if filename.endswith(".ui"):
@@ -157,6 +160,39 @@ def fix_ui_files(c):
             if filename.endswith(".ui"):
                 ui_path = os.path.join(dirpath, filename)
                 fix_ui_file_text(Path(ui_path))
+
+
+def clean_orphaned_files(root_dir: str, output_root: str) -> None:
+    """Remove generated .py files that don't have corresponding .ui files."""
+    if not os.path.exists(output_root):
+        return
+    
+    deleted_count = 0
+    for dirpath, _, filenames in os.walk(output_root):
+        for filename in filenames:
+            if filename.endswith("_ui.py"):
+                py_path = os.path.join(dirpath, filename)
+                
+                # Calculate the corresponding .ui file path
+                relative_path = os.path.relpath(dirpath, output_root)
+                ui_dir = os.path.join(root_dir, relative_path)
+                ui_filename = filename.replace("_ui.py", ".ui")
+                ui_path = os.path.join(ui_dir, ui_filename)
+                
+                # Check if .ui file exists
+                if not os.path.exists(ui_path):
+                    os.remove(py_path)
+                    print(f"🗑️  Deleted orphaned file: {py_path}")
+                    deleted_count += 1
+                    
+                    # Also delete the .md5 file if it exists
+                    md5_path = f"{ui_path}.md5"
+                    if os.path.exists(md5_path):
+                        os.remove(md5_path)
+                        print(f"🗑️  Deleted orphaned md5: {md5_path}")
+    
+    if deleted_count > 0:
+        print(f"✅ Cleaned up {deleted_count} orphaned file(s)")
 
 
 def to_camel_case(filename: str) -> str:
