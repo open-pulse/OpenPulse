@@ -7,6 +7,7 @@ from PySide6.QtCore import Qt, QEvent, QObject, Signal
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.data_handler.file_manager import FileManager
 
 from molde import load_ui
 
@@ -140,7 +141,7 @@ class AddAcousticTransferElementInput(QDialog):
 
         path = self.lineEdit_spreadsheet_path.text()
 
-        if path == "":
+        if not path:
             if self.search_callback():
                 return
             
@@ -150,7 +151,6 @@ class AddAcousticTransferElementInput(QDialog):
         if os.path.exists(path):
 
             try:
-
                 self.import_element_transfer_data(path)
 
                 if self.element_transfer_data:
@@ -209,19 +209,13 @@ class AddAcousticTransferElementInput(QDialog):
                 self.actions_to_finalize()
 
     def search_callback(self):
-
-        last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
-        if last_path is None:
-            last_path = str(Path().home())
-
         caption = f"Choose a file to import element transfer data"
-        path, check = app().main_window.file_dialog.get_open_file_name(
-                                                                        caption, 
-                                                                        last_path, 
-                                                                        'Table File (*.xls; *.xlsx;)'
-                                                                        )
+        last_folder = app().config.get_last_folder_for("imported_table_folder")
+        file_extensions = ["xls", "xlsx"]
+    
+        path, extension = FileManager.get_file_paths(file_extensions, caption, last_folder=last_folder)
 
-        if not check:
+        if not extension:
             info_message = "Select the spreadsheet file to import "
             info_message += "the acoustic transfer element data."
             self.lineEdit_spreadsheet_path.setToolTip(info_message)
@@ -229,8 +223,8 @@ class AddAcousticTransferElementInput(QDialog):
 
         self.lineEdit_spreadsheet_path.setText(path)
         self.lineEdit_spreadsheet_path.setToolTip(path)
-    
-        app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path)
+
+        app().config.write_last_folder_path_in_file("imported_table_folder", path)
 
     def check_inputs(self):
 
@@ -247,30 +241,13 @@ class AddAcousticTransferElementInput(QDialog):
             return True
 
     def import_element_transfer_data(self, imported_path: str):
-        from polars import read_excel
-        from openpyxl import load_workbook
-
         self.element_transfer_data.clear()
-        sufix = Path(imported_path).suffix
 
-        if sufix in [".xls", ".xlsx"]:
-            wb = load_workbook(imported_path)
-            sheetnames = wb.sheetnames
+        imported_files = FileManager.read_data_in_file(imported_path, use_first_sheet=False)
 
-            if self.comboBox_data_type.currentIndex() == 0:
-                cols = list(np.arange(3))
-            else:
-                cols = list(np.arange(9))
-
-            for sheetname in sheetnames:
-
-                sheet_data = read_excel(
-                                        imported_path, 
-                                        sheet_name = sheetname,  
-                                        columns = cols
-                                        ).to_numpy()
-
-                self.element_transfer_data[sheetname] = sheet_data
+        for imported_file in imported_files:
+            if imported_file.sheetname:
+                self.element_transfer_data[imported_file.sheetname] = imported_file.data
 
     def update_frequency_setup(self, frequencies: np.ndarray, path: str):
 

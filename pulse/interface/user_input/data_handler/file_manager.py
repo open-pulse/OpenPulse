@@ -10,9 +10,8 @@ import platform
 import os
 import h5py
 
-()
-class FileManager:
 
+class FileManager:
 
     @staticmethod
     def import_single_file(file_extensions: List[str], caption: str = "Open file", last_folder: str = None) -> ImportedFile | None:
@@ -123,7 +122,7 @@ class FileManager:
                 wb = load_workbook(file_path)
                 
                 for sheetname in wb.sheetnames:
-                    max_cols = wb[sheetname].max_column
+                    max_cols = wb[sheetname].max_column 
 
                     for i in range(max_cols, 1, -1):
                         cols = list(range(i))
@@ -144,7 +143,7 @@ class FileManager:
                     if use_first_sheet:
                         break
 
-            return output_data
+            return output_data[0] if len(output_data) == 1 else output_data
 
     @staticmethod                      
     def __remove_unnecesary_header_in_data(data: np.ndarray) -> np.ndarray:
