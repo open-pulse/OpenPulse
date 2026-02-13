@@ -28,7 +28,7 @@ def qrc_codegen(c):
 
     qrc_content = ['<RCC>', '    <qresource prefix="icons">']
 
-    for file_path in RESOURCE_DIR.rglob("*.png"):
+    for file_path in RESOURCE_DIR.rglob("*.png", case_sensitive=False):
         if file_path.is_file():
             relative_path = file_path.relative_to(RESOURCE_DIR)
             qrc_content.append(f'        <file>{relative_path.as_posix()}</file>')

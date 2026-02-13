@@ -1107,7 +1107,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/Pipe.PNG</pixmap>
+                 <pixmap>:/icons/figures/Pipe.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -3124,7 +3124,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/Rectangular.PNG</pixmap>
+                 <pixmap>:/icons/figures/Rectangular.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -3587,7 +3587,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/Circular.PNG</pixmap>
+                 <pixmap>:/icons/figures/Circular.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -4458,7 +4458,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/C_profile.PNG</pixmap>
+                 <pixmap>:/icons/figures/C_profile.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -5277,7 +5277,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/I_profile.PNG</pixmap>
+                 <pixmap>:/icons/figures/I_profile.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -5932,7 +5932,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/T_profile.PNG</pixmap>
+                 <pixmap>:/icons/figures/T_profile.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>

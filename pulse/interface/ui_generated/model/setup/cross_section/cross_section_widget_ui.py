@@ -370,7 +370,7 @@ class Ui_Form(object):
         self.label_14.setObjectName(u"label_14")
         self.label_14.setMinimumSize(QSize(204, 218))
         self.label_14.setMaximumSize(QSize(200, 218))
-        self.label_14.setPixmap(QPixmap(u"../../../../figures/Pipe.PNG"))
+        self.label_14.setPixmap(QPixmap(u":/icons/figures/Pipe.PNG"))
         self.label_14.setScaledContents(True)
 
         self.gridLayout_30.addWidget(self.label_14, 0, 0, 1, 1)
@@ -1031,7 +1031,7 @@ class Ui_Form(object):
         self.label_4.setObjectName(u"label_4")
         self.label_4.setMinimumSize(QSize(250, 310))
         self.label_4.setMaximumSize(QSize(250, 310))
-        self.label_4.setPixmap(QPixmap(u"../../../../figures/Rectangular.PNG"))
+        self.label_4.setPixmap(QPixmap(u":/icons/figures/Rectangular.PNG"))
         self.label_4.setScaledContents(True)
 
         self.gridLayout_3.addWidget(self.label_4, 0, 0, 1, 1)
@@ -1194,7 +1194,7 @@ class Ui_Form(object):
         self.label_7.setObjectName(u"label_7")
         self.label_7.setMinimumSize(QSize(204, 232))
         self.label_7.setMaximumSize(QSize(204, 232))
-        self.label_7.setPixmap(QPixmap(u"../../../../figures/Circular.PNG"))
+        self.label_7.setPixmap(QPixmap(u":/icons/figures/Circular.PNG"))
         self.label_7.setScaledContents(True)
 
         self.gridLayout_28.addWidget(self.label_7, 0, 0, 1, 1)
@@ -1488,7 +1488,7 @@ class Ui_Form(object):
         self.label_9.setObjectName(u"label_9")
         self.label_9.setMinimumSize(QSize(250, 310))
         self.label_9.setMaximumSize(QSize(250, 310))
-        self.label_9.setPixmap(QPixmap(u"../../../../figures/C_profile.PNG"))
+        self.label_9.setPixmap(QPixmap(u":/icons/figures/C_profile.PNG"))
         self.label_9.setScaledContents(True)
 
         self.gridLayout_47.addWidget(self.label_9, 0, 0, 1, 1)
@@ -1772,7 +1772,7 @@ class Ui_Form(object):
         self.label_10.setObjectName(u"label_10")
         self.label_10.setMinimumSize(QSize(250, 310))
         self.label_10.setMaximumSize(QSize(250, 310))
-        self.label_10.setPixmap(QPixmap(u"../../../../figures/I_profile.PNG"))
+        self.label_10.setPixmap(QPixmap(u":/icons/figures/I_profile.PNG"))
         self.label_10.setScaledContents(True)
 
         self.gridLayout_46.addWidget(self.label_10, 0, 0, 1, 1)
@@ -1998,7 +1998,7 @@ class Ui_Form(object):
         self.label_11.setObjectName(u"label_11")
         self.label_11.setMinimumSize(QSize(250, 310))
         self.label_11.setMaximumSize(QSize(250, 310))
-        self.label_11.setPixmap(QPixmap(u"../../../../figures/T_profile.PNG"))
+        self.label_11.setPixmap(QPixmap(u":/icons/figures/T_profile.PNG"))
         self.label_11.setScaledContents(True)
 
         self.gridLayout_45.addWidget(self.label_11, 0, 0, 1, 1)
