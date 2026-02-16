@@ -14,7 +14,7 @@ class TextFileManager(IOHandler):
 
         super().__init__()
 
-    def read(self, file_path: str) -> TextData:
+    def read(self, file_path: str | Path) -> TextData:
         file_path = Path(file_path)
 
         if file_path.suffix not in [".txt", ".dat", ".csv"]:
@@ -34,7 +34,7 @@ class TextFileManager(IOHandler):
                         str(file_path),
                         loaded_data)
     
-    def save(self, file_path: str, data: np.array):
+    def save(self, file_path: str | Path, data: np.array, delimiter = ",", header = ""):
         file_path = Path(file_path)
 
         if not file_path.parent.exists():
@@ -45,13 +45,13 @@ class TextFileManager(IOHandler):
             f"Invalid suffix {file_path.suffix}. Use .txt, .dat or .csv"
         )
         
-        np.savetxt(str(file_path), data, delimiter=self.delimiter, header=self.header)
+        np.savetxt(str(file_path), data, delimiter=delimiter, header=header)
 
     def __remove_unnecesary_header_in_data(self, data: np.ndarray) -> np.ndarray:
         filtered_data = [row for row in data if not isinstance(row[0], str)]
         return np.array(filtered_data, dtype=float)
     
-    def __load_text_file_data(self, file_path: str):
+    def __load_text_file_data(self, file_path: str | Path):
         output_data = list()
         if isinstance(file_path, str):
             file_path = Path(file_path)

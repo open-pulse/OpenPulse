@@ -12,7 +12,7 @@ class HDF5FileManager(IOHandler):
     def __init__(self):
         super().__init__()
 
-    def read(self, file_path) -> SimulationData:
+    def read(self, file_path: str | Path) -> SimulationData:
         file_path = Path(file_path)
 
         simulation_data = SimulationData(

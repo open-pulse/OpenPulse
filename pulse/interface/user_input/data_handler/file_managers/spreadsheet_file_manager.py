@@ -12,7 +12,7 @@ class SpreadsheetFileManager(IOHandler):
     def __init__(self):
         super().__init__()
 
-    def read(self, file_path: str) -> SpreadsheetData:
+    def read(self, file_path: str | Path) -> SpreadsheetData:
         file_path = Path(file_path)
 
         if file_path.suffix not in [".xls", ".xlsx"]:
@@ -53,7 +53,7 @@ class SpreadsheetFileManager(IOHandler):
 
         return imported_spreadsheet
 
-    def save(self, file_path: str, sheet_name: str, exported_data: PolarsDataFrame, row_indexes: bool = False):
+    def save(self, file_path: str | Path, sheet_name: str, data: PolarsDataFrame, index_rows: bool = False):
         file_path = Path(file_path)
 
         if not file_path.parent.exists():
@@ -67,7 +67,7 @@ class SpreadsheetFileManager(IOHandler):
         from pandas import ExcelWriter
 
         with ExcelWriter(str(file_path)) as writer:
-            exported_data.to_pandas().to_excel(writer, sheet_name=sheet_name, index=row_indexes)
+            data.to_pandas().to_excel(writer, sheet_name=sheet_name, index=index_rows)
     
     def __remove_unnecesary_header_in_data(self, data: np.ndarray) -> np.ndarray:
         filtered_data = [row for row in data if not isinstance(row[0], str)]
