@@ -3,9 +3,7 @@ import numpy as np
 
 
 @dataclass
-class ImportedFile:
-    data: np.ndarray
+class ImportedData:
     filename: str = str()
     extension: str = str()
-    sheetname: str = str()
     path: str = str()
