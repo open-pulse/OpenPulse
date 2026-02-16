@@ -6,5 +6,5 @@ import numpy as np
 
 @dataclass
 class SimulationData(ImportedData):
-    nodal_area: np.array = np.array()
-    nodal_coordinates: np.array = np.array()
+    nodal_area: np.array = None
+    nodal_coordinates: np.array = None

@@ -9,7 +9,6 @@ from pulse.interface.user_input.data_handler.imported_data import (
     SpreadsheetData
 )
 from polars import DataFrame as PolarsDataFrame
-from pathlib import Path
 
 import numpy as np  
 

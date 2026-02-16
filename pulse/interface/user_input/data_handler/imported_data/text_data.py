@@ -6,4 +6,4 @@ import numpy as np
 
 @dataclass
 class TextData(ImportedData):
-    data: np.array
+    data: np.array = None

@@ -8,5 +8,5 @@ import numpy as np
 
 @dataclass
 class SpreadsheetData(ImportedData):
-    sheetnames: list[str] = list()
-    data: dict[str, np.array] = defaultdict(np.array)
+    sheetnames: list[str] = None
+    data: dict[str, np.array] = None
