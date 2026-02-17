@@ -15,6 +15,11 @@ class HDF5FileManager(IOHandler):
     def read(self, file_path: str | Path) -> SimulationData:
         file_path = Path(file_path)
 
+        if file_path.suffix not in [".h5", ".hdf5"]:
+            raise ValueError(
+            f"Invalid suffix {file_path.suffix}. Use .h5 or .hdf5"
+        )
+
         simulation_data = SimulationData(
             file_path.stem,
             file_path.suffix,

@@ -1,5 +1,6 @@
 from pulse.interface.user_input.data_handler.file_managers.io_handler import IOHandler
 from pulse.interface.user_input.data_handler.imported_data.spreadsheet_data import SpreadsheetData
+from pulse.interface.user_input.data_handler.imported_data.spreadsheet_sheet import SpreadsheetSheet
 
 from polars import DataFrame as PolarsDataFrame
 from pathlib import Path
@@ -28,9 +29,8 @@ class SpreadsheetFileManager(IOHandler):
         imported_spreadsheet = SpreadsheetData(file_path.stem,
                                                file_path.suffix,
                                                str(file_path),
-                                               wb.sheetnames
                                                )
-        
+        sheets = list()
         for sheetname in wb.sheetnames:
             max_cols = wb[sheetname].max_column 
 
@@ -49,7 +49,9 @@ class SpreadsheetFileManager(IOHandler):
                     pass
 
             sheet_data = self.__remove_unnecesary_header_in_data(sheet_data)
-            imported_spreadsheet.data[sheetname] = sheet_data
+            sheets.append(SpreadsheetSheet(sheetname, sheet_data))
+
+        imported_spreadsheet.sheets = sheets
 
         return imported_spreadsheet
 

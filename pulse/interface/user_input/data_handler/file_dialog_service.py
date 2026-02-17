@@ -1,19 +1,19 @@
 from PySide6.QtWidgets import QFileDialog
 
 import platform
-import os
+from pathlib import Path
 
 
 class FileDialogService:
 
     @staticmethod
-    def open_file(file_extensions: list[str], caption: str = "Open file", last_folder: str = None):
+    def open_file(file_extensions: list[str], caption: str = "Open file", last_folder: str = None) -> Path:
 
         last_folder, caption, filter_str, kwargs = (
             FileDialogService.__build_dialog_kwargs(file_extensions, caption, last_folder)
         )
 
-        return QFileDialog.getOpenFileName(
+        path, _ = QFileDialog.getOpenFileName(
             None,
             caption,
             last_folder,
@@ -21,15 +21,16 @@ class FileDialogService:
             **kwargs
         )
 
+        return Path(path)
        
     @staticmethod
-    def open_multiple_files(file_extensions: list[str], caption: str = "Open multiple files", last_folder: str = None):
+    def open_multiple_files(file_extensions: list[str], caption: str = "Open multiple files", last_folder: str = None) -> list[Path]:
             
         last_folder, caption, filter_str, kwargs = (
             FileDialogService.__build_dialog_kwargs(file_extensions, caption, last_folder)
         )
 
-        return QFileDialog.getOpenFileNames(
+        paths, _ = QFileDialog.getOpenFileNames(
             None,
             caption,
             last_folder,
@@ -37,20 +38,24 @@ class FileDialogService:
             **kwargs
         )
 
+        return [Path(path) for path in paths]
+
     @staticmethod
-    def save_file(file_extensions: list[str], caption: str = "Save file", last_folder: str = None):
+    def save_file(file_extensions: list[str], caption: str = "Save file", last_folder: str = None)-> Path:
         
         last_folder, caption, filter_str, kwargs = (
             FileDialogService.__build_dialog_kwargs(file_extensions, caption, last_folder)
         )
 
-        return QFileDialog.getSaveFileName(
+        path, _ = QFileDialog.getSaveFileName(
             None,
             caption,
             last_folder,
             filter_str,
             **kwargs
         )
+
+        return Path(path)
     
     @staticmethod
     def __build_dialog_kwargs(
@@ -59,7 +64,7 @@ class FileDialogService:
         last_folder: str | None
     ):
         if last_folder is None:
-            last_folder = os.path.expanduser("~")
+            last_folder = Path().home()
 
         kwargs = {}
         if platform.system() == "Linux":
