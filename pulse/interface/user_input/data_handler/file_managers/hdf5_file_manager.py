@@ -9,16 +9,16 @@ import h5py
 
 class HDF5FileManager(IOHandler):
 
+    EXTENSIONS = [".h5", ".hdf5"]
+
     def __init__(self):
         super().__init__()
 
     def read(self, file_path: str | Path) -> SimulationData:
         file_path = Path(file_path)
 
-        if file_path.suffix not in [".h5", ".hdf5"]:
-            raise ValueError(
-            f"Invalid suffix {file_path.suffix}. Use .h5 or .hdf5"
-        )
+        if file_path.suffix not in self.EXTENSIONS:
+            self.raise_extensions_error(file_path, self.EXTENSIONS)
 
         simulation_data = SimulationData(
             file_path.stem,

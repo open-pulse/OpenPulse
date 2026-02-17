@@ -1,12 +1,13 @@
 from pulse.interface.user_input.data_handler.imported_data.text_data import TextData
 from pulse.interface.user_input.data_handler.file_managers.io_handler import IOHandler
-
 from pathlib import Path
 
 import numpy as np
 
 
 class TextFileManager(IOHandler):
+
+    EXTENSIONS = [".txt", ".dat", ".csv"]
 
     def __init__(self, delimiter=",", header: str = ""):
         self.delimiter = delimiter
@@ -17,10 +18,8 @@ class TextFileManager(IOHandler):
     def read(self, file_path: str | Path) -> TextData:
         file_path = Path(file_path)
 
-        if file_path.suffix not in [".txt", ".dat", ".csv"]:
-            raise ValueError(
-            f"Invalid suffix {file_path.suffix}. Use .txt, .dat or .csv"
-        )
+        if file_path.suffix not in self.EXTENSIONS:
+            self.raise_extensions_error(file_path, self.EXTENSIONS)
 
         try:
             loaded_data = np.loadtxt(file_path, delimiter = self.delimiter)
@@ -40,10 +39,8 @@ class TextFileManager(IOHandler):
         if not file_path.parent.exists():
             raise FileNotFoundError(f"The path {file_path.parent} does not exist")
         
-        if file_path.suffix not in [".txt", ".dat", ".csv"]:
-            raise ValueError(
-            f"Invalid suffix {file_path.suffix}. Use .txt, .dat or .csv"
-        )
+        if file_path.suffix not in self.EXTENSIONS:
+            self.raise_extensions_error(file_path, self.EXTENSIONS)
         
         np.savetxt(str(file_path), data, delimiter=delimiter, header=header)
 

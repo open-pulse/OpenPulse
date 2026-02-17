@@ -10,16 +10,16 @@ import numpy as np
 
 class SpreadsheetFileManager(IOHandler):
 
+    EXTENSIONS = [".xls", ".xlsx"]
+
     def __init__(self):
         super().__init__()
 
     def read(self, file_path: str | Path) -> SpreadsheetData:
         file_path = Path(file_path)
 
-        if file_path.suffix not in [".xls", ".xlsx"]:
-            raise ValueError(
-            f"Invalid suffix {file_path.suffix}. Use .xls, or .xlsx"
-        )
+        if file_path.suffix not in self.EXTENSIONS:
+            self.raise_extensions_error(file_path, self.EXTENSIONS)
 
         from polars import read_excel
         from openpyxl import load_workbook
@@ -61,10 +61,8 @@ class SpreadsheetFileManager(IOHandler):
         if not file_path.parent.exists():
             raise FileNotFoundError(f"The path {file_path.parent} does not exist")
         
-        if file_path.suffix not in [".xls", ".xlsx"]:
-            raise ValueError(
-            f"Invalid suffix {file_path.suffix}. Use .xls, or .xlsx"
-        )
+        if file_path.suffix not in self.EXTENSIONS:
+            self.raise_extensions_error(file_path, self.EXTENSIONS)
 
         from pandas import ExcelWriter
 
