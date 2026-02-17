@@ -48,7 +48,7 @@ class SpreadsheetFileManager(IOHandler):
                 except:
                     pass
 
-            sheet_data = self.__remove_unnecesary_header_in_data(sheet_data)
+            sheet_data = self._remove_unnecesary_header_in_data(sheet_data)
             sheets.append(SpreadsheetSheet(sheetname, sheet_data))
 
         imported_spreadsheet.sheets = sheets
@@ -71,6 +71,6 @@ class SpreadsheetFileManager(IOHandler):
         with ExcelWriter(str(file_path)) as writer:
             data.to_pandas().to_excel(writer, sheet_name=sheet_name, index=index_rows)
     
-    def __remove_unnecesary_header_in_data(self, data: np.ndarray) -> np.ndarray:
+    def _remove_unnecesary_header_in_data(self, data: np.ndarray) -> np.ndarray:
         filtered_data = [row for row in data if not isinstance(row[0], str)]
         return np.array(filtered_data, dtype=float)

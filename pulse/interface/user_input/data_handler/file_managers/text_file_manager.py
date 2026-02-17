@@ -25,9 +25,9 @@ class TextFileManager(IOHandler):
         try:
             loaded_data = np.loadtxt(file_path, delimiter = self.delimiter)
         except:
-            loaded_data = self.__load_text_file_data(file_path)
+            loaded_data = self._load_text_file_data(file_path)
 
-        loaded_data = self.__remove_unnecesary_header_in_data(loaded_data)
+        loaded_data = self._remove_unnecesary_header_in_data(loaded_data)
 
         return TextData(file_path.stem, 
                         file_path.suffix, 
@@ -47,11 +47,11 @@ class TextFileManager(IOHandler):
         
         np.savetxt(str(file_path), data, delimiter=delimiter, header=header)
 
-    def __remove_unnecesary_header_in_data(self, data: np.ndarray) -> np.ndarray:
+    def _remove_unnecesary_header_in_data(self, data: np.ndarray) -> np.ndarray:
         filtered_data = [row for row in data if not isinstance(row[0], str)]
         return np.array(filtered_data, dtype=float)
     
-    def __load_text_file_data(self, file_path: str | Path):
+    def _load_text_file_data(self, file_path: str | Path):
         output_data = list()
         if isinstance(file_path, str):
             file_path = Path(file_path)
