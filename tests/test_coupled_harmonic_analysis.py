@@ -10,8 +10,6 @@ import numpy as np
 
 from pathlib import Path
 
-# Setting up model
-@pytest.mark.skip
 def test_coupled_harmonic_analysis(datadir: Path):
 
     ## Initialize a project
@@ -223,7 +221,7 @@ def test_coupled_harmonic_analysis(datadir: Path):
 
     ## Analysis setup for coupled harmonic analysis
     analysis_setup = {
-                      "analysis_id" : AnalysisID.COUPLED_MODAL,
+                      "analysis_id" : AnalysisID.COUPLED_HARMONIC,
                       "f_min" : 1,
                       "f_max" : 300,
                       "f_step" : 1,

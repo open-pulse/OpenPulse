@@ -290,7 +290,7 @@ class Project:
 
     def is_analysis_setup_complete(self):
 
-        analysis_setup = app().project.file.read_analysis_setup_from_file()
+        analysis_setup = self.file.read_analysis_setup_from_file()
 
         if isinstance(analysis_setup, dict):
             analysis_id = analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
