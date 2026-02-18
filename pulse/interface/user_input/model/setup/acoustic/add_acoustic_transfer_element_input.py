@@ -7,7 +7,9 @@ from PySide6.QtCore import Qt, QEvent, QObject, Signal
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.data_handler.file_manager import FileManager
+from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
+
 
 from molde import load_ui
 
@@ -213,14 +215,15 @@ class AddAcousticTransferElementInput(QDialog):
         last_folder = app().config.get_last_folder_for("imported_table_folder")
         file_extensions = ["xls", "xlsx"]
     
-        path, extension = FileManager.get_file_paths(file_extensions, caption, last_folder=last_folder)
+        imported_path = FileDialogService.open_file(file_extensions, caption=caption, last_folder=last_folder)
 
-        if not extension:
+        if not imported_path:
             info_message = "Select the spreadsheet file to import "
             info_message += "the acoustic transfer element data."
             self.lineEdit_spreadsheet_path.setToolTip(info_message)
             return True
-
+        
+        path = str(imported_path)
         self.lineEdit_spreadsheet_path.setText(path)
         self.lineEdit_spreadsheet_path.setToolTip(path)
 
@@ -242,12 +245,13 @@ class AddAcousticTransferElementInput(QDialog):
 
     def import_element_transfer_data(self, imported_path: str):
         self.element_transfer_data.clear()
+        file_manager = FileManager()
 
-        imported_files = FileManager.read_data_in_file(imported_path, use_first_sheet=False)
+        imported_file = file_manager.read(imported_path)
 
-        for imported_file in imported_files:
-            if imported_file.sheetname:
-                self.element_transfer_data[imported_file.sheetname] = imported_file.data
+        for sheet in imported_file.sheets:
+            if sheet.name:
+                self.element_transfer_data[sheet.name] = sheet.data
 
     def update_frequency_setup(self, frequencies: np.ndarray, path: str):
 

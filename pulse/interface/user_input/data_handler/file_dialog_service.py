@@ -16,7 +16,7 @@ class FileDialogService:
         path, _ = QFileDialog.getOpenFileName(
             None,
             caption,
-            last_folder,
+            str(last_folder),
             filter_str,
             **kwargs
         )
@@ -33,7 +33,7 @@ class FileDialogService:
         paths, _ = QFileDialog.getOpenFileNames(
             None,
             caption,
-            last_folder,
+            str(last_folder),
             filter_str,
             **kwargs
         )
@@ -50,7 +50,7 @@ class FileDialogService:
         path, _ = QFileDialog.getSaveFileName(
             None,
             caption,
-            last_folder,
+            str(last_folder),
             filter_str,
             **kwargs
         )
