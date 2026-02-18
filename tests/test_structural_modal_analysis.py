@@ -10,8 +10,6 @@ import numpy as np
 
 from pathlib import Path
 
-# Setting up model
-@pytest.mark.skip
 def test_structural_modal_analysis(datadir: Path):
 
     ## Initialize a project
