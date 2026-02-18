@@ -4,8 +4,9 @@ from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.data_handler.file_manager import FileManager
-from pulse.interface.user_input.data_handler.imported_file import ImportedFile
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
+from pulse.interface.user_input.data_handler.imported_data.imported_data import ImportedData
+from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
 
 from molde import load_ui
 
@@ -44,7 +45,7 @@ class ImportDataToCompare(QDialog):
         self.keep_window_open = True
         self.imported_data = None
 
-        self.imported_results: dict[int, ImportedFile] = dict()
+        self.imported_results: dict[int, ImportedData] = dict()
         self.ids_to_checkBox = dict()
         self.checkButtons_state = dict()
 
@@ -104,20 +105,23 @@ class ImportDataToCompare(QDialog):
 
     def import_results(self):
 
-        last_folder = "imported_data_folder"
+        last_folder = app().config.get_last_folder_for("imported_data_folder")
         file_extensions = ["csv", "dat", "txt", "xlsx", "xls"]
 
-        imported_file = FileManager.import_single_file(last_folder, file_extensions)
+        imported_path  = FileDialogService.open_files(file_extensions, last_folder=last_folder)
 
-        if not imported_file:
+        if not imported_path:
             return
         
-        self.lineEdit_import_results_path.setText(imported_file.filename)
+        self.lineEdit_import_results_path.setText(imported_path.stem)
+
+        file_manager = FileManager()
 
         key = self.get_data_index()
-        self.imported_results[key] = imported_file
+        self.imported_results[key] = file_manager.read(imported_path)
 
         self.update_treeWidget_info()
+        app().config.write_last_folder_path_in_file(last_folder, str(imported_path))
 
     def update_treeWidget_info(self):
         self.cache_checkButtons_state()
@@ -133,10 +137,11 @@ class ImportDataToCompare(QDialog):
                 if id in self.checkButtons_state.keys():
                     self.ids_to_checkBox[id].setChecked(self.checkButtons_state[id])
 
-                if file.sheetname:
-                    _item = QTreeWidgetItem([file.filename, file.sheetname])
-                    self.treeWidget_import_sheet_files.addTopLevelItem(_item)
-                    self.treeWidget_import_sheet_files.setItemWidget(_item, 2, self.ids_to_checkBox[id])
+                if hasattr(file, "sheets"):
+                    for sheet in file.sheets:
+                        _item = QTreeWidgetItem([file.filename, sheet.name])
+                        self.treeWidget_import_sheet_files.addTopLevelItem(_item)
+                        self.treeWidget_import_sheet_files.setItemWidget(_item, 2, self.ids_to_checkBox[id])
                 else:
                     _item = QTreeWidgetItem(file.filename)
                     self.treeWidget_import_text_files.addTopLevelItem(_item)
@@ -161,35 +166,37 @@ class ImportDataToCompare(QDialog):
                 else:
                     color = np.random.randint(0,255,3)/255
 
-                data = self.imported_results[id].data
-                cols = data.shape[1]
-                x_values = data[:, 0]
-                if cols == 2:
-                    y_values = data[:, 1]
-                else:
-                    y_values = data[:, 1] + 1j*data[:, 2]
-
-                if self.imported_results[id].sheetname:
-                    sheetname = self.imported_results[id].sheetname
-                    legend_label = f"{sheetname}"
-                else:
-                    legend_label = self.imported_results[id].filename
-
-                temp_dict = {   "type" : "imported_data",
-                                "x_data" : x_values,
-                                "y_data" : y_values,
-                                "x_label" : "Frequency [Hz]",
-                                "y_label" : "Nodal response",
-                                "legend" : legend_label,
-                                "unit" : "",
-                                "title" : "",
-                                "color" : color,
-                                "linestyle" : "--"   }
-
+                file = self.imported_results[id]
                 key = (id)
+
+                if hasattr(file, "sheets"):
+                    sheet = file.sheets[0]
+                    temp_dict = self.generate_temp_dict(sheet.name, sheet.data, color)
+                else:
+                    temp_dict = self.generate_temp_dict(file.filename, file.data, color)
+
                 imported_results_data[key] = temp_dict
 
         self.plotter._set_imported_results_data_to_plot(imported_results_data)
+    
+    def generate_temp_dict(self, name: str, data: np.ndarray, color) -> dict:
+        cols = data.shape[1]
+        x_values = data[:, 0]
+        if cols == 2:
+            y_values = data[:, 1]
+        else:
+            y_values = data[:, 1] + 1j*data[:, 2]
+
+        return {   "type" : "imported_data",
+                        "x_data" : x_values,
+                        "y_data" : y_values,
+                        "x_label" : "Frequency [Hz]",
+                        "y_label" : "Nodal response",
+                        "legend" : name,
+                        "unit" : "",
+                        "title" : "",
+                        "color" : color,
+                        "linestyle" : "--"   }
 
     def cache_checkButtons_state(self):
         self.checkButtons_state = dict()
