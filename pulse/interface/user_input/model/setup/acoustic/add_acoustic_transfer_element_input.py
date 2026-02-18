@@ -247,7 +247,7 @@ class AddAcousticTransferElementInput(QDialog):
         self.element_transfer_data.clear()
         file_manager = FileManager()
 
-        imported_file = file_manager.read(imported_path)
+        imported_file = file_manager.read_text_file(imported_path)
 
         for sheet in imported_file.sheets:
             if sheet.name:

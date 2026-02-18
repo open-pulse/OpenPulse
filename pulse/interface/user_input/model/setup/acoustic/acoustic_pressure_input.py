@@ -5,10 +5,11 @@ from PySide6.QtCore import Qt
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
+from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
 
 from molde import load_ui
 
-import os
 import numpy as np
 from pathlib import Path
 
@@ -254,7 +255,7 @@ class AcousticPressureInput(QDialog):
         try:
 
             if direct_load:
-                self.path_imported_table = lineEdit.text()
+                self.path_imported_table = Path(lineEdit.text())
 
             else:
                 last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
@@ -262,21 +263,18 @@ class AcousticPressureInput(QDialog):
                     last_path = str(Path().home())
 
                 caption = f"Choose a table to import the acoustic pressure"
-                path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
-                    caption, 
-                    last_path, 
-                    'Table File (*.csv; *.dat; *.txt)'
-                    )
+                extensions = ["csv", "dat", "txt"]
 
-                if not check:
-                    return None, None
+                path_imported_table = FileDialogService.open_file(extensions, caption, last_path)
 
-            if path_imported_table == "":
+            if not path_imported_table:
                 return None, None
 
-            lineEdit.setText(path_imported_table)       
-            imported_filename = os.path.basename(path_imported_table)
-            imported_data = np.loadtxt(path_imported_table, delimiter=",")
+            lineEdit.setText(str(path_imported_table))      
+            imported_filename = path_imported_table.name
+
+            file_manager = FileManager()
+            imported_data = file_manager.read_text_file(path_imported_table).data
 
             title = "Error reached while loading 'acoustic pressure' table"
             if imported_data.shape[1] < 3:

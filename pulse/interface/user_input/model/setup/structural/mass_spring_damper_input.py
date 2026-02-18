@@ -5,10 +5,11 @@ from PySide6.QtCore import Qt
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
+from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
 
 from molde import load_ui
 
-import os
 import numpy as np
 from pathlib import Path
 
@@ -603,7 +604,7 @@ class MassSpringDamperInput(QDialog):
 
         try:
             if direct_load:
-                path_imported_table = lineEdit.text()
+                path_imported_table = Path(lineEdit.text())
 
             else:
 
@@ -612,31 +613,27 @@ class MassSpringDamperInput(QDialog):
                     last_path = str(Path().home())
 
                 caption = f"Choose a table to import the {dof_label} nodal load"
-                path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
-                                                                                                caption, 
-                                                                                                last_path, 
-                                                                                                'Table File (*.csv; *.dat; *.txt)'
-                                                                                              )
+                extensions = ["csv", "dat", "txt"]
+                path_imported_table = FileDialogService.open_file(extensions, caption, last_path)
 
-                if not check:
-                    return None, None
-
-            if path_imported_table == "":
+            if not path_imported_table:
                 return None, None
 
-            imported_filename = os.path.basename(path_imported_table)
-            lineEdit.setText(path_imported_table)         
-            imported_file = np.loadtxt(path_imported_table, delimiter=",")
+            imported_filename = path_imported_table.name
+            lineEdit.setText(str(path_imported_table))
+
+            file_manager = FileManager()         
+            imported_data = file_manager.read_text_file(path_imported_table).data
         
-            if imported_file.shape[1] < 3:
+            if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([error_title, title, message])
                 lineEdit.setFocus()
                 return None, None
 
-            self.frequencies = imported_file[:, 0]
-            complex_values = imported_file[:, 1] + 1j * imported_file[:, 2]
+            self.frequencies = imported_data[:, 0]
+            complex_values = imported_data[:, 1] + 1j * imported_data[:, 2]
             
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
