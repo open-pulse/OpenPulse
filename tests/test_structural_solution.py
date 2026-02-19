@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 from pathlib import Path
 
+from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
@@ -27,7 +28,7 @@ def current_model(datadir: Path):
     mesh = model.mesh
     preprocessor = model.preprocessor
 
-    geometry_path = Path("examples/iges_files/new_geometries/example_2_withBeam.iges")
+    geometry_path = get_example_file_path("iges_files/new_geometries/example_2_withBeam.iges")
 
     mesher_setup = { 
                     "element_size" : 0.01,
