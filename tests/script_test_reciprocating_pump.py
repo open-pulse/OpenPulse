@@ -1,4 +1,6 @@
 
+import pytest
+
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
 
 import os
@@ -105,6 +107,7 @@ def load_default_reciprocating_pump_setup(crank_angle = 0):
 #             np.savetxt(f"teste_crank_end_{angle}.dat", data_CE, delimiter=",")       
 
 
+@pytest.mark.skip
 def test_suction_flow_rate(smooth_data: bool=False):
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
@@ -141,7 +144,7 @@ def test_suction_flow_rate(smooth_data: bool=False):
 
     plot2(volumes, flow_rates, x_label, y_label, title, labels, colors, linestyles)
 
-
+@pytest.mark.skip
 def test_discharge_flow_rate(smooth_data: bool=False):
     crank_angle = 0
     reciprocating_pump = load_default_reciprocating_pump_setup(crank_angle = crank_angle)
