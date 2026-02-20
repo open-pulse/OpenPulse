@@ -98,7 +98,7 @@ class FileDialogService:
         if platform.system() == "Linux":
             kwargs["options"] = QFileDialog.Option.DontUseNativeDialog
 
-        filter_str = FileDialogService.generate_file_extensions_str(file_extensions)
+        filter_str = FileDialogService._generate_file_extensions_str(file_extensions)
 
         return last_folder, caption, filter_str, kwargs
     

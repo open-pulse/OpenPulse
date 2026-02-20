@@ -1,18 +1,15 @@
-from PySide6.QtWidgets import QDialog, QFileDialog, QLabel, QLineEdit, QPushButton
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QFileDialog
 
-from pulse import app, UI_DIR
+from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-from molde import load_ui
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
 from pathlib import Path
-import os
 import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
+
 
 class ExportModelResults(QFileDialog):
     def __init__(self, *args, **kwargs):
@@ -89,39 +86,29 @@ class ExportModelResults(QFileDialog):
 
         path = app().config.get_last_folder_for("export_data_folder")
         if path is None:
-            directory_path = os.path.expanduser("~")
+            directory_path = Path().home()
         else:
             directory_path = path
 
+        extensions = list()
         if len(self.data) == 1:
-            _filter = "Text file (*.dat);;Text file (*.txt);; Text file (*.csv);; Spreadsheet (*.xlsx)"
+            extensions = ["dat", "txt", "csv", "xlsx"]
         else:
-            _filter = "Spreadsheet (*.xlsx)"
-
-        file_path, check = self.getSaveFileName(self.main_window, 
-                                                caption, 
-                                                directory_path, 
-                                                filter = _filter)
-
-        if not check:
+            extensions = ["xlsx"]
+            
+        file_path = FileDialogService.save_file(extensions, caption, directory_path)
+    
+        if not file_path:
             return
-        
-        file_extension = self.get_path_extension(check)
-        
-        if file_extension not in file_path:
-            file_path += f".{file_extension}"
-
+                
         app().config.write_last_folder_path_in_file("export_data_folder", file_path)
 
-        if file_extension == "xlsx":
+        if file_path.suffix.lower() in [".xlsx"]:
             self.export_data_in_spreadsheet_format(file_path)
         else:
             self.export_data_in_text_format(file_path)
 
         # self.print_final_message()
-    
-    def get_path_extension(self, string: str) -> str:
-        return string.split(".")[1][:-1]
 
     def print_final_message(self):
         title = "Information"
