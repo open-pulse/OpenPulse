@@ -13,7 +13,7 @@ class FileDialogService:
             FileDialogService._build_dialog_kwargs(file_extensions, caption, last_folder)
         )
 
-        path, _ = QFileDialog.getOpenFileName(
+        path, selected_filter = QFileDialog.getOpenFileName(
             None,
             caption,
             str(last_folder),
@@ -23,8 +23,14 @@ class FileDialogService:
 
         if not path:
             return None
+        
+        path = Path(path)
 
-        return Path(path)
+        if not path.suffix:
+            suffix = f".{FileDialogService._get_path_extension(selected_filter)}"
+            path = path.with_suffix(suffix)
+
+        return path
        
     @staticmethod
     def open_multiple_files(file_extensions: list[str], caption: str = "Open multiple files", last_folder: str = None) -> list[Path] | None:
@@ -33,7 +39,7 @@ class FileDialogService:
             FileDialogService._build_dialog_kwargs(file_extensions, caption, last_folder)
         )
 
-        paths, _ = QFileDialog.getOpenFileNames(
+        paths, selected_filter = QFileDialog.getOpenFileNames(
             None,
             caption,
             str(last_folder),
@@ -43,8 +49,15 @@ class FileDialogService:
 
         if not paths:
             return None
+        
+        paths = [Path(path) for path in paths]
+        
+        for i, path in enumerate(paths):
+            if not path.suffix:
+                suffix = f".{FileDialogService._get_path_extension(selected_filter)}"
+                paths[i] = path.with_suffix(suffix)
 
-        return [Path(path) for path in paths]
+        return paths
 
     @staticmethod
     def save_file(file_extensions: list[str], caption: str = "Save file", last_folder: str = None)-> Path | None:
@@ -53,7 +66,7 @@ class FileDialogService:
             FileDialogService._build_dialog_kwargs(file_extensions, caption, last_folder)
         )
 
-        path, _ = QFileDialog.getSaveFileName(
+        path, selected_filter = QFileDialog.getSaveFileName(
             None,
             caption,
             str(last_folder),
@@ -63,8 +76,14 @@ class FileDialogService:
 
         if not path:
             return None
+        
+        path = Path(path)
+        
+        if not path.suffix:
+            suffix = f".{FileDialogService._get_path_extension(selected_filter)}"
+            path = path.with_suffix(suffix)
 
-        return Path(path)
+        return path
     
     @staticmethod
     def _build_dialog_kwargs(
@@ -84,7 +103,7 @@ class FileDialogService:
         return last_folder, caption, filter_str, kwargs
     
     @staticmethod
-    def generate_file_extensions_str(file_extensions: list[str]):
+    def _generate_file_extensions_str(file_extensions: list[str]):
         str_extensions = "Files ("
         for extension in file_extensions:
             str_extensions += "*."
@@ -95,3 +114,6 @@ class FileDialogService:
         str_extensions += ")"
 
         return str_extensions
+    
+    def _get_path_extension(self, string: str) -> str:
+        return string.split(".")[1][:-1]
