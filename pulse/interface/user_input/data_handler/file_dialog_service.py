@@ -7,7 +7,7 @@ from pathlib import Path
 class FileDialogService:
 
     @staticmethod
-    def open_file(file_extensions: list[str], caption: str = "Open file", last_folder: str = None) -> Path:
+    def open_file(file_extensions: list[str], caption: str = "Open file", last_folder: str = None) -> Path | None:
 
         last_folder, caption, filter_str, kwargs = (
             FileDialogService._build_dialog_kwargs(file_extensions, caption, last_folder)
@@ -21,10 +21,13 @@ class FileDialogService:
             **kwargs
         )
 
+        if not path:
+            return None
+
         return Path(path)
        
     @staticmethod
-    def open_multiple_files(file_extensions: list[str], caption: str = "Open multiple files", last_folder: str = None) -> list[Path]:
+    def open_multiple_files(file_extensions: list[str], caption: str = "Open multiple files", last_folder: str = None) -> list[Path] | None:
             
         last_folder, caption, filter_str, kwargs = (
             FileDialogService._build_dialog_kwargs(file_extensions, caption, last_folder)
@@ -38,10 +41,13 @@ class FileDialogService:
             **kwargs
         )
 
+        if not paths:
+            return None
+
         return [Path(path) for path in paths]
 
     @staticmethod
-    def save_file(file_extensions: list[str], caption: str = "Save file", last_folder: str = None)-> Path:
+    def save_file(file_extensions: list[str], caption: str = "Save file", last_folder: str = None)-> Path | None:
         
         last_folder, caption, filter_str, kwargs = (
             FileDialogService._build_dialog_kwargs(file_extensions, caption, last_folder)
@@ -54,6 +60,9 @@ class FileDialogService:
             filter_str,
             **kwargs
         )
+
+        if not path:
+            return None
 
         return Path(path)
     
