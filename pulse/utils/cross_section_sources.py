@@ -1,4 +1,3 @@
-from itertools import chain
 
 import numpy as np
 from vtkmodules.vtkCommonCore import vtkPoints

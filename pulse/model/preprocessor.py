@@ -1,5 +1,4 @@
 from pulse.model.cross_section import *
-from pulse.model.line import Line
 
 # from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC

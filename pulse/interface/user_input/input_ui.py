@@ -64,7 +64,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import app
 from pulse.model import AnalysisID
 
-import logging
 
 
 class InputUi:

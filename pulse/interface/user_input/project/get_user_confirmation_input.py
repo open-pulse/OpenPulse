@@ -1,5 +1,4 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QDialog, QLabel, QPushButton
 
 from pulse import app, version
 from pulse.interface.ui_generated.messages.get_user_confirmation_ui import GetUserConfirmation_UI

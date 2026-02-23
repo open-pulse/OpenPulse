@@ -1,6 +1,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QDialog, QPushButton, QToolButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QToolButton, QVBoxLayout
 
 from pulse import app
 from pulse.interface.ui_generated.plots.model.cross_section_plotter_ui import CrossSectionPlotter_UI

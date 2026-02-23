@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QFileDialog, QLabel, QLineEdit, QPushButton
+from PySide6.QtWidgets import QFileDialog
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
@@ -9,7 +9,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import os
 from pathlib import Path
-from time import time
 
 window_title = "Error"
 

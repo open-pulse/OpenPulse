@@ -1,15 +1,13 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.acoustic.turn_off_acoustic_elements_input_ui import TurnOffAcousticElementsInput_UI
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 
 import numpy as np
-from collections import defaultdict
 
 window_title_1 = "Error"
 window_title_2 = "Warning"

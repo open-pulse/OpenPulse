@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QLabel, QPushButton, QAbstractButton
+from PySide6.QtWidgets import QAbstractButton
 from PySide6.QtGui import QCloseEvent, QColor, QAction
 from PySide6.QtCore import Qt
 from pathlib import Path

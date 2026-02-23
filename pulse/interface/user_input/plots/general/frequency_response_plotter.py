@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QPushButton, QRadioButton, QSpinBox, QVBoxLayout, QToolButton, QWidget
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QToolButton
 from PySide6.QtGui import QCloseEvent, QColor
 from PySide6.QtCore import Qt
 

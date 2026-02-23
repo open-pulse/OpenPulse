@@ -5,9 +5,8 @@ from pulse.model.node import DOF_PER_NODE_ACOUSTIC
 from pulse.model.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 import numpy as np
-from scipy.sparse import csr_matrix, csc_matrix
+from scipy.sparse import csr_matrix
 from scipy.special import jn_zeros, jv
-from time import time
 
 
 def length_correction_expansion(smaller_diameter, larger_diameter):

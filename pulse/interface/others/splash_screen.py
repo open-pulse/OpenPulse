@@ -1,11 +1,7 @@
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFontDatabase
-from PySide6.QtWidgets import QLabel, QProgressBar, QSplashScreen
 
-from pulse import ICON_DIR, FONT_DIR, app
 from pulse.interface.ui_generated.project.splash_ui import Splash_UI
 
-from time import time
 
 class SplashScreen(Splash_UI):
     def __init__(self, parent):

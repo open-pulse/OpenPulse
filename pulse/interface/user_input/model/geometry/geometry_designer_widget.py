@@ -1,15 +1,6 @@
 from PySide6.QtWidgets import (
-    QWidget,
-    QLineEdit,
-    QComboBox,
-    QFrame,
-    QPushButton,
     QLabel,
-    QStackedWidget,
-    QSlider,
-    QSpinBox,
 )
-from PySide6.QtGui import QAction
 
 from vtkmodules.vtkRenderingCore import vtkCoordinate, vtkCamera
 from vtkmodules.vtkCommonDataModel import vtkRecti
