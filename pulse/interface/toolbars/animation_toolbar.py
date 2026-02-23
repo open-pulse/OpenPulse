@@ -6,6 +6,7 @@ from pulse import app, UI_DIR, ICON_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
 from pathlib import Path
 
@@ -210,30 +211,13 @@ class AnimationToolbar(QToolBar):
         self.cycles = self.spinBox_cycles.value()
 
     def export_animation_to_file(self):
-        file_path, extension = QFileDialog.getSaveFileName(
-            self, "Save As",
-            filter = "Video (*.mp4);;WEBP (*.webp);;GIF (*.gif);; All Files ();;",
-        )
+        extensions = ["mp4", "webp", "gif"]
+        file_path = FileDialogService.save_file(extensions, "Save As")
 
-        if not extension:
+        if file_path is None:
             return
 
-        # Add default suffix if it does not have one
-        file_path = Path(file_path)
-        if extension == "Video (*.mp4)":
-            suffix = ".mp4"
-        elif extension == "WEBP (*.webp)":
-            suffix = ".webp"
-        elif extension == "GIF (*.gif)":
-            suffix = ".gif"
-        else:
-            suffix = ".mp4"
-
-        if not file_path.suffix:
-            file_path = file_path.parent / (file_path.name + suffix)
-
         try:
-
             if file_path.suffix.lower() in [".gif", ".webp"]:
                 LoadingWindow(app().main_window.results_widget.save_animation).run(file_path)
             else:

@@ -115,5 +115,6 @@ class FileDialogService:
 
         return str_extensions
     
-    def _get_path_extension(self, string: str) -> str:
+    @staticmethod
+    def _get_path_extension(string: str) -> str:
         return string.split(".")[1][:-1]
