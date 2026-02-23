@@ -1,5 +1,5 @@
 
-from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QFileDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar, QWidget
+from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar
 from PySide6.QtCore import Qt, Signal, QEvent, QPoint
 from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
 
@@ -41,7 +41,8 @@ from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
 from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
-from pulse.utils.interface_utils import Workspace, VisualizationFilter, SelectionFilter, ColorMode
+from pulse.utils.interface_utils import VisualizationFilter, SelectionFilter, ColorMode
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
 import logging
 import os
@@ -369,13 +370,10 @@ class MainWindow(QMainWindow):
         if last_path is None:
             last_path = str(Path().home())
 
-        path, check = self.file_dialog.get_save_file_name(
-                                                            'Export geometry file', 
-                                                            last_path, 
-                                                            'Geometry File (*.step)'
-                                                          )
-
-        if not check:
+        extensions = ["step"]
+        path = FileDialogService.save_file(extensions, "Export geometry file", last_path)
+    
+        if path is None:
             return
 
         geometry_handler = GeometryHandler(app().project)
@@ -926,13 +924,10 @@ class MainWindow(QMainWindow):
         if last_path is None:
             last_path = str(Path().home())
 
-        path, check = self.file_dialog.get_save_file_name(
-                                                          'Save Captured Image', 
-                                                          last_path, 
-                                                          'PNG File (*.png)'
-                                                          )
+        extensions = ["png"]
+        path = FileDialogService.save_file(extensions, "Save Captured Image", last_path)
 
-        if not check:
+        if path is None:
             return
 
         # TODO: reimplement this
@@ -1045,13 +1040,10 @@ class MainWindow(QMainWindow):
         if last_path is None:
             last_path = str(Path().home())
 
-        project_path, check = self.file_dialog.get_open_file_name(
-                                                                  "Open Project", 
-                                                                  last_path, 
-                                                                  filter = "Pulse File (*.pulse)"
-                                                                  )
+        extensions = ["pulse"]
+        project_path = FileDialogService.open_file(extensions, "Open Project", last_path)
 
-        if not check:
+        if project_path is None:
             return True
 
         self.open_project(project_path)
@@ -1065,28 +1057,26 @@ class MainWindow(QMainWindow):
 
     def save_project_as_dialog(self):
         obj = SaveProjectDataSelector()
-        if obj.complete:
+        if not obj.complete:
+            return obj.complete
 
-            last_path = self.config.get_last_folder_for("project_folder")
-            if last_path is None:
-                last_path = str(Path.home())
+        last_path = self.config.get_last_folder_for("project_folder")
+        if last_path is None:
+            last_path = str(Path.home())
 
-            file_path, check = self.file_dialog.get_save_file_name(
-                                                                   "Save As",
-                                                                   last_path,
-                                                                   filter = "Pulse File (*.pulse)",
-                                                                   )
+        extensions = ["pulse"]
+        file_path = FileDialogService.save_file(extensions, "Save As", last_path)
 
-            if not check:
-                return
+        if file_path is None:
+            return obj.complete
 
-            if obj.ignore_results_data:
-                app().project.file.remove_results_data_from_project_file()
+        if obj.ignore_results_data:
+            app().project.file.remove_results_data_from_project_file()
 
-            if obj.ignore_mesh_data:
-                app().project.file.remove_mesh_data_from_project_file()
+        if obj.ignore_mesh_data:
+            app().project.file.remove_mesh_data_from_project_file()
 
-            self.save_project_as(file_path)
+        self.save_project_as(file_path)
 
         return obj.complete
 
@@ -1126,19 +1116,17 @@ class MainWindow(QMainWindow):
         self.capture_image()
     
     def capture_image(self):
-        path, check = QFileDialog.getSaveFileName(
-            self,
-            "PNG",
-            filter="PNG (*.png)",
-        )
+        extensions = ["png"]
+
+        path = FileDialogService.save_file(extensions, "PNG")
         
-        if not check:
+        if path is None:
             return
 
         widget = self.render_widgets_stack.currentWidget()
         if isinstance(widget, CommonRenderWidget):
             image = widget.get_screenshot()
-            with open(path, "wb") as file:
+            with open(str(path), "wb") as file:
                 image.save(file)
 
     def update_window_title(self, project_path : str | Path):
