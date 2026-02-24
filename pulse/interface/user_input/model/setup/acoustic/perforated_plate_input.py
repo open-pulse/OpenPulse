@@ -8,12 +8,14 @@ from pulse import app, UI_DIR
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
+from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
+
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
 
 from molde import load_ui
 
-import os
 import numpy as np
 from pathlib import Path
 
@@ -437,31 +439,30 @@ class PerforatedPlateInput(QDialog):
     def load_table(self, button_pressed=False):
 
         try:
-            if self.lineEdit_load_table_path.text() == "" or button_pressed:
+            if not self.lineEdit_load_table_path.text() or button_pressed:
 
                 last_path = app().config.get_last_folder_for("imported_table_folder")
                 if last_path is None:
                     last_path = Path.home()
 
                 caption = 'Choose a table to import the dimensionless impedance'
-                imported_table_path, check = app().main_window.file_dialog.get_open_file_name(  
-                    caption, 
-                    last_path, 
-                    'Files (*.csv; *.dat; *.txt)',
-                    )
+                extensions = ["csv", "dat", "txt"]
+
+                imported_table_path = FileDialogService.open_file(extensions, caption, last_path)
                 
-                if not check:
+                if imported_table_path is None:
                     return None, None
 
             else:
                 imported_table_path = self.lineEdit_load_table_path.text()
 
-            if imported_table_path == "":
+            if not imported_table_path:
                 return None, None
  
-            imported_filename = os.path.basename(imported_table_path)
-            self.lineEdit_load_table_path.setText(imported_table_path)         
-            imported_data = np.loadtxt(imported_table_path, delimiter=",")
+            imported_filename = imported_table_path.name
+            self.lineEdit_load_table_path.setText(imported_table_path)       
+
+            imported_data = FileManager().read_text_file(imported_table_path).data
         
             if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "

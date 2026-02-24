@@ -273,8 +273,7 @@ class VolumeVelocityInput(QDialog):
             lineEdit.setText(str(path_imported_table))       
             imported_filename = path_imported_table.name
 
-            file_manager = FileManager()
-            imported_data = file_manager.read_text_file(path_imported_table).data
+            imported_data = FileManager().read_text_file(path_imported_table).data
 
             title = "Error reached while loading 'acoustic pressure' table"
             if imported_data.shape[1] < 3:

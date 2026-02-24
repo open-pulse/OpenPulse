@@ -8,6 +8,8 @@ from pulse import app, UI_DIR
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
+from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
 from pulse.model.cross_section import CrossSection
 
 from molde import load_ui
@@ -394,7 +396,7 @@ class ExpansionJointInput(QDialog):
 
         try:
             if direct_load:
-                path_imported_table = lineEdit.text()
+                path_imported_table = Path(lineEdit.text())
 
             else:
 
@@ -403,21 +405,17 @@ class ExpansionJointInput(QDialog):
                     last_path = str(Path().home())
 
                 caption = f"Choose a table to import the {label} nodal load"
-                path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
-                                                                                                caption, 
-                                                                                                last_path, 
-                                                                                                'Table File (*.csv; *.dat; *.txt)'
-                                                                                              )
-
-                if not check:
-                    return None, None
-
-            if path_imported_table == "":
+                extensions = ["csv", "dat", "txt"]
+                
+                path_imported_table = FileDialogService.open_file(extensions, caption, last_path)
+                
+            if path_imported_table is None:
                 return None, None
 
-            imported_filename = basename(path_imported_table)
+            imported_filename = path_imported_table.name
             lineEdit.setText(path_imported_table)         
-            imported_data = np.loadtxt(path_imported_table, delimiter=",")
+
+            imported_data = FileManager().read_text_file(path_imported_table).data
         
             if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "

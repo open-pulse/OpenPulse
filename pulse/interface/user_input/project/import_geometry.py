@@ -1,8 +1,9 @@
 # fmt: off
 
 from pulse import app
-import os
 from pathlib import Path
+
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
 
 class ImportGeometry():
@@ -25,18 +26,15 @@ class ImportGeometry():
         if last_path is None:
             last_path = str(Path().home())
 
-        geometry_path, check = app().main_window.file_dialog.get_open_file_name(
-                                                                                'Import geometry file', 
-                                                                                last_path, 
-                                                                                'Files (*.iges *.igs *.step *.stp)'
-                                                                                )
+        extensions = ["iges", "igs", "step", "stp"]
+        geometry_path = FileDialogService.open_file(extensions, "Import geometry file", last_path)
 
-        if not check:
+        if geometry_path is None:
             return
 
         app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
-        filename = os.path.basename(geometry_path)
+        filename = geometry_path.name
         app().project.file.modify_project_attributes(import_type = 0, geometry_filename = filename)
 
         self.save_geometry_and_load_project(geometry_path)

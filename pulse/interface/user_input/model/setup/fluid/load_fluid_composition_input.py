@@ -1,11 +1,10 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QFileDialog, QLabel, QLineEdit, QPushButton
-from PySide6.QtGui import QCloseEvent, QIcon
+from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton
 from PySide6.QtCore import Qt
 from pathlib import Path
 
 from pulse import app, UI_DIR
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
 from molde import load_ui
 
@@ -74,18 +73,14 @@ class LoadFluidCompositionInput(QDialog):
             last_path = str(Path().home())
 
         caption = "Open the fluid composition file"
-        self.file_path, check = app().main_window.file_dialog.get_open_file_name(
-                                                                                    caption,
-                                                                                    last_path,
-                                                                                    'Files (*.xlsx *.xls)'
-                                                                                 )
+        extensions = ["xlsx", "xls"]
+        self.file_path = FileDialogService.open_file(extensions, caption, last_path)
 
-        if not check:
+        if self.file_path is None:
             return
         
         app().config.write_last_folder_path_in_file("fluid_composition_folder", self.file_path)
                                                     
-
         self.lineEdit_file_path.setText(self.file_path)
 
         if self.load_composition_data_from_file():

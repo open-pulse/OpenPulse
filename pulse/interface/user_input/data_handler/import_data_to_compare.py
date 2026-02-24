@@ -115,10 +115,8 @@ class ImportDataToCompare(QDialog):
         
         self.lineEdit_import_results_path.setText(imported_path.stem)
 
-        file_manager = FileManager()
-
         key = self.get_data_index()
-        self.imported_results[key] = file_manager.read(imported_path)
+        self.imported_results[key] = FileManager().read(imported_path)
 
         self.update_treeWidget_info()
         app().config.write_last_folder_path_in_file(last_folder, str(imported_path))

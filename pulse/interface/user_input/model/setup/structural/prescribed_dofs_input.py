@@ -359,8 +359,7 @@ class PrescribedDofsInput(QDialog):
             imported_filename = path_imported_table.name
             lineEdit.setText(str(path_imported_table))
 
-            file_manager = FileManager()         
-            imported_data = file_manager.read(path_imported_table).data
+            imported_data = FileManager().read(path_imported_table).data
         
             if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "

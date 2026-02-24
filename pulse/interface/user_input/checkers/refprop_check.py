@@ -1,5 +1,6 @@
 from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
 import os
 from pathlib import Path
@@ -49,14 +50,14 @@ class CheckREFPROP:
             caption = 'Search for the REFPROP folder'
             initial_path = str(Path().home())
 
-            folder_path = app().main_window.file_dialog.get_existing_directory(caption, initial_path)
+            folder_path = FileDialogService.get_existing_directory(caption, initial_path)
             
-            if folder_path == "":
-                return None
+            if folder_path is None:
+                return
 
-            if os.path.exists(folder_path):
+            if folder_path.exists():
 
-                if os.path.basename(folder_path) in ["REFPROP", "Refprop", "refprop"]:
+                if folder_path.stem in ["REFPROP", "Refprop", "refprop"]:
                     app().config.write_refprop_path_in_file(folder_path)
                     refProp_path = folder_path
 

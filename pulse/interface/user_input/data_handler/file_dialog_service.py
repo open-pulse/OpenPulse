@@ -118,3 +118,14 @@ class FileDialogService:
     @staticmethod
     def _get_path_extension(string: str) -> str:
         return string.split(".")[1][:-1]
+    
+    @staticmethod
+    def get_existing_directory(caption: str, directory: str | Path) -> Path | None:
+        existing_dir = QFileDialog.getExistingDirectory(caption=caption, dir=str(directory))
+        existing_dir = Path(existing_dir)
+
+        if existing_dir.exists():
+            return existing_dir
+
+
+
