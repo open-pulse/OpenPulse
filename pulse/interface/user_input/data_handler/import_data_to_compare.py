@@ -108,7 +108,7 @@ class ImportDataToCompare(QDialog):
         last_folder = app().config.get_last_folder_for("imported_data_folder")
         file_extensions = ["csv", "dat", "txt", "xlsx", "xls"]
 
-        imported_path  = FileDialogService.open_files(file_extensions, last_folder=last_folder)
+        imported_path  = FileDialogService.open_file(file_extensions, last_folder=last_folder)
 
         if not imported_path:
             return

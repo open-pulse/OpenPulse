@@ -70,5 +70,12 @@ class SpreadsheetFileManager(IOHandler):
             data.to_pandas().to_excel(writer, sheet_name=sheet_name, index=index_rows)
     
     def _remove_unnecesary_header_in_data(self, data: np.ndarray) -> np.ndarray:
-        filtered_data = [row for row in data if not isinstance(row[0], str)]
+        filtered_data = [row for row in data if self._is_valid_row(row)]
         return np.array(filtered_data, dtype=float)
+
+    def _is_valid_row(self, row: np.ndarray) -> bool:
+        try:
+            float(row[0])
+            return True
+        except (ValueError, TypeError):
+            return False
