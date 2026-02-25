@@ -19,7 +19,6 @@ from pulse import (
 )
 
 from pulse.interface.formatters import icons
-from pulse.interface.auxiliar.file_dialog import FileDialog
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.handler.pcf_file_io import PCFFileIO
 from pulse.interface.welcome_widget import WelcomeWidget
@@ -239,9 +238,6 @@ class MainWindow(QMainWindow):
 
         self.model_and_analysis_items = self.model_setup_widget.model_setup_items
 
-    def create_file_dialog(self):
-        self.file_dialog = FileDialog()
-
     def configure_window(self):
         t0 = time()
         # self._load_stylesheets()
@@ -275,7 +271,6 @@ class MainWindow(QMainWindow):
         self.showMaximized()
 
         app().processEvents()
-        self.create_file_dialog()
         dt = time() - t0
         # print(f"Time to process D: {round(dt, 6)} [s]")
 
