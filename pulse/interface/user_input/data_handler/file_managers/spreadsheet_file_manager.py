@@ -43,6 +43,8 @@ class SpreadsheetFileManager(IOHandler):
                                             sheet_name = sheetname,  
                                             columns = cols,
                                             engine = "openpyxl",
+                                            has_header = False,
+                                            infer_schema_length = 100
                                             ).to_numpy()
                     break
                 except:
