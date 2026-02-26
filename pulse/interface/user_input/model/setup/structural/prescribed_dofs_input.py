@@ -5,6 +5,7 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
+from pulse.interface.user_input.model.setup.structural.structural_nodes_input import StructuralNodesInput
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
@@ -20,17 +21,13 @@ from pathlib import Path
 error_title = "Error"
 
 
-class PrescribedDofsInput(QDialog):
+class PrescribedDofsInput(StructuralNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         ui_path = UI_DIR / "model/setup/structural/prescribed_dofs_input.ui"
         load_ui(ui_path, self)
 
-        app().main_window.set_input_widget(self)
-        self.properties = app().project.model.properties
-
-        self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
@@ -303,7 +300,7 @@ class PrescribedDofsInput(QDialog):
 
         if prescribed_dofs.count(None) != 6:
 
-            self.remove_conflicting_excitations(node_ids)
+            self.remove_conflicting_data(node_ids, "nodal_loads")
 
             real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
             imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
@@ -482,7 +479,7 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_node_ids.setFocus()
             return
 
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_conflicting_data(node_ids, "nodal_loads")
 
         if self.ux_table_path is None:
             self.ux_table_values, self.ux_table_path = self.load_table(self.lineEdit_path_table_ux, "Ux", direct_load = True)
@@ -554,26 +551,6 @@ class PrescribedDofsInput(QDialog):
 
         self.actions_to_finalize()
         print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")
-
-    def text_label(self, mask):
-
-        text = ""
-        labels = self.dofs_labels[mask]
-
-        if list(mask).count(True) == 6:
-            text = "[{}, {}, {}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 5:
-            text = "[{}, {}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 4:
-            text = "[{}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 3:
-            text = "[{}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 2:
-            text = "[{}, {}]".format(*labels)
-        elif list(mask).count(True) == 1:
-            text = "[{}]".format(*labels)
-
-        return text
 
     def load_nodes_info(self):
 
@@ -657,30 +634,6 @@ class PrescribedDofsInput(QDialog):
             PrintMessageInput([error_title, title, message])
             return
 
-    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
-
-        if isinstance(node_ids, int):
-            node_ids = [node_ids]
-
-        for node_id in node_ids:
-            for label in ["nodal_loads"]:
-                table_names = self.properties.get_nodal_related_table_names(label, node_id)
-                self.properties._remove_nodal_property(label, node_id)
-
-                self.process_table_file_removal(table_names)
-
-        app().project.file.write_nodal_properties_in_file()
-
-    def remove_table_files_from_nodes(self, node_id: int):
-        table_names = self.properties.get_nodal_related_table_names("prescribed_dofs", node_id)
-        self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("structural", table_name)
-            app().project.file.write_imported_table_data_in_file()
-
     def remove_callback(self):
 
         if  self.lineEdit_node_ids.text() != "":
@@ -690,7 +643,7 @@ class PrescribedDofsInput(QDialog):
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids[0])
+            self.remove_table_files_from_nodes("prescribed_dofs", node_ids[0])
             self.properties._remove_nodal_property("prescribed_dofs", node_ids[0])
 
             self.actions_to_finalize()
@@ -722,11 +675,6 @@ class PrescribedDofsInput(QDialog):
 
             self.actions_to_finalize()
 
-    def actions_to_finalize(self):
-        app().project.file.write_nodal_properties_in_file()
-        self.load_nodes_info()
-        app().main_window.update_plots()
-
     def reset_input_fields(self):
         self.lineEdit_node_ids.setText("")
         for [lineEdit_real, lineEdit_imag] in self.list_lineEdit_constant_values:
@@ -744,10 +692,5 @@ class PrescribedDofsInput(QDialog):
 
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)
 
 #fmt: on
