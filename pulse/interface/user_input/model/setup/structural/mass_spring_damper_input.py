@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import QCheckBox, QDialog, QFrame, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QCheckBox, QFrame, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
@@ -7,31 +6,27 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
+from pulse.interface.user_input.model.setup.structural.structural_nodes_input import StructuralNodesInput
 
 from molde import load_ui
 
 import numpy as np
 from pathlib import Path
 
-
 error_title ="Error"
 
 
-class MassSpringDamperInput(QDialog):
+class MassSpringDamperInput(StructuralNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         ui_path = UI_DIR / "model/setup/structural/mass_spring_damper_input.ui"
         load_ui(ui_path, self)
 
-        app().main_window.set_input_widget(self)
-
         self.preprocessor = app().project.model.preprocessor
-        self.properties = app().project.model.properties
 
         self.before_run = app().project.get_pre_solution_model_checks()
 
-        self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
@@ -41,12 +36,6 @@ class MassSpringDamperInput(QDialog):
                
         while self.keep_window_open:
             self.exec()
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
 
@@ -401,7 +390,8 @@ class MassSpringDamperInput(QDialog):
         if stop:
             return True
 
-        self.remove_conflicting_data(node_ids)
+        properties = ["lumped_masses", "lumped_stiffness", "lumped_dampings"]
+        self.remove_conflicting_data(properties, node_ids)
 
         if self.tabWidget_inputs.currentIndex() == 0:
             self.check_constant_values_inputs(node_ids)
@@ -409,7 +399,7 @@ class MassSpringDamperInput(QDialog):
         elif self.tabWidget_inputs.currentIndex() == 1:
             self.check_table_values_inputs(node_ids)
 
-        self.actions_to_finalize()
+        self.actions_to_finalize(reset_camera=False)
 
     def check_entries(self, lineEdit: QLineEdit, label: str):
 
@@ -596,7 +586,7 @@ class MassSpringDamperInput(QDialog):
             PrintMessageInput([error_title, title, message]) 
             return
 
-        self.actions_to_finalize()
+        self.actions_to_finalize(reset_camera=False)
 
     def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
 
@@ -981,37 +971,7 @@ class MassSpringDamperInput(QDialog):
             PrintMessageInput([error_title, title, message]) 
             return
 
-        self.actions_to_finalize()
-
-    def remove_conflicting_data(self, node_ids: int | list | tuple, selected_property = None):
-
-        if isinstance(node_ids, int):
-            node_ids = [node_ids]
-
-        if selected_property is None:
-            properties = ["lumped_masses", "lumped_stiffness", "lumped_dampings"]
-
-        elif isinstance(selected_property, str):
-            properties = [selected_property]
-
-        for node_id in node_ids:
-            for _property in properties:
-                table_names = self.properties.get_nodal_related_table_names(_property, node_id)
-                self.properties._remove_nodal_property(_property, node_id)
-                self.process_table_file_removal(table_names)
-
-        app().project.file.write_nodal_properties_in_file()
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        for _property in ["lumped_masses", "lumped_stiffness", "lumped_dampings"]:
-            table_names = self.properties.get_nodal_related_table_names(_property, node_ids)
-            self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("structural", table_name)
-            app().project.file.write_imported_table_data_in_file()
+        self.actions_to_finalize(reset_camera=False)
 
     def remove_callback(self):
 
@@ -1021,17 +981,17 @@ class MassSpringDamperInput(QDialog):
 
             if self.checkBox_remove_mass.isChecked():
                 self.properties._remove_nodal_property("lumped_masses", node_ids=node_id)
-                self.remove_conflicting_data(node_id, selected_property="lumped_masses")
+                self.remove_conflicting_data("lumped_masses", node_id)
 
             if self.checkBox_remove_spring.isChecked():
                 self.properties._remove_nodal_property("lumped_stiffness", node_ids=node_id)
-                self.remove_conflicting_data(node_id, selected_property="lumped_stiffness")
+                self.remove_conflicting_data("lumped_stiffness", node_id)
 
             if self.checkBox_remove_damper.isChecked():
                 self.properties._remove_nodal_property("lumped_dampings", node_ids=node_id)
-                self.remove_conflicting_data(node_id, selected_property="lumped_dampings")
+                self.remove_conflicting_data("lumped_dampings", node_id)
 
-        self.actions_to_finalize()
+        self.actions_to_finalize(reset_camera=False)
 
     def reset_callback(self):
         
@@ -1056,17 +1016,17 @@ class MassSpringDamperInput(QDialog):
             for node_id in node_ids:
                 if self.checkBox_remove_mass.isChecked():
                     self.properties._remove_nodal_property("lumped_masses", node_id)
-                    self.remove_conflicting_data(node_id, selected_property="lumped_masses")
+                    self.remove_conflicting_data("lumped_masses", node_id)
 
                 if self.checkBox_remove_spring.isChecked():
                     self.properties._remove_nodal_property("lumped_stiffness", node_id)
-                    self.remove_conflicting_data(node_id, selected_property="lumped_stiffness")
+                    self.remove_conflicting_data("lumped_stiffness", node_id)
 
                 if self.checkBox_remove_damper.isChecked():
                     self.properties._remove_nodal_property("lumped_dampings", node_id)
-                    self.remove_conflicting_data(node_id, selected_property="lumped_dampings")
+                    self.remove_conflicting_data("lumped_dampings", node_id)
 
-            self.actions_to_finalize()
+            self.actions_to_finalize(reset_camera=False)
     
     def update_tabs_visibility(self):
         self.pushButton_remove.setDisabled(True)
@@ -1089,30 +1049,6 @@ class MassSpringDamperInput(QDialog):
             self.selection_callback()
 
         self.cache_tab = self.tabWidget_main.currentIndex()
-
-    def actions_to_finalize(self):
-        app().project.file.write_nodal_properties_in_file()
-        app().main_window.update_plots(reset_camera=False)
-        self.load_nodes_info()
-
-    def text_label(self, mask, load_labels):
-        
-        text = ""
-        labels = load_labels[mask]
-
-        if list(mask).count(True) == 6:
-            text = "[{}, {}, {}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 5:
-            text = "[{}, {}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 4:
-            text = "[{}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 3:
-            text = "[{}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 2:
-            text = "[{}, {}]".format(*labels)
-        elif list(mask).count(True) == 1:
-            text = "[{}]".format(*labels)
-        return text
 
     def load_nodes_info(self):
 
@@ -1218,8 +1154,3 @@ class MassSpringDamperInput(QDialog):
             self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)

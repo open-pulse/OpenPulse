@@ -27,7 +27,6 @@ class UserInput(QDialog):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
-
     def _paint_icons(self):
         theme = app().main_window.config.user_preferences.interface_theme
 
