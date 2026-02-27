@@ -12,24 +12,10 @@ class StructuralNodesInput(UserInput):
         self.properties = app().project.model.properties
 
     def text_label(self, mask: list[bool], labels: np.array):
-
-        text = ""
         _labels = labels[mask]
+        n = list(mask).count(True)
 
-        if list(mask).count(True) == 6:
-            text = "[{}, {}, {}, {}, {}, {}]".format(*_labels)
-        elif list(mask).count(True) == 5:
-            text = "[{}, {}, {}, {}, {}]".format(*_labels)
-        elif list(mask).count(True) == 4:
-            text = "[{}, {}, {}, {}]".format(*_labels)
-        elif list(mask).count(True) == 3:
-            text = "[{}, {}, {}]".format(*_labels)
-        elif list(mask).count(True) == 2:
-            text = "[{}, {}]".format(*_labels)
-        elif list(mask).count(True) == 1:
-            text = "[{}]".format(*_labels)
-
-        return text
+        return f"[{",".join(['{}'] * n)}]".format(*_labels)
 
     def process_table_file_removal(self, table_names : list):
         if table_names:
