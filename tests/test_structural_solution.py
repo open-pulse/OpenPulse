@@ -90,7 +90,7 @@ def current_model(datadir: Path):
     return project
 
 
-def test_modal_analysis(current_model):
+def test_modal_analysis(current_model, num_regression):
     project = current_model
     model = project.model
     
@@ -116,7 +116,15 @@ def test_modal_analysis(current_model):
     assert eigen_vectors is not None
     assert len(natural_frequencies) == 40
     assert eigen_vectors.shape[1] == 40
-
+    
+    # Regression tests - compare against stored baseline
+    # Store natural frequencies as array
+    num_regression.check(
+        {
+            "natural_frequencies": natural_frequencies,
+        },
+        default_tolerance=dict(atol=1e-6, rtol=1e-6)
+    )
 
 
 def test_direct_method(current_model):
