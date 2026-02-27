@@ -1,6 +1,8 @@
 from pulse import app
 from pulse.interface.user_input.model.setup.user_input import UserInput
 
+import numpy as np
+
 
 class StructuralNodesInput(UserInput):
 
@@ -9,23 +11,23 @@ class StructuralNodesInput(UserInput):
 
         self.properties = app().project.model.properties
 
-    def text_label(self, mask):
+    def text_label(self, mask: list[bool], labels: np.array):
 
         text = ""
-        labels = self.dofs_labels[mask]
+        _labels = labels[mask]
 
         if list(mask).count(True) == 6:
-            text = "[{}, {}, {}, {}, {}, {}]".format(*labels)
+            text = "[{}, {}, {}, {}, {}, {}]".format(*_labels)
         elif list(mask).count(True) == 5:
-            text = "[{}, {}, {}, {}, {}]".format(*labels)
+            text = "[{}, {}, {}, {}, {}]".format(*_labels)
         elif list(mask).count(True) == 4:
-            text = "[{}, {}, {}, {}]".format(*labels)
+            text = "[{}, {}, {}, {}]".format(*_labels)
         elif list(mask).count(True) == 3:
-            text = "[{}, {}, {}]".format(*labels)
+            text = "[{}, {}, {}]".format(*_labels)
         elif list(mask).count(True) == 2:
-            text = "[{}, {}]".format(*labels)
+            text = "[{}, {}]".format(*_labels)
         elif list(mask).count(True) == 1:
-            text = "[{}]".format(*labels)
+            text = "[{}]".format(*_labels)
 
         return text
 
@@ -35,11 +37,11 @@ class StructuralNodesInput(UserInput):
                 self.properties.remove_imported_tables("structural", table_name)
             app().project.file.write_imported_table_data_in_file()
     
-    def remove_table_files_from_nodes(self,property: str, node_id: int):
+    def remove_table_files_from_nodes(self, property: str, node_id: int):
         table_names = self.properties.get_nodal_related_table_names(property, node_id)
         self.process_table_file_removal(table_names)
     
-    def remove_conflicting_data(self, node_ids: int | list | tuple, properties: str | list[str]):
+    def remove_conflicting_data(self, properties: str | list[str], node_ids: int | list | tuple):
         if isinstance(node_ids, int):
             node_ids = [node_ids]
 
@@ -54,9 +56,8 @@ class StructuralNodesInput(UserInput):
 
         app().project.file.write_nodal_properties_in_file()
 
-
-    def actions_to_finalize(self):
+    def actions_to_finalize(self, reset_camera: bool = True):
         app().project.file.write_nodal_properties_in_file()
         self.load_nodes_info()
-        app().main_window.update_plots()
+        app().main_window.update_plots(reset_camera)
     

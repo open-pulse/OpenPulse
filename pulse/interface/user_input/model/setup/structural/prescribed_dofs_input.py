@@ -300,7 +300,7 @@ class PrescribedDofsInput(StructuralNodesInput):
 
         if prescribed_dofs.count(None) != 6:
 
-            self.remove_conflicting_data(node_ids, "nodal_loads")
+            self.remove_conflicting_data("nodal_loads", node_ids)
 
             real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
             imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
@@ -479,7 +479,7 @@ class PrescribedDofsInput(StructuralNodesInput):
             self.lineEdit_node_ids.setFocus()
             return
 
-        self.remove_conflicting_data(node_ids, "nodal_loads")
+        self.remove_conflicting_data("nodal_loads", node_ids)
 
         if self.ux_table_path is None:
             self.ux_table_values, self.ux_table_path = self.load_table(self.lineEdit_path_table_ux, "Ux", direct_load = True)
@@ -560,7 +560,7 @@ class PrescribedDofsInput(StructuralNodesInput):
             if property == "prescribed_dofs":
                 values = data["values"]
                 constrained_dofs_mask = [False if value is None else True for value in values]
-                new = QTreeWidgetItem([str(args[0]), str(self.text_label(constrained_dofs_mask))])
+                new = QTreeWidgetItem([str(args[0]), str(self.text_label(constrained_dofs_mask, self.dofs_labels))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_nodal_info.addTopLevelItem(new)

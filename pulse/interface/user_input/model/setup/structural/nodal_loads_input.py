@@ -10,6 +10,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
+from pulse.interface.user_input.model.setup.structural.structural_nodes_input import StructuralNodesInput
 
 from molde import load_ui
 
@@ -20,17 +21,13 @@ from pathlib import Path
 error_title = "Error"
 
 
-class NodalLoadsInput(QDialog):
+class NodalLoadsInput(StructuralNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/structural/set_nodal_loads_input.ui"
         load_ui(ui_path, self)
 
-        app().main_window.set_input_widget(self)
-        self.properties = app().project.model.properties
-
-        self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
@@ -41,12 +38,6 @@ class NodalLoadsInput(QDialog):
 
         while self.keep_window_open:
             self.exec()
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
 
@@ -273,7 +264,7 @@ class NodalLoadsInput(QDialog):
         
         if nodal_loads.count(None) != 6:
 
-            self.remove_conflicting_excitations(node_ids)
+            self.remove_conflicting_data("prescribed_dofs", node_ids)
 
             real_values = [value if value is None else np.real(value) for value in nodal_loads]
             imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
@@ -292,7 +283,7 @@ class NodalLoadsInput(QDialog):
 
                 self.properties._set_nodal_property("nodal_loads", data, node_id)
 
-            self.actions_to_finalize()
+            self.actions_to_finalize(reset_camera=False)
             print(f"[Set Nodal loads] - defined at node(s) {node_ids}")
 
         else:    
@@ -419,7 +410,7 @@ class NodalLoadsInput(QDialog):
             self.lineEdit_node_ids.setFocus()
             return
 
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_conflicting_data("prescribed_dofs", node_ids)
 
         if self.fx_table_path is None:
             self.fx_table_values, self.fx_table_path = self.load_table(self.lineEdit_path_table_fx, "Fx", direct_load=True)
@@ -489,28 +480,8 @@ class NodalLoadsInput(QDialog):
 
         app().project.file.write_nodal_properties_in_file()
 
-        self.actions_to_finalize()
+        self.actions_to_finalize(reset_camera=False)
         print(f"[Set Nodal loads] - defined at node(s) {node_ids}")
-
-    def text_label(self, mask):
-
-        text = ""
-        labels = self.load_labels[mask]
-
-        if list(mask).count(True) == 6:
-            text = "[{}, {}, {}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 5:
-            text = "[{}, {}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 4:
-            text = "[{}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 3:
-            text = "[{}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 2:
-            text = "[{}, {}]".format(*labels)
-        elif list(mask).count(True) == 1:
-            text = "[{}]".format(*labels)
-
-        return text
 
     def load_nodes_info(self):
 
@@ -520,7 +491,7 @@ class NodalLoadsInput(QDialog):
             if property == "nodal_loads":
                 values = data["values"]
                 constrained_dofs_mask = [False if value is None else True for value in values]
-                new = QTreeWidgetItem([str(args[0]), str(self.text_label(constrained_dofs_mask))])
+                new = QTreeWidgetItem([str(args[0]), str(self.text_label(constrained_dofs_mask, self.load_labels))])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_nodal_info.addTopLevelItem(new)
@@ -596,30 +567,6 @@ class NodalLoadsInput(QDialog):
 
         self.show()
 
-    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
-
-        if isinstance(node_ids, int):
-            node_ids = [node_ids]
-
-        for node_id in node_ids:
-            for label in ["prescribed_dofs"]:
-                table_names = self.properties.get_nodal_related_table_names(label, node_id)
-                self.properties._remove_nodal_property(label, node_id)
-
-                self.process_table_file_removal(table_names)
-
-        app().project.file.write_nodal_properties_in_file()
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("nodal_loads", node_ids)
-        self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("structural", table_name)
-            app().project.file.write_imported_table_data_in_file()
-
     def remove_callback(self):
 
         if  self.lineEdit_node_ids.text() != "":
@@ -629,10 +576,10 @@ class NodalLoadsInput(QDialog):
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids[0])
+            self.remove_table_files_from_nodes("nodal_loads", node_ids[0])
             self.properties._remove_nodal_property("nodal_loads", node_ids[0])
 
-            self.actions_to_finalize()
+            self.actions_to_finalize(reset_camera=False)
 
     def reset_callback(self):
 
@@ -659,12 +606,7 @@ class NodalLoadsInput(QDialog):
 
             self.properties._reset_nodal_property("nodal_loads")
 
-            self.actions_to_finalize()
-
-    def actions_to_finalize(self):
-        app().project.file.write_nodal_properties_in_file()
-        self.load_nodes_info()
-        app().main_window.update_plots(reset_camera=False)
+            self.actions_to_finalize(reset_camera=False)
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.setText("")
@@ -683,10 +625,4 @@ class NodalLoadsInput(QDialog):
 
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)
-
 #fmt: on
