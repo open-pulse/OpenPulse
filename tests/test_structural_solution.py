@@ -6,19 +6,20 @@ from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
+from pulse.postprocessing.plot_structural_data import get_structural_frf
 from pulse.project.project import Project
 
 # Setting up model
 @pytest.fixture
 def current_model(datadir: Path):
-    section_parameters = [0.08, 0.008, 0, 0, 0, 0]
+    section_parameters = [0.01, 0.001, 0, 0, 0, 0]
     pipe_section_info = {  "section_type_label" : "pipe" ,
                             "section_parameters" : section_parameters  }
 
     cross_section = CrossSection(pipe_section_info=pipe_section_info)
     cross_section.update_properties()
 
-    steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3, identifier=1)
+    steel = Material('Steel', 7850, elasticity_modulus=200e9, poisson_ratio=0.3, identifier=1)
     
     # Initialize project
     project = Project()
@@ -28,7 +29,7 @@ def current_model(datadir: Path):
     mesh = model.mesh
     preprocessor = model.preprocessor
 
-    geometry_path = get_example_file_path("iges_files/new_geometries/example_2_withBeam.iges")
+    geometry_path = get_example_file_path("iges_files/new_geometries/simple_L_pipe.iges")
 
     mesher_setup = { 
                     "element_size" : 0.01,
@@ -46,42 +47,39 @@ def current_model(datadir: Path):
     preprocessor.set_material_by_element('all', steel)
     preprocessor.set_cross_section_by_elements('all', cross_section)
 
-    # Apply prescribed dofs
-    prescribed_node_ids = [1223, 10, 665, 921, 796]
-    for node_id in prescribed_node_ids:
-        coords = preprocessor.nodes[node_id].coordinates
-        prescribed_dofs = [0j, 0j, 0j, 0j, 0j, 0j]
-        real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
-        imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
-        
-        data = {
-                "coords" : list(coords),
-                "values" : prescribed_dofs,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-        
-        model.properties._set_nodal_property("prescribed_dofs", data, node_id)
+    # Apply prescribed 
+    node_id = 103
+    coords = preprocessor.nodes[node_id].coordinates
+    prescribed_dofs = [0j, 0j, 0j, 0j, 0j, 0j]
+    real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
+    imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
+    
+    data = {
+            "coords" : list(coords),
+            "values" : prescribed_dofs,
+            "real_values" : real_values,
+            "imag_values" : imag_values
+            }
+    
+    model.properties._set_nodal_property("prescribed_dofs", data, node_id)
     
     # Apply nodal loads
-    load_node_ids_and_values = [
-        (690, [1+0j, 0j, 0j, 0j, 0j, 0j]),
-        (1108, [0j, 0j, 1+0j, 0j, 0j, 0j])
-    ]
-    for node_id, load_values in load_node_ids_and_values:
-        coords = preprocessor.nodes[node_id].coordinates
-        nodal_loads = load_values
-        real_values = [value if value is None else np.real(value) for value in nodal_loads]
-        imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
-        
-        data = {
-                "coords" : list(coords),
-                "values" : nodal_loads,
-                "real_values" : real_values,
-                "imag_values" : imag_values
-                }
-        
-        model.properties._set_nodal_property("nodal_loads", data, node_id)
+    node_id = 152
+    load_values = [1+0j, 0j, 0j, 0j, 0j, 0j]
+    
+    coords = preprocessor.nodes[node_id].coordinates
+    nodal_loads = load_values
+    real_values = [value if value is None else np.real(value) for value in nodal_loads]
+    imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
+    
+    data = {
+            "coords" : list(coords),
+            "values" : nodal_loads,
+            "real_values" : real_values,
+            "imag_values" : imag_values
+            }
+    
+    model.properties._set_nodal_property("nodal_loads", data, node_id)
 
     # Write properties to file
     project.file.write_nodal_properties_in_file()
@@ -127,7 +125,7 @@ def test_modal_analysis(current_model, num_regression):
     )
 
 
-def test_direct_method(current_model):
+def test_direct_method(current_model, num_regression):
     project = current_model
     model = project.model
     
@@ -155,9 +153,20 @@ def test_direct_method(current_model):
     assert len(solution.shape) == 2  # Should be 2D array
     assert solution.shape[1] == 201  # 0 to 200 Hz with 1 Hz step
 
+    response = get_structural_frf(model.preprocessor, solution, 152, 0, absolute=True)
+
+    # Regression tests - compare against stored baseline
+    num_regression.check(
+        {
+            "frequencies": model.frequencies,
+            "response": response
+        },
+        default_tolerance=dict(atol=1e-6, rtol=1e-6)
+    )
 
 
-def test_mode_superposition(current_model):
+
+def test_mode_superposition(current_model, num_regression):
     project = current_model
     model = project.model
     
@@ -185,3 +194,14 @@ def test_mode_superposition(current_model):
     assert solution is not None
     assert len(solution.shape) == 2  # Should be 2D array
     assert solution.shape[1] == 201  # 0 to 200 Hz with 1 Hz step
+
+    response = get_structural_frf(model.preprocessor, solution, 152, 0, absolute=True)
+
+    # Regression tests - compare against stored baseline
+    num_regression.check(
+        {
+            "frequencies": model.frequencies,
+            "response": response
+        },
+        default_tolerance=dict(atol=1e-6, rtol=1e-6)
+    )
