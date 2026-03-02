@@ -187,5 +187,10 @@ class AcousticNodesInput(NodesInput):
         return table_name, data
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
+        lineEdit.clear()
         lineEdit.setFocus()
+    
+    def reset_input_fields(self):
+        line_edits = self.findChildren(QLineEdit)
+        for line_edit in line_edits:
+            line_edit.clear()
