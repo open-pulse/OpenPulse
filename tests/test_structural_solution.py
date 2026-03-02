@@ -1,20 +1,16 @@
 import numpy as np 
 import pytest
 from pathlib import Path
-from os.path import basename
 
-from pulse.utils.common_utils import sparse_is_equal
+from examples.example_file_helper import get_example_file_path
+from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
-from pulse.model.model import Model
-from pulse.model.preprocessor import Preprocessor
 from pulse.project.project import Project
-from pulse.processing.structural_solver import StructuralSolver
-# from pulse.postprocessing.read_data import ReadData
 
 # Setting up model
 @pytest.fixture
-def current_model():
+def current_model(datadir: Path):
     section_parameters = [0.08, 0.008, 0, 0, 0, 0]
     pipe_section_info = {  "section_type_label" : "pipe" ,
                             "section_parameters" : section_parameters  }
@@ -22,75 +18,162 @@ def current_model():
     cross_section = CrossSection(pipe_section_info=pipe_section_info)
     cross_section.update_properties()
 
-    steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
+    steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3, identifier=1)
     
+    # Initialize project
     project = Project()
-    model = Model(project)
+    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
+    
+    model = project.model
+    mesh = model.mesh
     preprocessor = model.preprocessor
-    mesh = preprocessor.mesh
 
-    geometry_path = Path("examples/iges_files/new_geometries/example_2_withBeam.iges")
+    geometry_path = get_example_file_path("iges_files/new_geometries/example_2_withBeam.iges")
 
     mesher_setup = { 
-                    "length_unit" : "meter",
                     "element_size" : 0.01,
                     "geometry_tolerance" : 1e-6,
+                    "length_unit" : "meter",
                     "import_type" : 0,
-                    "geometry_filename" : basename(str(geometry_path)),
                     "geometry_path" : str(geometry_path)
                     }
 
-    mesh.set_mesher_setup(mesher_setup = mesher_setup)
+    project.reset(reset_all=True)
+    mesh.set_mesher_setup(mesher_setup=mesher_setup)
 
     preprocessor.generate()
 
     preprocessor.set_material_by_element('all', steel)
     preprocessor.set_cross_section_by_elements('all', cross_section)
 
-    # preprocessor.set_structural_damping([1e-3, 1e-6, 0, 0])
-    table_names = [None, None, None, None, None, None]
-    preprocessor.set_prescribed_dofs([1223, 10, 665, 921, 796], [np.zeros(6, dtype=complex), table_names])
-    preprocessor.set_structural_loads([690], [np.array([1,0,0,0,0,0], dtype=complex), table_names])
-    preprocessor.set_structural_loads([1108], [np.array([0,0,1,0,0,0], dtype=complex), table_names])
+    # Apply prescribed dofs
+    prescribed_node_ids = [1223, 10, 665, 921, 796]
+    for node_id in prescribed_node_ids:
+        coords = preprocessor.nodes[node_id].coordinates
+        prescribed_dofs = [0j, 0j, 0j, 0j, 0j, 0j]
+        real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
+        imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
+        
+        data = {
+                "coords" : list(coords),
+                "values" : prescribed_dofs,
+                "real_values" : real_values,
+                "imag_values" : imag_values
+                }
+        
+        model.properties._set_nodal_property("prescribed_dofs", data, node_id)
+    
+    # Apply nodal loads
+    load_node_ids_and_values = [
+        (690, [1+0j, 0j, 0j, 0j, 0j, 0j]),
+        (1108, [0j, 0j, 1+0j, 0j, 0j, 0j])
+    ]
+    for node_id, load_values in load_node_ids_and_values:
+        coords = preprocessor.nodes[node_id].coordinates
+        nodal_loads = load_values
+        real_values = [value if value is None else np.real(value) for value in nodal_loads]
+        imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
+        
+        data = {
+                "coords" : list(coords),
+                "values" : nodal_loads,
+                "real_values" : real_values,
+                "imag_values" : imag_values
+                }
+        
+        model.properties._set_nodal_property("nodal_loads", data, node_id)
 
-    return preprocessor
+    # Write properties to file
+    project.file.write_nodal_properties_in_file()
+    project.file.write_project_setup_in_file(mesher_setup)
 
-@pytest.mark.skip
+    return project
+
+
 def test_modal_analysis(current_model):
-    project = current_model.project
-    model = current_model.model
-    solution = StructuralSolver(model, None)
-    natural_frequencies, eigen_vectors = solution.modal_analysis(modes=40)
-    folder_path = "tests/data/structural"
-    file_name = "modal_analysis_results.hdf5"
-    read = ReadData(project, file_name=file_name, folder_path=folder_path)
-    correct_natural_frequencies = project.natural_frequencies_structural
-    correct_eigen_vectors = project.solution_structural
-    assert np.allclose(natural_frequencies, correct_natural_frequencies)
-    assert np.allclose(eigen_vectors, correct_eigen_vectors)
+    project = current_model
+    model = project.model
+    
+    # Analysis setup for structural modal analysis
+    analysis_setup = {
+                      "analysis_id" : AnalysisID.STRUCTURAL_MODAL,
+                      "number_of_modes" : 40,
+                      "sigma_factor" : 1e-2
+                      }
+    
+    model.set_analysis_setup(analysis_setup=analysis_setup)
+    project.file.write_analysis_setup_in_file(analysis_setup)
+    
+    # Build and solve the model
+    project.build_model_and_solve(running_by_script=True)
+    
+    # Get the results
+    natural_frequencies = project.natural_frequencies_structural
+    eigen_vectors = project.structural_solution
+    
+    # Verify results exist and have correct shape
+    assert natural_frequencies is not None
+    assert eigen_vectors is not None
+    assert len(natural_frequencies) == 40
+    assert eigen_vectors.shape[1] == 40
 
-@pytest.mark.skip
+
+
 def test_direct_method(current_model):
-    project = current_model.project
-    model = current_model.model
-    frequencies = np.linspace(0, 200, 201)
-    solve = StructuralSolver(model, frequencies)    
-    solution = solve.direct_method()
-    folder_path = "tests/data/structural"
-    file_name = "harmonic_analysis_results_direct.hdf5"
-    # read = ReadData(project, file_name=file_name, folder_path=folder_path)
-    correct_solution = project.solution_structural
-    assert np.allclose(solution, correct_solution)
+    project = current_model
+    model = project.model
+    
+    # Analysis setup for structural harmonic analysis
+    analysis_setup = {
+                      "analysis_id" : AnalysisID.STRUCTURAL_HARMONIC,
+                      "f_min" : 0,
+                      "f_max" : 200,
+                      "f_step" : 1,
+                      "global_damping" : [1e-3, 1e-5, 0.],
+                      "analysis_method" : "direct"
+                      }
+    
+    model.set_analysis_setup(analysis_setup=analysis_setup)
+    project.file.write_analysis_setup_in_file(analysis_setup)
+    
+    # Build and solve the model
+    project.build_model_and_solve(running_by_script=True)
+    
+    # Get the results
+    solution = project.structural_solution
+    
+    # Verify results exist and have correct shape
+    assert solution is not None
+    assert len(solution.shape) == 2  # Should be 2D array
+    assert solution.shape[1] == 201  # 0 to 200 Hz with 1 Hz step
 
-@pytest.mark.skip
-def test_mode_superposition(current_model, modes=60):
-    project = current_model.project
-    model = current_model.model
-    frequencies = np.linspace(0, 200, 201)
-    solution = StructuralSolver(model, frequencies)
-    solution = solution.mode_superposition(modes, fastest=True)
-    folder_path = "tests/data/structural"
-    file_name = "harmonic_analysis_results_mode_superposition.hdf5"
-    # read = ReadData(project, file_name=file_name, folder_path=folder_path)
-    correct_solution = project.solution_structural
-    assert np.allclose(solution, correct_solution)
+
+
+def test_mode_superposition(current_model):
+    project = current_model
+    model = project.model
+    
+    # Analysis setup for structural harmonic analysis with mode superposition
+    analysis_setup = {
+                      "analysis_id" : AnalysisID.STRUCTURAL_HARMONIC,
+                      "f_min" : 0,
+                      "f_max" : 200,
+                      "f_step" : 1,
+                      "global_damping" : [1e-3, 1e-5, 0.],
+                      "analysis_method" : "mode_superposition",
+                      "number_of_modes" : 60
+                      }
+    
+    model.set_analysis_setup(analysis_setup=analysis_setup)
+    project.file.write_analysis_setup_in_file(analysis_setup)
+    
+    # Build and solve the model
+    project.build_model_and_solve(running_by_script=True)
+    
+    # Get the results
+    solution = project.structural_solution
+    
+    # Verify results exist and have correct shape
+    assert solution is not None
+    assert len(solution.shape) == 2  # Should be 2D array
+    assert solution.shape[1] == 201  # 0 to 200 Hz with 1 Hz step

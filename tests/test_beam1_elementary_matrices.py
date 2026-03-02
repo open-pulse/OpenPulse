@@ -50,7 +50,7 @@ def test_elementary_matrices_for_beam1_element(datadir: Path):
     #     project.model.properties._set_line_property(key, values, line_ids=line_id)
 
     # Load geometry file (only the *.iges and *.step formats are supported)
-    # geometry_path = Path("examples/iges_files/run_by_script/reciprocating_pump_piping.step")
+    # geometry_path = get_example_file_path("iges_files/run_by_script/reciprocating_pump_piping.step")
     project.file.write_line_properties_in_file()
 
     ## Configure the mesher setup
