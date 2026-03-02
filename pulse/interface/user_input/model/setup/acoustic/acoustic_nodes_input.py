@@ -116,7 +116,7 @@ class AcousticNodesInput(NodesInput):
             self.properties._set_nodal_property(input_name, data, node_id)
 
         self.actions_to_finalize(reset_camera)
-        print(f"[Set {input_name.title()}] - defined at node(s) {node_ids}")
+        print(f"[Set {input_name.title().replace('_', ' ')}] - defined at node(s) {node_ids}")
 
     def table_values_attribution_callback(
         self,

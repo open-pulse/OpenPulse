@@ -1,39 +1,47 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt
-
-from pulse import app, UI_DIR
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
+from pathlib import Path
 
 from molde import load_ui
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QLineEdit,
+    QPushButton,
+    QTabWidget,
+    QTreeWidget,
+    QTreeWidgetItem,
+)
 
-import numpy as np
-from pathlib import Path
+from pulse import UI_DIR, app
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.data_handler.file_managers.file_manager import (
+    FileManager,
+)
+from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
+    AcousticNodesInput,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 error_title = "Error"
 
 
-class VolumeVelocityInput(QDialog):
+class VolumeVelocityInput(AcousticNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/acoustic/volume_velocity_input.ui"
         load_ui(ui_path, self)
 
-        app().main_window.set_input_widget(self)
-        self.properties = app().project.model.properties
-
         self._initialize()
-        self._config_window()
         self._define_qt_variables()
         self._create_connections()
 
         self.selection_callback()
         self.load_nodes_info()
-        
+
         while self.keep_window_open:
             self.exec()
 
@@ -42,17 +50,9 @@ class VolumeVelocityInput(QDialog):
         self.array = None
         self.table_name = None
         self.table_path = None
-        self.table_values = None                
+        self.table_values = None
 
         self.keep_window_open = True
-
-        self.before_run = app().project.get_pre_solution_model_checks()
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 
@@ -105,7 +105,6 @@ class VolumeVelocityInput(QDialog):
             if len(selected_nodes) == 1:
                 for (property, *args), data in self.properties.nodal_properties.items():
                     if property == "volume_velocity" and selected_nodes == args:
-
                         if "table_paths" in data.keys():
                             table_paths = data["table_paths"]
                             self.lineEdit_table_path.setText(table_paths[0])
@@ -127,7 +126,7 @@ class VolumeVelocityInput(QDialog):
 
     def update_tabs_visibility(self):
         self.tabWidget_main.setTabVisible(1, False)
-        for (property, *_) in self.properties.nodal_properties.keys():
+        for property, *_ in self.properties.nodal_properties.keys():
             if property == "volume_velocity":
                 self.tabWidget_main.setCurrentIndex(0)
                 self.tabWidget_main.setTabVisible(1, True)
@@ -137,7 +136,6 @@ class VolumeVelocityInput(QDialog):
 
         self.treeWidget_nodal_info.clear()
         for (property, *args), data in self.properties.nodal_properties.items():
-
             if property == "volume_velocity":
                 values = data["values"]
                 new = QTreeWidgetItem([str(args[0]), str(self.text_label(values[0]))])
@@ -148,129 +146,54 @@ class VolumeVelocityInput(QDialog):
         self.update_tabs_visibility()
 
     def attribute_callback(self):
+        input_name = "volume_velocity"
+        properties = [
+            "acoustic_pressure",
+            "reciprocating_compressor_excitation",
+            "reciprocating_pump_excitation",
+            "volume_velocity",
+        ]
+        reset_camera = False
+
         if self.tabWidget_inputs.currentIndex() == 0:
-            self.constant_values_attribution_callback()
+            self.constant_values_attribution_callback(
+                self.lineEdit_node_ids,
+                self.lineEdit_real_value,
+                self.lineEdit_imag_value,
+                input_name,
+                properties,
+                reset_camera,
+            )
         else:
-            self.table_values_attribution_callback()
-
-    def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):
-
-        title = "Invalid entry to the volume velocity"
-
-        if lineEdit_real.text() != "":
-
-            _str_real = lineEdit_real.text()
-            str_real = _str_real.replace(",", ".")
-
-            try:
-                real_F = float(str_real)
-            except Exception:
-                self.hide()
-                message = "Wrong input for real part of volume velocity."
-                PrintMessageInput([error_title, title, message])
-                lineEdit_real.setFocus()
-                app().main_window.set_input_widget(self)
-                return True, None
-        else:
-            real_F = 0
-
-        if lineEdit_imag.text() != "":
-
-            _str_imag = lineEdit_imag.text()
-            str_imag = _str_imag.replace(",", ".")
-
-            try:
-                imag_F = float(str_imag)
-            except Exception:
-                self.hide()
-                message = "Wrong input for imaginary part of volume velocity."
-                PrintMessageInput([error_title, title, message])
-                lineEdit_imag.setFocus()
-                app().main_window.set_input_widget(self)
-                return True, None
-        else:
-            imag_F = 0
-
-        if real_F == 0 and imag_F == 0:
-            self.hide()
-            message = "You must inform at least one volume velocity " 
-            message += "before confirming the input!"
-            PrintMessageInput([error_title, title, message])
-            self.lineEdit_real_value.setFocus()
-            app().main_window.set_input_widget(self)
-            return True, None
-
-        else:
-            return False, real_F + 1j*imag_F
-
-    def constant_values_attribution_callback(self):
-
-        lineEdit = self.lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
-        if stop:
-            self.lineEdit_node_ids.setFocus()
-            return
-
-        stop, volume_velocity = self.check_complex_entries(self.lineEdit_real_value, self.lineEdit_imag_value)
-
-        if stop:
-            return
-
-        self.remove_conflicting_excitations(node_ids)
-
-        real_values = [np.real(volume_velocity)]
-        imag_values = [np.imag(volume_velocity)]
-
-        for node_id in node_ids:
-
-            node = app().project.model.preprocessor.nodes[node_id]
-            coords = list(np.round(node.coordinates, 5))
-
-            data = {   
-                    "coords" : coords,
-                    "real_values": real_values,
-                    "imag_values": imag_values,
-                    }
-
-            self.properties._set_nodal_property("volume_velocity", data, node_id)
-
-        self.actions_to_finalize()
-        print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
-
-    def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
-        lineEdit.setFocus()
-
-    def save_table_file(self, node_id: int, values: np.ndarray):
-
-        table_name = f"volume_velocity_node_{node_id}"
-
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("acoustic", table_name, data)
-
-        return table_name, data
+            self.table_values_attribution_callback(
+                self.lineEdit_node_ids,
+                self.lineEdit_table_path,
+                input_name,
+                properties,
+                reset_camera,
+            )
 
     def load_table(self, lineEdit: QLineEdit, direct_load=False):
         try:
-
             if direct_load:
                 self.path_imported_table = Path(lineEdit.text())
             else:
-                last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
+                last_path = app().main_window.config.get_last_folder_for(
+                    "imported_table_folder"
+                )
                 if last_path is None:
                     last_path = str(Path().home())
 
-                caption = f"Choose a table to import the volume velocity"
+                caption = "Choose a table to import the volume velocity"
                 extensions = ["csv", "dat", "txt"]
-                path_imported_table = FileDialogService.open_file(extensions, caption, last_path)
+                path_imported_table = FileDialogService.open_file(
+                    extensions, caption, last_path
+                )
 
             if not path_imported_table:
                 return None, None
 
-            lineEdit.setText(str(path_imported_table))       
+            lineEdit.setText(str(path_imported_table))
             imported_filename = path_imported_table.name
 
             imported_data = FileManager().read_text_file(path_imported_table).data
@@ -278,7 +201,9 @@ class VolumeVelocityInput(QDialog):
             title = "Error reached while loading 'acoustic pressure' table"
             if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum"
-                message += " data must have only two columns to the frequencies and values."
+                message += (
+                    " data must have only two columns to the frequencies and values."
+                )
                 PrintMessageInput([error_title, title, message])
                 return None, None
 
@@ -286,22 +211,28 @@ class VolumeVelocityInput(QDialog):
             self.frequencies = imported_data[mask, 0]
             complex_values = imported_data[mask, 1] + 1j * imported_data[mask, 2]
 
-            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
+            app().main_window.config.write_last_folder_path_in_file(
+                "imported_table_folder", path_imported_table
+            )
 
-            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
-
+            if app().project.model.change_analysis_frequency_setup(
+                list(self.frequencies)
+            ):
                 self.lineEdit_reset(lineEdit)
 
                 title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
-                message += "different from the others already imported ones. The current\n"
+                message = (
+                    "The following imported table of values has a frequency setup\n"
+                )
+                message += (
+                    "different from the others already imported ones. The current\n"
+                )
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
                 PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
-
                 analysis_setup = app().project.model.analysis_setup
                 app().project.file.write_analysis_setup_in_file(analysis_setup)
 
@@ -317,67 +248,6 @@ class VolumeVelocityInput(QDialog):
     def load_volume_velocity_table(self):
         self.table_values, self.table_path = self.load_table(self.lineEdit_table_path)
 
-    def table_values_attribution_callback(self):
-
-        str_nodes = self.lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
-        if stop:
-            self.lineEdit_node_ids.setFocus()
-            return
-
-        self.remove_conflicting_excitations(node_ids)
-
-        if self.lineEdit_table_path != "":
-
-            if self.table_path is None:
-                self.table_values, self.table_path = self.load_table(
-                                                                        self.lineEdit_table_path, 
-                                                                        direct_load=True
-                                                                     )
-
-                if self.table_values is None:
-                    return
-
-            for node_id in node_ids:
-
-                self.table_name, self.array = self.save_table_file( 
-                                                                    node_id, 
-                                                                    self.table_values
-                                                                   )
-
-                basenames = [self.table_name]
-                table_paths = [self.table_path]
-
-                node = app().project.model.preprocessor.nodes[node_id]
-                coords = np.round(node.coordinates, 5)
-
-                data = {
-                    "coords" : list(coords),
-                    "table_names" : basenames,
-                    "table_paths" : table_paths,
-                    }
-
-                self.properties._set_nodal_property("volume_velocity", data, node_id)
-
-            self.actions_to_finalize()
-            print(f"[Set Volume Velocity] - defined at node(s) {node_ids}")
-
-        else:
-            title = "Additional inputs required"
-            message = "You must inform at least one volume velocity " 
-            message += "table path before confirming the input!"
-            PrintMessageInput([error_title, title, message])
-            self.lineEdit_table_path.setFocus()
-
-    def text_label(self, value):
-        text = ""
-        if isinstance(value, complex):
-            value_label = str(value)
-        elif isinstance(value, np.ndarray):
-            value_label = 'Table'
-        text = "{}".format(value_label)
-        return text
-
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
         if item.text(0) != "":
@@ -388,90 +258,47 @@ class VolumeVelocityInput(QDialog):
     def on_doubleclick_item(self, item):
         self.lineEdit_node_ids.setText(item.text(0))
 
-    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
-
-        if isinstance(node_ids, int):
-            node_ids = [node_ids]
-
-        for node_id in node_ids:
-            for label in ["acoustic_pressure", "reciprocating_compressor_excitation", "reciprocating_pump_excitation", "volume_velocity"]:
-                table_names = self.properties.get_nodal_related_table_names(label, node_id)
-
-                self.properties._remove_nodal_property(label, node_id)
-                self.process_table_file_removal(table_names)
-
-        app().project.file.write_nodal_properties_in_file()
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("volume_velocity", node_ids)
-        self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
-
     def remove_callback(self):
 
-        if  self.lineEdit_node_ids.text() != "":
-
+        if self.lineEdit_node_ids.text() != "":
             str_nodes = self.lineEdit_node_ids.text()
             stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids[0])
+            self.remove_table_files_from_nodes("volume_velocity", node_ids[0])
             self.properties._remove_nodal_property("volume_velocity", node_ids[0])
-            self.actions_to_finalize()
+            self.actions_to_finalize(reset_camera=False)
 
     def reset_callback(self):
 
         self.hide()
 
-        title = f"Resetting of volume velocities"
-        message = "Would you like to remove all volume velocities from the acoustic model?"
+        title = "Resetting of volume velocities"
+        message = (
+            "Would you like to remove all volume velocities from the acoustic model?"
+        )
 
-        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
+        buttons_config = {"left_button_label": "No", "right_button_label": "Yes"}
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
             return
 
         if read._continue:
-
             node_ids = list()
-            for (property, *args) in self.properties.nodal_properties.keys():
+            for property, *args in self.properties.nodal_properties.keys():
                 if property == "volume_velocity":
                     node_ids.append(args[0])
-            
+
             for node_id in node_ids:
-                self.remove_table_files_from_nodes(node_id)
+                self.remove_table_files_from_nodes("volume_velocity", node_id)
 
             self.properties._reset_nodal_property("volume_velocity")
-            self.actions_to_finalize()
-
-    def actions_to_finalize(self):
-        app().project.file.write_nodal_properties_in_file()
-        app().project.file.write_imported_table_data_in_file()
-        app().main_window.update_plots(reset_camera=False)
-        self.load_nodes_info()
+            self.actions_to_finalize(reset_camera=False)
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.setText("")
         self.lineEdit_real_value.setText("")
         self.lineEdit_imag_value.setText("")
         self.lineEdit_table_path.setText("")
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)
