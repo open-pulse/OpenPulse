@@ -1,5 +1,4 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
@@ -7,30 +6,26 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
+from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import AcousticNodesInput
 
 from molde import load_ui
 
-import numpy as np
 from pathlib import Path
 
 
 error_title = "Error"
 
 
-class AcousticPressureInput(QDialog):
+class AcousticPressureInput(AcousticNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/acoustic/acoustic_pressure_input.ui"
         load_ui(ui_path, self)
 
-        app().main_window.set_input_widget(self)
-        self.properties = app().project.model.properties
-
         self.before_run = app().project.get_pre_solution_model_checks()
 
         self._initialize()
-        self._config_window()
         self._define_qt_variables()
         self._create_connections()
 
@@ -48,12 +43,6 @@ class AcousticPressureInput(QDialog):
         self.table_values = None                
 
         self.keep_window_open = True
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
 
@@ -146,110 +135,24 @@ class AcousticPressureInput(QDialog):
                 return
 
     def attribute_callback(self):
+        properties = [
+            "acoustic_pressure", "volume_velocity", 
+            "reciprocating_compressor_excitation", "reciprocating_pump_excitation"
+            ]
+
+        input_name = "acoustic_pressure"
+        reset_camera = False
+        
         if self.tabWidget_inputs.currentIndex() == 0:
-            self.constant_values_attribution_callback()
-        else:
-            self.table_values_attribution_callback()
-
-    def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):
-
-        title = "Invalid entry to the acoustic pressure"
-
-        if lineEdit_real.text() != "":
-
-            _str_real = lineEdit_real.text()
-            str_real = _str_real.replace(",", ".")
-
-            try:
-                real_F = float(str_real)
-            except Exception:
-                self.hide()
-                message = "Wrong input for real part of acoustic pressure."
-                PrintMessageInput([error_title, title, message])
-                lineEdit_real.setFocus()
-                app().main_window.set_input_widget(self)
-                return True, None
-        else:
-            real_F = 0
-
-        if lineEdit_imag.text() != "":
-
-            _str_imag = lineEdit_imag.text()
-            str_imag = _str_imag.replace(",", ".")
-
-            try:
-                imag_F = float(str_imag)
-            except Exception:
-                self.hide()
-                message = "Wrong input for imaginary part of acoustic pressure."
-                PrintMessageInput([error_title, title, message])
-                lineEdit_imag.setFocus()
-                app().main_window.set_input_widget(self)
-                return True, None
-        else:
-            imag_F = 0
-
-        if real_F == 0 and imag_F == 0:
-            self.hide()
-            message = "You must inform at least one acoustic pressure " 
-            message += "before confirming the input!"
-            PrintMessageInput([error_title, title, message])
-            self.lineEdit_real_value.setFocus()
-            app().main_window.set_input_widget(self)
-            return True, None
+            
+            self.constant_values_attribution_callback(
+                self.lineEdit_node_ids, self.lineEdit_real_value, self.lineEdit_imag_value, input_name,
+                properties, reset_camera)
 
         else:
-            return False, real_F + 1j*imag_F
-
-    def constant_values_attribution_callback(self):
-
-        lineEdit = self.lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
-        if stop:
-            self.lineEdit_node_ids.setFocus()
-            return
-
-        stop, acoustic_pressure = self.check_complex_entries(self.lineEdit_real_value, self.lineEdit_imag_value)
-
-        if stop:
-            return
-
-        self.remove_conflicting_excitations(node_ids)
-
-        real_values = [np.real(acoustic_pressure)]
-        imag_values = [np.imag(acoustic_pressure)]
-
-        for node_id in node_ids:
-
-            node = app().project.model.preprocessor.nodes[node_id]
-            coords = list(np.round(node.coordinates, 5))
-
-            data = {   
-                    "coords" : coords,
-                    "real_values": real_values,
-                    "imag_values": imag_values,
-                    }
-
-            self.properties._set_nodal_property("acoustic_pressure", data, node_id)
-
-        self.actions_to_finalize()
-        print(f"[Set Acoustic Pressure] - defined at node(s) {node_ids}")
-
-    def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
-        lineEdit.setFocus()
-
-    def save_table_file(self, node_id: int, values: np.ndarray):
-
-        table_name = f"acoustic_pressure_node_{node_id}"
-
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("acoustic", table_name, data)
-
-        return table_name, data
+            self.table_values_attribution_callback(
+                self.lineEdit_nodes_ids, self.lineEdit_table_path,
+                input_name, properties, reset_camera)
 
     def load_table(self, lineEdit: QLineEdit, direct_load=False):
         try:
@@ -324,68 +227,6 @@ class AcousticPressureInput(QDialog):
     def load_acoustic_pressure_table(self):
         self.table_values, self.table_path = self.load_table(self.lineEdit_table_path)
 
-    def table_values_attribution_callback(self):
-
-        str_nodes = self.lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
-        if stop:
-            self.lineEdit_node_ids.setFocus()
-            return
-
-        self.remove_conflicting_excitations(node_ids)
-
-        if self.lineEdit_table_path != "":
-
-            if self.table_path is None:
-                self.table_values, self.table_path = self.load_table(
-                                                                        self.lineEdit_table_path, 
-                                                                        direct_load=True
-                                                                     )
-
-                if self.table_values is None:
-                    return
-
-            for node_id in node_ids:
-
-                self.table_name, self.array = self.save_table_file( 
-                                                                    node_id, 
-                                                                    self.table_values
-                                                                   )
-
-                basenames = [self.table_name]
-                table_paths = [self.table_path]              
-
-                node = app().project.model.preprocessor.nodes[node_id]
-                coords = np.round(node.coordinates, 5)
-
-                data = {
-                        "coords" : list(coords),
-                        "table_names" : basenames,
-                        "table_paths" : table_paths
-                        }
-
-                self.properties._set_nodal_property("acoustic_pressure", data, node_id)
-
-            self.actions_to_finalize()
-
-            print(f"[Set Acoustic Pressure] - defined at node(s) {node_ids}")
-
-        else:
-            title = "Additional inputs required"
-            message = "You must inform at least one acoustic pressure " 
-            message += "table path before confirming the input!"
-            PrintMessageInput([error_title, title, message])
-            self.lineEdit_table_path.setFocus()
-
-    def text_label(self, value):
-        text = ""
-        if isinstance(value, complex):
-            value_label = str(value)
-        elif isinstance(value, np.ndarray):
-            value_label = 'Table'
-        text = "{}".format(value_label)
-        return text
-
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
         if item.text(0) != "":
@@ -396,30 +237,6 @@ class AcousticPressureInput(QDialog):
     def on_doubleclick_item(self, item):
         self.lineEdit_node_ids.setText(item.text(0))
 
-    def remove_conflicting_excitations(self, node_ids: int | list):
-
-        if isinstance(node_ids, int):
-            node_ids = [node_ids]
-
-        for node_id in node_ids:
-            for label in ["acoustic_pressure", "volume_velocity", "reciprocating_compressor_excitation", "reciprocating_pump_excitation"]:
-                table_names = self.properties.get_nodal_related_table_names(label, node_id)
-
-                self.properties._remove_nodal_property(label, node_id)
-                self.process_table_file_removal(table_names)
-
-        # app().project.file.write_nodal_properties_in_file()
-
-    def remove_table_files_from_nodes(self, node_ids: list):
-        table_names = self.properties.get_nodal_related_table_names("acoustic_pressure", node_ids)
-        self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names: list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
-
     def remove_callback(self):
 
         if  self.lineEdit_node_ids.text() != "":
@@ -429,9 +246,9 @@ class AcousticPressureInput(QDialog):
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids[0])
+            self.remove_table_files_from_nodes("acoustic_pressure", node_ids[0])
             self.properties._remove_nodal_property("acoustic_pressure", node_ids[0])
-            self.actions_to_finalize()
+            self.actions_to_finalize(reset_camera=False)
 
     def reset_callback(self):
 
@@ -455,32 +272,13 @@ class AcousticPressureInput(QDialog):
                     node_ids.append(node_id)
 
             for node_id in node_ids:
-                self.remove_table_files_from_nodes(node_id)
+                self.remove_table_files_from_nodes("acoustic_pressure", node_id)
 
             self.properties._reset_nodal_property("acoustic_pressure")
-            self.actions_to_finalize()
-
-    def actions_to_finalize(self):
-        app().project.file.write_nodal_properties_in_file()
-        app().project.file.write_imported_table_data_in_file()
-        app().main_window.update_plots(reset_camera=False)
-        self.load_nodes_info()
+            self.actions_to_finalize(reset_camera=False)
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.setText("")
         self.lineEdit_real_value.setText("")
         self.lineEdit_imag_value.setText("")
         self.lineEdit_table_path.setText("")
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)

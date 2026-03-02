@@ -41,8 +41,8 @@ class NodesInput(UserInput):
     def actions_to_finalize(self, reset_camera: bool = True):
         app().project.file.write_nodal_properties_in_file()
         app().project.file.write_imported_table_data_in_file()
-        self.load_nodes_info()
         app().main_window.update_plots(reset_camera)
+        self.load_nodes_info()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
