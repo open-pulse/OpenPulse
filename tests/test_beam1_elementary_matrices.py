@@ -3,15 +3,12 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
-# import pytest
 import numpy as np
 
 from pathlib import Path
 
-# Setting up model
-# @pytest.fixture
 
-def test_elementary_matrices_for_beam1_element(datadir: Path):
+def test_elementary_matrices_for_beam1_element(datadir: Path, ndarrays_regression):
 
     ## Initialize a project
     project = Project()
@@ -105,6 +102,7 @@ def test_elementary_matrices_for_beam1_element(datadir: Path):
     # np.savetxt("Ke_beam1.dat", Ke, delimiter=",", fmt="%.24e")
     # np.savetxt("Me_beam1.dat", Me, delimiter=",", fmt="%.24e")
 
+    # Original test: compare against CSV reference data
     path = "tests/data/structural_elements/beam_1/"
     Ke_ref = np.loadtxt(path + "K_dense_diag.csv", delimiter=",")
     Me_ref = np.loadtxt(path + "M_dense_diag.csv", delimiter=",")
@@ -126,6 +124,15 @@ def test_elementary_matrices_for_beam1_element(datadir: Path):
 
     assert np.max(rel_diff_Ke) < 1e-14
     assert np.max(rel_diff_Me) < 1e-14
+    
+    # Enhanced regression tests using pytest-regressions
+    ndarrays_regression.check(
+        {
+            "stiffness_matrix_flat": Ke,
+            "mass_matrix_flat": Me,
+        },
+        default_tolerance=dict(atol=1e-14, rtol=1e-14)
+    )
 
     project.file.write_line_properties_in_file()
     project.file.write_project_setup_in_file(mesher_setup)
