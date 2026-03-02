@@ -1,20 +1,33 @@
-#fmt: off
-from PySide6.QtWidgets import QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtCore import Qt
-
-from pulse import app, UI_DIR
-from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
-from pulse.interface.user_input.model.setup.structural.structural_nodes_input import StructuralNodesInput
-
-from molde import load_ui
-
-import numpy as np
 from pathlib import Path
 
+import numpy as np
+from molde import load_ui
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QLineEdit,
+    QPushButton,
+    QTabWidget,
+    QTreeWidget,
+    QTreeWidgetItem,
+)
+
+from pulse import UI_DIR, app
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.data_handler.file_managers.file_manager import (
+    FileManager,
+)
+from pulse.interface.user_input.model.setup.general.get_information_of_group import (
+    GetInformationOfGroup,
+)
+from pulse.interface.user_input.model.setup.structural.structural_nodes_input import (
+    StructuralNodesInput,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 error_title = "Error"
 
@@ -42,7 +55,7 @@ class NodalLoadsInput(StructuralNodesInput):
         self.keep_window_open = True
 
         self.list_Nones = [None, None, None, None, None, None]
-        self.load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
+        self.load_labels = np.array(["Fx", "Fy", "Fz", "Mx", "My", "Mz"])
 
         self.reset_table_variables()
         self.before_run = app().project.get_pre_solution_model_checks()
@@ -79,7 +92,7 @@ class NodalLoadsInput(StructuralNodesInput):
 
     def _define_qt_variables(self):
 
-        # QLineEdit   
+        # QLineEdit
         self.lineEdit_node_ids: QLineEdit
         self.lineEdit_real_fx: QLineEdit
         self.lineEdit_real_fy: QLineEdit
@@ -124,25 +137,31 @@ class NodalLoadsInput(StructuralNodesInput):
 
     def _create_list_lineEdits(self):
 
-        self.list_lineEdit_constant_values = [  [self.lineEdit_real_fx, self.lineEdit_imag_fx],
-                                                [self.lineEdit_real_fy, self.lineEdit_imag_fy],
-                                                [self.lineEdit_real_fz, self.lineEdit_imag_fz],
-                                                [self.lineEdit_real_mx, self.lineEdit_imag_mx],
-                                                [self.lineEdit_real_my, self.lineEdit_imag_my],
-                                                [self.lineEdit_real_mz, self.lineEdit_imag_mz]  ]
+        self.list_lineEdit_constant_values = [
+            [self.lineEdit_real_fx, self.lineEdit_imag_fx],
+            [self.lineEdit_real_fy, self.lineEdit_imag_fy],
+            [self.lineEdit_real_fz, self.lineEdit_imag_fz],
+            [self.lineEdit_real_mx, self.lineEdit_imag_mx],
+            [self.lineEdit_real_my, self.lineEdit_imag_my],
+            [self.lineEdit_real_mz, self.lineEdit_imag_mz],
+        ]
 
-        self.list_lineEdit_table_values = [ self.lineEdit_path_table_fx,
-                                            self.lineEdit_path_table_fy,
-                                            self.lineEdit_path_table_fz,
-                                            self.lineEdit_path_table_mx,
-                                            self.lineEdit_path_table_my,
-                                            self.lineEdit_path_table_mz ]
+        self.list_lineEdit_table_values = [
+            self.lineEdit_path_table_fx,
+            self.lineEdit_path_table_fy,
+            self.lineEdit_path_table_fz,
+            self.lineEdit_path_table_mx,
+            self.lineEdit_path_table_my,
+            self.lineEdit_path_table_mz,
+        ]
 
     def _create_connections(self):
         #
         self.pushButton_exit_tab0.clicked.connect(self.close)
         self.pushButton_exit_tab1.clicked.connect(self.close)
-        self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
+        self.pushButton_constant_value_confirm.clicked.connect(
+            self.constant_values_attribution_callback
+        )
         self.pushButton_load_fx_table.clicked.connect(self.load_fx_table)
         self.pushButton_load_fy_table.clicked.connect(self.load_fy_table)
         self.pushButton_load_fz_table.clicked.connect(self.load_fz_table)
@@ -151,7 +170,9 @@ class NodalLoadsInput(StructuralNodesInput):
         self.pushButton_load_mz_table.clicked.connect(self.load_mz_table)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
-        self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
+        self.pushButton_table_values_confirm.clicked.connect(
+            self.table_values_attribution_callback
+        )
         #
         self.tabWidget_nodal_loads.currentChanged.connect(self.tab_event_callback)
         #
@@ -172,18 +193,21 @@ class NodalLoadsInput(StructuralNodesInput):
             if len(selected_nodes) == 1:
                 for (property, *args), data in self.properties.nodal_properties.items():
                     if property == "nodal_loads" and selected_nodes == args:
-
                         values = data["values"]
-        
+
                         if "table_paths" in data.keys():
                             table_paths = data["table_paths"]
-                            for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
+                            for index, lineEdit_table in enumerate(
+                                self.list_lineEdit_table_values
+                            ):
                                 table_path = table_paths[index]
-                                if table_path is not None:                   
+                                if table_path is not None:
                                     lineEdit_table.setText(table_path)
 
                         else:
-                            for index, [lineEdit_real, lineEdit_imag] in enumerate(self.list_lineEdit_constant_values):
+                            for index, [lineEdit_real, lineEdit_imag] in enumerate(
+                                self.list_lineEdit_constant_values
+                            ):
                                 if values[index] is not None:
                                     lineEdit_real.setText(str(np.real(values[index])))
                                     lineEdit_imag.setText(str(np.imag(values[index])))
@@ -220,11 +244,11 @@ class NodalLoadsInput(StructuralNodesInput):
                 return stop, None
         else:
             _imag = 0
-        
+
         if _real == 0 and _imag == 0:
             return stop, None
         else:
-            return stop, _real + 1j*_imag
+            return stop, _real + 1j * _imag
 
     def constant_values_attribution_callback(self):
 
@@ -234,64 +258,77 @@ class NodalLoadsInput(StructuralNodesInput):
             self.lineEdit_node_ids.setFocus()
             return
 
-        stop, Fx = self.check_complex_entries(self.lineEdit_real_fx, self.lineEdit_imag_fx, "Fx")
+        stop, Fx = self.check_complex_entries(
+            self.lineEdit_real_fx, self.lineEdit_imag_fx, "Fx"
+        )
         if stop:
             return
 
-        stop, Fy = self.check_complex_entries(self.lineEdit_real_fy, self.lineEdit_imag_fy, "Fy")
-        if stop:
-            return
- 
-        stop, Fz = self.check_complex_entries(self.lineEdit_real_fz, self.lineEdit_imag_fz, "Fz")
-        if stop:
-            return
-
-        stop, Mx = self.check_complex_entries(self.lineEdit_real_mx, self.lineEdit_imag_mx, "Mx")
+        stop, Fy = self.check_complex_entries(
+            self.lineEdit_real_fy, self.lineEdit_imag_fy, "Fy"
+        )
         if stop:
             return
 
-        stop, My = self.check_complex_entries(self.lineEdit_real_my, self.lineEdit_imag_my, "My")
+        stop, Fz = self.check_complex_entries(
+            self.lineEdit_real_fz, self.lineEdit_imag_fz, "Fz"
+        )
         if stop:
             return
 
-        stop, Mz = self.check_complex_entries(self.lineEdit_real_mz, self.lineEdit_imag_mz, "Mz")
+        stop, Mx = self.check_complex_entries(
+            self.lineEdit_real_mx, self.lineEdit_imag_mx, "Mx"
+        )
+        if stop:
+            return
+
+        stop, My = self.check_complex_entries(
+            self.lineEdit_real_my, self.lineEdit_imag_my, "My"
+        )
+        if stop:
+            return
+
+        stop, Mz = self.check_complex_entries(
+            self.lineEdit_real_mz, self.lineEdit_imag_mz, "Mz"
+        )
         if stop:
             return
 
         nodal_loads = [Fx, Fy, Fz, Mx, My, Mz]
-        
-        if nodal_loads.count(None) != 6:
 
+        if nodal_loads.count(None) != 6:
             self.remove_conflicting_data("prescribed_dofs", node_ids)
 
-            real_values = [value if value is None else np.real(value) for value in nodal_loads]
-            imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
+            real_values = [
+                value if value is None else np.real(value) for value in nodal_loads
+            ]
+            imag_values = [
+                value if value is None else np.imag(value) for value in nodal_loads
+            ]
 
             for node_id in node_ids:
-
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords = np.round(node.coordinates, 5)
 
                 data = {
-                        "coords" : list(coords),
-                        "values" : nodal_loads,
-                        "real_values" : real_values,
-                        "imag_values" : imag_values
-                        }
+                    "coords": list(coords),
+                    "values": nodal_loads,
+                    "real_values": real_values,
+                    "imag_values": imag_values,
+                }
 
                 self.properties._set_nodal_property("nodal_loads", data, node_id)
 
             self.actions_to_finalize(reset_camera=False)
             print(f"[Set Nodal loads] - defined at node(s) {node_ids}")
 
-        else:    
-    
+        else:
             title = "Additional inputs required"
-            message = "You must to inform at least one nodal load " 
+            message = "You must to inform at least one nodal load "
             message += "before confirming the input!"
-            PrintMessageInput([error_title, title, message]) 
-            
-    def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
+            PrintMessageInput([error_title, title, message])
+
+    def load_table(self, lineEdit: QLineEdit, dof_label: str, direct_load=False):
 
         title = "Error while loading table"
 
@@ -300,14 +337,17 @@ class NodalLoadsInput(StructuralNodesInput):
                 path_imported_table = Path(lineEdit.text())
 
             else:
-
-                last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
+                last_path = app().main_window.config.get_last_folder_for(
+                    "imported_table_folder"
+                )
                 if last_path is None:
                     last_path = str(Path().home())
 
                 caption = f"Choose a table to import the {dof_label} nodal load"
                 extensions = ["csv", "dat", "txt"]
-                path_imported_table = FileDialogService.open_file(extensions, caption, last_path)
+                path_imported_table = FileDialogService.open_file(
+                    extensions, caption, last_path
+                )
 
             if not path_imported_table:
                 return None, None
@@ -315,8 +355,8 @@ class NodalLoadsInput(StructuralNodesInput):
             imported_filename = path_imported_table.name
             lineEdit.setText(str(path_imported_table))
 
-            imported_data = FileManager().read_text_file(path_imported_table).data         
-        
+            imported_data = FileManager().read_text_file(path_imported_table).data
+
             if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
@@ -326,23 +366,29 @@ class NodalLoadsInput(StructuralNodesInput):
 
             self.frequencies = imported_data[:, 0]
             complex_values = imported_data[:, 1] + 1j * imported_data[:, 2]
-            
-            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
-            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
+            app().main_window.config.write_last_folder_path_in_file(
+                "imported_table_folder", path_imported_table
+            )
 
+            if app().project.model.change_analysis_frequency_setup(
+                list(self.frequencies)
+            ):
                 self.lineEdit_reset(lineEdit)
 
                 title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
-                message += "different from the others already imported ones. The current\n"
+                message = (
+                    "The following imported table of values has a frequency setup\n"
+                )
+                message += (
+                    "different from the others already imported ones. The current\n"
+                )
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
                 PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
-
                 analysis_setup = app().project.model.analysis_setup
                 app().project.file.write_analysis_setup_in_file(analysis_setup)
 
@@ -355,38 +401,50 @@ class NodalLoadsInput(StructuralNodesInput):
             return None, None
 
     def load_fx_table(self):
-        self.fx_table_values, self.fx_table_path = self.load_table(self.lineEdit_path_table_fx, "Fx")
+        self.fx_table_values, self.fx_table_path = self.load_table(
+            self.lineEdit_path_table_fx, "Fx"
+        )
         if self.fx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_fx)
 
     def load_fy_table(self):
-        self.fy_table_values, self.fy_table_path = self.load_table(self.lineEdit_path_table_fy, "Fy")
+        self.fy_table_values, self.fy_table_path = self.load_table(
+            self.lineEdit_path_table_fy, "Fy"
+        )
         if self.fy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_fy)
 
     def load_fz_table(self):
-        self.fz_table_values, self.fz_table_path = self.load_table(self.lineEdit_path_table_fz, "Fz")
+        self.fz_table_values, self.fz_table_path = self.load_table(
+            self.lineEdit_path_table_fz, "Fz"
+        )
         if self.fz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_fz)
 
     def load_mx_table(self):
-        self.mx_table_values, self.mx_table_path = self.load_table(self.lineEdit_path_table_mx, "Mx")
+        self.mx_table_values, self.mx_table_path = self.load_table(
+            self.lineEdit_path_table_mx, "Mx"
+        )
         if self.mx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_mx)
 
     def load_my_table(self):
-        self.my_table_values, self.my_table_path = self.load_table(self.lineEdit_path_table_my, "My")
+        self.my_table_values, self.my_table_path = self.load_table(
+            self.lineEdit_path_table_my, "My"
+        )
         if self.my_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_my)
 
     def load_mz_table(self):
-        self.mz_table_values, self.mz_table_path = self.load_table(self.lineEdit_path_table_mz, "Mz")
+        self.mz_table_values, self.mz_table_path = self.load_table(
+            self.lineEdit_path_table_mz, "Mz"
+        )
         if self.mz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_mz)
 
-    def lineEdit_reset(self, lineEdit : QLineEdit):
+    def lineEdit_reset(self, lineEdit: QLineEdit):
         lineEdit.setText("")
-        lineEdit.setFocus() 
+        lineEdit.setFocus()
 
     def save_tables_files(self, load_label: str, node_id: int, values: np.ndarray):
 
@@ -411,68 +469,109 @@ class NodalLoadsInput(StructuralNodesInput):
         self.remove_conflicting_data("prescribed_dofs", node_ids)
 
         if self.fx_table_path is None:
-            self.fx_table_values, self.fx_table_path = self.load_table(self.lineEdit_path_table_fx, "Fx", direct_load=True)
+            self.fx_table_values, self.fx_table_path = self.load_table(
+                self.lineEdit_path_table_fx, "Fx", direct_load=True
+            )
 
         if self.fy_table_path is None:
-            self.fy_table_values, self.fy_table_path = self.load_table(self.lineEdit_path_table_fy, "Fy", direct_load=True)
+            self.fy_table_values, self.fy_table_path = self.load_table(
+                self.lineEdit_path_table_fy, "Fy", direct_load=True
+            )
 
         if self.fz_table_path is None:
-            self.fz_table_values, self.fz_table_path = self.load_table(self.lineEdit_path_table_fz, "Fz", direct_load=True)           
+            self.fz_table_values, self.fz_table_path = self.load_table(
+                self.lineEdit_path_table_fz, "Fz", direct_load=True
+            )
 
         if self.mx_table_path is None:
-            self.mx_table_values, self.mx_table_path = self.load_table(self.lineEdit_path_table_mx, "Mx", direct_load=True)            
+            self.mx_table_values, self.mx_table_path = self.load_table(
+                self.lineEdit_path_table_mx, "Mx", direct_load=True
+            )
 
         if self.my_table_path is None:
-            self.my_table_values, self.my_table_path = self.load_table(self.lineEdit_path_table_my, "My", direct_load=True)             
+            self.my_table_values, self.my_table_path = self.load_table(
+                self.lineEdit_path_table_my, "My", direct_load=True
+            )
 
         if self.mz_table_path is None:
-            self.mz_table_values, self.mz_table_path = self.load_table(self.lineEdit_path_table_mz, "Mz", direct_load=True)              
+            self.mz_table_values, self.mz_table_path = self.load_table(
+                self.lineEdit_path_table_mz, "Mz", direct_load=True
+            )
 
         for node_id in node_ids:
-
             if self.fx_table_path is not None:
-                self.fx_table_name, self.fx_array = self.save_tables_files("Fx", node_id, self.fx_table_values)
+                self.fx_table_name, self.fx_array = self.save_tables_files(
+                    "Fx", node_id, self.fx_table_values
+                )
 
             if self.fy_table_path is not None:
-                self.fy_table_name, self.fy_array = self.save_tables_files("Fy", node_id, self.fy_table_values)
+                self.fy_table_name, self.fy_array = self.save_tables_files(
+                    "Fy", node_id, self.fy_table_values
+                )
 
             if self.fz_table_path is not None:
-                self.fz_table_name, self.fz_array = self.save_tables_files("Fz", node_id, self.fz_table_values)
+                self.fz_table_name, self.fz_array = self.save_tables_files(
+                    "Fz", node_id, self.fz_table_values
+                )
 
             if self.mx_table_path is not None:
-                self.mx_table_name, self.mx_array = self.save_tables_files("Mx", node_id, self.mx_table_values)
+                self.mx_table_name, self.mx_array = self.save_tables_files(
+                    "Mx", node_id, self.mx_table_values
+                )
 
             if self.my_table_path is not None:
-                self.my_table_name, self.my_array = self.save_tables_files("My", node_id, self.my_table_values)
+                self.my_table_name, self.my_array = self.save_tables_files(
+                    "My", node_id, self.my_table_values
+                )
 
             if self.mz_table_path is not None:
-                self.mz_table_name, self.mz_array = self.save_tables_files("Mz", node_id, self.mz_table_values)
+                self.mz_table_name, self.mz_array = self.save_tables_files(
+                    "Mz", node_id, self.mz_table_values
+                )
 
-            table_names = [   self.fx_table_name, self.fy_table_name, self.fz_table_name, 
-                            self.mx_table_name, self.my_table_name, self.mz_table_name  ]
+            table_names = [
+                self.fx_table_name,
+                self.fy_table_name,
+                self.fz_table_name,
+                self.mx_table_name,
+                self.my_table_name,
+                self.mz_table_name,
+            ]
 
-            table_paths = [ self.fx_table_path, self.fy_table_path, self.fz_table_path, 
-                            self.mx_table_path, self.my_table_path, self.mz_table_path ]
+            table_paths = [
+                self.fx_table_path,
+                self.fy_table_path,
+                self.fz_table_path,
+                self.mx_table_path,
+                self.my_table_path,
+                self.mz_table_path,
+            ]
 
-            nodal_loads = [ self.fx_table_values, self.fy_table_values, self.fz_table_values, 
-                            self.mx_table_values, self.my_table_values, self.mz_table_values ]
+            nodal_loads = [
+                self.fx_table_values,
+                self.fy_table_values,
+                self.fz_table_values,
+                self.mx_table_values,
+                self.my_table_values,
+                self.mz_table_values,
+            ]
 
             if (table_names).count(None) == 6:
                 title = "Additional inputs required"
                 message = "You must inform at least one nodal load "
                 message += "table path before confirming the input!"
-                PrintMessageInput([error_title, title, message]) 
+                PrintMessageInput([error_title, title, message])
                 return
 
             node = app().project.model.preprocessor.nodes[node_id]
             coords = np.round(node.coordinates, 5)
 
             data = {
-                    "coords" : list(coords),
-                    "table_names" : table_names,
-                    "table_paths" : table_paths,
-                    "values" : nodal_loads
-                    }
+                "coords": list(coords),
+                "table_names": table_names,
+                "table_paths": table_paths,
+                "values": nodal_loads,
+            }
 
             self.properties._set_nodal_property("nodal_loads", data, node_id)
 
@@ -485,17 +584,23 @@ class NodalLoadsInput(StructuralNodesInput):
 
         self.treeWidget_nodal_info.clear()
         for (property, *args), data in self.properties.nodal_properties.items():
-
             if property == "nodal_loads":
                 values = data["values"]
-                constrained_dofs_mask = [False if value is None else True for value in values]
-                new = QTreeWidgetItem([str(args[0]), str(self.text_label(constrained_dofs_mask, self.load_labels))])
+                constrained_dofs_mask = [
+                    False if value is None else True for value in values
+                ]
+                new = QTreeWidgetItem(
+                    [
+                        str(args[0]),
+                        str(self.text_label(constrained_dofs_mask, self.load_labels)),
+                    ]
+                )
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_nodal_info.addTopLevelItem(new)
 
         self.tabWidget_nodal_loads.setTabVisible(2, False)
-        for (property, *_) in self.properties.nodal_properties.keys():
+        for property, *_ in self.properties.nodal_properties.keys():
             if property == "nodal_loads":
                 self.tabWidget_nodal_loads.setCurrentIndex(0)
                 self.tabWidget_nodal_loads.setTabVisible(2, True)
@@ -532,13 +637,11 @@ class NodalLoadsInput(StructuralNodesInput):
 
     def get_nodal_info(self, item):
         try:
-
             loads_info = dict()
             selected_node = int(item.text(0))
 
             for (property, *args), data in self.properties.nodal_properties.items():
                 if property == "nodal_loads" and selected_node == args[0]:
-
                     values = data["values"]
                     nodal_loads_mask = [False if bc is None else True for bc in values]
 
@@ -548,14 +651,15 @@ class NodalLoadsInput(StructuralNodesInput):
                             loads_info[selected_node, dof_label] = values[i]
 
             if len(loads_info):
-
                 self.hide()
                 header_labels = ["Node ID", "DOF label", "Value"]
-                GetInformationOfGroup(  group_label = "Nodal loads",
-                                        selection_label = "Node ID:",
-                                        header_labels = header_labels,
-                                        column_widths = [70, 140, 150],
-                                        data = data  )
+                GetInformationOfGroup(
+                    group_label="Nodal loads",
+                    selection_label="Node ID:",
+                    header_labels=header_labels,
+                    column_widths=[70, 140, 150],
+                    data=data,
+                )
 
         except Exception as error_log:
             title = "Error while gathering nodal loads information"
@@ -567,8 +671,7 @@ class NodalLoadsInput(StructuralNodesInput):
 
     def remove_callback(self):
 
-        if  self.lineEdit_node_ids.text() != "":
-
+        if self.lineEdit_node_ids.text() != "":
             str_nodes = self.lineEdit_node_ids.text()
             stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
             if stop:
@@ -584,18 +687,22 @@ class NodalLoadsInput(StructuralNodesInput):
         self.hide()
 
         title = "Resetting of prescribed dofs"
-        message = "Would you like to remove all prescribed dofs from the structural model?"
+        message = (
+            "Would you like to remove all prescribed dofs from the structural model?"
+        )
 
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        buttons_config = {
+            "left_button_label": "Cancel",
+            "right_button_label": "Continue",
+        }
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
             return
 
         if read._continue:
-            
             node_ids = list()
-            for (property, *args) in self.properties.nodal_properties.keys():
+            for property, *args in self.properties.nodal_properties.keys():
                 if property == "nodal_loads":
                     node_ids.append(args[0])
 
@@ -623,4 +730,3 @@ class NodalLoadsInput(StructuralNodesInput):
 
         elif event.key() == Qt.Key_Escape:
             self.close()
-#fmt: on

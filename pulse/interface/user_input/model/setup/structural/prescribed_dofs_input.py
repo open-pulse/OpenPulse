@@ -1,20 +1,35 @@
-#fmt: off
-from PySide6.QtWidgets import QComboBox, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtCore import Qt
-
-from pulse import app, UI_DIR
-from pulse.interface.user_input.model.setup.structural.structural_nodes_input import StructuralNodesInput
-from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
-
-from molde import load_ui
-
-import numpy as np
+# fmt: off
 from pathlib import Path
 
+import numpy as np
+from molde import load_ui
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QComboBox,
+    QLineEdit,
+    QPushButton,
+    QTabWidget,
+    QTreeWidget,
+    QTreeWidgetItem,
+)
+
+from pulse import UI_DIR, app
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.data_handler.file_managers.file_manager import (
+    FileManager,
+)
+from pulse.interface.user_input.model.setup.general.get_information_of_group import (
+    GetInformationOfGroup,
+)
+from pulse.interface.user_input.model.setup.structural.structural_nodes_input import (
+    StructuralNodesInput,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 error_title = "Error"
 
@@ -373,7 +388,7 @@ class PrescribedDofsInput(StructuralNodesInput):
                 self.lineEdit_reset(lineEdit)
 
                 title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
+                message = "The following imported table of values has a frequency setup\n"
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
@@ -691,4 +706,4 @@ class PrescribedDofsInput(StructuralNodesInput):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-#fmt: on
+# fmt: on
