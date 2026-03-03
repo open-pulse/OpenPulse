@@ -202,7 +202,7 @@ class PrescribedDofsInput(QDialog):
                             table_paths = data["table_paths"]
                             for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
                                 table_path = table_paths[index]
-                                if table_path is not None:                   
+                                if table_path is not None:
                                     lineEdit_table.setText(table_path)
 
                         else:
@@ -341,6 +341,9 @@ class PrescribedDofsInput(QDialog):
 
         try:
             if direct_load:
+                if not lineEdit.text():
+                    return None, None
+
                 path_imported_table = Path(lineEdit.text())
 
             else:
@@ -505,22 +508,22 @@ class PrescribedDofsInput(QDialog):
         for node_id in node_ids:
             
             if self.ux_table_values is not None:
-                self.ux_table_name, self.ux_array = self.integrate_and_save_table_files("Ux", node_id, self.ux_table_values, self.ux_table_path, linear = True)
+                self.ux_table_name, self.ux_array = self.integrate_and_save_table_files("Ux", node_id, self.ux_table_values, linear = True)
 
             if self.uy_table_values is not None:
-                self.uy_table_name, self.uy_array = self.integrate_and_save_table_files("Uy", node_id, self.uy_table_values, self.uy_table_path, linear = True)
+                self.uy_table_name, self.uy_array = self.integrate_and_save_table_files("Uy", node_id, self.uy_table_values, linear = True)
 
             if self.uz_table_values is not None:
-                self.uz_table_name, self.uz_array = self.integrate_and_save_table_files("Uz", node_id, self.uz_table_values, self.uz_table_path, linear = True)
+                self.uz_table_name, self.uz_array = self.integrate_and_save_table_files("Uz", node_id, self.uz_table_values, linear = True)
 
             if self.rx_table_values is not None:
-                self.rx_table_name, self.rx_array = self.integrate_and_save_table_files("Rx", node_id, self.rx_table_values, self.rx_table_path, linear = True)
+                self.rx_table_name, self.rx_array = self.integrate_and_save_table_files("Rx", node_id, self.rx_table_values, linear = True)
 
             if self.ry_table_values is not None:
-                self.ry_table_name, self.rx_array = self.integrate_and_save_table_files("Ry", node_id, self.ry_table_values, self.ry_table_path, linear = True)
+                self.ry_table_name, self.rx_array = self.integrate_and_save_table_files("Ry", node_id, self.ry_table_values, linear = True)
 
             if self.rz_table_values is not None:
-                self.rz_table_name, self.rx_array = self.integrate_and_save_table_files("Rz", node_id, self.rz_table_values, self.rz_table_path, linear = True)
+                self.rz_table_name, self.rx_array = self.integrate_and_save_table_files("Rz", node_id, self.rz_table_values, linear = True)
 
             basenames = [   self.ux_table_name, self.uy_table_name, self.uz_table_name, 
                             self.rx_table_name, self.ry_table_name, self.rz_table_name   ]
@@ -530,6 +533,8 @@ class PrescribedDofsInput(QDialog):
 
             prescribed_dofs = [ self.ux_table_values, self.uy_table_values, self.uz_table_values, 
                                 self.rx_table_values, self.ry_table_values, self.rz_table_values ]
+            
+            table_paths = [str(path) if path is not None else path for path in table_paths]
 
             if basenames == self.list_Nones:
                 title = "Additional inputs required"
@@ -552,6 +557,7 @@ class PrescribedDofsInput(QDialog):
 
         app().project.file.write_nodal_properties_in_file()
 
+        self.reset_table_variables()
         self.actions_to_finalize()
         print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")
 
@@ -728,12 +734,12 @@ class PrescribedDofsInput(QDialog):
         app().main_window.update_plots()
 
     def reset_input_fields(self):
-        self.lineEdit_node_ids.setText("")
+        self.lineEdit_node_ids.clear()
         for [lineEdit_real, lineEdit_imag] in self.list_lineEdit_constant_values:
-            lineEdit_real.setText("")
-            lineEdit_imag.setText("")
+            lineEdit_real.clear()
+            lineEdit_imag.clear()
         for lineEdit_table in self.list_lineEdit_table_values:
-            lineEdit_table.setText("")
+            lineEdit_table.clear()
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
