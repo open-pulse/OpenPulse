@@ -465,8 +465,10 @@ def _structural_format(property_name, values, labels, units, has_table):
 
     tree = TreeInfo(property_name)
     if has_table:
-        tree.add_item(u_labels, "Table of values")
-        tree.add_item(r_labels, "Table of values")
+        if u_labels:
+            tree.add_item(u_labels, "Table of values")
+        if r_labels:
+            tree.add_item(r_labels, "Table of values")
     else:
         if u_values:
             tree.add_item(", ".join(u_labels), u_values, units[0])
