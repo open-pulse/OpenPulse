@@ -5,6 +5,7 @@ from pathlib import Path
 
 from pulse.interface.formatters.icons import *
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate
+from pulse.interface.menu.tooltips import get_tooltip
 
 
 class CommonMenuItems(QTreeWidget):
@@ -30,13 +31,16 @@ class CommonMenuItems(QTreeWidget):
         item.setExpanded(expanded)
         return item
 
-    def add_item(self, name, callback=None):
+    def add_item(self, name, callback=None, property_name=""):
         if self._last_top_level is None:
             self.add_top_item("")
 
         item = ChildTreeWidgetItem(name)
         self._last_top_level.addChild(item)
         item.setFont(0, self.font_item)
+
+        if property_name:
+            item.set_property_name(property_name)
 
         # if callable(callback):
         #     item.clicked.connect(callback)
@@ -128,6 +132,11 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
         super().__init__([name])
         self.clicked = CustomBoundSignal()
 
+    def set_property_name(self, name: str):
+        name = name.lower()
+        name = name.strip()
+        self.property_name = name  
+
     def set_warning(self, cond):
         if cond:
             font = QFont()
@@ -141,3 +150,18 @@ class ChildTreeWidgetItem(QTreeWidgetItem):
             self.setData(0, Qt.FontRole, None)  # reset color
             self.setData(0, Qt.ForegroundRole, None)  # reset color
             self.setData(0, Qt.DecorationRole, None)
+
+    def set_tooltips(self, property_name: str = "", requirement: bool = False, message_requirement: str = ""):
+        if requirement and message_requirement == "":
+            message_requirement = "<b style='color:red'>Required for the selected configuration.</b><br>"
+        
+        if property_name == "":
+            property_name = self.property_name
+
+        tooltips = get_tooltip(property_name)
+        
+        if tooltips:
+            self.setToolTip(0, message_requirement + tooltips)
+        else:
+            self.setToolTip(0, message_requirement)
+        

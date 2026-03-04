@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QComboBox, QLabel, QPushButton, QToolBar, QWidget
-from PySide6.QtCore import QSize, Qt 
+from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import  QIcon, QFont
 
 from pulse import app, UI_DIR, ICON_DIR
@@ -38,6 +38,8 @@ def decode_analysis(analysis_id):
         return
 
 class AnalysisToolbar(QToolBar):
+    domain_changed = Signal()
+    
     def __init__(self):
         super().__init__()
 
@@ -124,6 +126,7 @@ class AnalysisToolbar(QToolBar):
 
     def physical_domain_callback(self):
         self.update_run_analysis_button()
+        self.domain_changed.emit()
 
     def analysis_type_callback(self):
 

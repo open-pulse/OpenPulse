@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
 from PySide6.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
-from PySide6.QtCore import Qt, QSize, QRect
+from PySide6.QtCore import Qt, QSize, QRect, QTimer
 from pathlib import Path
 
 from pulse import app
@@ -22,40 +22,43 @@ class ModelSetupItems(CommonMenuItems):
 
         self._create_items()
         self._create_connections()
+        self.update_tooltips_warnings()
+        
+        QTimer.singleShot(0, self.connect_domain_filter)
 
     def _create_items(self):
         """Creates all TreeWidgetItems."""
         self.item_top_general_settings = self.add_top_item('General Settings')
-        self.item_child_create_geometry = self.add_item('Create/Edit Geometry')
-        self.item_child_set_material = self.add_item('Set Material')
-        self.item_child_set_fluid = self.add_item('Set Fluid')
-        self.item_child_set_crossSection = self.add_item('Set Cross-Section')
+        self.item_child_create_geometry = self.add_item('Create/Edit Geometry', property_name="create_geometry")
+        self.item_child_set_material = self.add_item('Set Material', property_name="set_material")
+        self.item_child_set_fluid = self.add_item('Set Fluid', property_name="set_fluid")
+        self.item_child_set_crossSection = self.add_item('Set Cross-Section', property_name="set_cross_section")
         #
         self.item_top_structural_model_setup = self.add_top_item('Structural Model Setup')
-        self.item_child_set_structural_element_type = self.add_item('Set Structural Element Type')
-        self.item_child_set_prescribed_dofs = self.add_item('Set Prescribed DOFs')
-        self.item_child_set_nodal_loads = self.add_item('Set Nodal Loads')
-        self.item_child_add_mass_spring_damper = self.add_item('Add: Mass / Spring / Damper')
-        self.item_child_add_elastic_nodal_links = self.add_item('Add Elastic Nodal Links')
-        self.item_child_set_beam_xaxis_rotation = self.add_item('Set Beam X-axis Rotation')
-        self.item_child_set_rotation_decoupling_dofs = self.add_item('Set B2P Rotation Decoupling')
-        self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening')
-        self.item_child_add_valve = self.add_item('Add Valve')
-        self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
-        self.item_child_set_inertial_loads = self.add_item('Set Inertial Loads')
+        self.item_child_set_structural_element_type = self.add_item('Set Structural Element Type', property_name="set_structural_element_type")
+        self.item_child_set_prescribed_dofs = self.add_item('Set Prescribed DOFs', property_name="set_prescribed_dofs")
+        self.item_child_set_nodal_loads = self.add_item('Set Nodal Loads', property_name="set_nodal_loads")
+        self.item_child_add_mass_spring_damper = self.add_item('Add: Mass / Spring / Damper', property_name="add_mass_spring_damper")
+        self.item_child_add_elastic_nodal_links = self.add_item('Add Elastic Nodal Links', property_name="add_elastic_nodal_links")
+        self.item_child_set_beam_xaxis_rotation = self.add_item('Set Beam X-axis Rotation', property_name="set_beam_xaxis_rotation")
+        self.item_child_set_rotation_decoupling_dofs = self.add_item('Set B2P Rotation Decoupling', property_name="set_rotation_decoupling_dofs")
+        self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening', property_name="set_stress_stiffening")
+        self.item_child_add_valve = self.add_item('Add Valve', property_name="add_valve")
+        self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint', property_name="add_expansion_joint")
+        self.item_child_set_inertial_loads = self.add_item('Set Inertial Loads', property_name="set_inertial_loads")
         #
         self.item_top_acoustic_model_setup = self.add_top_item('Acoustic Model Setup')
-        self.item_child_set_acoustic_element_type = self.add_item('Set Acoustic Element Type')
-        self.item_child_set_acoustic_pressure = self.add_item('Set Acoustic Pressure')
-        self.item_child_set_volume_velocity = self.add_item('Set Volume Velocity')
-        self.item_child_set_specific_impedance = self.add_item('Set Specific Impedance')
-        self.item_child_set_radiation_impedance = self.add_item('Set Radiation Impedance')
-        self.item_child_add_perforated_plate = self.add_item('Add Perforated Plate')
-        self.item_child_set_acoustic_element_length_correction = self.add_item('Set Element Length Correction')
-        self.item_child_add_reciprocating_compressor_excitation = self.add_item('Add Reciprocating Compressor Excitation')
-        self.item_child_add_reciprocating_pump_excitation = self.add_item('Add Reciprocating Pump Excitation')
-        self.item_child_add_acoustic_transfer_element = self.add_item('Add Acoustic Transfer Element')
-        self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
+        self.item_child_set_acoustic_element_type = self.add_item('Set Acoustic Element Type', property_name="set_acoustic_element_type")
+        self.item_child_set_acoustic_pressure = self.add_item('Set Acoustic Pressure', property_name="set_acoustic_pressure")
+        self.item_child_set_volume_velocity = self.add_item('Set Volume Velocity', property_name="set_volume_velocity")
+        self.item_child_set_specific_impedance = self.add_item('Set Specific Impedance', property_name="set_specific_impedance")
+        self.item_child_set_radiation_impedance = self.add_item('Set Radiation Impedance', property_name="set_radiation_impedance")
+        self.item_child_add_perforated_plate = self.add_item('Add Perforated Plate', property_name="add_perforated_plate")
+        self.item_child_set_acoustic_element_length_correction = self.add_item('Set Element Length Correction', property_name="set_acoustic_element_length_correction")
+        self.item_child_add_reciprocating_compressor_excitation = self.add_item('Add Reciprocating Compressor Excitation', property_name="add_reciprocating_compressor_excitation")
+        self.item_child_add_reciprocating_pump_excitation = self.add_item('Add Reciprocating Pump Excitation', property_name="add_reciprocating_pump_excitation")
+        self.item_child_add_acoustic_transfer_element = self.add_item('Add Acoustic Transfer Element', property_name="add_acoustic_transfer_element")
+        self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements', property_name="turn_off_acoustic_elements")
         #
         self.top_level_items = [
                                 self.item_top_general_settings,
@@ -110,6 +113,7 @@ class ModelSetupItems(CommonMenuItems):
         app().main_window.input_ui.set_material()
         app().main_window.set_input_widget(None)
         app().main_window.set_color_mode(previous_color_mode)
+        self.update_tooltips_warnings()
 
     def item_child_set_fluid_callback(self):
         previous_color_mode = app().main_window.get_color_mode()
@@ -118,6 +122,7 @@ class ModelSetupItems(CommonMenuItems):
         app().main_window.input_ui.set_fluid()
         app().main_window.set_input_widget(None)
         app().main_window.set_color_mode(previous_color_mode)
+        self.update_tooltips_warnings()
 
     def item_child_set_cross_section_callback(self):
         self.configure_render_according_to_inputs("lines")
@@ -320,3 +325,69 @@ class ModelSetupItems(CommonMenuItems):
         for item in self.top_level_items:
             item.setBackground(0, self.background_color)
             item.setData(0, border_role, border_pen)
+
+    def get_physical_domain(self) -> str:
+        try:
+            toolbar = app().main_window.analysis_toolbar
+            domain_text = toolbar.combo_box_analysis_domain.currentText().strip().lower()
+            if domain_text in ["structural", "acoustic", "coupled"]:
+                return domain_text
+        except Exception:
+            pass
+        return "structural"
+    
+    def filter_by_domain(self):
+        domain = self.get_physical_domain()
+        self.item_top_general_settings.setHidden(False)
+
+        show_structural = domain in ("structural", "coupled")
+        show_acoustic   = domain in ("acoustic",   "coupled")
+
+        self.item_top_structural_model_setup.setHidden(not show_structural)
+        self.item_top_acoustic_model_setup.setHidden(not show_acoustic)
+
+    def connect_domain_filter(self):
+        app().main_window.analysis_changed.connect(self.filter_by_domain)
+        app().main_window.analysis_changed.connect(self.update_tooltips_warnings)
+        self.filter_by_domain()
+
+    def needs_property(self, property_name: str) -> bool:
+        domain = self.get_physical_domain()
+
+        if property_name == "set_material":
+            return True
+
+        if property_name == "set_fluid":
+            return domain in ["acoustic", "coupled"]
+
+        return False
+
+    def contains_property(self, property_name: str) -> bool:
+        properties = app().project.model.properties
+
+        if property_name == "set_material":
+            material_data = properties.get_material()
+            return bool(material_data)
+
+        if property_name == "set_fluid":
+            fluid_data = properties.get_fluid()
+            return bool(fluid_data)
+        
+        return True
+
+    def update_tooltips_warnings(self):
+        for top_level in self.top_level_items:
+            for i in range(top_level.childCount()):
+                item = top_level.child(i)
+                prop_name = getattr(item, "property_name", "")
+
+                if not prop_name:
+                    continue
+
+                is_needed = self.needs_property(prop_name)
+                is_filled = self.contains_property(prop_name)
+
+                if is_needed and not is_filled:
+                    item.set_tooltips(requirement=True)
+                else:
+                    item.set_tooltips(requirement=False)
