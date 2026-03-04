@@ -7,6 +7,7 @@ from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFlui
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import AcousticNodesInput
 
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
@@ -24,17 +25,13 @@ kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 
 
-class ReciprocatingCompressorInputs(QDialog):
+class ReciprocatingCompressorInputs(AcousticNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         ui_path = UI_DIR / "model/setup/acoustic/reciprocating_compressor_inputs.ui"
         load_ui(ui_path, self)
 
-        app().main_window.set_input_widget(self)
-        self.properties = app().project.model.properties
-
-        self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
@@ -45,12 +42,6 @@ class ReciprocatingCompressorInputs(QDialog):
         while self.keep_window_open:
             self.exec()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
-
     def _initialize(self):
 
         self.complete = False
@@ -58,8 +49,6 @@ class ReciprocatingCompressorInputs(QDialog):
 
         self.aquisition_parameters_processed = False
         self.not_update_event = False
-
-        self.before_run = app().project.get_pre_solution_model_checks()    
 
     def _define_qt_variables(self):
 
@@ -850,7 +839,11 @@ class ReciprocatingCompressorInputs(QDialog):
                 "parameters" : self.parameters,
                 }
 
-            self.remove_conflicting_excitations(node_id)
+            properties = [
+                "acoustic_pressure", "volume_velocity", 
+                "reciprocating_compressor_excitation", "reciprocating_pump_excitation"
+                ]
+            self.remove_conflicting_data(properties, node_id)
 
             if self.save_table_values(table_name, _freq, _flow_rate):
                 return
@@ -865,28 +858,12 @@ class ReciprocatingCompressorInputs(QDialog):
         app().main_window.update_plots()
         self.load_compressor_excitation_info()
 
-    def process_table_file_removal(self, table_names: list):
-        for table_name in table_names:
-            self.properties.remove_imported_tables("acoustic", table_name)
-        if table_names:
-            app().project.file.write_imported_table_data_in_file()
-
-    def remove_conflicting_excitations(self, node_id: int):
-        for label in ["acoustic_pressure", "volume_velocity", "reciprocating_compressor_excitation", "reciprocating_pump_excitation"]:
-            table_names = self.properties.get_nodal_related_table_names(label, node_id)
-            self.properties._remove_nodal_property(label, node_id)
-            self.process_table_file_removal(table_names)
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("reciprocating_compressor_excitation", node_ids)
-        self.process_table_file_removal(table_names)
-
     def remove_callback(self):
 
         if self.lineEdit_selected_node_id.text() != "":   
 
             node_id = int(self.lineEdit_selected_node_id.text())
-            self.remove_table_files_from_nodes(node_id)
+            self.remove_table_files_from_nodes("reciprocating_compressor_excitation", node_id)
 
             self.properties._remove_nodal_property("reciprocating_compressor_excitation", node_id)
             self.actions_to_finalize()
@@ -915,7 +892,7 @@ class ReciprocatingCompressorInputs(QDialog):
                     node_ids.append(node_id)
 
             for node_id in node_ids:
-                self.remove_table_files_from_nodes(node_id)
+                self.remove_table_files_from_nodes("reciprocating_compressor_excitation", node_id)
 
             self.properties._reset_nodal_property("reciprocating_compressor_excitation")
             self.actions_to_finalize()
@@ -1102,16 +1079,3 @@ class ReciprocatingCompressorInputs(QDialog):
         self.compressor.number_points = N
         self.compressor.plot_crank_end_volume_vs_angle()
         return
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Enter:
-            self.remove_callback()
-        if event.key() == Qt.Key_Escape:
-            self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)
