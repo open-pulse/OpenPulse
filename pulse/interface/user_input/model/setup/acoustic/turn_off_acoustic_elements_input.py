@@ -1,34 +1,27 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
-from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.turn_off_acoustic_elements_input_ui import TurnOffAcousticElementsInput_UI
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import numpy as np
-from collections import defaultdict
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class TurnOffAcousticElementsInput(QDialog):
+class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/turn_off_acoustic_elements_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_elements_info()
@@ -53,29 +46,6 @@ class TurnOffAcousticElementsInput(QDialog):
 
         self.before_run = app().project.get_pre_solution_model_checks()
     
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_action_selector :  QComboBox
-
-        # QLabel
-        self.label_selection : QLabel
-
-        # QLineEdit
-        self.lineEdit_element_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute : QPushButton
-        self.pushButton_exit : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_elements_info : QTreeWidget
-
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)

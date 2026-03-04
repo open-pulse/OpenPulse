@@ -1,31 +1,25 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.model.plot_section_ui import PlotSection_UI
 from pulse.model.cross_section import get_points_to_plot_section
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PlotCrossSectionInput(QDialog):
+class PlotCrossSectionInput(PlotSection_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/model/plot_section.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
         self.exec()
@@ -43,20 +37,6 @@ class PlotCrossSectionInput(QDialog):
         self.before_run = self.project.get_pre_solution_model_checks()
         
         self.structural_elements = self.project.model.preprocessor.structural_elements
-
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_selection : QComboBox
-
-        # QLabel
-        self.label_selected_id : QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_cross_section : QPushButton 
 
     def _create_connections(self):
         #

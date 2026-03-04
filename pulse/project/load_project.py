@@ -1,6 +1,6 @@
 # fmt: off
 
-from pulse import app, version
+from pulse import version
 from pulse.model.cross_section import CrossSection
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material

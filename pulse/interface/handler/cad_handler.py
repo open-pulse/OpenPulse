@@ -1,12 +1,10 @@
 import gmsh
 from pulse.editor.structures import (
     Pipe,
-    Bend,
-    Flange
+    Bend
 )
 
 from pulse.utils.unit_conversion import m_to_mm, in_to_mm
-import numpy as np
 
 
 class CADHandler:

@@ -495,7 +495,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../../../icons/mpltoolbar/copy_icon.png</normaloff>../../../../icons/mpltoolbar/copy_icon.png</iconset>
+             <normaloff>:/icons/mpltoolbar/copy_icon.png</normaloff>:/icons/mpltoolbar/copy_icon.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -521,8 +521,6 @@
   <tabstop>tableWidget_fluid_data</tabstop>
   <tabstop>pushButton_attribute</tabstop>
  </tabstops>
- <resources>
-  <include location="../../../../../../../../VIBRA/vibra/interface/data/icons/resources.qrc"/>
- </resources>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

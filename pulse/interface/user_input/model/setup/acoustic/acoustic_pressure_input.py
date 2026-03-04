@@ -1,29 +1,35 @@
-from PySide6.QtWidgets import QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtCore import Qt
-
-from pulse import app, UI_DIR
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
-from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import AcousticNodesInput
-
-from molde import load_ui
-
 from pathlib import Path
 
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QLineEdit,
+    QTreeWidgetItem,
+)
+
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.acoustic_pressure_input_ui import (
+    AcousticPressureInput_UI,
+)
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.data_handler.file_managers.file_manager import (
+    FileManager,
+)
+from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
+    AcousticNodesInput,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 error_title = "Error"
 
 
-class AcousticPressureInput(AcousticNodesInput):
+class AcousticPressureInput(AcousticPressureInput_UI, AcousticNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/acoustic_pressure_input.ui"
-        load_ui(ui_path, self)
-
-        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._initialize()
         self._define_qt_variables()
@@ -45,26 +51,6 @@ class AcousticPressureInput(AcousticNodesInput):
         self.keep_window_open = True
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_imag_value: QLineEdit
-        self.lineEdit_real_value: QLineEdit
-        self.lineEdit_node_ids: QLineEdit
-        self.lineEdit_table_path: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_search: QPushButton
-
-        # QTabWidget
-        self.tabWidget_inputs: QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info : QTreeWidget
         self.treeWidget_nodal_info.setColumnWidth(1, 20)
         self.treeWidget_nodal_info.setColumnWidth(2, 80)
 
@@ -165,7 +151,7 @@ class AcousticPressureInput(AcousticNodesInput):
                 if last_path is None:
                     last_path = str(Path().home())
 
-                caption = f"Choose a table to import the acoustic pressure"
+                caption = "Choose a table to import the acoustic pressure"
                 extensions = ["csv", "dat", "txt"]
 
                 path_imported_table = FileDialogService.open_file(extensions, caption, last_path)
@@ -196,7 +182,7 @@ class AcousticPressureInput(AcousticNodesInput):
                 self.lineEdit_reset(lineEdit)
 
                 title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
+                message = "The following imported table of values has a frequency setup\n"
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
@@ -254,7 +240,7 @@ class AcousticPressureInput(AcousticNodesInput):
 
         self.hide()
 
-        title = f"Resetting of acoustic pressures"
+        title = "Resetting of acoustic pressures"
         message = "Would you like to remove all acoustic pressures from the acoustic model?"
 
         buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}

@@ -1,13 +1,13 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.structural_element_type_input_ui import StructuralElementTypeInput_UI
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 from collections import defaultdict
 
@@ -16,13 +16,9 @@ error_title = "Error"
 warning_title = "Warning"
 
 
-class StructuralElementTypeInput(QDialog):
+class StructuralElementTypeInput(StructuralElementTypeInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/structural_element_type_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -30,7 +26,6 @@ class StructuralElementTypeInput(QDialog):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
 
         self.element_type_change_callback()
@@ -52,36 +47,6 @@ class StructuralElementTypeInput(QDialog):
         self.beam_to_pipe = False
 
         self.before_run = app().project.get_pre_solution_model_checks()
-
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_selection: QComboBox
-        self.comboBox_element_type: QComboBox
-        self.comboBox_capped_end: QComboBox
-        self.comboBox_force_offset: QComboBox
-        self.comboBox_wall_formulation: QComboBox
-
-        # QLabel
-        self.label_selected_id: QLabel
-        self.label_capped_end: QLabel
-        self.label_force_offset: QLabel
-        self.label_wall_formulation: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_element_type: QTreeWidget
 
     def _create_connections(self):
         #

@@ -64,8 +64,8 @@ class BeforeRun():
             typed_ids = list(map(int, tokens))
             
             if len(typed_ids) == 0:
-                    message = f"An empty input field for the {label.capitalize()} ID has been detected." 
-                    message += f"You should enter a valid  {label.capitalize()} ID to proceed!"
+                    message = f"An empty input field for the {label.capitalize()} ID has been detected. " 
+                    message += f"You should enter a valid {label.capitalize()} ID to proceed."
 
             elif len(typed_ids) >= 1:
 

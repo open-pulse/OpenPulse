@@ -1,11 +1,10 @@
-from PySide6.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.criterias.pulsation_criteria_widget_ui import PulsationCriteriaWidget_UI
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from molde import load_ui
 
 import numpy as np
 
@@ -15,13 +14,9 @@ window_title_2 = "Warning"
 psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
 
-class ReciprocatingCompressorPulsationCriteriaInput(QWidget):
+class ReciprocatingCompressorPulsationCriteriaInput(PulsationCriteriaWidget_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "criterias/pulsation_criteria_widget.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -30,7 +25,6 @@ class ReciprocatingCompressorPulsationCriteriaInput(QWidget):
 
         self._config_window()
         self._initialize()        
-        self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
 
@@ -46,25 +40,6 @@ class ReciprocatingCompressorPulsationCriteriaInput(QWidget):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_line_ids : QComboBox
-
-        # QLineEdit
-        self.lineEdit_compressor_node_id : QLineEdit
-        self.lineEdit_pressure_ratio : QLineEdit
-        self.lineEdit_unfiltered_criteria : QLineEdit
-        #        
-        self.lineEdit_nozzle_id : QLineEdit
-        self.lineEdit_line_pressure : QLineEdit
-        self.lineEdit_speed_of_sound : QLineEdit
-        self.lineEdit_internal_diameter : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_unfiltered_criteria : QPushButton
-        self.pushButton_plot_filtered_criteria : QPushButton
 
     def _create_connections(self):
         #

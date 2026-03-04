@@ -1,29 +1,36 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QTableWidget, QTableWidgetItem, QTreeWidget, QTreeWidgetItem, QAbstractItemView, QHeaderView
-from PySide6.QtGui import QIcon, QFont
-from PySide6.QtCore import Qt
-
-from pulse import app, UI_DIR
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import LoadFluidCompositionInput
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.utils.common_utils import get_new_path
-
-from molde import load_ui
-
 import os
 from pathlib import Path
+
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QHeaderView,
+    QTableWidgetItem,
+    QTreeWidgetItem,
+)
+
+from pulse import app
+from pulse.interface.ui_generated.model.setup.fluid.set_fluid_composition_input_ui import (
+    SetFluidCompositionInput_UI,
+)
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import (
+    LoadFluidCompositionInput,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.utils.common_utils import get_new_path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class SetFluidCompositionInput(QDialog):
+class SetFluidCompositionInput(SetFluidCompositionInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/fluid/set_fluid_composition_input.ui"
-        load_ui(ui_path, self)
-
         self.state_properties = kwargs.get("state_properties", dict())
         self.selected_fluid_to_edit = kwargs.get("selected_fluid_to_edit", None)
 
@@ -32,7 +39,6 @@ class SetFluidCompositionInput(QDialog):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -96,44 +102,6 @@ class SetFluidCompositionInput(QDialog):
         self.fluid_to_composition = dict()
         self.fluid_to_row = dict()
 
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_temperature_units : QComboBox
-        self.comboBox_pressure_units : QComboBox
-
-        # QLabel
-        self.label_selected_fluid : QLabel
-        self.label_title_remaining_fraction : QLabel
-        self.label_remaining_composition : QLabel
-        self.label_discharge : QLabel
-        self.label_suction : QLabel
-        self.label_spacing : QLabel
-
-        # QLineEdit
-        self.lineEdit_fluid_name : QLineEdit
-        self.lineEdit_temperature : QLineEdit
-        self.lineEdit_pressure : QLineEdit
-        self.lineEdit_pressure_disch : QLineEdit
-        self.lineEdit_temperature_disch : QLineEdit
-        self.lineEdit_temperature_test : QLineEdit
-        self.lineEdit_pressure_test : QLineEdit
-
-        # QPushButton
-        self.pushButton_add_gas : QPushButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_exit : QPushButton
-        self.pushButton_get_fluid_properties_info : QPushButton
-        self.pushButton_load_composition : QPushButton
-        self.pushButton_remove_gas : QPushButton
-        self.pushButton_reset_fluid : QPushButton
-
-        # QTableWidget
-        self.tableWidget_new_fluid : QTableWidget
-
-        # QTreeWidget
-        self.treeWidget_reference_gases : QTreeWidget
-
     def _create_connections(self):
         #
         self.pushButton_add_gas.clicked.connect(self.add_selected_fluid_button_callback)
@@ -194,8 +162,8 @@ class SetFluidCompositionInput(QDialog):
             self.lineEdit_temperature_disch.setDisabled(True)
 
             self.connection_type = state_properties['connection_type']
-            self.T_suction = state_properties[f'temperature_at_suction']
-            self.P_suction = state_properties[f'suction_pressure']
+            self.T_suction = state_properties['temperature_at_suction']
+            self.P_suction = state_properties['suction_pressure']
 
             if self.connection_type == "suction":
                 self.lineEdit_pressure_disch.setVisible(False)
@@ -216,7 +184,7 @@ class SetFluidCompositionInput(QDialog):
             self.lineEdit_pressure_disch.setText(f"{self.P_discharge : .8e}")
 
             if 'temperature_at_discharge' in state_properties.keys():
-                self.T_discharge = state_properties[f'temperature_at_discharge']
+                self.T_discharge = state_properties['temperature_at_discharge']
                 self.lineEdit_temperature_disch.setText(f"{self.T_discharge : .4f}")
 
             else:
@@ -355,7 +323,7 @@ class SetFluidCompositionInput(QDialog):
 
         self.hide()
 
-        title = f"Resetting of the fluid composition"
+        title = "Resetting of the fluid composition"
         message = "Would you like to reset the current fluid composition?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
@@ -1072,7 +1040,7 @@ class SetFluidCompositionInput(QDialog):
 
                 self.fluid_data[i] = [label, refprop_fluid_name, molar_fraction]
 
-                if not refprop_fluid_name in self.refprop_fluids.keys():
+                if refprop_fluid_name not in self.refprop_fluids.keys():
                     pass
 
                 if refprop_fluid_name in self.refprop_fluids.keys():

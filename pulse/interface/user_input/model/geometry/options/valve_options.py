@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
+    pass
 
 
 from copy import deepcopy

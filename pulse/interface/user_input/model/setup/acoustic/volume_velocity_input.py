@@ -1,16 +1,15 @@
 from pathlib import Path
 
-from molde import load_ui
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QLineEdit,
-    QPushButton,
-    QTabWidget,
-    QTreeWidget,
     QTreeWidgetItem,
 )
 
-from pulse import UI_DIR, app
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.volume_velocity_input_ui import (
+    VolumeVelocityInput_UI,
+)
 from pulse.interface.user_input.data_handler.file_dialog_service import (
     FileDialogService,
 )
@@ -28,12 +27,9 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 error_title = "Error"
 
 
-class VolumeVelocityInput(AcousticNodesInput):
+class VolumeVelocityInput(VolumeVelocityInput_UI, AcousticNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/volume_velocity_input.ui"
-        load_ui(ui_path, self)
 
         self._initialize()
         self._define_qt_variables()
@@ -55,26 +51,6 @@ class VolumeVelocityInput(AcousticNodesInput):
         self.keep_window_open = True
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_imag_value: QLineEdit
-        self.lineEdit_real_value: QLineEdit
-        self.lineEdit_node_ids: QLineEdit
-        self.lineEdit_table_path: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_search: QPushButton
-
-        # QTabWidget
-        self.tabWidget_inputs: QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
         self.treeWidget_nodal_info.setColumnWidth(1, 20)
         self.treeWidget_nodal_info.setColumnWidth(2, 80)
 

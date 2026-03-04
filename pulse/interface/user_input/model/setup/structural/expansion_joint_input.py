@@ -1,10 +1,11 @@
 # fmt: off
 
-from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_ui import ExpansionJointInput_UI
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
@@ -12,7 +13,6 @@ from pulse.interface.user_input.data_handler.file_dialog_service import FileDial
 from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
 from pulse.model.cross_section import CrossSection
 
-from molde import load_ui
 
 import numpy as np
 from pathlib import Path
@@ -22,13 +22,9 @@ from os.path import basename
 error_title = "Error"
 
 
-class ExpansionJointInput(QDialog):
+class ExpansionJointInput(ExpansionJointInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
-
-        ui_path = UI_DIR / "model/setup/structural/expansion_joint_input.ui"
-        load_ui(ui_path, self)
-
         self.render_type = kwargs.get("render_type", "model")
 
         app().main_window.set_input_widget(self)
@@ -75,53 +71,7 @@ class ExpansionJointInput(QDialog):
         self.Kryz_filename = None
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_axial_stop_rod: QComboBox
-
-        # QFrame
-        self.selection_frame: QFrame
-
-        # QLabel
-        self.label_selected_id: QLabel
-        self.label_selection: QLabel
-        self.label_axial_lock_criteria: QLabel
-
-        # QLineEdit 
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_expansion_joint_name: QLineEdit
-        #
-        self.lineEdit_effective_diameter: QLineEdit
-        self.lineEdit_joint_mass: QLineEdit
-        self.lineEdit_axial_locking_criteria: QLineEdit
-        #
-        self.lineEdit_axial_stiffness: QLineEdit
-        self.lineEdit_transversal_stiffness: QLineEdit
-        self.lineEdit_torsional_stiffness: QLineEdit
-        self.lineEdit_angular_stiffness: QLineEdit
-        #
-        self.lineEdit_path_table_axial_stiffness: QLineEdit
-        self.lineEdit_path_table_transversal_stiffness: QLineEdit
-        self.lineEdit_path_table_torsional_stiffness: QLineEdit
-        self.lineEdit_path_table_angular_stiffness: QLineEdit
         self._create_lists_of_lineEdits()
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_load_table_axial_stiffness: QPushButton
-        self.pushButton_load_table_transversal_stiffness: QPushButton
-        self.pushButton_load_table_torsional_stiffness: QPushButton
-        self.pushButton_load_table_angular_stiffness: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-        self.tabWidget_inputs: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_expansion_joints_info: QTreeWidget
 
     def _create_connections(self):
         #

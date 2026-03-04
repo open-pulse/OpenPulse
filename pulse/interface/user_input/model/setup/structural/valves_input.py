@@ -1,17 +1,17 @@
 # fmt: off
 
-from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.valve_input_ui import ValveInput_UI
 # from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import PerforatedPlateInput
 from pulse.model.cross_section import CrossSection
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import numpy as np
 from collections import defaultdict
@@ -20,13 +20,9 @@ from collections import defaultdict
 error_title = "Error"
 
 
-class ValvesInput(QDialog):
+class ValvesInput(ValveInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
-
-        ui_path = UI_DIR / "model/setup/structural/valve_input.ui"
-        load_ui(ui_path, self)
-
         self.render_type = kwargs.get("render_type", "model")
 
         app().main_window.set_input_widget(self)
@@ -37,7 +33,6 @@ class ValvesInput(QDialog):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._configure_appearance()
 
@@ -60,51 +55,6 @@ class ValvesInput(QDialog):
     def _initialize(self):
         self.complete = False
         self.keep_window_open = True
-
-    def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_remove_valve_acoustic_effects: QCheckBox
-
-        # QComboBox
-        self.comboBox_acoustic_behavior: QComboBox
-        self.comboBox_flange_setup: QComboBox
-
-        # QFrame
-        self.main_frame: QFrame
-        self.selection_frame: QFrame
-
-        # QLabel
-        self.label_selected_id: QLabel
-        self.label_flange_diameter: QLabel
-        self.label_flange_diameter_unit: QLabel
-        self.label_flange_length: QLabel
-        self.label_flange_length_unit: QLabel
-        self.label_valve_internal_length: QLabel
-        self.label_valve_internal_length_unit: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_valve_name: QLineEdit
-        self.lineEdit_stiffening_factor: QLineEdit
-        self.lineEdit_valve_mass: QLineEdit
-        self.lineEdit_effective_diameter: QLineEdit
-        self.lineEdit_wall_thickness: QLineEdit
-        self.lineEdit_internal_valve_length: QLineEdit
-        self.lineEdit_flange_length: QLineEdit
-        self.lineEdit_flange_diameter: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_remove: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_valves_info: QTreeWidget
 
     def _create_connections(self):
         #

@@ -1,26 +1,21 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.stress_stiffening_input_ui import StressStiffeningInput_UI
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
-import numpy as np
 
 
 error_title = "Error"
 
 
-class StressStiffeningInput(QDialog):
+class StressStiffeningInput(StressStiffeningInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/stress_stiffening_input.ui"
-        load_ui(ui_path, self)
-        
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -30,7 +25,6 @@ class StressStiffeningInput(QDialog):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -48,33 +42,6 @@ class StressStiffeningInput(QDialog):
 
     def _initialize(self):
         self.keep_window_open = True
-
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type: QComboBox
-
-        # QLabel
-        self.label_attribute_to: QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_external_pressure: QLineEdit
-        self.lineEdit_internal_pressure: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_remove: QPushButton
-
-        # QTabWidget
-        self.tabWidget_groups: QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_stress_stiffening: QTreeWidget
 
     def _create_connections(self):
         #

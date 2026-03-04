@@ -1100,6 +1100,6 @@ hysteretic</string>
   <tabstop>lineEdit_ah</tabstop>
   <tabstop>lineEdit_bh</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -1,25 +1,20 @@
-from PySide6.QtWidgets import QComboBox, QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Signal, QEvent, QObject, Qt
 
-from pulse import app, UI_DIR
+from pulse import app
 from pulse.model import RadiationImpedanceType
+from pulse.interface.ui_generated.plots.results.acoustic.plot_transmission_loss_ui import PlotTransmissionLoss_UI
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
-from molde import load_ui
 
 import numpy as np
 
 
-class PlotTransmissionLoss(QWidget):
+class PlotTransmissionLoss(PlotTransmissionLoss_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/acoustic/plot_transmission_loss.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -53,20 +48,7 @@ class PlotTransmissionLoss(QWidget):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_processing_selector : QComboBox
-
-        # QLineEdit
-        self.lineEdit_input_node_id : QLineEdit  
-        self.lineEdit_output_node_id : QLineEdit
         self.current_lineEdit = self.lineEdit_input_node_id
-
-        # QPushButton
-        self.pushButton_help : QPushButton
-        self.pushButton_plot_data : QPushButton
-        self.pushButton_export_data : QPushButton
-        self.pushButton_flip_nodes : QPushButton
 
     def _create_connections(self):
         #

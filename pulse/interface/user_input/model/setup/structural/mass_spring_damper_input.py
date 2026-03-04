@@ -1,19 +1,16 @@
 from pathlib import Path
 
 import numpy as np
-from molde import load_ui
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QCheckBox,
-    QFrame,
     QLineEdit,
-    QPushButton,
-    QTabWidget,
-    QTreeWidget,
     QTreeWidgetItem,
 )
 
-from pulse import UI_DIR, app
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.mass_spring_damper_input_ui import (
+    MassSpringDamperInput_UI,
+)
 from pulse.interface.user_input.data_handler.file_dialog_service import (
     FileDialogService,
 )
@@ -31,15 +28,11 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 error_title = "Error"
 
 
-class MassSpringDamperInput(StructuralNodesInput):
+class MassSpringDamperInput(MassSpringDamperInput_UI, StructuralNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/structural/mass_spring_damper_input.ui"
-        load_ui(ui_path, self)
-
         self.preprocessor = app().project.model.preprocessor
-
         self.before_run = app().project.get_pre_solution_model_checks()
 
         self._initialize()
@@ -126,103 +119,7 @@ class MassSpringDamperInput(StructuralNodesInput):
         self.Crz_table_values = None
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_remove_mass: QCheckBox
-        self.checkBox_remove_spring: QCheckBox
-        self.checkBox_remove_damper: QCheckBox
-
-        self.lineEdit_node_ids: QLineEdit
-
-        # QFrame
-        self.selection_frame: QFrame
-
-        # QLineEdit
-        self.lineEdit_path_table_Kx: QLineEdit
-        self.lineEdit_path_table_Ky: QLineEdit
-        self.lineEdit_path_table_Kz: QLineEdit
-        self.lineEdit_path_table_Krx: QLineEdit
-        self.lineEdit_path_table_Kry: QLineEdit
-        self.lineEdit_path_table_Krz: QLineEdit
-
-        self.lineEdit_path_table_Cx: QLineEdit
-        self.lineEdit_path_table_Cy: QLineEdit
-        self.lineEdit_path_table_Cz: QLineEdit
-        self.lineEdit_path_table_Crx: QLineEdit
-        self.lineEdit_path_table_Cry: QLineEdit
-        self.lineEdit_path_table_Crz: QLineEdit
-
-        self.lineEdit_Mx: QLineEdit
-        self.lineEdit_My: QLineEdit
-        self.lineEdit_Mz: QLineEdit
-        self.lineEdit_Jx: QLineEdit
-        self.lineEdit_Jy: QLineEdit
-        self.lineEdit_Jz: QLineEdit
-
-        self.lineEdit_Kx: QLineEdit
-        self.lineEdit_Ky: QLineEdit
-        self.lineEdit_Kz: QLineEdit
-        self.lineEdit_Krx: QLineEdit
-        self.lineEdit_Kry: QLineEdit
-        self.lineEdit_Krz: QLineEdit
-
-        self.lineEdit_Cx: QLineEdit
-        self.lineEdit_Cy: QLineEdit
-        self.lineEdit_Cz: QLineEdit
-        self.lineEdit_Crx: QLineEdit
-        self.lineEdit_Cry: QLineEdit
-        self.lineEdit_Crz: QLineEdit
-
-        self.lineEdit_path_table_Mx: QLineEdit
-        self.lineEdit_path_table_My: QLineEdit
-        self.lineEdit_path_table_Mz: QLineEdit
-        self.lineEdit_path_table_Jx: QLineEdit
-        self.lineEdit_path_table_Jy: QLineEdit
-        self.lineEdit_path_table_Jz: QLineEdit
-
         self._create_lists_of_lineEdits()
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-
-        self.pushButton_load_Mx_table: QPushButton
-        self.pushButton_load_My_table: QPushButton
-        self.pushButton_load_Mz_table: QPushButton
-        self.pushButton_load_Jx_table: QPushButton
-        self.pushButton_load_Jy_table: QPushButton
-        self.pushButton_load_Jz_table: QPushButton
-
-        self.pushButton_load_Kx_table: QPushButton
-        self.pushButton_load_Ky_table: QPushButton
-        self.pushButton_load_Kz_table: QPushButton
-        self.pushButton_load_Krx_table: QPushButton
-        self.pushButton_load_Kry_table: QPushButton
-        self.pushButton_load_Krz_table: QPushButton
-
-        self.pushButton_load_Cx_table: QPushButton
-        self.pushButton_load_Cy_table: QPushButton
-        self.pushButton_load_Cz_table: QPushButton
-        self.pushButton_load_Crx_table: QPushButton
-        self.pushButton_load_Cry_table: QPushButton
-        self.pushButton_load_Crz_table: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-        self.tabWidget_inputs: QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        self.tabWidget_external_elements: QTabWidget
-        self.tabWidget_constant_values: QTabWidget
-        self.tabWidget_table_values: QTabWidget
-        self.tabWidget_remove: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_springs: QTreeWidget
-        self.treeWidget_dampers: QTreeWidget
-        self.treeWidget_masses: QTreeWidget
 
     def _create_connections(self):
         #

@@ -1,24 +1,15 @@
 import numpy as np
-from molde import load_ui
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QComboBox,
-    QLabel,
-    QLineEdit,
-    QPushButton,
-    QSpinBox,
-    QTabWidget,
-    QTreeWidget,
-    QTreeWidgetItem,
-)
 
-from pulse import UI_DIR, app
+from pulse import app
 from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
     AcousticNodesInput,
 )
 from pulse.interface.user_input.model.setup.acoustic.pulsation_damper_calculator_inputs import (
     PulsationDamperCalculatorInputs,
 )
+from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs_ui import ReciprocatingPumpInputs_UI
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
     SetFluidInputSimplified,
@@ -30,6 +21,8 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
 
+
+
 error_title = "Error"
 warning_title = "Warning"
 
@@ -37,16 +30,11 @@ psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254) ** 2)
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 
-
-class ReciprocatingPumpInputs(AcousticNodesInput):
+class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI, AcousticNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        ui_path = UI_DIR / "model/setup/acoustic/reciprocating_pump_inputs.ui"
-        load_ui(ui_path, self)
-
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widget()
         self.selection_callback()
@@ -63,83 +51,7 @@ class ReciprocatingPumpInputs(AcousticNodesInput):
         self.aquisition_parameters_processed = False
         self.not_update_event = False
 
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_connection_type: QComboBox
-        self.comboBox_cylinder_acting: QComboBox
-        self.comboBox_fluid_data_source: QComboBox
-        self.comboBox_frequency_resolution: QComboBox
-        self.comboBox_pressure_units: QComboBox
-        self.comboBox_temperature_units: QComboBox
-
-        # QLabel
-        self.label_molar_mass: QLabel
-        self.label_molar_mass_unit: QLabel
-        self.label_isentropic_exp: QLabel
-        self.label_isentropic_exp_unit: QLabel
-        self.label_suction_pressure_unit: QLabel
-        self.label_discharge_pressure_unit: QLabel
-        self.label_suction_temperature_unit: QLabel
-        self.label_discharge_temperature_unit: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_node_id: QLineEdit
-        self.lineEdit_frequency_resolution: QLineEdit
-        self.lineEdit_number_of_revolutions: QLineEdit
-        self.lineEdit_bore_diameter: QLineEdit
-        self.lineEdit_stroke: QLineEdit
-        self.lineEdit_connecting_rod_length: QLineEdit
-        self.lineEdit_rod_diameter: QLineEdit
-        self.lineEdit_clearance_head_end: QLineEdit
-        self.lineEdit_clearance_crank_end: QLineEdit
-        self.lineEdit_rotational_speed: QLineEdit
-        self.lineEdit_bulk_modulus: QLineEdit
-        self.lineEdit_selected_fluid: QLineEdit
-        self.lineEdit_suction_pressure: QLineEdit
-        self.lineEdit_discharge_pressure: QLineEdit
-        self.lineEdit_suction_temperature: QLineEdit
-        self.lineEdit_discharge_temperature: QLineEdit
-        self.lineEdit_connection_type: QLineEdit
-        self.lineEdit_fluctuating_volume: QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_PV_diagram_head_end: QPushButton
-        self.pushButton_plot_PV_diagram_crank_end: QPushButton
-        self.pushButton_plot_PV_diagram_both_ends: QPushButton
-        self.pushButton_plot_piston_position_and_velocity_time: QPushButton
-        self.pushButton_plot_volumetric_flow_rate_at_suction_time: QPushButton
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_time: QPushButton
-        self.pushButton_plot_rod_pressure_load_frequency: QPushButton
-        self.pushButton_plot_rod_pressure_load_time: QPushButton
-        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency: QPushButton
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency: QPushButton
-        self.pushButton_plot_pressure_head_end_angle: QPushButton
-        self.pushButton_plot_volume_head_end_angle: QPushButton
-        self.pushButton_plot_pressure_crank_end_angle: QPushButton
-        self.pushButton_plot_volume_crank_end_angle: QPushButton
-        self.pushButton_process_fluctuating_volume: QPushButton
-        self.pushButton_process_aquisition_parameters: QPushButton
-        self.pushButton_plot_fluctuating_volume: QPushButton
-        self.pushButton_pulsation_damper_calculator: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_confirm: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_get_fluid: QPushButton
-        self.pushButton_reset_entries: QPushButton
-
-        # QSpinBox
-        self.spinBox_number_of_points: QSpinBox
-        self.spinBox_max_frequency: QSpinBox
-        self.spinBox_number_of_cylinders: QSpinBox
-        self.spinBox_tdc1_crank_angle: QSpinBox
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
+        self.before_run = app().project.get_pre_solution_model_checks()    
 
     def _config_widget(self):
         self.treeWidget_nodal_info.setColumnWidth(0, 100)
@@ -1029,11 +941,9 @@ class ReciprocatingPumpInputs(AcousticNodesInput):
 
     def initialize_xy_plotter(self):
 
-        legends = [
-            f"Target: {self.target * 100}%",
-            "Pressure residues",
-            "Delta pressure residues",
-        ]
+
+        legends = [f'Target: {self.target*100}%', "Pressure residues", "Delta pressure residues"]
+
 
         # self.xy_plot.show()
 

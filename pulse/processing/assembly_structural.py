@@ -2,11 +2,10 @@
 
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.model import Model
-from pulse.model.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
+from pulse.model.structural_element import DOF_PER_ELEMENT
 
 import numpy as np
 from scipy.sparse import csr_matrix
-from time import time
 
 
 class AssemblyStructural:

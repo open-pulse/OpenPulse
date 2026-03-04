@@ -1,26 +1,22 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent, QAction
+from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.cross_section.set_cross_section_ui import SetCrossSection_UI
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 from pulse.model.cross_section import CrossSection
 from pulse.utils.common_utils import *
 
-from molde import load_ui
 
 from collections import defaultdict
 
 window_title = "Error"
 
-class SetCrossSectionInput(QDialog):
+class SetCrossSectionInput(SetCrossSection_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/cross_section/set_cross_section.ui"
-        load_ui(ui_path, self)
-
         self.pipe_to_beam = kwargs.get("pipe_to_beam", False)
         self.beam_to_pipe = kwargs.get("beam_to_pipe", False)
         self.lines_to_update_cross_section = kwargs.get("lines_to_update_cross_section", list())
@@ -59,7 +55,6 @@ class SetCrossSectionInput(QDialog):
         self.section_data_lines = dict()
 
     def _define_qt_variables(self):
-
         # QAction
         self.action_all_lines = QAction(self)
         # self.action_all_lines.setVisible(False)
@@ -67,23 +62,11 @@ class SetCrossSectionInput(QDialog):
         self.action_all_lines.triggered.connect(self.select_all_lines_callback)
         self.addAction(self.action_all_lines)
 
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # QFrame
-        self.main_frame : QFrame
-
         # QGridLayout
         self.grid_layout = self.main_frame.layout()
         self.grid_layout.setContentsMargins(0,0,0,0)
         self.main_frame.setLayout(self.grid_layout)
         self.grid_layout.addWidget(self.cross_section_widget)
-
-        # QLabel
-        self.label_selected_id : QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
 
         # QPushButton
         self.pushButton_exit_pipe = self.cross_section_widget.pushButton_exit_pipe
@@ -401,7 +384,7 @@ class SetCrossSectionInput(QDialog):
                     title = "PSD cross-section edition not allowed"
                     message = "The PSD line sections could not be edited in the cross-section setup interface. "
                     message += "You must switch to the PSD configuration interface for this specific section editing."
-                    PrintMessageInput([window_title_2, title, message])
+                    PrintMessageInput([window_title, title, message])
                     return True
 
     def select_all_lines_callback(self):

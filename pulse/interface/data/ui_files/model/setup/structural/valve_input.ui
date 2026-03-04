@@ -1865,6 +1865,6 @@
   <tabstop>pushButton_reset</tabstop>
   <tabstop>tabWidget_main</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

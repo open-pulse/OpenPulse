@@ -1,17 +1,18 @@
+#fmt: off
+
 from pathlib import Path
 
 import numpy as np
-from molde import load_ui
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QLineEdit,
-    QPushButton,
-    QTabWidget,
-    QTreeWidget,
     QTreeWidgetItem,
 )
 
-from pulse import UI_DIR, app
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.set_nodal_loads_input_ui import (
+    SetNodalLoadsInput_UI,
+)
 from pulse.interface.user_input.data_handler.file_dialog_service import (
     FileDialogService,
 )
@@ -32,12 +33,9 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 error_title = "Error"
 
 
-class NodalLoadsInput(StructuralNodesInput):
+class NodalLoadsInput(SetNodalLoadsInput_UI, StructuralNodesInput):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/set_nodal_loads_input.ui"
-        load_ui(ui_path, self)
 
         self._initialize()
         self._define_qt_variables()
@@ -91,49 +89,7 @@ class NodalLoadsInput(StructuralNodesInput):
         self.mz_table_name = None
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_node_ids: QLineEdit
-        self.lineEdit_real_fx: QLineEdit
-        self.lineEdit_real_fy: QLineEdit
-        self.lineEdit_real_fz: QLineEdit
-        self.lineEdit_real_mx: QLineEdit
-        self.lineEdit_real_my: QLineEdit
-        self.lineEdit_real_mz: QLineEdit
-        self.lineEdit_imag_fx: QLineEdit
-        self.lineEdit_imag_fy: QLineEdit
-        self.lineEdit_imag_fz: QLineEdit
-        self.lineEdit_imag_mx: QLineEdit
-        self.lineEdit_imag_my: QLineEdit
-        self.lineEdit_imag_mz: QLineEdit
-        #
-        self.lineEdit_path_table_fx: QLineEdit
-        self.lineEdit_path_table_fy: QLineEdit
-        self.lineEdit_path_table_fz: QLineEdit
-        self.lineEdit_path_table_mx: QLineEdit
-        self.lineEdit_path_table_my: QLineEdit
-        self.lineEdit_path_table_mz: QLineEdit
         self._create_list_lineEdits()
-
-        # QPushButton
-        self.pushButton_exit_tab0: QPushButton
-        self.pushButton_exit_tab1: QPushButton
-        self.pushButton_load_fx_table: QPushButton
-        self.pushButton_load_fy_table: QPushButton
-        self.pushButton_load_fz_table: QPushButton
-        self.pushButton_load_mx_table: QPushButton
-        self.pushButton_load_my_table: QPushButton
-        self.pushButton_load_mz_table: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_constant_value_confirm: QPushButton
-        self.pushButton_table_values_confirm: QPushButton
-
-        # QTabWidget
-        self.tabWidget_nodal_loads: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
 
     def _create_list_lineEdits(self):
 

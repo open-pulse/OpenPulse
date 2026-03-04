@@ -1,68 +1,77 @@
 
-from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QMainWindow, QMenu, QMessageBox, QSplitter, QStackedWidget, QToolBar
-from PySide6.QtCore import Qt, Signal, QEvent, QPoint
-from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
-
-from molde.render_widgets import CommonRenderWidget
-from molde import stylesheets
-from molde.colors import color_names
-from molde import load_ui
-
-# TODO: remove this import
-from pulse import (
-    app,
-    UI_DIR,
-    QSS_DIR,
-    USER_PATH,
-    TEMP_PROJECT_DIR,
-    TEMP_PROJECT_FILE,
-)
-
-from pulse.interface.formatters import icons
-from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.handler.pcf_file_io import PCFFileIO
-from pulse.interface.welcome_widget import WelcomeWidget
-from pulse.interface.menu.model_setup_widget import ModelSetupWidget
-from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
-from pulse.interface.others.status_bar import StatusBar
-from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
-from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
-from pulse.interface.user_input.input_ui import InputUi
-from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
-from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
-from pulse.interface.user_input.project.get_started import GetStartedInput
-from pulse.interface.user_input.project.new_project import NewProjectInput
-from pulse.interface.user_input.project.reset_project import ResetProjectInput
-from pulse.interface.user_input.project.import_geometry import ImportGeometry
-from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
-from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
-from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
-from pulse.interface.user_input.project.loading_window import LoadingWindow
-from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
-from pulse.utils.interface_utils import VisualizationFilter, SelectionFilter, ColorMode
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-
 import logging
 import os
-
 from functools import partial
 from pathlib import Path
 from shutil import copy, rmtree
 from sys import argv
 from time import time
 
+from molde import stylesheets
+from molde.colors import color_names
+from molde.render_widgets import CommonRenderWidget
+from PySide6.QtCore import QEvent, QPoint, Qt, Signal
+from PySide6.QtGui import QAction, QCloseEvent, QColor, QCursor
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QApplication,
+    QDialog,
+    QMessageBox,
+)
 
-class MainWindow(QMainWindow):
+# TODO: remove this import
+from pulse import (
+    QSS_DIR,
+    TEMP_PROJECT_DIR,
+    TEMP_PROJECT_FILE,
+    UI_DIR,
+    USER_PATH,
+    app,
+)
+from pulse.interface.formatters import icons
+from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.handler.pcf_file_io import PCFFileIO
+from pulse.interface.menu.model_setup_widget import ModelSetupWidget
+from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
+from pulse.interface.others.status_bar import StatusBar
+from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
+from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
+from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
+from pulse.interface.toolbars.render_tools_toolbar import RenderToolsToolbar
+from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
+from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.input_ui import InputUi
+from pulse.interface.user_input.model.geometry.geometry_designer_widget import (
+    GeometryDesignerWidget,
+)
+from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
+from pulse.interface.user_input.project.import_geometry import ImportGeometry
+from pulse.interface.user_input.project.loading_window import LoadingWindow
+from pulse.interface.user_input.project.new_project import NewProjectInput
+from pulse.interface.user_input.project.reset_project import ResetProjectInput
+from pulse.interface.user_input.project.save_project_data_selector import (
+    SaveProjectDataSelector,
+)
+from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
+from pulse.interface.viewer_3d.render_widgets import (
+    GeometryRenderWidget,
+    MeshRenderWidget,
+    ResultsRenderWidget,
+)
+from pulse.interface.welcome_widget import WelcomeWidget
+from pulse.utils.interface_utils import ColorMode, SelectionFilter, VisualizationFilter
+
+
+class MainWindow(MainWindow_UI):
     theme_changed = Signal(str)
     visualization_changed = Signal()
     selection_changed = Signal()
 
     def __init__(self):
         super().__init__()
-
-        ui_path = UI_DIR / 'main_window.ui'
-        load_ui(ui_path, self)
 
         self.selected_nodes = set()
         self.selected_lines = set()
@@ -90,6 +99,8 @@ class MainWindow(QMainWindow):
         self.interface_theme = None
         self.last_index = None
         self.last_render_index = None
+
+        self.use_base_render_tool = False
 
         self.project_data_modified = False
 
@@ -119,68 +130,6 @@ class MainWindow(QMainWindow):
         self.installEventFilter(self)
         self.pulse_icon = icons.get_openpulse_icon()
         self.setWindowIcon(self.pulse_icon)
-
-    def _define_qt_variables(self):
-        '''
-        This function is doing nothing. Every variable was
-        already defined in the UI file.
-
-        Despite that, it is nice to list the variables to
-        help future maintainers and the code editor with
-        type inference.
-        '''
-        
-        # QAction
-        self.action_open_project: QAction
-        self.action_geometry_editor_workspace: QAction
-        self.action_model_setup_workspace: QAction
-        self.action_analysis_setup_workspace: QAction
-        self.action_results_workspace: QAction
-        self.action_check_refprop: QAction
-        self.action_export_geometry: QAction
-        self.action_import_geometry: QAction
-        self.action_export_pcf: QAction
-        self.action_import_pcf: QAction
-        self.action_set_dark_theme: QAction
-        self.action_set_light_theme: QAction
-        self.action_save_project: QAction
-        self.action_save_project_as: QAction
-        self.action_capture_image: QAction
-        self.action_show_mesh_data: QAction
-        self.action_show_geometry_data: QAction
-        self.action_show_lines: QAction
-        self.action_show_tubes: QAction
-        self.action_show_symbols: QAction
-        self.action_show_transparent: QAction
-        self.action_select_elements: QAction
-        self.action_plot_geometry_editor: QAction
-        self.action_plot_lines: QAction
-        self.action_plot_lines_with_cross_section: QAction
-        self.action_plot_mesh: QAction
-        self.action_export_piping: QAction
-        self.action_user_preferences: QAction
-        self.action_pulsation_suppression_device_editor: QAction
-        self.action_pulsation_damper_editor: QAction
-        self.action_section_plane: QAction
-        self.action_exit: QAction
-
-        # QMenu
-        self.menu_recent: QMenu
-        self.menu_project: QMenu
-        self.menu_plots: QMenu
-        self.menu_settings: QMenu
-        self.menu_model_info: QMenu
-        self.menu_help: QMenu
-
-        # QSplitter
-        self.splitter: QSplitter
-
-        # QStackedWidget
-        self.setup_widgets_stack: QStackedWidget
-        self.render_widgets_stack: QStackedWidget
-
-        # QToolBar
-        self.tool_bar: QToolBar
 
     def _connect_actions(self):
         '''
@@ -242,7 +191,6 @@ class MainWindow(QMainWindow):
         t0 = time()
         # self._load_stylesheets()
         self._config_window()
-        self._define_qt_variables()
         self._connect_actions()
         app().splash.update_progress(30)
         self._load_section_plane()
@@ -321,8 +269,8 @@ class MainWindow(QMainWindow):
         return True
     
     def filter_tab_scroll_by_wheel(self):
+        from PySide6.QtCore import QEvent, QObject
         from PySide6.QtWidgets import QTabBar
-        from PySide6.QtCore import QObject, QEvent
 
         class Filter(QObject):
             def eventFilter(self, obj, event):
@@ -605,6 +553,7 @@ class MainWindow(QMainWindow):
         self.analysis_toolbar.setDisabled(False)
         self.mesh_toolbar.setDisabled(True)
         self.animation_toolbar.setDisabled(True)
+        self.render_tools_toolbar.enable_selection_tool()
 
         self.action_geometry_editor_workspace.setEnabled(False)
         if not self.action_model_setup_workspace.isEnabled():
@@ -626,7 +575,8 @@ class MainWindow(QMainWindow):
         self.tool_bar.setDisabled(False)
         self.analysis_toolbar.setDisabled(False)
         self.animation_toolbar.setDisabled(True)
-        
+        self.render_tools_toolbar.enable_selection_tool()
+
         self.action_model_setup_workspace.setEnabled(False)
         if not self.action_geometry_editor_workspace.isEnabled():
             self.action_geometry_editor_workspace.setEnabled(True)
@@ -646,6 +596,7 @@ class MainWindow(QMainWindow):
         self.results_widget.update_selection()
         self.results_viewer_widget.update_visibility_items()
         self.animation_toolbar.setEnabled(False)    
+        self.render_tools_toolbar.disable_selection_tool()
 
         self.action_results_workspace.setEnabled(False)
         if not self.action_geometry_editor_workspace.isEnabled():
@@ -847,11 +798,29 @@ class MainWindow(QMainWindow):
         self.animation_toolbar = AnimationToolbar()
         self.addToolBar(self.animation_toolbar)
         self.insertToolBarBreak(self.animation_toolbar)
+    
+    def _add_render_tools_toolbar(self):
+        self.render_tools_toolbar = RenderToolsToolbar()
+        self.addToolBar(Qt.ToolBarArea.RightToolBarArea, self.render_tools_toolbar)
+        self.render_tools_toolbar.setVisible(False)
+
+        for render in self.get_renderer_widgets():
+            self.render_tools_toolbar.render_tool_changed.connect(render.add_render_tool)
 
     def _add_toolbars(self):
         self._add_mesh_toolbar()
         self._add_analysis_toolbar()
         self._add_animation_toolbar()
+        self._add_render_tools_toolbar()
+
+    def show_render_tools_toolbar(self):
+        self.render_tools_toolbar.setVisible(True)
+    
+    def get_renderer_widgets(self):
+        return [
+            self.geometry_widget, 
+            self.mesh_widget,
+            self.results_widget]
 
     def _create_status_bar(self):
         self.status_bar = StatusBar(self)
@@ -978,6 +947,7 @@ class MainWindow(QMainWindow):
             return
 
         self.action_geometry_editor_workspace_callback()
+        self.show_render_tools_toolbar()
         self.update_results_workspace_button_accessibility()
 
         return obj.complete
@@ -1023,6 +993,7 @@ class MainWindow(QMainWindow):
 
             logging.info("Configuring visualization [95%]")
             self.action_model_setup_workspace_callback()
+            self.show_render_tools_toolbar()
             self.update_results_workspace_button_accessibility()
             self.update_plots()
 
@@ -1042,6 +1013,7 @@ class MainWindow(QMainWindow):
             return True
 
         self.open_project(project_path)
+        self.show_render_tools_toolbar()
 
     def save_project_dialog(self):
         if self.project.save_path is None:
@@ -1081,8 +1053,8 @@ class MainWindow(QMainWindow):
 
             logging.info("Saving the project data... [10%]")
 
-            from time import sleep
             from datetime import datetime
+            from time import sleep
 
             path = Path(path)
             self.project.name = path.stem

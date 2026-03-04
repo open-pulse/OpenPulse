@@ -4170,6 +4170,6 @@
   <tabstop>pushButton_reset</tabstop>
   <tabstop>pushButton_remove</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

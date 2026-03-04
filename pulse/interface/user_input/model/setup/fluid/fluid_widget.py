@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
+from PySide6.QtWidgets import QDialog, QTableWidgetItem, QHeaderView
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 
-from pulse import app, UI_DIR, TEMP_PROJECT_FILE
+from pulse import app, TEMP_PROJECT_FILE
+from pulse.interface.ui_generated.model.setup.fluid.fluid_input_widget_ui import FluidInputWidget_UI
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
@@ -13,7 +14,6 @@ from pulse.model.properties.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library
 from pulse.interface.formatters.icons import *
 
-from molde import load_ui
 
 from copy import deepcopy
 from itertools import count
@@ -34,13 +34,9 @@ def get_color_rgb(color):
     tokens = color.split(',')
     return list(map(int, tokens))
 
-class FluidWidget(QWidget):
+class FluidWidget(FluidInputWidget_UI):
     def __init__(self, *argas, **kwargs):
         super().__init__()
-        
-        ui_path = UI_DIR  / "model/setup/fluid/fluid_input_widget.ui"
-        load_ui(ui_path, self)
-
         self.dialog = kwargs.get("dialog", None)
 
         self.main_window = app().main_window
@@ -84,18 +80,6 @@ class FluidWidget(QWidget):
                                 ]
 
     def _define_qt_variables(self):
-
-        # QPushButton
-        self.pushButton_add_column: QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_duplicate: QPushButton
-        self.pushButton_refprop: QPushButton
-        self.pushButton_remove_column: QPushButton
-        self.pushButton_reset_library: QPushButton
-
-        # QTableWidget
-        self.tableWidget_fluid_data: QTableWidget
         self.tableWidget_fluid_data.setStyleSheet("")
 
     def _create_connections(self):

@@ -1,17 +1,17 @@
 # fmt: off
 
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt, QEvent, QObject, Signal
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.acoustic_transfer_element_input_ui import AcousticTransferElementInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
 
-from molde import load_ui
 
 import os
 import numpy as np
@@ -21,13 +21,9 @@ from pathlib import Path
 error_title = "Error"
 
 
-class AddAcousticTransferElementInput(QDialog):
+class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/acoustic_transfer_element_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
@@ -57,33 +53,8 @@ class AddAcousticTransferElementInput(QDialog):
         self.before_run = app().project.get_pre_solution_model_checks()
     
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_data_type:  QComboBox
-
-        # QLabel
-        self.label_selection: QLabel
-
-        # QLineEdit
-        self.lineEdit_input_node_id: QLineEdit
-        self.lineEdit_output_node_id: QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_spreadsheet_path: QLineEdit
         self.current_lineEdit = self.lineEdit_output_node_id
 
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_invert_selection: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_search: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
 
     def _create_connections(self):
         #

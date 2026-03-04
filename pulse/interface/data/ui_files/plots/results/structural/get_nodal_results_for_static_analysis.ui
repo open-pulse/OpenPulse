@@ -940,6 +940,6 @@
   <tabstop>lineEdit_response_ry</tabstop>
   <tabstop>lineEdit_response_rz</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -1,30 +1,24 @@
-from PySide6.QtWidgets import QCheckBox, QComboBox, QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.get_stresses_for_harmonic_analysis_ui import GetStressesForHarmonicAnalysis_UI
 from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
-from molde import load_ui
 
 import logging
 import numpy as np
 
-class PlotStressesForHarmonicAnalysis(QWidget):
+class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/get_stresses_for_harmonic_analysis.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self._config_window()
         self._initialize()
         self._load_structural_solver()
-        self._define_qt_variables()
         self._create_connections()
         self.selection_callback()
 
@@ -67,21 +61,6 @@ class PlotStressesForHarmonicAnalysis(QWidget):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_damping_effect : QCheckBox
-
-        # QComboBox
-        self.comboBox_stress_type : QComboBox
-
-        # QLineEdit
-        self.lineEdit_element_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_export_data : QPushButton
-        self.pushButton_plot_data : QPushButton
 
     def _create_connections(self):
         #

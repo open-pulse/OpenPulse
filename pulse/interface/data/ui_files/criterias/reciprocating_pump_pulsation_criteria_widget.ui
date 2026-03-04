@@ -529,6 +529,6 @@
   <tabstop>lineEdit_internal_diameter</tabstop>
   <tabstop>pushButton_plot_criteria</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

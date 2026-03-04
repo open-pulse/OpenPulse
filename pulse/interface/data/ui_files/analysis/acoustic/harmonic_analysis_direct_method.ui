@@ -656,6 +656,6 @@
   <tabstop>enter_setup_button</tabstop>
   <tabstop>run_analysis_button</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -128,8 +128,9 @@ def get_acoustic_response(preprocessor, solution, column, **kwargs):
 
     _pressures = np.abs(data)
     _phases = np.angle(data)
+    _delta = -_phases[np.argmax(_pressures)]
 
-    pressures_plot = _pressures*np.cos(_phases + phase_step)
+    pressures_plot = _pressures*np.cos(_phases + phase_step + _delta)
     
     if absolute_animation:
         pressures_plot = np.abs(pressures_plot)
