@@ -308,6 +308,8 @@ class NodalLoadsInput(QDialog):
 
         try:
             if direct_load:
+                if not lineEdit.text():
+                    return None, None
                 path_imported_table = Path(lineEdit.text())
 
             else:
@@ -467,6 +469,8 @@ class NodalLoadsInput(QDialog):
 
             nodal_loads = [ self.fx_table_values, self.fy_table_values, self.fz_table_values, 
                             self.mx_table_values, self.my_table_values, self.mz_table_values ]
+            
+            table_paths = [str(path) if path is not None else path for path in table_paths]
 
             if (table_names).count(None) == 6:
                 title = "Additional inputs required"
