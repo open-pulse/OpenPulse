@@ -1,26 +1,36 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
+import numpy as np
+from molde import load_ui
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (
+    QComboBox,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QSpinBox,
+    QTabWidget,
+    QTreeWidget,
+    QTreeWidgetItem,
+)
 
-from pulse import app, UI_DIR
+from pulse import UI_DIR, app
+from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
+    AcousticNodesInput,
+)
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
-from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
+    SetFluidInputSimplified,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import AcousticNodesInput
-
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
-
-from molde import load_ui
-
-import numpy as np
-
 
 error_title = "Error"
 
 
-psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
+psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254) ** 2)
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 
@@ -70,7 +80,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         self.label_discharge_pressure_unit: QLabel
         self.label_suction_temperature_unit: QLabel
         self.label_discharge_temperature_unit: QLabel
-        
+
         # QLineEdit
         self.lineEdit_selected_node_id: QLineEdit
         self.lineEdit_frequency_resolution: QLineEdit
@@ -134,37 +144,87 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         self.treeWidget_compressor_excitation.setColumnWidth(0, 100)
         # self.treeWidget_compressor_excitation.setColumnWidth(1, 140)
         for i in range(2):
-            self.treeWidget_compressor_excitation.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_compressor_excitation.headerItem().setTextAlignment(
+                i, Qt.AlignCenter
+            )
 
     def _create_connections(self):
         #
-        self.comboBox_cylinder_acting.currentIndexChanged.connect(self.update_compressing_cylinders_setup)
-        self.comboBox_fluid_data_source.currentIndexChanged.connect(self.fluid_data_source_callback)
-        self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
+        self.comboBox_cylinder_acting.currentIndexChanged.connect(
+            self.update_compressing_cylinders_setup
+        )
+        self.comboBox_fluid_data_source.currentIndexChanged.connect(
+            self.fluid_data_source_callback
+        )
+        self.comboBox_frequency_resolution.currentIndexChanged.connect(
+            self.comboBox_event_frequency_resolution
+        )
         self.comboBox_stage.currentIndexChanged.connect(self.comboBox_event_stage)
-        self.comboBox_pressure_units.currentIndexChanged.connect(self.pressure_unit_callback)
-        self.comboBox_temperature_units.currentIndexChanged.connect(self.temperature_unit_callback)
+        self.comboBox_pressure_units.currentIndexChanged.connect(
+            self.pressure_unit_callback
+        )
+        self.comboBox_temperature_units.currentIndexChanged.connect(
+            self.temperature_unit_callback
+        )
         #
-        self.lineEdit_isentropic_exponent.textChanged.connect(self.update_state_properties_at_discharge)
-        self.lineEdit_pressure_at_suction.textChanged.connect(self.update_state_properties_at_discharge)
-        self.lineEdit_pressure_ratio.textChanged.connect(self.update_state_properties_at_discharge)
-        self.lineEdit_temperature_at_suction.textChanged.connect(self.update_state_properties_at_discharge)
+        self.lineEdit_isentropic_exponent.textChanged.connect(
+            self.update_state_properties_at_discharge
+        )
+        self.lineEdit_pressure_at_suction.textChanged.connect(
+            self.update_state_properties_at_discharge
+        )
+        self.lineEdit_pressure_ratio.textChanged.connect(
+            self.update_state_properties_at_discharge
+        )
+        self.lineEdit_temperature_at_suction.textChanged.connect(
+            self.update_state_properties_at_discharge
+        )
         #
-        self.pushButton_plot_PV_diagram_head_end.clicked.connect(self.plot_PV_diagram_head_end)
-        self.pushButton_plot_PV_diagram_crank_end.clicked.connect(self.plot_PV_diagram_crank_end)
-        self.pushButton_plot_PV_diagram_both_ends.clicked.connect(self.plot_PV_diagram_both_ends)
-        self.pushButton_plot_volumetric_flow_rate_at_suction_time.clicked.connect(self.plot_volumetric_flow_rate_at_suction_time)
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_time)
-        self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(self.plot_rod_pressure_load_frequency)
-        self.pushButton_plot_rod_pressure_load_time.clicked.connect(self.plot_rod_pressure_load_time)
-        self.pushButton_plot_piston_position_and_velocity_time.clicked.connect(self.plot_piston_position_and_velocity_time)
-        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_suction_frequency)
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_frequency)
-        self.pushButton_plot_pressure_head_end_angle.clicked.connect(self.plot_pressure_head_end_angle)
-        self.pushButton_plot_volume_head_end_angle.clicked.connect(self.plot_volume_head_end_angle)
-        self.pushButton_plot_pressure_crank_end_angle.clicked.connect(self.plot_pressure_crank_end_angle)
-        self.pushButton_plot_volume_crank_end_angle.clicked.connect(self.plot_volume_crank_end_angle)
-        self.pushButton_process_aquisition_parameters.clicked.connect(self.process_aquisition_parameters)
+        self.pushButton_plot_PV_diagram_head_end.clicked.connect(
+            self.plot_PV_diagram_head_end
+        )
+        self.pushButton_plot_PV_diagram_crank_end.clicked.connect(
+            self.plot_PV_diagram_crank_end
+        )
+        self.pushButton_plot_PV_diagram_both_ends.clicked.connect(
+            self.plot_PV_diagram_both_ends
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_suction_time.clicked.connect(
+            self.plot_volumetric_flow_rate_at_suction_time
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(
+            self.plot_volumetric_flow_rate_at_discharge_time
+        )
+        self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(
+            self.plot_rod_pressure_load_frequency
+        )
+        self.pushButton_plot_rod_pressure_load_time.clicked.connect(
+            self.plot_rod_pressure_load_time
+        )
+        self.pushButton_plot_piston_position_and_velocity_time.clicked.connect(
+            self.plot_piston_position_and_velocity_time
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(
+            self.plot_volumetric_flow_rate_at_suction_frequency
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(
+            self.plot_volumetric_flow_rate_at_discharge_frequency
+        )
+        self.pushButton_plot_pressure_head_end_angle.clicked.connect(
+            self.plot_pressure_head_end_angle
+        )
+        self.pushButton_plot_volume_head_end_angle.clicked.connect(
+            self.plot_volume_head_end_angle
+        )
+        self.pushButton_plot_pressure_crank_end_angle.clicked.connect(
+            self.plot_pressure_crank_end_angle
+        )
+        self.pushButton_plot_volume_crank_end_angle.clicked.connect(
+            self.plot_volume_crank_end_angle
+        )
+        self.pushButton_process_aquisition_parameters.clicked.connect(
+            self.process_aquisition_parameters
+        )
         #
         self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.attribute_callback)
@@ -173,9 +233,15 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_reset_entries.clicked.connect(self.reset_entries)
         #
-        self.spinBox_number_of_points.valueChanged.connect(self.spinBox_event_number_of_points)        
-        self.spinBox_max_frequency.valueChanged.connect(self.spinBox_event_max_frequency)
-        self.spinBox_number_of_cylinders.valueChanged.connect(self.spinBox_event_number_of_cylinders)
+        self.spinBox_number_of_points.valueChanged.connect(
+            self.spinBox_event_number_of_points
+        )
+        self.spinBox_max_frequency.valueChanged.connect(
+            self.spinBox_event_max_frequency
+        )
+        self.spinBox_number_of_cylinders.valueChanged.connect(
+            self.spinBox_event_number_of_cylinders
+        )
         #
         self.tabWidget_compressor.currentChanged.connect(self.tab_event_callback)
         self.treeWidget_compressor_excitation.itemClicked.connect(self.on_click_item)
@@ -206,7 +272,6 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         selected_nodes = app().main_window.list_selected_nodes()
 
         if len(selected_nodes) == 1:
-
             self.lineEdit_selected_node_id.setText(str(selected_nodes[0]))
             stop, node_id = self.check_node_id(self.lineEdit_selected_node_id)
 
@@ -214,7 +279,9 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
                 self.lineEdit_selected_node_id.setFocus()
                 return True
 
-            data = self.properties._get_property("reciprocating_compressor_excitation", node_ids=node_id)
+            data = self.properties._get_property(
+                "reciprocating_compressor_excitation", node_ids=node_id
+            )
 
             if isinstance(data, dict):
                 self.update_compressor_inputs(data)
@@ -242,7 +309,6 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         self.pushButton_plot_volume_crank_end_angle.setDisabled(False)
 
         if self.comboBox_cylinder_acting.currentIndex() == 1:
-
             self.lineEdit_rod_diameter.setText("")
             self.lineEdit_rod_diameter.setDisabled(True)
 
@@ -257,7 +323,6 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
             self.pushButton_plot_volume_crank_end_angle.setDisabled(True)
 
         elif self.comboBox_cylinder_acting.currentIndex() == 2:
-
             if self.lineEdit_rod_diameter.text() == "":
                 self.lineEdit_rod_diameter.setText("0.135")
 
@@ -272,7 +337,6 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
             self.pushButton_plot_volume_head_end_angle.setDisabled(True)
 
         else:
-
             if self.lineEdit_rod_diameter.text() == "":
                 self.lineEdit_rod_diameter.setText("0.135")
 
@@ -284,7 +348,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
 
     def get_state_properties(self, check_all_entries: bool):
 
-        if self.check_all_parameters(check_all_entries = check_all_entries):
+        if self.check_all_parameters(check_all_entries=check_all_entries):
             return None
 
         if self.comboBox_connection_type.currentIndex() == 0:
@@ -292,18 +356,17 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
             temperature = self.T_suction
 
         else:
-
             pressure = self.P_discharge
-            p_ratio = self.parameters['pressure_ratio']
+            p_ratio = self.parameters["pressure_ratio"]
             gamma = self.parameters.get("isentropic_exponent", 1.4)
 
-            temperature = self.T_suction * (p_ratio**((gamma-1)/gamma))
+            temperature = self.T_suction * (p_ratio ** ((gamma - 1) / gamma))
 
         state_properties = {
-                            "pressure" : pressure,
-                            "temperature" : temperature,
-                            "check_ideal_gas" : True
-                            }
+            "pressure": pressure,
+            "temperature": temperature,
+            "check_ideal_gas": True,
+        }
 
         return state_properties
 
@@ -313,9 +376,13 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
 
         if state_properties:
             self.hide()
-            self.fluid_dialog = SetFluidInputSimplified(state_properties = state_properties)
+            self.fluid_dialog = SetFluidInputSimplified(
+                state_properties=state_properties
+            )
             self.fluid_dialog.fluid_widget.pushButton_attribute.setText("Select fluid")
-            self.fluid_dialog.pushButton_attribute.clicked.connect(self.get_selected_fluid)
+            self.fluid_dialog.pushButton_attribute.clicked.connect(
+                self.get_selected_fluid
+            )
             self.fluid_dialog.exec_and_keep_window_open()
             app().main_window.set_input_widget(self)
 
@@ -324,14 +391,18 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         self.selected_fluid = self.fluid_dialog.get_selected_fluid()
 
         if isinstance(self.selected_fluid, Fluid):
-
             self.fluid_dialog.close()
-            if self.selected_fluid.name in self.fluid_dialog.fluid_widget.fluid_name_to_refprop_data.keys():
+            if (
+                self.selected_fluid.name
+                in self.fluid_dialog.fluid_widget.fluid_name_to_refprop_data.keys()
+            ):
                 self.comboBox_fluid_data_source.setCurrentIndex(0)
 
             self.lineEdit_selected_fluid.setText(self.selected_fluid.name)
-            self.lineEdit_isentropic_exponent.setText(f"{self.selected_fluid.isentropic_exponent : .6f}")
-            self.lineEdit_molar_mass.setText(f"{self.selected_fluid.molar_mass : .6f}")
+            self.lineEdit_isentropic_exponent.setText(
+                f"{self.selected_fluid.isentropic_exponent: .6f}"
+            )
+            self.lineEdit_molar_mass.setText(f"{self.selected_fluid.molar_mass: .6f}")
 
     def change_aquisition_parameters_controls(self, _bool):
         self.pushButton_process_aquisition_parameters.setDisabled(_bool)
@@ -360,9 +431,9 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
 
         if "connection_type" in data.keys():
             connection_type = data["connection_type"]
-            if connection_type == 'suction':
+            if connection_type == "suction":
                 self.comboBox_connection_type.setCurrentIndex(0)
-            elif connection_type == 'discharge':
+            elif connection_type == "discharge":
                 self.comboBox_connection_type.setCurrentIndex(1)
 
         parameters = data["parameters"]
@@ -373,7 +444,9 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
             self.lineEdit_stroke.setText(str(parameters["stroke"]))
 
         if "connecting_rod_length" in parameters.keys():
-            self.lineEdit_connecting_rod_length.setText(str(parameters["connecting_rod_length"]))
+            self.lineEdit_connecting_rod_length.setText(
+                str(parameters["connecting_rod_length"])
+            )
 
         if "rod_diameter" in parameters.keys():
             self.lineEdit_rod_diameter.setText(str(parameters["rod_diameter"]))
@@ -397,13 +470,17 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
             self.spinBox_capacity.setValue(int(parameters["capacity"]))
 
         if "isentropic_exponent" in parameters.keys():
-            self.lineEdit_isentropic_exponent.setText(str(parameters["isentropic_exponent"]))
+            self.lineEdit_isentropic_exponent.setText(
+                str(parameters["isentropic_exponent"])
+            )
 
         if "molar_mass" in parameters.keys():
             self.lineEdit_molar_mass.setText(str(parameters["molar_mass"]))
 
         if "pressure_at_suction" in parameters.keys():
-            self.lineEdit_pressure_at_suction.setText(str(parameters["pressure_at_suction"]))
+            self.lineEdit_pressure_at_suction.setText(
+                str(parameters["pressure_at_suction"])
+            )
 
         pressure_units = ["kgf/cm² (a)", "bar (a)", "kgf/cm² (g)", "bar (g)"]
         if "pressure_unit" in parameters.keys():
@@ -412,7 +489,9 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
                     self.comboBox_pressure_units.setCurrentIndex(i)
 
         if "temperature_at_suction" in parameters.keys():
-            self.lineEdit_temperature_at_suction.setText(str(parameters["temperature_at_suction"]))
+            self.lineEdit_temperature_at_suction.setText(
+                str(parameters["temperature_at_suction"])
+            )
 
         temperature_units = ["K", "°C"]
         if "temperature_unit" in parameters.keys():
@@ -431,10 +510,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
             elif parameters["number_of_cylinders"] == 2:
                 self.spinBox_number_of_cylinders.setValue(2)
                 if "TDC_crank_angle_2" in parameters.keys():
-                    self.spinBox_tdc2_crank_angle.setValue(int(parameters["TDC_crank_angle_2"]))
+                    self.spinBox_tdc2_crank_angle.setValue(
+                        int(parameters["TDC_crank_angle_2"])
+                    )
 
         if "points_per_revolution" in parameters.keys():
-            self.spinBox_number_of_points.setValue(int(parameters["points_per_revolution"]))
+            self.spinBox_number_of_points.setValue(
+                int(parameters["points_per_revolution"])
+            )
 
         f_min, f_max, f_step, N_rev = self.get_aquisition_parameters(parameters)
         self.lineEdit_number_of_revolutions.setText(str(N_rev))
@@ -469,21 +552,23 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         self.spinBox_capacity.setValue(100)
 
     def check_node_id(self, lineEdit: QLineEdit):
-        
+
         stop, node_id = self.before_run.check_selected_ids(
-                                                            lineEdit.text(), 
-                                                            "nodes", 
-                                                            single_id=True
-                                                           )
+            lineEdit.text(), "nodes", single_id=True
+        )
 
         if stop:
             return True, None
 
-        neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
+        neigh_elements = (
+            app().project.model.preprocessor.structural_elements_connected_to_node[
+                node_id
+            ]
+        )
 
         if len(neigh_elements) == 1:
             return stop, node_id
-        
+
         else:
             self.hide()
             title = "Invalid node selected"
@@ -515,11 +600,9 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         value_string = lineEdit.text()
 
         if value_string != "":
-
             value_string = value_string.replace(",", ".")
 
             try:
-
                 if _float:
                     value = float(value_string)
                 else:
@@ -550,127 +633,146 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
             self.lineEdit_bore_diameter.setFocus()
             return True
         else:
-            self.parameters['bore_diameter'] = self.value
+            self.parameters["bore_diameter"] = self.value
 
         if self.check_input_parameters(self.lineEdit_stroke, "Stroke"):
             self.lineEdit_stroke.setFocus()
             return True
         else:
-            self.parameters['stroke'] = self.value
+            self.parameters["stroke"] = self.value
 
-        if self.check_input_parameters(self.lineEdit_connecting_rod_length, "Connecting rod length"):
+        if self.check_input_parameters(
+            self.lineEdit_connecting_rod_length, "Connecting rod length"
+        ):
             self.lineEdit_connecting_rod_length.setFocus()
             return True
         else:
-            self.parameters['connecting_rod_length'] = self.value
+            self.parameters["connecting_rod_length"] = self.value
 
         if self.comboBox_cylinder_acting.currentIndex() in [0, 2]:
             if self.check_input_parameters(self.lineEdit_rod_diameter, "Rod diameter"):
                 self.lineEdit_rod_diameter.setFocus()
                 return True
             else:
-                self.parameters['rod_diameter'] = self.value
+                self.parameters["rod_diameter"] = self.value
 
         if self.check_input_parameters(self.lineEdit_pressure_ratio, "Pressure ratio"):
             self.lineEdit_pressure_ratio.setFocus()
             return True
         else:
-            self.parameters['pressure_ratio'] = self.value
-    
-        if self.check_input_parameters(self.lineEdit_clearance_head_end, "HE clearance"):
+            self.parameters["pressure_ratio"] = self.value
+
+        if self.check_input_parameters(
+            self.lineEdit_clearance_head_end, "HE clearance"
+        ):
             self.lineEdit_clearance_head_end.setFocus()
             return True
         else:
-            self.parameters['clearance_HE'] = self.value
-        
-        if self.check_input_parameters(self.lineEdit_clearance_crank_end, "CE clearance"):
+            self.parameters["clearance_HE"] = self.value
+
+        if self.check_input_parameters(
+            self.lineEdit_clearance_crank_end, "CE clearance"
+        ):
             self.lineEdit_clearance_crank_end.setFocus()
             return True
         else:
-            self.parameters['clearance_CE'] = self.value
+            self.parameters["clearance_CE"] = self.value
 
-        self.parameters['TDC_crank_angle_1'] = self.spinBox_tdc1_crank_angle.value()
+        self.parameters["TDC_crank_angle_1"] = self.spinBox_tdc1_crank_angle.value()
 
-        if self.check_input_parameters(self.lineEdit_rotational_speed, "Rotational speed"):
+        if self.check_input_parameters(
+            self.lineEdit_rotational_speed, "Rotational speed"
+        ):
             self.lineEdit_rotational_speed.setFocus()
             return True
         else:
-            self.parameters['rotational_speed'] = self.value
+            self.parameters["rotational_speed"] = self.value
 
-        self.parameters['capacity'] = self.spinBox_capacity.value()
+        self.parameters["capacity"] = self.spinBox_capacity.value()
 
         if check_all_entries:
             if self.check_input_parameters(self.lineEdit_molar_mass, "Mola mass"):
                 self.lineEdit_molar_mass.setFocus()
                 return True
             else:
-                self.parameters['molar_mass'] = self.value
+                self.parameters["molar_mass"] = self.value
 
-            if self.check_input_parameters(self.lineEdit_isentropic_exponent, "Isentropic exponent"):
+            if self.check_input_parameters(
+                self.lineEdit_isentropic_exponent, "Isentropic exponent"
+            ):
                 self.lineEdit_isentropic_exponent.setFocus()
                 return True
             else:
-                self.parameters['isentropic_exponent'] = self.value
+                self.parameters["isentropic_exponent"] = self.value
 
-        if self.check_input_parameters(self.lineEdit_pressure_at_suction, "Pressure at suction"):
+        if self.check_input_parameters(
+            self.lineEdit_pressure_at_suction, "Pressure at suction"
+        ):
             self.lineEdit_pressure_at_suction.setFocus()
             return True
         else:
-            self.parameters['pressure_at_suction'] = self.value
-            self.parameters['pressure_at_discharge'] = self.parameters['pressure_ratio'] * self.parameters['pressure_at_suction']
+            self.parameters["pressure_at_suction"] = self.value
+            self.parameters["pressure_at_discharge"] = (
+                self.parameters["pressure_ratio"]
+                * self.parameters["pressure_at_suction"]
+            )
 
         # unit_labels = ["kgf/cm² (a)", "bar (a)", "kPa (a)", "Pa (a)", "kgf/cm² (g)", "bar (g)", "kPa (g)", "Pa (g)"]
         pressure_unit = self.comboBox_pressure_units.currentText()
-        self.parameters['pressure_unit'] = pressure_unit
+        self.parameters["pressure_unit"] = pressure_unit
 
-        if self.check_input_parameters(self.lineEdit_temperature_at_suction, "Temperature at suction"):
+        if self.check_input_parameters(
+            self.lineEdit_temperature_at_suction, "Temperature at suction"
+        ):
             self.lineEdit_temperature_at_suction.setFocus()
             return True
         else:
-            self.parameters['temperature_at_suction'] = self.value
+            self.parameters["temperature_at_suction"] = self.value
 
         # unit_labels = ["°C", "K"]
         temperature_unit = self.comboBox_temperature_units.currentText()
-        self.parameters['temperature_unit'] = temperature_unit
+        self.parameters["temperature_unit"] = temperature_unit
 
-        self.parameters['compression_stage'] = self.compression_stage_index
-        self.parameters['number_of_cylinders'] = self.number_of_cylinders
+        self.parameters["compression_stage"] = self.compression_stage_index
+        self.parameters["number_of_cylinders"] = self.number_of_cylinders
 
         acting_labels = ["both_ends", "crank_end", "head_end"]
-        self.parameters['acting_label'] = acting_labels[self.comboBox_cylinder_acting.currentIndex()]
+        self.parameters["acting_label"] = acting_labels[
+            self.comboBox_cylinder_acting.currentIndex()
+        ]
 
         if self.number_of_cylinders > 1:
-            self.parameters['TDC_crank_angle_2'] = self.spinBox_tdc2_crank_angle.value()
+            self.parameters["TDC_crank_angle_2"] = self.spinBox_tdc2_crank_angle.value()
         else:
-            self.parameters['TDC_crank_angle_2'] = None
+            self.parameters["TDC_crank_angle_2"] = None
 
-        self.parameters['number_of_cylinders'] = self.number_of_cylinders
+        self.parameters["number_of_cylinders"] = self.number_of_cylinders
 
         if check_all_entries:
             self.compressor = ReciprocatingCompressorModel(self.parameters)
 
         if "kgf/cm²" in pressure_unit:
-            self.P_suction = self.parameters['pressure_at_suction'] * kgf_cm2_to_Pa
-            self.P_discharge = self.parameters['pressure_at_discharge'] * kgf_cm2_to_Pa
+            self.P_suction = self.parameters["pressure_at_suction"] * kgf_cm2_to_Pa
+            self.P_discharge = self.parameters["pressure_at_discharge"] * kgf_cm2_to_Pa
 
         elif "bar" in pressure_unit:
-            self.P_suction = self.parameters['pressure_at_suction'] * bar_to_Pa
-            self.P_discharge = self.parameters['pressure_at_discharge'] * bar_to_Pa
+            self.P_suction = self.parameters["pressure_at_suction"] * bar_to_Pa
+            self.P_discharge = self.parameters["pressure_at_discharge"] * bar_to_Pa
 
         elif "kPa" in pressure_unit:
-            self.P_suction = self.parameters['pressure_at_suction'] * 1e3
-            self.P_discharge = self.parameters['pressure_at_discharge'] * 1e3
+            self.P_suction = self.parameters["pressure_at_suction"] * 1e3
+            self.P_discharge = self.parameters["pressure_at_discharge"] * 1e3
 
         if "(g)" in pressure_unit:
             self.P_suction += 101325
             self.P_discharge += 101325
 
         if "°C" in temperature_unit:
-            self.T_suction = self.parameters['temperature_at_suction'] + 273.15
+            self.T_suction = self.parameters["temperature_at_suction"] + 273.15
             # self.T_discharge = self.parameters['temperature_at_discharge'] + 273.15
 
         elif "K" in temperature_unit:
-            self.T_suction = self.parameters['temperature_at_suction']
+            self.T_suction = self.parameters["temperature_at_suction"]
             # self.T_discharge = self.parameters['temperature_at_discharge']
 
         # if self.parameters['TDC_crank_angle_2'] is not None:
@@ -688,7 +790,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         self.compressor.number_points = N
         self.compressor.max_frequency = self.spinBox_max_frequency.value()
 
-        T_rev = 60 / self.parameters['rotational_speed']
+        T_rev = 60 / self.parameters["rotational_speed"]
         list_T = [10, 5, 2, 1, 0.5]
         list_df = [0.1, 0.2, 0.5, 1, 2]
 
@@ -697,25 +799,26 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
 
         if np.remainder(T_selected, T_rev) == 0:
             T = T_selected
-            df = 1/T
+            df = 1 / T
         else:
             i = 0
-            df = 1/(T_rev)
+            df = 1 / (T_rev)
             while df > df_selected:
                 i += 1
-                df = 1/(i*T_rev)
+                df = 1 / (i * T_rev)
 
         self.N_rev = i
 
-        final_df_label = '{} Hz'.format(round(df, 6))
+        final_df_label = "{} Hz".format(round(df, 6))
         self.lineEdit_frequency_resolution.setText(final_df_label)
         self.lineEdit_number_of_revolutions.setText(str(self.N_rev))
         self.aquisition_parameters_processed = True
 
-    def save_table_values(self, table_name: str, frequencies: np.ndarray, complex_values: np.ndarray):
+    def save_table_values(
+        self, table_name: str, frequencies: np.ndarray, complex_values: np.ndarray
+    ):
 
         if app().project.model.change_analysis_frequency_setup(list(frequencies)):
-
             title = "Project frequency setup cannot be modified"
             message = "The following imported table of values has a frequency setup "
             message += "different from the others already imported ones. The current "
@@ -739,31 +842,37 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
     def update_state_properties_at_discharge(self):
 
         try:
-
             suction_pressure = float(self.lineEdit_pressure_at_suction.text())
             pressure_ratio = float(self.lineEdit_pressure_ratio.text())
             gamma = float(self.lineEdit_isentropic_exponent.text())
             discharge_pressure = pressure_ratio * suction_pressure
 
             if self.comboBox_pressure_units.currentIndex() in [3, 7]:
-                self.lineEdit_pressure_at_discharge.setText(f"{discharge_pressure : .8e}")
+                self.lineEdit_pressure_at_discharge.setText(
+                    f"{discharge_pressure: .8e}"
+                )
             else:
-                self.lineEdit_pressure_at_discharge.setText(f"{discharge_pressure : .6f}")
+                self.lineEdit_pressure_at_discharge.setText(
+                    f"{discharge_pressure: .6f}"
+                )
 
         except:
             return
 
         try:
-
             suction_temperature = float(self.lineEdit_temperature_at_suction.text())
             if self.comboBox_temperature_units.currentIndex() == 1:
                 suction_temperature += 273.15
 
-            discharge_temperature = suction_temperature * (pressure_ratio**((gamma-1)/gamma))
+            discharge_temperature = suction_temperature * (
+                pressure_ratio ** ((gamma - 1) / gamma)
+            )
             if self.comboBox_temperature_units.currentIndex() == 1:
                 discharge_temperature -= 273.15
 
-            self.lineEdit_temperature_at_discharge.setText(f"{discharge_temperature : .6f}")
+            self.lineEdit_temperature_at_discharge.setText(
+                f"{discharge_temperature: .6f}"
+            )
 
         except:
             return
@@ -790,20 +899,20 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
 
         line_id = app().project.model.preprocessor.get_line_from_node_id(node_id)
 
-        compressor_info = { 
-            "temperature_at_suction" : self.T_suction,
-            "suction_pressure" : self.P_suction,
-            "line_id" : line_id[0],
-            "node_id" : node_id,
-            "connection_type" : connection_type,
-            "isentropic_exponent" : self.parameters.get('isentropic_exponent', None),
-            "pressure_ratio" : self.parameters['pressure_ratio'],
-            "source" : "reciprocating_compressor",
-            "check_ideal_gas" : True
-            }
+        compressor_info = {
+            "temperature_at_suction": self.T_suction,
+            "suction_pressure": self.P_suction,
+            "line_id": line_id[0],
+            "node_id": node_id,
+            "connection_type": connection_type,
+            "isentropic_exponent": self.parameters.get("isentropic_exponent", None),
+            "pressure_ratio": self.parameters["pressure_ratio"],
+            "source": "reciprocating_compressor",
+            "check_ideal_gas": True,
+        }
 
         self.hide()
-        read = SetFluidInput(state_properties = compressor_info)
+        read = SetFluidInput(state_properties=compressor_info)
         app().main_window.set_input_widget(self)
 
         if not read.complete:
@@ -812,16 +921,22 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         else:
             if read.fluid_widget.refprop is not None:
                 if read.fluid_widget.refprop.complete:
-                    self.parameters["molar_mass"] = round(read.fluid_widget.fluid_data_refprop["molar_mass"], 6)
-                    self.parameters['isentropic_exponent'] = round(read.fluid_widget.fluid_data_refprop["isentropic_exponent"], 6)
-                    self.parameters['fluid_properties_source'] = "refprop"
+                    self.parameters["molar_mass"] = round(
+                        read.fluid_widget.fluid_data_refprop["molar_mass"], 6
+                    )
+                    self.parameters["isentropic_exponent"] = round(
+                        read.fluid_widget.fluid_data_refprop["isentropic_exponent"], 6
+                    )
+                    self.parameters["fluid_properties_source"] = "refprop"
             else:
-                self.parameters['fluid_properties_source'] = "user-defined"
+                self.parameters["fluid_properties_source"] = "user-defined"
 
-            self.parameters['points_per_revolution'] = self.compressor.number_points
+            self.parameters["points_per_revolution"] = self.compressor.number_points
             self.compressor.process_state_properties_in_SI_units(self.parameters)
 
-            freq, flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
+            freq, flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(
+                self.N_rev, flow_label
+            )
 
             # remove dc component
             _freq = freq[1:]
@@ -833,22 +948,26 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
             coords = list(np.round(node.coordinates, 5))
 
             data = {
-                "coords" : coords,
-                "connection_type" : connection_type,
-                "table_names" : [table_name],
-                "parameters" : self.parameters,
-                }
+                "coords": coords,
+                "connection_type": connection_type,
+                "table_names": [table_name],
+                "parameters": self.parameters,
+            }
 
             properties = [
-                "acoustic_pressure", "volume_velocity", 
-                "reciprocating_compressor_excitation", "reciprocating_pump_excitation"
-                ]
+                "acoustic_pressure",
+                "volume_velocity",
+                "reciprocating_compressor_excitation",
+                "reciprocating_pump_excitation",
+            ]
             self.remove_conflicting_data(properties, node_id)
 
             if self.save_table_values(table_name, _freq, _flow_rate):
                 return
 
-            self.properties._set_nodal_property("reciprocating_compressor_excitation", data, node_id)
+            self.properties._set_nodal_property(
+                "reciprocating_compressor_excitation", data, node_id
+            )
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
@@ -860,12 +979,15 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
 
     def remove_callback(self):
 
-        if self.lineEdit_selected_node_id.text() != "":   
-
+        if self.lineEdit_selected_node_id.text() != "":
             node_id = int(self.lineEdit_selected_node_id.text())
-            self.remove_table_files_from_nodes("reciprocating_compressor_excitation", node_id)
+            self.remove_table_files_from_nodes(
+                "reciprocating_compressor_excitation", node_id
+            )
 
-            self.properties._remove_nodal_property("reciprocating_compressor_excitation", node_id)
+            self.properties._remove_nodal_property(
+                "reciprocating_compressor_excitation", node_id
+            )
             self.actions_to_finalize()
 
     def reset_callback(self):
@@ -875,24 +997,27 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         title = "Resetting of compressor excitations"
         message = "Would you like to remove all compressor excitations from the acoustic model?"
 
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        buttons_config = {
+            "left_button_label": "Cancel",
+            "right_button_label": "Continue",
+        }
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
             return
 
         if read._continue:
-
             node_ids = list()
 
-            for (property, *args) in self.properties.nodal_properties.keys():
+            for property, *args in self.properties.nodal_properties.keys():
                 if property == "reciprocating_compressor_excitation":
-
                     node_id = args[0]
                     node_ids.append(node_id)
 
             for node_id in node_ids:
-                self.remove_table_files_from_nodes("reciprocating_compressor_excitation", node_id)
+                self.remove_table_files_from_nodes(
+                    "reciprocating_compressor_excitation", node_id
+                )
 
             self.properties._reset_nodal_property("reciprocating_compressor_excitation")
             self.actions_to_finalize()
@@ -903,7 +1028,6 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
 
         for (property, *args), data in self.properties.nodal_properties.items():
             if property == "reciprocating_compressor_excitation":
-                
                 node_id = args[0]
                 connection_type = data["connection_type"]
 
@@ -922,7 +1046,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
 
     def update_tabs_visibility(self):
         self.tabWidget_compressor.setTabVisible(2, False)
-        for (property, *_) in self.properties.nodal_properties.keys():
+        for property, *_ in self.properties.nodal_properties.keys():
             if property != "reciprocating_compressor_excitation":
                 continue
 
@@ -953,7 +1077,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
 
     def comboBox_event_stage(self):
         self.currentIndex_stage = self.comboBox_stage.currentIndex()
-        list_stage_labels = ['stage_1', 'stage_2', 'stage_3'] 
+        list_stage_labels = ["stage_1", "stage_2", "stage_3"]
         self.compression_stage_label = list_stage_labels[self.currentIndex_stage]
         self.compression_stage_index = self.currentIndex_stage + 1
 
@@ -1003,7 +1127,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         self.compressor.number_points = N
         self.compressor.plot_volume_vs_time()
         return
-    
+
     def plot_volumetric_flow_rate_at_suction_time(self):
         if self.check_all_parameters():
             return
@@ -1019,7 +1143,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         self.compressor.number_points = N
         self.compressor.plot_volumetric_flow_rate_at_discharge_time()
         return
-    
+
     def plot_rod_pressure_load_frequency(self):
         self.process_aquisition_parameters()
         self.compressor.plot_rod_pressure_load_frequency(self.N_rev)
@@ -1029,7 +1153,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput):
         self.process_aquisition_parameters()
         self.compressor.plot_rod_pressure_load_time()
         return
-    
+
     def plot_piston_position_and_velocity_time(self):
         self.process_aquisition_parameters()
         self.compressor.plot_piston_position_and_velocity(domain="time")
