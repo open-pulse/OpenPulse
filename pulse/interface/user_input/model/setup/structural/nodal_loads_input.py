@@ -33,7 +33,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 error_title = "Error"
 
 
-class NodalLoadsInput(SetNodalLoadsInput_UI, StructuralNodesInput):
+class NodalLoadsInput(StructuralNodesInput, SetNodalLoadsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

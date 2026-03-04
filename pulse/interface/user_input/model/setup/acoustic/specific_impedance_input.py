@@ -27,7 +27,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 error_title = "Error"
 
 
-class SpecificImpedanceInput(SpecificImpedanceInput_UI, AcousticNodesInput):
+class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

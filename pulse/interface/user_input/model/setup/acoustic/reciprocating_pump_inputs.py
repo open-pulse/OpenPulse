@@ -30,7 +30,7 @@ psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254) ** 2)
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 
-class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI, AcousticNodesInput):
+class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -47,7 +47,7 @@ class TabType(IntEnum):
     LIST = 2
 
 
-class PrescribedDofsInput(PrescribedDofsInput_UI, StructuralNodesInput):
+class PrescribedDofsInput(StructuralNodesInput, PrescribedDofsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

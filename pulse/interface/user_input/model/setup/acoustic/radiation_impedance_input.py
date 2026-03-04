@@ -17,7 +17,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 from pulse.model import RadiationImpedanceType
 
 
-class RadiationImpedanceInput(RadiationImpedanceInput_UI, AcousticNodesInput):
+class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

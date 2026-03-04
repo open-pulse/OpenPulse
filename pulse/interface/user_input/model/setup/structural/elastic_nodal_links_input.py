@@ -28,7 +28,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 error_title = "Error"
 
 
-class ElasticNodalLinksInput(ElasticNodalLinksInput_UI, StructuralNodesInput):
+class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

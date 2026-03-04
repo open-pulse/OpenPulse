@@ -31,7 +31,7 @@ kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 
 
-class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI, AcousticNodesInput):
+class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorInputs_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
