@@ -366,12 +366,16 @@ class ModelSetupItems(CommonMenuItems):
         properties = app().project.model.properties
 
         if property_name == "set_material":
-            material_data = properties.get_material()
-            return bool(material_data)
+            return any(
+                "material" in data
+                for data in properties.line_properties.values()
+            )
 
         if property_name == "set_fluid":
-            fluid_data = properties.get_fluid()
-            return bool(fluid_data)
+            return any(
+                "fluid" in data
+                for data in properties.line_properties.values()
+            )
         
         return True
 
