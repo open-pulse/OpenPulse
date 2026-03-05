@@ -124,7 +124,7 @@ class RadiationImpedanceInput(QDialog):
                 if impedance_type is None:
                     continue
 
-                if isinstance(impedance_type, str):
+                if isinstance(impedance_type, int):
                     impedance_text = self.get_radiation_type_text(impedance_type)
                     impedance_text = impedance_text.capitalize()
 
@@ -221,8 +221,7 @@ class RadiationImpedanceInput(QDialog):
 
     def remove_callback(self):
 
-        if  self.lineEdit_node_ids.text() != "":
-
+        if self.lineEdit_node_ids.text() != "":
             str_nodes = self.lineEdit_node_ids.text()
             stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
             if stop:
