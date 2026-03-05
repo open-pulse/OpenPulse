@@ -604,6 +604,9 @@ class MassSpringDamperInput(QDialog):
 
         try:
             if direct_load:
+                if not lineEdit.text():
+                    self.lineEdit_reset(lineEdit)
+                    return None, None
                 path_imported_table = Path(lineEdit.text())
 
             else:
@@ -617,6 +620,7 @@ class MassSpringDamperInput(QDialog):
                 path_imported_table = FileDialogService.open_file(extensions, caption, last_path)
 
             if not path_imported_table:
+                self.lineEdit_reset(lineEdit)
                 return None, None
 
             imported_filename = path_imported_table.name
@@ -628,7 +632,7 @@ class MassSpringDamperInput(QDialog):
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([error_title, title, message])
-                lineEdit.setFocus()
+                self.lineEdit_reset(lineEdit)
                 return None, None
 
             self.frequencies = imported_data[:, 0]
@@ -658,98 +662,62 @@ class MassSpringDamperInput(QDialog):
         except Exception as log_error:
             message = str(log_error)
             PrintMessageInput([error_title, title, message])
-            lineEdit.setFocus()
+            self.lineEdit_reset(lineEdit)
             return None, None
 
     def load_Mx_table(self):
         self.Mx_table_values, self.Mx_table_path = self.load_table(self.lineEdit_path_table_Mx, "Mx")
-        if (self.Mx_table_values, self.Mx_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Mx)
 
     def load_My_table(self):
         self.My_table_values, self.My_table_path = self.load_table(self.lineEdit_path_table_My, "My")
-        if (self.My_table_values, self.My_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_My)
 
     def load_Mz_table(self):
         self.Mz_table_values, self.Mz_table_path = self.load_table(self.lineEdit_path_table_Mz, "Mz")
-        if (self.Mz_table_values, self.Mz_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Mz)
-    
+        
     def load_Jx_table(self):
         self.Jx_table_values, self.Jx_table_path = self.load_table(self.lineEdit_path_table_Jx, "Jx")
-        if (self.Jx_table_values, self.Jx_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Jx)
 
     def load_Jy_table(self):
         self.Jy_table_values, self.Jy_table_path = self.load_table(self.lineEdit_path_table_Jy, "Jy")
-        if (self.Jy_table_values, self.Jy_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Jy)
 
     def load_Jz_table(self):
         self.Jz_table_values, self.Jz_table_path = self.load_table(self.lineEdit_path_table_Jz, "Jz")
-        if (self.Jz_table_values, self.Jz_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Jz)
 
     def load_Kx_table(self):
         self.Kx_table_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx")
-        if (self.Kx_table_values, self.Kx_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Kx)
 
     def load_Ky_table(self):
         self.Ky_table_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky")
-        if (self.Ky_table_values, self.Ky_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Ky)
 
     def load_Kz_table(self):
         self.Kz_table_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz")
-        if (self.Kz_table_values, self.Kz_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Kz)
 
     def load_Krx_table(self):
         self.Krx_table_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx")
-        if (self.Krx_table_values, self.Krx_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Krx)
 
     def load_Kry_table(self):
         self.Kry_table_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry")
-        if (self.Kry_table_values, self.Kry_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Kry)
 
     def load_Krz_table(self):
         self.Krz_table_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz")
-        if (self.Krz_table_values, self.Krz_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Krz)
 
     def load_Cx_table(self):
         self.Cx_table_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx")
-        if (self.Cx_table_values, self.Cx_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Cx)
 
     def load_Cy_table(self):
         self.Cy_table_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy")
-        if (self.Cy_table_values, self.Cy_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Cy)
 
     def load_Cz_table(self):
         self.Cz_table_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz")
-        if (self.Cz_table_values, self.Cz_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Cz)
 
     def load_Crx_table(self):
         self.Crx_table_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx")
-        if (self.Crx_table_values, self.Crx_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Crx)
 
     def load_Cry_table(self):
         self.Cry_table_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry")
-        if (self.Cry_table_values, self.Cry_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Cry)
 
     def load_Crz_table(self):
         self.Crz_table_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz")
-        if (self.Crz_table_values, self.Crz_table_path).count(None) == 2:
-            self.lineEdit_reset(self.lineEdit_path_table_Crz)
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
         lineEdit.setText("")
