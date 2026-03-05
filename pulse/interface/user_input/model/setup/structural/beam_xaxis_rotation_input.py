@@ -1,30 +1,26 @@
-# fmt: off
-
-from PySide6.QtWidgets import QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.structural.xaxis_beam_rotation_input_ui import XaxisBeamRotationInput_UI
+from pulse.interface.ui_generated.model.setup.structural.xaxis_beam_rotation_input_ui import (
+    XaxisBeamRotationInput_UI,
+)
+from pulse.interface.user_input.model.setup.structural.structural_lines_input import (
+    StructuralLinesInput,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-
 
 error_title = "Error"
 warning_title = "Warning"
 
 
-class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
+class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
 
-        self.properties = app().project.model.properties
-        self.preprocessor = app().project.model.preprocessor
-
-        self.before_run = app().project.get_pre_solution_model_checks()
-
-        self._config_window()
         self._initialize()
         self._config_widgets()
         self._create_connections()
@@ -34,12 +30,6 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         while self.keep_window_open:
             self.exec()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
-
     def _initialize(self):
 
         self.keep_window_open = True
@@ -47,7 +37,7 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         self.pipe_to_beam = False
         self.beam_to_pipe = False
 
-        self.element_type = 'pipe_1'
+        self.element_type = "pipe_1"
 
     def _config_widgets(self):
         #
@@ -55,19 +45,27 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         #
         for i, w in enumerate([120, 100]):
             self.treeWidget_xaxis_rotation_angle.setColumnWidth(i, w)
-            self.treeWidget_xaxis_rotation_angle.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_xaxis_rotation_angle.headerItem().setTextAlignment(
+                i, Qt.AlignCenter
+            )
 
     def _create_connections(self):
-        self.comboBox_selection.currentIndexChanged.connect(self.change_selection_callback)
+        self.comboBox_selection.currentIndexChanged.connect(
+            self.change_selection_callback
+        )
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
-        self.tabWidget_xaxis_rotation_angle.currentChanged.connect(self.tab_event_update)
+        self.tabWidget_xaxis_rotation_angle.currentChanged.connect(
+            self.tab_event_update
+        )
         self.treeWidget_xaxis_rotation_angle.itemClicked.connect(self.on_click_item)
-        self.treeWidget_xaxis_rotation_angle.itemDoubleClicked.connect(self.on_double_click_item)    
+        self.treeWidget_xaxis_rotation_angle.itemDoubleClicked.connect(
+            self.on_double_click_item
+        )
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
@@ -78,9 +76,10 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
 
         selected_lines = app().main_window.list_selected_lines()
         if selected_lines:
-
             for line_id in selected_lines:
-                element_type = self.properties._get_property("structural_element_type", line_id=line_id)
+                element_type = self.properties._get_property(
+                    "structural_element_type", line_id=line_id
+                )
                 if element_type == "beam_1":
                     filtered_selection.append(line_id)
 
@@ -93,15 +92,17 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
                 self.lineEdit_selected_id.setText("")
 
             if len(filtered_selection) == 1:
-
                 line_id = filtered_selection[0]
-                element_type = self.properties._get_property("structural_element_type", line_id=line_id)
+                element_type = self.properties._get_property(
+                    "structural_element_type", line_id=line_id
+                )
 
                 if element_type == "beam_1":
-
-                    rot_angle = self.properties._get_property("beam_xaxis_rotation", line_id=line_id)
+                    rot_angle = self.properties._get_property(
+                        "beam_xaxis_rotation", line_id=line_id
+                    )
                     if rot_angle is None:
-                        self.lineEdit_actual_angle.setText(str(0.))
+                        self.lineEdit_actual_angle.setText(str(0.0))
                     else:
                         self.lineEdit_actual_angle.setText(str(rot_angle))
 
@@ -163,8 +164,8 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         try:
             rotation_angle = float(self.lineEdit_increment_angle.text())
         except Exception as error_log:
-            title = f"Invalid X-axis Rotation Angle"
-            message = f"Please, inform a valid number at the 'Rotation angle' input field to continue.\n\n"
+            title = "Invalid X-axis Rotation Angle"
+            message = "Please, inform a valid number at the 'Rotation angle' input field to continue.\n\n"
             message += f"{str(error_log)}"
             PrintMessageInput([error_title, title, message])
             return True, None
@@ -172,10 +173,11 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
 
     def filter_beam_lines(self, line_ids: list):
         try:
-
             beam_lines = list()
             for line_id in line_ids:
-                element_type = self.properties._get_property("structural_element_type", line_id=line_id)
+                element_type = self.properties._get_property(
+                    "structural_element_type", line_id=line_id
+                )
                 if element_type == "beam_1":
                     beam_lines.append(line_id)
 
@@ -183,7 +185,7 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
                 title = "Invalid lines selected"
                 message = "No beam lines have been detected in the current selection. "
                 message += "To proceed, it is necessary to change the lines selection."
-                PrintMessageInput([warning_title, title, message])                
+                PrintMessageInput([warning_title, title, message])
 
         except:
             return True, beam_lines
@@ -211,23 +213,26 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         if stop:
             self.lineEdit_increment_angle.setFocus()
             return
-    
+
         for line_id in beam_line_ids:
-            actual_angle = self.properties._get_property("beam_xaxis_rotation", line_id=line_id)
+            actual_angle = self.properties._get_property(
+                "beam_xaxis_rotation", line_id=line_id
+            )
             if actual_angle is None:
-                actual_angle = 0.
+                actual_angle = 0.0
 
             rotation_angle = actual_angle + increment_angle
 
             self.preprocessor.set_beam_xaxis_rotation_by_lines(line_id, rotation_angle)
-            self.properties._set_line_property("beam_xaxis_rotation", rotation_angle, line_id)
+            self.properties._set_line_property(
+                "beam_xaxis_rotation", rotation_angle, line_id
+            )
 
         self.actions_to_finalize()
 
     def remove_callback(self):
 
-        if  self.lineEdit_selected_id.text() != "":
-
+        if self.lineEdit_selected_id.text() != "":
             line_id = int(self.lineEdit_selected_id.text())
 
             self.preprocessor.set_beam_xaxis_rotation_by_lines(line_id, 0)
@@ -241,16 +246,20 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         self.hide()
 
         title = "Resetting x-axis beam rotations"
-        message = "Would you like to remove all x-axis rotations attributed to beam elements?"
+        message = (
+            "Would you like to remove all x-axis rotations attributed to beam elements?"
+        )
 
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        buttons_config = {
+            "left_button_label": "Cancel",
+            "right_button_label": "Continue",
+        }
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
             return
 
         if read._continue:
-
             self.lineEdit_selected_id.setText("")
             self.lineEdit_increment_angle.setText("")
 
@@ -289,10 +298,3 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
             self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)
-    
-# fmt: on
