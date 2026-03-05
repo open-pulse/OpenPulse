@@ -290,11 +290,3 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
         app().project.file.write_line_properties_in_file()
         self.load_lines_info()
         app().main_window.update_plots()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
