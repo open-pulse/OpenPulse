@@ -5,11 +5,11 @@ f_max = 200
 df = 2
 
 frequencies = np.arange(f_min, f_max+df, df)
-a = float(1e7)
+a = float(1e9)
 real = a*np.ones(len(frequencies))
 imag = np.zeros(len(frequencies))
 
-data = np.array([frequencies, real]).T 
+data = np.array([frequencies, real, imag], dtype=float).T 
 
 header = "Frequency [Hz], real, imaginary"
 
