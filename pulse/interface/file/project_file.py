@@ -53,6 +53,7 @@ class ProjectFile:
     def project_data_modified_callback(self):
         if app() is None:
             return
+
         app().main_window.project_data_modified = True
 
     def write_project_setup_in_file(self, data: dict, geometry_path=""):
@@ -179,8 +180,19 @@ class ProjectFile:
         project_setup = self.filebox.read(self.project_setup_filename)
         if project_setup is None:
             return
+       
+        _analysis_setup = dict()
+        for key, data in analysis_setup.items():
 
-        project_setup["analysis_setup"] = analysis_setup
+            if isinstance(data, np.ndarray):
+                if data.size == 0:
+                    continue
+
+                data = list(data)
+
+            _analysis_setup[key] = data
+
+        project_setup["analysis_setup"] = _analysis_setup 
         self.filebox.write(self.project_setup_filename, project_setup)
 
         self.project_data_modified_callback()
@@ -594,25 +606,41 @@ def normalize_mesh(prop: dict):
     return output
 
 
-def normalize_lines(prop: dict):
+def normalize_lines(line_properties: dict):
     """
     Sadly json doesn't accepts tuple keys,
     so we need to convert it to a string like:
     "property id" = value
     """
     output = dict()
-    for tag, data in prop.items():
+    for tag, line_data in line_properties.items():
 
         aux = dict()
-        for property in data.keys():
-            value = data[property]
-            if property in ["fluid", "material",  "cross_section"]:
+        line_data: dict
+       
+        for prop_key, prop_data in line_data.items():
+            if prop_key in ["fluid", "material",  "cross_section"]:
                 continue
+
+            if prop_key != "expansion_joint_info":
+                aux[prop_key] = prop_data
+        
             else:
-                aux[property] = value
+
+                if not isinstance(prop_data, dict):
+                    continue
+                
+                aux_ej_data = dict()
+                for _key, _data in prop_data.items():
+                    if isinstance(_data, list | tuple):
+                        if any(isinstance(x, np.ndarray) for x in _data):
+                            continue
+
+                    aux_ej_data[_key] = _data
+
+                aux[prop_key] = aux_ej_data
 
         if aux:
             output[tag] = aux
 
     return output
-
