@@ -214,16 +214,16 @@ class AssemblyStructural:
             rows = list()
             cols = list()
 
-            mat_Ke = np.zeros((number_frequencies, number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-            mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+            mat_Ke = np.zeros((number_frequencies, number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
+            mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
 
             for ind, element in enumerate(self.expansion_joint_data.values()):
-                
+
                 i, j = element.global_matrix_indexes()
                 rows.append(i)
                 cols.append(j)
                 mat_Ke[:,ind,:,:], mat_Me[ind,:,:] = element.expansion_joint_matrices_gcs(self.frequencies) 
-            
+
             rows = np.array(rows).flatten()
             cols = np.array(cols).flatten()   
 
