@@ -711,17 +711,23 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
             if self.Jz_table_path is not None:
                 self.Jz_table_name, self.Jz_array = self.save_tables_files("lumped_inertia_moment_Jz", node_id, self.Jz_table_values)
 
-            table_names = [ self.Mx_table_name, self.My_table_name, self.Mz_table_name, 
-                            self.Jx_table_name, self.Jy_table_name, self.Jz_table_name  ]
+            table_names = [
+                self.Mx_table_name, self.My_table_name, self.Mz_table_name,
+                self.Jx_table_name, self.Jy_table_name, self.Jz_table_name,
+                ]
 
-            table_paths = [ self.Mx_table_path, self.My_table_path, self.Mz_table_path, 
-                            self.Jx_table_path, self.Jy_table_path, self.Jz_table_path ]
+            table_paths = [
+                self.Mx_table_path, self.My_table_path, self.Mz_table_path,
+                self.Jx_table_path, self.Jy_table_path, self.Jz_table_path,
+                ]
 
-            values = [  self.Mx_table_values, self.My_table_values, self.Mz_table_values, 
-                        self.Jx_table_values, self.Jy_table_values, self.Jz_table_values  ]
+            values = [
+                self.Mx_table_values, self.My_table_values, self.Mz_table_values,
+                self.Jx_table_values, self.Jy_table_values, self.Jz_table_values,
+                ]
 
             if (table_names).count(None) != 6:
-                
+
                 self.lumped_element_applied = True
 
                 node = app().project.model.preprocessor.nodes[node_id]
@@ -774,17 +780,23 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
                 self.Kry_table_name, self.Kry_array = self.save_tables_files("lumped_stiffness_Kry", node_id, self.Kry_table_values)
 
             if self.Krz_table_path is not None:
-                self.Krz_table_name, self.Krz_array = self.save_tables_files("Krz", node_id, self.Krz_table_values)
+                self.Krz_table_name, self.Krz_array = self.save_tables_files("lumped_stiffness_Krz", node_id, self.Krz_table_values)
 
-            table_names = [ self.Kx_table_name, self.Ky_table_name, self.Kz_table_name, 
-                            self.Krx_table_name, self.Kry_table_name, self.Krz_table_name  ]
+            table_names = [
+                self.Kx_table_name, self.Ky_table_name, self.Kz_table_name,
+                self.Krx_table_name, self.Kry_table_name, self.Krz_table_name,
+                ]
 
-            table_paths = [ self.Kx_table_path, self.Ky_table_path, self.Kz_table_path, 
-                            self.Krx_table_path, self.Kry_table_path, self.Krz_table_path ]
+            table_paths = [
+                self.Kx_table_path, self.Ky_table_path, self.Kz_table_path,
+                self.Krx_table_path, self.Kry_table_path, self.Krz_table_path,
+                ]
 
-            values = [  self.Kx_table_values, self.Ky_table_values, self.Kz_table_values, 
-                        self.Krx_table_values, self.Kry_table_values, self.Krz_table_values  ]
-            
+            values = [
+                self.Kx_table_values, self.Ky_table_values, self.Kz_table_values,
+                self.Krx_table_values, self.Kry_table_values, self.Krz_table_values,
+                ]
+
             if (table_names).count(None) != 6:
                 
                 self.lumped_element_applied = True
@@ -842,14 +854,20 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
             if self.Crz_table_path is not None:
                 self.Crz_table_name, self.Crz_array = self.save_tables_files("lumped_damper_Crz", node_id, self.Crz_table_values)
 
-            table_names = [ self.Cx_table_name, self.Cy_table_name, self.Cz_table_name, 
-                            self.Crx_table_name, self.Cry_table_name, self.Crz_table_name  ]
+            table_names = [
+                self.Cx_table_name, self.Cy_table_name, self.Cz_table_name,
+                self.Crx_table_name, self.Cry_table_name, self.Crz_table_name,
+                ]
 
-            table_paths = [ self.Cx_table_path, self.Cy_table_path, self.Cz_table_path, 
-                            self.Crx_table_path, self.Cry_table_path, self.Crz_table_path ]
+            table_paths = [
+                self.Cx_table_path, self.Cy_table_path, self.Cz_table_path,
+                self.Crx_table_path, self.Cry_table_path, self.Crz_table_path,
+                ]
 
-            values = [  self.Cx_table_values, self.Cy_table_values, self.Cz_table_values, 
-                        self.Crx_table_values, self.Cry_table_values, self.Crz_table_values  ]
+            values = [
+                self.Cx_table_values, self.Cy_table_values, self.Cz_table_values,
+                self.Crx_table_values, self.Cry_table_values, self.Crz_table_values,
+                ]
 
             if (table_names).count(None) != 6:
                 

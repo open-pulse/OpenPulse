@@ -615,17 +615,21 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             if self.Krz_table_path is not None:
                 self.Krz_table_name, self.Krz_array = self.save_tables_files("stiffness_link_Krz", node_id, self.Krz_table_values)
 
-            table_names = [ self.Kx_table_name, self.Ky_table_name, self.Kz_table_name, 
-                            self.Krx_table_name, self.Kry_table_name, self.Krz_table_name  ]
+            table_names = [
+                self.Kx_table_name, self.Ky_table_name, self.Kz_table_name,
+                self.Krx_table_name, self.Kry_table_name, self.Krz_table_name,
+                ]
 
-            table_paths = [ self.Kx_table_path, self.Ky_table_path, self.Kz_table_path, 
-                            self.Krx_table_path, self.Kry_table_path, self.Krz_table_path ]
+            table_paths = [
+                self.Kx_table_path, self.Ky_table_path, self.Kz_table_path,
+                self.Krx_table_path, self.Kry_table_path, self.Krz_table_path,
+                ]
 
-            values = [  self.Kx_table_values, self.Ky_table_values, self.Kz_table_values, 
-                        self.Krx_table_values, self.Kry_table_values, self.Krz_table_values  ]
+            values = [
+                self.Kx_table_values, self.Ky_table_values, self.Kz_table_values,
+                self.Krx_table_values, self.Kry_table_values, self.Krz_table_values,
+                ]
 
-            print(table_names)
-            
             if (table_names).count(None) != 6:
 
                 self.link_applied = True
@@ -684,15 +688,21 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             if self.Crz_table_path is not None:
                 self.Crz_table_name, self.Crz_array = self.save_tables_files("damping_link_Crz", node_id, self.Crz_table_values)
 
-            table_names = [ self.Cx_table_name, self.Cy_table_name, self.Cz_table_name, 
-                            self.Crx_table_name, self.Cry_table_name, self.Crz_table_name  ]
+            table_names = [
+                self.Cx_table_name, self.Cy_table_name, self.Cz_table_name,
+                self.Crx_table_name, self.Cry_table_name, self.Crz_table_name,
+                ]
 
-            table_paths = [ self.Cx_table_path, self.Cy_table_path, self.Cz_table_path, 
-                            self.Crx_table_path, self.Cry_table_path, self.Crz_table_path ]
+            table_paths = [
+                self.Cx_table_path, self.Cy_table_path, self.Cz_table_path,
+                self.Crx_table_path, self.Cry_table_path, self.Crz_table_path,
+                ]
 
-            values = [  self.Cx_table_values, self.Cy_table_values, self.Cz_table_values, 
-                        self.Crx_table_values, self.Cry_table_values, self.Crz_table_values  ]
-            
+            values = [
+                self.Cx_table_values, self.Cy_table_values, self.Cz_table_values,
+                self.Crx_table_values, self.Cry_table_values, self.Crz_table_values,
+                ]
+
             if (table_names).count(None) != 6:
 
                 self.link_applied = True
