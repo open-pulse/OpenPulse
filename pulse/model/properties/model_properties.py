@@ -188,6 +188,32 @@ class ModelProperties:
         elif isinstance(line_ids, Number):
             line_ids = [line_ids]
 
+        if isinstance(data, dict):
+
+            tables_values = list()
+            group_label = self.get_data_group_label(property)
+
+            if "values" not in data.keys():
+                if "table_names" in data.keys():
+
+                    if group_label == "acoustic":
+                        imported_tables = self.acoustic_imported_tables
+                    else:
+                        imported_tables = self.structural_imported_tables
+
+                    for i, table_name in enumerate(data["table_names"]):
+
+                        if table_name is None:
+                            tables_values.append(None)
+                            continue
+
+                        if table_name in imported_tables.keys():
+                            data_array = imported_tables[table_name]
+                            values = data_array[:, 1] + 1j*data_array[:, 2]
+                            tables_values.append(values)
+
+                    data["values"] = tables_values
+
         for line_id in line_ids:
             if line_id in self.line_properties.keys():
                 self.line_properties[line_id][property] = data
