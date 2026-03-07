@@ -288,9 +288,10 @@ class AssemblyStructural:
                         "lumped_stiffness",
                         "lumped_dampings",
                         "psd_structural_links",
-                        "structural_stiffness_links",
-                        "structural_damping_links"
+                        "stiffness_elastic_links",
+                        "damping_nodal_links",
                        ]
+
 
         for (_property, *args), data in self.model.properties.nodal_properties.items():
 
@@ -337,7 +338,7 @@ class AssemblyStructural:
                 K_data.extend(self.get_bc_array_for_all_frequencies(False, values))
 
             # structural nodal link for stiffness
-            if _property == "structural_stiffness_links":
+            if _property == "stiffness_nodal_links":
                 link_data_K = self.preprocessor.get_structural_links_data(node_ids, data)
                 i_indexes_K.extend(link_data_K["indexes_i"])
                 j_indexes_K.extend(link_data_K["indexes_j"])
@@ -345,7 +346,7 @@ class AssemblyStructural:
                 K_data.extend(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
             # structural nodal link for damping
-            if _property == "structural_damping_links":
+            if _property == "damping_nodal_links":
                 link_data_C = self.preprocessor.get_structural_links_data(node_ids, data)
                 i_indexes_C.extend(link_data_C["indexes_i"])
                 j_indexes_C.extend(link_data_C["indexes_j"])
@@ -566,7 +567,7 @@ class AssemblyStructural:
         return loads
     
 
-    def get_bc_array_for_all_frequencies(self, loaded_table, values):
+    def get_bc_array_for_all_frequencies(self, loaded_table: bool, values: list[np.ndarray | complex | None]):
         """
         This method perform the assembly process of the structural FEM force and moment loads.
 
@@ -594,7 +595,7 @@ class AssemblyStructural:
         zeros = np.zeros(number_frequencies, dtype=float)
 
         if loaded_table:
-            list_arrays = [zeros if value is None else value[0:number_frequencies] for value in values]
+            list_arrays = [zeros if value is None else value[: number_frequencies] for value in values]
             self.no_table = False
         else:
             list_arrays = [zeros if value is None else ones * value for value in values]
