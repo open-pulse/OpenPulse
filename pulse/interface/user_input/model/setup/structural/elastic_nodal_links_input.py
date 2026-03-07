@@ -6,6 +6,7 @@ from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.elastic_nodal_links_input_ui import ElasticNodalLinksInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.common import get_spectral_data_from_array, update_analysis_setup_in_file
 
 
 import os
@@ -53,33 +54,12 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
     def reset_table_variables(self):
 
-        self.Kx_table_name = None
-        self.Ky_table_name = None
-        self.Kz_table_name = None
-        self.Krx_table_name = None
-        self.Kry_table_name = None
-        self.Krz_table_name = None
-
         self.Kx_table_path = None
         self.Ky_table_path = None
         self.Kz_table_path = None
         self.Krx_table_path = None
         self.Kry_table_path = None
         self.Krz_table_path = None
-
-        self.Kx_table_values = None
-        self.Ky_table_values = None
-        self.Kz_table_values = None
-        self.Krx_table_values = None
-        self.Kry_table_values = None
-        self.Krz_table_values = None
-
-        self.Cx_table_name = None
-        self.Cy_table_name = None
-        self.Cz_table_name = None
-        self.Crx_table_name = None
-        self.Cry_table_name = None
-        self.Crz_table_name = None
 
         self.Cx_table_path = None
         self.Cy_table_path = None
@@ -88,12 +68,19 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         self.Cry_table_path = None
         self.Crz_table_path = None
 
-        self.Cx_table_values = None
-        self.Cy_table_values = None
-        self.Cz_table_values = None
-        self.Crx_table_values = None
-        self.Cry_table_values = None
-        self.Crz_table_values = None
+        self.imported_Kx_values = None
+        self.imported_Ky_values = None
+        self.imported_Kz_values = None
+        self.imported_Krx_values = None
+        self.imported_Kry_values = None
+        self.imported_Krz_values = None
+
+        self.imported_Cx_values = None
+        self.imported_Cy_values = None
+        self.imported_Cz_values = None
+        self.imported_Crx_values = None
+        self.imported_Cry_values = None
+        self.imported_Crz_values = None
 
     def _define_qt_variables(self):
         self._create_lists_of_lineEdits()
@@ -418,8 +405,8 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             self.check_constant_dampings_links(node_ids)
 
         elif self.tabWidget_inputs.currentIndex() == 1:
-            self.check_tables_stiffness_links(node_ids)
-            self.check_tables_dampings_links(node_ids)
+            self.check_tables_for_stiffness_links(node_ids)
+            self.check_tables_for_dampings_links(node_ids)
 
         if not self.link_applied:
             title = 'No inputs entered for the structural stiffness or damping links'
@@ -447,10 +434,10 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
                 caption = f"Choose a table to import the {dof_label} nodal load"
                 path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
-                                                                                                caption, 
-                                                                                                last_path, 
-                                                                                                'Table File (*.csv; *.dat; *.txt)'
-                                                                                              )
+                    caption, 
+                    last_path, 
+                    'Table File (*.csv; *.dat; *.txt)'
+                    )
 
                 if not check:
                     return None, None
@@ -458,7 +445,6 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             if path_imported_table == "":
                 return None, None
 
-            imported_filename = os.path.basename(path_imported_table)
             lineEdit.setText(path_imported_table)         
             imported_data = np.loadtxt(path_imported_table, delimiter=",")
         
@@ -469,29 +455,9 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                 lineEdit.setFocus()
                 return None, None
 
-            self.frequencies = imported_data[:, 0]
-            complex_values = imported_data[:, 1] + 1j * imported_data[:, 2]
-
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
-            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
-
-                self.lineEdit_reset(lineEdit)
-
-                title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
-                message += "different from the others already imported ones. The current\n"
-                message += "project frequency setup is not going to be modified."
-                message += f"\n\n{imported_filename}"
-                PrintMessageInput([error_title, title, message])
-                return None, None
-
-            else:
-
-                analysis_setup = app().project.model.analysis_setup
-                app().project.file.write_analysis_setup_in_file(analysis_setup)
-
-            return complex_values, path_imported_table
+            return imported_data, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
@@ -500,135 +466,138 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             return None, None
 
     def load_Kx_table(self):
-        self.Kx_table_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx")
+        self.imported_Kx_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx")
         if self.Kx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kx)
 
     def load_Ky_table(self):
-        self.Ky_table_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky")
+        self.imported_Ky_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky")
         if self.Ky_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Ky)
 
     def load_Kz_table(self):
-        self.Kz_table_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz")
+        self.imported_Kz_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz")
         if self.Kz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kz)
 
     def load_Krx_table(self):
-        self.Krx_table_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx")
+        self.imported_Krx_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx")
         if self.Krx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Krx)
 
     def load_Kry_table(self):
-        self.Kry_table_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry")
+        self.imported_Kry_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry")
         if self.Kry_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kry)
 
     def load_Krz_table(self):
-        self.Krz_table_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz")
+        self.imported_Krz_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz")
         if self.Krz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Krz)
 
     def load_Cx_table(self):
-        self.Cx_table_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx")
+        self.imported_Cx_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx")
         if self.Cx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cx)
 
     def load_Cy_table(self):
-        self.Cy_table_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy")
+        self.imported_Cy_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy")
         if self.Cy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cy)
 
     def load_Cz_table(self):
-        self.Cz_table_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz")
+        self.imported_Cz_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz")
         if self.Cz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cz)
 
     def load_Crx_table(self):
-        self.Crx_table_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx")
+        self.imported_Crx_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx")
         if self.Crx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Crx)
 
     def load_Cry_table(self):
-        self.Cry_table_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry")
+        self.imported_Cry_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry")
         if self.Cry_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cry)
 
     def load_Crz_table(self):
-        self.Crz_table_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz")
+        self.imported_Crz_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz")
         if self.Crz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Crz)
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
         lineEdit.setText("")
         lineEdit.setFocus()
+   
+    def save_table_values(self, table_name: str, imported_values: np.ndarray):
 
-    def save_tables_files(self, _label: str, node_id: int, values: np.ndarray):
+        # define the frequencies vector
+        _frequencies = imported_values[:, 0]
 
-        table_name = f"{_label}_node_{node_id}"
+        if app().project.model.change_analysis_frequency_setup(list(_frequencies)):
+            self.hide()
+            title = "Project frequency setup cannot be modified"
+            message = "The following imported table of values has a frequency setup "
+            message += "different from the others already imported ones. The current "
+            message += "project frequency setup is not going to be modified."
+            message += f"\n\n{table_name}"
+            PrintMessageInput([error_title, title, message])
+            return True
 
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
+        update_analysis_setup_in_file(_frequencies)
+
+        # real values vector
+        real_values = imported_values[:, 1]
+        
+        # imaginary values vector
+        imag_values = imported_values[:, 2]
+
+        # array to be saved
+        data = np.array([_frequencies, real_values, imag_values], dtype=float).T
 
         self.properties.add_imported_tables("structural", table_name, data)
 
-        return table_name, data
+        return False
 
-    def check_tables_stiffness_links(self, node_ids: list):
+    def check_tables_for_stiffness_links(self, node_ids: list):
 
-        if self.Kx_table_path is None:
-            self.Kx_table_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx", direct_load=True)
+        values = list()
+        table_paths = list()
+        for label in ["Kx", "Ky", "Kz", "Krx", "Kry", "Krz"]:
 
-        if self.Ky_table_path is None:
-            self.Ky_table_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky", direct_load=True)
+            table_path_name = f"{label}_table_path"
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
 
-        if self.Kz_table_path is None:
-            self.Kz_table_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz", direct_load=True)
+            if _imported_values is None:
+                line_edit = getattr(self, f"lineEdit_path_table_{label}")
 
-        if self.Krx_table_path is None:
-            self.Krx_table_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx", direct_load=True)
+                _imported_values, _table_path = self.load_table(line_edit, label, direct_load = True)
+                setattr(self, imported_values_name, _imported_values)
+                setattr(self, table_path_name, _table_path)
 
-        if self.Kry_table_path is None:
-            self.Kry_table_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry", direct_load=True)
+            _table_path_attr = getattr(self, table_path_name)
+            table_paths.append(_table_path_attr)
 
-        if self.Krz_table_path is None:
-            self.Krz_table_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz", direct_load=True)
+            _imported_values_attr = getattr(self, imported_values_name)
+            values.append(get_spectral_data_from_array(_imported_values_attr))
 
         for node_id in node_ids:
 
-            if self.Kx_table_path is not None:
-                self.Kx_table_name, self.Kx_array = self.save_tables_files("stiffness_link_Kx", node_id, self.Kx_table_values)
+            table_names = list()
 
-            if self.Ky_table_path is not None:
-                self.Ky_table_name, self.Ky_array = self.save_tables_files("stiffness_link_Ky", node_id, self.Ky_table_values)
+            for label in ["Kx", "Ky", "Kz", "Krx", "Kry", "Krz"]:
 
-            if self.Kz_table_path is not None:
-                self.Kz_table_name, self.Kz_array = self.save_tables_files("stiffness_link_Kz", node_id, self.Kz_table_values)
+                imported_values_name = f"imported_{label}_values"
+                _imported_values = getattr(self, imported_values_name)
 
-            if self.Krx_table_path is not None:
-                self.Krx_table_name, self.Krx_array = self.save_tables_files("stiffness_link_Krx", node_id, self.Krx_table_values)
+                _table_name = None
+                if isinstance(_imported_values, np.ndarray):
+                    _table_name = get_table_name(f"stiffness_link_{label}", node_id)
+                    if self.save_table_values(_table_name, _imported_values):
+                        return
 
-            if self.Kry_table_path is not None:
-                self.Kry_table_name, self.Kry_array = self.save_tables_files("stiffness_link_Kry", node_id, self.Kry_table_values)
-
-            if self.Krz_table_path is not None:
-                self.Krz_table_name, self.Krz_array = self.save_tables_files("stiffness_link_Krz", node_id, self.Krz_table_values)
-
-            table_names = [
-                self.Kx_table_name, self.Ky_table_name, self.Kz_table_name,
-                self.Krx_table_name, self.Kry_table_name, self.Krz_table_name,
-                ]
-
-            table_paths = [
-                self.Kx_table_path, self.Ky_table_path, self.Kz_table_path,
-                self.Krx_table_path, self.Kry_table_path, self.Krz_table_path,
-                ]
-
-            values = [
-                self.Kx_table_values, self.Ky_table_values, self.Kz_table_values,
-                self.Krx_table_values, self.Kry_table_values, self.Krz_table_values,
-                ]
+                table_names.append(_table_name)
 
             if (table_names).count(None) != 6:
 
@@ -640,68 +609,53 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                     coords.extend(list(np.round(node.coordinates, 5)))
 
                 data = {
-                        "coords" : coords,
-                        "table_names" : table_names,
-                        "table_paths" : table_paths,
-                        "values" : values
-                        }
+                    "coords" : coords,
+                    "table_names" : table_names,
+                    "table_paths" : table_paths,
+                    "values" : values
+                    }
 
                 self.properties._set_nodal_property("stiffness_nodal_links", data, node_ids)
 
-    def check_tables_dampings_links(self, node_ids: list):
+    def check_tables_for_dampings_links(self, node_ids: list):
 
-        if self.Cx_table_path is None:
-            self.Cx_table_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx", direct_load=True)
+        values = list()
+        table_paths = list()
+        for label in ["Cx", "Cy", "Cz", "Crx", "Cry", "Crz"]:
 
-        if self.Cy_table_path is None:
-            self.Cy_table_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy", direct_load=True)
+            table_path_name = f"{label}_table_path"
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
 
-        if self.Cz_table_path is None:
-            self.Cz_table_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz", direct_load=True)
+            if _imported_values is None:
+                line_edit = getattr(self, f"lineEdit_path_table_{label}")
 
-        if self.Crx_table_path is None:
-            self.Crx_table_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx", direct_load=True)
+                _imported_values, _table_path = self.load_table(line_edit, label, direct_load = True)
+                setattr(self, imported_values_name, _imported_values)
+                setattr(self, table_path_name, _table_path)
 
-        if self.Cry_table_path is None:
-            self.Cry_table_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry", direct_load=True)
+            _table_path_attr = getattr(self, table_path_name)
+            table_paths.append(_table_path_attr)
 
-        if self.Crz_table_path is None:
-            self.Crz_table_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz", direct_load=True)
+            _imported_values_attr = getattr(self, imported_values_name)
+            values.append(get_spectral_data_from_array(_imported_values_attr))
 
         for node_id in node_ids:
 
-            if self.Cx_table_path is not None:
-                self.Cx_table_name, self.Cx_array = self.save_tables_files("damping_link_Cx", node_id, self.Cx_table_values)
+            table_names = list()
 
-            if self.Cy_table_path is not None:
-                self.Cy_table_name, self.Cy_array = self.save_tables_files("damping_link_Cy", node_id, self.Cy_table_values)
+            for label in ["Cx", "Cy", "Cz", "Crx", "Cry", "Crz"]:
 
-            if self.Cz_table_path is not None:
-                self.Cz_table_name, self.Cz_array = self.save_tables_files("damping_link_Cz", node_id, self.Cz_table_values)
+                imported_values_name = f"imported_{label}_values"
+                _imported_values = getattr(self, imported_values_name)
 
-            if self.Crx_table_path is not None:
-                self.Crx_table_name, self.Crx_array = self.save_tables_files("damping_link_Crx", node_id, self.Crx_table_values)
+                _table_name = None
+                if isinstance(_imported_values, np.ndarray):
+                    _table_name = get_table_name(f"stiffness_link_{label}", node_id)
+                    if self.save_table_values(_table_name, _imported_values):
+                        return
 
-            if self.Cry_table_path is not None:
-                self.Cry_table_name, self.Cry_array = self.save_tables_files("damping_link_Cry", node_id, self.Cry_table_values)
-
-            if self.Crz_table_path is not None:
-                self.Crz_table_name, self.Crz_array = self.save_tables_files("damping_link_Crz", node_id, self.Crz_table_values)
-
-            table_names = [
-                self.Cx_table_name, self.Cy_table_name, self.Cz_table_name,
-                self.Crx_table_name, self.Cry_table_name, self.Crz_table_name,
-                ]
-
-            table_paths = [
-                self.Cx_table_path, self.Cy_table_path, self.Cz_table_path,
-                self.Crx_table_path, self.Cry_table_path, self.Crz_table_path,
-                ]
-
-            values = [
-                self.Cx_table_values, self.Cy_table_values, self.Cz_table_values,
-                self.Crx_table_values, self.Cry_table_values, self.Crz_table_values,
-                ]
+                table_names.append(_table_name)
 
             if (table_names).count(None) != 6:
 
@@ -713,11 +667,11 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                     coords.extend(list(np.round(node.coordinates, 5)))
 
                 data = {
-                        "coords" : coords,
-                        "table_names" : table_names,
-                        "table_paths" : table_paths,
-                        "values" : values
-                        }
+                    "coords" : coords,
+                    "table_names" : table_names,
+                    "table_paths" : table_paths,
+                    "values" : values
+                    }
 
                 self.properties._set_nodal_property("damping_nodal_links", data, node_ids)
   
@@ -947,3 +901,6 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         self.keep_window_open = False
         app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
+    
+def get_table_name(_label: str, node_id: int):
+    return f"{_label}_node_{node_id}"
