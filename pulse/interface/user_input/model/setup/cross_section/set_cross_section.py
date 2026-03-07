@@ -6,6 +6,7 @@ from pulse import app
 from pulse.interface.ui_generated.model.setup.cross_section.set_cross_section_ui import SetCrossSection_UI
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
 from pulse.utils.common_utils import *
 
