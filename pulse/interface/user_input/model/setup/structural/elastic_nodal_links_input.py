@@ -528,7 +528,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
     def lineEdit_reset(self, lineEdit: QLineEdit):
         lineEdit.setText("")
         lineEdit.setFocus()
-   
+
     def save_table_values(self, table_name: str, imported_values: np.ndarray):
 
         # define the frequencies vector
