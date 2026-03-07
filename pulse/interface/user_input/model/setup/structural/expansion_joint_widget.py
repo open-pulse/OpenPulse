@@ -157,7 +157,7 @@ class ExpansionJointWidget(ExpansionJointWidget_UI):
             return True
         _stiffness.append(value)
 
-        self.joint_parameters["stiffness_values"] = _stiffness
+        self.joint_parameters["values"] = _stiffness
 
     def check_input_parameters(self, lineEdit: QLineEdit, label: str, _float=True):
         title = f"Invalid entry to the '{label}'"
