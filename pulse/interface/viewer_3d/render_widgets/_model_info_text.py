@@ -25,84 +25,79 @@ def nodes_info_text() -> str:
 
         node_id, *_ = nodes
         node = preprocessor.nodes[node_id]
+
         tree = TreeInfo(f"Node {node_id}")
         tree.add_item(f"Position", "[{:.4f}, {:.4f}, {:.4f}]".format(*node.coordinates), "m")
         info_text += str(tree)
 
-        key = ("prescribed_dofs", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
-            values = data["values"]
-            loaded_table = "table_names" in data.keys()
+        if not properties.nodal_properties:
+            return info_text
+
+        pd_data = properties._get_property("prescribed_dofs", node_ids=node_id)
+        if isinstance(pd_data, dict):
+            values = pd_data["values"]
+            loaded_table = "table_names" in pd_data.keys()
             info_text += _structural_format("Prescribed dofs",  values, ("u", "r"), ("m", "rad"), loaded_table)
 
-        key = ("nodal_loads", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
-            values = data["values"]
-            loaded_table = "table_names" in data.keys()
+        nl_data = properties._get_property("nodal_loads", node_ids=node_id)
+        if isinstance(nl_data, dict):
+            values = nl_data["values"]
+            loaded_table = "table_names" in nl_data.keys()
             info_text += _structural_format("Nodal loads", values, ("F", "M"), ("N", "N.m"), loaded_table)
 
-        key = ("lumped_stiffness", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
-            values = data["values"]
-            loaded_table = "table_names" in data.keys()
+        ls_data = properties._get_property("lumped_stiffness", node_ids=node_id)
+        if isinstance(ls_data, dict):
+            values = ls_data["values"]
+            loaded_table = "table_names" in ls_data.keys()
             info_text += _structural_format("Lumped stiffness", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table)
 
-        key = ("lumped_dampings", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
-            values = data["values"]
-            loaded_table = "table_names" in data.keys()
+        ld_data = properties._get_property("lumped_dampings", node_ids=node_id)
+        if isinstance(ld_data, dict):
+            values = ld_data["values"]
+            loaded_table = "table_names" in ld_data.keys()
             info_text += _structural_format("Lumped dampings", values, ("c", "cr"), ("N.s/m", "N.m.s/rad"), loaded_table)        
 
-        key = ("lumped_masses", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
-            values = data["values"]   
-            loaded_table = "table_names" in data.keys()
+        lm_data = properties._get_property("lumped_masses", node_ids=node_id)
+        if isinstance(lm_data, dict):
+            values = lm_data["values"]   
+            loaded_table = "table_names" in lm_data.keys()
             info_text += _structural_format("Lumped masses", values, ("m", "J"), ("kg", "N.m²"), loaded_table)
 
-        for (property, *args), data in properties.nodal_properties.items():
+        for (property, *args), sl_data in properties.nodal_properties.items():
             if property == "stiffness_nodal_links" and node_id in args:
-                values = data["values"]
-                loaded_table = "table_names" in data.keys()
+                values = sl_data["values"]
+                loaded_table = "table_names" in sl_data.keys()
                 info_text += _structural_format(f"Structural stiffness link", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table, linked_nodes=list(args))
 
-        for (property, *args), data in properties.nodal_properties.items():
+        for (property, *args), dl_data in properties.nodal_properties.items():
             if property == "damping_nodal_links" and node_id in args:
-                values = data["values"]
-                loaded_table = "table_names" in data.keys()
+                values = dl_data["values"]
+                loaded_table = "table_names" in dl_data.keys()
                 info_text += _structural_format(f"Structural damping link", values, ("k", "kr"), ("N.s/m", "N.m.s/rad"), loaded_table, linked_nodes=list(args))
 
-        key = ("acoustic_pressure", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
-            ap_values = data["values"][0]
-            loaded_table = "table_names" in data.keys()
+        ap_data = properties._get_property("acoustic_pressure", node_ids=node_id)
+        if isinstance(ap_data, dict):
+            ap_values = ap_data["values"][0]
+            loaded_table = "table_names" in ap_data.keys()
             info_text += _acoustic_format("Acoustic pressure", ap_values, "P", "Pa")
 
-        key = ("volume_velocity", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
-            vv_values = data["values"][0]
-            loaded_table = "table_names" in data.keys()
+        vv_data = properties._get_property("volume_velocity", node_ids=node_id)
+        if isinstance(vv_data, dict):
+            vv_values = vv_data["values"][0]
+            loaded_table = "table_names" in vv_data.keys()
             info_text += _acoustic_format("Volume velocity", vv_values, "Q", "m³/s")
 
-        key = ("specific_impedance", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
-            si_values = data["values"][0]
-            loaded_table = "table_names" in data.keys()
+        si_data = properties._get_property("specific_impedance", node_ids=node_id)
+        if isinstance(si_data, dict):
+            si_values = si_data["values"][0]
+            loaded_table = "table_names" in si_data.keys()
             info_text += _acoustic_format("Specific impedance", si_values, "Zs", "kg/m².s")
 
-        key = ("radiation_impedance", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
+        ri_data = properties._get_property("radiation_impedance", node_ids=node_id)
+        if isinstance(ri_data, dict):
 
             impedance_label = ""
-            impedance_type = data.get("impedance_type")
+            impedance_type = ri_data.get("impedance_type")
 
             if impedance_type == RadiationImpedanceType.ANECHOIC:
                 impedance_label = "anechoic termination"
@@ -114,15 +109,13 @@ def nodes_info_text() -> str:
             if impedance_label != "":
                 info_text += _acoustic_format("Radiation impedance", impedance_label, "Type", "")
 
-        key = ("reciprocating_compressor_excitation", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
-            info_text += compressor_excitation_info_text(data)
+        rc_data = properties._get_property("reciprocating_compressor_excitation", node_ids=node_id)
+        if isinstance(rc_data, dict):
+            info_text += compressor_excitation_info_text(rc_data)
 
-        key = ("reciprocating_pump_excitation", node_id)
-        if key in properties.nodal_properties.keys():
-            data = properties.nodal_properties[key]
-            info_text += pump_excitation_info_text(data)
+        rp_data = properties._get_property("reciprocating_pump_excitation", node_ids=node_id)
+        if isinstance(rp_data, dict):
+            info_text += pump_excitation_info_text(rp_data)
 
     return info_text
 
