@@ -147,22 +147,29 @@ class Model:
         condition_2 = not self.properties.check_if_there_are_tables_at_the_model()
 
         if condition_1 or condition_2:
-
-            f_min = frequencies[0]
-            f_max = frequencies[-1]
-            f_step = frequencies[1] - frequencies[0]
-
-            frequency_setup = { 
-                "f_min" : f_min,
-                "f_max" : f_max,
-                "f_step" : f_step,
-                }
-
-            self.set_analysis_setup(frequency_setup)
-
             self.list_frequencies = frequencies
-
             return False
 
         if self.list_frequencies != frequencies:
             return True
+
+        # if condition_1 or condition_2:
+
+        #     f_min = frequencies[0]
+        #     f_max = frequencies[-1]
+        #     f_step = frequencies[1] - frequencies[0]
+
+        #     frequency_setup = { 
+        #         "f_min" : f_min,
+        #         "f_max" : f_max,
+        #         "f_step" : f_step,
+        #         }
+
+        #     self.set_analysis_setup(frequency_setup)
+
+        #     self.list_frequencies = frequencies
+
+        #     return False
+
+        # if self.list_frequencies != frequencies:
+        #     return True

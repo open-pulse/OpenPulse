@@ -199,16 +199,11 @@ class ProjectFile:
 
     def read_analysis_setup_from_file(self):
 
-        analysis_setup = None
         project_setup = self.filebox.read(self.project_setup_filename)
+        if not isinstance(project_setup, dict):
+            return dict()
 
-        if project_setup is None:
-            return
-
-        if "analysis_setup" in project_setup.keys():
-            analysis_setup = project_setup["analysis_setup"]
-
-        return analysis_setup
+        return project_setup.get("analysis_setup", dict())
 
     def write_inertia_load_in_file(self, inertia_load: dict):
 

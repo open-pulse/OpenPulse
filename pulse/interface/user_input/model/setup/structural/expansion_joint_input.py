@@ -354,7 +354,6 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             if path_imported_table == "":
                 return None, None
 
-            imported_filename = basename(path_imported_table)
             line_edit.setText(path_imported_table)         
             imported_data = np.loadtxt(path_imported_table, delimiter=",")
 
@@ -369,28 +368,6 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
             return imported_data, path_imported_table
-
-            self.frequencies = imported_data[:, 0]
-            complex_values = imported_data[:, 1] + 1j * imported_data[:, 2]
-            
-            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
-
-                self.lineEdit_reset(lineEdit)
-
-                title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
-                message += "different from the others already imported ones. The current\n"
-                message += "project frequency setup is not going to be modified."
-                message += f"\n\n{imported_filename}"
-                PrintMessageInput([error_title, title, message])
-                return None, None
-
-            else:
-
-                analysis_setup = app().project.model.analysis_setup
-                app().project.file.write_analysis_setup_in_file(analysis_setup)
-
-            return complex_values, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
