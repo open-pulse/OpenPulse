@@ -1675,7 +1675,7 @@
                     </font>
                    </property>
                    <property name="currentIndex">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="tab_spring_table">
                     <attribute name="title">
@@ -3275,7 +3275,7 @@
                 </attribute>
                 <layout class="QGridLayout" name="gridLayout_2">
                  <item row="0" column="0">
-                  <widget class="QTreeWidget" name="treeWidget_structural_stiffness_links">
+                  <widget class="QTreeWidget" name="treeWidget_nodal_stiffness_links">
                    <property name="minimumSize">
                     <size>
                      <width>320</width>
@@ -3329,7 +3329,7 @@
                 </attribute>
                 <layout class="QGridLayout" name="gridLayout_3">
                  <item row="0" column="0">
-                  <widget class="QTreeWidget" name="treeWidget_structural_damping_links">
+                  <widget class="QTreeWidget" name="treeWidget_nodal_damping_links">
                    <property name="minimumSize">
                     <size>
                      <width>320</width>
@@ -3551,9 +3551,11 @@
   <tabstop>pushButton_remove</tabstop>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>tabWidget_remove</tabstop>
-  <tabstop>treeWidget_structural_stiffness_links</tabstop>
-  <tabstop>treeWidget_structural_damping_links</tabstop>
+  <tabstop>treeWidget_nodal_stiffness_links</tabstop>
+  <tabstop>treeWidget_nodal_damping_links</tabstop>
  </tabstops>
- <resources><include location="../../../../icons/resources.qrc" /></resources>
+ <resources>
+  <include location="../../../../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
