@@ -133,10 +133,10 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         self.cache_tab = self.tabWidget_main.currentIndex()
         #
         for i, w in enumerate([120, 200]):
-            self.treeWidget_structural_stiffness_links.setColumnWidth(i, w)
-            self.treeWidget_structural_damping_links.setColumnWidth(i, w)
-            self.treeWidget_structural_stiffness_links.headerItem().setTextAlignment(i, Qt.AlignCenter)
-            self.treeWidget_structural_damping_links.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_stiffness_nodal_links.setColumnWidth(i, w)
+            self.treeWidget_damping_nodal_links.setColumnWidth(i, w)
+            self.treeWidget_stiffness_nodal_links.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_damping_nodal_links.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def clickable(self, widget):
         class Filter(QObject):
@@ -186,10 +186,10 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
-        self.treeWidget_structural_stiffness_links.itemClicked.connect(self.on_click_item_stiffness)
-        self.treeWidget_structural_damping_links.itemClicked.connect(self.on_click_item_damping)
-        self.treeWidget_structural_stiffness_links.itemDoubleClicked.connect(self.on_double_click_item_stiffness)
-        self.treeWidget_structural_damping_links.itemDoubleClicked.connect(self.on_double_click_item_damping)
+        self.treeWidget_stiffness_nodal_links.itemClicked.connect(self.on_click_item_stiffness)
+        self.treeWidget_damping_nodal_links.itemClicked.connect(self.on_click_item_damping)
+        self.treeWidget_stiffness_nodal_links.itemDoubleClicked.connect(self.on_double_click_item_stiffness)
+        self.treeWidget_damping_nodal_links.itemDoubleClicked.connect(self.on_double_click_item_damping)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
@@ -209,7 +209,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                 self.lineEdit_first_node_id.setText(str(first_node))
                 self.lineEdit_last_node_id.setText(str(last_node))
 
-                ss_link_data = self.properties._get_property("structural_stiffness_links", node_ids=sorted_nodes)
+                ss_link_data = self.properties._get_property("stiffness_nodal_links", node_ids=sorted_nodes)
                 if isinstance(ss_link_data, dict):
 
                     self.reset_stiffness_input_fields()
@@ -232,7 +232,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                                 lineEdit = self.lineEdits_constant_values_stiffness[i]
                                 lineEdit.setText(f"{value : .3e}")
 
-                sd_link_data = self.properties._get_property("structural_damping_links", node_ids=sorted_nodes)
+                sd_link_data = self.properties._get_property("damping_nodal_links", node_ids=sorted_nodes)
                 if isinstance(sd_link_data, dict):
 
                     if "table_paths" in sd_link_data.keys():
@@ -359,7 +359,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                     "imag_values" : imag_values
                     }
 
-            self.properties._set_nodal_property("structural_stiffness_links", data, node_ids)
+            self.properties._set_nodal_property("stiffness_nodal_links", data, node_ids)
 
     def check_constant_dampings_links(self, node_ids: list):
         
@@ -403,7 +403,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                     "imag_values" : imag_values
                     }
 
-            self.properties._set_nodal_property("structural_damping_links", data, node_ids)
+            self.properties._set_nodal_property("damping_nodal_links", data, node_ids)
 
     def attribute_callback(self):
 
@@ -418,7 +418,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             self.check_constant_dampings_links(node_ids)
 
         elif self.tabWidget_inputs.currentIndex() == 1:
-            self.check_tables_stiffiness_links(node_ids)
+            self.check_tables_stiffness_links(node_ids)
             self.check_tables_dampings_links(node_ids)
 
         if not self.link_applied:
@@ -501,71 +501,71 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
     def load_Kx_table(self):
         self.Kx_table_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx")
-        if (self.Kx_table_values, self.Kx_table_path).count(None) == 2:
+        if self.Kx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kx)
 
     def load_Ky_table(self):
         self.Ky_table_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky")
-        if (self.Ky_table_values, self.Ky_table_path).count(None) == 2:
+        if self.Ky_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Ky)
 
     def load_Kz_table(self):
         self.Kz_table_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz")
-        if (self.Kz_table_values, self.Kz_table_path).count(None) == 2:
+        if self.Kz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kz)
 
     def load_Krx_table(self):
         self.Krx_table_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx")
-        if (self.Krx_table_values, self.Krx_table_path).count(None) == 2:
+        if self.Krx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Krx)
 
     def load_Kry_table(self):
         self.Kry_table_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry")
-        if (self.Kry_table_values, self.Kry_table_path).count(None) == 2:
+        if self.Kry_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kry)
 
     def load_Krz_table(self):
         self.Krz_table_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz")
-        if (self.Krz_table_values, self.Krz_table_path).count(None) == 2:
+        if self.Krz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Krz)
 
     def load_Cx_table(self):
         self.Cx_table_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx")
-        if (self.Cx_table_values, self.Cx_table_path).count(None) == 2:
+        if self.Cx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cx)
 
     def load_Cy_table(self):
         self.Cy_table_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy")
-        if (self.Cy_table_values, self.Cy_table_path).count(None) == 2:
+        if self.Cy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cy)
 
     def load_Cz_table(self):
         self.Cz_table_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz")
-        if (self.Cz_table_values, self.Cz_table_path).count(None) == 2:
+        if self.Cz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cz)
 
     def load_Crx_table(self):
         self.Crx_table_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx")
-        if (self.Crx_table_values, self.Crx_table_path).count(None) == 2:
+        if self.Crx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Crx)
 
     def load_Cry_table(self):
         self.Cry_table_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry")
-        if (self.Cry_table_values, self.Cry_table_path).count(None) == 2:
+        if self.Cry_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cry)
 
     def load_Crz_table(self):
         self.Crz_table_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz")
-        if (self.Crz_table_values, self.Crz_table_path).count(None) == 2:
+        if self.Crz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Crz)
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
         lineEdit.setText("")
         lineEdit.setFocus()
 
-    def save_tables_files(self, lumped_label: str, _label: str, node_id: int, values: np.ndarray):
+    def save_tables_files(self, _label: str, node_id: int, values: np.ndarray):
 
-        table_name = f"{lumped_label}_{_label}_node_{node_id}"
+        table_name = f"{_label}_node_{node_id}"
 
         real_values = np.real(values)
         imag_values = np.imag(values)
@@ -575,7 +575,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
         return table_name, data
 
-    def check_tables_stiffiness_links(self, node_ids: list):
+    def check_tables_stiffness_links(self, node_ids: list):
 
         if self.Kx_table_path is None:
             self.Kx_table_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx", direct_load=True)
@@ -597,23 +597,23 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
         for node_id in node_ids:
 
-            if self.Kx_table_name is not None:
-                self.Kx_table_name, self.Kx_array = self.save_tables_files("Kx", node_id, self.Kx_table_values)
+            if self.Kx_table_path is not None:
+                self.Kx_table_name, self.Kx_array = self.save_tables_files("stiffness_link_Kx", node_id, self.Kx_table_values)
 
-            if self.Ky_table_name is not None:
-                self.Ky_table_name, self.Ky_array = self.save_tables_files("Ky", node_id, self.Ky_table_values)
+            if self.Ky_table_path is not None:
+                self.Ky_table_name, self.Ky_array = self.save_tables_files("stiffness_link_Ky", node_id, self.Ky_table_values)
 
-            if self.Ky_table_name is not None:
-                self.Ky_table_name, self.Ky_array = self.save_tables_files("Ky", node_id, self.Ky_table_values)
+            if self.Kz_table_path is not None:
+                self.Kz_table_name, self.Kz_array = self.save_tables_files("stiffness_link_Kz", node_id, self.Kz_table_values)
 
-            if self.Krx_table_name is not None:
-                self.Krx_table_name, self.Krx_array = self.save_tables_files("Krx", node_id, self.Krx_table_values)
+            if self.Krx_table_path is not None:
+                self.Krx_table_name, self.Krx_array = self.save_tables_files("stiffness_link_Krx", node_id, self.Krx_table_values)
 
-            if self.Kry_table_name is not None:
-                self.Kry_table_name, self.Kry_array = self.save_tables_files("Kry", node_id, self.Kry_table_values)
+            if self.Kry_table_path is not None:
+                self.Kry_table_name, self.Kry_array = self.save_tables_files("stiffness_link_Kry", node_id, self.Kry_table_values)
 
-            if self.Krz_table_name is not None:
-                self.Krz_table_name, self.Krz_array = self.save_tables_files("Krz", node_id, self.Krz_table_values)
+            if self.Krz_table_path is not None:
+                self.Krz_table_name, self.Krz_array = self.save_tables_files("stiffness_link_Krz", node_id, self.Krz_table_values)
 
             table_names = [ self.Kx_table_name, self.Ky_table_name, self.Kz_table_name, 
                             self.Krx_table_name, self.Kry_table_name, self.Krz_table_name  ]
@@ -623,6 +623,8 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
             values = [  self.Kx_table_values, self.Ky_table_values, self.Kz_table_values, 
                         self.Krx_table_values, self.Kry_table_values, self.Krz_table_values  ]
+
+            print(table_names)
             
             if (table_names).count(None) != 6:
 
@@ -640,7 +642,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                         "values" : values
                         }
 
-                self.properties._set_nodal_property("structural_stiffness_links", data, node_ids)
+                self.properties._set_nodal_property("stiffness_nodal_links", data, node_ids)
 
     def check_tables_dampings_links(self, node_ids: list):
 
@@ -664,23 +666,23 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
         for node_id in node_ids:
 
-            if self.Cx_table_name is not None:
-                self.Cx_table_name, self.Cx_array = self.save_tables_files("Cx", node_id, self.Cx_table_values)
+            if self.Cx_table_path is not None:
+                self.Cx_table_name, self.Cx_array = self.save_tables_files("damping_link_Cx", node_id, self.Cx_table_values)
 
-            if self.Cy_table_name is not None:
-                self.Cy_table_name, self.Cy_array = self.save_tables_files("Cy", node_id, self.Cy_table_values)
+            if self.Cy_table_path is not None:
+                self.Cy_table_name, self.Cy_array = self.save_tables_files("damping_link_Cy", node_id, self.Cy_table_values)
 
-            if self.Cy_table_name is not None:
-                self.Cy_table_name, self.Cy_array = self.save_tables_files("Cy", node_id, self.Cy_table_values)
+            if self.Cz_table_path is not None:
+                self.Cz_table_name, self.Cz_array = self.save_tables_files("damping_link_Cz", node_id, self.Cz_table_values)
 
-            if self.Crx_table_name is not None:
-                self.Crx_table_name, self.Crx_array = self.save_tables_files("Crx", node_id, self.Crx_table_values)
+            if self.Crx_table_path is not None:
+                self.Crx_table_name, self.Crx_array = self.save_tables_files("damping_link_Crx", node_id, self.Crx_table_values)
 
-            if self.Cry_table_name is not None:
-                self.Cry_table_name, self.Cry_array = self.save_tables_files("Cry", node_id, self.Cry_table_values)
+            if self.Cry_table_path is not None:
+                self.Cry_table_name, self.Cry_array = self.save_tables_files("damping_link_Cry", node_id, self.Cry_table_values)
 
-            if self.Crz_table_name is not None:
-                self.Crz_table_name, self.Crz_array = self.save_tables_files("Crz", node_id, self.Crz_table_values)
+            if self.Crz_table_path is not None:
+                self.Crz_table_name, self.Crz_array = self.save_tables_files("damping_link_Crz", node_id, self.Crz_table_values)
 
             table_names = [ self.Cx_table_name, self.Cy_table_name, self.Cz_table_name, 
                             self.Crx_table_name, self.Cry_table_name, self.Crz_table_name  ]
@@ -707,10 +709,11 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                         "values" : values
                         }
 
-                self.properties._set_nodal_property("structural_damping_links", data, node_ids)
+                self.properties._set_nodal_property("damping_nodal_links", data, node_ids)
   
     def actions_to_finalize(self):
         app().project.file.write_nodal_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots()
         self.load_nodes_info()
 
@@ -735,11 +738,11 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
     def load_elastic_links_stiffness_info(self):
 
-        self.treeWidget_structural_stiffness_links.clear()
+        self.treeWidget_stiffness_nodal_links.clear()
         stiffness_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])
 
         for (_property, *args), data in self.properties.nodal_properties.items():
-            if _property == "structural_stiffness_links":
+            if _property == "stiffness_nodal_links":
 
                 key = f"{args[0]}-{args[1]}"
 
@@ -750,15 +753,15 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                 for i in range(2):
                     item.setTextAlignment(i, Qt.AlignCenter)
 
-                self.treeWidget_structural_stiffness_links.addTopLevelItem(item)
+                self.treeWidget_stiffness_nodal_links.addTopLevelItem(item)
 
     def load_elastic_links_damping_info(self):
 
-        self.treeWidget_structural_damping_links.clear()
+        self.treeWidget_damping_nodal_links.clear()
         damping_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz']) 
 
         for (_property, *args), data in self.properties.nodal_properties.items():
-            if _property == "structural_damping_links":
+            if _property == "damping_nodal_links":
 
                 key = f"{args[0]}-{args[1]}"
 
@@ -769,7 +772,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                 for i in range(2):
                     item.setTextAlignment(i, Qt.AlignCenter)
 
-                self.treeWidget_structural_damping_links.addTopLevelItem(item)
+                self.treeWidget_damping_nodal_links.addTopLevelItem(item)
 
     def load_nodes_info(self):
 
@@ -783,14 +786,14 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         self.checkBox_link_dampings.setChecked(True)
 
         for (_property, *args) in self.properties.nodal_properties.keys():
-            if _property == "structural_stiffness_links":
+            if _property == "stiffness_nodal_links":
                 self.tabWidget_main.setTabVisible(1, True)
                 self.tabWidget_remove.setTabVisible(0, True)
                 self.checkBox_link_stiffness.setChecked(True)
                 break
 
         for (_property, *args) in self.properties.nodal_properties.keys():
-            if _property == "structural_damping_links":
+            if _property == "damping_nodal_links":
                 self.tabWidget_main.setTabVisible(1, True)
                 self.tabWidget_remove.setTabVisible(1, True)
                 self.checkBox_link_dampings.setChecked(True)
@@ -799,7 +802,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
     def on_click_item_stiffness(self, item):
         key = item.text(0)
         node_ids = [int(value) for value in key.split("-")]
-        link_data = self.properties._get_property("structural_stiffness_links", node_ids=node_ids)
+        link_data = self.properties._get_property("stiffness_nodal_links", node_ids=node_ids)
         if isinstance(link_data, dict):
             app().main_window.set_selection(nodes=node_ids)
             # self.lineEdit_first_node_id.setText(str(node_ids[0]))
@@ -809,7 +812,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
     def on_click_item_damping(self, item):
         key = item.text(0)
         node_ids = [int(value) for value in key.split("-")]
-        link_data = self.properties._get_property("structural_damping_links", node_ids=node_ids)
+        link_data = self.properties._get_property("damping_nodal_links", node_ids=node_ids)
         if isinstance(link_data, dict):
             app().main_window.set_selection(nodes=node_ids)
             # self.lineEdit_first_node_id.setText(str(node_ids[0]))
@@ -825,7 +828,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
     def remove_conflicting_data(self, node_ids: int | list | tuple, selected_property = None):
 
         if selected_property is None:
-            properties = ["structural_stiffness_links", "structural_damping_links"]
+            properties = ["stiffness_nodal_links", "damping_nodal_links"]
 
         elif isinstance(selected_property, str):
             properties = [selected_property]
@@ -839,7 +842,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         app().project.file.write_nodal_properties_in_file()
 
     def remove_table_files_from_nodes(self, node_ids : list):
-        for _property in ["structural_stiffness_links", "structural_damping_links"]:
+        for _property in ["stiffness_nodal_links", "damping_nodal_links"]:
             table_names = self.properties.get_nodal_related_table_names(_property, node_ids)
             self.process_table_file_removal(table_names)
 
@@ -861,12 +864,12 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             node_ids = [node_id1, node_id2]
 
             if self.checkBox_link_stiffness.isChecked():
-                self.properties._remove_nodal_property("structural_stiffness_links", node_ids=node_ids)
-                self.remove_conflicting_data(node_ids, selected_property="structural_stiffness_links")
+                self.properties._remove_nodal_property("stiffness_nodal_links", node_ids=node_ids)
+                self.remove_conflicting_data(node_ids, selected_property="stiffness_nodal_links")
 
             if self.checkBox_link_dampings.isChecked():
-                self.properties._remove_nodal_property("structural_damping_links", node_ids=node_ids)
-                self.remove_conflicting_data(node_ids, selected_property="structural_damping_links")
+                self.properties._remove_nodal_property("damping_nodal_links", node_ids=node_ids)
+                self.remove_conflicting_data(node_ids, selected_property="damping_nodal_links")
 
         self.reset_nodes_input_fields()
         self.reset_stiffness_input_fields()
@@ -890,18 +893,18 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             
             link_nodes = list()
             for (_property, *args) in self.properties.nodal_properties.keys():
-                if _property in ["structural_stiffness_links", "structural_damping_links"]:
+                if _property in ["stiffness_nodal_links", "damping_nodal_links"]:
                     link_nodes.append(args)
 
             for node_ids in link_nodes:
 
                 if self.checkBox_link_stiffness.isChecked():
-                    self.properties._remove_nodal_property("structural_stiffness_links", node_ids=node_ids)
-                    self.remove_conflicting_data(node_ids, selected_property="structural_stiffness_links")
+                    self.properties._remove_nodal_property("stiffness_nodal_links", node_ids=node_ids)
+                    self.remove_conflicting_data(node_ids, selected_property="stiffness_nodal_links")
 
                 if self.checkBox_link_dampings.isChecked():
-                    self.properties._remove_nodal_property("structural_damping_links", node_ids=node_ids)
-                    self.remove_conflicting_data(node_ids, selected_property="structural_damping_links")
+                    self.properties._remove_nodal_property("damping_nodal_links", node_ids=node_ids)
+                    self.remove_conflicting_data(node_ids, selected_property="damping_nodal_links")
 
             self.reset_nodes_input_fields()
             self.reset_stiffness_input_fields()
