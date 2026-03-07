@@ -65,16 +65,16 @@ def nodes_info_text() -> str:
             info_text += _structural_format("Lumped masses", values, ("m", "J"), ("kg", "N.m²"), loaded_table)
 
         for (property, *args), data in properties.nodal_properties.items():
-            if property == "stiffness_elastic_link" and node_id in args:
+            if property == "stiffness_nodal_links" and node_id in args:
                 values = data["values"]
                 loaded_table = "table_names" in data.keys()
-                info_text += _structural_format(f"Stiffness elastic link: {key}", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table)
+                info_text += _structural_format(f"Structural stiffness link", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table, linked_nodes=list(args))
 
         for (property, *args), data in properties.nodal_properties.items():
-            if property == "dampings_elastic_link" and node_id in args:
+            if property == "damping_nodal_links" and node_id in args:
                 values = data["values"]
                 loaded_table = "table_names" in data.keys()
-                info_text += _structural_format(f"Damping elastic link: {key}", values, ("k", "kr"), ("N.s/m", "N.m.s/rad"), loaded_table)
+                info_text += _structural_format(f"Structural damping link", values, ("k", "kr"), ("N.s/m", "N.m.s/rad"), loaded_table, linked_nodes=list(args))
 
         key = ("acoustic_pressure", node_id)
         if key in properties.nodal_properties.keys():
@@ -442,19 +442,28 @@ def min_max_stresses_info_text():
 def _all_none(sequence) -> bool:
     return all(i is None for i in sequence)
 
-def _structural_format(property_name, values, labels, units, has_table):
+def _structural_format(
+        property_name: str, 
+        values: list, 
+        labels: list, 
+        units: str, 
+        has_table: bool, 
+        linked_nodes: list | None = None):
+
     if _all_none(values):
         return ""
 
-    u_values = []
-    u_labels = []
+    u_values = list()
+    u_labels = list()
     for val, label in zip(values[:3], "xyz"):
-        if val is not None:
-            u_values.append(val)
-            u_labels.append(labels[0] + label)
+        if val is None:
+            continue
 
-    r_values = []
-    r_labels = []
+        u_values.append(val)
+        u_labels.append(labels[0] + label)
+
+    r_values = list()
+    r_labels = list()
     for val, label in zip(values[3:], "xyz"):
         if val is None:
             continue
@@ -466,14 +475,26 @@ def _structural_format(property_name, values, labels, units, has_table):
         r_labels.append(labels[1] + label)
 
     tree = TreeInfo(property_name)
+    if isinstance(linked_nodes, list):
+        tree.add_item("Linked nodes", linked_nodes)
+
+    udof_labels = ", ".join(u_labels)
+    rdof_labels = ", ".join(r_labels)
+
     if has_table:
-        tree.add_item(u_labels, "Table of values")
-        tree.add_item(r_labels, "Table of values")
+        if u_values:
+            tree.add_item(udof_labels, "Table of values")
+
+        if r_values:
+            tree.add_item(rdof_labels, "Table of values")
+
     else:
         if u_values:
-            tree.add_item(", ".join(u_labels), u_values, units[0])
+            tree.add_item(udof_labels, u_values, units[0])
+
         if r_values:
-            tree.add_item(", ".join(r_labels), r_values, units[1])
+            tree.add_item(rdof_labels, r_values, units[1])
+
     return str(tree)
 
 def _acoustic_format(property_name, value, label, unit):
