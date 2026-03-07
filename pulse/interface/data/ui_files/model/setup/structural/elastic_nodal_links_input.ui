@@ -3275,7 +3275,7 @@
                 </attribute>
                 <layout class="QGridLayout" name="gridLayout_2">
                  <item row="0" column="0">
-                  <widget class="QTreeWidget" name="treeWidget_nodal_stiffness_links">
+                  <widget class="QTreeWidget" name="treeWidget_stiffness_nodal_links">
                    <property name="minimumSize">
                     <size>
                      <width>320</width>
@@ -3329,7 +3329,7 @@
                 </attribute>
                 <layout class="QGridLayout" name="gridLayout_3">
                  <item row="0" column="0">
-                  <widget class="QTreeWidget" name="treeWidget_nodal_damping_links">
+                  <widget class="QTreeWidget" name="treeWidget_damping_nodal_links">
                    <property name="minimumSize">
                     <size>
                      <width>320</width>
@@ -3551,8 +3551,8 @@
   <tabstop>pushButton_remove</tabstop>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>tabWidget_remove</tabstop>
-  <tabstop>treeWidget_nodal_stiffness_links</tabstop>
-  <tabstop>treeWidget_nodal_damping_links</tabstop>
+  <tabstop>treeWidget_stiffness_nodal_links</tabstop>
+  <tabstop>treeWidget_damping_nodal_links</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../icons/resources.qrc"/>

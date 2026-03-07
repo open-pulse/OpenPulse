@@ -1274,7 +1274,7 @@ class Ui_Dialog(object):
         self.tabWidget_main.setCurrentIndex(0)
         self.tabWidget_inputs.setCurrentIndex(0)
         self.tabWidget_constant_values.setCurrentIndex(0)
-        self.tabWidget_table_values.setCurrentIndex(1)
+        self.tabWidget_table_values.setCurrentIndex(0)
         self.pushButton_attribute.setDefault(True)
         self.pushButton_exit.setDefault(False)
         self.tabWidget_remove.setCurrentIndex(0)
