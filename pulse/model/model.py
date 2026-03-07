@@ -90,36 +90,40 @@ class Model:
 
     def set_analysis_setup(self, analysis_setup: dict):
 
+        self.frequencies = None
         self.analysis_setup.update(analysis_setup)
 
-        if "f_min" in analysis_setup.keys():
-            self.set_frequency_setup(analysis_setup)
-
-        if "weight_load" in analysis_setup.keys():
-            self.set_static_analysis_setup(analysis_setup)
-
-    def set_frequency_setup(self, analysis_setup: dict):
-
-        self.frequencies = None
         self.f_min = analysis_setup.get("f_min", None)
         self.f_max = analysis_setup.get("f_max", None)
         self.f_step = analysis_setup.get("f_step", None)
+        frequencies = analysis_setup.get("frequencies", None)
 
-        if "frequencies" in analysis_setup.keys():
-            self.frequencies = analysis_setup["frequencies"]
+        if isinstance(frequencies, list):
+            self.frequencies = np.round(np.array(frequencies, dtype=float), 14)
+
+        elif isinstance(frequencies, np.ndarray):
+            self.frequencies = frequencies
 
         elif (self.f_min, self.f_max, self.f_step).count(None) == 0:
 
             try:
-                self.frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step)
+                frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step, dtype=float)
+                frequencies = np.round(frequencies, 14)
 
-                # filters the frequencies vector to mitigate the already identified rounding errors
-                mask = self.frequencies <= self.f_max
-                self.frequencies = self.frequencies[mask]
+                # filters the frequencies vector
+                mask = frequencies <= self.f_max
+                _frequencies = frequencies[mask]
 
-            except:
+            except Exception as error_log:
                 self.frequencies = None
+                print(str(error_log))
                 return
+
+            self.frequencies = _frequencies
+            self.analysis_setup["frequencies"] = list(_frequencies)
+
+        if "weight_load" in analysis_setup.keys():
+            self.set_static_analysis_setup(analysis_setup)
 
     def set_static_analysis_setup(self, analysis_setup: dict):
         self.static_analysis_setup = analysis_setup
