@@ -567,101 +567,101 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
     def load_Mx_table(self):
         self.Mx_table_values, self.Mx_table_path = self.load_table(self.lineEdit_path_table_Mx, "Mx")
-        if (self.Mx_table_values, self.Mx_table_path).count(None) == 2:
+        if self.Mx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Mx)
 
     def load_My_table(self):
         self.My_table_values, self.My_table_path = self.load_table(self.lineEdit_path_table_My, "My")
-        if (self.My_table_values, self.My_table_path).count(None) == 2:
+        if self.My_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_My)
 
     def load_Mz_table(self):
         self.Mz_table_values, self.Mz_table_path = self.load_table(self.lineEdit_path_table_Mz, "Mz")
-        if (self.Mz_table_values, self.Mz_table_path).count(None) == 2:
+        if self.Mz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Mz)
     
     def load_Jx_table(self):
         self.Jx_table_values, self.Jx_table_path = self.load_table(self.lineEdit_path_table_Jx, "Jx")
-        if (self.Jx_table_values, self.Jx_table_path).count(None) == 2:
+        if self.Jx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Jx)
 
     def load_Jy_table(self):
         self.Jy_table_values, self.Jy_table_path = self.load_table(self.lineEdit_path_table_Jy, "Jy")
-        if (self.Jy_table_values, self.Jy_table_path).count(None) == 2:
+        if self.Jy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Jy)
 
     def load_Jz_table(self):
         self.Jz_table_values, self.Jz_table_path = self.load_table(self.lineEdit_path_table_Jz, "Jz")
-        if (self.Jz_table_values, self.Jz_table_path).count(None) == 2:
+        if self.Jz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Jz)
 
     def load_Kx_table(self):
         self.Kx_table_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx")
-        if (self.Kx_table_values, self.Kx_table_path).count(None) == 2:
+        if self.Kx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kx)
 
     def load_Ky_table(self):
         self.Ky_table_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky")
-        if (self.Ky_table_values, self.Ky_table_path).count(None) == 2:
+        if self.Ky_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Ky)
 
     def load_Kz_table(self):
         self.Kz_table_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz")
-        if (self.Kz_table_values, self.Kz_table_path).count(None) == 2:
+        if self.Kz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kz)
 
     def load_Krx_table(self):
         self.Krx_table_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx")
-        if (self.Krx_table_values, self.Krx_table_path).count(None) == 2:
+        if self.Krx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Krx)
 
     def load_Kry_table(self):
         self.Kry_table_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry")
-        if (self.Kry_table_values, self.Kry_table_path).count(None) == 2:
+        if self.Kry_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kry)
 
     def load_Krz_table(self):
         self.Krz_table_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz")
-        if (self.Krz_table_values, self.Krz_table_path).count(None) == 2:
+        if self.Krz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Krz)
 
     def load_Cx_table(self):
         self.Cx_table_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx")
-        if (self.Cx_table_values, self.Cx_table_path).count(None) == 2:
+        if self.Cx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cx)
 
     def load_Cy_table(self):
         self.Cy_table_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy")
-        if (self.Cy_table_values, self.Cy_table_path).count(None) == 2:
+        if self.Cy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cy)
 
     def load_Cz_table(self):
         self.Cz_table_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz")
-        if (self.Cz_table_values, self.Cz_table_path).count(None) == 2:
+        if self.Cz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cz)
 
     def load_Crx_table(self):
         self.Crx_table_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx")
-        if (self.Crx_table_values, self.Crx_table_path).count(None) == 2:
+        if self.Crx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Crx)
 
     def load_Cry_table(self):
         self.Cry_table_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry")
-        if (self.Cry_table_values, self.Cry_table_path).count(None) == 2:
+        if self.Cry_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cry)
 
     def load_Crz_table(self):
         self.Crz_table_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz")
-        if (self.Crz_table_values, self.Crz_table_path).count(None) == 2:
+        if self.Crz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Crz)
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
         lineEdit.setText("")
         lineEdit.setFocus()
 
-    def save_tables_files(self, lumped_label: str, _label: str, node_id: int, values: np.ndarray):
+    def save_tables_files(self, _label: str, node_id: int, values: np.ndarray):
 
-        table_name = f"{lumped_label}_{_label}_node_{node_id}"
+        table_name = f"{_label}_node_{node_id}"
 
         real_values = np.real(values)
         imag_values = np.imag(values)
@@ -693,23 +693,23 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
         for node_id in node_ids:
 
-            if self.Mx_table_name is not None:
-                self.Mx_table_name, self.Mx_array = self.save_tables_files("Mx", node_id, self.Mx_table_values)
+            if self.Mx_table_path is not None:
+                self.Mx_table_name, self.Mx_array = self.save_tables_files("lumped_mass_Mx", node_id, self.Mx_table_values)
 
-            if self.My_table_name is not None:
-                self.My_table_name, self.My_array = self.save_tables_files("My", node_id, self.My_table_values)
+            if self.My_table_path is not None:
+                self.My_table_name, self.My_array = self.save_tables_files("lumped_mass_My", node_id, self.My_table_values)
 
-            if self.My_table_name is not None:
-                self.My_table_name, self.My_array = self.save_tables_files("My", node_id, self.My_table_values)
+            if self.Mz_table_path is not None:
+                self.Mz_table_name, self.Mz_array = self.save_tables_files("lumped_mass_Mz", node_id, self.My_table_values)
 
-            if self.Jx_table_name is not None:
-                self.Jx_table_name, self.Jx_array = self.save_tables_files("Jx", node_id, self.Jx_table_values)
+            if self.Jx_table_path is not None:
+                self.Jx_table_name, self.Jx_array = self.save_tables_files("lumped_inertia_moment_Jx", node_id, self.Jx_table_values)
 
-            if self.Jy_table_name is not None:
-                self.Jy_table_name, self.Jy_array = self.save_tables_files("Jy", node_id, self.Jy_table_values)
+            if self.Jy_table_path is not None:
+                self.Jy_table_name, self.Jy_array = self.save_tables_files("lumped_inertia_moment_Jy", node_id, self.Jy_table_values)
 
-            if self.Jz_table_name is not None:
-                self.Jz_table_name, self.Jz_array = self.save_tables_files("Jz", node_id, self.Jz_table_values)
+            if self.Jz_table_path is not None:
+                self.Jz_table_name, self.Jz_array = self.save_tables_files("lumped_inertia_moment_Jz", node_id, self.Jz_table_values)
 
             table_names = [ self.Mx_table_name, self.My_table_name, self.Mz_table_name, 
                             self.Jx_table_name, self.Jy_table_name, self.Jz_table_name  ]
@@ -758,22 +758,22 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
         for node_id in node_ids:
 
-            if self.Kx_table_name is not None:
-                self.Kx_table_name, self.Kx_array = self.save_tables_files("Kx", node_id, self.Kx_table_values)
+            if self.Kx_table_path is not None:
+                self.Kx_table_name, self.Kx_array = self.save_tables_files("lumped_stiffness_Kx", node_id, self.Kx_table_values)
 
-            if self.Ky_table_name is not None:
-                self.Ky_table_name, self.Ky_array = self.save_tables_files("Ky", node_id, self.Ky_table_values)
+            if self.Ky_table_path is not None:
+                self.Ky_table_name, self.Ky_array = self.save_tables_files("lumped_stiffness_Ky", node_id, self.Ky_table_values)
 
-            if self.Ky_table_name is not None:
-                self.Ky_table_name, self.Ky_array = self.save_tables_files("Ky", node_id, self.Ky_table_values)
+            if self.Kz_table_path is not None:
+                self.Kz_table_name, self.Kz_array = self.save_tables_files("lumped_stiffness_Kz", node_id, self.Kz_table_values)
 
-            if self.Krx_table_name is not None:
-                self.Krx_table_name, self.Krx_array = self.save_tables_files("Krx", node_id, self.Krx_table_values)
+            if self.Krx_table_path is not None:
+                self.Krx_table_name, self.Krx_array = self.save_tables_files("lumped_stiffness_Krx", node_id, self.Krx_table_values)
 
-            if self.Kry_table_name is not None:
-                self.Kry_table_name, self.Kry_array = self.save_tables_files("Kry", node_id, self.Kry_table_values)
+            if self.Kry_table_path is not None:
+                self.Kry_table_name, self.Kry_array = self.save_tables_files("lumped_stiffness_Kry", node_id, self.Kry_table_values)
 
-            if self.Krz_table_name is not None:
+            if self.Krz_table_path is not None:
                 self.Krz_table_name, self.Krz_array = self.save_tables_files("Krz", node_id, self.Krz_table_values)
 
             table_names = [ self.Kx_table_name, self.Ky_table_name, self.Kz_table_name, 
@@ -824,23 +824,23 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
         for node_id in node_ids:
 
-            if self.Cx_table_name is not None:
-                self.Cx_table_name, self.Cx_array = self.save_tables_files("Cx", node_id, self.Cx_table_values)
+            if self.Cx_table_path is not None:
+                self.Cx_table_name, self.Cx_array = self.save_tables_files("lumped_damper_Cx", node_id, self.Cx_table_values)
 
-            if self.Cy_table_name is not None:
-                self.Cy_table_name, self.Cy_array = self.save_tables_files("Cy", node_id, self.Cy_table_values)
+            if self.Cy_table_path is not None:
+                self.Cy_table_name, self.Cy_array = self.save_tables_files("lumped_damper_Cy", node_id, self.Cy_table_values)
 
-            if self.Cy_table_name is not None:
-                self.Cy_table_name, self.Cy_array = self.save_tables_files("Cy", node_id, self.Cy_table_values)
+            if self.Cz_table_path is not None:
+                self.Cz_table_name, self.Cz_array = self.save_tables_files("lumped_damper_Cz", node_id, self.Cy_table_values)
 
-            if self.Crx_table_name is not None:
-                self.Crx_table_name, self.Crx_array = self.save_tables_files("Crx", node_id, self.Crx_table_values)
+            if self.Crx_table_path is not None:
+                self.Crx_table_name, self.Crx_array = self.save_tables_files("lumped_damper_Crx", node_id, self.Crx_table_values)
 
-            if self.Cry_table_name is not None:
-                self.Cry_table_name, self.Cry_array = self.save_tables_files("Cry", node_id, self.Cry_table_values)
+            if self.Cry_table_path is not None:
+                self.Cry_table_name, self.Cry_array = self.save_tables_files("lumped_damper_Cry", node_id, self.Cry_table_values)
 
-            if self.Crz_table_name is not None:
-                self.Crz_table_name, self.Crz_array = self.save_tables_files("Crz", node_id, self.Crz_table_values)
+            if self.Crz_table_path is not None:
+                self.Crz_table_name, self.Crz_array = self.save_tables_files("lumped_damper_Crz", node_id, self.Crz_table_values)
 
             table_names = [ self.Cx_table_name, self.Cy_table_name, self.Cz_table_name, 
                             self.Crx_table_name, self.Cry_table_name, self.Crz_table_name  ]
@@ -996,6 +996,7 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
     def actions_to_finalize(self):
         app().project.file.write_nodal_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
 
