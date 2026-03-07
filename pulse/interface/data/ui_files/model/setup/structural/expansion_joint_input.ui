@@ -354,7 +354,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>418</width>
-                  <height>354</height>
+                  <height>359</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_8">
@@ -1056,7 +1056,7 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>120</width>
+                         <width>160</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1089,7 +1089,7 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>120</width>
+                         <width>160</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1149,7 +1149,7 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>120</width>
+                         <width>160</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1195,7 +1195,7 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>120</width>
+                         <width>160</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1316,9 +1316,9 @@
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="tab_table_values">
+                   <widget class="QWidget" name="tab_tabular_values">
                     <attribute name="title">
-                     <string>Table of values</string>
+                     <string>Tabular values</string>
                     </attribute>
                     <layout class="QGridLayout" name="gridLayout_10">
                      <property name="leftMargin">
@@ -1363,7 +1363,7 @@
                         <string/>
                        </property>
                        <property name="icon">
-                        <iconset>
+                        <iconset resource="../../../../icons/resources.qrc">
                          <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
@@ -1377,17 +1377,17 @@
                      <item row="0" column="2">
                       <widget class="QLineEdit" name="lineEdit_path_table_axial_stiffness">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1407,23 +1407,26 @@
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="1" column="2">
                       <widget class="QLineEdit" name="lineEdit_path_table_transversal_stiffness">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1443,6 +1446,9 @@
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -1502,7 +1508,7 @@
                         <string/>
                        </property>
                        <property name="icon">
-                        <iconset>
+                        <iconset resource="../../../../icons/resources.qrc">
                          <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
@@ -1516,17 +1522,17 @@
                      <item row="3" column="2">
                       <widget class="QLineEdit" name="lineEdit_path_table_angular_stiffness">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1546,23 +1552,26 @@
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="2" column="2">
                       <widget class="QLineEdit" name="lineEdit_path_table_torsional_stiffness">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1582,6 +1591,9 @@
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -1615,7 +1627,7 @@
                         <string/>
                        </property>
                        <property name="icon">
-                        <iconset>
+                        <iconset resource="../../../../icons/resources.qrc">
                          <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
@@ -1633,13 +1645,13 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1689,7 +1701,7 @@
                         <string/>
                        </property>
                        <property name="icon">
-                        <iconset>
+                        <iconset resource="../../../../icons/resources.qrc">
                          <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
@@ -1707,13 +1719,13 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1740,13 +1752,13 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1773,13 +1785,13 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -2162,6 +2174,8 @@
   <tabstop>treeWidget_expansion_joints_info</tabstop>
   <tabstop>scrollArea</tabstop>
  </tabstops>
- <resources><include location="../../../../icons/resources.qrc" /></resources>
+ <resources>
+  <include location="../../../../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

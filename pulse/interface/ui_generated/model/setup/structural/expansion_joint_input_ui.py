@@ -143,7 +143,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 418, 354))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 418, 359))
         self.gridLayout_8 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_8.setSpacing(4)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
@@ -369,7 +369,7 @@ class Ui_Dialog(object):
         self.lineEdit_angular_stiffness = QLineEdit(self.tab_constant_values)
         self.lineEdit_angular_stiffness.setObjectName(u"lineEdit_angular_stiffness")
         self.lineEdit_angular_stiffness.setEnabled(True)
-        self.lineEdit_angular_stiffness.setMinimumSize(QSize(120, 26))
+        self.lineEdit_angular_stiffness.setMinimumSize(QSize(160, 26))
         self.lineEdit_angular_stiffness.setMaximumSize(QSize(160, 26))
         self.lineEdit_angular_stiffness.setFont(font4)
         self.lineEdit_angular_stiffness.setStyleSheet(u"")
@@ -380,7 +380,7 @@ class Ui_Dialog(object):
         self.lineEdit_axial_stiffness = QLineEdit(self.tab_constant_values)
         self.lineEdit_axial_stiffness.setObjectName(u"lineEdit_axial_stiffness")
         self.lineEdit_axial_stiffness.setEnabled(True)
-        self.lineEdit_axial_stiffness.setMinimumSize(QSize(120, 26))
+        self.lineEdit_axial_stiffness.setMinimumSize(QSize(160, 26))
         self.lineEdit_axial_stiffness.setMaximumSize(QSize(160, 26))
         self.lineEdit_axial_stiffness.setFont(font4)
         self.lineEdit_axial_stiffness.setStyleSheet(u"")
@@ -400,7 +400,7 @@ class Ui_Dialog(object):
         self.lineEdit_torsional_stiffness = QLineEdit(self.tab_constant_values)
         self.lineEdit_torsional_stiffness.setObjectName(u"lineEdit_torsional_stiffness")
         self.lineEdit_torsional_stiffness.setEnabled(True)
-        self.lineEdit_torsional_stiffness.setMinimumSize(QSize(120, 26))
+        self.lineEdit_torsional_stiffness.setMinimumSize(QSize(160, 26))
         self.lineEdit_torsional_stiffness.setMaximumSize(QSize(160, 26))
         self.lineEdit_torsional_stiffness.setFont(font4)
         self.lineEdit_torsional_stiffness.setStyleSheet(u"")
@@ -415,7 +415,7 @@ class Ui_Dialog(object):
         self.lineEdit_transversal_stiffness = QLineEdit(self.tab_constant_values)
         self.lineEdit_transversal_stiffness.setObjectName(u"lineEdit_transversal_stiffness")
         self.lineEdit_transversal_stiffness.setEnabled(True)
-        self.lineEdit_transversal_stiffness.setMinimumSize(QSize(120, 26))
+        self.lineEdit_transversal_stiffness.setMinimumSize(QSize(160, 26))
         self.lineEdit_transversal_stiffness.setMaximumSize(QSize(160, 26))
         self.lineEdit_transversal_stiffness.setFont(font4)
         self.lineEdit_transversal_stiffness.setStyleSheet(u"")
@@ -455,12 +455,12 @@ class Ui_Dialog(object):
         self.gridLayout_9.addWidget(self.label_90, 1, 1, 1, 1)
 
         self.tabWidget_inputs.addTab(self.tab_constant_values, "")
-        self.tab_table_values = QWidget()
-        self.tab_table_values.setObjectName(u"tab_table_values")
-        self.gridLayout_10 = QGridLayout(self.tab_table_values)
+        self.tab_tabular_values = QWidget()
+        self.tab_tabular_values.setObjectName(u"tab_tabular_values")
+        self.gridLayout_10 = QGridLayout(self.tab_tabular_values)
         self.gridLayout_10.setObjectName(u"gridLayout_10")
         self.gridLayout_10.setContentsMargins(4, 6, 4, 6)
-        self.pushButton_load_table_axial_stiffness = QPushButton(self.tab_table_values)
+        self.pushButton_load_table_axial_stiffness = QPushButton(self.tab_tabular_values)
         self.pushButton_load_table_axial_stiffness.setObjectName(u"pushButton_load_table_axial_stiffness")
         self.pushButton_load_table_axial_stiffness.setEnabled(True)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -478,29 +478,31 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addWidget(self.pushButton_load_table_axial_stiffness, 0, 3, 1, 1)
 
-        self.lineEdit_path_table_axial_stiffness = QLineEdit(self.tab_table_values)
+        self.lineEdit_path_table_axial_stiffness = QLineEdit(self.tab_tabular_values)
         self.lineEdit_path_table_axial_stiffness.setObjectName(u"lineEdit_path_table_axial_stiffness")
-        self.lineEdit_path_table_axial_stiffness.setEnabled(False)
-        self.lineEdit_path_table_axial_stiffness.setMinimumSize(QSize(260, 26))
-        self.lineEdit_path_table_axial_stiffness.setMaximumSize(QSize(260, 26))
+        self.lineEdit_path_table_axial_stiffness.setEnabled(True)
+        self.lineEdit_path_table_axial_stiffness.setMinimumSize(QSize(280, 26))
+        self.lineEdit_path_table_axial_stiffness.setMaximumSize(QSize(280, 26))
         self.lineEdit_path_table_axial_stiffness.setSizeIncrement(QSize(0, 0))
         font5 = QFont()
         font5.setPointSize(9)
         self.lineEdit_path_table_axial_stiffness.setFont(font5)
         self.lineEdit_path_table_axial_stiffness.setStyleSheet(u"")
         self.lineEdit_path_table_axial_stiffness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_path_table_axial_stiffness.setClearButtonEnabled(True)
 
         self.gridLayout_10.addWidget(self.lineEdit_path_table_axial_stiffness, 0, 2, 1, 1)
 
-        self.lineEdit_path_table_transversal_stiffness = QLineEdit(self.tab_table_values)
+        self.lineEdit_path_table_transversal_stiffness = QLineEdit(self.tab_tabular_values)
         self.lineEdit_path_table_transversal_stiffness.setObjectName(u"lineEdit_path_table_transversal_stiffness")
-        self.lineEdit_path_table_transversal_stiffness.setEnabled(False)
-        self.lineEdit_path_table_transversal_stiffness.setMinimumSize(QSize(260, 26))
-        self.lineEdit_path_table_transversal_stiffness.setMaximumSize(QSize(260, 26))
+        self.lineEdit_path_table_transversal_stiffness.setEnabled(True)
+        self.lineEdit_path_table_transversal_stiffness.setMinimumSize(QSize(280, 26))
+        self.lineEdit_path_table_transversal_stiffness.setMaximumSize(QSize(280, 26))
         self.lineEdit_path_table_transversal_stiffness.setSizeIncrement(QSize(0, 0))
         self.lineEdit_path_table_transversal_stiffness.setFont(font5)
         self.lineEdit_path_table_transversal_stiffness.setStyleSheet(u"")
         self.lineEdit_path_table_transversal_stiffness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_path_table_transversal_stiffness.setClearButtonEnabled(True)
 
         self.gridLayout_10.addWidget(self.lineEdit_path_table_transversal_stiffness, 1, 2, 1, 1)
 
@@ -512,7 +514,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addItem(self.horizontalSpacer_3, 0, 0, 1, 1)
 
-        self.pushButton_load_table_torsional_stiffness = QPushButton(self.tab_table_values)
+        self.pushButton_load_table_torsional_stiffness = QPushButton(self.tab_tabular_values)
         self.pushButton_load_table_torsional_stiffness.setObjectName(u"pushButton_load_table_torsional_stiffness")
         self.pushButton_load_table_torsional_stiffness.setEnabled(True)
         sizePolicy.setHeightForWidth(self.pushButton_load_table_torsional_stiffness.sizePolicy().hasHeightForWidth())
@@ -525,31 +527,33 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addWidget(self.pushButton_load_table_torsional_stiffness, 2, 3, 1, 1)
 
-        self.lineEdit_path_table_angular_stiffness = QLineEdit(self.tab_table_values)
+        self.lineEdit_path_table_angular_stiffness = QLineEdit(self.tab_tabular_values)
         self.lineEdit_path_table_angular_stiffness.setObjectName(u"lineEdit_path_table_angular_stiffness")
-        self.lineEdit_path_table_angular_stiffness.setEnabled(False)
-        self.lineEdit_path_table_angular_stiffness.setMinimumSize(QSize(260, 26))
-        self.lineEdit_path_table_angular_stiffness.setMaximumSize(QSize(260, 26))
+        self.lineEdit_path_table_angular_stiffness.setEnabled(True)
+        self.lineEdit_path_table_angular_stiffness.setMinimumSize(QSize(280, 26))
+        self.lineEdit_path_table_angular_stiffness.setMaximumSize(QSize(280, 26))
         self.lineEdit_path_table_angular_stiffness.setSizeIncrement(QSize(0, 0))
         self.lineEdit_path_table_angular_stiffness.setFont(font5)
         self.lineEdit_path_table_angular_stiffness.setStyleSheet(u"")
         self.lineEdit_path_table_angular_stiffness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_path_table_angular_stiffness.setClearButtonEnabled(True)
 
         self.gridLayout_10.addWidget(self.lineEdit_path_table_angular_stiffness, 3, 2, 1, 1)
 
-        self.lineEdit_path_table_torsional_stiffness = QLineEdit(self.tab_table_values)
+        self.lineEdit_path_table_torsional_stiffness = QLineEdit(self.tab_tabular_values)
         self.lineEdit_path_table_torsional_stiffness.setObjectName(u"lineEdit_path_table_torsional_stiffness")
-        self.lineEdit_path_table_torsional_stiffness.setEnabled(False)
-        self.lineEdit_path_table_torsional_stiffness.setMinimumSize(QSize(260, 26))
-        self.lineEdit_path_table_torsional_stiffness.setMaximumSize(QSize(260, 26))
+        self.lineEdit_path_table_torsional_stiffness.setEnabled(True)
+        self.lineEdit_path_table_torsional_stiffness.setMinimumSize(QSize(280, 26))
+        self.lineEdit_path_table_torsional_stiffness.setMaximumSize(QSize(280, 26))
         self.lineEdit_path_table_torsional_stiffness.setSizeIncrement(QSize(0, 0))
         self.lineEdit_path_table_torsional_stiffness.setFont(font5)
         self.lineEdit_path_table_torsional_stiffness.setStyleSheet(u"")
         self.lineEdit_path_table_torsional_stiffness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_path_table_torsional_stiffness.setClearButtonEnabled(True)
 
         self.gridLayout_10.addWidget(self.lineEdit_path_table_torsional_stiffness, 2, 2, 1, 1)
 
-        self.pushButton_load_table_angular_stiffness = QPushButton(self.tab_table_values)
+        self.pushButton_load_table_angular_stiffness = QPushButton(self.tab_tabular_values)
         self.pushButton_load_table_angular_stiffness.setObjectName(u"pushButton_load_table_angular_stiffness")
         self.pushButton_load_table_angular_stiffness.setEnabled(True)
         sizePolicy.setHeightForWidth(self.pushButton_load_table_angular_stiffness.sizePolicy().hasHeightForWidth())
@@ -562,18 +566,18 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addWidget(self.pushButton_load_table_angular_stiffness, 3, 3, 1, 1)
 
-        self.label_100 = QLabel(self.tab_table_values)
+        self.label_100 = QLabel(self.tab_tabular_values)
         self.label_100.setObjectName(u"label_100")
         self.label_100.setEnabled(True)
-        self.label_100.setMinimumSize(QSize(40, 26))
-        self.label_100.setMaximumSize(QSize(40, 26))
+        self.label_100.setMinimumSize(QSize(32, 26))
+        self.label_100.setMaximumSize(QSize(32, 26))
         self.label_100.setFont(font4)
         self.label_100.setMouseTracking(True)
         self.label_100.setAlignment(Qt.AlignCenter)
 
         self.gridLayout_10.addWidget(self.label_100, 0, 1, 1, 1)
 
-        self.pushButton_load_table_transversal_stiffness = QPushButton(self.tab_table_values)
+        self.pushButton_load_table_transversal_stiffness = QPushButton(self.tab_tabular_values)
         self.pushButton_load_table_transversal_stiffness.setObjectName(u"pushButton_load_table_transversal_stiffness")
         self.pushButton_load_table_transversal_stiffness.setEnabled(True)
         sizePolicy.setHeightForWidth(self.pushButton_load_table_transversal_stiffness.sizePolicy().hasHeightForWidth())
@@ -586,40 +590,40 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addWidget(self.pushButton_load_table_transversal_stiffness, 1, 3, 1, 1)
 
-        self.label_104 = QLabel(self.tab_table_values)
+        self.label_104 = QLabel(self.tab_tabular_values)
         self.label_104.setObjectName(u"label_104")
         self.label_104.setEnabled(True)
-        self.label_104.setMinimumSize(QSize(40, 26))
-        self.label_104.setMaximumSize(QSize(40, 26))
+        self.label_104.setMinimumSize(QSize(32, 26))
+        self.label_104.setMaximumSize(QSize(32, 26))
         self.label_104.setFont(font4)
         self.label_104.setMouseTracking(True)
         self.label_104.setAlignment(Qt.AlignCenter)
 
         self.gridLayout_10.addWidget(self.label_104, 1, 1, 1, 1)
 
-        self.label_105 = QLabel(self.tab_table_values)
+        self.label_105 = QLabel(self.tab_tabular_values)
         self.label_105.setObjectName(u"label_105")
         self.label_105.setEnabled(True)
-        self.label_105.setMinimumSize(QSize(40, 26))
-        self.label_105.setMaximumSize(QSize(40, 26))
+        self.label_105.setMinimumSize(QSize(32, 26))
+        self.label_105.setMaximumSize(QSize(32, 26))
         self.label_105.setFont(font4)
         self.label_105.setMouseTracking(True)
         self.label_105.setAlignment(Qt.AlignCenter)
 
         self.gridLayout_10.addWidget(self.label_105, 2, 1, 1, 1)
 
-        self.label_106 = QLabel(self.tab_table_values)
+        self.label_106 = QLabel(self.tab_tabular_values)
         self.label_106.setObjectName(u"label_106")
         self.label_106.setEnabled(True)
-        self.label_106.setMinimumSize(QSize(40, 26))
-        self.label_106.setMaximumSize(QSize(40, 26))
+        self.label_106.setMinimumSize(QSize(32, 26))
+        self.label_106.setMaximumSize(QSize(32, 26))
         self.label_106.setFont(font4)
         self.label_106.setMouseTracking(True)
         self.label_106.setAlignment(Qt.AlignCenter)
 
         self.gridLayout_10.addWidget(self.label_106, 3, 1, 1, 1)
 
-        self.tabWidget_inputs.addTab(self.tab_table_values, "")
+        self.tabWidget_inputs.addTab(self.tab_tabular_values, "")
 
         self.gridLayout_8.addWidget(self.tabWidget_inputs, 1, 0, 1, 1)
 
@@ -820,7 +824,7 @@ class Ui_Dialog(object):
         self.label_104.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">k<span style=\" vertical-align:sub;\">yz</span>:</p></body></html>", None))
         self.label_105.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">k<span style=\" vertical-align:sub;\">rz</span>:</p></body></html>", None))
         self.label_106.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">k<span style=\" vertical-align:sub;\">ryz</span>:</p></body></html>", None))
-        self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_table_values), QCoreApplication.translate("Dialog", u"Table of values", None))
+        self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_tabular_values), QCoreApplication.translate("Dialog", u"Tabular values", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         ___qtreewidgetitem = self.treeWidget_expansion_joints_info.headerItem()
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Joint parameters [L, d_eff, m, \u03b5, rods, kx, kyz, krx, kryz]", None));
@@ -886,7 +890,7 @@ class ExpansionJointInput_UI(QDialog, Ui_Dialog):
                                                                                         - label_87: QLabel
                                                                                         - label_89: QLabel
                                                                                         - label_90: QLabel
-                                                                            - tab_table_values: QWidget
+                                                                            - tab_tabular_values: QWidget
                                                                                 - (Layout): QGridLayout
                                                                                         - pushButton_load_table_axial_stiffness: QPushButton
                                                                                         - lineEdit_path_table_axial_stiffness: QLineEdit
