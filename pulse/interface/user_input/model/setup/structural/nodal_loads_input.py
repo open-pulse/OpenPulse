@@ -621,6 +621,7 @@ class NodalLoadsInput(SetNodalLoadsInput_UI):
 
     def actions_to_finalize(self):
         app().project.file.write_nodal_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
         self.load_nodes_info()
         app().main_window.update_plots(reset_camera=False)
 

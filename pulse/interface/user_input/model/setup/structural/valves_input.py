@@ -398,6 +398,7 @@ class ValvesInput(ValveInput_UI):
     def actions_to_finalize(self):
 
         app().project.file.write_line_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
 
         # geometry_handler = GeometryHandler(app().project)
         # geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
