@@ -3,7 +3,7 @@ from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
 
 import numpy as np
-
+from numbers import Number
 
 DEFAULT_MATERIAL = Material(
     name="Steel",
@@ -154,7 +154,7 @@ class ModelProperties:
 
         data["values"] = tables_values
 
-        if isinstance(node_ids, int):
+        if isinstance(node_ids, Number):
             self.nodal_properties[property, node_ids] = data
 
         elif isinstance(node_ids, list | tuple) and len(node_ids) == 1:
@@ -171,7 +171,7 @@ class ModelProperties:
         if element_ids is None:
             return
         
-        elif isinstance(element_ids, int):
+        elif isinstance(element_ids, Number):
             element_ids = [element_ids]
 
         for element_id in element_ids:
@@ -185,7 +185,7 @@ class ModelProperties:
         if line_ids is None:
             return
         
-        elif isinstance(line_ids, int):
+        elif isinstance(line_ids, Number):
             line_ids = [line_ids]
 
         for line_id in line_ids:
@@ -202,7 +202,7 @@ class ModelProperties:
         if line_ids is None:
             return
         
-        elif isinstance(line_ids, int):
+        elif isinstance(line_ids, Number):
             line_ids = [line_ids]
 
         for line_id in line_ids:
@@ -221,7 +221,7 @@ class ModelProperties:
         If the any of this is defined returns None.
         """
 
-        if isinstance(node_ids, int):
+        if isinstance(node_ids, Number):
             if (property, node_ids) in self.nodal_properties:
                 return self.nodal_properties[property, node_ids]
 
@@ -298,7 +298,7 @@ class ModelProperties:
 
     def _remove_nodal_property(self, property: str, node_ids: int | list | tuple):
         """Remove a nodal property at specific nodal_id."""
-        if isinstance(node_ids, int):
+        if isinstance(node_ids, Number):
             key = (property, node_ids)
         elif isinstance(node_ids, list | tuple) and len(node_ids) == 1:
             key = (property, node_ids[0])
@@ -311,7 +311,7 @@ class ModelProperties:
 
     def _remove_element_property(self, property: str, element_ids: int | list):
         """Remove a element property at specific element_id."""
-        if isinstance(element_ids, int):
+        if isinstance(element_ids, Number):
             element_ids = [element_ids]
         for element_id in element_ids:
             key = (property, element_id)
@@ -320,7 +320,7 @@ class ModelProperties:
 
     def _remove_line_property(self, property: str, line_ids: int | list):
         """Remove a line property at specific line_id."""
-        if isinstance(line_ids, int):
+        if isinstance(line_ids, Number):
             line_ids = [line_ids]
         for line_id in line_ids:
             if line_id in self.line_properties.keys():
@@ -379,7 +379,7 @@ class ModelProperties:
         """
         """
         table_names = list()
-        if isinstance(node_ids, int):
+        if isinstance(node_ids, Number):
             test_key = (property, node_ids)
 
         elif isinstance(node_ids, list) and len(node_ids) == 2:
