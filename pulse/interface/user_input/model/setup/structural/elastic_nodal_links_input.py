@@ -6,7 +6,7 @@ from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.elastic_nodal_links_input_ui import ElasticNodalLinksInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.common import get_spectral_data_from_array, update_analysis_setup_in_file
+from pulse.interface.user_input.common import get_spectral_data_from_array, get_table_name, update_analysis_setup_in_file
 
 
 import os
@@ -418,13 +418,13 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         self.reset_nodes_input_fields()
         self.actions_to_finalize()
 
-    def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
+    def load_table(self, line_edit : QLineEdit, dof_label : str, direct_load = False):
 
         title = "Error while loading table"
 
         try:
             if direct_load:
-                path_imported_table = lineEdit.text()
+                path_imported_table = line_edit.text()
 
             else:
 
@@ -445,14 +445,14 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             if path_imported_table == "":
                 return None, None
 
-            lineEdit.setText(path_imported_table)         
+            line_edit.setText(path_imported_table)         
             imported_data = np.loadtxt(path_imported_table, delimiter=",")
         
             if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([error_title, title, message])
-                lineEdit.setFocus()
+                line_edit.setFocus()
                 return None, None
 
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
@@ -462,7 +462,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         except Exception as log_error:
             message = str(log_error)
             PrintMessageInput([error_title, title, message])
-            lineEdit.setFocus()
+            line_edit.setFocus()
             return None, None
 
     def load_Kx_table(self):
@@ -563,6 +563,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
         values = list()
         table_paths = list()
+
         for label in ["Kx", "Ky", "Kz", "Krx", "Kry", "Krz"]:
 
             table_path_name = f"{label}_table_path"
@@ -621,6 +622,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
         values = list()
         table_paths = list()
+
         for label in ["Cx", "Cy", "Cz", "Crx", "Cry", "Crz"]:
 
             table_path_name = f"{label}_table_path"
@@ -901,6 +903,3 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         self.keep_window_open = False
         app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
-    
-def get_table_name(_label: str, node_id: int):
-    return f"{_label}_node_{node_id}"
