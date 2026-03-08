@@ -526,5 +526,5 @@ def remove_files_from_temporary_folder():
 
 if __name__ == "__main__":
     import tempfile
-    with tempfile.TemporaryDirectory() as tmpdir:
-        test_coupled_harmonic_analysis(Path(tmpdir))
+    # with tempfile.TemporaryDirectory() as tmpdir:
+    #     test_coupled_harmonic_analysis(Path(tmpdir))
