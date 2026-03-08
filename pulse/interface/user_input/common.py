@@ -102,9 +102,6 @@ class CommonUserInputs(QDialog):
 
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", table_path)
 
-            print(imported_data)
-            print(table_path)
-
             return imported_data, table_path
 
         except Exception as log_error:
