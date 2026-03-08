@@ -35,7 +35,7 @@ class Ui_Dialog(object):
         Dialog.setMaximumSize(QSize(450, 500))
         Dialog.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
         icon = QIcon()
-        icon.addFile(u"../../../../../../../../../../../../../../../../../../../../../Downloads/load - Copia.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        icon.addFile(u"../../../../../../../../../Downloads/load - Copia.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         Dialog.setWindowIcon(icon)
         self.gridLayout_4 = QGridLayout(Dialog)
         self.gridLayout_4.setSpacing(4)
@@ -392,7 +392,7 @@ class Ui_Dialog(object):
         self.gridLayout_3.setContentsMargins(4, 4, 4, 2)
         self.lineEdit_path_table_ry = QLineEdit(self.frame_9)
         self.lineEdit_path_table_ry.setObjectName(u"lineEdit_path_table_ry")
-        self.lineEdit_path_table_ry.setEnabled(False)
+        self.lineEdit_path_table_ry.setEnabled(True)
         self.lineEdit_path_table_ry.setMinimumSize(QSize(210, 26))
         self.lineEdit_path_table_ry.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_ry.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -436,7 +436,7 @@ class Ui_Dialog(object):
 
         self.lineEdit_path_table_rz = QLineEdit(self.frame_9)
         self.lineEdit_path_table_rz.setObjectName(u"lineEdit_path_table_rz")
-        self.lineEdit_path_table_rz.setEnabled(False)
+        self.lineEdit_path_table_rz.setEnabled(True)
         self.lineEdit_path_table_rz.setMinimumSize(QSize(210, 26))
         self.lineEdit_path_table_rz.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_rz.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -445,7 +445,7 @@ class Ui_Dialog(object):
 
         self.lineEdit_path_table_uy = QLineEdit(self.frame_9)
         self.lineEdit_path_table_uy.setObjectName(u"lineEdit_path_table_uy")
-        self.lineEdit_path_table_uy.setEnabled(False)
+        self.lineEdit_path_table_uy.setEnabled(True)
         self.lineEdit_path_table_uy.setMinimumSize(QSize(210, 26))
         self.lineEdit_path_table_uy.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_uy.setStyleSheet(u"")
@@ -501,7 +501,7 @@ class Ui_Dialog(object):
 
         self.lineEdit_path_table_rx = QLineEdit(self.frame_9)
         self.lineEdit_path_table_rx.setObjectName(u"lineEdit_path_table_rx")
-        self.lineEdit_path_table_rx.setEnabled(False)
+        self.lineEdit_path_table_rx.setEnabled(True)
         self.lineEdit_path_table_rx.setMinimumSize(QSize(210, 26))
         self.lineEdit_path_table_rx.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_rx.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -520,7 +520,7 @@ class Ui_Dialog(object):
 
         self.lineEdit_path_table_uz = QLineEdit(self.frame_9)
         self.lineEdit_path_table_uz.setObjectName(u"lineEdit_path_table_uz")
-        self.lineEdit_path_table_uz.setEnabled(False)
+        self.lineEdit_path_table_uz.setEnabled(True)
         self.lineEdit_path_table_uz.setMinimumSize(QSize(210, 26))
         self.lineEdit_path_table_uz.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_uz.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -551,7 +551,7 @@ class Ui_Dialog(object):
 
         self.lineEdit_path_table_ux = QLineEdit(self.frame_9)
         self.lineEdit_path_table_ux.setObjectName(u"lineEdit_path_table_ux")
-        self.lineEdit_path_table_ux.setEnabled(False)
+        self.lineEdit_path_table_ux.setEnabled(True)
         self.lineEdit_path_table_ux.setMinimumSize(QSize(210, 26))
         self.lineEdit_path_table_ux.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_ux.setStyleSheet(u"")
