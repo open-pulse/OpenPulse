@@ -45,3 +45,7 @@ def update_analysis_setup_in_file(frequencies: np.ndarray):
 
     app().project.model.set_analysis_setup(analysis_setup)
     app().project.file.write_analysis_setup_in_file(analysis_setup)
+
+
+def get_table_name(_label: str, node_id: int):
+    return f"{_label}_node_{node_id}"

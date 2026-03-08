@@ -7,10 +7,8 @@ from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_u
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.common import get_spectral_data_from_array, get_table_name, update_analysis_setup_in_file
 from pulse.model.cross_section import CrossSection
-
-from pulse.interface.user_input.common import get_spectral_data_from_array, update_analysis_setup_in_file
-
 
 import numpy as np
 from pathlib import Path
@@ -848,7 +846,3 @@ def get_cross_sections_to_plot_expansion_joint(joint_elements: list, effective_d
         cross_sections.append(cross)
 
     return cross_sections
-
-
-def get_table_name(stiffness_label: str, line_id: int):
-    return f"expansion_joint_{stiffness_label}_line_{line_id}"
