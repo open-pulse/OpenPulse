@@ -158,13 +158,6 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
                         self.lineEdit_impedance_real.setText(str(np.real(dim_impedance)))
                         self.lineEdit_impedance_imag.setText(str(np.imag(dim_impedance)))
 
-    def _config_widgets(self):
-        #
-        for i, w in enumerate([120, 160]):
-            self.treeWidget_elements_info.setColumnWidth(i, w)
-
-        self.update_checkboxes()
-
     def update_valve_line_id(self):
 
         if self.valve_element_ids:
@@ -871,7 +864,10 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close.clicked.connect(self.close)
 
     def _config_widgets(self):
-        pass
+        for i, w in enumerate([120, 160]):
+            self.treeWidget_elements_info.setColumnWidth(i, w)
+
+        self.update_checkboxes()
 
     def load_group_info(self, element_id: int, pp_data: dict):
 

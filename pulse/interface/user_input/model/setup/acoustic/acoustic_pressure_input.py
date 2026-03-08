@@ -46,7 +46,7 @@ class AcousticPressureInput(AcousticPressureInput_UI):
         self.setWindowTitle("OpenPulse")
 
     def _config_widgets(self):
-        for i, width in enumerate([20, 80]):
+        for i, width in enumerate([120]):
             self.treeWidget_nodal_info.setColumnWidth(i, width)
 
     def _create_connections(self):

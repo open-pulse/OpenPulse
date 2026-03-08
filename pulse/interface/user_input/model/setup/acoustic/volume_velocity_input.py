@@ -24,7 +24,7 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
 
         self._initialize()
         self._config_window()
-        self._define_qt_variables()
+        self._config_widgets()
         self._create_connections()
 
         self.selection_callback()
@@ -50,9 +50,9 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
-    def _define_qt_variables(self):
-        self.treeWidget_nodal_info.setColumnWidth(1, 20)
-        self.treeWidget_nodal_info.setColumnWidth(2, 80)
+    def _config_widgets(self):
+        for i, width in enumerate([120]):
+            self.treeWidget_nodal_info.setColumnWidth(i, width)
 
     def _create_connections(self):
         #

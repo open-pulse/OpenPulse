@@ -7,7 +7,6 @@ from pulse.model import RadiationImpedanceType
 from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import RadiationImpedanceInput_UI
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-
 import numpy as np
 
 
@@ -40,7 +39,7 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
         self.setWindowTitle("OpenPulse")
 
     def _config_widgets(self):
-        for i, width in enumerate([20, 80]):
+        for i, width in enumerate([120]):
             self.treeWidget_nodal_info.setColumnWidth(i, width)
 
     def _create_connections(self):
@@ -94,22 +93,24 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
 
         for (property, *args), data in self.properties.nodal_properties.items():
 
+            if property != "radiation_impedance":
+                continue
+
             if not isinstance(data, dict):
                 continue
 
-            if property == "radiation_impedance":
-                impedance_type = data.get("impedance_type")
-                if impedance_type is None:
-                    continue
+            impedance_type = data.get("impedance_type")
+            if impedance_type is None:
+                continue
 
-                if isinstance(impedance_type, str):
-                    impedance_text = self.get_radiation_type_text(impedance_type)
-                    impedance_text = impedance_text.capitalize()
+            if isinstance(impedance_type, int):
+                impedance_text = self.get_radiation_type_text(impedance_type)
+                impedance_text = impedance_text.capitalize()
 
-                    new = QTreeWidgetItem([str(args[0]), impedance_text])
-                    new.setTextAlignment(0, Qt.AlignCenter)
-                    new.setTextAlignment(1, Qt.AlignCenter)
-                    self.treeWidget_nodal_info.addTopLevelItem(new)
+                new = QTreeWidgetItem([str(args[0]), impedance_text])
+                new.setTextAlignment(0, Qt.AlignCenter)
+                new.setTextAlignment(1, Qt.AlignCenter)
+                self.treeWidget_nodal_info.addTopLevelItem(new)
 
         self.update_tabs_visibility()
 
