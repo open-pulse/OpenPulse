@@ -29,7 +29,7 @@ def create_lumped_dumper():
     )
 
 def create_compressor_discharge():
-    polydata = read_obj_file(SYMBOLS_DIR / "structural/compressor_discharge.obj")
+    polydata = read_obj_file(SYMBOLS_DIR / "acoustic/compressor_discharge.obj")
 
     return transform_polydata(
         polydata,
@@ -37,7 +37,7 @@ def create_compressor_discharge():
     )
 
 def create_compressor_suction():
-    polydata = read_obj_file(SYMBOLS_DIR / "structural/compressor_discharge.obj")
+    polydata = read_obj_file(SYMBOLS_DIR / "acoustic/compressor_discharge.obj")
 
     return transform_polydata(
         polydata,
