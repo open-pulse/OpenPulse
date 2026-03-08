@@ -429,15 +429,15 @@ class Ui_Dialog(object):
 
         self.gridLayout_3.addWidget(self.label_Uy_table, 1, 1, 1, 1)
 
-        self.lineEdit_path_table_fz = QLineEdit(self.frame_9)
-        self.lineEdit_path_table_fz.setObjectName(u"lineEdit_path_table_fz")
-        self.lineEdit_path_table_fz.setEnabled(True)
-        self.lineEdit_path_table_fz.setMinimumSize(QSize(240, 26))
-        self.lineEdit_path_table_fz.setMaximumSize(QSize(240, 26))
-        self.lineEdit_path_table_fz.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_path_table_fz.setClearButtonEnabled(True)
+        self.lineEdit_fz_table_path = QLineEdit(self.frame_9)
+        self.lineEdit_fz_table_path.setObjectName(u"lineEdit_fz_table_path")
+        self.lineEdit_fz_table_path.setEnabled(True)
+        self.lineEdit_fz_table_path.setMinimumSize(QSize(240, 26))
+        self.lineEdit_fz_table_path.setMaximumSize(QSize(240, 26))
+        self.lineEdit_fz_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_fz_table_path.setClearButtonEnabled(True)
 
-        self.gridLayout_3.addWidget(self.lineEdit_path_table_fz, 2, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.lineEdit_fz_table_path, 2, 2, 1, 1)
 
         self.pushButton_load_mz_table = QPushButton(self.frame_9)
         self.pushButton_load_mz_table.setObjectName(u"pushButton_load_mz_table")
@@ -454,16 +454,16 @@ class Ui_Dialog(object):
 
         self.gridLayout_3.addWidget(self.pushButton_load_mz_table, 5, 3, 1, 1)
 
-        self.lineEdit_path_table_fx = QLineEdit(self.frame_9)
-        self.lineEdit_path_table_fx.setObjectName(u"lineEdit_path_table_fx")
-        self.lineEdit_path_table_fx.setEnabled(True)
-        self.lineEdit_path_table_fx.setMinimumSize(QSize(240, 26))
-        self.lineEdit_path_table_fx.setMaximumSize(QSize(240, 26))
-        self.lineEdit_path_table_fx.setStyleSheet(u"")
-        self.lineEdit_path_table_fx.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_path_table_fx.setClearButtonEnabled(True)
+        self.lineEdit_fx_table_path = QLineEdit(self.frame_9)
+        self.lineEdit_fx_table_path.setObjectName(u"lineEdit_fx_table_path")
+        self.lineEdit_fx_table_path.setEnabled(True)
+        self.lineEdit_fx_table_path.setMinimumSize(QSize(240, 26))
+        self.lineEdit_fx_table_path.setMaximumSize(QSize(240, 26))
+        self.lineEdit_fx_table_path.setStyleSheet(u"")
+        self.lineEdit_fx_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_fx_table_path.setClearButtonEnabled(True)
 
-        self.gridLayout_3.addWidget(self.lineEdit_path_table_fx, 0, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.lineEdit_fx_table_path, 0, 2, 1, 1)
 
         self.pushButton_load_fx_table = QPushButton(self.frame_9)
         self.pushButton_load_fx_table.setObjectName(u"pushButton_load_fx_table")
@@ -487,27 +487,27 @@ class Ui_Dialog(object):
 
         self.gridLayout_3.addWidget(self.label_Uz_table, 2, 1, 1, 1)
 
-        self.lineEdit_path_table_mz = QLineEdit(self.frame_9)
-        self.lineEdit_path_table_mz.setObjectName(u"lineEdit_path_table_mz")
-        self.lineEdit_path_table_mz.setEnabled(True)
-        self.lineEdit_path_table_mz.setMinimumSize(QSize(240, 26))
-        self.lineEdit_path_table_mz.setMaximumSize(QSize(240, 26))
-        self.lineEdit_path_table_mz.setStyleSheet(u"")
-        self.lineEdit_path_table_mz.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_path_table_mz.setClearButtonEnabled(True)
+        self.lineEdit_mz_table_path = QLineEdit(self.frame_9)
+        self.lineEdit_mz_table_path.setObjectName(u"lineEdit_mz_table_path")
+        self.lineEdit_mz_table_path.setEnabled(True)
+        self.lineEdit_mz_table_path.setMinimumSize(QSize(240, 26))
+        self.lineEdit_mz_table_path.setMaximumSize(QSize(240, 26))
+        self.lineEdit_mz_table_path.setStyleSheet(u"")
+        self.lineEdit_mz_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_mz_table_path.setClearButtonEnabled(True)
 
-        self.gridLayout_3.addWidget(self.lineEdit_path_table_mz, 5, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.lineEdit_mz_table_path, 5, 2, 1, 1)
 
-        self.lineEdit_path_table_fy = QLineEdit(self.frame_9)
-        self.lineEdit_path_table_fy.setObjectName(u"lineEdit_path_table_fy")
-        self.lineEdit_path_table_fy.setEnabled(True)
-        self.lineEdit_path_table_fy.setMinimumSize(QSize(240, 26))
-        self.lineEdit_path_table_fy.setMaximumSize(QSize(240, 26))
-        self.lineEdit_path_table_fy.setStyleSheet(u"")
-        self.lineEdit_path_table_fy.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_path_table_fy.setClearButtonEnabled(True)
+        self.lineEdit_fy_table_path = QLineEdit(self.frame_9)
+        self.lineEdit_fy_table_path.setObjectName(u"lineEdit_fy_table_path")
+        self.lineEdit_fy_table_path.setEnabled(True)
+        self.lineEdit_fy_table_path.setMinimumSize(QSize(240, 26))
+        self.lineEdit_fy_table_path.setMaximumSize(QSize(240, 26))
+        self.lineEdit_fy_table_path.setStyleSheet(u"")
+        self.lineEdit_fy_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_fy_table_path.setClearButtonEnabled(True)
 
-        self.gridLayout_3.addWidget(self.lineEdit_path_table_fy, 1, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.lineEdit_fy_table_path, 1, 2, 1, 1)
 
         self.pushButton_load_fz_table = QPushButton(self.frame_9)
         self.pushButton_load_fz_table.setObjectName(u"pushButton_load_fz_table")
@@ -553,15 +553,15 @@ class Ui_Dialog(object):
 
         self.gridLayout_3.addWidget(self.label_Rx_table, 3, 1, 1, 1)
 
-        self.lineEdit_path_table_mx = QLineEdit(self.frame_9)
-        self.lineEdit_path_table_mx.setObjectName(u"lineEdit_path_table_mx")
-        self.lineEdit_path_table_mx.setEnabled(True)
-        self.lineEdit_path_table_mx.setMinimumSize(QSize(240, 26))
-        self.lineEdit_path_table_mx.setMaximumSize(QSize(240, 26))
-        self.lineEdit_path_table_mx.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_path_table_mx.setClearButtonEnabled(True)
+        self.lineEdit_mx_table_path = QLineEdit(self.frame_9)
+        self.lineEdit_mx_table_path.setObjectName(u"lineEdit_mx_table_path")
+        self.lineEdit_mx_table_path.setEnabled(True)
+        self.lineEdit_mx_table_path.setMinimumSize(QSize(240, 26))
+        self.lineEdit_mx_table_path.setMaximumSize(QSize(240, 26))
+        self.lineEdit_mx_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_mx_table_path.setClearButtonEnabled(True)
 
-        self.gridLayout_3.addWidget(self.lineEdit_path_table_mx, 3, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.lineEdit_mx_table_path, 3, 2, 1, 1)
 
         self.pushButton_load_mx_table = QPushButton(self.frame_9)
         self.pushButton_load_mx_table.setObjectName(u"pushButton_load_mx_table")
@@ -597,15 +597,15 @@ class Ui_Dialog(object):
 
         self.gridLayout_3.addWidget(self.label_Ry_table, 4, 1, 1, 1)
 
-        self.lineEdit_path_table_my = QLineEdit(self.frame_9)
-        self.lineEdit_path_table_my.setObjectName(u"lineEdit_path_table_my")
-        self.lineEdit_path_table_my.setEnabled(True)
-        self.lineEdit_path_table_my.setMinimumSize(QSize(240, 26))
-        self.lineEdit_path_table_my.setMaximumSize(QSize(240, 26))
-        self.lineEdit_path_table_my.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_path_table_my.setClearButtonEnabled(True)
+        self.lineEdit_my_table_path = QLineEdit(self.frame_9)
+        self.lineEdit_my_table_path.setObjectName(u"lineEdit_my_table_path")
+        self.lineEdit_my_table_path.setEnabled(True)
+        self.lineEdit_my_table_path.setMinimumSize(QSize(240, 26))
+        self.lineEdit_my_table_path.setMaximumSize(QSize(240, 26))
+        self.lineEdit_my_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_my_table_path.setClearButtonEnabled(True)
 
-        self.gridLayout_3.addWidget(self.lineEdit_path_table_my, 4, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.lineEdit_my_table_path, 4, 2, 1, 1)
 
         self.label_Rz_table = QLabel(self.frame_9)
         self.label_Rz_table.setObjectName(u"label_Rz_table")
@@ -798,18 +798,18 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.lineEdit_real_mz, self.lineEdit_imag_mz)
         QWidget.setTabOrder(self.lineEdit_imag_mz, self.pushButton_constant_value_confirm)
         QWidget.setTabOrder(self.pushButton_constant_value_confirm, self.pushButton_exit_tab0)
-        QWidget.setTabOrder(self.pushButton_exit_tab0, self.lineEdit_path_table_fx)
-        QWidget.setTabOrder(self.lineEdit_path_table_fx, self.pushButton_load_fx_table)
-        QWidget.setTabOrder(self.pushButton_load_fx_table, self.lineEdit_path_table_fy)
-        QWidget.setTabOrder(self.lineEdit_path_table_fy, self.pushButton_load_fy_table)
-        QWidget.setTabOrder(self.pushButton_load_fy_table, self.lineEdit_path_table_fz)
-        QWidget.setTabOrder(self.lineEdit_path_table_fz, self.pushButton_load_fz_table)
-        QWidget.setTabOrder(self.pushButton_load_fz_table, self.lineEdit_path_table_mx)
-        QWidget.setTabOrder(self.lineEdit_path_table_mx, self.pushButton_load_mx_table)
-        QWidget.setTabOrder(self.pushButton_load_mx_table, self.lineEdit_path_table_my)
-        QWidget.setTabOrder(self.lineEdit_path_table_my, self.pushButton_load_my_table)
-        QWidget.setTabOrder(self.pushButton_load_my_table, self.lineEdit_path_table_mz)
-        QWidget.setTabOrder(self.lineEdit_path_table_mz, self.pushButton_load_mz_table)
+        QWidget.setTabOrder(self.pushButton_exit_tab0, self.lineEdit_fx_table_path)
+        QWidget.setTabOrder(self.lineEdit_fx_table_path, self.pushButton_load_fx_table)
+        QWidget.setTabOrder(self.pushButton_load_fx_table, self.lineEdit_fy_table_path)
+        QWidget.setTabOrder(self.lineEdit_fy_table_path, self.pushButton_load_fy_table)
+        QWidget.setTabOrder(self.pushButton_load_fy_table, self.lineEdit_fz_table_path)
+        QWidget.setTabOrder(self.lineEdit_fz_table_path, self.pushButton_load_fz_table)
+        QWidget.setTabOrder(self.pushButton_load_fz_table, self.lineEdit_mx_table_path)
+        QWidget.setTabOrder(self.lineEdit_mx_table_path, self.pushButton_load_mx_table)
+        QWidget.setTabOrder(self.pushButton_load_mx_table, self.lineEdit_my_table_path)
+        QWidget.setTabOrder(self.lineEdit_my_table_path, self.pushButton_load_my_table)
+        QWidget.setTabOrder(self.pushButton_load_my_table, self.lineEdit_mz_table_path)
+        QWidget.setTabOrder(self.lineEdit_mz_table_path, self.pushButton_load_mz_table)
         QWidget.setTabOrder(self.pushButton_load_mz_table, self.pushButton_table_values_confirm)
         QWidget.setTabOrder(self.pushButton_table_values_confirm, self.pushButton_exit_tab1)
         QWidget.setTabOrder(self.pushButton_exit_tab1, self.treeWidget_nodal_info)
@@ -929,22 +929,22 @@ class NodalLoadsInput_UI(QDialog, Ui_Dialog):
                                             - frame_9: QFrame
                                                 - (Layout): QGridLayout
                                                         - label_Uy_table: QLabel
-                                                        - lineEdit_path_table_fz: QLineEdit
+                                                        - lineEdit_fz_table_path: QLineEdit
                                                         - pushButton_load_mz_table: QPushButton
-                                                        - lineEdit_path_table_fx: QLineEdit
+                                                        - lineEdit_fx_table_path: QLineEdit
                                                         - pushButton_load_fx_table: QPushButton
                                                         - label_Uz_table: QLabel
-                                                        - lineEdit_path_table_mz: QLineEdit
-                                                        - lineEdit_path_table_fy: QLineEdit
+                                                        - lineEdit_mz_table_path: QLineEdit
+                                                        - lineEdit_fy_table_path: QLineEdit
                                                         - pushButton_load_fz_table: QPushButton
                                                         - pushButton_load_fy_table: QPushButton
                                                         - label_Ux_table: QLabel
                                                         - label_Rx_table: QLabel
-                                                        - lineEdit_path_table_mx: QLineEdit
+                                                        - lineEdit_mx_table_path: QLineEdit
                                                         - pushButton_load_mx_table: QPushButton
                                                         - pushButton_load_my_table: QPushButton
                                                         - label_Ry_table: QLabel
-                                                        - lineEdit_path_table_my: QLineEdit
+                                                        - lineEdit_my_table_path: QLineEdit
                                                         - label_Rz_table: QLabel
                                 - tab_remove: QWidget
                                     - (Layout): QGridLayout

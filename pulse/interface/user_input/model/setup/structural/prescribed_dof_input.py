@@ -123,12 +123,12 @@ class PrescribedDofInput(PrescribedDofInput_UI):
             ]
 
         self.list_lineEdit_table_values = [ 
-            self.lineEdit_path_table_ux,
-            self.lineEdit_path_table_uy,
-            self.lineEdit_path_table_uz,
-            self.lineEdit_path_table_rx,
-            self.lineEdit_path_table_ry,
-            self.lineEdit_path_table_rz,
+            self.lineEdit_ux_table_path,
+            self.lineEdit_uy_table_path,
+            self.lineEdit_uz_table_path,
+            self.lineEdit_rx_table_path,
+            self.lineEdit_ry_table_path,
+            self.lineEdit_rz_table_path,
             ]
 
     def _config_widgets(self):
@@ -329,34 +329,34 @@ class PrescribedDofInput(PrescribedDofInput_UI):
         app().main_window.update_plots(reset_camera=False) 
 
     def load_ux_table(self):
-        self.imported_ux_values, self.ux_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_ux, "prescribed dof", dof_label="Ux")
+        self.imported_ux_values, self.ux_table_path = CommonUserInputs().load_table(self.lineEdit_ux_table_path, "prescribed dof", dof_label="Ux")
         if self.ux_table_path is None:
-            self.lineEdit_reset(self.lineEdit_path_table_ux)
+            self.lineEdit_reset(self.lineEdit_ux_table_path)
 
     def load_uy_table(self):
-        self.imported_uy_values, self.uy_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_uy, "prescribed dof", dof_label="Uy")
+        self.imported_uy_values, self.uy_table_path = CommonUserInputs().load_table(self.lineEdit_uy_table_path, "prescribed dof", dof_label="Uy")
         if self.uy_table_path is None:
-            self.lineEdit_reset(self.lineEdit_path_table_uy)
+            self.lineEdit_reset(self.lineEdit_uy_table_path)
 
     def load_uz_table(self):
-        self.imported_uz_values, self.uz_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_uz, "prescribed dof", dof_label="Uz")
+        self.imported_uz_values, self.uz_table_path = CommonUserInputs().load_table(self.lineEdit_uz_table_path, "prescribed dof", dof_label="Uz")
         if self.uz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_path_table_uz)
+            self.lineEdit_reset(self.lineEdit_uz_table_path)
 
     def load_rx_table(self):
-        self.imported_rx_values, self.rx_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_rx, "prescribed dof", dof_label="Rx")
+        self.imported_rx_values, self.rx_table_path = CommonUserInputs().load_table(self.lineEdit_rx_table_path, "prescribed dof", dof_label="Rx")
         if self.rx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_path_table_rx)
+            self.lineEdit_reset(self.lineEdit_rx_table_path)
 
     def load_ry_table(self):
-        self.imported_ry_values, self.ry_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_ry, "prescribed dof", dof_label="Ry")
+        self.imported_ry_values, self.ry_table_path = CommonUserInputs().load_table(self.lineEdit_ry_table_path, "prescribed dof", dof_label="Ry")
         if self.ry_table_path is None:
-            self.lineEdit_reset(self.lineEdit_path_table_ry)
+            self.lineEdit_reset(self.lineEdit_ry_table_path)
             
     def load_rz_table(self):
-        self.imported_rz_values, self.rz_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_rz, "prescribed dof", dof_label="Rz")
+        self.imported_rz_values, self.rz_table_path = CommonUserInputs().load_table(self.lineEdit_rz_table_path, "prescribed dof", dof_label="Rz")
         if self.rz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_path_table_rz)
+            self.lineEdit_reset(self.lineEdit_rz_table_path)
 
     def lineEdit_reset(self, lineEdit : QLineEdit):
         lineEdit.setText("")
@@ -460,7 +460,7 @@ class PrescribedDofInput(PrescribedDofInput_UI):
             _imported_values = getattr(self, imported_values_name)
 
             if _imported_values is None:
-                line_edit = getattr(self, f"lineEdit_path_table_{label}")
+                line_edit = getattr(self, f"lineEdit_{label}_table_path")
 
                 _imported_values, _table_path = CommonUserInputs().load_table(line_edit, "prescribed dof", dof_label=label.capitalize(), direct_load = True)
                 setattr(self, imported_values_name, _imported_values)

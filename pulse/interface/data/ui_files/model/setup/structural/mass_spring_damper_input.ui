@@ -2444,7 +2444,7 @@
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Jx">
+                      <widget class="QLineEdit" name="lineEdit_Jx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2519,7 +2519,7 @@
                       </widget>
                      </item>
                      <item row="4" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Jy">
+                      <widget class="QLineEdit" name="lineEdit_Jy_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2630,7 +2630,7 @@
                       </widget>
                      </item>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Mx">
+                      <widget class="QLineEdit" name="lineEdit_Mx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2669,7 +2669,7 @@
                       </widget>
                      </item>
                      <item row="5" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Jz">
+                      <widget class="QLineEdit" name="lineEdit_Jz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2741,7 +2741,7 @@
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_My">
+                      <widget class="QLineEdit" name="lineEdit_My_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2780,7 +2780,7 @@
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Mz">
+                      <widget class="QLineEdit" name="lineEdit_Mz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2920,7 +2920,7 @@
                       <number>4</number>
                      </property>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Kx">
+                      <widget class="QLineEdit" name="lineEdit_Kx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3100,7 +3100,7 @@
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Kz">
+                      <widget class="QLineEdit" name="lineEdit_Kz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3208,7 +3208,7 @@
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Ky">
+                      <widget class="QLineEdit" name="lineEdit_Ky_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3382,7 +3382,7 @@
                       </widget>
                      </item>
                      <item row="5" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Krz">
+                      <widget class="QLineEdit" name="lineEdit_Krz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3490,7 +3490,7 @@
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Krx">
+                      <widget class="QLineEdit" name="lineEdit_Krx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3529,7 +3529,7 @@
                       </widget>
                      </item>
                      <item row="4" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Kry">
+                      <widget class="QLineEdit" name="lineEdit_Kry_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3659,7 +3659,7 @@
                       </widget>
                      </item>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Cx">
+                      <widget class="QLineEdit" name="lineEdit_Cx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3800,7 +3800,7 @@
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Cy">
+                      <widget class="QLineEdit" name="lineEdit_Cy_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3875,7 +3875,7 @@
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Cz">
+                      <widget class="QLineEdit" name="lineEdit_Cz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -4019,7 +4019,7 @@
                       </widget>
                      </item>
                      <item row="4" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Cry">
+                      <widget class="QLineEdit" name="lineEdit_Cry_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -4091,7 +4091,7 @@
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Crx">
+                      <widget class="QLineEdit" name="lineEdit_Crx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -4235,7 +4235,7 @@
                       </widget>
                      </item>
                      <item row="5" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Crz">
+                      <widget class="QLineEdit" name="lineEdit_Crz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -4878,41 +4878,41 @@
   <tabstop>lineEdit_Crx</tabstop>
   <tabstop>lineEdit_Cry</tabstop>
   <tabstop>lineEdit_Crz</tabstop>
-  <tabstop>lineEdit_path_table_Mx</tabstop>
+  <tabstop>lineEdit_Mx_table_path</tabstop>
   <tabstop>pushButton_load_Mx_table</tabstop>
-  <tabstop>lineEdit_path_table_My</tabstop>
+  <tabstop>lineEdit_My_table_path</tabstop>
   <tabstop>pushButton_load_My_table</tabstop>
-  <tabstop>lineEdit_path_table_Mz</tabstop>
+  <tabstop>lineEdit_Mz_table_path</tabstop>
   <tabstop>pushButton_load_Mz_table</tabstop>
-  <tabstop>lineEdit_path_table_Jx</tabstop>
+  <tabstop>lineEdit_Jx_table_path</tabstop>
   <tabstop>pushButton_load_Jx_table</tabstop>
-  <tabstop>lineEdit_path_table_Jy</tabstop>
+  <tabstop>lineEdit_Jy_table_path</tabstop>
   <tabstop>pushButton_load_Jy_table</tabstop>
-  <tabstop>lineEdit_path_table_Jz</tabstop>
+  <tabstop>lineEdit_Jz_table_path</tabstop>
   <tabstop>pushButton_load_Jz_table</tabstop>
-  <tabstop>lineEdit_path_table_Kx</tabstop>
+  <tabstop>lineEdit_Kx_table_path</tabstop>
   <tabstop>pushButton_load_Kx_table</tabstop>
-  <tabstop>lineEdit_path_table_Ky</tabstop>
+  <tabstop>lineEdit_Ky_table_path</tabstop>
   <tabstop>pushButton_load_Ky_table</tabstop>
-  <tabstop>lineEdit_path_table_Kz</tabstop>
+  <tabstop>lineEdit_Kz_table_path</tabstop>
   <tabstop>pushButton_load_Kz_table</tabstop>
-  <tabstop>lineEdit_path_table_Krx</tabstop>
+  <tabstop>lineEdit_Krx_table_path</tabstop>
   <tabstop>pushButton_load_Krx_table</tabstop>
-  <tabstop>lineEdit_path_table_Kry</tabstop>
+  <tabstop>lineEdit_Kry_table_path</tabstop>
   <tabstop>pushButton_load_Kry_table</tabstop>
-  <tabstop>lineEdit_path_table_Krz</tabstop>
+  <tabstop>lineEdit_Krz_table_path</tabstop>
   <tabstop>pushButton_load_Krz_table</tabstop>
-  <tabstop>lineEdit_path_table_Cx</tabstop>
+  <tabstop>lineEdit_Cx_table_path</tabstop>
   <tabstop>pushButton_load_Cx_table</tabstop>
-  <tabstop>lineEdit_path_table_Cy</tabstop>
+  <tabstop>lineEdit_Cy_table_path</tabstop>
   <tabstop>pushButton_load_Cy_table</tabstop>
-  <tabstop>lineEdit_path_table_Cz</tabstop>
+  <tabstop>lineEdit_Cz_table_path</tabstop>
   <tabstop>pushButton_load_Cz_table</tabstop>
-  <tabstop>lineEdit_path_table_Crx</tabstop>
+  <tabstop>lineEdit_Crx_table_path</tabstop>
   <tabstop>pushButton_load_Crx_table</tabstop>
-  <tabstop>lineEdit_path_table_Cry</tabstop>
+  <tabstop>lineEdit_Cry_table_path</tabstop>
   <tabstop>pushButton_load_Cry_table</tabstop>
-  <tabstop>lineEdit_path_table_Crz</tabstop>
+  <tabstop>lineEdit_Crz_table_path</tabstop>
   <tabstop>pushButton_load_Crz_table</tabstop>
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>pushButton_exit</tabstop>

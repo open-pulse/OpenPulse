@@ -1203,7 +1203,7 @@
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_fz">
+              <widget class="QLineEdit" name="lineEdit_fz_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1264,7 +1264,7 @@
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_fx">
+              <widget class="QLineEdit" name="lineEdit_fx_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1358,7 +1358,7 @@
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_mz">
+              <widget class="QLineEdit" name="lineEdit_mz_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1386,7 +1386,7 @@
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_fy">
+              <widget class="QLineEdit" name="lineEdit_fy_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1546,7 +1546,7 @@
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_mx">
+              <widget class="QLineEdit" name="lineEdit_mx_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1673,7 +1673,7 @@
               </widget>
              </item>
              <item row="4" column="2">
-              <widget class="QLineEdit" name="lineEdit_path_table_my">
+              <widget class="QLineEdit" name="lineEdit_my_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -2194,17 +2194,17 @@
   <tabstop>lineEdit_imag_mz</tabstop>
   <tabstop>pushButton_constant_value_confirm</tabstop>
   <tabstop>pushButton_exit_tab0</tabstop>
-  <tabstop>lineEdit_path_table_fx</tabstop>
+  <tabstop>lineEdit_fx_table_path</tabstop>
   <tabstop>pushButton_load_fx_table</tabstop>
-  <tabstop>lineEdit_path_table_fy</tabstop>
+  <tabstop>lineEdit_fy_table_path</tabstop>
   <tabstop>pushButton_load_fy_table</tabstop>
-  <tabstop>lineEdit_path_table_fz</tabstop>
+  <tabstop>lineEdit_fz_table_path</tabstop>
   <tabstop>pushButton_load_fz_table</tabstop>
-  <tabstop>lineEdit_path_table_mx</tabstop>
+  <tabstop>lineEdit_mx_table_path</tabstop>
   <tabstop>pushButton_load_mx_table</tabstop>
-  <tabstop>lineEdit_path_table_my</tabstop>
+  <tabstop>lineEdit_my_table_path</tabstop>
   <tabstop>pushButton_load_my_table</tabstop>
-  <tabstop>lineEdit_path_table_mz</tabstop>
+  <tabstop>lineEdit_mz_table_path</tabstop>
   <tabstop>pushButton_load_mz_table</tabstop>
   <tabstop>pushButton_table_values_confirm</tabstop>
   <tabstop>pushButton_exit_tab1</tabstop>

@@ -1082,7 +1082,7 @@
               <number>7</number>
              </property>
              <item row="4" column="1">
-              <widget class="QLineEdit" name="lineEdit_path_table_ry">
+              <widget class="QLineEdit" name="lineEdit_ry_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1203,7 +1203,7 @@
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QLineEdit" name="lineEdit_path_table_rz">
+              <widget class="QLineEdit" name="lineEdit_rz_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1228,7 +1228,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEdit_path_table_uy">
+              <widget class="QLineEdit" name="lineEdit_uy_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1394,7 +1394,7 @@
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QLineEdit" name="lineEdit_path_table_rx">
+              <widget class="QLineEdit" name="lineEdit_rx_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1449,7 +1449,7 @@
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLineEdit" name="lineEdit_path_table_uz">
+              <widget class="QLineEdit" name="lineEdit_uz_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1540,7 +1540,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEdit_path_table_ux">
+              <widget class="QLineEdit" name="lineEdit_ux_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -2312,17 +2312,17 @@
   <tabstop>lineEdit_imag_rz</tabstop>
   <tabstop>comboBox_linear_data_type</tabstop>
   <tabstop>comboBox_angular_data_type</tabstop>
-  <tabstop>lineEdit_path_table_ux</tabstop>
+  <tabstop>lineEdit_ux_table_path</tabstop>
   <tabstop>pushButton_load_ux_table</tabstop>
-  <tabstop>lineEdit_path_table_uy</tabstop>
+  <tabstop>lineEdit_uy_table_path</tabstop>
   <tabstop>pushButton_load_uy_table</tabstop>
-  <tabstop>lineEdit_path_table_uz</tabstop>
+  <tabstop>lineEdit_uz_table_path</tabstop>
   <tabstop>pushButton_load_uz_table</tabstop>
-  <tabstop>lineEdit_path_table_rx</tabstop>
+  <tabstop>lineEdit_rx_table_path</tabstop>
   <tabstop>pushButton_load_rx_table</tabstop>
-  <tabstop>lineEdit_path_table_ry</tabstop>
+  <tabstop>lineEdit_ry_table_path</tabstop>
   <tabstop>pushButton_load_ry_table</tabstop>
-  <tabstop>lineEdit_path_table_rz</tabstop>
+  <tabstop>lineEdit_rz_table_path</tabstop>
   <tabstop>pushButton_load_rz_table</tabstop>
   <tabstop>treeWidget_nodal_info</tabstop>
   <tabstop>pushButton_reset</tabstop>
