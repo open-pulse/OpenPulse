@@ -760,7 +760,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             self.parameters['points_per_revolution'] = self.compressor.number_points
             self.compressor.process_state_properties_in_SI_units(self.parameters)
 
-            freq, flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
+            freq, flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
 
             vv_data = np.array([freq, np.real(flow_rate), np.imag(flow_rate)]).T
             table_name = f"compressor_excitation_{connection_type}_node_{node_id}"
