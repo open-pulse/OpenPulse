@@ -3,11 +3,11 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.structural.prescribed_dofs_input_ui import PrescribedDofsInput_UI
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.common import get_spectral_data_from_array, get_table_name, update_analysis_setup_in_file
+from pulse.interface.ui_generated.model.setup.structural.prescribed_dof_input_ui import PrescribedDofInput_UI
 
 
 import os
@@ -31,7 +31,7 @@ class TabType(IntEnum):
     LIST = 2
 
 
-class PrescribedDofsInput(PrescribedDofsInput_UI):
+class PrescribedDofInput(PrescribedDofInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app().main_window.set_input_widget(self)

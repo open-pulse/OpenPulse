@@ -128,7 +128,7 @@ class ModelSetupItems(CommonMenuItems):
 
     def item_child_set_prescribed_dof_callback(self):
         self.configure_render_according_to_inputs("nodes")
-        app().main_window.input_ui.set_prescribed_dofs()
+        app().main_window.input_ui.set_prescribed_dof()
         app().main_window.set_input_widget(None)
 
     def item_child_set_nodal_loads_callback(self):
