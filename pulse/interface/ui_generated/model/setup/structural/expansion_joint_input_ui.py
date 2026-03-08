@@ -476,35 +476,35 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addWidget(self.pushButton_load_table_axial_stiffness, 0, 3, 1, 1)
 
-        self.lineEdit_path_table_axial_stiffness = QLineEdit(self.tab_tabular_values)
-        self.lineEdit_path_table_axial_stiffness.setObjectName(u"lineEdit_path_table_axial_stiffness")
-        self.lineEdit_path_table_axial_stiffness.setEnabled(True)
-        self.lineEdit_path_table_axial_stiffness.setMinimumSize(QSize(280, 26))
-        self.lineEdit_path_table_axial_stiffness.setMaximumSize(QSize(280, 26))
-        self.lineEdit_path_table_axial_stiffness.setSizeIncrement(QSize(0, 0))
+        self.lineEdit_Kx_table_path = QLineEdit(self.tab_tabular_values)
+        self.lineEdit_Kx_table_path.setObjectName(u"lineEdit_Kx_table_path")
+        self.lineEdit_Kx_table_path.setEnabled(True)
+        self.lineEdit_Kx_table_path.setMinimumSize(QSize(280, 26))
+        self.lineEdit_Kx_table_path.setMaximumSize(QSize(280, 26))
+        self.lineEdit_Kx_table_path.setSizeIncrement(QSize(0, 0))
         font4 = QFont()
         font4.setPointSize(9)
         font4.setBold(False)
         font4.setItalic(False)
-        self.lineEdit_path_table_axial_stiffness.setFont(font4)
-        self.lineEdit_path_table_axial_stiffness.setStyleSheet(u"")
-        self.lineEdit_path_table_axial_stiffness.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_path_table_axial_stiffness.setClearButtonEnabled(True)
+        self.lineEdit_Kx_table_path.setFont(font4)
+        self.lineEdit_Kx_table_path.setStyleSheet(u"")
+        self.lineEdit_Kx_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_Kx_table_path.setClearButtonEnabled(True)
 
-        self.gridLayout_10.addWidget(self.lineEdit_path_table_axial_stiffness, 0, 2, 1, 1)
+        self.gridLayout_10.addWidget(self.lineEdit_Kx_table_path, 0, 2, 1, 1)
 
-        self.lineEdit_path_table_transversal_stiffness = QLineEdit(self.tab_tabular_values)
-        self.lineEdit_path_table_transversal_stiffness.setObjectName(u"lineEdit_path_table_transversal_stiffness")
-        self.lineEdit_path_table_transversal_stiffness.setEnabled(True)
-        self.lineEdit_path_table_transversal_stiffness.setMinimumSize(QSize(280, 26))
-        self.lineEdit_path_table_transversal_stiffness.setMaximumSize(QSize(280, 26))
-        self.lineEdit_path_table_transversal_stiffness.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_path_table_transversal_stiffness.setFont(font4)
-        self.lineEdit_path_table_transversal_stiffness.setStyleSheet(u"")
-        self.lineEdit_path_table_transversal_stiffness.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_path_table_transversal_stiffness.setClearButtonEnabled(True)
+        self.lineEdit_Kyz_table_path = QLineEdit(self.tab_tabular_values)
+        self.lineEdit_Kyz_table_path.setObjectName(u"lineEdit_Kyz_table_path")
+        self.lineEdit_Kyz_table_path.setEnabled(True)
+        self.lineEdit_Kyz_table_path.setMinimumSize(QSize(280, 26))
+        self.lineEdit_Kyz_table_path.setMaximumSize(QSize(280, 26))
+        self.lineEdit_Kyz_table_path.setSizeIncrement(QSize(0, 0))
+        self.lineEdit_Kyz_table_path.setFont(font4)
+        self.lineEdit_Kyz_table_path.setStyleSheet(u"")
+        self.lineEdit_Kyz_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_Kyz_table_path.setClearButtonEnabled(True)
 
-        self.gridLayout_10.addWidget(self.lineEdit_path_table_transversal_stiffness, 1, 2, 1, 1)
+        self.gridLayout_10.addWidget(self.lineEdit_Kyz_table_path, 1, 2, 1, 1)
 
         self.horizontalSpacer_4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -527,31 +527,31 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addWidget(self.pushButton_load_table_torsional_stiffness, 2, 3, 1, 1)
 
-        self.lineEdit_path_table_angular_stiffness = QLineEdit(self.tab_tabular_values)
-        self.lineEdit_path_table_angular_stiffness.setObjectName(u"lineEdit_path_table_angular_stiffness")
-        self.lineEdit_path_table_angular_stiffness.setEnabled(True)
-        self.lineEdit_path_table_angular_stiffness.setMinimumSize(QSize(280, 26))
-        self.lineEdit_path_table_angular_stiffness.setMaximumSize(QSize(280, 26))
-        self.lineEdit_path_table_angular_stiffness.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_path_table_angular_stiffness.setFont(font4)
-        self.lineEdit_path_table_angular_stiffness.setStyleSheet(u"")
-        self.lineEdit_path_table_angular_stiffness.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_path_table_angular_stiffness.setClearButtonEnabled(True)
+        self.lineEdit_Kryz_table_path = QLineEdit(self.tab_tabular_values)
+        self.lineEdit_Kryz_table_path.setObjectName(u"lineEdit_Kryz_table_path")
+        self.lineEdit_Kryz_table_path.setEnabled(True)
+        self.lineEdit_Kryz_table_path.setMinimumSize(QSize(280, 26))
+        self.lineEdit_Kryz_table_path.setMaximumSize(QSize(280, 26))
+        self.lineEdit_Kryz_table_path.setSizeIncrement(QSize(0, 0))
+        self.lineEdit_Kryz_table_path.setFont(font4)
+        self.lineEdit_Kryz_table_path.setStyleSheet(u"")
+        self.lineEdit_Kryz_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_Kryz_table_path.setClearButtonEnabled(True)
 
-        self.gridLayout_10.addWidget(self.lineEdit_path_table_angular_stiffness, 3, 2, 1, 1)
+        self.gridLayout_10.addWidget(self.lineEdit_Kryz_table_path, 3, 2, 1, 1)
 
-        self.lineEdit_path_table_torsional_stiffness = QLineEdit(self.tab_tabular_values)
-        self.lineEdit_path_table_torsional_stiffness.setObjectName(u"lineEdit_path_table_torsional_stiffness")
-        self.lineEdit_path_table_torsional_stiffness.setEnabled(True)
-        self.lineEdit_path_table_torsional_stiffness.setMinimumSize(QSize(280, 26))
-        self.lineEdit_path_table_torsional_stiffness.setMaximumSize(QSize(280, 26))
-        self.lineEdit_path_table_torsional_stiffness.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_path_table_torsional_stiffness.setFont(font4)
-        self.lineEdit_path_table_torsional_stiffness.setStyleSheet(u"")
-        self.lineEdit_path_table_torsional_stiffness.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_path_table_torsional_stiffness.setClearButtonEnabled(True)
+        self.lineEdit_Krx_table_path = QLineEdit(self.tab_tabular_values)
+        self.lineEdit_Krx_table_path.setObjectName(u"lineEdit_Krx_table_path")
+        self.lineEdit_Krx_table_path.setEnabled(True)
+        self.lineEdit_Krx_table_path.setMinimumSize(QSize(280, 26))
+        self.lineEdit_Krx_table_path.setMaximumSize(QSize(280, 26))
+        self.lineEdit_Krx_table_path.setSizeIncrement(QSize(0, 0))
+        self.lineEdit_Krx_table_path.setFont(font4)
+        self.lineEdit_Krx_table_path.setStyleSheet(u"")
+        self.lineEdit_Krx_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_Krx_table_path.setClearButtonEnabled(True)
 
-        self.gridLayout_10.addWidget(self.lineEdit_path_table_torsional_stiffness, 2, 2, 1, 1)
+        self.gridLayout_10.addWidget(self.lineEdit_Krx_table_path, 2, 2, 1, 1)
 
         self.pushButton_load_table_angular_stiffness = QPushButton(self.tab_tabular_values)
         self.pushButton_load_table_angular_stiffness.setObjectName(u"pushButton_load_table_angular_stiffness")
@@ -769,14 +769,14 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.lineEdit_torsional_stiffness, self.lineEdit_angular_stiffness)
         QWidget.setTabOrder(self.lineEdit_angular_stiffness, self.pushButton_attribute)
         QWidget.setTabOrder(self.pushButton_attribute, self.pushButton_exit)
-        QWidget.setTabOrder(self.pushButton_exit, self.lineEdit_path_table_axial_stiffness)
-        QWidget.setTabOrder(self.lineEdit_path_table_axial_stiffness, self.pushButton_load_table_axial_stiffness)
-        QWidget.setTabOrder(self.pushButton_load_table_axial_stiffness, self.lineEdit_path_table_transversal_stiffness)
-        QWidget.setTabOrder(self.lineEdit_path_table_transversal_stiffness, self.pushButton_load_table_transversal_stiffness)
-        QWidget.setTabOrder(self.pushButton_load_table_transversal_stiffness, self.lineEdit_path_table_torsional_stiffness)
-        QWidget.setTabOrder(self.lineEdit_path_table_torsional_stiffness, self.pushButton_load_table_torsional_stiffness)
-        QWidget.setTabOrder(self.pushButton_load_table_torsional_stiffness, self.lineEdit_path_table_angular_stiffness)
-        QWidget.setTabOrder(self.lineEdit_path_table_angular_stiffness, self.pushButton_load_table_angular_stiffness)
+        QWidget.setTabOrder(self.pushButton_exit, self.lineEdit_Kx_table_path)
+        QWidget.setTabOrder(self.lineEdit_Kx_table_path, self.pushButton_load_table_axial_stiffness)
+        QWidget.setTabOrder(self.pushButton_load_table_axial_stiffness, self.lineEdit_Kyz_table_path)
+        QWidget.setTabOrder(self.lineEdit_Kyz_table_path, self.pushButton_load_table_transversal_stiffness)
+        QWidget.setTabOrder(self.pushButton_load_table_transversal_stiffness, self.lineEdit_Krx_table_path)
+        QWidget.setTabOrder(self.lineEdit_Krx_table_path, self.pushButton_load_table_torsional_stiffness)
+        QWidget.setTabOrder(self.pushButton_load_table_torsional_stiffness, self.lineEdit_Kryz_table_path)
+        QWidget.setTabOrder(self.lineEdit_Kryz_table_path, self.pushButton_load_table_angular_stiffness)
         QWidget.setTabOrder(self.pushButton_load_table_angular_stiffness, self.tabWidget_inputs)
         QWidget.setTabOrder(self.tabWidget_inputs, self.pushButton_remove)
         QWidget.setTabOrder(self.pushButton_remove, self.pushButton_reset)
@@ -902,11 +902,11 @@ class ExpansionJointInput_UI(QDialog, Ui_Dialog):
                                                                             - tab_tabular_values: QWidget
                                                                                 - (Layout): QGridLayout
                                                                                         - pushButton_load_table_axial_stiffness: QPushButton
-                                                                                        - lineEdit_path_table_axial_stiffness: QLineEdit
-                                                                                        - lineEdit_path_table_transversal_stiffness: QLineEdit
+                                                                                        - lineEdit_Kx_table_path: QLineEdit
+                                                                                        - lineEdit_Kyz_table_path: QLineEdit
                                                                                         - pushButton_load_table_torsional_stiffness: QPushButton
-                                                                                        - lineEdit_path_table_angular_stiffness: QLineEdit
-                                                                                        - lineEdit_path_table_torsional_stiffness: QLineEdit
+                                                                                        - lineEdit_Kryz_table_path: QLineEdit
+                                                                                        - lineEdit_Krx_table_path: QLineEdit
                                                                                         - pushButton_load_table_angular_stiffness: QPushButton
                                                                                         - label_100: QLabel
                                                                                         - pushButton_load_table_transversal_stiffness: QPushButton

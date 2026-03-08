@@ -1423,7 +1423,7 @@
                       </widget>
                      </item>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_axial_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1464,7 +1464,7 @@
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_transversal_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kyz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1572,7 +1572,7 @@
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_angular_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kryz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1613,7 +1613,7 @@
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_torsional_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Krx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2233,13 +2233,13 @@
   <tabstop>lineEdit_angular_stiffness</tabstop>
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>pushButton_exit</tabstop>
-  <tabstop>lineEdit_path_table_axial_stiffness</tabstop>
+  <tabstop>lineEdit_Kx_table_path</tabstop>
   <tabstop>pushButton_load_table_axial_stiffness</tabstop>
-  <tabstop>lineEdit_path_table_transversal_stiffness</tabstop>
+  <tabstop>lineEdit_Kyz_table_path</tabstop>
   <tabstop>pushButton_load_table_transversal_stiffness</tabstop>
-  <tabstop>lineEdit_path_table_torsional_stiffness</tabstop>
+  <tabstop>lineEdit_Krx_table_path</tabstop>
   <tabstop>pushButton_load_table_torsional_stiffness</tabstop>
-  <tabstop>lineEdit_path_table_angular_stiffness</tabstop>
+  <tabstop>lineEdit_Kryz_table_path</tabstop>
   <tabstop>pushButton_load_table_angular_stiffness</tabstop>
   <tabstop>tabWidget_inputs</tabstop>
   <tabstop>pushButton_remove</tabstop>

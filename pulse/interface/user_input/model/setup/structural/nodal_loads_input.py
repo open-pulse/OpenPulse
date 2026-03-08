@@ -3,11 +3,11 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui import NodalLoadsInput_UI
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.common import get_spectral_data_from_array, get_table_name, update_analysis_setup_in_file
-from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui import NodalLoadsInput_UI
+from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 
 
 import os
@@ -213,111 +213,62 @@ class NodalLoadsInput(NodalLoadsInput_UI):
 
         nodal_loads = [Fx, Fy, Fz, Mx, My, Mz]
         
-        if nodal_loads.count(None) != 6:
-
-            self.remove_conflicting_excitations(node_ids)
-
-            real_values = [value if value is None else np.real(value) for value in nodal_loads]
-            imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
-
-            for node_id in node_ids:
-
-                node = app().project.model.preprocessor.nodes[node_id]
-                coords = np.round(node.coordinates, 5)
-
-                data = {
-                        "coords" : list(coords),
-                        "values" : nodal_loads,
-                        "real_values" : real_values,
-                        "imag_values" : imag_values
-                        }
-
-                self.properties._set_nodal_property("nodal_loads", data, node_id)
-
-            self.actions_to_finalize()
-            print(f"[Set Nodal loads] - defined at node(s) {node_ids}")
-
-        else:    
-    
+        if nodal_loads.count(None) == 6:
+            self.hide()
             title = "Additional inputs required"
             message = "You must to inform at least one nodal load " 
             message += "before confirming the input!"
             PrintMessageInput([error_title, title, message]) 
-            
-    def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
+            return
 
-        title = "Error while loading table"
+        self.remove_conflicting_excitations(node_ids)
 
-        try:
-            if direct_load:
-                path_imported_table = lineEdit.text()
+        real_values = [value if value is None else np.real(value) for value in nodal_loads]
+        imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
 
-            else:
+        for node_id in node_ids:
 
-                last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
-                if last_path is None:
-                    last_path = str(Path().home())
+            node = app().project.model.preprocessor.nodes[node_id]
+            coords = np.round(node.coordinates, 5)
 
-                caption = f"Choose a table to import the {dof_label} nodal load"
-                path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
-                                                                                                caption, 
-                                                                                                last_path, 
-                                                                                                'Table File (*.csv; *.dat; *.txt)'
-                                                                                              )
+            data = {
+                    "coords" : list(coords),
+                    "values" : nodal_loads,
+                    "real_values" : real_values,
+                    "imag_values" : imag_values
+                    }
 
-                if not check:
-                    return None, None
+            self.properties._set_nodal_property("nodal_loads", data, node_id)
 
-            if path_imported_table == "":
-                return None, None
-
-            lineEdit.setText(path_imported_table)         
-            imported_data = np.loadtxt(path_imported_table, delimiter=",")
-        
-            if imported_data.shape[1] < 3:
-                message = "The imported table has insufficient number of columns. The spectrum "
-                message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([error_title, title, message])
-                lineEdit.setFocus()
-                return None, None
-            
-            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
-
-            return imported_data, path_imported_table
-
-        except Exception as log_error:
-            message = str(log_error)
-            PrintMessageInput([error_title, title, message])
-            lineEdit.setFocus()
-            return None, None
+        self.actions_to_finalize()
 
     def load_fx_table(self):
-        self.imported_fx_values, self.fx_table_path = self.load_table(self.lineEdit_path_table_fx, "Fx")
+        self.imported_fx_values, self.fx_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_fx, "nodal loads", dof_label="Fx")
         if self.fx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_fx)
 
     def load_fy_table(self):
-        self.imported_fy_values, self.fy_table_path = self.load_table(self.lineEdit_path_table_fy, "Fy")
+        self.imported_fy_values, self.fy_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_fy, "nodal loads", dof_label="Fy")
         if self.fy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_fy)
 
     def load_fz_table(self):
-        self.imported_fz_values, self.fz_table_path = self.load_table(self.lineEdit_path_table_fz, "Fz")
+        self.imported_fz_values, self.fz_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_fz, "nodal loads", dof_label="Fz")
         if self.fz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_fz)
 
     def load_mx_table(self):
-        self.imported_mx_values, self.mx_table_path = self.load_table(self.lineEdit_path_table_mx, "Fx")
+        self.imported_mx_values, self.mx_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_mx, "nodal loads", dof_label="Fx")
         if self.mx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_mx)
 
     def load_my_table(self):
-        self.imported_my_values, self.my_table_path = self.load_table(self.lineEdit_path_table_my, "Fy")
+        self.imported_my_values, self.my_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_my, "nodal loads", dof_label="Fy")
         if self.my_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_my)
 
     def load_mz_table(self):
-        self.imported_mz_values, self.mz_table_path = self.load_table(self.lineEdit_path_table_mz, "Fz")
+        self.imported_mz_values, self.mz_table_path = CommonUserInputs().load_table(self.lineEdit_path_table_mz, "nodal loads", dof_label="Fz")
         if self.mz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_mz)
 
@@ -365,7 +316,6 @@ class NodalLoadsInput(NodalLoadsInput_UI):
 
         self.remove_conflicting_excitations(node_ids)
 
-        values = list()
         table_paths = list()
         load_labels = ["fx", "fy", "fz", "mx", "my", "mz"]
 
@@ -378,15 +328,12 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             if _imported_values is None:
                 line_edit = getattr(self, f"lineEdit_path_table_{label}")
 
-                _imported_values, _table_path = self.load_table(line_edit, label, direct_load = True)
+                _imported_values, _table_path = CommonUserInputs().load_table(line_edit, "nodal loads", dof_label=label, direct_load=True)
                 setattr(self, imported_values_name, _imported_values)
                 setattr(self, table_path_name, _table_path)
 
             _table_path_attr = getattr(self, table_path_name)
             table_paths.append(_table_path_attr)
-
-            _imported_values_attr = getattr(self, imported_values_name)
-            values.append(get_spectral_data_from_array(_imported_values_attr))
 
         for node_id in node_ids:
 
@@ -418,7 +365,6 @@ class NodalLoadsInput(NodalLoadsInput_UI):
                 "coords" : list(coords),
                 "table_names" : table_names,
                 "table_paths" : table_paths,
-                "values" : values,
                 }
 
             self.properties._set_nodal_property("nodal_loads", data, node_id)

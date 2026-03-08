@@ -7,7 +7,7 @@ from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_u
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.common import get_spectral_data_from_array, get_table_name, update_analysis_setup_in_file
+from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 from pulse.model.cross_section import CrossSection
 
 import numpy as np
@@ -148,10 +148,10 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             self.lineEdit_transversal_stiffness,
             self.lineEdit_torsional_stiffness,
             self.lineEdit_angular_stiffness,
-            self.lineEdit_path_table_axial_stiffness,
-            self.lineEdit_path_table_transversal_stiffness,
-            self.lineEdit_path_table_torsional_stiffness,
-            self.lineEdit_path_table_angular_stiffness,
+            self.lineEdit_Kx_table_path,
+            self.lineEdit_Kyz_table_path,
+            self.lineEdit_Krx_table_path,
+            self.lineEdit_Kryz_table_path,
             ]
 
     def axial_stop_rod_callback(self):
@@ -205,10 +205,10 @@ class ExpansionJointInput(ExpansionJointInput_UI):
 
             if "table_paths" in joint_data.keys():
                 self.tabWidget_inputs.setCurrentIndex(1)
-                self.lineEdit_path_table_axial_stiffness.setText(joint_data["table_paths"][0])
-                self.lineEdit_path_table_transversal_stiffness.setText(joint_data["table_paths"][1])
-                self.lineEdit_path_table_torsional_stiffness.setText(joint_data["table_paths"][2])
-                self.lineEdit_path_table_angular_stiffness.setText(joint_data["table_paths"][3])
+                self.lineEdit_Kx_table_path.setText(joint_data["table_paths"][0])
+                self.lineEdit_Kyz_table_path.setText(joint_data["table_paths"][1])
+                self.lineEdit_Krx_table_path.setText(joint_data["table_paths"][2])
+                self.lineEdit_Kryz_table_path.setText(joint_data["table_paths"][3])
 
             else:
                 self.tabWidget_inputs.setCurrentIndex(0)
@@ -294,25 +294,25 @@ class ExpansionJointInput(ExpansionJointInput_UI):
         
         _stiffness = list()
 
-        stop, value = self.check_input_parameters(self.lineEdit_axial_stiffness, 'Axial stiffness')
+        stop, value = self.check_input_parameters(self.lineEdit_axial_stiffness, 'Kx')
         if stop:
             self.lineEdit_axial_stiffness.setFocus()
             return True
         _stiffness.append(value)
 
-        stop, value = self.check_input_parameters(self.lineEdit_transversal_stiffness, 'Transversal stiffness')
+        stop, value = self.check_input_parameters(self.lineEdit_transversal_stiffness, 'Kyz')
         if stop:
             self.lineEdit_transversal_stiffness.setFocus()
             return True
         _stiffness.append(value)
 
-        stop, value = self.check_input_parameters(self.lineEdit_torsional_stiffness, 'Torsional stiffness')
+        stop, value = self.check_input_parameters(self.lineEdit_torsional_stiffness, 'Krx')
         if stop:
             self.lineEdit_torsional_stiffness.setFocus()
             return True
         _stiffness.append(value)
 
-        stop, value = self.check_input_parameters(self.lineEdit_angular_stiffness, 'Angular stiffness')
+        stop, value = self.check_input_parameters(self.lineEdit_angular_stiffness, 'Kryz')
         if stop:
             self.lineEdit_angular_stiffness.setFocus()
             return True
@@ -320,80 +320,27 @@ class ExpansionJointInput(ExpansionJointInput_UI):
 
         self.expansion_joint_info["values"] = _stiffness
 
-    def load_table(
-            self, 
-            line_edit: QLineEdit, 
-            label: str, 
-            direct_load: bool=False
-            ):
-
-        title = "Error while loading table"
-
-        try:
-            if direct_load:
-                path_imported_table = line_edit.text()
-
-            else:
-
-                last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
-                if last_path is None:
-                    last_path = str(Path().home())
-
-                caption = f"Choose a table to import the {label} nodal load"
-                path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
-                    caption, 
-                    last_path, 
-                    'Table File (*.csv; *.dat; *.txt)',
-                    )
-
-                if not check:
-                    return None, None
-
-            if path_imported_table == "":
-                return None, None
-
-            line_edit.setText(path_imported_table)         
-            imported_data = np.loadtxt(path_imported_table, delimiter=",")
-
-            if imported_data.shape[1] < 3:
-                message = "The imported table has insufficient number of columns. The spectrum "
-                message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([error_title, title, message])
-                self.hide()
-                line_edit.setFocus()
-                return None, None
-            
-            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
-
-            return imported_data, path_imported_table
-
-        except Exception as log_error:
-            message = str(log_error)
-            PrintMessageInput([error_title, title, message])
-            line_edit.setFocus()
-            return None, None
-
     def load_Kx_table(self):
-        line_edit = self.lineEdit_path_table_axial_stiffness
-        self.imported_Kx_values, self.Kx_table_path = self.load_table(line_edit, "Axial stiffness")
+        line_edit = self.lineEdit_Kx_table_path
+        self.imported_Kx_values, self.Kx_table_path = CommonUserInputs().load_table(line_edit, "expansion joint stiffness", dof_label="Kx")
         if self.imported_Kx_values is None:
             self.lineEdit_reset(line_edit)
 
     def load_Kyz_table(self):
-        line_edit = self.lineEdit_path_table_transversal_stiffness
-        self.imported_Kyz_values, self.Kyz_table_path = self.load_table(line_edit, "Transversal stiffness")
+        line_edit = self.lineEdit_Kyz_table_path
+        self.imported_Kyz_values, self.Kyz_table_path = CommonUserInputs().load_table(line_edit, "expansion joint stiffness", dof_label="Kyz")
         if self.imported_Kyz_values is None:
             self.lineEdit_reset(line_edit)
 
     def load_Krx_table(self):
-        line_edit = self.lineEdit_path_table_torsional_stiffness
-        self.imported_Krx_values, self.Krx_table_path = self.load_table(line_edit, "Torsional stiffness")
+        line_edit = self.lineEdit_Krx_table_path
+        self.imported_Krx_values, self.Krx_table_path = CommonUserInputs().load_table(line_edit, "expansion joint stiffness", dof_label="Krx")
         if self.imported_Krx_values is None:
             self.lineEdit_reset(line_edit)
 
     def load_Kryz_table(self):
-        line_edit = self.lineEdit_path_table_angular_stiffness
-        self.imported_Kryz_values, self.Kryz_table_path = self.load_table(line_edit, "Angular stiffness")
+        line_edit = self.lineEdit_Kryz_table_path
+        self.imported_Kryz_values, self.Kryz_table_path = CommonUserInputs().load_table(line_edit, "expansion joint stiffness", dof_label="Kryz")
         if self.Kryz_table_path is None:
             self.lineEdit_reset(line_edit)
 
@@ -433,123 +380,60 @@ class ExpansionJointInput(ExpansionJointInput_UI):
 
     def check_table_of_values(self, line_id: int):
 
-        try:
+        table_paths = list()
+        imported_values = list()
+        link_labels = ["Kx", "Kyz", "Krx", "Kryz"]
 
-            if self.imported_Kx_values is None:
-                line_edit = self.lineEdit_path_table_axial_stiffness
-                self.imported_Kx_values, self.Kx_table_path = self.load_table(  
-                    line_edit,
-                    "axial stiffness",
-                    direct_load = True,
-                    )
+        for label in link_labels:
 
-            if self.imported_Kyz_values is None:
-                line_edit = self.lineEdit_path_table_transversal_stiffness
-                self.imported_Kyz_values, self.Kyz_table_path = self.load_table(
-                    line_edit,
-                    "transversal stiffness",
-                    direct_load = True,
-                    )
+            table_path_name = f"{label}_table_path"
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
 
-            if self.imported_Krx_values is None:
-                line_edit = self.lineEdit_path_table_torsional_stiffness
-                self.imported_Krx_values, self.Krx_table_path = self.load_table(
-                    line_edit,
-                    "torsional stiffness",
-                    direct_load = True,
-                    )
+            if _imported_values is None:
+                line_edit = getattr(self, f"lineEdit_path_table_{label}")
 
-            if self.imported_Kryz_values is None:
-                line_edit = self.lineEdit_path_table_angular_stiffness
-                self.imported_Kryz_values, self.Kryz_table_path = self.load_table( 
-                    line_edit,
-                    "angular stiffness",
-                    direct_load=True,
-                    )
-                
-            imported_values = [
-                self.imported_Kx_values,
-                self.imported_Kyz_values,
-                self.imported_Krx_values,
-                self.imported_Kryz_values,
-            ]
+                _imported_values, _table_path = CommonUserInputs().load_table(line_edit, "nodal link", dof_label=label, direct_load=True)
+                setattr(self, imported_values_name, _imported_values)
+                setattr(self, table_path_name, _table_path)
 
-            if any(x is None for x in imported_values):
-                title = "Insufficient inputs for the expansion joint"
-                message = "The current setup have insufficient inputs "
-                message += "for all required expansion joint stiffness.\n\n"
-                message += "Required stiffness: "
-                for i, value in enumerate(imported_values):
-                    if value is None:
-                        message += f"{stiffess_labels[i]}, "
+            _table_path_attr = getattr(self, table_path_name)
+            table_paths.append(_table_path_attr)
+            imported_values.append(_imported_values)
 
-                self.hide()
-                PrintMessageInput([error_title, title, message[:-2]])
-                return True
+        # check the minimum requisites before storing the tabular data
+        if any(x is None for x in imported_values):
+            title = "Insufficient inputs for the expansion joint"
+            message = "The current setup have insufficient inputs "
+            message += "for all required expansion joint stiffness.\n\n"
+            message += "Required stiffness: "
+            for i, value in enumerate(imported_values):
+                if value is None:
+                    message += f"{stiffess_labels[i]}, "
 
-            Kx_table_name = None
-            if isinstance(self.imported_Kx_values, np.ndarray):
-                Kx_table_name = get_table_name("axial_stiffness", line_id)
-                if self.save_table_values(Kx_table_name, self.imported_Kx_values):
-                    return
-
-            Kyz_table_name = None
-            if isinstance(self.imported_Kyz_values, np.ndarray):
-                Kyz_table_name = get_table_name("transversal_stiffness", line_id)
-                if self.save_table_values(Kyz_table_name, self.imported_Kyz_values):
-                    return
-
-            Krx_table_name = None
-            if isinstance(self.imported_Krx_values, np.ndarray):
-                Krx_table_name = get_table_name("torsional_stiffness", line_id)
-                if self.save_table_values(Krx_table_name, self.imported_Krx_values):
-                    return
-
-            Kryz_table_name = None
-            if isinstance(self.imported_Kryz_values, np.ndarray):
-                Kryz_table_name = get_table_name("angular_stiffness", line_id)
-                if self.save_table_values(Kryz_table_name, self.imported_Kryz_values):
-                    return
-
-            # complex values computed from tabular data
-            Kx_values = get_spectral_data_from_array(self.imported_Kx_values)
-            Kyz_values = get_spectral_data_from_array(self.imported_Kyz_values)
-            Krx_values = get_spectral_data_from_array(self.imported_Krx_values)
-            Kryz_values = get_spectral_data_from_array(self.imported_Kryz_values)
-
-            values = [
-                Kx_values, 
-                Kyz_values, 
-                Krx_values, 
-                Kryz_values,
-                ]
-
-            table_names = [
-                Kx_table_name, 
-                Kyz_table_name, 
-                Krx_table_name, 
-                Kryz_table_name,
-                ]
-
-            table_paths = [
-                self.Kx_table_path, 
-                self.Kyz_table_path, 
-                self.Krx_table_path, 
-                self.Kryz_table_path,
-                ]
-
-            self.expansion_joint_info["values"] = values
-            self.expansion_joint_info["table_names"] = table_names
-            self.expansion_joint_info["table_paths"] = table_paths
-
-            return False
-
-        except Exception as log_error:
-            title = "Error while loading the expansion joint's tabular data"
-            message = str(log_error)
             self.hide()
-            PrintMessageInput([error_title, title, message])
+            PrintMessageInput([error_title, title, message[:-2]])
             return True
+
+        table_names = list()
+
+        for label in link_labels:
+
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
+
+            _table_name = None
+            if isinstance(_imported_values, np.ndarray):
+                _table_name = get_table_name(f"expansion_joint_stiffness_{label}", line_id)
+                if self.save_table_values(_table_name, _imported_values):
+                    return
+
+            table_names.append(_table_name)
+        
+        self.expansion_joint_info["table_names"] = table_names
+        self.expansion_joint_info["table_paths"] = table_paths
+
+        return False
 
     def process_line_length(self, line_id: int):
         self.joint_elements = self.preprocessor.mesh.elements_from_line[line_id]
