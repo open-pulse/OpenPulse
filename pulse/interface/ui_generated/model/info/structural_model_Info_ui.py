@@ -34,8 +34,8 @@ class Ui_dialog(object):
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setMinimumSize(QSize(0, 42))
         self.frame_3.setMaximumSize(QSize(16777215, 42))
-        self.frame_3.setFrameShape(QFrame.Box)
-        self.frame_3.setFrameShadow(QFrame.Raised)
+        self.frame_3.setFrameShape(QFrame.Shape.Box)
+        self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_2 = QGridLayout(self.frame_3)
         self.gridLayout_2.setSpacing(0)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
@@ -45,9 +45,9 @@ class Ui_dialog(object):
         font = QFont()
         font.setPointSize(11)
         self.label_12.setFont(font)
-        self.label_12.setFrameShape(QFrame.NoFrame)
-        self.label_12.setTextFormat(Qt.AutoText)
-        self.label_12.setAlignment(Qt.AlignCenter)
+        self.label_12.setFrameShape(QFrame.Shape.NoFrame)
+        self.label_12.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_12.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.label_12, 0, 0, 1, 1)
 
@@ -58,8 +58,8 @@ class Ui_dialog(object):
         self.frame_2.setObjectName(u"frame_2")
         self.frame_2.setMinimumSize(QSize(310, 510))
         self.frame_2.setMaximumSize(QSize(1000, 580))
-        self.frame_2.setFrameShape(QFrame.Box)
-        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.frame_2.setFrameShape(QFrame.Shape.Box)
+        self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout = QGridLayout(self.frame_2)
         self.gridLayout.setSpacing(4)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -71,10 +71,10 @@ class Ui_dialog(object):
         font1 = QFont()
         font1.setPointSize(10)
         self.label_17.setFont(font1)
-        self.label_17.setFrameShape(QFrame.Box)
-        self.label_17.setFrameShadow(QFrame.Raised)
-        self.label_17.setTextFormat(Qt.AutoText)
-        self.label_17.setAlignment(Qt.AlignCenter)
+        self.label_17.setFrameShape(QFrame.Shape.Box)
+        self.label_17.setFrameShadow(QFrame.Shadow.Raised)
+        self.label_17.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_17.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.label_17, 4, 0, 1, 1)
 
@@ -83,10 +83,10 @@ class Ui_dialog(object):
         self.label_11.setMinimumSize(QSize(0, 30))
         self.label_11.setMaximumSize(QSize(16777215, 30))
         self.label_11.setFont(font1)
-        self.label_11.setFrameShape(QFrame.Box)
-        self.label_11.setFrameShadow(QFrame.Raised)
-        self.label_11.setTextFormat(Qt.AutoText)
-        self.label_11.setAlignment(Qt.AlignCenter)
+        self.label_11.setFrameShape(QFrame.Shape.Box)
+        self.label_11.setFrameShadow(QFrame.Shadow.Raised)
+        self.label_11.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_11.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.label_11, 2, 0, 1, 1)
 
@@ -95,10 +95,10 @@ class Ui_dialog(object):
         self.label_10.setMinimumSize(QSize(0, 30))
         self.label_10.setMaximumSize(QSize(16777215, 30))
         self.label_10.setFont(font1)
-        self.label_10.setFrameShape(QFrame.Box)
-        self.label_10.setFrameShadow(QFrame.Raised)
-        self.label_10.setTextFormat(Qt.AutoText)
-        self.label_10.setAlignment(Qt.AlignCenter)
+        self.label_10.setFrameShape(QFrame.Shape.Box)
+        self.label_10.setFrameShadow(QFrame.Shadow.Raised)
+        self.label_10.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_10.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.label_10, 0, 0, 1, 1)
 
@@ -118,39 +118,39 @@ class Ui_dialog(object):
 
         self.gridLayout.addWidget(self.treeWidget_nodal_loads, 5, 0, 1, 1)
 
-        self.treeWidget_constrained_dofs = QTreeWidget(self.frame_2)
+        self.treeWidget_constrained_dof = QTreeWidget(self.frame_2)
         __qtreewidgetitem1 = QTreeWidgetItem()
         __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter);
         __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter);
-        self.treeWidget_constrained_dofs.setHeaderItem(__qtreewidgetitem1)
-        self.treeWidget_constrained_dofs.setObjectName(u"treeWidget_constrained_dofs")
-        self.treeWidget_constrained_dofs.setMinimumSize(QSize(280, 140))
-        self.treeWidget_constrained_dofs.setMaximumSize(QSize(280, 140))
-        self.treeWidget_constrained_dofs.setFont(font2)
+        self.treeWidget_constrained_dof.setHeaderItem(__qtreewidgetitem1)
+        self.treeWidget_constrained_dof.setObjectName(u"treeWidget_constrained_dof")
+        self.treeWidget_constrained_dof.setMinimumSize(QSize(280, 140))
+        self.treeWidget_constrained_dof.setMaximumSize(QSize(280, 140))
+        self.treeWidget_constrained_dof.setFont(font2)
 
-        self.gridLayout.addWidget(self.treeWidget_constrained_dofs, 3, 0, 1, 1)
+        self.gridLayout.addWidget(self.treeWidget_constrained_dof, 3, 0, 1, 1)
 
-        self.treeWidget_prescribed_dofs = QTreeWidget(self.frame_2)
+        self.treeWidget_prescribed_dof = QTreeWidget(self.frame_2)
         __qtreewidgetitem2 = QTreeWidgetItem()
         __qtreewidgetitem2.setTextAlignment(1, Qt.AlignCenter);
         __qtreewidgetitem2.setTextAlignment(0, Qt.AlignCenter);
-        self.treeWidget_prescribed_dofs.setHeaderItem(__qtreewidgetitem2)
-        self.treeWidget_prescribed_dofs.setObjectName(u"treeWidget_prescribed_dofs")
-        self.treeWidget_prescribed_dofs.setMinimumSize(QSize(280, 140))
-        self.treeWidget_prescribed_dofs.setMaximumSize(QSize(280, 140))
-        self.treeWidget_prescribed_dofs.setFont(font2)
+        self.treeWidget_prescribed_dof.setHeaderItem(__qtreewidgetitem2)
+        self.treeWidget_prescribed_dof.setObjectName(u"treeWidget_prescribed_dof")
+        self.treeWidget_prescribed_dof.setMinimumSize(QSize(280, 140))
+        self.treeWidget_prescribed_dof.setMaximumSize(QSize(280, 140))
+        self.treeWidget_prescribed_dof.setFont(font2)
 
-        self.gridLayout.addWidget(self.treeWidget_prescribed_dofs, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.treeWidget_prescribed_dof, 1, 0, 1, 1)
 
         self.label_9 = QLabel(self.frame_2)
         self.label_9.setObjectName(u"label_9")
         self.label_9.setMinimumSize(QSize(0, 30))
         self.label_9.setMaximumSize(QSize(16777215, 30))
         self.label_9.setFont(font1)
-        self.label_9.setFrameShape(QFrame.Box)
-        self.label_9.setFrameShadow(QFrame.Raised)
-        self.label_9.setTextFormat(Qt.AutoText)
-        self.label_9.setAlignment(Qt.AlignCenter)
+        self.label_9.setFrameShape(QFrame.Shape.Box)
+        self.label_9.setFrameShadow(QFrame.Shadow.Raised)
+        self.label_9.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_9.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.label_9, 0, 1, 1, 1)
 
@@ -171,10 +171,10 @@ class Ui_dialog(object):
         self.label_15.setMinimumSize(QSize(0, 30))
         self.label_15.setMaximumSize(QSize(16777215, 30))
         self.label_15.setFont(font1)
-        self.label_15.setFrameShape(QFrame.Box)
-        self.label_15.setFrameShadow(QFrame.Raised)
-        self.label_15.setTextFormat(Qt.AutoText)
-        self.label_15.setAlignment(Qt.AlignCenter)
+        self.label_15.setFrameShape(QFrame.Shape.Box)
+        self.label_15.setFrameShadow(QFrame.Shadow.Raised)
+        self.label_15.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_15.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.label_15, 2, 1, 1, 1)
 
@@ -195,10 +195,10 @@ class Ui_dialog(object):
         self.label_16.setMinimumSize(QSize(0, 30))
         self.label_16.setMaximumSize(QSize(16777215, 30))
         self.label_16.setFont(font1)
-        self.label_16.setFrameShape(QFrame.Box)
-        self.label_16.setFrameShadow(QFrame.Raised)
-        self.label_16.setTextFormat(Qt.AutoText)
-        self.label_16.setAlignment(Qt.AlignCenter)
+        self.label_16.setFrameShape(QFrame.Shape.Box)
+        self.label_16.setFrameShadow(QFrame.Shadow.Raised)
+        self.label_16.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_16.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.label_16, 4, 1, 1, 1)
 
@@ -221,8 +221,8 @@ class Ui_dialog(object):
         self.frame_4.setObjectName(u"frame_4")
         self.frame_4.setMinimumSize(QSize(0, 80))
         self.frame_4.setMaximumSize(QSize(16777215, 80))
-        self.frame_4.setFrameShape(QFrame.NoFrame)
-        self.frame_4.setFrameShadow(QFrame.Raised)
+        self.frame_4.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_4.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_3 = QGridLayout(self.frame_4)
         self.gridLayout_3.setSpacing(6)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
@@ -244,6 +244,11 @@ class Ui_dialog(object):
         palette.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.ButtonText, brush)
         palette.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.Base, brush1)
         palette.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.Window, brush1)
+        brush2 = QBrush(QColor(0, 0, 0, 128))
+        brush2.setStyle(Qt.BrushStyle.SolidPattern)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.PlaceholderText, brush2)
+#endif
         palette.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, brush)
         palette.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Button, brush1)
         palette.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Dark, brush)
@@ -251,22 +256,30 @@ class Ui_dialog(object):
         palette.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ButtonText, brush)
         palette.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Base, brush1)
         palette.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Window, brush1)
-        brush2 = QBrush(QColor(100, 100, 100, 255))
-        brush2.setStyle(Qt.BrushStyle.SolidPattern)
-        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, brush2)
-        brush3 = QBrush(QColor(240, 240, 240, 255))
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.PlaceholderText, brush2)
+#endif
+        brush3 = QBrush(QColor(100, 100, 100, 255))
         brush3.setStyle(Qt.BrushStyle.SolidPattern)
-        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Button, brush3)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, brush3)
+        brush4 = QBrush(QColor(240, 240, 240, 255))
+        brush4.setStyle(Qt.BrushStyle.SolidPattern)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Button, brush4)
         palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Dark, brush)
-        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, brush2)
-        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, brush2)
-        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, brush3)
-        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, brush3)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, brush3)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, brush3)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, brush4)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, brush4)
+        brush5 = QBrush(QColor(100, 100, 100, 128))
+        brush5.setStyle(Qt.BrushStyle.SolidPattern)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.PlaceholderText, brush5)
+#endif
         self.lineEdit_number_nodes.setPalette(palette)
         self.lineEdit_number_nodes.setFont(font1)
         self.lineEdit_number_nodes.setStyleSheet(u"QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}\n"
 "QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}")
-        self.lineEdit_number_nodes.setAlignment(Qt.AlignCenter)
+        self.lineEdit_number_nodes.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_number_nodes, 0, 2, 1, 1)
 
@@ -275,9 +288,9 @@ class Ui_dialog(object):
         self.label_14.setMinimumSize(QSize(0, 26))
         self.label_14.setMaximumSize(QSize(200, 26))
         self.label_14.setFont(font1)
-        self.label_14.setFrameShape(QFrame.NoFrame)
-        self.label_14.setTextFormat(Qt.AutoText)
-        self.label_14.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_14.setFrameShape(QFrame.Shape.NoFrame)
+        self.label_14.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_14.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_14, 1, 1, 1, 1)
 
@@ -294,6 +307,9 @@ class Ui_dialog(object):
         palette1.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.ButtonText, brush)
         palette1.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.Base, brush1)
         palette1.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.Window, brush1)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette1.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.PlaceholderText, brush2)
+#endif
         palette1.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.WindowText, brush)
         palette1.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Button, brush1)
         palette1.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Dark, brush)
@@ -301,18 +317,24 @@ class Ui_dialog(object):
         palette1.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.ButtonText, brush)
         palette1.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Base, brush1)
         palette1.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Window, brush1)
-        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, brush2)
-        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Button, brush3)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette1.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.PlaceholderText, brush2)
+#endif
+        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, brush3)
+        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Button, brush4)
         palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Dark, brush)
-        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, brush2)
-        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, brush2)
-        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, brush3)
-        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, brush3)
+        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, brush3)
+        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, brush3)
+        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, brush4)
+        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, brush4)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+        palette1.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.PlaceholderText, brush5)
+#endif
         self.lineEdit_number_elements.setPalette(palette1)
         self.lineEdit_number_elements.setFont(font1)
         self.lineEdit_number_elements.setStyleSheet(u"QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}\n"
 "QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}")
-        self.lineEdit_number_elements.setAlignment(Qt.AlignCenter)
+        self.lineEdit_number_elements.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_number_elements, 1, 2, 1, 1)
 
@@ -321,9 +343,9 @@ class Ui_dialog(object):
         self.label_13.setMinimumSize(QSize(0, 26))
         self.label_13.setMaximumSize(QSize(200, 26))
         self.label_13.setFont(font1)
-        self.label_13.setFrameShape(QFrame.NoFrame)
-        self.label_13.setTextFormat(Qt.AutoText)
-        self.label_13.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_13.setFrameShape(QFrame.Shape.NoFrame)
+        self.label_13.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_13.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_13, 0, 1, 1, 1)
 
@@ -338,9 +360,9 @@ class Ui_dialog(object):
 
         self.gridLayout_4.addWidget(self.frame_4, 2, 0, 1, 1)
 
-        QWidget.setTabOrder(self.treeWidget_prescribed_dofs, self.treeWidget_masses)
-        QWidget.setTabOrder(self.treeWidget_masses, self.treeWidget_constrained_dofs)
-        QWidget.setTabOrder(self.treeWidget_constrained_dofs, self.treeWidget_springs)
+        QWidget.setTabOrder(self.treeWidget_prescribed_dof, self.treeWidget_masses)
+        QWidget.setTabOrder(self.treeWidget_masses, self.treeWidget_constrained_dof)
+        QWidget.setTabOrder(self.treeWidget_constrained_dof, self.treeWidget_springs)
         QWidget.setTabOrder(self.treeWidget_springs, self.treeWidget_nodal_loads)
         QWidget.setTabOrder(self.treeWidget_nodal_loads, self.treeWidget_dampers)
         QWidget.setTabOrder(self.treeWidget_dampers, self.lineEdit_number_nodes)
@@ -360,10 +382,10 @@ class Ui_dialog(object):
         ___qtreewidgetitem = self.treeWidget_nodal_loads.headerItem()
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("dialog", u"Loads", None));
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
-        ___qtreewidgetitem1 = self.treeWidget_constrained_dofs.headerItem()
+        ___qtreewidgetitem1 = self.treeWidget_constrained_dof.headerItem()
         ___qtreewidgetitem1.setText(1, QCoreApplication.translate("dialog", u"DOFs", None));
         ___qtreewidgetitem1.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
-        ___qtreewidgetitem2 = self.treeWidget_prescribed_dofs.headerItem()
+        ___qtreewidgetitem2 = self.treeWidget_prescribed_dof.headerItem()
         ___qtreewidgetitem2.setText(1, QCoreApplication.translate("dialog", u"DOFs", None));
         ___qtreewidgetitem2.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
         self.label_9.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Lumped masses:</p></body></html>", None))
@@ -398,8 +420,8 @@ class StructuralModelInfo_UI(QDialog, Ui_dialog):
                             - label_11: QLabel
                             - label_10: QLabel
                             - treeWidget_nodal_loads: QTreeWidget
-                            - treeWidget_constrained_dofs: QTreeWidget
-                            - treeWidget_prescribed_dofs: QTreeWidget
+                            - treeWidget_constrained_dof: QTreeWidget
+                            - treeWidget_prescribed_dof: QTreeWidget
                             - label_9: QLabel
                             - treeWidget_masses: QTreeWidget
                             - label_15: QLabel

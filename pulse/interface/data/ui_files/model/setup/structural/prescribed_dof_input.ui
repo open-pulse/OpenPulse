@@ -97,7 +97,7 @@
        <number>4</number>
       </property>
       <item row="1" column="0" colspan="2">
-       <widget class="QTabWidget" name="tabWidget_prescribed_dofs">
+       <widget class="QTabWidget" name="tabWidget_prescribed_dof">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -2297,7 +2297,7 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tabWidget_prescribed_dofs</tabstop>
+  <tabstop>tabWidget_prescribed_dof</tabstop>
   <tabstop>lineEdit_real_ux</tabstop>
   <tabstop>lineEdit_imag_ux</tabstop>
   <tabstop>lineEdit_real_uy</tabstop>
