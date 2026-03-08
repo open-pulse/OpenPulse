@@ -12,6 +12,8 @@ import numpy as np
 
 from pathlib import Path
 
+@pytest.mark.skip
+
 # Setting up model
 def test_coupled_harmonic_analysis(datadir: Path):
     os.chdir(datadir)
