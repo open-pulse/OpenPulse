@@ -6,6 +6,7 @@ from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.mass_spring_damper_input_ui import MassSpringDamperInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.common import get_spectral_data_from_array, get_table_name, update_analysis_setup_in_file
 
 
 import os
@@ -44,8 +45,6 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-
-        self.complete = False
         self.keep_window_open = True
         self.lumped_element_applied = False
 
@@ -53,12 +52,26 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
     def reset_table_variables(self):
 
-        self.Mx_table_name = None
-        self.My_table_name = None
-        self.Mz_table_name = None
-        self.Jx_table_name = None
-        self.Jy_table_name = None
-        self.Jz_table_name = None
+        self.imported_Mx_values = None
+        self.imported_My_values = None
+        self.imported_Mz_values = None
+        self.imported_Jx_values = None
+        self.imported_Jy_values = None
+        self.imported_Jz_values = None
+        
+        self.imported_Kx_values = None
+        self.imported_Ky_values = None
+        self.imported_Kz_values = None
+        self.imported_Krx_values = None
+        self.imported_Kry_values = None
+        self.imported_Krz_values = None
+
+        self.imported_Cx_values = None
+        self.imported_Cy_values = None
+        self.imported_Cz_values = None
+        self.imported_Crx_values = None
+        self.imported_Cry_values = None
+        self.imported_Crz_values = None
 
         self.Mx_table_path = None
         self.My_table_path = None
@@ -67,20 +80,6 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         self.Jy_table_path = None
         self.Jz_table_path = None
 
-        self.Mx_table_values = None
-        self.My_table_values = None
-        self.Mz_table_values = None
-        self.Jx_table_values = None
-        self.Jy_table_values = None
-        self.Jz_table_values = None
-
-        self.Kx_table_name = None
-        self.Ky_table_name = None
-        self.Kz_table_name = None
-        self.Krx_table_name = None
-        self.Kry_table_name = None
-        self.Krz_table_name = None
-
         self.Kx_table_path = None
         self.Ky_table_path = None
         self.Kz_table_path = None
@@ -88,33 +87,12 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         self.Kry_table_path = None
         self.Krz_table_path = None
 
-        self.Kx_table_values = None
-        self.Ky_table_values = None
-        self.Kz_table_values = None
-        self.Krx_table_values = None
-        self.Kry_table_values = None
-        self.Krz_table_values = None
-
-        self.Cx_table_name = None
-        self.Cy_table_name = None
-        self.Cz_table_name = None
-        self.Crx_table_name = None
-        self.Cry_table_name = None
-        self.Crz_table_name = None
-
         self.Cx_table_path = None
         self.Cy_table_path = None
         self.Cz_table_path = None
         self.Crx_table_path = None
         self.Cry_table_path = None
         self.Crz_table_path = None
-
-        self.Cx_table_values = None
-        self.Cy_table_values = None
-        self.Cz_table_values = None
-        self.Crx_table_values = None
-        self.Cry_table_values = None
-        self.Crz_table_values = None
 
     def _define_qt_variables(self):
         self._create_lists_of_lineEdits()
@@ -497,13 +475,13 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
         self.actions_to_finalize()
 
-    def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
+    def load_table(self, line_edit : QLineEdit, dof_label : str, direct_load = False):
 
         title = "Error while loading table"
 
         try:
             if direct_load:
-                path_imported_table = lineEdit.text()
+                path_imported_table = line_edit.text()
 
             else:
 
@@ -524,134 +502,113 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
             if path_imported_table == "":
                 return None, None
 
-            imported_filename = os.path.basename(path_imported_table)
-            lineEdit.setText(path_imported_table)         
-            imported_file = np.loadtxt(path_imported_table, delimiter=",")
+            line_edit.setText(path_imported_table)         
+            imported_data = np.loadtxt(path_imported_table, delimiter=",")
         
-            if imported_file.shape[1] < 3:
+            if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([error_title, title, message])
-                lineEdit.setFocus()
+                line_edit.setFocus()
                 return None, None
-
-            self.frequencies = imported_file[:, 0]
-            complex_values = imported_file[:, 1] + 1j * imported_file[:, 2]
             
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
-            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
-
-                self.lineEdit_reset(lineEdit)
-
-                title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
-                message += "different from the others already imported ones. The current\n"
-                message += "project frequency setup is not going to be modified."
-                message += f"\n\n{imported_filename}"
-                PrintMessageInput([error_title, title, message])
-                return None, None
-
-            else:
-
-                analysis_setup = app().project.model.analysis_setup
-                app().project.file.write_analysis_setup_in_file(analysis_setup)
-
-            return complex_values, path_imported_table
+            return imported_data, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
             PrintMessageInput([error_title, title, message])
-            lineEdit.setFocus()
+            line_edit.setFocus()
             return None, None
 
     def load_Mx_table(self):
-        self.Mx_table_values, self.Mx_table_path = self.load_table(self.lineEdit_path_table_Mx, "Mx")
+        self.imported_Mx_values, self.Mx_table_path = self.load_table(self.lineEdit_path_table_Mx, "Mx")
         if self.Mx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Mx)
 
     def load_My_table(self):
-        self.My_table_values, self.My_table_path = self.load_table(self.lineEdit_path_table_My, "My")
+        self.imported_My_values, self.My_table_path = self.load_table(self.lineEdit_path_table_My, "My")
         if self.My_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_My)
 
     def load_Mz_table(self):
-        self.Mz_table_values, self.Mz_table_path = self.load_table(self.lineEdit_path_table_Mz, "Mz")
+        self.imported_Mz_values, self.Mz_table_path = self.load_table(self.lineEdit_path_table_Mz, "Mz")
         if self.Mz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Mz)
-    
+
     def load_Jx_table(self):
-        self.Jx_table_values, self.Jx_table_path = self.load_table(self.lineEdit_path_table_Jx, "Jx")
+        self.imported_Jx_values, self.Jx_table_path = self.load_table(self.lineEdit_path_table_Jx, "Jx")
         if self.Jx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Jx)
 
     def load_Jy_table(self):
-        self.Jy_table_values, self.Jy_table_path = self.load_table(self.lineEdit_path_table_Jy, "Jy")
+        self.imported_Jy_values, self.Jy_table_path = self.load_table(self.lineEdit_path_table_Jy, "Jy")
         if self.Jy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Jy)
 
     def load_Jz_table(self):
-        self.Jz_table_values, self.Jz_table_path = self.load_table(self.lineEdit_path_table_Jz, "Jz")
+        self.imported_Jz_values, self.Jz_table_path = self.load_table(self.lineEdit_path_table_Jz, "Jz")
         if self.Jz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Jz)
 
     def load_Kx_table(self):
-        self.Kx_table_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx")
+        self.imported_Kx_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx")
         if self.Kx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kx)
 
     def load_Ky_table(self):
-        self.Ky_table_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky")
+        self.imported_Ky_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky")
         if self.Ky_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Ky)
 
     def load_Kz_table(self):
-        self.Kz_table_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz")
+        self.imported_Kz_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz")
         if self.Kz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kz)
 
     def load_Krx_table(self):
-        self.Krx_table_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx")
+        self.imported_Krx_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx")
         if self.Krx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Krx)
 
     def load_Kry_table(self):
-        self.Kry_table_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry")
+        self.imported_Kry_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry")
         if self.Kry_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Kry)
 
     def load_Krz_table(self):
-        self.Krz_table_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz")
+        self.imported_Krz_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz")
         if self.Krz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Krz)
 
     def load_Cx_table(self):
-        self.Cx_table_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx")
+        self.imported_Cx_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx")
         if self.Cx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cx)
 
     def load_Cy_table(self):
-        self.Cy_table_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy")
+        self.imported_Cy_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy")
         if self.Cy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cy)
 
     def load_Cz_table(self):
-        self.Cz_table_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz")
+        self.imported_Cz_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz")
         if self.Cz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cz)
 
     def load_Crx_table(self):
-        self.Crx_table_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx")
+        self.imported_Crx_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx")
         if self.Crx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Crx)
 
     def load_Cry_table(self):
-        self.Cry_table_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry")
+        self.imported_Cry_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry")
         if self.Cry_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Cry)
 
     def load_Crz_table(self):
-        self.Crz_table_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz")
+        self.imported_Crz_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz")
         if self.Crz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_Crz)
 
@@ -659,72 +616,76 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         lineEdit.setText("")
         lineEdit.setFocus()
 
-    def save_tables_files(self, _label: str, node_id: int, values: np.ndarray):
+    def save_table_values(self, table_name: str, imported_values: np.ndarray):
 
-        table_name = f"{_label}_node_{node_id}"
+        # define the frequencies vector
+        _frequencies = imported_values[:, 0]
 
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
+        if app().project.model.change_analysis_frequency_setup(list(_frequencies)):
+            self.hide()
+            title = "Project frequency setup cannot be modified"
+            message = "The following imported table of values has a frequency setup "
+            message += "different from the others already imported ones. The current "
+            message += "project frequency setup is not going to be modified."
+            message += f"\n\n{table_name}"
+            PrintMessageInput([error_title, title, message])
+            return True
+
+        update_analysis_setup_in_file(_frequencies)
+
+        # real values vector
+        real_values = imported_values[:, 1]
+        
+        # imaginary values vector
+        imag_values = imported_values[:, 2]
+
+        # array to be saved
+        data = np.array([_frequencies, real_values, imag_values], dtype=float).T
 
         self.properties.add_imported_tables("structural", table_name, data)
 
-        return table_name, data
+        return False
 
-    def check_table_values_lumped_masses(self, node_ids: list):
+    def check_table_values_for_lumped_masses(self, node_ids: list):
 
-        if self.Mx_table_path is None:
-            self.Mx_table_values, self.Mx_table_path = self.load_table(self.lineEdit_path_table_Mx, "Mx", direct_load=True)
+        values = list()
+        table_paths = list()
+        lumped_labels = ["Mx", "My", "Mz", "Jx", "Jy", "Jz"]
+        
+        for label in lumped_labels:
 
-        if self.My_table_path is None:
-            self.My_table_values, self.My_table_path = self.load_table(self.lineEdit_path_table_My, "My", direct_load=True)
+            table_path_name = f"{label}_table_path"
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
 
-        if self.Mz_table_path is None:
-            self.Mz_table_values, self.Mz_table_path = self.load_table(self.lineEdit_path_table_Mz, "Mz", direct_load=True)
+            if _imported_values is None:
+                line_edit = getattr(self, f"lineEdit_path_table_{label}")
 
-        if self.Jx_table_path is None:
-            self.Jx_table_values, self.Jx_table_path = self.load_table(self.lineEdit_path_table_Jx, "Jx", direct_load=True)
+                _imported_values, _table_path = self.load_table(line_edit, label, direct_load = True)
+                setattr(self, imported_values_name, _imported_values)
+                setattr(self, table_path_name, _table_path)
 
-        if self.Jy_table_path is None:
-            self.Jy_table_values, self.Jy_table_path = self.load_table(self.lineEdit_path_table_Jy, "Jy", direct_load=True)
+            _table_path_attr = getattr(self, table_path_name)
+            table_paths.append(_table_path_attr)
 
-        if self.Jz_table_path is None:
-            self.Jz_table_values, self.Jz_table_path = self.load_table(self.lineEdit_path_table_Jz, "Jz", direct_load=True)
+            _imported_values_attr = getattr(self, imported_values_name)
+            values.append(get_spectral_data_from_array(_imported_values_attr))
 
         for node_id in node_ids:
 
-            if self.Mx_table_path is not None:
-                self.Mx_table_name, self.Mx_array = self.save_tables_files("lumped_mass_Mx", node_id, self.Mx_table_values)
+            table_names = list()
 
-            if self.My_table_path is not None:
-                self.My_table_name, self.My_array = self.save_tables_files("lumped_mass_My", node_id, self.My_table_values)
+            for label in lumped_labels:
+                imported_values_name = f"imported_{label}_values"
+                _imported_values = getattr(self, imported_values_name)
 
-            if self.Mz_table_path is not None:
-                self.Mz_table_name, self.Mz_array = self.save_tables_files("lumped_mass_Mz", node_id, self.My_table_values)
+                _table_name = None
+                if isinstance(_imported_values, np.ndarray):
+                    _table_name = get_table_name(f"lumped_{label}", node_id)
+                    if self.save_table_values(_table_name, _imported_values):
+                        return
 
-            if self.Jx_table_path is not None:
-                self.Jx_table_name, self.Jx_array = self.save_tables_files("lumped_inertia_moment_Jx", node_id, self.Jx_table_values)
-
-            if self.Jy_table_path is not None:
-                self.Jy_table_name, self.Jy_array = self.save_tables_files("lumped_inertia_moment_Jy", node_id, self.Jy_table_values)
-
-            if self.Jz_table_path is not None:
-                self.Jz_table_name, self.Jz_array = self.save_tables_files("lumped_inertia_moment_Jz", node_id, self.Jz_table_values)
-
-            table_names = [
-                self.Mx_table_name, self.My_table_name, self.Mz_table_name,
-                self.Jx_table_name, self.Jy_table_name, self.Jz_table_name,
-                ]
-
-            table_paths = [
-                self.Mx_table_path, self.My_table_path, self.Mz_table_path,
-                self.Jx_table_path, self.Jy_table_path, self.Jz_table_path,
-                ]
-
-            values = [
-                self.Mx_table_values, self.My_table_values, self.Mz_table_values,
-                self.Jx_table_values, self.Jy_table_values, self.Jz_table_values,
-                ]
+                table_names.append(_table_name)
 
             if (table_names).count(None) != 6:
 
@@ -742,60 +703,46 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
                 self.properties._set_nodal_property("lumped_masses", _data, node_id)
 
-    def check_table_values_lumped_stiffness(self, node_ids: list):
+    def check_table_values_for_lumped_stiffness(self, node_ids: list):
 
-        if self.Kx_table_path is None:
-            self.Kx_table_values, self.Kx_table_path = self.load_table(self.lineEdit_path_table_Kx, "Kx", direct_load=True)
+        values = list()
+        table_paths = list()
+        lumped_labels = ["Kx", "Ky", "Kz", "Krx", "Kry", "Krz"]
+        
+        for label in lumped_labels:
 
-        if self.Ky_table_path is None:
-            self.Ky_table_values, self.Ky_table_path = self.load_table(self.lineEdit_path_table_Ky, "Ky", direct_load=True)
+            table_path_name = f"{label}_table_path"
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
 
-        if self.Kz_table_path is None:
-            self.Kz_table_values, self.Kz_table_path = self.load_table(self.lineEdit_path_table_Kz, "Kz", direct_load=True)
+            if _imported_values is None:
+                line_edit = getattr(self, f"lineEdit_path_table_{label}")
 
-        if self.Krx_table_path is None:
-            self.Krx_table_values, self.Krx_table_path = self.load_table(self.lineEdit_path_table_Krx, "Krx", direct_load=True)
+                _imported_values, _table_path = self.load_table(line_edit, label, direct_load = True)
+                setattr(self, imported_values_name, _imported_values)
+                setattr(self, table_path_name, _table_path)
 
-        if self.Kry_table_path is None:
-            self.Kry_table_values, self.Kry_table_path = self.load_table(self.lineEdit_path_table_Kry, "Kry", direct_load=True)
+            _table_path_attr = getattr(self, table_path_name)
+            table_paths.append(_table_path_attr)
 
-        if self.Krz_table_path is None:
-            self.Krz_table_values, self.Krz_table_path = self.load_table(self.lineEdit_path_table_Krz, "Krz", direct_load=True)
+            _imported_values_attr = getattr(self, imported_values_name)
+            values.append(get_spectral_data_from_array(_imported_values_attr))
 
         for node_id in node_ids:
 
-            if self.Kx_table_path is not None:
-                self.Kx_table_name, self.Kx_array = self.save_tables_files("lumped_stiffness_Kx", node_id, self.Kx_table_values)
+            table_names = list()
 
-            if self.Ky_table_path is not None:
-                self.Ky_table_name, self.Ky_array = self.save_tables_files("lumped_stiffness_Ky", node_id, self.Ky_table_values)
+            for label in lumped_labels:
+                imported_values_name = f"imported_{label}_values"
+                _imported_values = getattr(self, imported_values_name)
 
-            if self.Kz_table_path is not None:
-                self.Kz_table_name, self.Kz_array = self.save_tables_files("lumped_stiffness_Kz", node_id, self.Kz_table_values)
+                _table_name = None
+                if isinstance(_imported_values, np.ndarray):
+                    _table_name = get_table_name(f"lumped_{label}", node_id)
+                    if self.save_table_values(_table_name, _imported_values):
+                        return
 
-            if self.Krx_table_path is not None:
-                self.Krx_table_name, self.Krx_array = self.save_tables_files("lumped_stiffness_Krx", node_id, self.Krx_table_values)
-
-            if self.Kry_table_path is not None:
-                self.Kry_table_name, self.Kry_array = self.save_tables_files("lumped_stiffness_Kry", node_id, self.Kry_table_values)
-
-            if self.Krz_table_path is not None:
-                self.Krz_table_name, self.Krz_array = self.save_tables_files("lumped_stiffness_Krz", node_id, self.Krz_table_values)
-
-            table_names = [
-                self.Kx_table_name, self.Ky_table_name, self.Kz_table_name,
-                self.Krx_table_name, self.Kry_table_name, self.Krz_table_name,
-                ]
-
-            table_paths = [
-                self.Kx_table_path, self.Ky_table_path, self.Kz_table_path,
-                self.Krx_table_path, self.Kry_table_path, self.Krz_table_path,
-                ]
-
-            values = [
-                self.Kx_table_values, self.Ky_table_values, self.Kz_table_values,
-                self.Krx_table_values, self.Kry_table_values, self.Krz_table_values,
-                ]
+                table_names.append(_table_name)
 
             if (table_names).count(None) != 6:
                 
@@ -813,61 +760,46 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
                 self.properties._set_nodal_property("lumped_stiffness", data, node_id)
 
-    def check_table_values_lumped_dampings(self, node_ids: list):
+    def check_table_values_for_lumped_dampings(self, node_ids: list):
 
+        values = list()
+        table_paths = list()
+        lumped_labels = ["Cx", "Cy", "Cz", "Crx", "Cry", "Crz"]
 
-        if self.Cx_table_path is None:
-            self.Cx_table_values, self.Cx_table_path = self.load_table(self.lineEdit_path_table_Cx, "Cx", direct_load=True)
+        for label in lumped_labels:
 
-        if self.Cy_table_path is None:
-            self.Cy_table_values, self.Cy_table_path = self.load_table(self.lineEdit_path_table_Cy, "Cy", direct_load=True)
+            table_path_name = f"{label}_table_path"
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
 
-        if self.Cz_table_path is None:
-            self.Cz_table_values, self.Cz_table_path = self.load_table(self.lineEdit_path_table_Cz, "Cz", direct_load=True)
+            if _imported_values is None:
+                line_edit = getattr(self, f"lineEdit_path_table_{label}")
 
-        if self.Crx_table_path is None:
-            self.Crx_table_values, self.Crx_table_path = self.load_table(self.lineEdit_path_table_Crx, "Crx", direct_load=True)
+                _imported_values, _table_path = self.load_table(line_edit, label, direct_load = True)
+                setattr(self, imported_values_name, _imported_values)
+                setattr(self, table_path_name, _table_path)
 
-        if self.Cry_table_path is None:
-            self.Cry_table_values, self.Cry_table_path = self.load_table(self.lineEdit_path_table_Cry, "Cry", direct_load=True)
+            _table_path_attr = getattr(self, table_path_name)
+            table_paths.append(_table_path_attr)
 
-        if self.Crz_table_path is None:
-            self.Crz_table_values, self.Crz_table_path = self.load_table(self.lineEdit_path_table_Crz, "Crz", direct_load=True)
+            _imported_values_attr = getattr(self, imported_values_name)
+            values.append(get_spectral_data_from_array(_imported_values_attr))
 
         for node_id in node_ids:
 
-            if self.Cx_table_path is not None:
-                self.Cx_table_name, self.Cx_array = self.save_tables_files("lumped_damper_Cx", node_id, self.Cx_table_values)
+            table_names = list()
 
-            if self.Cy_table_path is not None:
-                self.Cy_table_name, self.Cy_array = self.save_tables_files("lumped_damper_Cy", node_id, self.Cy_table_values)
+            for label in lumped_labels:
+                imported_values_name = f"imported_{label}_values"
+                _imported_values = getattr(self, imported_values_name)
 
-            if self.Cz_table_path is not None:
-                self.Cz_table_name, self.Cz_array = self.save_tables_files("lumped_damper_Cz", node_id, self.Cy_table_values)
+                _table_name = None
+                if isinstance(_imported_values, np.ndarray):
+                    _table_name = get_table_name(f"lumped_{label}", node_id)
+                    if self.save_table_values(_table_name, _imported_values):
+                        return
 
-            if self.Crx_table_path is not None:
-                self.Crx_table_name, self.Crx_array = self.save_tables_files("lumped_damper_Crx", node_id, self.Crx_table_values)
-
-            if self.Cry_table_path is not None:
-                self.Cry_table_name, self.Cry_array = self.save_tables_files("lumped_damper_Cry", node_id, self.Cry_table_values)
-
-            if self.Crz_table_path is not None:
-                self.Crz_table_name, self.Crz_array = self.save_tables_files("lumped_damper_Crz", node_id, self.Crz_table_values)
-
-            table_names = [
-                self.Cx_table_name, self.Cy_table_name, self.Cz_table_name,
-                self.Crx_table_name, self.Cry_table_name, self.Crz_table_name,
-                ]
-
-            table_paths = [
-                self.Cx_table_path, self.Cy_table_path, self.Cz_table_path,
-                self.Crx_table_path, self.Cry_table_path, self.Crz_table_path,
-                ]
-
-            values = [
-                self.Cx_table_values, self.Cy_table_values, self.Cz_table_values,
-                self.Crx_table_values, self.Cry_table_values, self.Crz_table_values,
-                ]
+                table_names.append(_table_name)
 
             if (table_names).count(None) != 6:
                 
@@ -887,19 +819,19 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
     def check_table_values_inputs(self, node_ids: list):
 
-        if self.check_table_values_lumped_masses(node_ids):
+        if self.check_table_values_for_lumped_masses(node_ids):
             return
 
-        if self.check_table_values_lumped_stiffness(node_ids):
+        if self.check_table_values_for_lumped_stiffness(node_ids):
             return
 
-        if self.check_table_values_lumped_dampings(node_ids):
+        if self.check_table_values_for_lumped_dampings(node_ids):
             return
 
         if not self.lumped_element_applied:
             title = "Additional inputs required"
-            message = "You must inform at least one external element\n" 
-            message += "table path before confirming the input!"
+            message = "Choose at least one external element table " 
+            message += "file to proceed with model assignment."
             PrintMessageInput([error_title, title, message]) 
             return
 
