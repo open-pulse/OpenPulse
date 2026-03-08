@@ -396,6 +396,7 @@ class Ui_Dialog(object):
         self.lineEdit_path_table_ry.setMinimumSize(QSize(210, 26))
         self.lineEdit_path_table_ry.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_ry.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_path_table_ry.setClearButtonEnabled(True)
 
         self.gridLayout_3.addWidget(self.lineEdit_path_table_ry, 4, 1, 1, 1)
 
@@ -440,6 +441,7 @@ class Ui_Dialog(object):
         self.lineEdit_path_table_rz.setMinimumSize(QSize(210, 26))
         self.lineEdit_path_table_rz.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_rz.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_path_table_rz.setClearButtonEnabled(True)
 
         self.gridLayout_3.addWidget(self.lineEdit_path_table_rz, 5, 1, 1, 1)
 
@@ -450,6 +452,7 @@ class Ui_Dialog(object):
         self.lineEdit_path_table_uy.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_uy.setStyleSheet(u"")
         self.lineEdit_path_table_uy.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_path_table_uy.setClearButtonEnabled(True)
 
         self.gridLayout_3.addWidget(self.lineEdit_path_table_uy, 1, 1, 1, 1)
 
@@ -505,6 +508,7 @@ class Ui_Dialog(object):
         self.lineEdit_path_table_rx.setMinimumSize(QSize(210, 26))
         self.lineEdit_path_table_rx.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_rx.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_path_table_rx.setClearButtonEnabled(True)
 
         self.gridLayout_3.addWidget(self.lineEdit_path_table_rx, 3, 1, 1, 1)
 
@@ -524,6 +528,7 @@ class Ui_Dialog(object):
         self.lineEdit_path_table_uz.setMinimumSize(QSize(210, 26))
         self.lineEdit_path_table_uz.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_uz.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_path_table_uz.setClearButtonEnabled(True)
 
         self.gridLayout_3.addWidget(self.lineEdit_path_table_uz, 2, 1, 1, 1)
 
@@ -556,6 +561,7 @@ class Ui_Dialog(object):
         self.lineEdit_path_table_ux.setMaximumSize(QSize(240, 26))
         self.lineEdit_path_table_ux.setStyleSheet(u"")
         self.lineEdit_path_table_ux.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_path_table_ux.setClearButtonEnabled(True)
 
         self.gridLayout_3.addWidget(self.lineEdit_path_table_ux, 0, 1, 1, 1)
 

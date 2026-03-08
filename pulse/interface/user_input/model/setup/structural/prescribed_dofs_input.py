@@ -175,23 +175,36 @@ class PrescribedDofsInput(PrescribedDofsInput_UI):
             self.lineEdit_node_ids.setText(text)
 
             if len(selected_nodes) == 1:
-                for (property, *args), data in self.properties.nodal_properties.items():
-                    if property == "prescribed_dofs" and selected_nodes == args:
+                prop_data = self.properties._get_property("prescribed_dofs", node_ids=selected_nodes[0])
+                if not isinstance(prop_data, dict):
+                    return
 
-                        values = data["values"]
-        
-                        if "table_paths" in data.keys():
-                            table_paths = data["table_paths"]
-                            for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
-                                table_path = table_paths[index]
-                                if table_path is not None:                   
-                                    lineEdit_table.setText(table_path)
+                if "table_paths" in prop_data.keys():
+                    table_paths = prop_data["table_paths"]
+                    for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
+                        table_path = table_paths[index]
+                        if table_path is not None:                   
+                            lineEdit_table.setText(table_path)
 
-                        else:
-                            for index, [lineEdit_real, lineEdit_imag] in enumerate(self.list_lineEdit_constant_values):
-                                if values[index] is not None:
-                                    lineEdit_real.setText(str(np.real(values[index])))
-                                    lineEdit_imag.setText(str(np.imag(values[index])))
+                else:
+                    values = prop_data["values"]
+                    for index, (unit_label, (line_edit_real, line_edit_imag)) in enumerate(self.constant_line_edits.items()):
+
+                        if values[index] is None:
+                            self.dof_setup_combo_boxes[unit_label].setCurrentIndex(DOFSetup.FREE)
+
+                        elif isinstance(values[index], complex):
+                            if values[index] == complex(0):
+                                self.dof_setup_combo_boxes[unit_label].setCurrentIndex(DOFSetup.FIXED)
+                            else:
+                                self.dof_setup_combo_boxes[unit_label].setCurrentIndex(DOFSetup.VALUE)
+
+                        if isinstance(values[index], complex):
+                            if values[index] == complex(0):
+                                continue
+
+                            line_edit_real.setText(str(np.real(values[index])))
+                            line_edit_imag.setText(str(np.imag(values[index])))
 
     def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit, label: str):
 
