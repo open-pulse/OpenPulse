@@ -1001,7 +1001,7 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
                          <italic>false</italic>
                          <bold>false</bold>
                         </font>
@@ -1036,7 +1036,7 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
                          <italic>false</italic>
                          <bold>false</bold>
                         </font>
@@ -1082,7 +1082,7 @@
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_angular_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kryz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1117,7 +1117,7 @@
                       </widget>
                      </item>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_axial_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1181,7 +1181,7 @@
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_torsional_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Krx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1229,7 +1229,7 @@
                       </spacer>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_transversal_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kyz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1311,7 +1311,7 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
                          <italic>false</italic>
                          <bold>false</bold>
                         </font>
@@ -1346,7 +1346,7 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
                          <italic>false</italic>
                          <bold>false</bold>
                         </font>
@@ -1382,7 +1382,7 @@
                       <number>6</number>
                      </property>
                      <item row="0" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_axial_stiffness">
+                      <widget class="QPushButton" name="pushButton_load_table_Kx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1531,7 +1531,7 @@
                       </spacer>
                      </item>
                      <item row="2" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_torsional_stiffness">
+                      <widget class="QPushButton" name="pushButton_load_table_Krx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1654,7 +1654,7 @@
                       </widget>
                      </item>
                      <item row="3" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_angular_stiffness">
+                      <widget class="QPushButton" name="pushButton_load_table_Kryz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1713,7 +1713,7 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
                          <italic>false</italic>
                          <bold>false</bold>
                         </font>
@@ -1722,7 +1722,7 @@
                         <bool>true</bool>
                        </property>
                        <property name="text">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal; vertical-align:sub;&quot;&gt;x&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;x&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1730,7 +1730,7 @@
                       </widget>
                      </item>
                      <item row="1" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_transversal_stiffness">
+                      <widget class="QPushButton" name="pushButton_load_table_Kyz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1789,7 +1789,7 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
                          <italic>false</italic>
                          <bold>false</bold>
                         </font>
@@ -1798,7 +1798,7 @@
                         <bool>true</bool>
                        </property>
                        <property name="text">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;yz&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;yz&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1824,7 +1824,7 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
                          <italic>false</italic>
                          <bold>false</bold>
                         </font>
@@ -1833,7 +1833,7 @@
                         <bool>true</bool>
                        </property>
                        <property name="text">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;rz&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;rx&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1859,7 +1859,7 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
                          <italic>false</italic>
                          <bold>false</bold>
                         </font>
@@ -1868,7 +1868,7 @@
                         <bool>true</bool>
                        </property>
                        <property name="text">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;ryz&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;ryz&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -2227,20 +2227,20 @@
   <tabstop>lineEdit_joint_mass</tabstop>
   <tabstop>lineEdit_axial_locking_criteria</tabstop>
   <tabstop>comboBox_axial_stop_rod</tabstop>
-  <tabstop>lineEdit_axial_stiffness</tabstop>
-  <tabstop>lineEdit_transversal_stiffness</tabstop>
-  <tabstop>lineEdit_torsional_stiffness</tabstop>
-  <tabstop>lineEdit_angular_stiffness</tabstop>
+  <tabstop>lineEdit_Kx</tabstop>
+  <tabstop>lineEdit_Kyz</tabstop>
+  <tabstop>lineEdit_Krx</tabstop>
+  <tabstop>lineEdit_Kryz</tabstop>
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>pushButton_exit</tabstop>
   <tabstop>lineEdit_Kx_table_path</tabstop>
-  <tabstop>pushButton_load_table_axial_stiffness</tabstop>
+  <tabstop>pushButton_load_table_Kx</tabstop>
   <tabstop>lineEdit_Kyz_table_path</tabstop>
-  <tabstop>pushButton_load_table_transversal_stiffness</tabstop>
+  <tabstop>pushButton_load_table_Kyz</tabstop>
   <tabstop>lineEdit_Krx_table_path</tabstop>
-  <tabstop>pushButton_load_table_torsional_stiffness</tabstop>
+  <tabstop>pushButton_load_table_Krx</tabstop>
   <tabstop>lineEdit_Kryz_table_path</tabstop>
-  <tabstop>pushButton_load_table_angular_stiffness</tabstop>
+  <tabstop>pushButton_load_table_Kryz</tabstop>
   <tabstop>tabWidget_inputs</tabstop>
   <tabstop>pushButton_remove</tabstop>
   <tabstop>pushButton_reset</tabstop>

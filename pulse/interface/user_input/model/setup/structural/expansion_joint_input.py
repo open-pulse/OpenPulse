@@ -86,10 +86,10 @@ class ExpansionJointInput(ExpansionJointInput_UI):
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
-        self.pushButton_load_table_axial_stiffness.clicked.connect(self.load_Kx_table)
-        self.pushButton_load_table_transversal_stiffness.clicked.connect(self.load_Kyz_table)
-        self.pushButton_load_table_torsional_stiffness.clicked.connect(self.load_Krx_table)
-        self.pushButton_load_table_angular_stiffness.clicked.connect(self.load_Kryz_table)
+        self.pushButton_load_table_Kx.clicked.connect(self.load_Kx_table)
+        self.pushButton_load_table_Kyz.clicked.connect(self.load_Kyz_table)
+        self.pushButton_load_table_Krx.clicked.connect(self.load_Krx_table)
+        self.pushButton_load_table_Kryz.clicked.connect(self.load_Kryz_table)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
@@ -144,10 +144,10 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             self.lineEdit_effective_diameter,
             self.lineEdit_joint_mass,
             self.lineEdit_axial_locking_criteria,
-            self.lineEdit_axial_stiffness,
-            self.lineEdit_transversal_stiffness,
-            self.lineEdit_torsional_stiffness,
-            self.lineEdit_angular_stiffness,
+            self.lineEdit_Kx,
+            self.lineEdit_Kyz,
+            self.lineEdit_Krx,
+            self.lineEdit_Kryz,
             self.lineEdit_Kx_table_path,
             self.lineEdit_Kyz_table_path,
             self.lineEdit_Krx_table_path,
@@ -212,11 +212,11 @@ class ExpansionJointInput(ExpansionJointInput_UI):
 
             else:
                 self.tabWidget_inputs.setCurrentIndex(0)
-                Kx, Kyz, Krx, Kryz = joint_data['stiffness_values']
-                self.lineEdit_axial_stiffness.setText(f"{Kx : .3e}")
-                self.lineEdit_transversal_stiffness.setText(f"{Kyz : .3e}")
-                self.lineEdit_torsional_stiffness.setText(f"{Krx : .3e}")
-                self.lineEdit_angular_stiffness.setText(f"{Kryz : .3e}")
+                Kx, Kyz, Krx, Kryz = joint_data['values']
+                self.lineEdit_Kx.setText(f"{Kx : .3e}")
+                self.lineEdit_Kyz.setText(f"{Kyz : .3e}")
+                self.lineEdit_Krx.setText(f"{Krx : .3e}")
+                self.lineEdit_Kryz.setText(f"{Kryz : .3e}")
 
         except Exception as error_log:
             title = "Error while loading info from entity"
@@ -294,55 +294,71 @@ class ExpansionJointInput(ExpansionJointInput_UI):
         
         _stiffness = list()
 
-        stop, value = self.check_input_parameters(self.lineEdit_axial_stiffness, 'Kx')
+        stop, value = self.check_input_parameters(self.lineEdit_Kx, 'Kx (axial stiffness)')
         if stop:
-            self.lineEdit_axial_stiffness.setFocus()
+            self.lineEdit_Kx.setFocus()
             return True
         _stiffness.append(value)
 
-        stop, value = self.check_input_parameters(self.lineEdit_transversal_stiffness, 'Kyz')
+        stop, value = self.check_input_parameters(self.lineEdit_Kyz, 'Kyz (transversal stiffness)')
         if stop:
-            self.lineEdit_transversal_stiffness.setFocus()
+            self.lineEdit_Kyz.setFocus()
             return True
         _stiffness.append(value)
 
-        stop, value = self.check_input_parameters(self.lineEdit_torsional_stiffness, 'Krx')
+        stop, value = self.check_input_parameters(self.lineEdit_Krx, 'Krx (torsional stiffness)')
         if stop:
-            self.lineEdit_torsional_stiffness.setFocus()
+            self.lineEdit_Krx.setFocus()
             return True
         _stiffness.append(value)
 
-        stop, value = self.check_input_parameters(self.lineEdit_angular_stiffness, 'Kryz')
+        stop, value = self.check_input_parameters(self.lineEdit_Kryz, 'Kryz (angular stiffness)')
         if stop:
-            self.lineEdit_angular_stiffness.setFocus()
+            self.lineEdit_Kryz.setFocus()
             return True
         _stiffness.append(value)
 
         self.expansion_joint_info["values"] = _stiffness
 
     def load_Kx_table(self):
-        line_edit = self.lineEdit_Kx_table_path
-        self.imported_Kx_values, self.Kx_table_path = CommonUserInputs().load_table(line_edit, "expansion joint stiffness", dof_label="Kx")
+        self.imported_Kx_values, self.Kx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Kx_table_path, 
+            "Kx", 
+            dof_label="axial stiffness",
+            )
+
         if self.imported_Kx_values is None:
-            self.lineEdit_reset(line_edit)
+            self.lineEdit_reset(self.lineEdit_Kx_table_path)
 
     def load_Kyz_table(self):
-        line_edit = self.lineEdit_Kyz_table_path
-        self.imported_Kyz_values, self.Kyz_table_path = CommonUserInputs().load_table(line_edit, "expansion joint stiffness", dof_label="Kyz")
+        self.imported_Kyz_values, self.Kyz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Kyz_table_path, 
+            "Kyz", 
+            dof_label="transversal stiffness",
+            )
+
         if self.imported_Kyz_values is None:
-            self.lineEdit_reset(line_edit)
+            self.lineEdit_reset(self.lineEdit_Kyz_table_path)
 
     def load_Krx_table(self):
-        line_edit = self.lineEdit_Krx_table_path
-        self.imported_Krx_values, self.Krx_table_path = CommonUserInputs().load_table(line_edit, "expansion joint stiffness", dof_label="Krx")
+        self.imported_Krx_values, self.Krx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Krx_table_path, 
+            "Krx", 
+            dof_label="torsional stiffness",
+            )
+
         if self.imported_Krx_values is None:
-            self.lineEdit_reset(line_edit)
+            self.lineEdit_reset(self.lineEdit_Krx_table_path)
 
     def load_Kryz_table(self):
-        line_edit = self.lineEdit_Kryz_table_path
-        self.imported_Kryz_values, self.Kryz_table_path = CommonUserInputs().load_table(line_edit, "expansion joint stiffness", dof_label="Kryz")
+        self.imported_Kryz_values, self.Kryz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Kryz_table_path, 
+            "Kryz", 
+            dof_label="angular stiffness"
+            )
+
         if self.Kryz_table_path is None:
-            self.lineEdit_reset(line_edit)
+            self.lineEdit_reset(self.lineEdit_Kryz_table_path)
 
     def lineEdit_reset(self, line_edit: QLineEdit):
         line_edit.setText("")
@@ -391,7 +407,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             _imported_values = getattr(self, imported_values_name)
 
             if _imported_values is None:
-                line_edit = getattr(self, f"lineEdit_path_table_{label}")
+                line_edit = getattr(self, f"lineEdit_{label}_table_path")
 
                 _imported_values, _table_path = CommonUserInputs().load_table(line_edit, "nodal link", dof_label=label, direct_load=True)
                 setattr(self, imported_values_name, _imported_values)
@@ -471,9 +487,9 @@ class ExpansionJointInput(ExpansionJointInput_UI):
                 self.preprocessor.add_valve_by_lines(line_id, None)
 
                 cross_sections = get_cross_sections_to_plot_expansion_joint(
-                                                                            self.joint_elements, 
-                                                                            self.expansion_joint_info["effective_diameter"]   
-                                                                            )
+                    self.joint_elements, 
+                    self.expansion_joint_info["effective_diameter"],
+                    )
 
                 self.preprocessor.set_cross_section_by_elements(self.joint_elements, cross_sections)
                 self.preprocessor.add_expansion_joint_by_lines(line_id, self.expansion_joint_info)
