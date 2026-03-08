@@ -1,5 +1,3 @@
-#fmt: off
-
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
@@ -9,6 +7,7 @@ from pulse.interface.ui_generated.model.setup.structural.prescribed_dofs_input_u
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.common import get_spectral_data_from_array, get_table_name, update_analysis_setup_in_file
 
 
 import os
@@ -96,19 +95,12 @@ class PrescribedDofsInput(PrescribedDofsInput_UI):
 
     def reset_table_variables(self):
 
-        self.ux_table_values = None
-        self.uy_table_values = None
-        self.uz_table_values = None
-        self.rx_table_values = None
-        self.ry_table_values = None
-        self.rz_table_values = None
-
-        self.ux_array = None
-        self.uy_array = None
-        self.uz_array = None
-        self.rx_array = None
-        self.ry_array = None
-        self.rz_array = None
+        self.imported_ux_values = None
+        self.imported_uy_values = None
+        self.imported_uz_values = None
+        self.imported_rx_values = None
+        self.imported_ry_values = None
+        self.imported_rz_values = None
 
         self.ux_table_path = None
         self.uy_table_path = None
@@ -116,13 +108,6 @@ class PrescribedDofsInput(PrescribedDofsInput_UI):
         self.rx_table_path = None
         self.ry_table_path = None
         self.rz_table_path = None
-
-        self.ux_table_name = None
-        self.uy_table_name = None
-        self.uz_table_name = None
-        self.rx_table_name = None
-        self.ry_table_name = None
-        self.rz_table_name = None
 
     def _define_qt_variables(self):
         self._create_list_lineEdits()
@@ -348,10 +333,10 @@ class PrescribedDofsInput(PrescribedDofsInput_UI):
 
                 caption = f"Choose a table to import the {dof_label} nodal load"
                 path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
-                                                                                                caption, 
-                                                                                                last_path, 
-                                                                                                'Table File (*.csv; *.dat; *.txt)'
-                                                                                              )
+                    caption, 
+                    last_path, 
+                    'Table File (*.csv; *.dat; *.txt)'
+                    )
 
                 if not check:
                     return None, None
@@ -359,40 +344,19 @@ class PrescribedDofsInput(PrescribedDofsInput_UI):
             if path_imported_table == "":
                 return None, None
 
-            imported_filename = os.path.basename(path_imported_table)
             lineEdit.setText(path_imported_table)         
-            imported_file = np.loadtxt(path_imported_table, delimiter=",")
+            imported_data = np.loadtxt(path_imported_table, delimiter=",")
         
-            if imported_file.shape[1] < 3:
+            if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([error_title, title, message])
                 lineEdit.setFocus()
                 return None, None
-
-            imported_values = imported_file[:, 1] + 1j*imported_file[:, 2]
-            self.frequencies = imported_file[:, 0]
-
+            
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
-            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
-
-                self.lineEdit_reset(lineEdit)
-
-                title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
-                message += "different from the others already imported ones. The current\n"
-                message += "project frequency setup is not going to be modified."
-                message += f"\n\n{imported_filename}"
-                PrintMessageInput([error_title, title, message])
-                return None, None
-
-            else:
-
-                analysis_setup = app().project.model.analysis_setup
-                app().project.file.write_analysis_setup_in_file(analysis_setup)
-
-            return imported_values, path_imported_table
+            return imported_data, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
@@ -401,32 +365,32 @@ class PrescribedDofsInput(PrescribedDofsInput_UI):
             return None, None
 
     def load_ux_table(self):
-        self.ux_table_values, self.ux_table_path = self.load_table(self.lineEdit_path_table_ux, "Ux")
-        if  self.ux_table_path is None:
+        self.imported_ux_values, self.ux_table_path = self.load_table(self.lineEdit_path_table_ux, "Ux")
+        if self.ux_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_ux)
 
     def load_uy_table(self):
-        self.uy_table_values, self.uy_table_path = self.load_table(self.lineEdit_path_table_uy, "Uy")
+        self.imported_uy_values, self.uy_table_path = self.load_table(self.lineEdit_path_table_uy, "Uy")
         if self.uy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_uy)
-            
+
     def load_uz_table(self):
-        self.uz_table_values, self.uz_table_path = self.load_table(self.lineEdit_path_table_uz, "Uz")
+        self.imported_uz_values, self.uz_table_path = self.load_table(self.lineEdit_path_table_uz, "Uz")
         if self.uz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_uz)
-            
+
     def load_rx_table(self):
-        self.rx_table_values, self.rx_table_path = self.load_table(self.lineEdit_path_table_rx, "Rx")
+        self.imported_rx_values, self.rx_table_path = self.load_table(self.lineEdit_path_table_rx, "Rx")
         if self.rx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_rx)
-            
+
     def load_ry_table(self):
-        self.ry_table_values, self.ry_table_path = self.load_table(self.lineEdit_path_table_ry, "Ry")
+        self.imported_ry_values, self.ry_table_path = self.load_table(self.lineEdit_path_table_ry, "Ry")
         if self.ry_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_ry)
             
     def load_rz_table(self):
-        self.rz_table_values, self.rz_table_path = self.load_table(self.lineEdit_path_table_rz, "Rz")
+        self.imported_rz_values, self.rz_table_path = self.load_table(self.lineEdit_path_table_rz, "Rz")
         if self.rz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_rz)
 
@@ -434,47 +398,83 @@ class PrescribedDofsInput(PrescribedDofsInput_UI):
         lineEdit.setText("")
         lineEdit.setFocus()
 
-    def integrate_and_save_table_files(self, dof_label: str, node_id: int, values: np.ndarray, linear=False, angular=False):
+    def integrate_and_save_table_values(
+            self, 
+            table_name: str, 
+            imported_values: np.ndarray, 
+            linear: bool = False, 
+            angular: bool = False,
+            ):
+        
+        index_lin = self.comboBox_linear_data_type.currentIndex()
+        index_ang = self.comboBox_angular_data_type.currentIndex()
 
-        if self.frequencies[0]==0:
-            self.frequencies[0] = float(1e-6)
+        zero_filter = False
+        if imported_values[0, 0] == 0:
+            if linear and index_lin != 0:
+                zero_filter = True
 
-        if linear:
+            if angular and index_ang != 0:
+                zero_filter = True
 
-            index_lin = self.comboBox_linear_data_type.currentIndex() 
-            if index_lin == 0:
-                values = values
+        if zero_filter:
+            freq_mask = imported_values[:, 0] > 0
+        else:
+            freq_mask = imported_values[:, 0] >= 0
 
-            elif index_lin == 1:
-                values = values/(1j*2*np.pi*self.frequencies)
+        _imported_values = imported_values[freq_mask, :]
 
-            elif index_lin == 2:
-                values = values/((1j*2*np.pi*self.frequencies)**2)
+        # define the frequencies vector
+        _frequencies = _imported_values[:, 0]
 
-        if angular:
+        # real values vector
+        real_values = _imported_values[:, 1]
+        
+        # imaginary values vector
+        imag_values = _imported_values[:, 2]
 
-            index_ang = self.comboBox_angular_data_type.currentIndex()
-            if index_ang == 0:
-                values = values
+        complex_values = real_values + 1j * imag_values 
 
-            elif index_ang == 1:
-                values = values/(1j*2*np.pi*self.frequencies)
+        if bool(index_lin) or bool(index_ang):
 
-            elif index_ang == 2:              
-                values = values/((1j*2*np.pi*self.frequencies)**2)
+            if linear:
+                complex_values /= ((1j*2*np.pi*_frequencies)**index_lin)
 
-        if self.frequencies[0] == float(1e-6):
-            self.frequencies[0] = 0
+            if angular:
+                complex_values /= ((1j*2*np.pi*_frequencies)**index_ang)
 
-        table_name = f"prescribed_dof_{dof_label}_node_{node_id}"
+        if app().project.model.change_analysis_frequency_setup(list(_frequencies)):
+            self.hide()
+            title = "Project frequency setup cannot be modified"
+            message = "The following imported table of values has a frequency setup "
+            message += "different from the others already imported ones. The current "
+            message += "project frequency setup is not going to be modified."
+            message += f"\n\n{table_name}"
+            PrintMessageInput([error_title, title, message])
+            return True
 
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
+        update_analysis_setup_in_file(_frequencies)
+
+        if bool(index_lin) or bool(index_ang):
+            # real values vector
+            real_values = np.real(complex_values)
+
+            # imaginary values vector
+            imag_values = np.imag(complex_values)
+
+        else:
+            # real values vector
+            real_values = _imported_values[:, 1]
+
+            # imaginary values vector
+            imag_values = _imported_values[:, 2]
+
+        # array to be saved
+        data = np.array([_frequencies, real_values, imag_values], dtype=float).T
 
         self.properties.add_imported_tables("structural", table_name, data)
 
-        return table_name, data
+        return False
 
     def table_values_attribution_callback(self):
 
@@ -486,54 +486,46 @@ class PrescribedDofsInput(PrescribedDofsInput_UI):
 
         self.remove_conflicting_excitations(node_ids)
 
-        if self.ux_table_path is None:
-            self.ux_table_values, self.ux_table_path = self.load_table(self.lineEdit_path_table_ux, "Ux", direct_load = True)
+        values = list()
+        table_paths = list()
+        dof_labels = ["ux", "uy", "uz", "rx", "ry", "rz"]
 
-        if self.uy_table_path is None:
-            self.uy_table_values, self.uy_table_path = self.load_table(self.lineEdit_path_table_uy, "Uy", direct_load = True)
+        for label in dof_labels:
 
-        if self.uz_table_path is None:
-            self.uz_table_values, self.uz_table_path = self.load_table(self.lineEdit_path_table_uz, "Uz", direct_load = True)
+            table_path_name = f"{label}_table_path"
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
 
-        if self.rx_table_path is None:
-            self.rx_table_values, self.rx_table_path = self.load_table(self.lineEdit_path_table_rx, "Rx", direct_load = True)
+            if _imported_values is None:
+                line_edit = getattr(self, f"lineEdit_path_table_{label}")
 
-        if self.ry_table_path is None:
-            self.ry_table_values, self.ry_table_path = self.load_table(self.lineEdit_path_table_ry, "Ry", direct_load = True)
+                _imported_values, _table_path = self.load_table(line_edit, label.capitalize(), direct_load = True)
+                setattr(self, imported_values_name, _imported_values)
+                setattr(self, table_path_name, _table_path)
 
-        if self.rz_table_path is None:
-            self.rz_table_values, self.rz_table_path = self.load_table(self.lineEdit_path_table_rz, "Rz", direct_load = True)
+            _table_path_attr = getattr(self, table_path_name)
+            table_paths.append(_table_path_attr)
+
+            _imported_values_attr = getattr(self, imported_values_name)
+            values.append(get_spectral_data_from_array(_imported_values_attr))
 
         for node_id in node_ids:
-            
-            if self.ux_table_values is not None:
-                self.ux_table_name, self.ux_array = self.integrate_and_save_table_files("Ux", node_id, self.ux_table_values, linear = True)
 
-            if self.uy_table_values is not None:
-                self.uy_table_name, self.uy_array = self.integrate_and_save_table_files("Uy", node_id, self.uy_table_values, linear = True)
+            table_names = list()
 
-            if self.uz_table_values is not None:
-                self.uz_table_name, self.uz_array = self.integrate_and_save_table_files("Uz", node_id, self.uz_table_values, linear = True)
+            for i, label in enumerate(dof_labels):
+                imported_values_name = f"imported_{label}_values"
+                _imported_values = getattr(self, imported_values_name)
 
-            if self.rx_table_values is not None:
-                self.rx_table_name, self.rx_array = self.integrate_and_save_table_files("Rx", node_id, self.rx_table_values, linear = True)
+                _table_name = None
+                if isinstance(_imported_values, np.ndarray):
+                    _table_name = get_table_name(f"prescribed_dof_{label}", node_id)
+                    if self.integrate_and_save_table_values(_table_name, _imported_values, linear= i<=2, angular= i>=3):
+                        return
 
-            if self.ry_table_values is not None:
-                self.ry_table_name, self.rx_array = self.integrate_and_save_table_files("Ry", node_id, self.ry_table_values, linear = True)
+                table_names.append(_table_name)
 
-            if self.rz_table_values is not None:
-                self.rz_table_name, self.rx_array = self.integrate_and_save_table_files("Rz", node_id, self.rz_table_values, linear = True)
-
-            basenames = [   self.ux_table_name, self.uy_table_name, self.uz_table_name, 
-                            self.rx_table_name, self.ry_table_name, self.rz_table_name   ]
-
-            table_paths = [ self.ux_table_path, self.uy_table_path, self.uz_table_path, 
-                            self.rx_table_path, self.ry_table_path, self.rz_table_path ]
-
-            prescribed_dofs = [ self.ux_table_values, self.uy_table_values, self.uz_table_values, 
-                                self.rx_table_values, self.ry_table_values, self.rz_table_values ]
-
-            if basenames == self.list_Nones:
+            if table_names == self.list_Nones:
                 title = "Additional inputs required"
                 message = "You must inform at least one prescribed dof "
                 message += "table path before confirming the input!"
@@ -544,11 +536,11 @@ class PrescribedDofsInput(PrescribedDofsInput_UI):
             coords = np.round(node.coordinates, 5)
 
             data = {
-                    "coords" : list(coords),
-                    "table_names" : basenames,
-                    "table_paths" : table_paths,
-                    "values" : prescribed_dofs
-                    }
+                "coords" : list(coords),
+                "table_names" : table_names,
+                "table_paths" : table_paths,
+                "values" : values,
+                }
 
             self.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
@@ -825,5 +817,3 @@ class PrescribedDofsInput(PrescribedDofsInput_UI):
         self.keep_window_open = False
         app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
-
-#fmt: on
