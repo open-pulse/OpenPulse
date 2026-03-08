@@ -11,6 +11,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
+from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 
 
 import os
@@ -362,93 +363,48 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
             self.perforated_plate_inputs['dimensionless_impedance'] = z_real + 1j*z_imag
         return False
 
-    def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
-        lineEdit.setFocus()
+    def lineEdit_reset(self, line_edit: QLineEdit):
+        line_edit.setText("")
+        line_edit.setFocus()
+
+    def save_table_values(self, table_name: str, imported_values: np.ndarray, filter_zero: bool = True):
+
+        if filter_zero:
+            mask_filter = imported_values[:, 0] > 0
+            _imported_values = imported_values[mask_filter, :]
+        else:
+            _imported_values = imported_values
+
+        # define the frequencies vector
+        frequencies = _imported_values[:, 0]
+
+        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
+            self.hide()
+            title = "Project frequency setup cannot be modified"
+            message = "The following imported table of values has a frequency setup "
+            message += "different from the others already imported ones. The current "
+            message += "project frequency setup is not going to be modified."
+            message += f"\n\n{table_name}"
+            PrintMessageInput([error_title, title, message])
+            return True
+
+        update_analysis_setup_in_file(frequencies)
+
+        # real values vector
+        real_values = _imported_values[:, 1]
+        
+        # imaginary values vector
+        imag_values = _imported_values[:, 2]
+
+        # data to be stored
+        data = np.array([frequencies, real_values, imag_values], dtype=float).T
+
+        self.properties.add_imported_tables("acoustic", table_name, data)
+
+        return False
 
     def load_table_button_callback(self):
-        self.imported_values, self.table_path = self.load_table(button_pressed=True)
-
-    def load_table(self, button_pressed=False):
-
-        try:
-            if self.lineEdit_load_table_path.text() == "" or button_pressed:
-
-                last_path = app().config.get_last_folder_for("imported_table_folder")
-                if last_path is None:
-                    last_path = Path.home()
-
-                caption = 'Choose a table to import the dimensionless impedance'
-                imported_table_path, check = app().main_window.file_dialog.get_open_file_name(  
-                    caption, 
-                    last_path, 
-                    'Files (*.csv; *.dat; *.txt)',
-                    )
-                
-                if not check:
-                    return None, None
-
-            else:
-                imported_table_path = self.lineEdit_load_table_path.text()
-
-            if imported_table_path == "":
-                return None, None
- 
-            imported_filename = os.path.basename(imported_table_path)
-            self.lineEdit_load_table_path.setText(imported_table_path)         
-            imported_data = np.loadtxt(imported_table_path, delimiter=",")
-        
-            if imported_data.shape[1] < 3:
-                message = "The imported table has insufficient number of columns. The spectrum "
-                message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([error_title, title, message])
-                self.lineEdit_load_table_path.setFocus()
-                return None, None
-            
-            mask = imported_data[:, 0] > 0
-            self.frequencies = imported_data[mask, 0]
-            complex_values = imported_data[mask, 1] + 1j * imported_data[mask, 2]
-            
-            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", imported_table_path)
-
-            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
-
-                self.lineEdit_reset(self.lineEdit_load_table_path)
-
-                title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
-                message += "different from the others already imported ones. The current\n"
-                message += "project frequency setup is not going to be modified."
-                message += f"\n\n{imported_filename}"
-                PrintMessageInput([error_title, title, message])
-                return None, None
-
-            else:
-
-                analysis_setup = app().project.model.analysis_setup
-                app().project.file.write_analysis_setup_in_file(analysis_setup)
-
-        except Exception as log_error:
-            title = "Dimensionless impedance Input error"
-            message = str(log_error)
-            PrintMessageInput([error_title, title, message])
-            return
-        
-        self.perforated_plate_inputs['dimensionless_impedance'] = complex_values
-
-        return complex_values, imported_table_path
-
-    def save_table_file(self, element_id: int, values: np.ndarray):
-
-        table_name = f"perforated_plate_dimensionless_impedance_element_{element_id}"
-
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("structural", table_name, data)
-
-        return table_name, data
+        self.imported_values, self.table_path = CommonUserInputs().load_table(self.lineEdit_load_table_path, "dimensionless impedance")
 
     def attribute_callback(self):
 
@@ -597,13 +553,31 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
 
                 if self.lineEdit_load_table_path.text() != "":
                     if self.imported_values is None:
-                        self.imported_values, self.table_path = self.load_table()
-                        self.save_table_file(element_id, self.imported_values)                           
+                        self.imported_values, self.table_path = CommonUserInputs().load_table(
+                            self.lineEdit_load_table_path, 
+                            "dimensionless impedance", 
+                            direct_load=True,
+                            )
 
-                    else:
-                        perforated_plate.dimensionless_impedance_table_name = self.table_path
-                        # self.perforated_plate.dimensionless_impedance = self.imported_values
-                
+                    if not isinstance(self.imported_values, np.ndarray):
+                        self.hide()
+                        title = "Invalid tabular data"
+                        message = "Select a valid tabular data for dimensionless impedance "
+                        message += " to proceed with model setup."
+                        PrintMessageInput(error_title, title, message)
+                        self.perforated_plate_inputs.clear()
+                        return
+
+                    table_name = get_table_name("perforated_plate_dimensionless_impedance_element", element_id)
+                    if self.save_table_values(table_name, self.imported_values):
+                        self.perforated_plate_inputs.clear()
+                        return
+
+                    self.perforated_plate_inputs['dimensionless_impedance'] = self.imported_values   
+
+                    perforated_plate.dimensionless_impedance_table_name = self.table_path
+                    perforated_plate.dimensionless_impedance = self.imported_values
+
                 coords = list()
                 element = self.preprocessor.acoustic_elements[element_id]
                 coords.extend(list(np.round(element.first_node.coordinates, 5)))
@@ -620,11 +594,6 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
                                                       )
 
             self.actions_to_finalize()
-
-            if len(element_ids) > 20:
-                print(f"[Set Perforated Plate] - defined at {len(element_ids)} selected elements")
-            else:
-                print(f"[Set Perforated Plate] - defined at elements {element_ids}")
 
         except Exception as log_error:
             title = "Error with the perforated plate data"

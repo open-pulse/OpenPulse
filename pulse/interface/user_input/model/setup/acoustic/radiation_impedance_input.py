@@ -15,11 +15,13 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app().main_window.set_input_widget(self)
+
         self.properties = app().project.model.properties
+        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._initialize()
         self._config_window()
-        self._define_qt_variables()
+        self._config_widgets()
         self._create_connections()
 
         self.selection_callback()
@@ -30,7 +32,6 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
 
     def _initialize(self):
         self.keep_window_open = True
-        self.before_run = app().project.get_pre_solution_model_checks()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -38,9 +39,9 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
-    def _define_qt_variables(self):
-        self.treeWidget_nodal_info.setColumnWidth(1, 20)
-        self.treeWidget_nodal_info.setColumnWidth(2, 80)
+    def _config_widgets(self):
+        for i, width in enumerate([20, 80]):
+            self.treeWidget_nodal_info.setColumnWidth(i, width)
 
     def _create_connections(self):
         #
@@ -145,7 +146,6 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
             self.properties._set_nodal_property("radiation_impedance", data, node_id)
 
         self.actions_to_finalize()
-        print(f"[Set Radiation Impedance] - defined at node(s) {node_ids}")
 
     def get_radiation_type_text(self, index: int):
         if index == RadiationImpedanceType.ANECHOIC:

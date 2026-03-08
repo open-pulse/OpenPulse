@@ -6,7 +6,7 @@ from pulse import app
 from pulse.interface.ui_generated.model.setup.acoustic.acoustic_pressure_input_ui import AcousticPressureInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-
+from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 
 import os
 import numpy as np
@@ -20,13 +20,13 @@ class AcousticPressureInput(AcousticPressureInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app().main_window.set_input_widget(self)
-        self.properties = app().project.model.properties
 
+        self.properties = app().project.model.properties
         self.before_run = app().project.get_pre_solution_model_checks()
 
         self._initialize()
         self._config_window()
-        self._define_qt_variables()
+        self._config_widgets()
         self._create_connections()
 
         self.selection_callback()
@@ -36,12 +36,7 @@ class AcousticPressureInput(AcousticPressureInput_UI):
             self.exec()
 
     def _initialize(self):
-
-        self.array = None
-        self.table_name = None
         self.table_path = None
-        self.table_values = None                
-
         self.keep_window_open = True
 
     def _config_window(self):
@@ -50,9 +45,9 @@ class AcousticPressureInput(AcousticPressureInput_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
-    def _define_qt_variables(self):
-        self.treeWidget_nodal_info.setColumnWidth(1, 20)
-        self.treeWidget_nodal_info.setColumnWidth(2, 80)
+    def _config_widgets(self):
+        for i, width in enumerate([20, 80]):
+            self.treeWidget_nodal_info.setColumnWidth(i, width)
 
     def _create_connections(self):
         #
@@ -200,108 +195,59 @@ class AcousticPressureInput(AcousticPressureInput_UI):
             coords = list(np.round(node.coordinates, 5))
 
             data = {   
-                    "coords" : coords,
-                    "real_values": real_values,
-                    "imag_values": imag_values,
-                    }
+                "coords" : coords,
+                "real_values": real_values,
+                "imag_values": imag_values,
+                }
 
             self.properties._set_nodal_property("acoustic_pressure", data, node_id)
 
         self.actions_to_finalize()
-        print(f"[Set Acoustic Pressure] - defined at node(s) {node_ids}")
 
-    def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
-        lineEdit.setFocus()
+    def lineEdit_reset(self, line_edit: QLineEdit):
+        line_edit.setText("")
+        line_edit.setFocus()
 
-    def save_table_file(self, node_id: int, values: np.ndarray):
+    def save_table_values(self, table_name: str, imported_values: np.ndarray, filter_zero: bool = True):
 
-        table_name = f"acoustic_pressure_node_{node_id}"
+        if filter_zero:
+            mask_filter = imported_values[:, 0] > 0
+            _imported_values = imported_values[mask_filter, :]
+        else:
+            _imported_values = imported_values
 
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
+        # define the frequencies vector
+        frequencies = _imported_values[:, 0]
+
+        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
+            self.hide()
+            title = "Project frequency setup cannot be modified"
+            message = "The following imported table of values has a frequency setup "
+            message += "different from the others already imported ones. The current "
+            message += "project frequency setup is not going to be modified."
+            message += f"\n\n{table_name}"
+            PrintMessageInput([error_title, title, message])
+            return True
+
+        update_analysis_setup_in_file(frequencies)
+
+        # real values vector
+        real_values = _imported_values[:, 1]
+        
+        # imaginary values vector
+        imag_values = _imported_values[:, 2]
+
+        # data to be stored
+        data = np.array([frequencies, real_values, imag_values], dtype=float).T
 
         self.properties.add_imported_tables("acoustic", table_name, data)
 
-        return table_name, data
-
-    def load_table(self, lineEdit: QLineEdit, direct_load=False):
-        try:
-
-            if direct_load:
-                self.path_imported_table = lineEdit.text()
-
-            else:
-                last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
-                if last_path is None:
-                    last_path = str(Path().home())
-
-                caption = f"Choose a table to import the acoustic pressure"
-                path_imported_table, check = app().main_window.file_dialog.get_open_file_name(
-                    caption, 
-                    last_path, 
-                    'Table File (*.csv; *.dat; *.txt)'
-                    )
-
-                if not check:
-                    return None, None
-
-            if path_imported_table == "":
-                return None, None
-
-            lineEdit.setText(path_imported_table)       
-            imported_filename = os.path.basename(path_imported_table)
-            imported_data = np.loadtxt(path_imported_table, delimiter=",")
-
-            title = "Error reached while loading 'acoustic pressure' table"
-            if imported_data.shape[1] < 3:
-                message = "The imported table has insufficient number of columns. The spectrum"
-                message += " data must have only two columns to the frequencies and values."
-                PrintMessageInput([error_title, title, message])
-                return None, None
-
-            mask = imported_data[:, 0] > 0
-            self.frequencies = imported_data[mask, 0]
-            complex_values = imported_data[mask, 1] + 1j * imported_data[mask, 2]
-
-            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
-
-            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
-
-                self.lineEdit_reset(lineEdit)
-
-                title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
-                message += "different from the others already imported ones. The current\n"
-                message += "project frequency setup is not going to be modified."
-                message += f"\n\n{imported_filename}"
-                PrintMessageInput([error_title, title, message])
-                return None, None
-
-            else:
-                
-                analysis_setup = app().project.model.analysis_setup
-                app().project.file.write_analysis_setup_in_file(analysis_setup)
-
-            return complex_values, imported_filename
-
-        except Exception as log_error:
-            title = "Error reached while loading 'acoustic pressure' table"
-            message = str(log_error)
-            PrintMessageInput([error_title, title, message])
-            lineEdit.setFocus()
-            return None, None
-
-    def update_analysis_setup_in_file(self, f_min, f_max, f_step):
-        analysis_setup = app().project.file.read_analysis_setup_from_file()
-        analysis_setup["f_min"] = f_min
-        analysis_setup["f_max"] = f_max
-        analysis_setup["f_step"] = f_step
-        app().project.file.write_analysis_setup_in_file(analysis_setup)
+        return False
 
     def load_acoustic_pressure_table(self):
-        self.table_values, self.table_path = self.load_table(self.lineEdit_table_path)
+        self.imported_values, self.table_path = CommonUserInputs().load_table(self.lineEdit_table_path, "acoustic pressure")
+        if self.table_path is None:
+            self.lineEdit_reset(self.lineEdit_table_path)
 
     def table_values_attribution_callback(self):
 
@@ -313,48 +259,44 @@ class AcousticPressureInput(AcousticPressureInput_UI):
 
         self.remove_conflicting_excitations(node_ids)
 
-        if self.lineEdit_table_path != "":
-
-            if self.table_path is None:
-                self.table_values, self.table_path = self.load_table(
-                                                                        self.lineEdit_table_path, 
-                                                                        direct_load=True
-                                                                     )
-
-                if self.table_values is None:
-                    return
-
-            for node_id in node_ids:
-
-                self.table_name, self.array = self.save_table_file( 
-                                                                    node_id, 
-                                                                    self.table_values
-                                                                   )
-
-                basenames = [self.table_name]
-                table_paths = [self.table_path]              
-
-                node = app().project.model.preprocessor.nodes[node_id]
-                coords = np.round(node.coordinates, 5)
-
-                data = {
-                        "coords" : list(coords),
-                        "table_names" : basenames,
-                        "table_paths" : table_paths
-                        }
-
-                self.properties._set_nodal_property("acoustic_pressure", data, node_id)
-
-            self.actions_to_finalize()
-
-            print(f"[Set Acoustic Pressure] - defined at node(s) {node_ids}")
-
-        else:
+        if self.lineEdit_table_path == "":
             title = "Additional inputs required"
             message = "You must inform at least one acoustic pressure " 
             message += "table path before confirming the input!"
             PrintMessageInput([error_title, title, message])
             self.lineEdit_table_path.setFocus()
+            return
+    
+        if self.imported_values is None:
+            self.imported_values, self.table_path = CommonUserInputs().load_table(
+                self.lineEdit_table_path,
+                "acoustic pressure",
+                direct_load = True,
+                )
+
+            if self.imported_values is None:
+                return
+
+        for node_id in node_ids:
+
+            _table_name = None
+            if isinstance(self.imported_values, np.ndarray):
+                _table_name = get_table_name(f"acoustic_pressure", node_id)
+                if self.save_table_values(_table_name, self.imported_values):
+                    return
+
+            node = app().project.model.preprocessor.nodes[node_id]
+            coords = np.round(node.coordinates, 5)
+
+            data = {
+                "coords" : list(coords),
+                "table_names" : [_table_name],
+                "table_paths" : [self.table_path],
+                }
+
+            self.properties._set_nodal_property("acoustic_pressure", data, node_id)
+
+        self.actions_to_finalize()
 
     def text_label(self, value):
         text = ""
