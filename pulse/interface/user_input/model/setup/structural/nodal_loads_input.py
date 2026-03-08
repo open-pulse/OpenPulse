@@ -1,5 +1,3 @@
-#fmt: off
-
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
@@ -9,6 +7,7 @@ from pulse.interface.ui_generated.model.setup.structural.set_nodal_loads_input_u
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.common import get_spectral_data_from_array, get_table_name, update_analysis_setup_in_file
 
 
 import os
@@ -55,19 +54,12 @@ class NodalLoadsInput(SetNodalLoadsInput_UI):
 
     def reset_table_variables(self):
 
-        self.fx_table_values = None
-        self.fy_table_values = None
-        self.fz_table_values = None
-        self.mx_table_values = None
-        self.my_table_values = None
-        self.mz_table_values = None
-
-        self.fx_array = None
-        self.fy_array = None
-        self.fz_array = None
-        self.mx_array = None
-        self.my_array = None
-        self.mz_array = None
+        self.imported_fx_values = None
+        self.imported_fy_values = None
+        self.imported_fz_values = None
+        self.imported_mx_values = None
+        self.imported_my_values = None
+        self.imported_mz_values = None
 
         self.fx_table_path = None
         self.fy_table_path = None
@@ -76,31 +68,28 @@ class NodalLoadsInput(SetNodalLoadsInput_UI):
         self.my_table_path = None
         self.mz_table_path = None
 
-        self.fx_table_name = None
-        self.fy_table_name = None
-        self.fz_table_name = None
-        self.mx_table_name = None
-        self.my_table_name = None
-        self.mz_table_name = None
-
     def _define_qt_variables(self):
         self._create_list_lineEdits()
 
     def _create_list_lineEdits(self):
 
-        self.list_lineEdit_constant_values = [  [self.lineEdit_real_fx, self.lineEdit_imag_fx],
-                                                [self.lineEdit_real_fy, self.lineEdit_imag_fy],
-                                                [self.lineEdit_real_fz, self.lineEdit_imag_fz],
-                                                [self.lineEdit_real_mx, self.lineEdit_imag_mx],
-                                                [self.lineEdit_real_my, self.lineEdit_imag_my],
-                                                [self.lineEdit_real_mz, self.lineEdit_imag_mz]  ]
+        self.list_lineEdit_constant_values = [  
+            [self.lineEdit_real_fx, self.lineEdit_imag_fx],
+            [self.lineEdit_real_fy, self.lineEdit_imag_fy],
+            [self.lineEdit_real_fz, self.lineEdit_imag_fz],
+            [self.lineEdit_real_mx, self.lineEdit_imag_mx],
+            [self.lineEdit_real_my, self.lineEdit_imag_my],
+            [self.lineEdit_real_mz, self.lineEdit_imag_mz],
+            ]
 
-        self.list_lineEdit_table_values = [ self.lineEdit_path_table_fx,
-                                            self.lineEdit_path_table_fy,
-                                            self.lineEdit_path_table_fz,
-                                            self.lineEdit_path_table_mx,
-                                            self.lineEdit_path_table_my,
-                                            self.lineEdit_path_table_mz ]
+        self.list_lineEdit_table_values = [ 
+            self.lineEdit_path_table_fx,
+            self.lineEdit_path_table_fy,
+            self.lineEdit_path_table_fz,
+            self.lineEdit_path_table_mx,
+            self.lineEdit_path_table_my,
+            self.lineEdit_path_table_mz,
+            ]
 
     def _create_connections(self):
         #
@@ -282,7 +271,6 @@ class NodalLoadsInput(SetNodalLoadsInput_UI):
             if path_imported_table == "":
                 return None, None
 
-            imported_filename = os.path.basename(path_imported_table)
             lineEdit.setText(path_imported_table)         
             imported_data = np.loadtxt(path_imported_table, delimiter=",")
         
@@ -292,30 +280,10 @@ class NodalLoadsInput(SetNodalLoadsInput_UI):
                 PrintMessageInput([error_title, title, message])
                 lineEdit.setFocus()
                 return None, None
-
-            self.frequencies = imported_data[:, 0]
-            complex_values = imported_data[:, 1] + 1j * imported_data[:, 2]
             
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
-            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
-
-                self.lineEdit_reset(lineEdit)
-
-                title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
-                message += "different from the others already imported ones. The current\n"
-                message += "project frequency setup is not going to be modified."
-                message += f"\n\n{imported_filename}"
-                PrintMessageInput([error_title, title, message])
-                return None, None
-
-            else:
-
-                analysis_setup = app().project.model.analysis_setup
-                app().project.file.write_analysis_setup_in_file(analysis_setup)
-
-            return complex_values, path_imported_table
+            return imported_data, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
@@ -324,32 +292,32 @@ class NodalLoadsInput(SetNodalLoadsInput_UI):
             return None, None
 
     def load_fx_table(self):
-        self.fx_table_values, self.fx_table_path = self.load_table(self.lineEdit_path_table_fx, "Fx")
+        self.imported_fx_values, self.fx_table_path = self.load_table(self.lineEdit_path_table_fx, "Fx")
         if self.fx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_fx)
 
     def load_fy_table(self):
-        self.fy_table_values, self.fy_table_path = self.load_table(self.lineEdit_path_table_fy, "Fy")
+        self.imported_fy_values, self.fy_table_path = self.load_table(self.lineEdit_path_table_fy, "Fy")
         if self.fy_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_fy)
 
     def load_fz_table(self):
-        self.fz_table_values, self.fz_table_path = self.load_table(self.lineEdit_path_table_fz, "Fz")
+        self.imported_fz_values, self.fz_table_path = self.load_table(self.lineEdit_path_table_fz, "Fz")
         if self.fz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_fz)
 
     def load_mx_table(self):
-        self.mx_table_values, self.mx_table_path = self.load_table(self.lineEdit_path_table_mx, "Mx")
+        self.imported_mx_values, self.mx_table_path = self.load_table(self.lineEdit_path_table_mx, "Fx")
         if self.mx_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_mx)
 
     def load_my_table(self):
-        self.my_table_values, self.my_table_path = self.load_table(self.lineEdit_path_table_my, "My")
+        self.imported_my_values, self.my_table_path = self.load_table(self.lineEdit_path_table_my, "Fy")
         if self.my_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_my)
 
     def load_mz_table(self):
-        self.mz_table_values, self.mz_table_path = self.load_table(self.lineEdit_path_table_mz, "Mz")
+        self.imported_mz_values, self.mz_table_path = self.load_table(self.lineEdit_path_table_mz, "Fz")
         if self.mz_table_path is None:
             self.lineEdit_reset(self.lineEdit_path_table_mz)
 
@@ -357,17 +325,35 @@ class NodalLoadsInput(SetNodalLoadsInput_UI):
         lineEdit.setText("")
         lineEdit.setFocus() 
 
-    def save_tables_files(self, load_label: str, node_id: int, values: np.ndarray):
+    def save_table_values(self, table_name: str, imported_values: np.ndarray):
 
-        table_name = f"nodal_load_{load_label}_node_{node_id}"
+        # define the frequencies vector
+        _frequencies = imported_values[:, 0]
 
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
+        if app().project.model.change_analysis_frequency_setup(list(_frequencies)):
+            self.hide()
+            title = "Project frequency setup cannot be modified"
+            message = "The following imported table of values has a frequency setup "
+            message += "different from the others already imported ones. The current "
+            message += "project frequency setup is not going to be modified."
+            message += f"\n\n{table_name}"
+            PrintMessageInput([error_title, title, message])
+            return True
+
+        update_analysis_setup_in_file(_frequencies)
+
+        # real values vector
+        real_values = imported_values[:, 1]
+        
+        # imaginary values vector
+        imag_values = imported_values[:, 2]
+
+        # array to be saved
+        data = np.array([_frequencies, real_values, imag_values], dtype=float).T
 
         self.properties.add_imported_tables("structural", table_name, data)
 
-        return table_name, data
+        return False
 
     def table_values_attribution_callback(self):
 
@@ -379,52 +365,44 @@ class NodalLoadsInput(SetNodalLoadsInput_UI):
 
         self.remove_conflicting_excitations(node_ids)
 
-        if self.fx_table_path is None:
-            self.fx_table_values, self.fx_table_path = self.load_table(self.lineEdit_path_table_fx, "Fx", direct_load=True)
+        values = list()
+        table_paths = list()
+        load_labels = ["fx", "fy", "fz", "mx", "my", "mz"]
 
-        if self.fy_table_path is None:
-            self.fy_table_values, self.fy_table_path = self.load_table(self.lineEdit_path_table_fy, "Fy", direct_load=True)
+        for label in load_labels:
 
-        if self.fz_table_path is None:
-            self.fz_table_values, self.fz_table_path = self.load_table(self.lineEdit_path_table_fz, "Fz", direct_load=True)           
+            table_path_name = f"{label}_table_path"
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
 
-        if self.mx_table_path is None:
-            self.mx_table_values, self.mx_table_path = self.load_table(self.lineEdit_path_table_mx, "Mx", direct_load=True)            
+            if _imported_values is None:
+                line_edit = getattr(self, f"lineEdit_path_table_{label}")
 
-        if self.my_table_path is None:
-            self.my_table_values, self.my_table_path = self.load_table(self.lineEdit_path_table_my, "My", direct_load=True)             
+                _imported_values, _table_path = self.load_table(line_edit, label, direct_load = True)
+                setattr(self, imported_values_name, _imported_values)
+                setattr(self, table_path_name, _table_path)
 
-        if self.mz_table_path is None:
-            self.mz_table_values, self.mz_table_path = self.load_table(self.lineEdit_path_table_mz, "Mz", direct_load=True)              
+            _table_path_attr = getattr(self, table_path_name)
+            table_paths.append(_table_path_attr)
+
+            _imported_values_attr = getattr(self, imported_values_name)
+            values.append(get_spectral_data_from_array(_imported_values_attr))
 
         for node_id in node_ids:
 
-            if self.fx_table_path is not None:
-                self.fx_table_name, self.fx_array = self.save_tables_files("Fx", node_id, self.fx_table_values)
+            table_names = list()
 
-            if self.fy_table_path is not None:
-                self.fy_table_name, self.fy_array = self.save_tables_files("Fy", node_id, self.fy_table_values)
+            for label in load_labels:
+                imported_values_name = f"imported_{label}_values"
+                _imported_values = getattr(self, imported_values_name)
 
-            if self.fz_table_path is not None:
-                self.fz_table_name, self.fz_array = self.save_tables_files("Fz", node_id, self.fz_table_values)
+                _table_name = None
+                if isinstance(_imported_values, np.ndarray):
+                    _table_name = get_table_name(f"nodal_load_{label}", node_id)
+                    if self.save_table_values(_table_name, _imported_values):
+                        return
 
-            if self.mx_table_path is not None:
-                self.mx_table_name, self.mx_array = self.save_tables_files("Mx", node_id, self.mx_table_values)
-
-            if self.my_table_path is not None:
-                self.my_table_name, self.my_array = self.save_tables_files("My", node_id, self.my_table_values)
-
-            if self.mz_table_path is not None:
-                self.mz_table_name, self.mz_array = self.save_tables_files("Mz", node_id, self.mz_table_values)
-
-            table_names = [   self.fx_table_name, self.fy_table_name, self.fz_table_name, 
-                            self.mx_table_name, self.my_table_name, self.mz_table_name  ]
-
-            table_paths = [ self.fx_table_path, self.fy_table_path, self.fz_table_path, 
-                            self.mx_table_path, self.my_table_path, self.mz_table_path ]
-
-            nodal_loads = [ self.fx_table_values, self.fy_table_values, self.fz_table_values, 
-                            self.mx_table_values, self.my_table_values, self.mz_table_values ]
+                table_names.append(_table_name)
 
             if (table_names).count(None) == 6:
                 title = "Additional inputs required"
@@ -437,11 +415,11 @@ class NodalLoadsInput(SetNodalLoadsInput_UI):
             coords = np.round(node.coordinates, 5)
 
             data = {
-                    "coords" : list(coords),
-                    "table_names" : table_names,
-                    "table_paths" : table_paths,
-                    "values" : nodal_loads
-                    }
+                "coords" : list(coords),
+                "table_names" : table_names,
+                "table_paths" : table_paths,
+                "values" : values,
+                }
 
             self.properties._set_nodal_property("nodal_loads", data, node_id)
 
@@ -647,5 +625,3 @@ class NodalLoadsInput(SetNodalLoadsInput_UI):
         self.keep_window_open = False
         app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
-
-#fmt: on
