@@ -53,8 +53,22 @@ def update_analysis_setup_in_file(frequencies: np.ndarray):
     app().project.file.write_analysis_setup_in_file(analysis_setup)
 
 
-def get_table_name(_label: str, node_id: int):
-    return f"{_label}_node_{node_id}"
+def get_table_name(_label: str, node_id: int | None = None, element_id: int | None = None, line_id: int | None = None):
+
+    if isinstance(node_id, int):
+        return f"{_label}_node_{node_id}"
+    
+    if isinstance(node_id, list | tuple | np.ndarray):
+        if len(node_id) == 2:
+            return f"{_label}_nodes_{int(node_id[0])}_{int(node_id[1])}"
+
+    if isinstance(element_id, int):
+        return f"{_label}_element_{element_id}"
+
+    if isinstance(line_id, int):
+        return f"{_label}_line_{line_id}"
+    
+    return ""
 
 
 class CommonUserInputs(QDialog):

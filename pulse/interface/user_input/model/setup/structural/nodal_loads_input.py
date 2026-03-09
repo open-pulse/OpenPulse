@@ -385,7 +385,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
 
                 _table_name = None
                 if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"nodal_load_{label}", node_id)
+                    _table_name = get_table_name(f"nodal_load_{label}", node_id=node_id)
                     if self.save_table_values(_table_name, _imported_values):
                         return
 

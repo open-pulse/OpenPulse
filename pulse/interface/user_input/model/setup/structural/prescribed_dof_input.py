@@ -507,7 +507,7 @@ class PrescribedDofInput(PrescribedDofInput_UI):
 
                 _table_name = None
                 if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"prescribed_dof_{label}", node_id)
+                    _table_name = get_table_name(f"prescribed_dof_{label}", node_id=node_id)
                     if self.integrate_and_save_table_values(_table_name, _imported_values, linear= i<=2, angular= i>=3):
                         return
 

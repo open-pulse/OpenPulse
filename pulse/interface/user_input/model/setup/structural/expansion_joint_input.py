@@ -442,7 +442,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
 
             _table_name = None
             if isinstance(_imported_values, np.ndarray):
-                _table_name = get_table_name(f"expansion_joint_stiffness_{label}", line_id)
+                _table_name = get_table_name(f"expansion_joint_stiffness_{label}", line_id=line_id)
                 if self.save_table_values(_table_name, _imported_values):
                     return
 

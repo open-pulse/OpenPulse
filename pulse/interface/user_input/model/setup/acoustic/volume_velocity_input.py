@@ -293,7 +293,7 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
 
             _table_name = None
             if isinstance(self.imported_values, np.ndarray):
-                _table_name = get_table_name("volume_velocity", node_id)
+                _table_name = get_table_name("volume_velocity", node_id=node_id)
                 if self.save_table_values(_table_name, self.imported_values):
                     return
 
