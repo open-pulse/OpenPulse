@@ -12,12 +12,8 @@ import numpy as np
 
 from pathlib import Path
 
-@pytest.mark.skip
 
-# Setting up model
-def test_coupled_harmonic_analysis(datadir: Path):
-    os.chdir(datadir)
-
+def test_reciprocating_pump_excitation_analysis(datadir: Path):
     ## Initialize a project
     project = Project()
     project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
@@ -293,9 +289,9 @@ def test_coupled_harmonic_analysis(datadir: Path):
 
     analysis_setup = {
                       "analysis_id" : AnalysisID.ACOUSTIC_HARMONIC,
-                    #   "f_min" : 1,
-                    #   "f_max" : 300,
-                    #   "f_step" : 1,
+                      "f_min" : freq[0],
+                      "f_max" : freq[-1],
+                      "f_step" : freq[1] - freq[0],
                       "global_damping" : [1e-3, 1e-5, 0.],
                       }
     
@@ -525,8 +521,3 @@ def remove_files_from_temporary_folder():
                     remove(file_path)
                 else:
                     rmtree(file_path)
-
-if __name__ == "__main__":
-    import tempfile
-    # with tempfile.TemporaryDirectory() as tmpdir:
-    #     test_coupled_harmonic_analysis(Path(tmpdir))
