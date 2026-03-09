@@ -18,7 +18,7 @@ import numpy as np
 
 
 error_title = "Error"
-
+warning_title = "Warning"
 
 psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
@@ -790,31 +790,24 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         app().main_window.update_plots()
         self.load_compressor_excitation_info()
 
-    def process_table_file_removal(self, table_names: list):
-        for table_name in table_names:
-            self.properties.remove_imported_tables("acoustic", table_name)
-        if table_names:
-            app().project.file.write_imported_table_data_in_file()
-
     def remove_conflicting_excitations(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "reciprocating_compressor_excitation", "reciprocating_pump_excitation"]:
-            table_names = self.properties.get_nodal_related_table_names(label, node_id)
             self.properties._remove_nodal_property(label, node_id)
-            self.process_table_file_removal(table_names)
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("reciprocating_compressor_excitation", node_ids)
-        self.process_table_file_removal(table_names)
 
     def remove_callback(self):
 
-        if self.lineEdit_selected_node_id.text() != "":   
+        if self.lineEdit_selected_node_id.text() == "":
+            self.hide()
+            title = "Empty node selection"
+            message = "You should to select a node from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            node_id = int(self.lineEdit_selected_node_id.text())
-            self.remove_table_files_from_nodes(node_id)
+        node_id = int(self.lineEdit_selected_node_id.text())
 
-            self.properties._remove_nodal_property("reciprocating_compressor_excitation", node_id)
-            self.actions_to_finalize()
+        self.properties._remove_nodal_property("reciprocating_compressor_excitation", node_id)
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -830,18 +823,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             return
 
         if read._continue:
-
-            node_ids = list()
-
-            for (property, *args) in self.properties.nodal_properties.keys():
-                if property == "reciprocating_compressor_excitation":
-
-                    node_id = args[0]
-                    node_ids.append(node_id)
-
-            for node_id in node_ids:
-                self.remove_table_files_from_nodes(node_id)
-
             self.properties._reset_nodal_property("reciprocating_compressor_excitation")
             self.actions_to_finalize()
 

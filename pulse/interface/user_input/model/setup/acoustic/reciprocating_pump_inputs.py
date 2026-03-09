@@ -718,26 +718,19 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
     def remove_conflicting_excitations(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "reciprocating_pump_excitation", "reciprocating_compressor_excitation"]:
-            table_names = self.properties.get_nodal_related_table_names(label, node_id)
             self.properties._remove_nodal_property(label, node_id)
-            self.process_table_file_removal(table_names)
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("reciprocating_pump_excitation", node_ids)
-        self.process_table_file_removal(table_names)
 
     def remove_callback(self):
 
-        if self.lineEdit_selected_node_id.text() == "":   
+        if self.lineEdit_selected_node_id.text() == "":
+            self.hide()
             title = "Empty node selection"
             message = "You should to select a node from the list "
             message += "to proceed with the removal."
             PrintMessageInput([warning_title, title, message])
             return
-            
-        node_id = int(self.lineEdit_selected_node_id.text())
 
-        self.remove_table_files_from_nodes(node_id)
+        node_id = int(self.lineEdit_selected_node_id.text())
 
         self.properties._remove_nodal_property("reciprocating_pump_excitation", node_id)
         self.actions_to_finalize()
@@ -756,18 +749,6 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             return
 
         if read._continue:
-
-            node_ids = list()
-
-            for (property, *args) in self.properties.nodal_properties.keys():
-                if property == "reciprocating_pump_excitation":
-
-                    node_id = args[0]
-                    node_ids.append(node_id)
-
-            for node_id in node_ids:
-                self.remove_table_files_from_nodes(node_id)
-
             self.properties._reset_nodal_property("reciprocating_pump_excitation")
             self.actions_to_finalize()
 

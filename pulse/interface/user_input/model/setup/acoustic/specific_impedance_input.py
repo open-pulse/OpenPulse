@@ -331,22 +331,9 @@ class SpecificImpedanceInput(SpecificImpedanceInput_UI):
 
         for node_id in node_ids:
             for label in ["specific_impedance", "radiation_impedance"]:
-                table_names = self.properties.get_nodal_related_table_names(label, node_id)
                 self.properties._remove_nodal_property(label, node_id)
 
-                self.process_table_file_removal(table_names)
-
         app().project.file.write_nodal_properties_in_file()
-
-    def remove_table_files_from_nodes(self, node_id : list):
-        table_names = self.properties.get_nodal_related_table_names("specific_impedance", node_id)
-        self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
@@ -357,7 +344,6 @@ class SpecificImpedanceInput(SpecificImpedanceInput_UI):
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids[0])
             self.properties._remove_nodal_property("specific_impedance", node_ids[0])
             self.actions_to_finalize()
 
@@ -375,15 +361,6 @@ class SpecificImpedanceInput(SpecificImpedanceInput_UI):
                 return
 
             if read._continue:
-
-                node_ids = list()
-                for (property, *args) in self.properties.nodal_properties.keys():
-                    if property == "specific_impedance":
-                        node_ids.append(args[0])
-
-                for node_id in node_ids:
-                    self.remove_table_files_from_nodes(node_id)
-
                 self.properties._reset_nodal_property("specific_impedance")
                 self.actions_to_finalize()
 

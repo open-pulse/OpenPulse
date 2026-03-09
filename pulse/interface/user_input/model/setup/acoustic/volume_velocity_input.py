@@ -336,22 +336,9 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
 
         for node_id in node_ids:
             for label in ["acoustic_pressure", "reciprocating_compressor_excitation", "reciprocating_pump_excitation", "volume_velocity"]:
-                table_names = self.properties.get_nodal_related_table_names(label, node_id)
-
                 self.properties._remove_nodal_property(label, node_id)
-                self.process_table_file_removal(table_names)
 
         app().project.file.write_nodal_properties_in_file()
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        table_names = self.properties.get_nodal_related_table_names("volume_velocity", node_ids)
-        self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
@@ -362,7 +349,6 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
             if stop:
                 return
 
-            self.remove_table_files_from_nodes(node_ids[0])
             self.properties._remove_nodal_property("volume_velocity", node_ids[0])
             self.actions_to_finalize()
 
@@ -380,15 +366,6 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
             return
 
         if read._continue:
-
-            node_ids = list()
-            for (property, *args) in self.properties.nodal_properties.keys():
-                if property == "volume_velocity":
-                    node_ids.append(args[0])
-            
-            for node_id in node_ids:
-                self.remove_table_files_from_nodes(node_id)
-
             self.properties._reset_nodal_property("volume_velocity")
             self.actions_to_finalize()
 

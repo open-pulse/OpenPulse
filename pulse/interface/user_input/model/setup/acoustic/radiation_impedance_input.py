@@ -184,10 +184,7 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
 
         for node_id in node_ids:
             for label in ["specific_impedance"]:
-                table_names = self.properties.get_nodal_related_table_names(label, node_id)
                 self.properties._remove_nodal_property(label, node_id)
-
-                self.process_table_file_removal(table_names)
 
         app().project.file.write_nodal_properties_in_file()
 
@@ -225,12 +222,6 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
                 return
 
             if read._continue:
-
-                node_ids = list()
-                for (_property, *args) in self.properties.nodal_properties.keys():
-                    if _property == "radiation_impedance":
-                        node_ids.append(args[0])
-
                 self.properties._reset_nodal_property("radiation_impedance")
                 self.actions_to_finalize()
 
