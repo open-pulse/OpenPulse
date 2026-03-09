@@ -45,7 +45,7 @@ def j2_j0(z):
     Auxiliary function to compute the ratio between the Bessel functions J2 and J0. When the 
     imaginary part of input z reaches 700, the following syntonic approximation is used:
     
-    ``j2/j0 = -1``, when ``z --> \infty.``
+    j2/j0 = -1, when z --> /infty.
 
     Parameters
     -------
