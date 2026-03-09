@@ -8,13 +8,11 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 
-
-import os
 import numpy as np
-from pathlib import Path
 
 
 error_title = "Error"
+warning_title = "Warning"
 
 
 class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
@@ -797,50 +795,31 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
     def on_double_click_item_damping(self, item):
         self.on_click_item_damping(item)
 
-    def remove_nodal_property_data(self, node_ids_pair: list | tuple, selected_property: bool | None = None):
-
-        if selected_property is None:
-            properties = ["stiffness_nodal_links", "damping_nodal_links"]
-
-        elif isinstance(selected_property, str):
-            properties = [selected_property]
-
-        for _property in properties:
-            table_names = self.properties.get_nodal_related_table_names(_property, node_ids_pair)
+    def remove_nodal_property_data(self, node_ids_pair: list | tuple):
+        _properties = ["stiffness_nodal_links", "damping_nodal_links"]
+        for _property in _properties:
             self.properties._remove_nodal_property(_property, node_ids_pair)
-            self.process_table_file_removal(table_names)
-
-        app().project.file.write_nodal_properties_in_file()
-
-    def remove_table_files_from_nodes(self, node_ids_pari : list):
-        for _property in ["stiffness_nodal_links", "damping_nodal_links"]:
-            table_names = self.properties.get_nodal_related_table_names(_property, node_ids_pari)
-            self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-        if not table_names:
-            return
-
-        for table_name in table_names:
-            self.properties.remove_imported_tables("structural", table_name)
-        app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
         _first_node = self.lineEdit_first_node_id.text()
         _last_node = self.lineEdit_last_node_id.text()
 
-        if _first_node != "" and _last_node != "":
+        if _first_node == "" and _last_node == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            node_id1 = int(_first_node)
-            node_id2 = int(_last_node)
-            node_ids = [node_id1, node_id2]
+        node_ids = sorted([int(_first_node), int(_last_node)])
 
-            if self.checkBox_link_stiffness.isChecked():
-                self.remove_nodal_property_data(node_ids, selected_property="stiffness_nodal_links")
+        if self.checkBox_link_stiffness.isChecked():
+            self.properties._remove_nodal_property("stiffness_nodal_links", node_ids)
 
-            if self.checkBox_link_dampings.isChecked():
-                self.remove_nodal_property_data(node_ids, selected_property="damping_nodal_links")
+        if self.checkBox_link_dampings.isChecked():
+            self.properties._remove_nodal_property("damping_nodal_links", node_ids)
 
         self.reset_nodes_input_fields()
         self.reset_stiffness_input_fields()
@@ -860,25 +839,19 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            
-            link_nodes = list()
-            for (_property, *args) in self.properties.nodal_properties.keys():
-                if _property in ["stiffness_nodal_links", "damping_nodal_links"]:
-                    link_nodes.append(args)
+        if not read._continue:
+            return
 
-            for node_ids in link_nodes:
+        if self.checkBox_link_stiffness.isChecked():
+            self.properties._reset_nodal_property("stiffness_nodal_links")
 
-                if self.checkBox_link_stiffness.isChecked():
-                    self.remove_nodal_property_data(node_ids, selected_property="stiffness_nodal_links")
+        if self.checkBox_link_dampings.isChecked():
+            self.properties._reset_nodal_property("damping_nodal_links")
 
-                if self.checkBox_link_dampings.isChecked():
-                    self.remove_nodal_property_data(node_ids, selected_property="damping_nodal_links")
-
-            self.reset_nodes_input_fields()
-            self.reset_stiffness_input_fields()
-            self.reset_dampings_input_fields()
-            self.actions_to_finalize()
+        self.reset_nodes_input_fields()
+        self.reset_stiffness_input_fields()
+        self.reset_dampings_input_fields()
+        self.actions_to_finalize()
 
     def reset_nodes_input_fields(self):
         self.lineEdit_first_node_id.setText("")

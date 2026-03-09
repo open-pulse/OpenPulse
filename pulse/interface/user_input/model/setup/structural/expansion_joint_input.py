@@ -574,11 +574,12 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             last_element_id_from_line = line_to_elements[line_id][-1]
 
             element_ids = [
-                            first_element_id_from_line - 1, 
-                            first_element_id_from_line + 1, 
-                            last_element_id_from_line - 1,  
-                            last_element_id_from_line + 1
-                           ]
+                first_element_id_from_line - 1, 
+                first_element_id_from_line + 1, 
+                last_element_id_from_line - 1,  
+                last_element_id_from_line + 1
+                ]
+
             cross = None
             element_type = None
 
@@ -601,25 +602,6 @@ class ExpansionJointInput(ExpansionJointInput_UI):
                 self.properties._set_line_property("structural_element_type", element_type, line_id)
                 self.properties._set_multiple_line_properties(pipe_info, line_id)
 
-    def remove_table_files_from_expansion_joints(self, line_ids: list):
-
-        table_names = list()
-        for line_id, data in self.properties.line_properties.items():
-            data: dict
-            if "expansion_joint_info" in data.keys():
-                ej_info = data["expansion_joint_info"]
-                if line_id in line_ids and "table_names" in ej_info.keys():
-                    table_names.append(ej_info["table_names"])
-
-        if table_names:
-            self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names: list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("structural", table_name)
-            app().project.file.write_imported_table_data_in_file()
-
     def remove_callback(self):
 
         if self.lineEdit_selected_id.text() != "":
@@ -627,7 +609,6 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             line_id = int(self.lineEdit_selected_id.text())
             self.reset_all_line_edits()
 
-            self.remove_table_files_from_expansion_joints([line_id])
             self.properties._remove_line_property("expansion_joint_info", line_id)
 
             self.restore_the_cross_section([line_id])
@@ -653,8 +634,6 @@ class ExpansionJointInput(ExpansionJointInput_UI):
         for line_id, data in self.properties.line_properties.items():
             if "expansion_joint_info" in data.keys():
                 line_ids.append(line_id)
-
-        self.remove_table_files_from_expansion_joints(line_ids)
 
         self.properties._remove_line_property("expansion_joint_info", line_ids)
         self.preprocessor.add_expansion_joint_by_lines(line_ids, None)

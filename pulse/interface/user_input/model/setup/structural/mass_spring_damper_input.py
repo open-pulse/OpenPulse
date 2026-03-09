@@ -889,22 +889,9 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
         for node_id in node_ids:
             for _property in properties:
-                table_names = self.properties.get_nodal_related_table_names(_property, node_id)
                 self.properties._remove_nodal_property(_property, node_id)
-                self.process_table_file_removal(table_names)
 
         app().project.file.write_nodal_properties_in_file()
-
-    def remove_table_files_from_nodes(self, node_ids : list):
-        for _property in ["lumped_masses", "lumped_stiffness", "lumped_dampings"]:
-            table_names = self.properties.get_nodal_related_table_names(_property, node_ids)
-            self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("structural", table_name)
-            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
@@ -936,24 +923,19 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            
-            node_ids = list()
-            for (_property, *args) in self.properties.nodal_properties.keys():
-                if _property in ["lumped_masses", "lumped_stiffness", "lumped_dampings"]:
-                    node_ids.append(args[0])
+        if not read._continue:
+            return
 
-            for node_id in node_ids:
-                if self.checkBox_remove_mass.isChecked():
-                    self.remove_nodal_property_data(node_id, selected_property="lumped_masses")
+        if self.checkBox_remove_mass.isChecked():
+            self.properties._reset_nodal_property("lumped_masses")
 
-                if self.checkBox_remove_spring.isChecked():
-                    self.remove_nodal_property_data(node_id, selected_property="lumped_stiffness")
+        if self.checkBox_remove_spring.isChecked():
+            self.properties._reset_nodal_property("lumped_stiffness")
 
-                if self.checkBox_remove_damper.isChecked():
-                    self.remove_nodal_property_data(node_id, selected_property="lumped_dampings")
+        if self.checkBox_remove_damper.isChecked():
+            self.properties._reset_nodal_property("lumped_dampings")
 
-            self.actions_to_finalize()
+        self.actions_to_finalize()
     
     def update_tabs_visibility(self):
         self.pushButton_remove.setDisabled(True)

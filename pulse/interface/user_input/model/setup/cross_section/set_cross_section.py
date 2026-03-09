@@ -470,9 +470,6 @@ class SetCrossSectionInput(SetCrossSection_UI):
         self.properties._remove_line_property("force_offset", line_ids)
         self.properties._remove_line_property("capped_end", line_ids)
         self.properties._remove_line_property("valve_info", line_ids)
-
-        # remove table files from expansion joints before removing the line property
-        self.remove_table_files_from_expansion_joints(line_ids)
         self.properties._remove_line_property("expansion_joint_info", line_ids)
 
         if self.tabWidget_general.currentIndex() == TabIndex.PIPE:
@@ -556,8 +553,6 @@ class SetCrossSectionInput(SetCrossSection_UI):
             self.properties._remove_line_property("valve_info", line_ids)
 
             self.remove_acoustic_related_data_from_lines(line_ids)
-            self.remove_table_files_from_expansion_joints(line_ids)
-
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
@@ -567,6 +562,7 @@ class SetCrossSectionInput(SetCrossSection_UI):
         plt.close()
         self.complete = True
         app().project.file.write_line_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
 
         geometry_handler = GeometryHandler(app().project)
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
@@ -600,13 +596,13 @@ class SetCrossSectionInput(SetCrossSection_UI):
                             remove_data_from_elements[property].append(element_id)
 
             prop_labels = [
-                            "acoustic_pressure", 
-                            "volume_velocity", 
-                            "specific_impedance", 
-                            "radiation_impedance", 
-                            "reciprocating_compressor_excitation", 
-                            "reciprocating_pump_excitation"
-                           ]
+                "acoustic_pressure", 
+                "volume_velocity", 
+                "specific_impedance", 
+                "radiation_impedance", 
+                "reciprocating_compressor_excitation", 
+                "reciprocating_pump_excitation"
+                ]
 
             line_nodes = self.preprocessor.mesh.nodes_from_line[line_id]
             for node_id in line_nodes:
@@ -616,42 +612,8 @@ class SetCrossSectionInput(SetCrossSection_UI):
                             self.properties._remove_nodal_property(property, node_id)
                             remove_data_from_nodes[property].append(node_id)
 
-        for property, element_ids in remove_data_from_elements.items(): 
-            table_names = self.properties.get_element_related_table_names(property, element_ids)
-            self.process_table_file_removal(table_names)
-        
-        for property, node_ids in remove_data_from_nodes.items(): 
-            table_names = self.properties.get_nodal_related_table_names(property, node_ids)
-            self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
-
-    def remove_table_files_from_expansion_joints(self, line_ids: list):
-
-        table_names = list()
-        for line_id, data in self.properties.line_properties.items():
-            data: dict
-
-            ej_info = data.get("expansion_joint_info", dict())
-            if not isinstance(ej_info, dict):
-                continue
-
-            if line_id in line_ids:
-                if "table_names" in ej_info.keys():
-                    table_names.extend(ej_info["table_names"])
-
-        if not table_names:
-            return
-
-        for table_name in table_names:
-            self.properties.remove_imported_tables("structural", table_name)
-
-        app().project.file.write_imported_table_data_in_file()
+        app().project.file.write_nodal_properties_in_file()
+        app().project.file.write_element_properties_in_file()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

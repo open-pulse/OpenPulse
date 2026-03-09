@@ -383,7 +383,6 @@ class ValvesInput(ValveInput_UI):
                     line_data = self.properties.line_properties[line_id]
                     self.preprocessor.set_cross_sections_to_valve_elements(line_id, line_data)
 
-                    self.remove_table_files_from_expansion_joints(line_id)
                     self.properties._remove_line_property("section_parameters", line_id)
                     self.properties._remove_line_property("expansion_joint_info", line_id)
 
@@ -539,24 +538,6 @@ class ValvesInput(ValveInput_UI):
 
                 self.properties._set_line_property("structural_element_type", element_type, line_id)
                 self.properties._set_multiple_line_properties(pipe_info, line_id)
-
-    def remove_table_files_from_expansion_joints(self, line_ids: list):
-        table_names = list()
-        for line_id, data in self.properties.line_properties.items():
-            data: dict
-            if "expansion_joint_info" in data.keys():
-                ej_info = data["expansion_joint_info"]
-                if line_id in line_ids and "table_names" in ej_info.keys():
-                    table_names.append(ej_info["table_names"])
-
-        if table_names:
-            self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names: list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("structural", table_name)
-            app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
         if self.lineEdit_selected_id.text() != "":
