@@ -727,6 +727,16 @@ class Ui_Dialog(object):
         self.gridLayout_7 = QGridLayout(self.frame_remove_buttons)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.gridLayout_7.setContentsMargins(0, 0, 0, 0)
+        self.pushButton_reset = QPushButton(self.frame_remove_buttons)
+        self.pushButton_reset.setObjectName(u"pushButton_reset")
+        self.pushButton_reset.setMinimumSize(QSize(100, 30))
+        self.pushButton_reset.setMaximumSize(QSize(100, 30))
+        self.pushButton_reset.setFont(font1)
+        self.pushButton_reset.setStyleSheet(u"")
+        self.pushButton_reset.setAutoDefault(False)
+
+        self.gridLayout_7.addWidget(self.pushButton_reset, 0, 0, 1, 1)
+
         self.pushButton_remove = QPushButton(self.frame_remove_buttons)
         self.pushButton_remove.setObjectName(u"pushButton_remove")
         self.pushButton_remove.setMinimumSize(QSize(100, 30))
@@ -737,15 +747,15 @@ class Ui_Dialog(object):
 
         self.gridLayout_7.addWidget(self.pushButton_remove, 0, 1, 1, 1)
 
-        self.pushButton_reset = QPushButton(self.frame_remove_buttons)
-        self.pushButton_reset.setObjectName(u"pushButton_reset")
-        self.pushButton_reset.setMinimumSize(QSize(100, 30))
-        self.pushButton_reset.setMaximumSize(QSize(100, 30))
-        self.pushButton_reset.setFont(font1)
-        self.pushButton_reset.setStyleSheet(u"")
-        self.pushButton_reset.setAutoDefault(False)
+        self.pushButton_edit = QPushButton(self.frame_remove_buttons)
+        self.pushButton_edit.setObjectName(u"pushButton_edit")
+        self.pushButton_edit.setMinimumSize(QSize(100, 30))
+        self.pushButton_edit.setMaximumSize(QSize(100, 30))
+        self.pushButton_edit.setFont(font1)
+        self.pushButton_edit.setStyleSheet(u"")
+        self.pushButton_edit.setAutoDefault(False)
 
-        self.gridLayout_7.addWidget(self.pushButton_reset, 0, 0, 1, 1)
+        self.gridLayout_7.addWidget(self.pushButton_edit, 0, 2, 1, 1)
 
 
         self.gridLayout_9.addWidget(self.frame_remove_buttons, 2, 0, 1, 1)
@@ -988,7 +998,7 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
 
-        self.tabWidget_main.setCurrentIndex(0)
+        self.tabWidget_main.setCurrentIndex(1)
         self.comboBox_damper_type.setCurrentIndex(0)
         self.comboBox_main_axis.setCurrentIndex(1)
         self.comboBox_pressure_units.setCurrentIndex(5)
@@ -1091,10 +1101,12 @@ class Ui_Dialog(object):
         ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Gas volume [m\u00b3]", None));
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Damper type", None));
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Label", None));
+        self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
-        self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
-        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))
+        self.pushButton_edit.setText(QCoreApplication.translate("Dialog", u"Edit", None))
+        self.pushButton_edit.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Devices list", None))
         self.label_12.setText(QCoreApplication.translate("Dialog", u"Damper label:", None))
         self.lineEdit_damper_label.setText("")
         self.label_11.setText(QCoreApplication.translate("Dialog", u"coord. z [m]", None))
@@ -1196,8 +1208,9 @@ class PulsationDamperEditorInputs_UI(QDialog, Ui_Dialog):
                                                                     - treeWidget_pulsation_damper_info: QTreeWidget
                                                         - frame_remove_buttons: QFrame
                                                             - (Layout): QGridLayout
-                                                                    - pushButton_remove: QPushButton
                                                                     - pushButton_reset: QPushButton
+                                                                    - pushButton_remove: QPushButton
+                                                                    - pushButton_edit: QPushButton
                             - frame_5: QFrame
                                 - (Layout): QHBoxLayout
                                         - label_12: QLabel

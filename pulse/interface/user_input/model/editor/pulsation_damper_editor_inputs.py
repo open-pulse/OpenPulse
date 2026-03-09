@@ -124,6 +124,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.pushButton_get_gas_fluid.clicked.connect(self.get_gas_fluid_callback)
         self.pushButton_get_liquid_fluid.clicked.connect(self.get_liquid_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
+        
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_reset_entries.clicked.connect(self.reset_entries_callback)
 

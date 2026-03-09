@@ -108,7 +108,7 @@
             </font>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab_setup">
             <attribute name="title">
@@ -227,7 +227,7 @@
                        <string/>
                       </property>
                       <property name="icon">
-                       <iconset>
+                       <iconset resource="../../../icons/resources.qrc">
                         <normaloff>:/icons/common/broom.png</normaloff>:/icons/common/broom.png</iconset>
                       </property>
                       <property name="iconSize">
@@ -1964,7 +1964,7 @@
            </widget>
            <widget class="QWidget" name="tab_remove">
             <attribute name="title">
-             <string>Remove</string>
+             <string>Devices list</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_9">
              <property name="leftMargin">
@@ -2280,6 +2280,39 @@
                 <property name="bottomMargin">
                  <number>0</number>
                 </property>
+                <item row="0" column="0">
+                 <widget class="QPushButton" name="pushButton_reset">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>MS Shell Dlg 2</family>
+                    <pointsize>10</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="text">
+                   <string>Reset</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
                 <item row="0" column="1">
                  <widget class="QPushButton" name="pushButton_remove">
                   <property name="minimumSize">
@@ -2316,8 +2349,8 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
-                 <widget class="QPushButton" name="pushButton_reset">
+                <item row="0" column="2">
+                 <widget class="QPushButton" name="pushButton_edit">
                   <property name="minimumSize">
                    <size>
                     <width>100</width>
@@ -2342,10 +2375,13 @@
                    <string notr="true"/>
                   </property>
                   <property name="text">
-                   <string>Reset</string>
+                   <string>Edit</string>
                   </property>
                   <property name="autoDefault">
                    <bool>false</bool>
+                  </property>
+                  <property name="status" stdset="0">
+                   <string>danger</string>
                   </property>
                  </widget>
                 </item>
@@ -2983,6 +3019,8 @@
    </item>
   </layout>
  </widget>
- <resources><include location="../../../icons/resources.qrc" /></resources>
+ <resources>
+  <include location="../../../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
