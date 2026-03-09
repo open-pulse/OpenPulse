@@ -314,7 +314,7 @@ class ModelProperties:
         if key in self.nodal_properties.keys():
             self.nodal_properties.pop(key)
 
-    def _remove_element_property(self, property: str, element_ids: int | list):
+    def _remove_element_property(self, property: str, element_ids: int | list[int]):
         """Remove a element property at specific element_id."""
         if isinstance(element_ids, Number):
             element_ids = [element_ids]
@@ -328,8 +328,9 @@ class ModelProperties:
             if key in self.element_properties.keys():
                 self.element_properties.pop(key)
 
-    def _remove_line_property(self, property: str, line_ids: int | list):
+    def _remove_line_property(self, property: str, line_ids: int | list[int]):
         """Remove a line property at specific line_id."""
+
         if isinstance(line_ids, Number):
             line_ids = [line_ids]
 
@@ -346,12 +347,19 @@ class ModelProperties:
             if property in line_data.keys():
                 self.line_properties[line_id].pop(property)
 
-    def remove_imported_tables_from_property(self, property, prop_data: dict):
+    def remove_imported_tables_from_property(self, property: str, prop_data: dict):
+        """
+        This method removes the tables associated with a 
+        particular property.
+        """
         if isinstance(prop_data, dict):
             table_names = prop_data.get("table_names", list())
-            if table_names:
-                group_label = self.get_data_group_label(property)
-                self.remove_imported_tables(group_label, table_names)
+
+            if not table_names:
+                return
+
+            group_label = self.get_data_group_label(property)
+            self.remove_imported_tables(group_label, table_names)
 
     def _remove_line(self, line_id: int | str):
         if isinstance(line_id, str):
@@ -454,6 +462,8 @@ class ModelProperties:
 
     def remove_imported_tables(self, group_label: str, table_names: str | list[str]):
         """
+        This method removes the imported tables data
+        from the corresponding attributes.
         """
         if isinstance(table_names, str):
             table_names = [table_names]
