@@ -112,6 +112,31 @@ class ModelProperties:
             return "acoustic"
         else:
             return "structural"
+        
+    def get_table_values(self, property: str, table_names: list[str]) -> list[None | np.ndarray]:
+        """
+        This method returns all arrays assigned to a particular property.
+        """
+        tables_values = list()
+        group_label = self.get_data_group_label(property)
+
+        if group_label == "acoustic":
+            imported_tables = self.acoustic_imported_tables
+        else:
+            imported_tables = self.structural_imported_tables
+
+        for i, table_name in enumerate(table_names):
+
+            if table_name is None:
+                tables_values.append(None)
+                continue
+
+            if table_name in imported_tables.keys():
+                data_array = imported_tables[table_name]
+                values = data_array[:, 1] + 1j*data_array[:, 2]
+                tables_values.append(values)
+
+        return tables_values
 
     def _set_nodal_property(self, property: str, data, node_ids: (int | list | tuple | None)):
         """
@@ -123,36 +148,20 @@ class ModelProperties:
         if node_ids is None:
             return
 
-        group_label = self.get_data_group_label(property)
-
-        tables_values = list()
         if "real_values" in data.keys() and "imag_values" in data.keys():
+            values = list()
             for i, a in enumerate(data["real_values"]):
                 if a is None:
-                    tables_values.append(None)
+                    values.append(None)
                 else:
                     b = data["imag_values"][i]
-                    tables_values.append(a + 1j*b)
+                    values.append(a + 1j*b)
+
+            data["values"] = values
 
         if "table_names" in data.keys():
-
-            if group_label == "acoustic":
-                imported_tables = self.acoustic_imported_tables
-            else:
-                imported_tables = self.structural_imported_tables
-
-            for i, table_name in enumerate(data["table_names"]):
-
-                if table_name is None:
-                    tables_values.append(None)
-                    continue
-
-                if table_name in imported_tables.keys():
-                    data_array = imported_tables[table_name]
-                    values = data_array[:, 1] + 1j*data_array[:, 2]
-                    tables_values.append(values)
-
-        data["values"] = tables_values
+            table_names = data.get("table_names", list())
+            data["values"] = self.get_table_values(property, table_names)
 
         if isinstance(node_ids, Number):
             self.nodal_properties[property, node_ids] = data
@@ -189,30 +198,10 @@ class ModelProperties:
             line_ids = [line_ids]
 
         if isinstance(data, dict):
-
-            tables_values = list()
-            group_label = self.get_data_group_label(property)
-
             if "values" not in data.keys():
                 if "table_names" in data.keys():
-
-                    if group_label == "acoustic":
-                        imported_tables = self.acoustic_imported_tables
-                    else:
-                        imported_tables = self.structural_imported_tables
-
-                    for i, table_name in enumerate(data["table_names"]):
-
-                        if table_name is None:
-                            tables_values.append(None)
-                            continue
-
-                        if table_name in imported_tables.keys():
-                            data_array = imported_tables[table_name]
-                            values = data_array[:, 1] + 1j*data_array[:, 2]
-                            tables_values.append(values)
-
-                    data["values"] = tables_values
+                    table_names = data.get("table_names", list())
+                    data["values"] = self.get_table_values(property, table_names)
 
         for line_id in line_ids:
             if line_id in self.line_properties.keys():
