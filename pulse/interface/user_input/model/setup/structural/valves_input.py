@@ -423,24 +423,25 @@ class ValvesInput(ValveInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
+        if not read._continue:
+            return
 
-            element_ids = list()
-            for line_id in line_ids:
-                line_elements = app().project.model.mesh.elements_from_line[line_id]
-                N = len(line_elements)
-                if np.remainder(N, 2) == 0:
-                    index = int(N/2) + 1
-                else:
-                    index = int((N+1)/2)
+        element_ids = list()
+        for line_id in line_ids:
+            line_elements = app().project.model.mesh.elements_from_line[line_id]
+            N = len(line_elements)
+            if np.remainder(N, 2) == 0:
+                index = int(N/2) + 1
+            else:
+                index = int((N+1)/2)
 
-                element_ids.append(line_elements[index-1])
+            element_ids.append(line_elements[index-1])
 
-            perforated_plate = PerforatedPlateInput(valve_element_ids = element_ids)
+        perforated_plate = PerforatedPlateInput(valve_element_ids = element_ids)
 
-            if not perforated_plate.complete:
-                app().main_window.set_input_widget(self)
-                return
+        if not perforated_plate.complete:
+            app().main_window.set_input_widget(self)
+            return
 
     def add_section_parameters_into_valve_info(self):
 
@@ -564,21 +565,22 @@ class ValvesInput(ValveInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
+        if not read._continue:
+            return
 
-            line_ids = list()
-            for line_id, data in self.properties.line_properties.items():
-                data: dict
-                if "valve_info" in data.keys():
-                    line_ids.append(line_id)
+        line_ids = list()
+        for line_id, data in self.properties.line_properties.items():
+            data: dict
+            if "valve_info" in data.keys():
+                line_ids.append(line_id)
 
-            for line_id in line_ids:
-                self.properties._remove_line_property("valve_info", line_id)
-                self.restore_the_cross_section(line_ids)
+        for line_id in line_ids:
+            self.properties._remove_line_property("valve_info", line_id)
+            self.restore_the_cross_section(line_ids)
 
-            if line_ids:
-                self.load_valves_info()
-                self.actions_to_finalize()
+        if line_ids:
+            self.load_valves_info()
+            self.actions_to_finalize()
 
     def remove_valve_acoustic_effects_function(self, valve_names: list):
 

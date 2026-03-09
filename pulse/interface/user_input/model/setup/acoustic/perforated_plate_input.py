@@ -602,20 +602,22 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
 
     def remove_callback(self):
 
-        if  self.lineEdit_element_id.text() != "":
+        if  self.lineEdit_element_id.text() == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            element_id = int(self.lineEdit_element_id.text())
+        str_element = self.lineEdit_element_id.text()
+        stop, element_ids = self.before_run.check_selected_ids(str_element, "elements")
+        if stop:
+            return
 
-            self.remove_table_files_from_elements([element_id])
-            self.properties._remove_element_property("perforated_plate", element_id)
-            app().project.file.write_element_properties_in_file()
-
-            self.preprocessor.set_perforated_plate_by_elements(element_id, None)
-            self.actions_to_finalize()
-
-    def remove_table_files_from_elements(self, node_ids : list):
-        table_names = self.properties.get_element_related_table_names("perforated_plate", node_ids)
-        self.process_table_file_removal(table_names)
+        self.properties._remove_element_property("perforated_plate", element_ids)
+        self.preprocessor.set_perforated_plate_by_elements(element_ids, None)
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -630,21 +632,20 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
+        if not read._continue:
+            return
 
-            element_ids = list()
-            for (property, element_id) in self.properties.element_properties.keys():
-                if property == "perforated_plate":
-                    element_ids.append(element_id)
+        element_ids = list()
+        for (property, element_id) in self.properties.element_properties.keys():
+            if property == "perforated_plate":
+                element_ids.append(element_id)
 
-            for element_id in element_ids:
-                self.remove_table_files_from_elements(element_ids)
+        if not element_ids:
+            return
 
-            for element_id in element_ids:
-                self.properties._remove_element_property("perforated_plate", element_id)
-
-            self.preprocessor.set_perforated_plate_by_elements(element_ids, None)
-            self.actions_to_finalize()
+        self.preprocessor.set_perforated_plate_by_elements(element_ids, None)
+        self.properties._reset_element_property("perforated_plate")
+        self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().project.file.write_element_properties_in_file()
@@ -652,12 +653,6 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
         self.load_elements_info()
         self.lineEdit_element_id.setText("")
         self.complete = True   
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
 
     def on_click_item(self, item):
         if item.text(0) != "":

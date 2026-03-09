@@ -8,11 +8,11 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 
-import os
 import numpy as np
-from pathlib import Path
+
 
 error_title = "Error"
+warning_title = "Warning"
 
 
 class SpecificImpedanceInput(SpecificImpedanceInput_UI):
@@ -183,9 +183,6 @@ class SpecificImpedanceInput(SpecificImpedanceInput_UI):
         if stop:
             return
 
-        # for node_id in node_ids:
-        #     self.remove_table_files_from_nodes(node_id)
-
         self.remove_conflicting_excitations(node_ids)
 
         real_values = [np.real(specific_impedance)]
@@ -337,15 +334,21 @@ class SpecificImpedanceInput(SpecificImpedanceInput_UI):
 
     def remove_callback(self):
 
-        if  self.lineEdit_node_ids.text() != "":
+        if  self.lineEdit_node_ids.text() == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            str_nodes = self.lineEdit_node_ids.text()
-            stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
-            if stop:
-                return
+        str_nodes = self.lineEdit_node_ids.text()
+        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
+            return
 
-            self.properties._remove_nodal_property("specific_impedance", node_ids[0])
-            self.actions_to_finalize()
+        self.properties._remove_nodal_property("specific_impedance", node_ids)
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -360,9 +363,11 @@ class SpecificImpedanceInput(SpecificImpedanceInput_UI):
             if read._cancel:
                 return
 
-            if read._continue:
-                self.properties._reset_nodal_property("specific_impedance")
-                self.actions_to_finalize()
+            if not read._continue:
+                return
+
+            self.properties._reset_nodal_property("specific_impedance")
+            self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().project.file.write_nodal_properties_in_file()

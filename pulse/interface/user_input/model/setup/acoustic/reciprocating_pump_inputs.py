@@ -710,12 +710,6 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         app().main_window.update_plots()
         self.load_reciprocating_pump_excitation_info()
 
-    def process_table_file_removal(self, table_names: list):
-        for table_name in table_names:
-            self.properties.remove_imported_tables("acoustic", table_name)
-        # if table_names:
-        #     app().project.file.write_imported_table_data_in_file()
-
     def remove_conflicting_excitations(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "reciprocating_pump_excitation", "reciprocating_compressor_excitation"]:
             self.properties._remove_nodal_property(label, node_id)
@@ -724,8 +718,8 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         if self.lineEdit_selected_node_id.text() == "":
             self.hide()
-            title = "Empty node selection"
-            message = "You should to select a node from the list "
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
             message += "to proceed with the removal."
             PrintMessageInput([warning_title, title, message])
             return
@@ -748,9 +742,11 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            self.properties._reset_nodal_property("reciprocating_pump_excitation")
-            self.actions_to_finalize()
+        if not read._continue:
+            return
+
+        self.properties._reset_nodal_property("reciprocating_pump_excitation")
+        self.actions_to_finalize()
 
     def load_reciprocating_pump_excitation_info(self):
 

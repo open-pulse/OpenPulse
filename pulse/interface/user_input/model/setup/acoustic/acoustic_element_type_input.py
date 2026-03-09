@@ -290,17 +290,18 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
+        if not read._continue:
+            return
 
-            for (line_id, data) in self.properties.line_properties.items():
-                if "acoustic_element_type" in data.keys():
+        for (line_id, data) in self.properties.line_properties.items():
+            if "acoustic_element_type" in data.keys():
 
-                    app().project.model.preprocessor.set_acoustic_element_type_by_lines(line_id, "undamped")
-                    app().project.model.properties._remove_line_property("acoustic_element_type", line_id)
-                    app().project.model.properties._remove_line_property("proportional_damping", line_id)
-                    app().project.model.properties._remove_line_property("volumetric_flow_rate", line_id)
+                app().project.model.preprocessor.set_acoustic_element_type_by_lines(line_id, "undamped")
+                app().project.model.properties._remove_line_property("acoustic_element_type", line_id)
+                app().project.model.properties._remove_line_property("proportional_damping", line_id)
+                app().project.model.properties._remove_line_property("volumetric_flow_rate", line_id)
 
-            self.actions_to_finalize()
+        self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().project.file.write_line_properties_in_file()

@@ -765,6 +765,8 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             vv_data = np.array([freq, np.real(flow_rate), np.imag(flow_rate)]).T
             table_name = f"compressor_excitation_{connection_type}_node_{node_id}"
 
+            self.remove_conflicting_excitations(node_id)
+
             if self.save_table_values(table_name, vv_data):
                 return
 
@@ -777,8 +779,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
                 "table_names" : [table_name],
                 "parameters" : self.parameters,
                 }
-
-            self.remove_conflicting_excitations(node_id)
 
             self.properties._set_nodal_property("reciprocating_compressor_excitation", data, node_id)
             self.actions_to_finalize()
@@ -798,8 +798,8 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         if self.lineEdit_selected_node_id.text() == "":
             self.hide()
-            title = "Empty node selection"
-            message = "You should to select a node from the list "
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
             message += "to proceed with the removal."
             PrintMessageInput([warning_title, title, message])
             return
@@ -822,9 +822,11 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            self.properties._reset_nodal_property("reciprocating_compressor_excitation")
-            self.actions_to_finalize()
+        if not read._continue:
+            return
+
+        self.properties._reset_nodal_property("reciprocating_compressor_excitation")
+        self.actions_to_finalize()
 
     def load_compressor_excitation_info(self):
 

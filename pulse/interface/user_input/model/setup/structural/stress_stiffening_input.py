@@ -239,20 +239,21 @@ class StressStiffeningInput(StressStiffeningInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
+        if not read._continue:
+            return
 
-            line_ids = list()
-            for (line_id, data) in self.properties.line_properties.items():
-                if "stress_stiffening" in data.keys():
-                    line_ids.append(line_id)
+        line_ids = list()
+        for (line_id, data) in self.properties.line_properties.items():
+            if "stress_stiffening" in data.keys():
+                line_ids.append(line_id)
 
-            parameters = {  "external_pressure" : 0.,
-                            "internal_pressure" : 0.  }
+        parameters = {  "external_pressure" : 0.,
+                        "internal_pressure" : 0.  }
 
-            self.preprocessor.set_stress_stiffening_by_lines(line_ids, parameters)
-            self.properties._remove_line_property("stress_stiffening", line_ids)
+        self.preprocessor.set_stress_stiffening_by_lines(line_ids, parameters)
+        self.properties._remove_line_property("stress_stiffening", line_ids)
 
-            self.actions_to_finalize()
+        self.actions_to_finalize()
 
     def actions_to_finalize(self):
 

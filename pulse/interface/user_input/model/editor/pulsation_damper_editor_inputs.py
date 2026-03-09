@@ -852,13 +852,15 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            damper_labels = list(self.damper_data.keys())
-            self.damper_data.clear()
+        if not read._continue:
+            return
 
-            self.remove_pulsation_damper_related_line_properties(damper_labels)
-            self.remove_pulsation_damper_related_element_properties("_remove_all_")
-            self.actions_to_finalize()
+        damper_labels = list(self.damper_data.keys())
+        self.damper_data.clear()
+
+        self.remove_pulsation_damper_related_line_properties(damper_labels)
+        self.remove_pulsation_damper_related_element_properties("_remove_all_")
+        self.actions_to_finalize()
 
     def reset_entries_callback(self):
         for key, value in self.__dict__.items():
