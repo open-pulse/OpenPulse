@@ -37,7 +37,6 @@ class ExpansionJointInput(ExpansionJointInput_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._configure_appearance()
 
@@ -59,8 +58,15 @@ class ExpansionJointInput(ExpansionJointInput_UI):
     
     def _initialize(self):
 
+        self.reset_table_variables()
+        self.create_widgets_lists()
+
         self.complete = False
         self.keep_window_open = True
+
+        self.expansion_joint_info = dict()
+
+    def reset_table_variables(self):
 
         self.imported_Kx_values = None
         self.imported_Kyz_values = None
@@ -72,10 +78,22 @@ class ExpansionJointInput(ExpansionJointInput_UI):
         self.Krx_table_path = None
         self.Kryz_table_path = None
 
-        self.expansion_joint_info = dict()
+    def create_widgets_lists(self):
 
-    def _define_qt_variables(self):
-        self._create_lists_of_line_edits()
+        self.list_line_edits = [
+            self.lineEdit_expansion_joint_name,
+            self.lineEdit_effective_diameter,
+            self.lineEdit_joint_mass,
+            self.lineEdit_axial_locking_criteria,
+            self.lineEdit_Kx,
+            self.lineEdit_Kyz,
+            self.lineEdit_Krx,
+            self.lineEdit_Kryz,
+            self.lineEdit_Kx_table_path,
+            self.lineEdit_Kyz_table_path,
+            self.lineEdit_Krx_table_path,
+            self.lineEdit_Kryz_table_path,
+            ]
 
     def _create_connections(self):
         #
@@ -137,22 +155,6 @@ class ExpansionJointInput(ExpansionJointInput_UI):
         for i, w in enumerate([70, 120]):
             self.treeWidget_expansion_joints_info.setColumnWidth(i, w)
             self.treeWidget_expansion_joints_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
-
-    def _create_lists_of_line_edits(self):
-        self.list_line_edits = [
-            self.lineEdit_expansion_joint_name,
-            self.lineEdit_effective_diameter,
-            self.lineEdit_joint_mass,
-            self.lineEdit_axial_locking_criteria,
-            self.lineEdit_Kx,
-            self.lineEdit_Kyz,
-            self.lineEdit_Krx,
-            self.lineEdit_Kryz,
-            self.lineEdit_Kx_table_path,
-            self.lineEdit_Kyz_table_path,
-            self.lineEdit_Krx_table_path,
-            self.lineEdit_Kryz_table_path,
-            ]
 
     def axial_stop_rod_callback(self):
         if self.comboBox_axial_stop_rod.currentIndex() == 0:
@@ -328,7 +330,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             )
 
         if self.imported_Kx_values is None:
-            self.lineEdit_reset(self.lineEdit_Kx_table_path)
+            self.line_edit_reset(self.lineEdit_Kx_table_path)
 
     def load_Kyz_table(self):
         self.imported_Kyz_values, self.Kyz_table_path = CommonUserInputs().load_table(
@@ -338,7 +340,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             )
 
         if self.imported_Kyz_values is None:
-            self.lineEdit_reset(self.lineEdit_Kyz_table_path)
+            self.line_edit_reset(self.lineEdit_Kyz_table_path)
 
     def load_Krx_table(self):
         self.imported_Krx_values, self.Krx_table_path = CommonUserInputs().load_table(
@@ -348,7 +350,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             )
 
         if self.imported_Krx_values is None:
-            self.lineEdit_reset(self.lineEdit_Krx_table_path)
+            self.line_edit_reset(self.lineEdit_Krx_table_path)
 
     def load_Kryz_table(self):
         self.imported_Kryz_values, self.Kryz_table_path = CommonUserInputs().load_table(
@@ -358,9 +360,9 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             )
 
         if self.Kryz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Kryz_table_path)
+            self.line_edit_reset(self.lineEdit_Kryz_table_path)
 
-    def lineEdit_reset(self, line_edit: QLineEdit):
+    def line_edit_reset(self, line_edit: QLineEdit):
         line_edit.setText("")
         line_edit.setFocus()
    
@@ -445,9 +447,10 @@ class ExpansionJointInput(ExpansionJointInput_UI):
                     return
 
             table_names.append(_table_name)
-        
+
         self.expansion_joint_info["table_names"] = table_names
         self.expansion_joint_info["table_paths"] = table_paths
+        self.expansion_joint_info["values"] = self.properties.get_table_values("expansion_joint_info", table_names)
 
         return False
 
@@ -491,10 +494,6 @@ class ExpansionJointInput(ExpansionJointInput_UI):
                     self.expansion_joint_info["effective_diameter"],
                     )
 
-                self.preprocessor.set_cross_section_by_elements(self.joint_elements, cross_sections)
-                self.preprocessor.add_expansion_joint_by_lines(line_id, self.expansion_joint_info)
-                self.preprocessor.set_structural_element_type_by_lines(line_id, "expansion_joint")
-
                 self.properties._remove_line_property("valve_info", line_id)
                 self.properties._remove_line_property("section_parameters", line_id)
                 self.properties._remove_line_property("section_properties", line_id)
@@ -503,6 +502,13 @@ class ExpansionJointInput(ExpansionJointInput_UI):
                 self.properties._set_line_property("section_type_label", "expansion_joint", line_id)
                 self.properties._set_line_property("structural_element_type", "expansion_joint", line_id)
                 self.properties._set_line_property("expansion_joint_info", self.expansion_joint_info, line_id)
+
+                # get the updated property data to include, whenever applicable, the table values
+                _expansion_joint_info = self.properties._get_property("expansion_joint_info", line_id=line_id)
+
+                self.preprocessor.set_cross_section_by_elements(self.joint_elements, cross_sections)
+                self.preprocessor.add_expansion_joint_by_lines(line_id, _expansion_joint_info)
+                self.preprocessor.set_structural_element_type_by_lines(line_id, "expansion_joint")
 
             self.actions_to_finalize()
 
@@ -660,6 +666,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
 
     def actions_to_finalize(self):
 
+        self.reset_table_variables()
         app().project.file.write_line_properties_in_file()
         app().project.file.write_imported_table_data_in_file()
 

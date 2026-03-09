@@ -28,11 +28,10 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
-        self._initialize()
-        self._define_qt_variables()
-        self._create_connections()
         self._config_widgets()
-        self.selection_callback()
+        self._initialize()
+        self._create_connections()
+
         self.load_nodes_info()
                
         while self.keep_window_open:
@@ -45,10 +44,68 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
+
+        self.reset_table_variables()
+        self.create_widgets_lists()
+
         self.keep_window_open = True
         self.lumped_element_applied = False
 
-        self.reset_table_variables()
+    def create_widgets_lists(self):
+
+        self.constant_values_lumped_masses = [  
+            self.lineEdit_Mx,
+            self.lineEdit_My,
+            self.lineEdit_Mz,
+            self.lineEdit_Jx,
+            self.lineEdit_Jy,
+            self.lineEdit_Jz,
+            ]
+
+        self.constant_values_lumped_stiffness = [   
+            self.lineEdit_Kx,
+            self.lineEdit_Ky,
+            self.lineEdit_Kz,
+            self.lineEdit_Krx,
+            self.lineEdit_Kry,
+            self.lineEdit_Krz,
+            ]
+
+        self.constant_values_lumped_dampings = [
+            self.lineEdit_Cx,
+            self.lineEdit_Cy,
+            self.lineEdit_Cz,
+            self.lineEdit_Crx,
+            self.lineEdit_Cry,
+            self.lineEdit_Crz,
+            ]
+
+        self.table_values_lumped_masses = [ 
+            self.lineEdit_Mx_table_path,
+            self.lineEdit_My_table_path,
+            self.lineEdit_Mz_table_path,
+            self.lineEdit_Jx_table_path,
+            self.lineEdit_Jy_table_path,
+            self.lineEdit_Jz_table_path,
+            ]
+
+        self.table_values_lumped_stiffness = [  
+            self.lineEdit_Kx_table_path,
+            self.lineEdit_Ky_table_path,
+            self.lineEdit_Kz_table_path,
+            self.lineEdit_Krx_table_path,
+            self.lineEdit_Kry_table_path,
+            self.lineEdit_Krz_table_path,
+            ]
+
+        self.table_values_lumped_dampings = [   
+            self.lineEdit_Cx_table_path,
+            self.lineEdit_Cy_table_path,
+            self.lineEdit_Cz_table_path,
+            self.lineEdit_Crx_table_path,
+            self.lineEdit_Cry_table_path,
+            self.lineEdit_Crz_table_path,
+            ]
 
     def reset_table_variables(self):
 
@@ -94,9 +151,6 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         self.Cry_table_path = None
         self.Crz_table_path = None
 
-    def _define_qt_variables(self):
-        self._create_lists_of_lineEdits()
-
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
@@ -137,6 +191,7 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         self.treeWidget_dampers.itemDoubleClicked.connect(self.on_doubleclick_item_dampings)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+        self.selection_callback()
 
     def selection_callback(self):
 
@@ -226,62 +281,6 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
             self.treeWidget_masses.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_springs.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_dampers.headerItem().setTextAlignment(i, Qt.AlignCenter)
-
-    def _create_lists_of_lineEdits(self):
-
-        self.constant_values_lumped_masses = [  
-            self.lineEdit_Mx,
-            self.lineEdit_My,
-            self.lineEdit_Mz,
-            self.lineEdit_Jx,
-            self.lineEdit_Jy,
-            self.lineEdit_Jz,
-            ]
-
-        self.constant_values_lumped_stiffness = [   
-            self.lineEdit_Kx,
-            self.lineEdit_Ky,
-            self.lineEdit_Kz,
-            self.lineEdit_Krx,
-            self.lineEdit_Kry,
-            self.lineEdit_Krz,
-            ]
-
-        self.constant_values_lumped_dampings = [
-            self.lineEdit_Cx,
-            self.lineEdit_Cy,
-            self.lineEdit_Cz,
-            self.lineEdit_Crx,
-            self.lineEdit_Cry,
-            self.lineEdit_Crz,
-            ]
-
-        self.table_values_lumped_masses = [ 
-            self.lineEdit_Mx_table_path,
-            self.lineEdit_My_table_path,
-            self.lineEdit_Mz_table_path,
-            self.lineEdit_Jx_table_path,
-            self.lineEdit_Jy_table_path,
-            self.lineEdit_Jz_table_path,
-            ]
-
-        self.table_values_lumped_stiffness = [  
-            self.lineEdit_Kx_table_path,
-            self.lineEdit_Ky_table_path,
-            self.lineEdit_Kz_table_path,
-            self.lineEdit_Krx_table_path,
-            self.lineEdit_Kry_table_path,
-            self.lineEdit_Krz_table_path,
-            ]
-
-        self.table_values_lumped_dampings = [   
-            self.lineEdit_Cx_table_path,
-            self.lineEdit_Cy_table_path,
-            self.lineEdit_Cz_table_path,
-            self.lineEdit_Crx_table_path,
-            self.lineEdit_Cry_table_path,
-            self.lineEdit_Crz_table_path,
-            ]
 
     def attribute_callback(self):
 
@@ -490,94 +489,94 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
     def load_Mx_table(self):
         self.imported_Mx_values, self.Mx_table_path = CommonUserInputs().load_table(self.lineEdit_Mx_table_path, "lumped element", dof_label="Mx")
         if self.Mx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Mx_table_path)
+            self.line_edit_reset(self.lineEdit_Mx_table_path)
 
     def load_My_table(self):
         self.imported_My_values, self.My_table_path = CommonUserInputs().load_table(self.lineEdit_My_table_path, "lumped element", dof_label="My")
         if self.My_table_path is None:
-            self.lineEdit_reset(self.lineEdit_My_table_path)
+            self.line_edit_reset(self.lineEdit_My_table_path)
 
     def load_Mz_table(self):
         self.imported_Mz_values, self.Mz_table_path = CommonUserInputs().load_table(self.lineEdit_Mz_table_path, "lumped element", dof_label="Mz")
         if self.Mz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Mz_table_path)
+            self.line_edit_reset(self.lineEdit_Mz_table_path)
 
     def load_Jx_table(self):
         self.imported_Jx_values, self.Jx_table_path = CommonUserInputs().load_table(self.lineEdit_Jx_table_path, "lumped element", dof_label="Jx")
         if self.Jx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Jx_table_path)
+            self.line_edit_reset(self.lineEdit_Jx_table_path)
 
     def load_Jy_table(self):
         self.imported_Jy_values, self.Jy_table_path = CommonUserInputs().load_table(self.lineEdit_Jy_table_path, "lumped element", dof_label="Jy")
         if self.Jy_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Jy_table_path)
+            self.line_edit_reset(self.lineEdit_Jy_table_path)
 
     def load_Jz_table(self):
         self.imported_Jz_values, self.Jz_table_path = CommonUserInputs().load_table(self.lineEdit_Jz_table_path, "lumped element", dof_label="Jz")
         if self.Jz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Jz_table_path)
+            self.line_edit_reset(self.lineEdit_Jz_table_path)
 
     def load_Kx_table(self):
         self.imported_Kx_values, self.Kx_table_path = CommonUserInputs().load_table(self.lineEdit_Kx_table_path, "lumped element", dof_label="Kx")
         if self.Kx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Kx_table_path)
+            self.line_edit_reset(self.lineEdit_Kx_table_path)
 
     def load_Ky_table(self):
         self.imported_Ky_values, self.Ky_table_path = CommonUserInputs().load_table(self.lineEdit_Ky_table_path, "lumped element", dof_label="Ky")
         if self.Ky_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Ky_table_path)
+            self.line_edit_reset(self.lineEdit_Ky_table_path)
 
     def load_Kz_table(self):
         self.imported_Kz_values, self.Kz_table_path = CommonUserInputs().load_table(self.lineEdit_Kz_table_path, "lumped element", dof_label="Kz")
         if self.Kz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Kz_table_path)
+            self.line_edit_reset(self.lineEdit_Kz_table_path)
 
     def load_Krx_table(self):
         self.imported_Krx_values, self.Krx_table_path = CommonUserInputs().load_table(self.lineEdit_Krx_table_path, "lumped element", dof_label="Krx")
         if self.Krx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Krx_table_path)
+            self.line_edit_reset(self.lineEdit_Krx_table_path)
 
     def load_Kry_table(self):
         self.imported_Kry_values, self.Kry_table_path = CommonUserInputs().load_table(self.lineEdit_Kry_table_path, "lumped element", dof_label="Kry")
         if self.Kry_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Kry_table_path)
+            self.line_edit_reset(self.lineEdit_Kry_table_path)
 
     def load_Krz_table(self):
         self.imported_Krz_values, self.Krz_table_path = CommonUserInputs().load_table(self.lineEdit_Krz_table_path, "lumped element", dof_label="Krz")
         if self.Krz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Krz_table_path)
+            self.line_edit_reset(self.lineEdit_Krz_table_path)
 
     def load_Cx_table(self):
         self.imported_Cx_values, self.Cx_table_path = CommonUserInputs().load_table(self.lineEdit_Cx_table_path, "lumped element", dof_label="Cx")
         if self.Cx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Cx_table_path)
+            self.line_edit_reset(self.lineEdit_Cx_table_path)
 
     def load_Cy_table(self):
         self.imported_Cy_values, self.Cy_table_path = CommonUserInputs().load_table(self.lineEdit_Cy_table_path, "lumped element", dof_label="Cy")
         if self.Cy_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Cy_table_path)
+            self.line_edit_reset(self.lineEdit_Cy_table_path)
 
     def load_Cz_table(self):
         self.imported_Cz_values, self.Cz_table_path = CommonUserInputs().load_table(self.lineEdit_Cz_table_path, "lumped element", dof_label="Cz")
         if self.Cz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Cz_table_path)
+            self.line_edit_reset(self.lineEdit_Cz_table_path)
 
     def load_Crx_table(self):
         self.imported_Crx_values, self.Crx_table_path = CommonUserInputs().load_table(self.lineEdit_Crx_table_path, "lumped element", dof_label="Crx")
         if self.Crx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Crx_table_path)
+            self.line_edit_reset(self.lineEdit_Crx_table_path)
 
     def load_Cry_table(self):
         self.imported_Cry_values, self.Cry_table_path = CommonUserInputs().load_table(self.lineEdit_Cry_table_path, "lumped element", dof_label="Cry")
         if self.Cry_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Cry_table_path)
+            self.line_edit_reset(self.lineEdit_Cry_table_path)
 
     def load_Crz_table(self):
         self.imported_Crz_values, self.Crz_table_path = CommonUserInputs().load_table(self.lineEdit_Crz_table_path, "lumped element", dof_label="Crz")
         if self.Crz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Crz_table_path)
+            self.line_edit_reset(self.lineEdit_Crz_table_path)
 
-    def lineEdit_reset(self, lineEdit: QLineEdit):
+    def line_edit_reset(self, lineEdit: QLineEdit):
         lineEdit.setText("")
         lineEdit.setFocus()
 
@@ -895,6 +894,7 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         self.cache_tab = self.tabWidget_main.currentIndex()
 
     def actions_to_finalize(self):
+        self.reset_table_variables()
         app().project.file.write_nodal_properties_in_file()
         app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera=False)

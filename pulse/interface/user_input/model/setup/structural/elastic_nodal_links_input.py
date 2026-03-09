@@ -22,17 +22,14 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         super().__init__(*args, **kwargs)
         app().main_window.set_input_widget(self)
 
-        self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
-
         self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
-        self._initialize()
-        self._define_qt_variables()
-        self._create_connections()
         self._config_widgets()
-        self.selection_callback()
+        self._initialize()
+        self._create_connections()
+
         self.load_nodes_info()
         
         while self.keep_window_open:
@@ -46,11 +43,12 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
     def _initialize(self):
 
+        self.reset_table_variables()
+        self.create_widgets_lists()
+
         self.complete = False
         self.keep_window_open = True
         self.link_applied = False
-        
-        self.reset_table_variables()
 
     def reset_table_variables(self):
 
@@ -82,10 +80,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         self.imported_Cry_values = None
         self.imported_Crz_values = None
 
-    def _define_qt_variables(self):
-        self._create_lists_of_lineEdits()
-
-    def _create_lists_of_lineEdits(self):
+    def create_widgets_lists(self):
 
         self.lineEdits_constant_values_stiffness = [
             self.lineEdit_Kx,
@@ -187,6 +182,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         self.treeWidget_damping_nodal_links.itemDoubleClicked.connect(self.on_double_click_item_damping)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+        self.selection_callback()
 
     def selection_callback(self):
 
@@ -429,64 +425,64 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
     def load_Kx_table(self):
         self.imported_Kx_values, self.Kx_table_path = CommonUserInputs().load_table(self.lineEdit_Kx_table_path, "nodal link", dof_label="Kx")
         if self.Kx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Kx_table_path)
+            self.line_edit_reset(self.lineEdit_Kx_table_path)
 
     def load_Ky_table(self):
         self.imported_Ky_values, self.Ky_table_path = CommonUserInputs().load_table(self.lineEdit_Ky_table_path, "nodal link", dof_label="Ky")
         if self.Ky_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Ky_table_path)
+            self.line_edit_reset(self.lineEdit_Ky_table_path)
 
     def load_Kz_table(self):
         self.imported_Kz_values, self.Kz_table_path = CommonUserInputs().load_table(self.lineEdit_Kz_table_path, "nodal link", dof_label="Kz")
         if self.Kz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Kz_table_path)
+            self.line_edit_reset(self.lineEdit_Kz_table_path)
 
     def load_Krx_table(self):
         self.imported_Krx_values, self.Krx_table_path = CommonUserInputs().load_table(self.lineEdit_Krx_table_path, "nodal link", dof_label="Krx")
         if self.Krx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Krx_table_path)
+            self.line_edit_reset(self.lineEdit_Krx_table_path)
 
     def load_Kry_table(self):
         self.imported_Kry_values, self.Kry_table_path = CommonUserInputs().load_table(self.lineEdit_Kry_table_path, "nodal link", dof_label="Kry")
         if self.Kry_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Kry_table_path)
+            self.line_edit_reset(self.lineEdit_Kry_table_path)
 
     def load_Krz_table(self):
         self.imported_Krz_values, self.Krz_table_path = CommonUserInputs().load_table(self.lineEdit_Krz_table_path, "nodal link", dof_label="Krz")
         if self.Krz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Krz_table_path)
+            self.line_edit_reset(self.lineEdit_Krz_table_path)
 
     def load_Cx_table(self):
         self.imported_Cx_values, self.Cx_table_path = CommonUserInputs().load_table(self.lineEdit_Cx_table_path, "nodal link", dof_label="Cx")
         if self.Cx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Cx_table_path)
+            self.line_edit_reset(self.lineEdit_Cx_table_path)
 
     def load_Cy_table(self):
         self.imported_Cy_values, self.Cy_table_path = CommonUserInputs().load_table(self.lineEdit_Cy_table_path, "nodal link", dof_label="Cy")
         if self.Cy_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Cy_table_path)
+            self.line_edit_reset(self.lineEdit_Cy_table_path)
 
     def load_Cz_table(self):
         self.imported_Cz_values, self.Cz_table_path = CommonUserInputs().load_table(self.lineEdit_Cz_table_path, "nodal link", dof_label="Cz")
         if self.Cz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Cz_table_path)
+            self.line_edit_reset(self.lineEdit_Cz_table_path)
 
     def load_Crx_table(self):
         self.imported_Crx_values, self.Crx_table_path = CommonUserInputs().load_table(self.lineEdit_Crx_table_path, "nodal link", dof_label="Crx")
         if self.Crx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Crx_table_path)
+            self.line_edit_reset(self.lineEdit_Crx_table_path)
 
     def load_Cry_table(self):
         self.imported_Cry_values, self.Cry_table_path = CommonUserInputs().load_table(self.lineEdit_Cry_table_path, "nodal link", dof_label="Cry")
         if self.Cry_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Cry_table_path)
+            self.line_edit_reset(self.lineEdit_Cry_table_path)
 
     def load_Crz_table(self):
         self.imported_Crz_values, self.Crz_table_path = CommonUserInputs().load_table(self.lineEdit_Crz_table_path, "nodal link", dof_label="Crz")
         if self.Crz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_Crz_table_path)
+            self.line_edit_reset(self.lineEdit_Crz_table_path)
 
-    def lineEdit_reset(self, lineEdit: QLineEdit):
+    def line_edit_reset(self, lineEdit: QLineEdit):
         lineEdit.setText("")
         lineEdit.setFocus()
 
@@ -631,6 +627,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                 self.properties._set_nodal_property("damping_nodal_links", data, node_ids)
   
     def actions_to_finalize(self):
+        self.reset_table_variables()
         app().project.file.write_nodal_properties_in_file()
         app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots()

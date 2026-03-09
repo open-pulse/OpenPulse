@@ -12,7 +12,13 @@ from pulse.interface.user_input.common import CommonUserInputs, get_table_name, 
 
 import os
 import numpy as np
-from pathlib import Path
+from enum import IntEnum
+
+
+class TabType(IntEnum):
+    CONSTANT = 0
+    TABULAR = 1
+    LIST = 2
 
 
 error_title = "Error"
@@ -22,15 +28,15 @@ class NodalLoadsInput(NodalLoadsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app().main_window.set_input_widget(self)
+
         self.properties = app().project.model.properties
+        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
+        self._config_widgets()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
 
-        self._config_widgets()
-        self.selection_callback()
         self.load_nodes_info()
 
         while self.keep_window_open:
@@ -44,13 +50,33 @@ class NodalLoadsInput(NodalLoadsInput_UI):
 
     def _initialize(self):
 
+        self.reset_table_variables()
+        self.create_widgets_lists()
+
         self.keep_window_open = True
 
         self.list_Nones = [None, None, None, None, None, None]
         self.load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
 
-        self.reset_table_variables()
-        self.before_run = app().project.get_pre_solution_model_checks()
+    def create_widgets_lists(self):
+
+        self.list_lineEdit_constant_values = [  
+            [self.lineEdit_real_fx, self.lineEdit_imag_fx],
+            [self.lineEdit_real_fy, self.lineEdit_imag_fy],
+            [self.lineEdit_real_fz, self.lineEdit_imag_fz],
+            [self.lineEdit_real_mx, self.lineEdit_imag_mx],
+            [self.lineEdit_real_my, self.lineEdit_imag_my],
+            [self.lineEdit_real_mz, self.lineEdit_imag_mz],
+            ]
+
+        self.list_lineEdit_table_values = [ 
+            self.lineEdit_fx_table_path,
+            self.lineEdit_fy_table_path,
+            self.lineEdit_fz_table_path,
+            self.lineEdit_mx_table_path,
+            self.lineEdit_my_table_path,
+            self.lineEdit_mz_table_path,
+            ]
 
     def reset_table_variables(self):
 
@@ -68,34 +94,10 @@ class NodalLoadsInput(NodalLoadsInput_UI):
         self.my_table_path = None
         self.mz_table_path = None
 
-    def _define_qt_variables(self):
-        self._create_list_lineEdits()
-
-    def _create_list_lineEdits(self):
-
-        self.list_lineEdit_constant_values = [  
-            [self.lineEdit_real_fx, self.lineEdit_imag_fx],
-            [self.lineEdit_real_fy, self.lineEdit_imag_fy],
-            [self.lineEdit_real_fz, self.lineEdit_imag_fz],
-            [self.lineEdit_real_mx, self.lineEdit_imag_mx],
-            [self.lineEdit_real_my, self.lineEdit_imag_my],
-            [self.lineEdit_real_mz, self.lineEdit_imag_mz],
-            ]
-
-        self.list_lineEdit_table_values = [ 
-            self.lineEdit_fx,
-            self.lineEdit_fy,
-            self.lineEdit_fz,
-            self.lineEdit_mx,
-            self.lineEdit_my,
-            self.lineEdit_mz,
-            ]
-
     def _create_connections(self):
         #
-        self.pushButton_exit_tab0.clicked.connect(self.close)
-        self.pushButton_exit_tab1.clicked.connect(self.close)
-        self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
+        self.pushButton_exit.clicked.connect(self.close)
+        self.pushButton_attribute.clicked.connect(self.attribution_callback)
         self.pushButton_load_fx_table.clicked.connect(self.load_fx_table)
         self.pushButton_load_fy_table.clicked.connect(self.load_fy_table)
         self.pushButton_load_fz_table.clicked.connect(self.load_fz_table)
@@ -104,7 +106,6 @@ class NodalLoadsInput(NodalLoadsInput_UI):
         self.pushButton_load_mz_table.clicked.connect(self.load_mz_table)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
-        self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
         #
         self.tabWidget_nodal_loads.currentChanged.connect(self.tab_event_callback)
         #
@@ -112,6 +113,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
         self.treeWidget_nodal_info.itemDoubleClicked.connect(self.on_double_click_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+        self.selection_callback()
 
     def selection_callback(self):
 
@@ -178,6 +180,14 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             return stop, None
         else:
             return stop, _real + 1j*_imag
+        
+    def attribution_callback(self):
+        tab_index = self.tabWidget_nodal_loads.currentIndex()
+        if tab_index == TabType.CONSTANT:
+            self.constant_values_attribution_callback()
+
+        elif tab_index == TabType.TABULAR:
+            self.table_values_attribution_callback()
 
     def constant_values_attribution_callback(self):
 
@@ -243,36 +253,66 @@ class NodalLoadsInput(NodalLoadsInput_UI):
         self.actions_to_finalize()
 
     def load_fx_table(self):
-        self.imported_fx_values, self.fx_table_path = CommonUserInputs().load_table(self.lineEdit_fx_table_path, "nodal loads", dof_label="Fx")
+        self.imported_fx_values, self.fx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_fx_table_path, 
+            "nodal loads", 
+            dof_label="Fx",
+            )
+
         if self.fx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_fx_table_path)
+            self.line_edit_reset(self.lineEdit_fx_table_path)
 
     def load_fy_table(self):
-        self.imported_fy_values, self.fy_table_path = CommonUserInputs().load_table(self.lineEdit_fy_table_path, "nodal loads", dof_label="Fy")
+        self.imported_fy_values, self.fy_table_path = CommonUserInputs().load_table(
+            self.lineEdit_fy_table_path, 
+            "nodal loads", 
+            dof_label="Fy",
+            )
+
         if self.fy_table_path is None:
-            self.lineEdit_reset(self.lineEdit_fy_table_path)
+            self.line_edit_reset(self.lineEdit_fy_table_path)
 
     def load_fz_table(self):
-        self.imported_fz_values, self.fz_table_path = CommonUserInputs().load_table(self.lineEdit_fz_table_path, "nodal loads", dof_label="Fz")
+        self.imported_fz_values, self.fz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_fz_table_path, 
+            "nodal loads", 
+            dof_label="Fz",
+            )
+
         if self.fz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_fz_table_path)
+            self.line_edit_reset(self.lineEdit_fz_table_path)
 
     def load_mx_table(self):
-        self.imported_mx_values, self.mx_table_path = CommonUserInputs().load_table(self.lineEdit_mx_table_path, "nodal loads", dof_label="Fx")
+        self.imported_mx_values, self.mx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_mx_table_path, 
+            "nodal loads", 
+            dof_label="Mx",
+            )
+
         if self.mx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_mx_table_path)
+            self.line_edit_reset(self.lineEdit_mx_table_path)
 
     def load_my_table(self):
-        self.imported_my_values, self.my_table_path = CommonUserInputs().load_table(self.lineEdit_my_table_path, "nodal loads", dof_label="Fy")
+        self.imported_my_values, self.my_table_path = CommonUserInputs().load_table(
+            self.lineEdit_my_table_path, 
+            "nodal loads", 
+            dof_label="My",
+            )
+
         if self.my_table_path is None:
-            self.lineEdit_reset(self.lineEdit_my_table_path)
+            self.line_edit_reset(self.lineEdit_my_table_path)
 
     def load_mz_table(self):
-        self.imported_mz_values, self.mz_table_path = CommonUserInputs().load_table(self.lineEdit_mz_table_path, "nodal loads", dof_label="Fz")
-        if self.mz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_mz_table_path)
+        self.imported_mz_values, self.mz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_mz_table_path, 
+            "nodal loads", 
+            dof_label="Mz",
+            )
 
-    def lineEdit_reset(self, lineEdit : QLineEdit):
+        if self.mz_table_path is None:
+            self.line_edit_reset(self.lineEdit_mz_table_path)
+
+    def line_edit_reset(self, lineEdit : QLineEdit):
         lineEdit.setText("")
         lineEdit.setFocus() 
 
@@ -372,7 +412,6 @@ class NodalLoadsInput(NodalLoadsInput_UI):
         app().project.file.write_nodal_properties_in_file()
 
         self.actions_to_finalize()
-        print(f"[Set Nodal loads] - defined at node(s) {node_ids}")
 
     def text_label(self, mask):
 
@@ -544,6 +583,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
+        self.reset_table_variables()
         app().project.file.write_nodal_properties_in_file()
         app().project.file.write_imported_table_data_in_file()
         self.load_nodes_info()

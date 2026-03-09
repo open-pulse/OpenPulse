@@ -35,15 +35,15 @@ class PrescribedDofInput(PrescribedDofInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app().main_window.set_input_widget(self)
+
         self.properties = app().project.model.properties
+        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
+        self._config_widgets()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
 
-        self._config_widgets()
-        self.selection_callback()
         self.load_nodes_info()
 
         while self.keep_window_open:
@@ -57,10 +57,15 @@ class PrescribedDofInput(PrescribedDofInput_UI):
 
     def _initialize(self):
 
+        self.reset_table_variables()
+        self.create_widgets_lists()
+
         self.keep_window_open = True
 
         self.list_Nones = [None, None, None, None, None, None]
         self.dofs_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
+
+    def create_widgets_lists(self):
 
         self.value_comboboxes = [
             self.comboBox_displacement_ux,
@@ -89,30 +94,6 @@ class PrescribedDofInput(PrescribedDofInput_UI):
             "Rz" : self.comboBox_rotation_rz,
         }
 
-
-        self.reset_table_variables()
-        self.before_run = app().project.get_pre_solution_model_checks()
-
-    def reset_table_variables(self):
-
-        self.imported_ux_values = None
-        self.imported_uy_values = None
-        self.imported_uz_values = None
-        self.imported_rx_values = None
-        self.imported_ry_values = None
-        self.imported_rz_values = None
-
-        self.ux_table_path = None
-        self.uy_table_path = None
-        self.uz_table_path = None
-        self.rx_table_path = None
-        self.ry_table_path = None
-        self.rz_table_path = None
-
-    def _define_qt_variables(self):
-        self._create_list_lineEdits()
-
-    def _create_list_lineEdits(self):
         self.list_lineEdit_constant_values = [  
             [self.lineEdit_real_ux, self.lineEdit_imag_ux],
             [self.lineEdit_real_uy, self.lineEdit_imag_uy],
@@ -130,6 +111,22 @@ class PrescribedDofInput(PrescribedDofInput_UI):
             self.lineEdit_ry_table_path,
             self.lineEdit_rz_table_path,
             ]
+
+    def reset_table_variables(self):
+
+        self.imported_ux_values = None
+        self.imported_uy_values = None
+        self.imported_uz_values = None
+        self.imported_rx_values = None
+        self.imported_ry_values = None
+        self.imported_rz_values = None
+
+        self.ux_table_path = None
+        self.uy_table_path = None
+        self.uz_table_path = None
+        self.rx_table_path = None
+        self.ry_table_path = None
+        self.rz_table_path = None
 
     def _config_widgets(self):
         #
@@ -164,6 +161,7 @@ class PrescribedDofInput(PrescribedDofInput_UI):
         self.treeWidget_nodal_info.itemDoubleClicked.connect(self.on_double_click_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+        self.selection_callback()
 
     def selection_callback(self):
 
@@ -331,34 +329,34 @@ class PrescribedDofInput(PrescribedDofInput_UI):
     def load_ux_table(self):
         self.imported_ux_values, self.ux_table_path = CommonUserInputs().load_table(self.lineEdit_ux_table_path, "prescribed dof", dof_label="Ux")
         if self.ux_table_path is None:
-            self.lineEdit_reset(self.lineEdit_ux_table_path)
+            self.line_edit_reset(self.lineEdit_ux_table_path)
 
     def load_uy_table(self):
         self.imported_uy_values, self.uy_table_path = CommonUserInputs().load_table(self.lineEdit_uy_table_path, "prescribed dof", dof_label="Uy")
         if self.uy_table_path is None:
-            self.lineEdit_reset(self.lineEdit_uy_table_path)
+            self.line_edit_reset(self.lineEdit_uy_table_path)
 
     def load_uz_table(self):
         self.imported_uz_values, self.uz_table_path = CommonUserInputs().load_table(self.lineEdit_uz_table_path, "prescribed dof", dof_label="Uz")
         if self.uz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_uz_table_path)
+            self.line_edit_reset(self.lineEdit_uz_table_path)
 
     def load_rx_table(self):
         self.imported_rx_values, self.rx_table_path = CommonUserInputs().load_table(self.lineEdit_rx_table_path, "prescribed dof", dof_label="Rx")
         if self.rx_table_path is None:
-            self.lineEdit_reset(self.lineEdit_rx_table_path)
+            self.line_edit_reset(self.lineEdit_rx_table_path)
 
     def load_ry_table(self):
         self.imported_ry_values, self.ry_table_path = CommonUserInputs().load_table(self.lineEdit_ry_table_path, "prescribed dof", dof_label="Ry")
         if self.ry_table_path is None:
-            self.lineEdit_reset(self.lineEdit_ry_table_path)
+            self.line_edit_reset(self.lineEdit_ry_table_path)
             
     def load_rz_table(self):
         self.imported_rz_values, self.rz_table_path = CommonUserInputs().load_table(self.lineEdit_rz_table_path, "prescribed dof", dof_label="Rz")
         if self.rz_table_path is None:
-            self.lineEdit_reset(self.lineEdit_rz_table_path)
+            self.line_edit_reset(self.lineEdit_rz_table_path)
 
-    def lineEdit_reset(self, lineEdit : QLineEdit):
+    def line_edit_reset(self, lineEdit : QLineEdit):
         lineEdit.setText("")
         lineEdit.setFocus()
 
@@ -508,10 +506,11 @@ class PrescribedDofInput(PrescribedDofInput_UI):
         self.actions_to_finalize()
 
     def attribution_callback(self):
-        if self.tabWidget_prescribed_dof.currentIndex() == TabType.CONSTANT:
+        tab_index = self.tabWidget_prescribed_dof.currentIndex()
+        if tab_index == TabType.CONSTANT:
             self.constant_values_attribution_callback()
 
-        elif self.tabWidget_prescribed_dof.currentIndex() == TabType.TABULAR:
+        elif tab_index == TabType.TABULAR:
             self.table_values_attribution_callback()
 
     def all_dof_free_callback(self):
@@ -744,6 +743,7 @@ class PrescribedDofInput(PrescribedDofInput_UI):
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
+        self.reset_table_variables()
         app().project.file.write_nodal_properties_in_file()
         app().project.file.write_imported_table_data_in_file()
         self.load_nodes_info()
