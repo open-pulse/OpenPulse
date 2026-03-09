@@ -134,7 +134,7 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
         if stop:
             return
         
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         impedance_type = self.comboBox_radiation_impedance_type.currentIndex()
 
@@ -181,13 +181,13 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
     def on_doubleclick_item(self, item):
         self.lineEdit_node_ids.setText(item.text(0))
 
-    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
+    def remove_properties_from_node(self, node_ids: int | list | tuple):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
 
         for node_id in node_ids:
-            for label in ["specific_impedance"]:
+            for label in ["radiation_impedance", "specific_impedance"]:
                 self.properties._remove_nodal_property(label, node_id)
 
         app().project.file.write_nodal_properties_in_file()

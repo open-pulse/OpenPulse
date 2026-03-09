@@ -765,7 +765,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             vv_data = np.array([freq, np.real(flow_rate), np.imag(flow_rate)]).T
             table_name = f"compressor_excitation_{connection_type}_node_{node_id}"
 
-            self.remove_conflicting_excitations(node_id)
+            self.remove_properties_from_node(node_id)
 
             if self.save_table_values(table_name, vv_data):
                 return
@@ -790,7 +790,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         app().main_window.update_plots()
         self.load_compressor_excitation_info()
 
-    def remove_conflicting_excitations(self, node_id: int):
+    def remove_properties_from_node(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "reciprocating_compressor_excitation", "reciprocating_pump_excitation"]:
             self.properties._remove_nodal_property(label, node_id)
 

@@ -698,7 +698,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
                 "parameters" : self.parameters
                 }
 
-            self.remove_conflicting_excitations(node_id)
+            self.remove_properties_from_node(node_id)
 
             self.properties._set_nodal_property("reciprocating_pump_excitation", data, node_id)
             self.actions_to_finalize()
@@ -710,7 +710,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         app().main_window.update_plots()
         self.load_reciprocating_pump_excitation_info()
 
-    def remove_conflicting_excitations(self, node_id: int):
+    def remove_properties_from_node(self, node_id: int):
         for label in ["acoustic_pressure", "volume_velocity", "reciprocating_pump_excitation", "reciprocating_compressor_excitation"]:
             self.properties._remove_nodal_property(label, node_id)
 

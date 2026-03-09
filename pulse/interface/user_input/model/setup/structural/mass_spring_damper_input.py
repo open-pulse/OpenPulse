@@ -8,13 +8,11 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 
-
-import os
 import numpy as np
-from pathlib import Path
 
 
 error_title ="Error"
+warning_title = "Warning"
 
 
 class MassSpringDamperInput(MassSpringDamperInput_UI):
@@ -289,7 +287,7 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         if stop:
             return True
 
-        self.remove_nodal_property_data(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         if self.tabWidget_inputs.currentIndex() == 0:
             self.check_constant_values_inputs(node_ids)
@@ -876,37 +874,38 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
         self.actions_to_finalize()
 
-    def remove_nodal_property_data(self, node_ids: int | list | tuple, selected_property = None):
+    def remove_properties_from_node(self, node_ids: int | list | tuple):
 
-        if isinstance(node_ids, int):
-            node_ids = [node_ids]
+        properties = ["lumped_masses", "lumped_stiffness", "lumped_dampings"]
 
-        if selected_property is None:
-            properties = ["lumped_masses", "lumped_stiffness", "lumped_dampings"]
-
-        elif isinstance(selected_property, str):
-            properties = [selected_property]
-
-        for node_id in node_ids:
-            for _property in properties:
-                self.properties._remove_nodal_property(_property, node_id)
+        for _property in properties:
+            self.properties._remove_nodal_property(_property, node_ids)
 
         app().project.file.write_nodal_properties_in_file()
 
     def remove_callback(self):
 
-        if self.lineEdit_node_ids.text() != "":
+        if self.lineEdit_node_ids.text() == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            node_id = int(self.lineEdit_node_ids.text())
+        str_nodes = self.lineEdit_node_ids.text()
+        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
+            return
 
-            if self.checkBox_remove_mass.isChecked():
-                self.remove_nodal_property_data(node_id, selected_property="lumped_masses")
+        if self.checkBox_remove_mass.isChecked():
+            self.properties._remove_nodal_property("lumped_masses", node_ids)
 
-            if self.checkBox_remove_spring.isChecked():
-                self.remove_nodal_property_data(node_id, selected_property="lumped_stiffness")
+        if self.checkBox_remove_spring.isChecked():
+            self.properties._remove_nodal_property("lumped_stiffness", node_ids)
 
-            if self.checkBox_remove_damper.isChecked():
-                self.remove_nodal_property_data(node_id, selected_property="lumped_dampings")
+        if self.checkBox_remove_damper.isChecked():
+            self.properties._remove_nodal_property("lumped_dampings", node_ids)
 
         self.actions_to_finalize()
 

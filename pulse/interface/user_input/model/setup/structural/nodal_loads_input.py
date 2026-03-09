@@ -230,7 +230,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             PrintMessageInput([error_title, title, message]) 
             return
 
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         real_values = [value if value is None else np.real(value) for value in nodal_loads]
         imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
@@ -353,7 +353,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             self.lineEdit_node_ids.setFocus()
             return
 
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         table_paths = list()
         load_labels = ["fx", "fy", "fz", "mx", "my", "mz"]
@@ -516,7 +516,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
 
         self.show()
 
-    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
+    def remove_properties_from_node(self, node_ids: int | list | tuple):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]

@@ -191,7 +191,7 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
         if stop:
             return
 
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         real_values = [np.real(volume_velocity)]
         imag_values = [np.imag(volume_velocity)]
@@ -268,7 +268,7 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
             self.lineEdit_node_ids.setFocus()
             return
 
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         if self.lineEdit_table_path == "":
             self.hide()
@@ -328,7 +328,7 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
     def on_doubleclick_item(self, item):
         self.lineEdit_node_ids.setText(item.text(0))
 
-    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
+    def remove_properties_from_node(self, node_ids: int | list | tuple):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]

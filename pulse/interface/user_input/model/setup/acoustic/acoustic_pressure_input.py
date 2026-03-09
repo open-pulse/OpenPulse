@@ -183,7 +183,7 @@ class AcousticPressureInput(AcousticPressureInput_UI):
         if stop:
             return
 
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         real_values = [np.real(acoustic_pressure)]
         imag_values = [np.imag(acoustic_pressure)]
@@ -260,7 +260,7 @@ class AcousticPressureInput(AcousticPressureInput_UI):
             self.lineEdit_node_ids.setFocus()
             return
 
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         if self.lineEdit_table_path == "":
             title = "Additional inputs required"
@@ -320,7 +320,7 @@ class AcousticPressureInput(AcousticPressureInput_UI):
     def on_doubleclick_item(self, item):
         self.lineEdit_node_ids.setText(item.text(0))
 
-    def remove_conflicting_excitations(self, node_ids: int | list):
+    def remove_properties_from_node(self, node_ids: int | list):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]

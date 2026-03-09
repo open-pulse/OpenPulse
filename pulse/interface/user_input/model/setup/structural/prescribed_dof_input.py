@@ -297,7 +297,7 @@ class PrescribedDofInput(PrescribedDofInput_UI):
         prescribed_dofs = [ux, uy, uz, rx, ry, rz]
         all_dof_free = prescribed_dofs.count(None) == 6
 
-        self.remove_conflicting_excitations(node_ids, all_dof_free=all_dof_free)
+        self.remove_properties_from_node(node_ids, all_dof_free=all_dof_free)
 
         if all_dof_free:
             self.actions_to_finalize()
@@ -474,7 +474,7 @@ class PrescribedDofInput(PrescribedDofInput_UI):
             self.lineEdit_node_ids.setFocus()
             return
 
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         table_paths = list()
         dof_labels = ["ux", "uy", "uz", "rx", "ry", "rz"]
@@ -703,7 +703,7 @@ class PrescribedDofInput(PrescribedDofInput_UI):
             PrintMessageInput([error_title, title, message])
             return
 
-    def remove_conflicting_excitations(self, node_ids: int | list | tuple, all_dof_free: bool=False):
+    def remove_properties_from_node(self, node_ids: int | list | tuple, all_dof_free: bool=False):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]

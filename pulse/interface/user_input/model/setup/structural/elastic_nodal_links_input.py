@@ -400,7 +400,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         if stop:
             return True
 
-        self.remove_nodal_property_data(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         if self.tabWidget_inputs.currentIndex() == 0:
             self.check_constant_stiffness_links(node_ids)
@@ -795,7 +795,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
     def on_double_click_item_damping(self, item):
         self.on_click_item_damping(item)
 
-    def remove_nodal_property_data(self, node_ids_pair: list | tuple):
+    def remove_properties_from_node(self, node_ids_pair: list | tuple):
         _properties = ["stiffness_nodal_links", "damping_nodal_links"]
         for _property in _properties:
             self.properties._remove_nodal_property(_property, node_ids_pair)
