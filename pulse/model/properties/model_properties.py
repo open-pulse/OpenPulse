@@ -321,6 +321,7 @@ class ModelProperties:
             key = (property, node_ids[0], node_ids[1])
         else:
             return
+
         if key in self.nodal_properties.keys():
             self.nodal_properties.pop(key)
 
@@ -393,7 +394,6 @@ class ModelProperties:
     def get_nodal_related_table_names(self, property : str, node_ids : int | list) -> list:
         """
         """
-        table_names = list()
         if isinstance(node_ids, Number):
             test_key = (property, node_ids)
 
@@ -401,15 +401,17 @@ class ModelProperties:
             test_key = (property, node_ids[0], node_ids[1])
 
         else:
-            return table_names
+            return list()
 
-        if test_key in self.nodal_properties.keys():
-            data = self.nodal_properties[test_key]
+        data = self.nodal_properties.get(test_key)
 
-            if "table_names" in data.keys():
-                for table_name in data["table_names"]:
-                    if table_name is not None:
-                        table_names.append(table_name)
+        if not isinstance(data, dict):
+            return list()
+
+        table_names = list()
+        for table_name in data.get("table_names", list()):
+            if table_name is not None:
+                table_names.append(table_name)
 
         return table_names
 

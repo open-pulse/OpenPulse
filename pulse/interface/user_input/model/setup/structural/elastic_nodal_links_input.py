@@ -209,7 +209,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
                     if "table_paths" in ss_link_data.keys():
                         self.tabWidget_inputs.setCurrentIndex(1)
                         self.tabWidget_table_values.setCurrentIndex(0)
-                        for i, table_path in ss_link_data["table_paths"]:
+                        for i, table_path in enumerate(ss_link_data["table_paths"]):
                             if table_path is not None:
                                 lineEdit = self.lineEdits_table_values_stiffness[i]
                                 lineEdit.setText(table_path)
@@ -254,34 +254,34 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
         self.cache_tab = self.tabWidget_main.currentIndex()
 
-    def check_all_nodes(self):
+    def check_linked_nodes(self):
 
-        first_node = self.lineEdit_first_node_id.text()
-        stop, node_id = self.before_run.check_selected_ids(first_node, "nodes", single_id=True)
-        if stop:
-            return True
-        temp_node_id1 = node_id
-        
-        last_node = self.lineEdit_last_node_id.text()
-        stop, node_id = self.before_run.check_selected_ids(last_node, "nodes", single_id=True)
-        if stop:
-            return True           
-        temp_node_id2 = node_id
+        stop, node_id1 = self.before_run.check_selected_ids(
+            self.lineEdit_first_node_id.text(), 
+            "nodes", 
+            single_id=True,
+            )
 
-        if temp_node_id1 == temp_node_id2:
+        if stop:
+            return True, None
+
+        stop, node_id2 = self.before_run.check_selected_ids(
+            self.lineEdit_last_node_id.text(), 
+            "nodes", 
+            single_id=True,
+            )
+
+        if stop:
+            return True, None
+
+        if node_id1 == node_id2:
+            self.hide()
             title = "invalid pair of nodes selected"
             message = "The selected nodes must differ. Try to choose another pair of nodes."
             PrintMessageInput([error_title, title, message])
-            return True
+            return True, None
 
-        if temp_node_id2 > temp_node_id1:
-            node_id1 = temp_node_id1
-            node_id2 = temp_node_id2
-        else:
-            node_id2 = temp_node_id1
-            node_id1 = temp_node_id2
-
-        return False, (node_id1, node_id2)
+        return False, sorted([node_id1, node_id2])
 
     def check_entries(self, lineEdit: QLineEdit, label: str):
 
@@ -398,11 +398,11 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
     def attribute_callback(self):
 
-        stop, node_ids = self.check_all_nodes()
+        stop, node_ids = self.check_linked_nodes()
         if stop:
             return True
 
-        self.remove_conflicting_data(node_ids)
+        self.remove_nodal_property_data(node_ids)
 
         if self.tabWidget_inputs.currentIndex() == 0:
             self.check_constant_stiffness_links(node_ids)
@@ -576,7 +576,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
 
         return False
 
-    def check_tables_for_stiffness_links(self, node_ids: list):
+    def check_tables_for_stiffness_links(self, node_ids_pair: list):
 
         table_paths = list()
         link_labels = ["Kx", "Ky", "Kz", "Krx", "Kry", "Krz"]
@@ -597,41 +597,39 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             _table_path_attr = getattr(self, table_path_name)
             table_paths.append(_table_path_attr)
 
-        for node_id in node_ids:
+        table_names = list()
 
-            table_names = list()
+        for label in link_labels:
 
-            for label in link_labels:
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
 
-                imported_values_name = f"imported_{label}_values"
-                _imported_values = getattr(self, imported_values_name)
+            _table_name = None
+            if isinstance(_imported_values, np.ndarray):
+                _table_name = get_table_name(f"stiffness_link_{label}", node_id=node_ids_pair)
+                if self.save_table_values(_table_name, _imported_values):
+                    return
 
-                _table_name = None
-                if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"stiffness_link_{label}", node_id)
-                    if self.save_table_values(_table_name, _imported_values):
-                        return
+            table_names.append(_table_name)
 
-                table_names.append(_table_name)
+        if (table_names).count(None) != 6:
 
-            if (table_names).count(None) != 6:
+            self.link_applied = True
 
-                self.link_applied = True
+            coords = list()
+            for node_id in node_ids_pair:
+                node = app().project.model.preprocessor.nodes[node_id]
+                coords.extend(list(np.round(node.coordinates, 5)))
 
-                coords = list()
-                for node_id in node_ids:
-                    node = app().project.model.preprocessor.nodes[node_id]
-                    coords.extend(list(np.round(node.coordinates, 5)))
+            data = {
+                "coords" : coords,
+                "table_names" : table_names,
+                "table_paths" : table_paths,
+                }
 
-                data = {
-                    "coords" : coords,
-                    "table_names" : table_names,
-                    "table_paths" : table_paths,
-                    }
+            self.properties._set_nodal_property("stiffness_nodal_links", data, node_ids_pair)
 
-                self.properties._set_nodal_property("stiffness_nodal_links", data, node_ids)
-
-    def check_tables_for_dampings_links(self, node_ids: list):
+    def check_tables_for_dampings_links(self, node_ids_pair: list):
 
         table_paths = list()
         link_labels = ["Cx", "Cy", "Cz", "Crx", "Cry", "Crz"]
@@ -652,39 +650,37 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             _table_path_attr = getattr(self, table_path_name)
             table_paths.append(_table_path_attr)
 
-        for node_id in node_ids:
+        table_names = list()
 
-            table_names = list()
+        for label in link_labels:
 
-            for label in link_labels:
+            imported_values_name = f"imported_{label}_values"
+            _imported_values = getattr(self, imported_values_name)
 
-                imported_values_name = f"imported_{label}_values"
-                _imported_values = getattr(self, imported_values_name)
+            _table_name = None
+            if isinstance(_imported_values, np.ndarray):
+                _table_name = get_table_name(f"stiffness_link_{label}", node_id=node_ids_pair)
+                if self.save_table_values(_table_name, _imported_values):
+                    return
 
-                _table_name = None
-                if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"stiffness_link_{label}", node_id)
-                    if self.save_table_values(_table_name, _imported_values):
-                        return
+            table_names.append(_table_name)
 
-                table_names.append(_table_name)
+        if (table_names).count(None) != 6:
 
-            if (table_names).count(None) != 6:
+            self.link_applied = True
 
-                self.link_applied = True
+            coords = list()
+            for node_id in node_ids_pair:
+                node = app().project.model.preprocessor.nodes[node_id]
+                coords.extend(list(np.round(node.coordinates, 5)))
 
-                coords = list()
-                for node_id in node_ids:
-                    node = app().project.model.preprocessor.nodes[node_id]
-                    coords.extend(list(np.round(node.coordinates, 5)))
+            data = {
+                "coords" : coords,
+                "table_names" : table_names,
+                "table_paths" : table_paths,
+                }
 
-                data = {
-                    "coords" : coords,
-                    "table_names" : table_names,
-                    "table_paths" : table_paths,
-                    }
-
-                self.properties._set_nodal_property("damping_nodal_links", data, node_ids)
+            self.properties._set_nodal_property("damping_nodal_links", data, node_ids_pair)
   
     def actions_to_finalize(self):
         self.reset_table_variables()
@@ -801,7 +797,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
     def on_double_click_item_damping(self, item):
         self.on_click_item_damping(item)
 
-    def remove_conflicting_data(self, node_ids: int | list | tuple, selected_property = None):
+    def remove_nodal_property_data(self, node_ids_pair: list | tuple, selected_property: bool | None = None):
 
         if selected_property is None:
             properties = ["stiffness_nodal_links", "damping_nodal_links"]
@@ -809,24 +805,25 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         elif isinstance(selected_property, str):
             properties = [selected_property]
 
-        for node_id in node_ids:
-            for _property in properties:
-                table_names = self.properties.get_nodal_related_table_names(_property, node_id)
-                self.properties._remove_nodal_property(_property, node_id)
-                self.process_table_file_removal(table_names)
+        for _property in properties:
+            table_names = self.properties.get_nodal_related_table_names(_property, node_ids_pair)
+            self.properties._remove_nodal_property(_property, node_ids_pair)
+            self.process_table_file_removal(table_names)
 
         app().project.file.write_nodal_properties_in_file()
 
-    def remove_table_files_from_nodes(self, node_ids : list):
+    def remove_table_files_from_nodes(self, node_ids_pari : list):
         for _property in ["stiffness_nodal_links", "damping_nodal_links"]:
-            table_names = self.properties.get_nodal_related_table_names(_property, node_ids)
+            table_names = self.properties.get_nodal_related_table_names(_property, node_ids_pari)
             self.process_table_file_removal(table_names)
 
     def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("structural", table_name)
-            app().project.file.write_imported_table_data_in_file()
+        if not table_names:
+            return
+
+        for table_name in table_names:
+            self.properties.remove_imported_tables("structural", table_name)
+        app().project.file.write_imported_table_data_in_file()
 
     def remove_callback(self):
 
@@ -840,12 +837,10 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             node_ids = [node_id1, node_id2]
 
             if self.checkBox_link_stiffness.isChecked():
-                self.properties._remove_nodal_property("stiffness_nodal_links", node_ids=node_ids)
-                self.remove_conflicting_data(node_ids, selected_property="stiffness_nodal_links")
+                self.remove_nodal_property_data(node_ids, selected_property="stiffness_nodal_links")
 
             if self.checkBox_link_dampings.isChecked():
-                self.properties._remove_nodal_property("damping_nodal_links", node_ids=node_ids)
-                self.remove_conflicting_data(node_ids, selected_property="damping_nodal_links")
+                self.remove_nodal_property_data(node_ids, selected_property="damping_nodal_links")
 
         self.reset_nodes_input_fields()
         self.reset_stiffness_input_fields()
@@ -875,12 +870,10 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
             for node_ids in link_nodes:
 
                 if self.checkBox_link_stiffness.isChecked():
-                    self.properties._remove_nodal_property("stiffness_nodal_links", node_ids=node_ids)
-                    self.remove_conflicting_data(node_ids, selected_property="stiffness_nodal_links")
+                    self.remove_nodal_property_data(node_ids, selected_property="stiffness_nodal_links")
 
                 if self.checkBox_link_dampings.isChecked():
-                    self.properties._remove_nodal_property("damping_nodal_links", node_ids=node_ids)
-                    self.remove_conflicting_data(node_ids, selected_property="damping_nodal_links")
+                    self.remove_nodal_property_data(node_ids, selected_property="damping_nodal_links")
 
             self.reset_nodes_input_fields()
             self.reset_stiffness_input_fields()

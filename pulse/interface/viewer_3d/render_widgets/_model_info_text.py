@@ -67,13 +67,13 @@ def nodes_info_text() -> str:
             if property == "stiffness_nodal_links" and node_id in args:
                 values = sl_data["values"]
                 loaded_table = "table_names" in sl_data.keys()
-                info_text += _structural_format(f"Structural stiffness link", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table, linked_nodes=list(args))
+                info_text += _structural_format(f"Stiffness nodal link", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table, linked_nodes=list(args))
 
         for (property, *args), dl_data in properties.nodal_properties.items():
             if property == "damping_nodal_links" and node_id in args:
                 values = dl_data["values"]
                 loaded_table = "table_names" in dl_data.keys()
-                info_text += _structural_format(f"Structural damping link", values, ("k", "kr"), ("N.s/m", "N.m.s/rad"), loaded_table, linked_nodes=list(args))
+                info_text += _structural_format(f"Damping nodal link", values, ("c", "cr"), ("N.s/m", "N.m.s/rad"), loaded_table, linked_nodes=list(args))
 
         ap_data = properties._get_property("acoustic_pressure", node_ids=node_id)
         if isinstance(ap_data, dict):

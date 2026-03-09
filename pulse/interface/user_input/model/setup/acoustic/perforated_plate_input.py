@@ -567,7 +567,7 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
                         self.perforated_plate_inputs.clear()
                         return
 
-                    table_name = get_table_name("perforated_plate_dimensionless_impedance_element", element_id)
+                    table_name = get_table_name("perforated_plate_dimensionless_impedance", element_id=element_id)
                     if self.save_table_values(table_name, self.imported_values):
                         self.perforated_plate_inputs.clear()
                         return

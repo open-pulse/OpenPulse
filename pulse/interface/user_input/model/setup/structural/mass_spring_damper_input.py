@@ -240,14 +240,14 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
                                 lineEdit = self.table_values_lumped_stiffness[i]
                                 lineEdit.setText(table_path)
 
-                        else:
+                    else:
 
-                            self.tabWidget_inputs.setCurrentIndex(0)
-                            self.tabWidget_constant_values.setCurrentIndex(1)
-                            for i, value in enumerate(ls_data["values"]):
-                                if value is not None:
-                                    lineEdit = self.constant_values_lumped_stiffness[i]
-                                    lineEdit.setText(f"{value : .3e}")
+                        self.tabWidget_inputs.setCurrentIndex(0)
+                        self.tabWidget_constant_values.setCurrentIndex(1)
+                        for i, value in enumerate(ls_data["values"]):
+                            if value is not None:
+                                lineEdit = self.constant_values_lumped_stiffness[i]
+                                lineEdit.setText(f"{value : .3e}")
 
                 ld_data = self.properties._get_property("lumped_dampings", node_ids=node_id)
                 if isinstance(ld_data, dict):
@@ -261,14 +261,14 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
                                 lineEdit = self.table_values_lumped_dampings[i]
                                 lineEdit.setText(table_path)
 
-                        else:
+                    else:
 
-                            self.tabWidget_inputs.setCurrentIndex(0)
-                            self.tabWidget_constant_values.setCurrentIndex(1)
-                            for i, value in enumerate(ld_data["values"]):
-                                if value is not None:
-                                    lineEdit = self.constant_values_lumped_dampings[i]
-                                    lineEdit.setText(f"{value : .3e}")
+                        self.tabWidget_inputs.setCurrentIndex(0)
+                        self.tabWidget_constant_values.setCurrentIndex(1)
+                        for i, value in enumerate(ld_data["values"]):
+                            if value is not None:
+                                lineEdit = self.constant_values_lumped_dampings[i]
+                                lineEdit.setText(f"{value : .3e}")
 
     def _config_widgets(self):
         #
@@ -289,7 +289,7 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         if stop:
             return True
 
-        self.remove_conflicting_data(node_ids)
+        self.remove_nodal_property_data(node_ids)
 
         if self.tabWidget_inputs.currentIndex() == 0:
             self.check_constant_values_inputs(node_ids)
@@ -731,7 +731,7 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
                 _table_name = None
                 if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"lumped_{label}", node_id)
+                    _table_name = get_table_name(f"lumped_{label}", node_id=node_id)
                     if self.save_table_values(_table_name, _imported_values):
                         return
 
@@ -783,7 +783,7 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
                 _table_name = None
                 if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"lumped_{label}", node_id)
+                    _table_name = get_table_name(f"lumped_{label}", node_id=node_id)
                     if self.save_table_values(_table_name, _imported_values):
                         return
 
@@ -835,7 +835,7 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
                 _table_name = None
                 if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"lumped_{label}", node_id)
+                    _table_name = get_table_name(f"lumped_{label}", node_id=node_id)
                     if self.save_table_values(_table_name, _imported_values):
                         return
 
@@ -876,7 +876,7 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
         self.actions_to_finalize()
 
-    def remove_conflicting_data(self, node_ids: int | list | tuple, selected_property = None):
+    def remove_nodal_property_data(self, node_ids: int | list | tuple, selected_property = None):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
@@ -913,16 +913,13 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
             node_id = int(self.lineEdit_node_ids.text())
 
             if self.checkBox_remove_mass.isChecked():
-                self.properties._remove_nodal_property("lumped_masses", node_ids=node_id)
-                self.remove_conflicting_data(node_id, selected_property="lumped_masses")
+                self.remove_nodal_property_data(node_id, selected_property="lumped_masses")
 
             if self.checkBox_remove_spring.isChecked():
-                self.properties._remove_nodal_property("lumped_stiffness", node_ids=node_id)
-                self.remove_conflicting_data(node_id, selected_property="lumped_stiffness")
+                self.remove_nodal_property_data(node_id, selected_property="lumped_stiffness")
 
             if self.checkBox_remove_damper.isChecked():
-                self.properties._remove_nodal_property("lumped_dampings", node_ids=node_id)
-                self.remove_conflicting_data(node_id, selected_property="lumped_dampings")
+                self.remove_nodal_property_data(node_id, selected_property="lumped_dampings")
 
         self.actions_to_finalize()
 
@@ -948,16 +945,13 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
 
             for node_id in node_ids:
                 if self.checkBox_remove_mass.isChecked():
-                    self.properties._remove_nodal_property("lumped_masses", node_id)
-                    self.remove_conflicting_data(node_id, selected_property="lumped_masses")
+                    self.remove_nodal_property_data(node_id, selected_property="lumped_masses")
 
                 if self.checkBox_remove_spring.isChecked():
-                    self.properties._remove_nodal_property("lumped_stiffness", node_id)
-                    self.remove_conflicting_data(node_id, selected_property="lumped_stiffness")
+                    self.remove_nodal_property_data(node_id, selected_property="lumped_stiffness")
 
                 if self.checkBox_remove_damper.isChecked():
-                    self.properties._remove_nodal_property("lumped_dampings", node_id)
-                    self.remove_conflicting_data(node_id, selected_property="lumped_dampings")
+                    self.remove_nodal_property_data(node_id, selected_property="lumped_dampings")
 
             self.actions_to_finalize()
     
