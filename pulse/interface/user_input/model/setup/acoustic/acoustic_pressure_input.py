@@ -204,7 +204,7 @@ class AcousticPressureInput(AcousticPressureInput_UI):
 
         self.actions_to_finalize()
 
-    def lineEdit_reset(self, line_edit: QLineEdit):
+    def line_edit_reset(self, line_edit: QLineEdit):
         line_edit.setText("")
         line_edit.setFocus()
 
@@ -245,9 +245,13 @@ class AcousticPressureInput(AcousticPressureInput_UI):
         return False
 
     def load_acoustic_pressure_table(self):
-        self.imported_values, self.table_path = CommonUserInputs().load_table(self.lineEdit_table_path, "acoustic pressure")
+        self.imported_values, self.table_path = CommonUserInputs().load_table(
+            self.lineEdit_table_path, 
+            "acoustic pressure",
+            )
+
         if self.table_path is None:
-            self.lineEdit_reset(self.lineEdit_table_path)
+            self.line_edit_reset(self.lineEdit_table_path)
 
     def table_values_attribution_callback(self):
 

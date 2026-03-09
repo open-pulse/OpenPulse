@@ -487,92 +487,182 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         self.actions_to_finalize()
 
     def load_Mx_table(self):
-        self.imported_Mx_values, self.Mx_table_path = CommonUserInputs().load_table(self.lineEdit_Mx_table_path, "lumped element", dof_label="Mx")
+        self.imported_Mx_values, self.Mx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Mx_table_path, 
+            "lumped element", 
+            dof_label="Mx",
+            )
+
         if self.Mx_table_path is None:
             self.line_edit_reset(self.lineEdit_Mx_table_path)
 
     def load_My_table(self):
-        self.imported_My_values, self.My_table_path = CommonUserInputs().load_table(self.lineEdit_My_table_path, "lumped element", dof_label="My")
+        self.imported_My_values, self.My_table_path = CommonUserInputs().load_table(
+            self.lineEdit_My_table_path, 
+            "lumped element", 
+            dof_label="My",
+            )
+
         if self.My_table_path is None:
             self.line_edit_reset(self.lineEdit_My_table_path)
 
     def load_Mz_table(self):
-        self.imported_Mz_values, self.Mz_table_path = CommonUserInputs().load_table(self.lineEdit_Mz_table_path, "lumped element", dof_label="Mz")
+        self.imported_Mz_values, self.Mz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Mz_table_path, 
+            "lumped element", 
+            dof_label="Mz",
+            )
+
         if self.Mz_table_path is None:
             self.line_edit_reset(self.lineEdit_Mz_table_path)
 
     def load_Jx_table(self):
-        self.imported_Jx_values, self.Jx_table_path = CommonUserInputs().load_table(self.lineEdit_Jx_table_path, "lumped element", dof_label="Jx")
+        self.imported_Jx_values, self.Jx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Jx_table_path, 
+            "lumped element", 
+            dof_label="Jx",
+            )
+
         if self.Jx_table_path is None:
             self.line_edit_reset(self.lineEdit_Jx_table_path)
 
     def load_Jy_table(self):
-        self.imported_Jy_values, self.Jy_table_path = CommonUserInputs().load_table(self.lineEdit_Jy_table_path, "lumped element", dof_label="Jy")
+        self.imported_Jy_values, self.Jy_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Jy_table_path, 
+            "lumped element", 
+            dof_label="Jy",
+            )
+
         if self.Jy_table_path is None:
             self.line_edit_reset(self.lineEdit_Jy_table_path)
 
     def load_Jz_table(self):
-        self.imported_Jz_values, self.Jz_table_path = CommonUserInputs().load_table(self.lineEdit_Jz_table_path, "lumped element", dof_label="Jz")
+        self.imported_Jz_values, self.Jz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Jz_table_path, 
+            "lumped element", 
+            dof_label="Jz",
+            )
+
         if self.Jz_table_path is None:
             self.line_edit_reset(self.lineEdit_Jz_table_path)
 
     def load_Kx_table(self):
-        self.imported_Kx_values, self.Kx_table_path = CommonUserInputs().load_table(self.lineEdit_Kx_table_path, "lumped element", dof_label="Kx")
+        self.imported_Kx_values, self.Kx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Kx_table_path, 
+            "lumped element", 
+            dof_label="Kx",
+            )
+
         if self.Kx_table_path is None:
             self.line_edit_reset(self.lineEdit_Kx_table_path)
 
     def load_Ky_table(self):
-        self.imported_Ky_values, self.Ky_table_path = CommonUserInputs().load_table(self.lineEdit_Ky_table_path, "lumped element", dof_label="Ky")
+        self.imported_Ky_values, self.Ky_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Ky_table_path, 
+            "lumped element", 
+            dof_label="Ky",
+            )
+
         if self.Ky_table_path is None:
             self.line_edit_reset(self.lineEdit_Ky_table_path)
 
     def load_Kz_table(self):
-        self.imported_Kz_values, self.Kz_table_path = CommonUserInputs().load_table(self.lineEdit_Kz_table_path, "lumped element", dof_label="Kz")
+        self.imported_Kz_values, self.Kz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Kz_table_path, 
+            "lumped element", 
+            dof_label="Kz",
+            )
+
         if self.Kz_table_path is None:
             self.line_edit_reset(self.lineEdit_Kz_table_path)
 
     def load_Krx_table(self):
-        self.imported_Krx_values, self.Krx_table_path = CommonUserInputs().load_table(self.lineEdit_Krx_table_path, "lumped element", dof_label="Krx")
+        self.imported_Krx_values, self.Krx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Krx_table_path, 
+            "lumped element", 
+            dof_label="Krx",
+            )
+
         if self.Krx_table_path is None:
             self.line_edit_reset(self.lineEdit_Krx_table_path)
 
     def load_Kry_table(self):
-        self.imported_Kry_values, self.Kry_table_path = CommonUserInputs().load_table(self.lineEdit_Kry_table_path, "lumped element", dof_label="Kry")
+        self.imported_Kry_values, self.Kry_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Kry_table_path, 
+            "lumped element", 
+            dof_label="Kry",
+            )
+
         if self.Kry_table_path is None:
             self.line_edit_reset(self.lineEdit_Kry_table_path)
 
     def load_Krz_table(self):
-        self.imported_Krz_values, self.Krz_table_path = CommonUserInputs().load_table(self.lineEdit_Krz_table_path, "lumped element", dof_label="Krz")
+        self.imported_Krz_values, self.Krz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Krz_table_path, 
+            "lumped element", 
+            dof_label="Krz",
+            )
+
         if self.Krz_table_path is None:
             self.line_edit_reset(self.lineEdit_Krz_table_path)
 
     def load_Cx_table(self):
-        self.imported_Cx_values, self.Cx_table_path = CommonUserInputs().load_table(self.lineEdit_Cx_table_path, "lumped element", dof_label="Cx")
+        self.imported_Cx_values, self.Cx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Cx_table_path, 
+            "lumped element", 
+            dof_label="Cx",
+            )
+
         if self.Cx_table_path is None:
             self.line_edit_reset(self.lineEdit_Cx_table_path)
 
     def load_Cy_table(self):
-        self.imported_Cy_values, self.Cy_table_path = CommonUserInputs().load_table(self.lineEdit_Cy_table_path, "lumped element", dof_label="Cy")
+        self.imported_Cy_values, self.Cy_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Cy_table_path, 
+            "lumped element", 
+            dof_label="Cy",
+            )
+
         if self.Cy_table_path is None:
             self.line_edit_reset(self.lineEdit_Cy_table_path)
 
     def load_Cz_table(self):
-        self.imported_Cz_values, self.Cz_table_path = CommonUserInputs().load_table(self.lineEdit_Cz_table_path, "lumped element", dof_label="Cz")
+        self.imported_Cz_values, self.Cz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Cz_table_path, 
+            "lumped element", 
+            dof_label="Cz",
+            )
+
         if self.Cz_table_path is None:
             self.line_edit_reset(self.lineEdit_Cz_table_path)
 
     def load_Crx_table(self):
-        self.imported_Crx_values, self.Crx_table_path = CommonUserInputs().load_table(self.lineEdit_Crx_table_path, "lumped element", dof_label="Crx")
+        self.imported_Crx_values, self.Crx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Crx_table_path, 
+            "lumped element", 
+            dof_label="Crx",
+            )
+
         if self.Crx_table_path is None:
             self.line_edit_reset(self.lineEdit_Crx_table_path)
 
     def load_Cry_table(self):
-        self.imported_Cry_values, self.Cry_table_path = CommonUserInputs().load_table(self.lineEdit_Cry_table_path, "lumped element", dof_label="Cry")
+        self.imported_Cry_values, self.Cry_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Cry_table_path, 
+            "lumped element", 
+            dof_label="Cry",
+            )
+
         if self.Cry_table_path is None:
             self.line_edit_reset(self.lineEdit_Cry_table_path)
 
     def load_Crz_table(self):
-        self.imported_Crz_values, self.Crz_table_path = CommonUserInputs().load_table(self.lineEdit_Crz_table_path, "lumped element", dof_label="Crz")
+        self.imported_Crz_values, self.Crz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_Crz_table_path, 
+            "lumped element", 
+            dof_label="Crz",
+            )
+
         if self.Crz_table_path is None:
             self.line_edit_reset(self.lineEdit_Crz_table_path)
 

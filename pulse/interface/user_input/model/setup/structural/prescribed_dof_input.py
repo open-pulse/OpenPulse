@@ -327,32 +327,62 @@ class PrescribedDofInput(PrescribedDofInput_UI):
         app().main_window.update_plots(reset_camera=False) 
 
     def load_ux_table(self):
-        self.imported_ux_values, self.ux_table_path = CommonUserInputs().load_table(self.lineEdit_ux_table_path, "prescribed dof", dof_label="Ux")
+        self.imported_ux_values, self.ux_table_path = CommonUserInputs().load_table(
+            self.lineEdit_ux_table_path, 
+            "prescribed dof", 
+            dof_label="Ux",
+            )
+
         if self.ux_table_path is None:
             self.line_edit_reset(self.lineEdit_ux_table_path)
 
     def load_uy_table(self):
-        self.imported_uy_values, self.uy_table_path = CommonUserInputs().load_table(self.lineEdit_uy_table_path, "prescribed dof", dof_label="Uy")
+        self.imported_uy_values, self.uy_table_path = CommonUserInputs().load_table(
+            self.lineEdit_uy_table_path, 
+            "prescribed dof", 
+            dof_label="Uy",
+            )
+
         if self.uy_table_path is None:
             self.line_edit_reset(self.lineEdit_uy_table_path)
 
     def load_uz_table(self):
-        self.imported_uz_values, self.uz_table_path = CommonUserInputs().load_table(self.lineEdit_uz_table_path, "prescribed dof", dof_label="Uz")
+        self.imported_uz_values, self.uz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_uz_table_path, 
+            "prescribed dof", 
+            dof_label="Uz",
+            )
+
         if self.uz_table_path is None:
             self.line_edit_reset(self.lineEdit_uz_table_path)
 
     def load_rx_table(self):
-        self.imported_rx_values, self.rx_table_path = CommonUserInputs().load_table(self.lineEdit_rx_table_path, "prescribed dof", dof_label="Rx")
+        self.imported_rx_values, self.rx_table_path = CommonUserInputs().load_table(
+            self.lineEdit_rx_table_path, 
+            "prescribed dof", 
+            dof_label="Rx",
+            )
+
         if self.rx_table_path is None:
             self.line_edit_reset(self.lineEdit_rx_table_path)
 
     def load_ry_table(self):
-        self.imported_ry_values, self.ry_table_path = CommonUserInputs().load_table(self.lineEdit_ry_table_path, "prescribed dof", dof_label="Ry")
+        self.imported_ry_values, self.ry_table_path = CommonUserInputs().load_table(
+            self.lineEdit_ry_table_path, 
+            "prescribed dof", 
+            dof_label="Ry",
+            )
+
         if self.ry_table_path is None:
             self.line_edit_reset(self.lineEdit_ry_table_path)
             
     def load_rz_table(self):
-        self.imported_rz_values, self.rz_table_path = CommonUserInputs().load_table(self.lineEdit_rz_table_path, "prescribed dof", dof_label="Rz")
+        self.imported_rz_values, self.rz_table_path = CommonUserInputs().load_table(
+            self.lineEdit_rz_table_path, 
+            "prescribed dof", 
+            dof_label="Rz",
+            )
+
         if self.rz_table_path is None:
             self.line_edit_reset(self.lineEdit_rz_table_path)
 

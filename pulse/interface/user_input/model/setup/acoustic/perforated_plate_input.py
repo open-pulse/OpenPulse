@@ -356,7 +356,7 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
             self.perforated_plate_inputs['dimensionless_impedance'] = z_real + 1j*z_imag
         return False
 
-    def lineEdit_reset(self, line_edit: QLineEdit):
+    def line_edit_reset(self, line_edit: QLineEdit):
         line_edit.setText("")
         line_edit.setFocus()
 
@@ -397,7 +397,13 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
         return False
 
     def load_table_button_callback(self):
-        self.imported_values, self.table_path = CommonUserInputs().load_table(self.lineEdit_load_table_path, "dimensionless impedance")
+        self.imported_values, self.table_path = CommonUserInputs().load_table(
+            self.lineEdit_load_table_path, 
+            "dimensionless impedance",
+            )
+
+        if self.table_path is None:
+            self.line_edit_reset(self.table_path)
 
     def attribute_callback(self):
 
