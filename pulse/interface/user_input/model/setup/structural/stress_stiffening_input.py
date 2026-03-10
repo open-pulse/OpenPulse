@@ -63,8 +63,8 @@ class StressStiffeningInput(StressStiffeningInput_UI):
         #
         self.pushButton_remove.setDisabled(True)
         #
-        for i, w in enumerate([100, 130, 140]):
-            self.treeWidget_stress_stiffening.setColumnWidth(i, w)
+        for i, width in enumerate([100, 130, 140]):
+            self.treeWidget_stress_stiffening.setColumnWidth(i, width)
             self.treeWidget_stress_stiffening.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def attribution_type_callback(self):

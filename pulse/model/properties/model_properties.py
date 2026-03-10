@@ -126,7 +126,7 @@ class ModelProperties:
         else:
             imported_tables = self.structural_imported_tables
 
-        for i, table_name in enumerate(table_names):
+        for table_name in table_names:
 
             if table_name is None:
                 tables_values.append(None)

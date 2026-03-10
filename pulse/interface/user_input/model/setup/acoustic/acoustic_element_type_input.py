@@ -137,9 +137,8 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
         #
         self.comboBox_element_type.setFixedSize(160, 26)
         #
-        widths = [120, 180]
-        for i, w in enumerate(widths):
-            self.treeWidget_element_type.setColumnWidth(i, w)
+        for i, width in enumerate([120, 180]):
+            self.treeWidget_element_type.setColumnWidth(i, width)
 
     def tab_selection_callback(self):
         if self.tabWidget_main.currentIndex() == 0:

@@ -120,9 +120,9 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         #
         self.cache_tab = self.tabWidget_main.currentIndex()
         #
-        for i, w in enumerate([120, 200]):
-            self.treeWidget_stiffness_nodal_links.setColumnWidth(i, w)
-            self.treeWidget_damping_nodal_links.setColumnWidth(i, w)
+        for i, width in enumerate([120, 200]):
+            self.treeWidget_stiffness_nodal_links.setColumnWidth(i, width)
+            self.treeWidget_damping_nodal_links.setColumnWidth(i, width)
             self.treeWidget_stiffness_nodal_links.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_damping_nodal_links.headerItem().setTextAlignment(i, Qt.AlignCenter)
 

@@ -865,8 +865,8 @@ class GetInformationOfGroup(QDialog):
         self.pushButton_close.clicked.connect(self.close)
 
     def _config_widgets(self):
-        for i, w in enumerate([120, 160]):
-            self.treeWidget_elements_info.setColumnWidth(i, w)
+        for i, width in enumerate([120, 160]):
+            self.treeWidget_elements_info.setColumnWidth(i, width)
 
         self.update_checkboxes()
 

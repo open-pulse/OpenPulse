@@ -144,8 +144,8 @@ class NodalLoadsInput(NodalLoadsInput_UI):
 
     def _config_widgets(self):
         #
-        for i, w in enumerate([80, 60]):
-            self.treeWidget_nodal_info.setColumnWidth(i, w)
+        for i, width in enumerate([80, 60]):
+            self.treeWidget_nodal_info.setColumnWidth(i, width)
             self.treeWidget_nodal_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):

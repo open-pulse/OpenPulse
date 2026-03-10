@@ -45,8 +45,7 @@ class SpecificImpedanceInput(SpecificImpedanceInput_UI):
         self.setWindowTitle("OpenPulse")
 
     def _config_widgets(self):
-        for i, width in enumerate([120]):
-            self.treeWidget_nodal_info.setColumnWidth(i, width)
+        self.treeWidget_nodal_info.setColumnWidth(0, 120)
 
     def _create_connections(self):
         #

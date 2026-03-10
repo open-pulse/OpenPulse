@@ -70,8 +70,8 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
 
     def _config_widgets(self):
         #
-        for i, w in enumerate([120, 140]):
-            self.treeWidget_elements_info.setColumnWidth(i, w)
+        for i, width in enumerate([120, 140]):
+            self.treeWidget_elements_info.setColumnWidth(i, width)
             self.treeWidget_elements_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _tab_event_update(self):

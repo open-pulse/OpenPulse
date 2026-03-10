@@ -53,8 +53,8 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         #
         self.pushButton_remove.setDisabled(True)
         #
-        for i, w in enumerate([120, 100]):
-            self.treeWidget_xaxis_rotation_angle.setColumnWidth(i, w)
+        for i, width in enumerate([120, 100]):
+            self.treeWidget_xaxis_rotation_angle.setColumnWidth(i, width)
             self.treeWidget_xaxis_rotation_angle.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _create_connections(self):

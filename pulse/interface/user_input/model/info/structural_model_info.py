@@ -36,12 +36,12 @@ class StructuralModelInfo(StructuralModelInfo_UI):
 
     def _config_widgets(self):
 
-        for i, w in enumerate([70, 70]):
-            self.treeWidget_prescribed_dof.setColumnWidth(i, w)
-            self.treeWidget_constrained_dof.setColumnWidth(i, w)
-            self.treeWidget_masses.setColumnWidth(i, w)
-            self.treeWidget_springs.setColumnWidth(i, w)
-            self.treeWidget_dampers.setColumnWidth(i, w)
+        for i, width in enumerate([70, 70]):
+            self.treeWidget_prescribed_dof.setColumnWidth(i, width)
+            self.treeWidget_constrained_dof.setColumnWidth(i, width)
+            self.treeWidget_masses.setColumnWidth(i, width)
+            self.treeWidget_springs.setColumnWidth(i, width)
+            self.treeWidget_dampers.setColumnWidth(i, width)
 
             self.treeWidget_prescribed_dof.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_constrained_dof.headerItem().setTextAlignment(i, Qt.AlignCenter)

@@ -152,8 +152,8 @@ class ExpansionJointInput(ExpansionJointInput_UI):
 
     def _config_widgets(self):
         #
-        for i, w in enumerate([70, 120]):
-            self.treeWidget_expansion_joints_info.setColumnWidth(i, w)
+        for i, width in enumerate([70, 120]):
+            self.treeWidget_expansion_joints_info.setColumnWidth(i, width)
             self.treeWidget_expansion_joints_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def axial_stop_rod_callback(self):

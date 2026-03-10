@@ -129,8 +129,8 @@ class ValvesInput(ValveInput_UI):
 
     def _config_widgets(self):
         #
-        for i, w in enumerate([100, 120, 160]):
-            self.treeWidget_valves_info.setColumnWidth(i, w)
+        for i, width in enumerate([100, 120, 160]):
+            self.treeWidget_valves_info.setColumnWidth(i, width)
             self.treeWidget_valves_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _create_lists_of_lineEdits(self):

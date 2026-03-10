@@ -272,10 +272,10 @@ class MassSpringDamperInput(MassSpringDamperInput_UI):
         #
         self.cache_tab = self.tabWidget_main.currentIndex()
         #
-        for i, w in enumerate([100, 150]):
-            self.treeWidget_masses.setColumnWidth(i, w)
-            self.treeWidget_springs.setColumnWidth(i, w)
-            self.treeWidget_dampers.setColumnWidth(i, w)
+        for i, width in enumerate([100, 150]):
+            self.treeWidget_masses.setColumnWidth(i, width)
+            self.treeWidget_springs.setColumnWidth(i, width)
+            self.treeWidget_dampers.setColumnWidth(i, width)
             self.treeWidget_masses.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_springs.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_dampers.headerItem().setTextAlignment(i, Qt.AlignCenter)
