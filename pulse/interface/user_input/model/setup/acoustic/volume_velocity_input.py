@@ -252,7 +252,7 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
         return False
 
     def load_volume_velocity_table(self):
-        self.imported_values, self.table_path = CommonUserInputs().load_table(
+        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
             self.lineEdit_table_path, 
             "volume velocity",
             )
@@ -280,7 +280,7 @@ class VolumeVelocityInput(VolumeVelocityInput_UI):
             return
     
         if self.table_path is None:
-            self.table_values, self.table_path = CommonUserInputs().load_table(
+            self.table_values, self.table_path = CommonUserInputs(self).load_table(
                                                                     self.lineEdit_table_path,
                                                                     direct_load=True,
                                                                     )

@@ -244,7 +244,7 @@ class SpecificImpedanceInput(SpecificImpedanceInput_UI):
         return False
 
     def load_specific_impedance_table(self):
-        self.imported_values, self.table_path = CommonUserInputs().load_table(
+        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
             self.lineEdit_table_path, 
             "specific impedance",
             )
@@ -271,7 +271,7 @@ class SpecificImpedanceInput(SpecificImpedanceInput_UI):
             return
 
         if self.imported_values is None:
-            self.imported_values, self.table_path = CommonUserInputs().load_table(
+            self.imported_values, self.table_path = CommonUserInputs(self).load_table(
                 self.lineEdit_table_path,
                 "specific impedance",
                 direct_load = True,

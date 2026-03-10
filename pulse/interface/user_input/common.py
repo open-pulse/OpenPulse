@@ -70,6 +70,14 @@ def get_table_name(_label: str, node_id: int | None = None, element_id: int | No
     
     return ""
 
+def check_table_frequency_vector(frequencies: np.ndarray):
+    if len(frequencies) == 1:
+        return False
+    
+    freqs_A = frequencies[:-1]
+    freqs_B = frequencies[1:]
+
+    return not np.allclose(freqs_B, freqs_A, atol=1e-8)
 
 class CommonUserInputs(QDialog):
 
@@ -108,8 +116,17 @@ class CommonUserInputs(QDialog):
             imported_data = np.loadtxt(table_path, delimiter=",")
 
             if imported_data.shape[1] < 3:
-                message = "The imported table has insufficient number of columns. The spectrum "
+                self.parent().hide()
+                message = "The imported table has an insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
+                PrintMessageInput([error_title, title, message])
+                line_edit.setFocus()
+                return None, None
+            
+            if check_table_frequency_vector(imported_data[:, 0]):
+                self.parent().hide()
+                message = "The frequencies vector from imported table has a non-uniform frequency "
+                message += "spacing. The frequencies vector must be equally spaced."
                 PrintMessageInput([error_title, title, message])
                 line_edit.setFocus()
                 return None, None

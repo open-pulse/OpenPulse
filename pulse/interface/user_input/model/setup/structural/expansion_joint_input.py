@@ -323,7 +323,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
         self.expansion_joint_info["values"] = _stiffness
 
     def load_Kx_table(self):
-        self.imported_Kx_values, self.Kx_table_path = CommonUserInputs().load_table(
+        self.imported_Kx_values, self.Kx_table_path = CommonUserInputs(self).load_table(
             self.lineEdit_Kx_table_path, 
             "Kx", 
             dof_label="axial stiffness",
@@ -333,7 +333,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             self.line_edit_reset(self.lineEdit_Kx_table_path)
 
     def load_Kyz_table(self):
-        self.imported_Kyz_values, self.Kyz_table_path = CommonUserInputs().load_table(
+        self.imported_Kyz_values, self.Kyz_table_path = CommonUserInputs(self).load_table(
             self.lineEdit_Kyz_table_path, 
             "Kyz", 
             dof_label="transversal stiffness",
@@ -343,7 +343,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             self.line_edit_reset(self.lineEdit_Kyz_table_path)
 
     def load_Krx_table(self):
-        self.imported_Krx_values, self.Krx_table_path = CommonUserInputs().load_table(
+        self.imported_Krx_values, self.Krx_table_path = CommonUserInputs(self).load_table(
             self.lineEdit_Krx_table_path, 
             "Krx", 
             dof_label="torsional stiffness",
@@ -353,7 +353,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             self.line_edit_reset(self.lineEdit_Krx_table_path)
 
     def load_Kryz_table(self):
-        self.imported_Kryz_values, self.Kryz_table_path = CommonUserInputs().load_table(
+        self.imported_Kryz_values, self.Kryz_table_path = CommonUserInputs(self).load_table(
             self.lineEdit_Kryz_table_path, 
             "Kryz", 
             dof_label="angular stiffness"
@@ -411,7 +411,7 @@ class ExpansionJointInput(ExpansionJointInput_UI):
             if _imported_values is None:
                 line_edit = getattr(self, f"lineEdit_{label}_table_path")
 
-                _imported_values, _table_path = CommonUserInputs().load_table(line_edit, "nodal link", dof_label=label, direct_load=True)
+                _imported_values, _table_path = CommonUserInputs(self).load_table(line_edit, "nodal link", dof_label=label, direct_load=True)
                 setattr(self, imported_values_name, _imported_values)
                 setattr(self, table_path_name, _table_path)
 

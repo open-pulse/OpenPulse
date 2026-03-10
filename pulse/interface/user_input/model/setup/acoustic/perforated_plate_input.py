@@ -397,7 +397,7 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
         return False
 
     def load_table_button_callback(self):
-        self.imported_values, self.table_path = CommonUserInputs().load_table(
+        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
             self.lineEdit_load_table_path, 
             "dimensionless impedance",
             )
@@ -552,7 +552,7 @@ class PerforatedPlateInput(PerforatedPlateInput_UI):
 
                 if self.lineEdit_load_table_path.text() != "":
                     if self.imported_values is None:
-                        self.imported_values, self.table_path = CommonUserInputs().load_table(
+                        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
                             self.lineEdit_load_table_path, 
                             "dimensionless impedance", 
                             direct_load=True,

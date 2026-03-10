@@ -244,7 +244,7 @@ class AcousticPressureInput(AcousticPressureInput_UI):
         return False
 
     def load_acoustic_pressure_table(self):
-        self.imported_values, self.table_path = CommonUserInputs().load_table(
+        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
             self.lineEdit_table_path, 
             "acoustic pressure",
             )
@@ -271,7 +271,7 @@ class AcousticPressureInput(AcousticPressureInput_UI):
             return
     
         if self.imported_values is None:
-            self.imported_values, self.table_path = CommonUserInputs().load_table(
+            self.imported_values, self.table_path = CommonUserInputs(self).load_table(
                 self.lineEdit_table_path,
                 "acoustic pressure",
                 direct_load = True,

@@ -252,7 +252,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
         self.actions_to_finalize()
 
     def load_fx_table(self):
-        self.imported_fx_values, self.fx_table_path = CommonUserInputs().load_table(
+        self.imported_fx_values, self.fx_table_path = CommonUserInputs(self).load_table(
             self.lineEdit_fx_table_path, 
             "nodal loads", 
             dof_label="Fx",
@@ -262,7 +262,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             self.line_edit_reset(self.lineEdit_fx_table_path)
 
     def load_fy_table(self):
-        self.imported_fy_values, self.fy_table_path = CommonUserInputs().load_table(
+        self.imported_fy_values, self.fy_table_path = CommonUserInputs(self).load_table(
             self.lineEdit_fy_table_path, 
             "nodal loads", 
             dof_label="Fy",
@@ -272,7 +272,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             self.line_edit_reset(self.lineEdit_fy_table_path)
 
     def load_fz_table(self):
-        self.imported_fz_values, self.fz_table_path = CommonUserInputs().load_table(
+        self.imported_fz_values, self.fz_table_path = CommonUserInputs(self).load_table(
             self.lineEdit_fz_table_path, 
             "nodal loads", 
             dof_label="Fz",
@@ -282,7 +282,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             self.line_edit_reset(self.lineEdit_fz_table_path)
 
     def load_mx_table(self):
-        self.imported_mx_values, self.mx_table_path = CommonUserInputs().load_table(
+        self.imported_mx_values, self.mx_table_path = CommonUserInputs(self).load_table(
             self.lineEdit_mx_table_path, 
             "nodal loads", 
             dof_label="Mx",
@@ -292,7 +292,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             self.line_edit_reset(self.lineEdit_mx_table_path)
 
     def load_my_table(self):
-        self.imported_my_values, self.my_table_path = CommonUserInputs().load_table(
+        self.imported_my_values, self.my_table_path = CommonUserInputs(self).load_table(
             self.lineEdit_my_table_path, 
             "nodal loads", 
             dof_label="My",
@@ -302,7 +302,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             self.line_edit_reset(self.lineEdit_my_table_path)
 
     def load_mz_table(self):
-        self.imported_mz_values, self.mz_table_path = CommonUserInputs().load_table(
+        self.imported_mz_values, self.mz_table_path = CommonUserInputs(self).load_table(
             self.lineEdit_mz_table_path, 
             "nodal loads", 
             dof_label="Mz",
@@ -367,7 +367,7 @@ class NodalLoadsInput(NodalLoadsInput_UI):
             if _imported_values is None:
                 line_edit = getattr(self, f"lineEdit_{label}_table_path")
 
-                _imported_values, _table_path = CommonUserInputs().load_table(line_edit, "nodal loads", dof_label=label, direct_load=True)
+                _imported_values, _table_path = CommonUserInputs(self).load_table(line_edit, "nodal loads", dof_label=label, direct_load=True)
                 setattr(self, imported_values_name, _imported_values)
                 setattr(self, table_path_name, _table_path)
 
