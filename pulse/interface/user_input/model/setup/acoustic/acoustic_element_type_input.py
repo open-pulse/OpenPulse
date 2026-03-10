@@ -1,30 +1,36 @@
-from PySide6.QtWidgets import QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
+from collections import defaultdict
+
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.acoustic_element_type_input_ui import AcousticElementTypeInput_UI
-from pulse.interface.user_input.model.setup.acoustic.reciprocating_machine_selector import ReciprocatingMachineSelector
-from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.ui_generated.model.setup.acoustic.acoustic_element_type_input_ui import (
+    AcousticElementTypeInput_UI,
+)
+from pulse.interface.user_input.model.setup.acoustic.reciprocating_machine_selector import (
+    ReciprocatingMachineSelector,
+)
+from pulse.interface.user_input.model.setup.general.get_information_of_group import (
+    GetInformationOfGroup,
+)
+from pulse.interface.user_input.model.setup.lines_input import LinesInput
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.interface_utils import check_inputs
-
-
-from collections import defaultdict
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class AcousticElementTypeInput(AcousticElementTypeInput_UI):
+
+class AcousticElementTypeInput(LinesInput, AcousticElementTypeInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
+
         self.project = app().project
         self.model = app().project.model
-        self.properties = app().project.model.properties
 
-        self._config_window()
         self._initialize()
         self._create_connections()
         self._config_widgets()
@@ -38,47 +44,46 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
         while self.keep_window_open:
             self.exec()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
-
     def _initialize(self):
-
-        self.element_type = 'undamped'
+        self.element_type = "undamped"
         self.element_types = [
-                              "undamped", 
-                              "proportional", 
-                              "wide_duct", 
-                              "LRF_fluid_equivalent", 
-                              "LRF_full", 
-                              "damped_liquid", 
-                              "undamped_mean_flow", 
-                              "peters", 
-                              "howe"
-                              ]
+            "undamped",
+            "proportional",
+            "wide_duct",
+            "LRF_fluid_equivalent",
+            "LRF_full",
+            "damped_liquid",
+            "undamped_mean_flow",
+            "peters",
+            "howe",
+        ]
 
         self.complete = False
         self.keep_window_open = True
 
-        self.before_run = app().project.get_pre_solution_model_checks()
-
     def _create_connections(self):
         #
-        self.comboBox_element_type.currentIndexChanged.connect(self.element_type_change_callback)
-        self.comboBox_selection.currentIndexChanged.connect(self.attribution_type_callback)
+        self.comboBox_element_type.currentIndexChanged.connect(
+            self.element_type_change_callback
+        )
+        self.comboBox_selection.currentIndexChanged.connect(
+            self.attribution_type_callback
+        )
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
-        self.pushButton_get_volumetric_flow_rate.clicked.connect(self.get_volumetric_flow_rate_callback)
+        self.pushButton_get_volumetric_flow_rate.clicked.connect(
+            self.get_volumetric_flow_rate_callback
+        )
         #
         self.tabWidget_main.currentChanged.connect(self.tab_selection_callback)
         #
         self.treeWidget_element_type.itemClicked.connect(self.on_click_item)
-        self.treeWidget_element_type.itemDoubleClicked.connect(self.on_double_click_item)
+        self.treeWidget_element_type.itemDoubleClicked.connect(
+            self.on_double_click_item
+        )
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
@@ -88,7 +93,6 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
         selected_lines = app().main_window.list_selected_lines()
 
         if selected_lines:
-
             text = ", ".join([str(i) for i in selected_lines])
             self.lineEdit_selected_id.setText(text)
 
@@ -96,18 +100,23 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
             self.lineEdit_selected_id.setDisabled(False)
 
             if len(selected_lines) == 1:
-
                 line_id = selected_lines[0]
-                element_type = self.properties._get_property("acoustic_element_type", line_id=line_id)
+                element_type = self.properties._get_property(
+                    "acoustic_element_type", line_id=line_id
+                )
 
                 if element_type == "undamped":
                     self.comboBox_element_type.setCurrentIndex(0)
-                
+
                 elif element_type == "proportional":
-                    proportional_damping = self.properties._get_property("proportional_damping", line_id=line_id)
+                    proportional_damping = self.properties._get_property(
+                        "proportional_damping", line_id=line_id
+                    )
                     if isinstance(proportional_damping, float):
                         self.comboBox_element_type.setCurrentIndex(1)
-                        self.lineEdit_proportional_damping.setText(str(proportional_damping))
+                        self.lineEdit_proportional_damping.setText(
+                            str(proportional_damping)
+                        )
 
                 elif element_type == "wide_duct":
                     self.comboBox_element_type.setCurrentIndex(2)
@@ -119,17 +128,26 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
                     self.comboBox_element_type.setCurrentIndex(4)
 
                 else:
-
-                    mf_element_types = ["damped_liquid", "undamped_mean_flow", "peters", "howe"]
+                    mf_element_types = [
+                        "damped_liquid",
+                        "undamped_mean_flow",
+                        "peters",
+                        "howe",
+                    ]
 
                     if element_type in mf_element_types:
-
                         # etype_index = mf_element_types.index(element_type)
-                        volumetric_flow_rate = self.properties._get_property("volumetric_flow_rate", line_id=line_id)
+                        volumetric_flow_rate = self.properties._get_property(
+                            "volumetric_flow_rate", line_id=line_id
+                        )
 
                         if isinstance(volumetric_flow_rate, float):
-                            self.lineEdit_volumetric_flow_rate.setText(str(volumetric_flow_rate))
-                            self.comboBox_element_type.setCurrentIndex(self.element_types.index(element_type))
+                            self.lineEdit_volumetric_flow_rate.setText(
+                                str(volumetric_flow_rate)
+                            )
+                            self.comboBox_element_type.setCurrentIndex(
+                                self.element_types.index(element_type)
+                            )
 
         self.comboBox_selection.blockSignals(False)
 
@@ -147,7 +165,7 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
             self.attribution_type_callback()
         else:
             self.label_selected_id.setText("Selection:")
-            self.lineEdit_selected_id.setText("")
+            self.lineEdit_selected_id.clear()
             self.lineEdit_selected_id.setDisabled(True)
 
     def attribution_type_callback(self):
@@ -159,11 +177,11 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
             if app().main_window.list_selected_lines():
                 self.selection_callback()
             else:
-                self.lineEdit_selected_id.setText("")
+                self.lineEdit_selected_id.clear()
 
     def element_type_change_callback(self):
 
-        self.lineEdit_proportional_damping.setText("")
+        self.lineEdit_proportional_damping.clear()
         index = self.comboBox_element_type.currentIndex()
 
         if index in [0, 2, 3, 4]:
@@ -189,13 +207,12 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
 
         if parameter != "":
             try:
-
                 parameter = parameter.replace(",", ".")
 
                 if _float:
                     value = float(parameter)
                 else:
-                    value = int(parameter) 
+                    value = int(parameter)
 
                 if value < 0:
                     message = f"You cannot input a negative value to the {label}."
@@ -222,55 +239,76 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
 
         proportional_damping = None
         if etype_index == 1:
-            proportional_damping = check_inputs(self.lineEdit_proportional_damping, 'proportional damping', zero_included=False, parent=self)
+            proportional_damping = check_inputs(
+                self.lineEdit_proportional_damping,
+                "proportional damping",
+                zero_included=False,
+                parent=self,
+            )
             if proportional_damping is None:
                 return True
 
         volumetric_flow_rate = None
         if etype_index in [5, 6, 7, 8]:
-            volumetric_flow_rate = check_inputs(self.lineEdit_volumetric_flow_rate, 'volumetric flow rate', zero_included=False, parent=self)
+            volumetric_flow_rate = check_inputs(
+                self.lineEdit_volumetric_flow_rate,
+                "volumetric flow rate",
+                zero_included=False,
+                parent=self,
+            )
             if volumetric_flow_rate is None:
                 return True
 
         index_selection = self.comboBox_selection.currentIndex()
         if index_selection == 0:
-            line_ids = app().project.model.mesh.lines_from_model
-            print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
+            line_ids = self.mesh.lines_from_model
+            print(
+                f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities"
+            )
 
         elif index_selection == 1:
-
             lineEdit = self.lineEdit_selected_id.text()
             stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
             if stop:
                 return True
 
             if len(line_ids) <= 20:
-                print(f"[Set Acoustic Element Type] - {self.element_type} assigned to {line_ids} lines")
+                print(
+                    f"[Set Acoustic Element Type] - {self.element_type} assigned to {line_ids} lines"
+                )
             else:
-                print(f"[Set Acoustic Element Type] - {self.element_type} assigned in {len(line_ids)} lines")
-        
-        app().project.model.preprocessor.set_acoustic_element_type_by_lines(
-                                                                            line_ids, 
-                                                                            self.element_type, 
-                                                                            proportional_damping = proportional_damping, 
-                                                                            volumetric_flow_rate = volumetric_flow_rate
-                                                                            )
+                print(
+                    f"[Set Acoustic Element Type] - {self.element_type} assigned in {len(line_ids)} lines"
+                )
 
-        app().project.model.properties._set_line_property("acoustic_element_type", self.element_type, line_ids)
+        self.preprocessor.set_acoustic_element_type_by_lines(
+            line_ids,
+            self.element_type,
+            proportional_damping=proportional_damping,
+            volumetric_flow_rate=volumetric_flow_rate,
+        )
+
+        self.properties._set_line_property(
+            "acoustic_element_type", self.element_type, line_ids
+        )
 
         if proportional_damping is None:
             for line_id in line_ids:
-                app().project.model.properties._remove_line_property("proportional_damping", line_id)
+                self.properties._remove_line_property("proportional_damping", line_id)
 
         else:
-            app().project.model.properties._set_line_property("proportional_damping", proportional_damping, line_ids)
+            self.properties._set_line_property(
+                "proportional_damping", proportional_damping, line_ids
+            )
 
         if volumetric_flow_rate is None:
             for line_id in line_ids:
-                app().project.model.properties._remove_line_property("volumetric_flow_rate", line_id)
+                self.properties._remove_line_property("volumetric_flow_rate", line_id)
 
         else:
-            app().project.model.properties._set_line_property("volumetric_flow_rate", volumetric_flow_rate, line_ids)
+            self.properties._set_line_property(
+                "volumetric_flow_rate", volumetric_flow_rate, line_ids
+            )
 
         self.actions_to_finalize()
 
@@ -281,24 +319,30 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
 
         self.hide()
 
-        title = f"Resetting of acoustic element types"
+        title = "Resetting of acoustic element types"
         message = "Would you like to reset the acoustic element types from the model?"
 
-        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
+        buttons_config = {"left_button_label": "No", "right_button_label": "Yes"}
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
             return
 
         if read._continue:
-
-            for (line_id, data) in self.properties.line_properties.items():
+            for line_id, data in self.properties.line_properties.items():
                 if "acoustic_element_type" in data.keys():
-
-                    app().project.model.preprocessor.set_acoustic_element_type_by_lines(line_id, "undamped")
-                    app().project.model.properties._remove_line_property("acoustic_element_type", line_id)
-                    app().project.model.properties._remove_line_property("proportional_damping", line_id)
-                    app().project.model.properties._remove_line_property("volumetric_flow_rate", line_id)
+                    self.preprocessor.set_acoustic_element_type_by_lines(
+                        line_id, "undamped"
+                    )
+                    self.properties._remove_line_property(
+                        "acoustic_element_type", line_id
+                    )
+                    self.properties._remove_line_property(
+                        "proportional_damping", line_id
+                    )
+                    self.properties._remove_line_property(
+                        "volumetric_flow_rate", line_id
+                    )
 
             self.actions_to_finalize()
 
@@ -320,7 +364,7 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
         if rms.volumetric_flow_rate is None:
             return
 
-        self.lineEdit_volumetric_flow_rate.setText(f"{rms.volumetric_flow_rate : .6e}")
+        self.lineEdit_volumetric_flow_rate.setText(f"{rms.volumetric_flow_rate: .6e}")
 
     def on_click_item(self, item):
         self.comboBox_selection.setCurrentIndex(1)
@@ -352,21 +396,25 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
 
         aux = defaultdict(list)
         for line_id in self.properties.line_properties.keys():
-
-            element_type = self.properties._get_property("acoustic_element_type", line_id=line_id)
+            element_type = self.properties._get_property(
+                "acoustic_element_type", line_id=line_id
+            )
             if element_type is None:
                 continue
 
-            volumetric_flow_rate = self.properties._get_property("volumetric_flow_rate", line_id=line_id)
+            volumetric_flow_rate = self.properties._get_property(
+                "volumetric_flow_rate", line_id=line_id
+            )
             if volumetric_flow_rate is None:
                 volumetric_flow_rate = "---"
 
             aux[(element_type, volumetric_flow_rate)].append(line_id)
-        
-        for key, line_ids in aux.items():
 
+        for key, line_ids in aux.items():
             element_type, volumetric_flow_rate = key
-            item = QTreeWidgetItem([element_type, str(volumetric_flow_rate), str(line_ids)[1:-1]])
+            item = QTreeWidgetItem(
+                [element_type, str(volumetric_flow_rate), str(line_ids)[1:-1]]
+            )
 
             for col in range(3):
                 item.setTextAlignment(col, Qt.AlignCenter)
@@ -386,7 +434,6 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
     def get_information(self, item):
         try:
             if self.lineEdit_selected_id.text() != "":
-
                 if item is None:
                     return
 
@@ -402,8 +449,9 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
 
                 data = dict()
                 for line_id in self.properties.line_properties.keys():
-
-                    element_type = self.properties._get_property("acoustic_element_type", line_id=line_id)
+                    element_type = self.properties._get_property(
+                        "acoustic_element_type", line_id=line_id
+                    )
                     if element_type is None:
                         continue
 
@@ -411,24 +459,30 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
                         element_data = [key]
 
                         if key == "proportional":
-                            damping = self.properties._get_property("proportional_damping", line_id=line_id)
+                            damping = self.properties._get_property(
+                                "proportional_damping", line_id=line_id
+                            )
                             if damping is None:
                                 continue
                             element_data.append(damping)
-    
+
                         elif key in ["undamped_mean_flow", "peters", "howe"]:
-                            volumetric_flow_rate = self.properties._get_property("volumetric_flow_rate", line_id=line_id)
+                            volumetric_flow_rate = self.properties._get_property(
+                                "volumetric_flow_rate", line_id=line_id
+                            )
                             if volumetric_flow_rate is None:
                                 continue
                             element_data.append(volumetric_flow_rate)
 
                         data[line_id] = element_data
 
-                GetInformationOfGroup(  group_label = "Element type",
-                                        selection_label = "Line ID:",
-                                        header_labels = header_labels,
-                                        column_widths = [70, 140, 150],
-                                        data = data  )
+                GetInformationOfGroup(
+                    group_label="Element type",
+                    selection_label="Line ID:",
+                    header_labels=header_labels,
+                    column_widths=[70, 140, 150],
+                    data=data,
+                )
 
             else:
                 title = "Invalid selection"
@@ -448,8 +502,3 @@ class AcousticElementTypeInput(AcousticElementTypeInput_UI):
             self.attribute_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)
