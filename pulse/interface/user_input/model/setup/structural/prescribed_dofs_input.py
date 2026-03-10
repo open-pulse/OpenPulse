@@ -96,9 +96,7 @@ class PrescribedDofsInput(StructuralNodesInput, PrescribedDofsInput_UI):
             "Rz" : self.comboBox_rotation_rz,
         }
 
-
         self.reset_table_variables()
-        self.before_run = app().project.get_pre_solution_model_checks()
 
     def reset_table_variables(self):
 

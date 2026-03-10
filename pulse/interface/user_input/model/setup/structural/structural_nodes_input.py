@@ -1,12 +1,13 @@
 import numpy as np
 
+from pulse import app
 from pulse.interface.user_input.model.setup.nodes_input import NodesInput
 
 
 class StructuralNodesInput(NodesInput):
     def __init__(self):
         super().__init__()
-
+        
     def process_table_file_removal(self, table_names):
         super().process_table_file_removal("structural", table_names)
 

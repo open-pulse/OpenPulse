@@ -33,7 +33,6 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
         super().__init__(*args, **kwargs)
 
         self.preprocessor = app().project.model.preprocessor
-        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._initialize()
         self._define_qt_variables()

@@ -10,8 +10,6 @@ class AcousticNodesInput(NodesInput):
     def __init__(self):
         super().__init__()
 
-        self.before_run = app().project.get_pre_solution_model_checks()
-
     def process_table_file_removal(self, table_names):
         super().process_table_file_removal("acoustic", table_names)
 

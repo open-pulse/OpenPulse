@@ -9,6 +9,8 @@ class NodesInput(UserInput):
         super().__init__()
 
         self.properties = app().project.model.properties
+        self.before_run = app().project.get_pre_solution_model_checks()
+
 
     def remove_conflicting_data(
         self, properties: str | list[str], node_ids: int | list | tuple
