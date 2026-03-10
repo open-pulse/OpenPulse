@@ -85,7 +85,7 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
 
         elif index == 1:
             app().main_window.set_selection()
-            self.lineEdit_element_id.setText("")
+            self.lineEdit_element_id.clear()
 
         self.lineEdit_element_id.setDisabled(bool(index))
         self.pushButton_remove.setDisabled(True)
@@ -240,7 +240,7 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
         app().project.file.write_element_properties_in_file()
         app().main_window.set_selection()
         self.load_elements_info()
-        self.lineEdit_element_id.setText("")
+        self.lineEdit_element_id.clear()
 
     def maps_correction_type_to_elements(self):
 

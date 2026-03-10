@@ -134,7 +134,7 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
             
             if (vv_data, input_impedance).count(None):
                 self.input_node_id = None
-                self.lineEdit_input_node_id.setText("")
+                self.lineEdit_input_node_id.clear()
 
             elif "values" in vv_data.keys():
                 self.input_volume_velocity = np.real(vv_data["values"])
@@ -142,18 +142,18 @@ class PlotTransmissionLoss(PlotTransmissionLoss_UI):
                 if isinstance(input_impedance_type, str):
                     if input_impedance_type != RadiationImpedanceType.ANECHOIC:
                         self.input_node_id = None
-                        self.lineEdit_input_node_id.setText("")
+                        self.lineEdit_input_node_id.clear()
 
             if output_impedance is None:
                 self.output_node_id = None
-                self.lineEdit_output_node_id.setText("")
+                self.lineEdit_output_node_id.clear()
 
             elif isinstance(output_impedance, dict):
                 output_impedance_type = output_impedance.get("impedance_type")
                 if isinstance(output_impedance_type, str):
                     if output_impedance_type != RadiationImpedanceType.ANECHOIC:
                         self.output_node_id = None
-                        self.lineEdit_output_node_id.setText("")
+                        self.lineEdit_output_node_id.clear()
 
         else:
 

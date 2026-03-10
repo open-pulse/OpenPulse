@@ -99,11 +99,11 @@ class DecouplingRotationDOFsInput(B2pDecouplingRotationDofsInput_UI):
                         if len(neighboor_elements) >= 3:
                             self.lineEdit_tjoint_node_id.setText(str(node_id))
                             return
-                        self.lineEdit_tjoint_node_id.setText("")
+                        self.lineEdit_tjoint_node_id.clear()
 
                 else:
-                    self.lineEdit_element_id.setText("")
-                    self.lineEdit_tjoint_node_id.setText("")
+                    self.lineEdit_element_id.clear()
+                    self.lineEdit_tjoint_node_id.clear()
 
     def _config_widgets(self):
         for i, width in enumerate([100, 100, 100]):
@@ -111,7 +111,7 @@ class DecouplingRotationDOFsInput(B2pDecouplingRotationDofsInput_UI):
             self.treeWidget_elements_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def tab_event_callback(self):
-        self.lineEdit_selected_id_to_remove.setText("")
+        self.lineEdit_selected_id_to_remove.clear()
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 1:
             self.pushButton_remove.setDisabled(True)
@@ -178,8 +178,8 @@ class DecouplingRotationDOFsInput(B2pDecouplingRotationDofsInput_UI):
                 app().project.file.write_element_properties_in_file()
                 self.load_decoupling_info()
                 app().main_window.set_selection()
-                self.lineEdit_element_id.setText("")
-                self.lineEdit_tjoint_node_id.setText("")
+                self.lineEdit_element_id.clear()
+                self.lineEdit_tjoint_node_id.clear()
 
                 print("[Set B2P Rotation Decoupling] - defined at element {} and at node {}".format(element_id, node_id))
                 self.complete = True
@@ -283,7 +283,7 @@ class DecouplingRotationDOFsInput(B2pDecouplingRotationDofsInput_UI):
         self.update_tabs_visibility()
 
     def update_tabs_visibility(self):
-        self.lineEdit_selected_id_to_remove.setText("")
+        self.lineEdit_selected_id_to_remove.clear()
         self.tabWidget_main.setTabVisible(1, False)
         for (property, _) in self.properties.element_properties.keys():
             if property == "B2P_rotation_decoupling":

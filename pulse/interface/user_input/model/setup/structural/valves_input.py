@@ -140,7 +140,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         ]
 
     def tab_event_callback(self):
-        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_id.clear()
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 1:
             self.selection_frame.setDisabled(True)
@@ -167,7 +167,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         self.lineEdit_internal_valve_length.setEnabled(bool(index))
 
         if not bool(index):
-            self.lineEdit_internal_valve_length.setText("")
+            self.lineEdit_internal_valve_length.clear()
 
     def flanged_valves_callback(self, enabled: bool):
         self.label_flange_diameter.setEnabled(enabled)
@@ -178,8 +178,8 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         self.lineEdit_flange_length.setEnabled(enabled)
 
         if not enabled:
-            self.lineEdit_flange_diameter.setText("")
-            self.lineEdit_flange_length.setText("")
+            self.lineEdit_flange_diameter.clear()
+            self.lineEdit_flange_length.clear()
 
     def load_valves_info(self):
 
@@ -228,7 +228,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
                 "structural_element_type", line_id=line_id
             )
             if structural_element in ["beam_1", "expansion_joint"]:
-                self.lineEdit_selected_id.setText("")
+                self.lineEdit_selected_id.clear()
                 self.lineEdit_selected_id.setFocus()
                 return True
 

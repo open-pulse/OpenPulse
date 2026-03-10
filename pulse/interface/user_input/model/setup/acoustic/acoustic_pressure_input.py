@@ -92,10 +92,10 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPressureInput_UI):
                             self.lineEdit_imag_value.setText(str(imag_value))
 
     def tab_event_callback(self):
-        self.lineEdit_node_ids.setText("")
+        self.lineEdit_node_ids.clear()
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 1:
-            self.lineEdit_node_ids.setText("")
+            self.lineEdit_node_ids.clear()
             self.lineEdit_node_ids.setDisabled(True)
         else:
             self.selection_callback()
@@ -264,7 +264,7 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPressureInput_UI):
             self.actions_to_finalize(reset_camera=False)
 
     def reset_input_fields(self):
-        self.lineEdit_node_ids.setText("")
-        self.lineEdit_real_value.setText("")
-        self.lineEdit_imag_value.setText("")
-        self.lineEdit_table_path.setText("")
+        self.lineEdit_node_ids.clear()
+        self.lineEdit_real_value.clear()
+        self.lineEdit_imag_value.clear()
+        self.lineEdit_table_path.clear()

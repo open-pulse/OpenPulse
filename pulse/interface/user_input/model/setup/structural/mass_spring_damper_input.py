@@ -722,7 +722,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.lineEdit_reset(self.lineEdit_path_table_Crz)
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
+        lineEdit.clear()
         lineEdit.setFocus()
 
     def save_tables_files(
@@ -1158,7 +1158,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
 
         else:
             if self.cache_tab == 1:
-                self.lineEdit_node_ids.setText("")
+                self.lineEdit_node_ids.clear()
             self.selection_frame.setDisabled(False)
             self.selection_callback()
 
@@ -1242,21 +1242,21 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
 
     def reset_input_fields_masses(self):
         for lineEdit_constant_masses in self.constant_values_lumped_masses:
-            lineEdit_constant_masses.setText("")
+            lineEdit_constant_masses.clear()
         for lineEdit_table_masses in self.table_values_lumped_masses:
-            lineEdit_table_masses.setText("")
+            lineEdit_table_masses.clear()
 
     def reset_input_fields_stiffness(self):
         for lineEdit_constant_stiffness in self.constant_values_lumped_stiffness:
-            lineEdit_constant_stiffness.setText("")
+            lineEdit_constant_stiffness.clear()
         for lineEdit_table_stiffness in self.table_values_lumped_stiffness:
-            lineEdit_table_stiffness.setText("")
+            lineEdit_table_stiffness.clear()
 
     def reset_input_fields_dampings(self):
         for lineEdit_constant_dampings in self.constant_values_lumped_dampings:
-            lineEdit_constant_dampings.setText("")
+            lineEdit_constant_dampings.clear()
         for lineEdit_table_dampings in self.table_values_lumped_dampings:
-            lineEdit_table_dampings.setText("")
+            lineEdit_table_dampings.clear()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

@@ -108,7 +108,7 @@ class StressStiffeningInput(StressStiffeningInput_UI):
             self.selection_callback()
 
         else:
-            self.lineEdit_selected_id.setText("")
+            self.lineEdit_selected_id.clear()
             self.lineEdit_selected_id.setDisabled(True)
 
     def tabs_visibility(self):
@@ -223,7 +223,7 @@ class StressStiffeningInput(StressStiffeningInput_UI):
             self.preprocessor.set_stress_stiffening_by_lines(line_id, parameters)
             self.properties._remove_line_property("stress_stiffening", line_id)
 
-            self.lineEdit_selected_id.setText("")
+            self.lineEdit_selected_id.clear()
             self.actions_to_finalize()
 
     def reset_callback(self):

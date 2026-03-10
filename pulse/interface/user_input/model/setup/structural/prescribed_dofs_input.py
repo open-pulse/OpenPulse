@@ -432,7 +432,7 @@ class PrescribedDofsInput(StructuralNodesInput, PrescribedDofsInput_UI):
             self.lineEdit_reset(self.lineEdit_path_table_rz)
 
     def lineEdit_reset(self, lineEdit : QLineEdit):
-        lineEdit.setText("")
+        lineEdit.clear()
         lineEdit.setFocus()
 
     def integrate_and_save_table_files(self, dof_label: str, node_id: int, values: np.ndarray, linear=False, angular=False):
@@ -590,8 +590,8 @@ class PrescribedDofsInput(StructuralNodesInput, PrescribedDofsInput_UI):
         if (line_edit_real, line_edit_imag).count(None) == 2:
             return
 
-        line_edit_real.setText("")
-        line_edit_imag.setText("")
+        line_edit_real.clear()
+        line_edit_imag.clear()
         line_edit_real.setEnabled(value_based)   
         line_edit_imag.setEnabled(value_based)
 
@@ -678,7 +678,7 @@ class PrescribedDofsInput(StructuralNodesInput, PrescribedDofsInput_UI):
     
         selected_items = self.treeWidget_nodal_info.selectedItems()
         if selected_items == list():
-            self.lineEdit_node_ids.setText("")
+            self.lineEdit_node_ids.clear()
         else:
             self.on_click_item(selected_items[0])
 
@@ -785,13 +785,13 @@ class PrescribedDofsInput(StructuralNodesInput, PrescribedDofsInput_UI):
             self.actions_to_finalize()
 
     def reset_input_fields(self):
-        self.lineEdit_node_ids.setText("")
+        self.lineEdit_node_ids.clear()
         for [lineEdit_real, lineEdit_imag] in self.list_lineEdit_constant_values:
-            lineEdit_real.setText("")
-            lineEdit_imag.setText("")
+            lineEdit_real.clear()
+            lineEdit_imag.clear()
 
         for lineEdit_table in self.list_lineEdit_table_values:
-            lineEdit_table.setText("")
+            lineEdit_table.clear()
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

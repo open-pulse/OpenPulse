@@ -122,8 +122,8 @@ class SetCrossSectionInput(SetCrossSection_UI):
             self.get_line_elements(selected_lines[0])
 
         elif len(selected_lines) > 1:
-            self.cross_section_widget.lineEdit_element_id_initial.setText("")
-            self.cross_section_widget.lineEdit_element_id_final.setText("")
+            self.cross_section_widget.lineEdit_element_id_initial.clear()
+            self.cross_section_widget.lineEdit_element_id_final.clear()
 
     def selection_callback(self):
 
@@ -380,7 +380,7 @@ class SetCrossSectionInput(SetCrossSection_UI):
         for psd_lines in device_related_lines.values():
             for line_id in line_ids:
                 if line_id in psd_lines:
-                    self.lineEdit_selected_id.setText("")
+                    self.lineEdit_selected_id.clear()
                     title = "PSD cross-section edition not allowed"
                     message = "The PSD line sections could not be edited in the cross-section setup interface. "
                     message += "You must switch to the PSD configuration interface for this specific section editing."

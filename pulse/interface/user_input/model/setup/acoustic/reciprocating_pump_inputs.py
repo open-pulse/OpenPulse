@@ -190,8 +190,8 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
                 self.update_pump_inputs(data)
 
     def tab_event_callback(self):
-        # self.lineEdit_selected_surface_id.setText("")
-        # self.lineEdit_connection_type.setText("")
+        # self.lineEdit_selected_surface_id.clear()
+        # self.lineEdit_connection_type.clear()
         self.pushButton_remove.setDisabled(True)
         return
 
@@ -223,7 +223,7 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
         self.pushButton_plot_volume_crank_end_angle.setDisabled(False)
 
         if self.comboBox_cylinder_acting.currentIndex() == 1:
-            self.lineEdit_rod_diameter.setText("")
+            self.lineEdit_rod_diameter.clear()
             self.lineEdit_rod_diameter.setDisabled(True)
             self.pushButton_plot_PV_diagram_crank_end.setDisabled(True)
             self.pushButton_plot_PV_diagram_both_ends.setDisabled(False)
@@ -426,18 +426,18 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
         self.comboBox_pressure_units.setCurrentIndex(0)
         self.comboBox_temperature_units.setCurrentIndex(0)
         #
-        self.lineEdit_bore_diameter.setText("")
-        self.lineEdit_stroke.setText("")
-        self.lineEdit_connecting_rod_length.setText("")
-        self.lineEdit_rod_diameter.setText("")
-        self.lineEdit_clearance_head_end.setText("")
-        self.lineEdit_clearance_crank_end.setText("")
-        self.lineEdit_rotational_speed.setText("")
-        self.lineEdit_bulk_modulus.setText("")
-        self.lineEdit_suction_pressure.setText("")
-        self.lineEdit_suction_temperature.setText("")
-        self.lineEdit_discharge_pressure.setText("")
-        self.lineEdit_discharge_temperature.setText("")
+        self.lineEdit_bore_diameter.clear()
+        self.lineEdit_stroke.clear()
+        self.lineEdit_connecting_rod_length.clear()
+        self.lineEdit_rod_diameter.clear()
+        self.lineEdit_clearance_head_end.clear()
+        self.lineEdit_clearance_crank_end.clear()
+        self.lineEdit_rotational_speed.clear()
+        self.lineEdit_bulk_modulus.clear()
+        self.lineEdit_suction_pressure.clear()
+        self.lineEdit_suction_temperature.clear()
+        self.lineEdit_discharge_pressure.clear()
+        self.lineEdit_discharge_temperature.clear()
         #
         self.spinBox_number_of_cylinders.setValue(1)
         self.spinBox_tdc1_crank_angle.setValue(0)
@@ -467,7 +467,7 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
             message += "It is necessary to change the selection to proceed with the "
             message += "reciprocating pump excitation attribution."
             PrintMessageInput([error_title, title, message])
-            lineEdit.setText("")
+            lineEdit.clear()
             return True, None
 
     def check_input_nodes(self):
@@ -887,8 +887,8 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
         self.pushButton_remove.setDisabled(False)
 
     def update_tabs_visibility(self):
-        self.lineEdit_selected_node_id.setText("")
-        self.lineEdit_connection_type.setText("")
+        self.lineEdit_selected_node_id.clear()
+        self.lineEdit_connection_type.clear()
         self.pushButton_remove.setDisabled(True)
         for property, *_ in self.properties.nodal_properties.keys():
             if property == "reciprocating_pump_excitation":

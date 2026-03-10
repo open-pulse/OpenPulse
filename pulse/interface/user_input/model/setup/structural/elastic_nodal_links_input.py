@@ -635,7 +635,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
             self.lineEdit_reset(self.lineEdit_path_table_Crz)
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
+        lineEdit.clear()
         lineEdit.setFocus()
 
     def save_tables_files(
@@ -1034,20 +1034,20 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
             self.actions_to_finalize()
 
     def reset_nodes_input_fields(self):
-        self.lineEdit_first_node_id.setText("")
-        self.lineEdit_last_node_id.setText("")
+        self.lineEdit_first_node_id.clear()
+        self.lineEdit_last_node_id.clear()
 
     def reset_stiffness_input_fields(self):
         for lineEdit in self.lineEdits_constant_values_stiffness:
-            lineEdit.setText("")
+            lineEdit.clear()
         for lineEdit in self.lineEdits_table_values_stiffness:
-            lineEdit.setText("")
+            lineEdit.clear()
 
     def reset_dampings_input_fields(self):
         for lineEdit in self.lineEdits_constant_values_dampings:
-            lineEdit.setText("")
+            lineEdit.clear()
         for lineEdit in self.lineEdits_table_values_dampings:
-            lineEdit.setText("")
+            lineEdit.clear()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

@@ -204,8 +204,8 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
             return
 
         self.pushButton_confirm.setDisabled(True)
-        self.lineEdit_selected_node_id.setText("")
-        self.lineEdit_connection_type.setText("")
+        self.lineEdit_selected_node_id.clear()
+        self.lineEdit_connection_type.clear()
 
     def update_compressing_cylinders_setup(self):
 
@@ -221,10 +221,10 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         self.pushButton_plot_volume_crank_end_angle.setDisabled(False)
 
         if self.comboBox_cylinder_acting.currentIndex() == 1:
-            self.lineEdit_rod_diameter.setText("")
+            self.lineEdit_rod_diameter.clear()
             self.lineEdit_rod_diameter.setDisabled(True)
 
-            self.lineEdit_clearance_crank_end.setText("")
+            self.lineEdit_clearance_crank_end.clear()
             self.lineEdit_clearance_crank_end.setDisabled(True)
             if self.lineEdit_clearance_head_end.text() == "":
                 self.lineEdit_clearance_head_end.setText("15.80")
@@ -238,7 +238,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
             if self.lineEdit_rod_diameter.text() == "":
                 self.lineEdit_rod_diameter.setText("0.135")
 
-            self.lineEdit_clearance_head_end.setText("")
+            self.lineEdit_clearance_head_end.clear()
             self.lineEdit_clearance_head_end.setDisabled(True)
             if self.lineEdit_clearance_crank_end.text() == "":
                 self.lineEdit_clearance_crank_end.setText("18.39")
@@ -446,18 +446,18 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         self.comboBox_stage.setCurrentIndex(0)
         self.comboBox_pressure_units.setCurrentIndex(0)
         self.comboBox_temperature_units.setCurrentIndex(1)
-        self.lineEdit_bore_diameter.setText("")
-        self.lineEdit_stroke.setText("")
-        self.lineEdit_connecting_rod_length.setText("")
-        self.lineEdit_rod_diameter.setText("")
-        self.lineEdit_pressure_ratio.setText("")
-        self.lineEdit_clearance_head_end.setText("")
-        self.lineEdit_clearance_crank_end.setText("")
-        self.lineEdit_rotational_speed.setText("")
-        self.lineEdit_isentropic_exponent.setText("")
-        self.lineEdit_molar_mass.setText("")
-        self.lineEdit_pressure_at_suction.setText("")
-        self.lineEdit_temperature_at_suction.setText("")
+        self.lineEdit_bore_diameter.clear()
+        self.lineEdit_stroke.clear()
+        self.lineEdit_connecting_rod_length.clear()
+        self.lineEdit_rod_diameter.clear()
+        self.lineEdit_pressure_ratio.clear()
+        self.lineEdit_clearance_head_end.clear()
+        self.lineEdit_clearance_crank_end.clear()
+        self.lineEdit_rotational_speed.clear()
+        self.lineEdit_isentropic_exponent.clear()
+        self.lineEdit_molar_mass.clear()
+        self.lineEdit_pressure_at_suction.clear()
+        self.lineEdit_temperature_at_suction.clear()
         self.spinBox_number_of_cylinders.setValue(1)
         self.spinBox_tdc1_crank_angle.setValue(0)
         self.spinBox_tdc2_crank_angle.setValue(0)
@@ -488,7 +488,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
             message += "It is necessary to change the selection to proceed with the "
             message += "compressor excitation attribution."
             PrintMessageInput([error_title, title, message])
-            lineEdit.setText("")
+            lineEdit.clear()
             return True, None
 
     def check_input_nodes(self):

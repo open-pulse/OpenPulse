@@ -227,7 +227,7 @@ class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
 
         if app().project.model.change_analysis_frequency_setup(list(frequencies)):
 
-            self.lineEdit_spreadsheet_path.setText("")
+            self.lineEdit_spreadsheet_path.clear()
 
             title = "Project frequency setup cannot be modified"
             message = f"The following imported table of values has a frequency setup\n"
@@ -347,10 +347,10 @@ class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
         self.on_click_item(item)
 
     def tab_event_callback(self):
-        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_id.clear()
         self.pushButton_remove.setDisabled(True)
         # if self.tabWidget_main.currentIndex() == 1:
-        #     self.lineEdit_selected_id.setText("")
+        #     self.lineEdit_selected_id.clear()
         # else:
         #     self.selection_callback()
 

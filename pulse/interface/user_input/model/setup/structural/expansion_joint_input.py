@@ -155,7 +155,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
     def axial_stop_rod_callback(self):
         if self.comboBox_axial_stop_rod.currentIndex() == 0:
             self.label_axial_lock_criteria.setDisabled(True)
-            self.lineEdit_axial_locking_criteria.setText("")
+            self.lineEdit_axial_locking_criteria.clear()
             self.lineEdit_axial_locking_criteria.setDisabled(True)
         else:
             self.label_axial_lock_criteria.setDisabled(False)
@@ -181,7 +181,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             )
             if element_type in ["beam_1"]:
                 stop = True
-                self.lineEdit_selected_id.setText("")
+                self.lineEdit_selected_id.clear()
                 self.lineEdit_selected_id.setFocus()
                 return True
 

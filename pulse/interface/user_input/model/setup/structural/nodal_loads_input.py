@@ -399,7 +399,7 @@ class NodalLoadsInput(StructuralNodesInput, SetNodalLoadsInput_UI):
             self.lineEdit_reset(self.lineEdit_path_table_mz)
 
     def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
+        lineEdit.clear()
         lineEdit.setFocus()
 
     def save_tables_files(self, load_label: str, node_id: int, values: np.ndarray):
@@ -564,14 +564,14 @@ class NodalLoadsInput(StructuralNodesInput, SetNodalLoadsInput_UI):
 
     def tab_event_callback(self):
 
-        self.lineEdit_node_ids.setText("")
+        self.lineEdit_node_ids.clear()
         self.pushButton_remove.setDisabled(True)
 
         if self.tabWidget_nodal_loads.currentIndex() == 2:
             self.lineEdit_node_ids.setDisabled(True)
             items = self.treeWidget_nodal_info.selectedItems()
             if items == list():
-                self.lineEdit_node_ids.setText("")
+                self.lineEdit_node_ids.clear()
             else:
                 self.on_click_item(items[0])
 
@@ -670,12 +670,12 @@ class NodalLoadsInput(StructuralNodesInput, SetNodalLoadsInput_UI):
             self.actions_to_finalize(reset_camera=False)
 
     def reset_input_fields(self):
-        self.lineEdit_node_ids.setText("")
+        self.lineEdit_node_ids.clear()
         for [lineEdit_real, lineEdit_imag] in self.list_lineEdit_constant_values:
-            lineEdit_real.setText("")
-            lineEdit_imag.setText("")
+            lineEdit_real.clear()
+            lineEdit_imag.clear()
         for lineEdit_table in self.list_lineEdit_table_values:
-            lineEdit_table.setText("")
+            lineEdit_table.clear()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

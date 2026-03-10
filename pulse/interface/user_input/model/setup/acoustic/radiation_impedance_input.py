@@ -78,10 +78,10 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
                         )
 
     def tab_event_callback(self):
-        self.lineEdit_node_ids.setText("")
+        self.lineEdit_node_ids.clear()
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 1:
-            self.lineEdit_node_ids.setText("")
+            self.lineEdit_node_ids.clear()
             self.lineEdit_node_ids.setDisabled(True)
         else:
             self.selection_callback()

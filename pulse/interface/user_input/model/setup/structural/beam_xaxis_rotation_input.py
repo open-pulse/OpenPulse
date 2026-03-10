@@ -89,7 +89,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
                 self.comboBox_selection.setCurrentIndex(1)
 
             else:
-                self.lineEdit_selected_id.setText("")
+                self.lineEdit_selected_id.clear()
 
             if len(filtered_selection) == 1:
                 line_id = filtered_selection[0]
@@ -112,7 +112,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
 
     def change_selection_callback(self):
 
-        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_id.clear()
         self.lineEdit_selected_id.setEnabled(True)
         selection_index = self.comboBox_selection.currentIndex()
 
@@ -126,7 +126,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
 
     def tab_event_update(self):
 
-        self.lineEdit_selected_id.setText("")
+        self.lineEdit_selected_id.clear()
         self.pushButton_remove.setDisabled(True)
         tab_index = self.tabWidget_xaxis_rotation_angle.currentIndex()
 
@@ -238,7 +238,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
             self.preprocessor.set_beam_xaxis_rotation_by_lines(line_id, 0)
             self.properties._remove_line_property("beam_xaxis_rotation", line_id)
 
-            self.lineEdit_selected_id.setText("")
+            self.lineEdit_selected_id.clear()
             self.actions_to_finalize()
 
     def reset_callback(self):
@@ -260,8 +260,8 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
             return
 
         if read._continue:
-            self.lineEdit_selected_id.setText("")
-            self.lineEdit_increment_angle.setText("")
+            self.lineEdit_selected_id.clear()
+            self.lineEdit_increment_angle.clear()
 
             line_ids = list()
             for line_id, data in self.properties.line_properties.items():
@@ -285,7 +285,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
         self.update_tabs_visibility()
 
     def actions_to_finalize(self):
-        self.lineEdit_actual_angle.setText("")
+        self.lineEdit_actual_angle.clear()
         self.preprocessor.process_all_rotation_matrices()
         app().project.file.write_line_properties_in_file()
         self.load_lines_info()

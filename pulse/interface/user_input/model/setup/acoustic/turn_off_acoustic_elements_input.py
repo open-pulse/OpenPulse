@@ -82,7 +82,7 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
             self.selection_callback()
 
         elif index == 1:
-            self.lineEdit_element_id.setText("")
+            self.lineEdit_element_id.clear()
 
         self.lineEdit_element_id.setDisabled(bool(index))
         self.pushButton_remove.setDisabled(True)
@@ -127,7 +127,7 @@ class TurnOffAcousticElementsInput(TurnOffAcousticElementsInput_UI):
                 self.properties._remove_element_property("acoustic_element_turned_off", element_id)
             
             self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
-            self.lineEdit_element_id.setText("")
+            self.lineEdit_element_id.clear()
             self.actions_to_finalize()
 
     def reset_callback(self):

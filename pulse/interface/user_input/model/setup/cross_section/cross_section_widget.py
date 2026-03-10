@@ -161,9 +161,9 @@ class CrossSectionWidget(CrossSectionWidget_UI):
 
     def reset_all_input_texts(self):
         for lineEdit in self.list_pipe_section_entries:
-            lineEdit.setText("")
+            lineEdit.clear()
         for lineEdit in self.list_beam_section_entries:
-            lineEdit.setText("")
+            lineEdit.clear()
 
     def config_treeWidget(self):
         self.treeWidget_sections_parameters_by_lines.setColumnWidth(0, 40)

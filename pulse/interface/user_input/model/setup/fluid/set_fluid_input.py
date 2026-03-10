@@ -103,7 +103,7 @@ class SetFluidInput(SetFluidInput_UI):
             if self.comboBox_attribution_type.currentIndex() == 0:
                 self.attribution_type_callback()
             else:
-                self.lineEdit_selected_id.setText("")
+                self.lineEdit_selected_id.clear()
 
         self.comboBox_attribution_type.blockSignals(False)
 
@@ -131,7 +131,7 @@ class SetFluidInput(SetFluidInput_UI):
             return
 
         fluid_name = item.text()
-        self.lineEdit_selected_fluid_name.setText("")
+        self.lineEdit_selected_fluid_name.clear()
         if fluid_name != "":
             self.lineEdit_selected_fluid_name.setText(fluid_name)
 

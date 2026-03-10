@@ -75,7 +75,7 @@ class SetFluidInputSimplified(SetFluidInputSimplified_UI):
         self.fluid_widget.reset_library_callback()
 
     def reset_selected_fluid_lineEdit(self):
-        self.lineEdit_selected_fluid_name.setText("")
+        self.lineEdit_selected_fluid_name.clear()
 
     def current_cell_changed(self, current_row, current_col, previous_row, previous_col):
         self.selected_column = current_col
@@ -98,8 +98,8 @@ class SetFluidInputSimplified(SetFluidInputSimplified_UI):
         else:
             fluid_identifier = item_1.text()
 
-        self.lineEdit_selected_fluid_name.setText("")
-        self.lineEdit_fluid_identifier.setText("")
+        self.lineEdit_selected_fluid_name.clear()
+        self.lineEdit_fluid_identifier.clear()
 
         if fluid_name != "":
             self.lineEdit_selected_fluid_name.setText(fluid_name)

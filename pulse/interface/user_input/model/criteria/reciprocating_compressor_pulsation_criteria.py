@@ -86,16 +86,16 @@ class ReciprocatingCompressorPulsationCriteriaInput(PulsationCriteriaWidget_UI):
             self.lineEdit_internal_diameter.setText(str(round(inner_diameter, 2)))
 
     def reset_unfiltered_fields(self):
-        self.lineEdit_compressor_node_id.setText("")
-        self.lineEdit_pressure_ratio.setText("")
-        self.lineEdit_unfiltered_criteria.setText("")
+        self.lineEdit_compressor_node_id.clear()
+        self.lineEdit_pressure_ratio.clear()
+        self.lineEdit_unfiltered_criteria.clear()
 
     def reset_filtered_fields(self):
         self.comboBox_line_ids.clear()
-        self.lineEdit_nozzle_id.setText("")
-        self.lineEdit_internal_diameter.setText("")
-        self.lineEdit_line_pressure.setText("")
-        self.lineEdit_speed_of_sound.setText("")
+        self.lineEdit_nozzle_id.clear()
+        self.lineEdit_internal_diameter.clear()
+        self.lineEdit_line_pressure.clear()
+        self.lineEdit_speed_of_sound.clear()
 
     def get_existing_compressor_info(self, node_id: int):
         comp_data = self.properties._get_property("reciprocating_compressor_excitation", node_ids=node_id)

@@ -179,7 +179,7 @@ class ImportDataToCompare(ImportDataToCompare_UI):
             self.checkButtons_state[key] = check.isChecked()
 
     def reset_imported_data(self):
-        self.lineEdit_import_results_path.setText("")
+        self.lineEdit_import_results_path.clear()
         self.treeWidget_import_sheet_files.clear()
         self.treeWidget_import_text_files.clear()
         self._initialize()

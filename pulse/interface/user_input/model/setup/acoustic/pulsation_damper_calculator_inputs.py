@@ -180,8 +180,8 @@ class PulsationDamperCalculatorInputs(PulsationDamperCalculatorInputs_UI):
 
         dV = self.check_input_parameters(self.lineEdit_fluctuating_volume, "Fluctuating volume of reciprocating pump")
         if dV is None:
-            self.lineEdit_effective_volume.setText("")
-            self.lineEdit_volume_at_average_pressure.setText("")
+            self.lineEdit_effective_volume.clear()
+            self.lineEdit_volume_at_average_pressure.clear()
             return
         
         phi = self.doubleSpinBox_pressure_ratio.value()

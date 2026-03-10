@@ -106,7 +106,7 @@ class SetMaterialInput(SetMaterial_UI):
             if self.comboBox_attribution_type.currentIndex() == 0:
                 self.attribution_type_callback()
             else:
-                self.lineEdit_selected_id.setText("")
+                self.lineEdit_selected_id.clear()
 
         self.comboBox_attribution_type.blockSignals(False)
 
@@ -132,7 +132,7 @@ class SetMaterialInput(SetMaterial_UI):
             return
 
         material_name = item.text()
-        self.lineEdit_selected_material_name.setText("")
+        self.lineEdit_selected_material_name.clear()
         if material_name != "":
             self.lineEdit_selected_material_name.setText(material_name)
 

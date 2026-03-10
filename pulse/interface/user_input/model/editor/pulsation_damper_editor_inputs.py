@@ -178,7 +178,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
                 self.lineEdit_outside_diameter_gas.setText(_outside_diameter)
 
             except Exception:
-                self.lineEdit_outside_diameter_gas.setText("")
+                self.lineEdit_outside_diameter_gas.clear()
 
             try:
                 _wall_thickness = self.lineEdit_wall_thickness_liquid.text()
@@ -187,7 +187,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
                 self.lineEdit_wall_thickness_gas.setText(_wall_thickness)
 
             except Exception:
-                self.lineEdit_wall_thickness_gas.setText("")
+                self.lineEdit_wall_thickness_gas.clear()
 
     def load_fluid_properties(self, fluid: Fluid):
         pressure = fluid.pressure

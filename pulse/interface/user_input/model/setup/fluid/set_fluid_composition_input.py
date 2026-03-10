@@ -377,7 +377,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
                 molar_fraction = round(100*composition_data[1], 7)
                 self.add_molar_fraction_to_cell(row, molar_fraction = str(molar_fraction))
 
-        self.label_selected_fluid.setText("")
+        self.label_selected_fluid.clear()
         self.tableWidget_new_fluid.blockSignals(False)
 
     def check_composition_input(self, fluid_name, composition):
@@ -886,7 +886,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
             message = "The value typed for molar composition must be a non-zero positive number.\n\n"
             message += f"Details: {error_log}"
             PrintMessageInput([window_title, title, message])
-            item.setText("")
+            item.clear()
             return True
         
         message = ""
@@ -899,7 +899,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
             window_title = "Error"
             title = "Invalid molar fraction"
             PrintMessageInput([window_title, title, message])
-            item.setText("")
+            item.clear()
             return True
         
         return False
@@ -1024,7 +1024,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
     def load_fluid_composition_callback(self):
 
         self.hide()
-        self.label_selected_fluid.setText("")
+        self.label_selected_fluid.clear()
 
         self.fluid_data = dict()
         self.fluid_to_composition = dict()

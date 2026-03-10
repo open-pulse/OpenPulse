@@ -283,7 +283,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         if index == 2:
             self.bending_radius_line_edit.setEnabled(True)
             if self.bending_radius_line_edit.text() in ["1.5*D", "1.0*D"]:
-                self.bending_radius_line_edit.setText("")
+                self.bending_radius_line_edit.clear()
 
         else:
             self.bending_radius_line_edit.blockSignals(True)
@@ -305,7 +305,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
                     self.bending_radius_line_edit.setText(str(round(bending_radius, 6)))
 
             else:
-                self.bending_radius_line_edit.setText("")
+                self.bending_radius_line_edit.clear()
 
             self.bending_radius_line_edit.blockSignals(False)
 

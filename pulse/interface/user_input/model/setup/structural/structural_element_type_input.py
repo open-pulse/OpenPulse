@@ -121,7 +121,7 @@ class StructuralElementTypeInput(StructuralElementTypeInput_UI):
             self.attribution_type_callback()
         else:
             self.label_selected_id.setText("Selection:")
-            self.lineEdit_selected_id.setText("")
+            self.lineEdit_selected_id.clear()
             self.lineEdit_selected_id.setDisabled(True)
 
     def attribution_type_callback(self):
@@ -133,7 +133,7 @@ class StructuralElementTypeInput(StructuralElementTypeInput_UI):
             if app().main_window.list_selected_lines():
                 self.selection_callback()
             else:
-                self.lineEdit_selected_id.setText("")
+                self.lineEdit_selected_id.clear()
 
     def element_type_change_callback(self):
         index = self.comboBox_element_type.currentIndex()

@@ -180,10 +180,10 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.lineEdit_pipe2_distance.setDisabled(bool(index_2))
 
         if bool(index_1):
-            self.lineEdit_pipe1_distance.setText("")
+            self.lineEdit_pipe1_distance.clear()
 
         if bool(index_2):
-            self.lineEdit_pipe2_distance.setText("")
+            self.lineEdit_pipe2_distance.clear()
 
     def number_volumes_callback(self):
         index = self.comboBox_number_volumes.currentIndex()
@@ -216,7 +216,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
     def volumes_spacing_callback(self):
         index = self.comboBox_volumes_connection.currentIndex()
         if index == 2:
-            self.lineEdit_pipe3_distance.setText("")
+            self.lineEdit_pipe3_distance.clear()
             self.lineEdit_pipe3_distance.setDisabled(True)
             vol_spacing = self.spinBox_volumes_spacing.value()
             self.lineEdit_pipe3_length.setText(str(round(vol_spacing, 4)))
@@ -226,7 +226,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
     def volumes_connection_callback(self):
         index = self.comboBox_volumes_connection.currentIndex()
         if index == 2:
-            self.lineEdit_pipe3_distance.setText("")
+            self.lineEdit_pipe3_distance.clear()
             self.lineEdit_pipe3_distance.setDisabled(True)
             vol_spacing = self.spinBox_volumes_spacing.value()
             self.lineEdit_pipe3_length.setText(str(round(vol_spacing, 4)))
@@ -244,7 +244,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
             wall_thickness = (vol_diam - choke_diam) / 2
             self.lineEdit_pipe3_wall_thickness.setText(f"{round(wall_thickness, 6)}")
         except Exception:
-            self.lineEdit_pipe3_wall_thickness.setText("")
+            self.lineEdit_pipe3_wall_thickness.clear()
 
     def tuned_filter_callback(self):
         index = self.comboBox_tuned_filter.currentIndex()

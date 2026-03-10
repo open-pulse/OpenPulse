@@ -66,7 +66,7 @@ class ExpansionJointWidget(ExpansionJointWidget_UI):
     def axial_stop_rod_callback(self):
         if self.comboBox_axial_stop_rod.currentIndex() == 0:
             self.label_axial_lock_criteria.setDisabled(True)
-            self.lineEdit_axial_locking_criteria.setText("")
+            self.lineEdit_axial_locking_criteria.clear()
             self.lineEdit_axial_locking_criteria.setDisabled(True)
         else:
             self.label_axial_lock_criteria.setDisabled(False)
@@ -101,7 +101,7 @@ class ExpansionJointWidget(ExpansionJointWidget_UI):
             self.lineedit_reset(lineEdit)
 
     def lineedit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
+        lineEdit.clear()
         lineEdit.setFocus()
 
     def load_table(self):

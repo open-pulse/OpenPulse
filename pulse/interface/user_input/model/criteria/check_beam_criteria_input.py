@@ -153,7 +153,7 @@ class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
         self.on_double_click_non_beam_segments(item)
 
     def on_click_section_parameters_by_line(self, item):
-        self.lineEdit_section_id.setText("")
+        self.lineEdit_section_id.clear()
         key = item.text(0)
         if key != "":
             if int(key) in self.section_data_lines.keys():
