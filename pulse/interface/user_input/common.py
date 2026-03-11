@@ -102,7 +102,7 @@ class CommonUserInputs(QDialog):
                 table_path, check = app().main_window.file_dialog.get_open_file_name(
                     caption, 
                     last_path, 
-                    'Table File (*.csv; *.dat; *.txt)'
+                    'Table File (*.csv *.dat *.txt)'
                     )
 
                 if not check:
