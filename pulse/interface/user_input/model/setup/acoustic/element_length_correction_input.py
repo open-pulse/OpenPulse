@@ -1,28 +1,29 @@
-from PySide6.QtWidgets import QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt
-
-from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.element_length_correction_input_ui import ElementLengthCorrectionInput_UI
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-
+from collections import defaultdict
 
 import numpy as np
-from collections import defaultdict
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QTreeWidgetItem
+
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.element_length_correction_input_ui import (
+    ElementLengthCorrectionInput_UI,
+)
+from pulse.interface.user_input.model.setup.elements_input import ElementsInput
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
+class AcousticElementLengthCorrectionInput(
+    ElementsInput, ElementLengthCorrectionInput_UI
+):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
-        self.properties = app().project.model.properties
-        self.preprocessor = app().project.model.preprocessor
 
-        self._config_window()
         self._initialize()
         self._create_connections()
         self._config_widgets()
@@ -32,12 +33,6 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
         while self.keep_window_open:
             self.exec()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
-
     def _initialize(self):
 
         self.keep_window_open = True
@@ -46,8 +41,6 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
         self.dkey = None
         self.log_removal = True
 
-        self.before_run = app().project.get_pre_solution_model_checks()
-    
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
@@ -58,7 +51,9 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
         self.tabWidget_main.currentChanged.connect(self._tab_event_update)
         #
         self.treeWidget_elements_info.itemClicked.connect(self.on_click_item)
-        self.treeWidget_elements_info.itemDoubleClicked.connect(self.on_doubleclick_item)
+        self.treeWidget_elements_info.itemDoubleClicked.connect(
+            self.on_doubleclick_item
+        )
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
@@ -74,7 +69,9 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
         #
         for i, w in enumerate([80, 120, 140]):
             self.treeWidget_elements_info.setColumnWidth(i, w)
-            self.treeWidget_elements_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_elements_info.headerItem().setTextAlignment(
+                i, Qt.AlignCenter
+            )
 
     def _tab_event_update(self):
 
@@ -96,7 +93,6 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
         filtered_data = dict()
 
         for element_id in element_ids:
-
             element = self.preprocessor.acoustic_elements[element_id]
 
             first_node = element.first_node.external_index
@@ -106,25 +102,26 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
             last_node = element.last_node.external_index
             if last_node not in node_ids:
                 node_ids.append(last_node)
-        
+
         for node_id in node_ids:
-            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
+            neigh_elements = self.preprocessor.acoustic_elements_connected_to_node[
+                node_id
+            ]
 
             if correction_type in [1, 2]:
-
                 if len(neigh_elements) == 3:
                     node = app().project.model.preprocessor.nodes[node_id]
                     coords = list(np.round(node.coordinates, 5))
-                    filtered_data[node_id] = { 
-                                              "correction_type" : correction_type,
-                                              "coords" : coords,
-                                              "element_ids" : [int(element.index) for element in neigh_elements]
-                                              }
+                    filtered_data[node_id] = {
+                        "correction_type": correction_type,
+                        "coords": coords,
+                        "element_ids": [
+                            int(element.index) for element in neigh_elements
+                        ],
+                    }
 
             else:
-
                 if len(neigh_elements) == 2:
-
                     cross_e0 = neigh_elements[0].cross_section
                     cross_e1 = neigh_elements[1].cross_section
 
@@ -134,11 +131,13 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
                     if inside_diam_0 != inside_diam_1:
                         node = app().project.model.preprocessor.nodes[node_id]
                         coords = list(np.round(node.coordinates, 5))
-                        filtered_data[node_id] = { 
-                                                  "correction_type" : correction_type,
-                                                  "coords" : coords,
-                                                  "element_ids" : [int(element.index) for element in neigh_elements]
-                                                  }
+                        filtered_data[node_id] = {
+                            "correction_type": correction_type,
+                            "coords": coords,
+                            "element_ids": [
+                                int(element.index) for element in neigh_elements
+                            ],
+                        }
 
         if filtered_data:
             return filtered_data
@@ -147,7 +146,9 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
             self.hide()
             title = "Invalid selection"
             message = f"The '{self.correction_labels[correction_type]}' has not been detected in "
-            message += f"the selected group of elements. You should to change the elements "
+            message += (
+                "the selected group of elements. You should to change the elements "
+            )
             message += "selection and/or modify the correction type to proceed."
             PrintMessageInput([window_title_2, title, message])
             return dict()
@@ -156,16 +157,16 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
 
         lineEdit = self.lineEdit_element_id.text()
         stop, element_ids = self.before_run.check_selected_ids(lineEdit, "elements")
-        
+
         if stop:
             return
-        
+
         index = self.comboBox_element_length_correction_type.currentIndex()
 
         if index == 0:
             correction_type = 0
             self.type_label = "'Expansion'"
-   
+
         elif index == 1:
             correction_type = 1
             self.type_label = "'Side branch'"
@@ -175,66 +176,81 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
             self.type_label = "'Loop'"
 
         filtered_data = self.filter_selection(correction_type, element_ids)
-        
-        for selection_data in filtered_data.values():
 
+        for selection_data in filtered_data.values():
             element_ids = selection_data["element_ids"]
 
             data = {
-                    "correction_type" : selection_data["correction_type"],
-                    "coords" : selection_data["coords"]
-                    }
+                "correction_type": selection_data["correction_type"],
+                "coords": selection_data["coords"],
+            }
 
-            self.preprocessor.set_element_length_correction_by_element(element_ids, data)
-            self.properties._set_element_property("element_length_correction", data, element_ids)
+            self.preprocessor.set_element_length_correction_by_element(
+                element_ids, data
+            )
+            self.properties._set_element_property(
+                "element_length_correction", data, element_ids
+            )
 
-            print("The acoustic element length correction {} was attributed to elements: {}".format(self.type_label, element_ids))
+            print(
+                "The acoustic element length correction {} was attributed to elements: {}".format(
+                    self.type_label, element_ids
+                )
+            )
 
         self.actions_to_finalize()
 
     def remove_callback(self):
 
-        if  self.lineEdit_element_id.text() != "":
-
+        if self.lineEdit_element_id.text() != "":
             str_element = self.lineEdit_element_id.text()
-            stop, element_ids = self.before_run.check_selected_ids(str_element, "elements")
+            stop, element_ids = self.before_run.check_selected_ids(
+                str_element, "elements"
+            )
             if stop:
                 return
-            
-            self.preprocessor.set_element_length_correction_by_element(element_ids, None)
+
+            self.preprocessor.set_element_length_correction_by_element(
+                element_ids, None
+            )
 
             for element_id in element_ids:
-                self.properties._remove_element_property("element_length_correction", element_id)
+                self.properties._remove_element_property(
+                    "element_length_correction", element_id
+                )
 
             self.actions_to_finalize()
 
     def reset_callback(self):
 
-            self.hide()
+        self.hide()
 
-            title = f"Resetting of element length corrections"
-            message = "Would you like to remove all element length corrections from the acoustic model?"
+        title = "Resetting of element length corrections"
+        message = "Would you like to remove all element length corrections from the acoustic model?"
 
-            buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+        buttons_config = {"left_button_label": "No", "right_button_label": "Yes"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._cancel:
-                return
+        if read._cancel:
+            return
 
-            if read._continue:
+        if read._continue:
+            element_ids = list()
+            for property, element_id in self.properties.element_properties.keys():
+                if property == "element_length_correction":
+                    element_ids.append(element_id)
 
-                element_ids = list()
-                for (property, element_id) in self.properties.element_properties.keys():
-                    if property == "element_length_correction":
-                        element_ids.append(element_id)
+            if element_ids:
+                self.preprocessor.set_element_length_correction_by_element(
+                    element_ids, None
+                )
 
-                if element_ids:
-                    self.preprocessor.set_element_length_correction_by_element(element_ids, None)
+                for element_id in element_ids:
+                    self.properties._remove_element_property(
+                        "element_length_correction", element_id
+                    )
 
-                    for element_id in element_ids:
-                        self.properties._remove_element_property("element_length_correction", element_id)
-
-                    self.actions_to_finalize()
+                self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().project.file.write_element_properties_in_file()
@@ -245,7 +261,7 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
     def maps_correction_type_to_elements(self):
 
         keys = [0, 1, 2]
-        labels = ['Expansion', 'Side branch', 'Loop']
+        labels = ["Expansion", "Side branch", "Loop"]
         self.correction_labels = dict(zip(keys, labels))
 
         aux = defaultdict(list)
@@ -279,12 +295,12 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
     def update_tabs_visibility(self):
 
         self.pushButton_remove.setDisabled(True)
-        for (property, _) in self.properties.element_properties.keys():
+        for property, _ in self.properties.element_properties.keys():
             if property == "element_length_correction":
                 # self.tabWidget_main.setCurrentIndex(0)
                 self.tabWidget_main.setTabVisible(1, True)
                 return
-        
+
         self.tabWidget_main.setTabVisible(1, False)
 
     def on_click_item(self, item):
@@ -296,17 +312,3 @@ class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
 
     def on_doubleclick_item(self, item):
         self.on_click_item(item)
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.set_selection()
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)
