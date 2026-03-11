@@ -1,6 +1,10 @@
 from pulse import app
 from pulse.model.node import DOF_PER_NODE_ACOUSTIC
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from pulse.model.acoustic_element import AcousticElement
+
 import numpy as np
 from math import pi
 
@@ -140,37 +144,31 @@ def get_acoustic_response(preprocessor, solution, column, **kwargs):
     return connect, coord, pressures_plot, min_max_values
 
 
-def get_acoustic_absortion(element, frequencies):
+def get_perforated_plate_acoustic_absortion(element: "AcousticElement", frequencies: np.ndarray):
     """
     """
     if isinstance(element.pp_impedance, np.ndarray):
-        zpp = -element.pp_impedance
+        Z_pp = -element.pp_impedance
     else:
-        element.update_pp_impedance(frequencies, False)
-        zpp = -element.pp_impedance
-    z0 = element.fluid.impedance
-    R = (zpp - z0)/(zpp + z0)
+        element.update_pp_impedance(frequencies)
+        Z_pp = -element.pp_impedance
+
+    Z_0 = element.fluid.impedance
+    R = (Z_pp - Z_0)/(Z_pp + Z_0)
     alpha = 1 - R*np.conj(R)
+
     return np.real(alpha)
 
 
-def get_perforated_plate_impedance(element, frequencies, **kwargs):
+def get_perforated_plate_impedance(element: "AcousticElement", frequencies: np.ndarray):
     """
     """
-    real_values = kwargs.get("real_values", False)
-    imag_values = kwargs.get("imag_values", False)
-
     if isinstance(element.pp_impedance, np.ndarray):
-        zpp = -element.pp_impedance
+        Z_pp = -element.pp_impedance
     else:
-        element.update_pp_impedance(frequencies, False)
-        zpp = -element.pp_impedance
+        element.update_pp_impedance(frequencies)
+        Z_pp = -element.pp_impedance
 
-    z0 = element.fluid.impedance
+    Z_0 = element.fluid.impedance
 
-    if real_values:
-        return np.real(zpp)/z0
-    elif imag_values:
-        return np.imag(zpp)/z0
-    else:
-        return zpp/z0
+    return Z_pp / Z_0

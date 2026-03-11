@@ -149,9 +149,11 @@ class GetStartedInput(GetStartedInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            self.config.reset_recent_projects()
-            self.initial_actions()
+        if not read._continue:
+            return
+
+        self.config.reset_recent_projects()
+        self.initial_actions()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False

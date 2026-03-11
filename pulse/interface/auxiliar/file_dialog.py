@@ -1,3 +1,4 @@
+import platform
 from PySide6.QtWidgets import QFileDialog
 from PySide6.QtCore import Qt
 
@@ -23,10 +24,23 @@ class FileDialog(QFileDialog):
         # self.setWindowTitle("OpenPulse")
 
     def get_open_file_name(self, caption, directory, filter):
-        return self.getOpenFileName(self, caption, directory, filter)
+        kwargs = dict()
+
+        if platform.system() == "Linux":
+            kwargs["options"] = QFileDialog.Option.DontUseNativeDialog
+
+        return self.getOpenFileName(self, caption, directory, filter, **kwargs)
 
     def get_save_file_name(self, caption, directory, filter):
-        return self.getSaveFileName(self, caption, directory, filter)
+        kwargs = dict()
+        if platform.system() == "Linux":
+            kwargs["options"] = QFileDialog.Option.DontUseNativeDialog
+
+        return self.getSaveFileName(self, caption, directory, filter, **kwargs)
     
     def get_existing_directory(self, caption, directory):
-        return self.getExistingDirectory(self, caption, directory)
+        kwargs = dict()
+        if platform.system() == "Linux":
+            kwargs["options"] = QFileDialog.Option.DontUseNativeDialog
+
+        return self.getExistingDirectory(self, caption, directory, **kwargs)

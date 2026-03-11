@@ -42,7 +42,7 @@ class FixedSymbolsActor(vtkActor):
         nodal_properties = app().project.model.properties.nodal_properties
 
         for (property_name, *args), data in nodal_properties.items():
-            if property_name not in ["structural_stiffness_links", "structural_damping_links"]:
+            if property_name not in ["stiffness_nodal_links", "damping_nodal_links"]:
                 continue
 
             yield self._create_line(

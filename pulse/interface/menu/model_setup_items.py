@@ -24,34 +24,34 @@ class ModelSetupItems(CommonMenuItems):
         """Creates all TreeWidgetItems."""
         self.item_top_general_settings = self.add_top_item('General Settings')
         self.item_child_create_geometry = self.add_item('Create/Edit Geometry')
-        self.item_child_set_material = self.add_item('Set Material')
-        self.item_child_set_fluid = self.add_item('Set Fluid')
-        self.item_child_set_crossSection = self.add_item('Set Cross-Section')
+        self.item_child_set_material = self.add_item('Material')
+        self.item_child_set_fluid = self.add_item('Fluid')
+        self.item_child_set_crossSection = self.add_item('Cross-Section')
         #
         self.item_top_structural_model_setup = self.add_top_item('Structural Model Setup')
-        self.item_child_set_structural_element_type = self.add_item('Set Structural Element Type')
-        self.item_child_set_prescribed_dofs = self.add_item('Set Prescribed DOFs')
-        self.item_child_set_nodal_loads = self.add_item('Set Nodal Loads')
-        self.item_child_add_mass_spring_damper = self.add_item('Add: Mass / Spring / Damper')
-        self.item_child_add_elastic_nodal_links = self.add_item('Add Elastic Nodal Links')
-        self.item_child_set_beam_xaxis_rotation = self.add_item('Set Beam X-axis Rotation')
-        self.item_child_set_rotation_decoupling_dofs = self.add_item('Set B2P Rotation Decoupling')
-        self.item_child_set_stress_stiffening = self.add_item('Set Stress Stiffening')
-        self.item_child_add_valve = self.add_item('Add Valve')
-        self.item_child_add_expansion_joint = self.add_item('Add Expansion Joint')
-        self.item_child_set_inertial_loads = self.add_item('Set Inertial Loads')
+        self.item_child_set_structural_element_type = self.add_item('Structural Element Type')
+        self.item_child_set_prescribed_dof = self.add_item('Prescribed DOF')
+        self.item_child_set_nodal_loads = self.add_item('Nodal Loads')
+        self.item_child_add_mass_spring_damper = self.add_item('Mass / Spring / Damper')
+        self.item_child_add_elastic_nodal_links = self.add_item('Elastic Nodal Links')
+        self.item_child_set_beam_xaxis_rotation = self.add_item('Beam X-axis Rotation')
+        self.item_child_set_rotation_decoupling_dofs = self.add_item('B2P Rotation Decoupling')
+        self.item_child_set_stress_stiffening = self.add_item('Stress Stiffening')
+        self.item_child_add_valve = self.add_item('Valve')
+        self.item_child_add_expansion_joint = self.add_item('Expansion Joint')
+        self.item_child_set_inertial_loads = self.add_item('Inertial Loads')
         #
         self.item_top_acoustic_model_setup = self.add_top_item('Acoustic Model Setup')
-        self.item_child_set_acoustic_element_type = self.add_item('Set Acoustic Element Type')
-        self.item_child_set_acoustic_pressure = self.add_item('Set Acoustic Pressure')
-        self.item_child_set_volume_velocity = self.add_item('Set Volume Velocity')
-        self.item_child_set_specific_impedance = self.add_item('Set Specific Impedance')
-        self.item_child_set_radiation_impedance = self.add_item('Set Radiation Impedance')
-        self.item_child_add_perforated_plate = self.add_item('Add Perforated Plate')
-        self.item_child_set_acoustic_element_length_correction = self.add_item('Set Element Length Correction')
-        self.item_child_add_reciprocating_compressor_excitation = self.add_item('Add Reciprocating Compressor Excitation')
-        self.item_child_add_reciprocating_pump_excitation = self.add_item('Add Reciprocating Pump Excitation')
-        self.item_child_add_acoustic_transfer_element = self.add_item('Add Acoustic Transfer Element')
+        self.item_child_set_acoustic_element_type = self.add_item('Acoustic Element Type')
+        self.item_child_set_acoustic_pressure = self.add_item('Acoustic Pressure')
+        self.item_child_set_volume_velocity = self.add_item('Volume Velocity')
+        self.item_child_set_specific_impedance = self.add_item('Specific Impedance')
+        self.item_child_set_radiation_impedance = self.add_item('Radiation Impedance')
+        self.item_child_add_perforated_plate = self.add_item('Perforated Plate')
+        self.item_child_set_acoustic_element_length_correction = self.add_item('Element Length Correction')
+        self.item_child_add_reciprocating_compressor_excitation = self.add_item('Reciprocating Compressor Excitation')
+        self.item_child_add_reciprocating_pump_excitation = self.add_item('Reciprocating Pump Excitation')
+        self.item_child_add_acoustic_transfer_element = self.add_item('Acoustic Transfer Element')
         self.item_child_turn_off_acoustic_elements = self.add_item('Turn-off Acoustic Elements')
         #
         self.top_level_items = [
@@ -70,7 +70,7 @@ class ModelSetupItems(CommonMenuItems):
         #
         # Structural Model Setup
         self.item_child_set_structural_element_type.clicked.connect(self.item_child_set_structural_element_type_callback)
-        self.item_child_set_prescribed_dofs.clicked.connect(self.item_child_set_prescribed_dofs_callback)
+        self.item_child_set_prescribed_dof.clicked.connect(self.item_child_set_prescribed_dof_callback)
         self.item_child_set_nodal_loads.clicked.connect(self.item_child_set_nodal_loads_callback)
         self.item_child_add_mass_spring_damper.clicked.connect(self.item_child_add_mass_spring_damper_callback)
         self.item_child_add_elastic_nodal_links.clicked.connect(self.item_child_add_elastic_nodal_links_callback)
@@ -126,9 +126,9 @@ class ModelSetupItems(CommonMenuItems):
         app().main_window.input_ui.set_structural_element_type()
         app().main_window.set_input_widget(None)
 
-    def item_child_set_prescribed_dofs_callback(self):
+    def item_child_set_prescribed_dof_callback(self):
         self.configure_render_according_to_inputs("nodes")
-        app().main_window.input_ui.set_prescribed_dofs()
+        app().main_window.input_ui.set_prescribed_dof()
         app().main_window.set_input_widget(None)
 
     def item_child_set_nodal_loads_callback(self):
@@ -272,7 +272,7 @@ class ModelSetupItems(CommonMenuItems):
         self.item_child_set_crossSection.setDisabled(bool_key)
         #
         self.item_child_set_structural_element_type.setDisabled(bool_key) 
-        self.item_child_set_prescribed_dofs.setDisabled(bool_key)
+        self.item_child_set_prescribed_dof.setDisabled(bool_key)
         self.item_child_set_nodal_loads.setDisabled(bool_key)
         self.item_child_add_mass_spring_damper.setDisabled(bool_key)
         self.item_child_set_inertial_loads.setDisabled(bool_key)
