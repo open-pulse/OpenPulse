@@ -70,6 +70,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
     def _initialize(self):
         self.keep_window_open = True
+        self.edited_damper = False
 
         self.gas_fluid = None
         self.liquid_fluid = None
@@ -124,7 +125,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.pushButton_get_gas_fluid.clicked.connect(self.get_gas_fluid_callback)
         self.pushButton_get_liquid_fluid.clicked.connect(self.get_liquid_fluid_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
-        
+        self.pushButton_edit.clicked.connect(self.edit_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_reset_entries.clicked.connect(self.reset_entries_callback)
 
@@ -212,6 +213,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.lineEdit_selected_damper_label.setDisabled(True)
         self.lineEdit_damper_type.setDisabled(True)
         self.pushButton_remove.setDisabled(True)
+        self.pushButton_edit.setDisabled(True)
         #
         self.config_treeWidget()
 
@@ -271,6 +273,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
+        self.pushButton_edit.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 0:
             self.pushButton_exit.setDisabled(False)
             self.pushButton_create.setDisabled(False)
@@ -280,6 +283,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
+        self.pushButton_edit.setDisabled(False)
         self.lineEdit_selected_damper_label.setText(item.text(0))
 
         if item.text(0) in self.pulsation_damper_lines.keys():
@@ -676,6 +680,10 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             if data == self._pulsation_damper_data:
                 self.damper_data.pop(key)
                 break
+        
+        if self.edited_damper:
+            if self.previous_damper_label in self.damper_data:
+                self.remove_callback(self.previous_damper_label)
 
         self.damper_data[damper_label] = self._pulsation_damper_data
 
@@ -824,18 +832,84 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         )
         app().project.file.write_element_properties_in_file()
 
-    def remove_callback(self):
-        if self.lineEdit_selected_damper_label.text() != "":
-            damper_label = self.lineEdit_selected_damper_label.text()
+    def remove_callback(self, label: str | None = None):
 
-            if damper_label in self.damper_data.keys():
-                self.damper_data.pop(damper_label)
+        damper_label = label if isinstance(label, str) else self.lineEdit_selected_damper_label.text()
 
-            self.remove_pulsation_damper_related_line_properties(damper_label)
-            self.remove_pulsation_damper_related_element_properties(damper_label)
-            self.actions_to_finalize()
-            self.pushButton_remove.setDisabled(True)
+        if not damper_label:
+            return
+        
+        if damper_label in self.damper_data.keys():
+            self.damper_data.pop(damper_label)
 
+        self.remove_pulsation_damper_related_line_properties(damper_label)
+        self.remove_pulsation_damper_related_element_properties(damper_label)
+        self.actions_to_finalize()
+        self.pushButton_remove.setDisabled(True)
+        self.pushButton_edit.setDisabled(True)
+
+    def edit_callback(self):
+        self.pushButton_create.setText("Confirm")
+        self.pushButton_exit.setText("Cancel")
+
+        damper_label = self.lineEdit_selected_damper_label.text()
+        if damper_label == "" or damper_label not in self.damper_data:
+            return
+
+        data = self.damper_data[damper_label]
+
+        self.lineEdit_damper_label.setText(damper_label)
+
+        cx, cy, cz = data["connecting_coords"]
+        self.lineEdit_connecting_coord_x.setText(str(cx))
+        self.lineEdit_connecting_coord_y.setText(str(cy))
+        self.lineEdit_connecting_coord_z.setText(str(cz))
+
+        type = data["damper_type"]
+        idx = self.comboBox_damper_type.findText(type)
+        if idx >= 0:
+            self.comboBox_damper_type.setCurrentIndex(idx)
+
+        idx = self.comboBox_main_axis.findText(" " + data["main_axis"])
+        if idx >= 0:
+            self.comboBox_main_axis.setCurrentIndex(idx)
+
+        # volume unit remains cubic meters because the values are automatically converted
+        self.lineEdit_damper_volume.setText(str(data["damper_volume"]))
+        self.lineEdit_gas_volume.setText(str(data["gas_volume"]))
+
+        self.lineEdit_outside_diameter_liquid.setText(str(data["outside_diameter_liquid"]))
+        self.lineEdit_wall_thickness_liquid.setText(str(data["wall_thickness_liquid"]))
+
+        self.lineEdit_outside_diameter_gas.setText(str(data["outside_diameter_gas"]))
+        self.lineEdit_wall_thickness_gas.setText(str(data["wall_thickness_gas"]))
+
+        self.lineEdit_outside_diameter_neck.setText(str(data["outside_diameter_neck"]))
+        self.lineEdit_neck_height.setText(str(data["neck_height"]))
+        
+        liquid_identifier = data["liquid_fluid_id"]
+        gas_identifier = data["gas_fluid_id"]
+
+        config = app().project.file.read_fluid_library_from_file()
+
+        liquid = config[liquid_identifier]
+        gas = config[gas_identifier]
+
+
+
+        # self.liquid_fluid = Fluid()
+        # self.gas_fluid = Fluid()
+
+        # self.lineEdit_polytropic_exponent = 
+
+
+        self.tabWidget_main.setCurrentIndex(0)
+        self.preview_callback()
+
+        self.edited_damper = True
+        self.previous_damper_label = damper_label
+
+        
     def reset_callback(self):
         self.hide()
 
@@ -897,11 +971,10 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
                 new.setTextAlignment(col, Qt.AlignCenter)
             self.treeWidget_pulsation_damper_info.addTopLevelItem(new)
 
-        if self.damper_data:
-            self.tabWidget_main.setTabVisible(1, True)
-        else:
-            self.tabWidget_main.setCurrentIndex(0)
-            self.tabWidget_main.setTabVisible(1, False)
+        self.tabWidget_main.setTabVisible(1, True)
+        self.tabWidget_main.setCurrentIndex(0)
+        
+        self.pushButton_reset.setEnabled(bool(self.damper_data))
 
     def update_pulsation_damper_label(self):
         damper_label = self.lineEdit_damper_label.text()

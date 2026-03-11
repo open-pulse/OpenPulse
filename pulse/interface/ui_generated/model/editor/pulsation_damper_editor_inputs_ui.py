@@ -1103,9 +1103,9 @@ class Ui_Dialog(object):
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Label", None));
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
-        self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
+        self.pushButton_remove.setProperty(u"status", "")
         self.pushButton_edit.setText(QCoreApplication.translate("Dialog", u"Edit", None))
-        self.pushButton_edit.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
+        self.pushButton_edit.setProperty(u"status", "")
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Devices list", None))
         self.label_12.setText(QCoreApplication.translate("Dialog", u"Damper label:", None))
         self.lineEdit_damper_label.setText("")
