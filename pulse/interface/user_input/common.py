@@ -73,11 +73,10 @@ def get_table_name(_label: str, node_id: int | None = None, element_id: int | No
 def check_table_frequency_vector(frequencies: np.ndarray):
     if len(frequencies) == 1:
         return False
-    
-    freqs_A = frequencies[:-1]
-    freqs_B = frequencies[1:]
 
-    return not np.allclose(freqs_B, freqs_A, atol=1e-8)
+    f_steps = frequencies[1:] - frequencies[:-1]
+
+    return not np.allclose(f_steps, f_steps[0], atol=1e-8)
 
 class CommonUserInputs(QDialog):
 
@@ -122,7 +121,7 @@ class CommonUserInputs(QDialog):
                 PrintMessageInput([error_title, title, message])
                 line_edit.setFocus()
                 return None, None
-            
+           
             if check_table_frequency_vector(imported_data[:, 0]):
                 self.parent().hide()
                 message = "The frequencies vector from imported table has a non-uniform frequency "
