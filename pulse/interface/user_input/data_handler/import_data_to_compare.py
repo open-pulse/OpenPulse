@@ -1,11 +1,11 @@
-from PySide6.QtWidgets import QDialog, QCheckBox, QFileDialog, QHBoxLayout, QLineEdit, QPushButton, QSpinBox, QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtWidgets import QCheckBox, QFileDialog, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.data_handler.import_data_to_compare_ui import ImportDataToCompare_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 import os
 import numpy as np
@@ -14,13 +14,9 @@ from pathlib import Path
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class ImportDataToCompare(QDialog):
+class ImportDataToCompare(ImportDataToCompare_UI):
     def __init__(self, plotter, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "data_handler/import_data_to_compare.ui"
-        load_ui(ui_path, self, ui_path.parent)
-        
         self.plotter = plotter
 
         self.main_window = app().main_window
@@ -55,33 +51,14 @@ class ImportDataToCompare(QDialog):
                         [0.25, 0.25, 0.25] ]
 
     def _define_qt_variables(self):
-
-        # CheckBox
-        self.checkBox_skiprows: QCheckBox
-
-        # LineEdit
-        self.lineEdit_import_results_path: QLineEdit
         self.lineEdit_import_results_path.setDisabled(True)
-
-        # PushButton
-        self.pushButton_add_imported_data_to_plot: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_reset_imported_data: QPushButton
-        self.pushButton_search_file_to_import: QPushButton
-
-        # SpinBox
-        self.spinBox_skiprows: QSpinBox
-
-        # TreeWidget
-        self.treeWidget_import_text_files: QTreeWidget
-        self.treeWidget_import_sheet_files: QTreeWidget
 
     def _create_connections(self):
         #
         self.checkBox_skiprows.clicked.connect(self.update_skiprows_visibility)
         #
         self.pushButton_search_file_to_import.clicked.connect(self.choose_path_to_import_results)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_reset_imported_data.clicked.connect(self.reset_imported_data)
         self.pushButton_add_imported_data_to_plot.clicked.connect(self.add_imported_data_to_plot)
         #
@@ -125,33 +102,37 @@ class ImportDataToCompare(QDialog):
         self.update_treeWidget_info()
 
     def import_results(self, imported_path: str):
-
-        from pandas import read_excel
+        from polars import read_excel
         from openpyxl import load_workbook
 
         try:
 
+            run = True
             message = ""
 
-            run = True
+            skiprows = 0
+            maximum_lines_to_skip = 100
+
             if self.checkBox_skiprows.isChecked():
                 skiprows = self.spinBox_skiprows.value()
-            else:
-                skiprows = 0
-            maximum_lines_to_skip = 100
             
             while run:
                 try:
                     sufix = Path(imported_path).suffix
                     filename = os.path.basename(imported_path)
                     if sufix in [".txt", ".dat", ".csv"]:
-                        loaded_data = np.loadtxt(imported_path, 
-                                                 delimiter = ",", 
-                                                 skiprows = skiprows)
+                        loaded_data = np.loadtxt(
+                            imported_path, 
+                            delimiter = ",", 
+                            skiprows = skiprows,
+                            )
+
                         key = self.get_data_index()
-                        self.imported_results[key] = {  "data" : loaded_data,
-                                                        "filename" : filename,
-                                                        "extension" : sufix  }
+                        self.imported_results[key] = {  
+                            "data" : loaded_data,
+                            "filename" : filename,
+                            "extension" : sufix,
+                            }
 
                     elif sufix in [".xls", ".xlsx"]:
                         wb = load_workbook(imported_path)
@@ -162,22 +143,23 @@ class ImportDataToCompare(QDialog):
                                 sheet_data = read_excel(
                                                         imported_path, 
                                                         sheet_name = sheetname, 
-                                                        header = skiprows, 
-                                                        usecols = [0,1,2]
+                                                        columns = [0,1,2]
                                                         ).to_numpy()
                             except:
                                 sheet_data = read_excel(
                                                         imported_path, 
                                                         sheet_name = sheetname, 
-                                                        header = skiprows, 
-                                                        usecols = [0,1]
+                                                        columns = [0,1]
                                                         ).to_numpy()
 
                             key = self.get_data_index()
-                            self.imported_results[key] = {  "data" : sheet_data,
-                                                            "filename" : filename,
-                                                            "sheetname" : sheetname,
-                                                            "extension" : sufix  }
+
+                            self.imported_results[key] = {  
+                                "data" : sheet_data,
+                                "filename" : filename,
+                                "sheetname" : sheetname,
+                                "extension" : sufix  
+                                }
 
                     self.spinBox_skiprows.setValue(int(skiprows))
                     run = False

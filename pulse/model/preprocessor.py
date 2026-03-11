@@ -1,5 +1,4 @@
 from pulse.model.cross_section import *
-from pulse.model.line import Line
 
 # from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
@@ -156,7 +155,7 @@ class Preprocessor:
             self.nodes[map_nodes[i]] = Node(x, y, z, external_index=int(map_nodes[i]))
         self.number_nodes = len(self.nodes)
 
-    def _create_structural_elements(self, indexes, connectivities, map_nodes, map_elements):
+    def _create_structural_elements(self, indexes, connectivities, map_nodes: dict, map_elements: dict):
         """
         This method generate the mesh structural elements.
 
@@ -177,12 +176,16 @@ class Preprocessor:
         self.map_elements = map_elements
         self.structural_elements.clear()
         for i, connect in zip(indexes, split_sequence(connectivities, 2)):
-            first_node = self.nodes[map_nodes[connect[0]]]
-            last_node  = self.nodes[map_nodes[connect[1]]]
+            first_node_id = map_nodes.get(connect[0])
+            last_node_id = map_nodes.get(connect[1])
+
+            first_node = self.nodes.get(first_node_id)
+            last_node  = self.nodes.get(last_node_id)
+
             self.structural_elements[map_elements[i]] = StructuralElement(first_node, last_node, map_elements[i])
             self.number_structural_elements = len(self.structural_elements)
 
-    def _create_acoustic_elements(self, indexes, connectivities, map_nodes, map_elements):
+    def _create_acoustic_elements(self, indexes, connectivities, map_nodes: dict, map_elements: dict):
         """
         This method generate the mesh acoustic elements.
 
@@ -203,8 +206,12 @@ class Preprocessor:
         self.map_elements = map_elements
         self.acoustic_elements.clear()
         for i, connect in zip(indexes, split_sequence(connectivities, 2)):
-            first_node = self.nodes[map_nodes[connect[0]]]
-            last_node  = self.nodes[map_nodes[connect[1]]]
+            first_node_id = map_nodes.get(connect[0])
+            last_node_id = map_nodes.get(connect[1])
+
+            first_node = self.nodes.get(first_node_id)
+            last_node  = self.nodes.get(last_node_id)
+
             self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node, map_elements[i])
             self.number_acoustic_elements = len(self.acoustic_elements)
 
@@ -1692,8 +1699,6 @@ class Preprocessor:
 
             acoustic_element = self.structural_to_acoustic_element[element]
             acoustic_elements.append(acoustic_element)
-            # if element.element_type == "valve":
-            #     print(element.element_type, element.index)
 
         return acoustic_elements   
 

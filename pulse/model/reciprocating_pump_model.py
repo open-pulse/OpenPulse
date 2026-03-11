@@ -469,11 +469,10 @@ class ReciprocatingPumpModel:
 
         if export_data:
 
-            fname = f"temporary_data\\PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log = f"temporary_data\\log_info_head_end_{self.crank_angle_1}.txt"
+            fname = f"temporary_data/PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
+            fname_log = f"temporary_data/log_info_head_end_{self.crank_angle_1}.txt"
 
-            if not os.path.exists(os.path.dirname(fname)):
-                os.mkdir("temporary_data")
+            os.makedirs("temporary_data", exist_ok=True)
 
             header = "Index, Time [s], Angle [deg], Velocity [m/s], Volumes [m³], Pressures [Pa], Suction valve open [bool], Discharge valve open [bool]\n\n"
             header += f"V1 = {V1}\n"
@@ -598,11 +597,10 @@ class ReciprocatingPumpModel:
 
         if export_data:
 
-            fname = f"temporary_data\\PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log = f"temporary_data\\log_info_crank_end_{self.crank_angle_1}.txt"
+            fname = f"temporary_data/PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
+            fname_log = f"temporary_data/log_info_crank_end_{self.crank_angle_1}.txt"
 
-            if not os.path.exists(os.path.dirname(fname)):
-                os.mkdir("temporary_data")
+            os.makedirs("temporary_data", exist_ok=True)
             
             header = "Index, Time [s], Angle [deg], Velocity [m/s], Volumes [m³], Pressures [Pa], Suction valve open [bool], Discharge valve open [bool]\n\n"
             header += f"V1 = {V1}\n"

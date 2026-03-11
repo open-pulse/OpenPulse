@@ -1,20 +1,17 @@
-from PySide6.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.plot_nodal_results_field_for_harmonic_analysis_ui import PlotNodalResultsFieldForHarmonicAnalysis_UI
+from pulse.model import AnalysisID
 
-from molde import load_ui
 
 import numpy as np
 
 
-class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
+class PlotNodalResultsFieldForHarmonicAnalysis(PlotNodalResultsFieldForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/plot_nodal_results_field_for_harmonic_analysis.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         self._initialize()
         self._config_window()
         self._define_qt_variables()
@@ -44,26 +41,7 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_color_scale : QComboBox
-        self.comboBox_colormaps : QComboBox
-
-        # QFrame
-        self.frame_button : QFrame
         self.frame_button.setVisible(False)
-
-        # QLineEdit
-        self.lineEdit_selected_frequency : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QSlider
-        self.slider_transparency : QSlider
-
-        # QTreeWidget
-        self.treeWidget_frequencies : QTreeWidget
         self._config_treeWidget()
 
     def _create_connections(self):
@@ -133,72 +111,30 @@ class PlotNodalResultsFieldForHarmonicAnalysis(QWidget):
 
     def get_user_color_scale_setup(self):
 
-        absolute = False
-        ux_abs_values = False
-        uy_abs_values = False
-        uz_abs_values = False
-        ux_real_values = False
-        uy_real_values = False
-        uz_real_values = False
-        ux_imag_values = False
-        uy_imag_values = False
-        uz_imag_values = False
-        absolute_animation = False
-        ux_animation = False
-        uy_animation = False
-        uz_animation = False
+        color_scale = self.comboBox_color_scale.currentText()
 
-        index = self.comboBox_color_scale.currentIndex()
-
-        if index == 0:
-            absolute_animation = True
-        elif index == 1:
-            ux_animation = True
-        elif index == 2:
-            uy_animation = True
-        elif index == 3:
-            uz_animation = True
-        elif index == 4:
-            absolute = True
-        elif index == 5:
-            ux_abs_values = True
-        elif index == 6:
-            uy_abs_values = True
-        elif index == 7:
-            uz_abs_values = True
-        elif index == 8:
-            ux_real_values = True
-        elif index == 9:
-            uy_real_values = True
-        elif index == 10:
-            uz_real_values = True
-        elif index == 11:
-            ux_imag_values = True
-        elif index == 12:
-            uy_imag_values = True
-        elif index == 13:
-            uz_imag_values = True
-
-        color_scale_setup = {   "absolute" : absolute,
-                                "ux_abs_values" : ux_abs_values,
-                                "uy_abs_values" : uy_abs_values,
-                                "uz_abs_values" : uz_abs_values,
-                                "ux_real_values" : ux_real_values,
-                                "uy_real_values" : uy_real_values,
-                                "uz_real_values" : uz_real_values,
-                                "ux_imag_values" : ux_imag_values,
-                                "uy_imag_values" : uy_imag_values,
-                                "uz_imag_values" : uz_imag_values,
-                                "absolute_animation" : absolute_animation,
-                                "ux_animation" : ux_animation,
-                                "uy_animation" : uy_animation,
-                                "uz_animation" : uz_animation   }
+        color_scale_setup = {   
+            "absolute" : color_scale == "Absolute (resultant)",
+            "ux_abs_values" : color_scale == "Absolute (Ux)",
+            "uy_abs_values" : color_scale == "Absolute (Uy)",
+            "uz_abs_values" : color_scale == "Absolute (Uz)",
+            "ux_real_values" : color_scale == "Real - Ux",
+            "uy_real_values" : color_scale == "Real - Uy",
+            "uz_real_values" : color_scale == "Real - Uz",
+            "ux_imag_values" : color_scale == "Imaginary - Ux",
+            "uy_imag_values" : color_scale == "Imaginary - Uy",
+            "uz_imag_values" : color_scale == "Imaginary - Uz",
+            "absolute_animation" : color_scale == "Animation (absolute)",
+            "ux_animation" : color_scale == "Animation (Ux)",
+            "uy_animation" : color_scale == "Animation (Uy)",
+            "uz_animation" : color_scale == "Animation (Uz)",
+            }
 
         return color_scale_setup
 
     def load_frequencies_vector(self):
 
-        if app().project.analysis_id == 7:
+        if app().project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
             self.frequencies = [0]
             self.treeWidget_frequencies.setDisabled(True)
             self.plot_displacement_for_static_analysis()

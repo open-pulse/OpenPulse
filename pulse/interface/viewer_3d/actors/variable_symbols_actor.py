@@ -1,7 +1,8 @@
 import numpy as np
+from typing import Callable
 from molde.actors import CommonSymbolsActorFixedSize, CommonSymbolsActorVariableSize  # noqa: F401
 from molde.colors import Color, color_names
-from molde.utils.poly_data_utils import read_obj_file
+from molde.utils.poly_data_utils import read_obj_file, transform_polydata
 
 from pulse import SYMBOLS_DIR, app
 
@@ -12,6 +13,13 @@ from ..polydata import (
     create_sphere_source,
     create_double_arrow_source,
     create_double_cone_source,
+    create_new_lumped_mass,
+    create_lumped_spring,
+    create_lumped_dumper,
+    create_compressor_discharge,
+    create_compressor_suction,
+    create_pump_discharge,
+    create_pump_suction,
 )
 
 
@@ -19,77 +27,8 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.register_all_shapes()
         self.build()
         self.configure_appearance()
-
-    def register_all_shapes(self):
-        self.register_shape(
-            "arrow",
-            create_arrow_source(),
-            scale=(2, 2, 2),
-        )
-        self.register_shape(
-            "double_arrow",
-            create_double_arrow_source(),
-            scale=(1.8, 1.8, 1.8),
-        )
-        self.register_shape(
-            "double_cone",
-            create_double_cone_source(),
-            scale=(0.5, 0.5, 0.5),
-        )
-        self.register_shape(
-            "cone",
-            create_cone_source(),
-            scale=(0.5, 0.5, 0.5),
-        )
-        self.register_shape(
-            "sphere",
-            create_sphere_source(),
-        )
-        self.register_shape(
-            "cube",
-            create_cube_source(),
-            position=(-0.25, -0.25, -0.25),
-            scale=(0.5, 0.5, 0.5),
-        )
-        self.register_shape(
-            "mass",
-            read_obj_file(SYMBOLS_DIR / "structural/new_lumped_mass.obj"),
-            rotation=(0, -90, 0),
-            scale=(3.5, 3.5, 3.5),
-        )
-        self.register_shape(
-            "spring",
-            read_obj_file(SYMBOLS_DIR / "structural/lumped_spring.obj"),
-        )
-        self.register_shape(
-            "damper",
-            read_obj_file(SYMBOLS_DIR / "structural/lumped_damper.obj"),
-            position=(-0.145, 0, 0),
-            scale=(1.5, 1.5, 1.5),
-        )
-        self.register_shape(
-            "compressor_suction",
-            read_obj_file(SYMBOLS_DIR / "acoustic/compressor_suction.obj"),
-            scale=(0.6, 0.6, 0.6),
-        )
-        self.register_shape(
-            "compressor_discharge",
-            read_obj_file(SYMBOLS_DIR / "acoustic/compressor_discharge.obj"),
-            scale=(0.6, 0.6, 0.6),
-        )
-        self.register_shape(
-            "pump_suction",
-            read_obj_file(SYMBOLS_DIR / "acoustic/pump_suction.obj"),
-            scale=(5, 5, 5),
-        )
-        self.register_shape(
-            "pump_discharge",
-            read_obj_file(SYMBOLS_DIR / "acoustic/pump_discharge.obj"),
-            scale=(5, 5, 5),
-        )
 
     def build(self):
         nodal_properties = app().project.model.properties.nodal_properties
@@ -196,14 +135,14 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
         rotations: tuple[bool, bool, bool],
     ):
         self.add_symbol_by_axes(
-            "cone",
+            create_cone_source,
             position,
             axes_mask=[(i is not None) for i in displacements],
             color=color_names.GREEN,
         )
 
         self.add_symbol_by_axes(
-            "double_cone",
+            create_double_cone_source,
             position,
             axes_mask=[(i is not None) for i in rotations],
             color=color_names.BLUE,
@@ -217,14 +156,14 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
         rotations: tuple[bool, bool, bool],
     ):
         self.add_symbol_by_axes(
-            "arrow",
+            create_arrow_source,
             position,
             axes_mask=[(i is not None) for i in displacements],
             color=color_names.RED,
         )
 
         self.add_symbol_by_axes(
-            "double_arrow",
+            create_double_arrow_source,
             position,
             axes_mask=[(i is not None) for i in rotations],
             color=color_names.TEAL,
@@ -237,7 +176,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     ):
         if any(i is not None for i in values):
             self.add_symbol(
-                "mass",
+                create_new_lumped_mass,
                 position,
                 np.array([0, 1, 0]),
                 color_names.BLUE,
@@ -251,7 +190,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     ):
         mask = [(a is not None) or (b is not None) for a, b in zip(displacements, rotations)]
         self.add_symbol_by_axes(
-            "spring",
+            create_lumped_spring,
             position,
             axes_mask=mask,
             color=color_names.ORANGE,
@@ -265,7 +204,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     ):
         mask = [(a is not None) or (b is not None) for a, b in zip(displacements, rotations)]
         self.add_symbol_by_axes(
-            "damper",
+            create_lumped_dumper,
             position,
             axes_mask=mask,
             color=color_names.PINK,
@@ -273,7 +212,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
     def add_symbol_by_axes(
         self,
-        shape_name: str,
+        shape_name: Callable,
         position,
         axes_mask: tuple[bool, bool, bool],
         color: Color,
@@ -291,7 +230,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
     def add_acoustic_pressure_symbol(self, position):
         self.add_symbol(
-            "sphere",
+            create_sphere_source,
             position,
             orientation=(0, 0, 0),
             color=color_names.PURPLE,
@@ -299,7 +238,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
     def add_volume_velocity_symbol(self, position):
         self.add_symbol(
-            "sphere",
+            create_sphere_source,
             position,
             orientation=(0, 0, 0),
             color=color_names.RED,
@@ -307,7 +246,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
     def add_specific_impedance_symbol(self, position):
         self.add_symbol(
-            "cube",
+            create_cube_source,
             position,
             orientation=(0, 0, 0),
             color=color_names.GREEN,
@@ -315,7 +254,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
     def add_radiation_impedance_symbol(self, position):
         self.add_symbol(
-            "cube",
+            create_cube_source,
             position,
             orientation=(0, 0, 0),
             color=color_names.RED,
@@ -324,7 +263,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     def add_compressor_symbol(self, position, orientation, mode):
         if mode == "discharge":
             self.add_symbol(
-                "compressor_discharge",
+                create_compressor_discharge,
                 position,
                 orientation,
                 color=color_names.RED_2,
@@ -332,7 +271,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
         elif mode == "suction":
             self.add_symbol(
-                "compressor_suction",
+                create_compressor_suction,
                 position,
                 orientation,
                 color=color_names.BLUE_2,
@@ -341,7 +280,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     def add_pump_symbol(self, position, orientation, mode):
         if mode == "discharge":
             self.add_symbol(
-                "pump_discharge",
+                create_pump_discharge,
                 position,
                 orientation,
                 color=color_names.RED,
@@ -349,7 +288,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
         elif mode == "suction":
             self.add_symbol(
-                "pump_suction",
+                create_pump_suction,
                 position,
                 orientation,
                 color=color_names.BLUE,

@@ -1,29 +1,40 @@
 #fmt: off
 
-from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.prescribed_dofs_input_ui import PrescribedDofsInput_UI
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 import numpy as np
 from pathlib import Path
+from enum import IntEnum
 
-window_title = "Error"
 
-class PrescribedDofsInput(QDialog):
+error_title = "Error"
+
+
+class DOFSetup(IntEnum):
+    VALUE = 0
+    FREE = 1
+    FIXED = 2
+
+
+class TabType(IntEnum):
+    CONSTANT = 0
+    TABULAR = 1
+    LIST = 2
+
+
+class PrescribedDofsInput(PrescribedDofsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        ui_path = UI_DIR / "model/setup/structural/prescribed_dofs_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 
@@ -51,6 +62,34 @@ class PrescribedDofsInput(QDialog):
 
         self.list_Nones = [None, None, None, None, None, None]
         self.dofs_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
+
+        self.value_comboboxes = [
+            self.comboBox_displacement_ux,
+            self.comboBox_displacement_uy,
+            self.comboBox_displacement_uz,
+            self.comboBox_rotation_rx,
+            self.comboBox_rotation_ry,
+            self.comboBox_rotation_rz,
+        ]
+
+        self.constant_line_edits = {
+            "Ux": [self.lineEdit_real_ux, self.lineEdit_imag_ux],
+            "Uy": [self.lineEdit_real_uy, self.lineEdit_imag_uy],
+            "Uz": [self.lineEdit_real_uz, self.lineEdit_imag_uz],
+            "Rx": [self.lineEdit_real_rx, self.lineEdit_imag_rx],
+            "Ry": [self.lineEdit_real_ry, self.lineEdit_imag_ry],
+            "Rz": [self.lineEdit_real_rz, self.lineEdit_imag_rz],
+        }
+
+        self.dof_setup_combo_boxes = { 
+            "Ux" : self.comboBox_displacement_ux,
+            "Uy" : self.comboBox_displacement_uy,
+            "Uz" : self.comboBox_displacement_uz,
+            "Rx" : self.comboBox_rotation_rx,
+            "Ry" : self.comboBox_rotation_ry,
+            "Rz" : self.comboBox_rotation_rz,
+        }
+
 
         self.reset_table_variables()
         self.before_run = app().project.get_pre_solution_model_checks()
@@ -86,71 +125,26 @@ class PrescribedDofsInput(QDialog):
         self.rz_table_name = None
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_linear_data_type: QComboBox
-        self.comboBox_angular_data_type: QComboBox
-
-        # QLineEdit
-        self.lineEdit_node_ids: QLineEdit
-        self.lineEdit_real_ux: QLineEdit
-        self.lineEdit_real_uy: QLineEdit
-        self.lineEdit_real_uz: QLineEdit
-        self.lineEdit_real_rx: QLineEdit
-        self.lineEdit_real_ry: QLineEdit
-        self.lineEdit_real_rz: QLineEdit
-        self.lineEdit_real_alldofs: QLineEdit
-        #
-        self.lineEdit_imag_ux: QLineEdit
-        self.lineEdit_imag_uy: QLineEdit
-        self.lineEdit_imag_uz: QLineEdit
-        self.lineEdit_imag_rx: QLineEdit
-        self.lineEdit_imag_ry: QLineEdit
-        self.lineEdit_imag_rz: QLineEdit
-        #
-        self.lineEdit_imag_alldofs: QLineEdit
-        self.lineEdit_path_table_ux: QLineEdit
-        self.lineEdit_path_table_uy: QLineEdit
-        self.lineEdit_path_table_uz: QLineEdit
-        self.lineEdit_path_table_rx: QLineEdit
-        self.lineEdit_path_table_ry: QLineEdit
-        self.lineEdit_path_table_rz: QLineEdit
         self._create_list_lineEdits()
 
-        # QPushButton
-        self.pushButton_cancel_tab0: QPushButton
-        self.pushButton_cancel_tab1: QPushButton
-        self.pushButton_load_ux_table: QPushButton
-        self.pushButton_load_uy_table: QPushButton
-        self.pushButton_load_uz_table: QPushButton
-        self.pushButton_load_rx_table: QPushButton
-        self.pushButton_load_ry_table: QPushButton
-        self.pushButton_load_rz_table: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_constant_value_confirm: QPushButton
-        self.pushButton_table_values_confirm: QPushButton
-
-        # QTabWidget
-        self.tabWidget_prescribed_dofs: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
-
     def _create_list_lineEdits(self):
-        self.list_lineEdit_constant_values = [  [self.lineEdit_real_ux, self.lineEdit_imag_ux],
-                                                [self.lineEdit_real_uy, self.lineEdit_imag_uy],
-                                                [self.lineEdit_real_uz, self.lineEdit_imag_uz],
-                                                [self.lineEdit_real_rx, self.lineEdit_imag_rx],
-                                                [self.lineEdit_real_ry, self.lineEdit_imag_ry],
-                                                [self.lineEdit_real_rz, self.lineEdit_imag_rz]  ]
+        self.list_lineEdit_constant_values = [  
+            [self.lineEdit_real_ux, self.lineEdit_imag_ux],
+            [self.lineEdit_real_uy, self.lineEdit_imag_uy],
+            [self.lineEdit_real_uz, self.lineEdit_imag_uz],
+            [self.lineEdit_real_rx, self.lineEdit_imag_rx],
+            [self.lineEdit_real_ry, self.lineEdit_imag_ry],
+            [self.lineEdit_real_rz, self.lineEdit_imag_rz],
+            ]
 
-        self.list_lineEdit_table_values = [ self.lineEdit_path_table_ux,
-                                            self.lineEdit_path_table_uy,
-                                            self.lineEdit_path_table_uz,
-                                            self.lineEdit_path_table_rx,
-                                            self.lineEdit_path_table_ry,
-                                            self.lineEdit_path_table_rz ]
+        self.list_lineEdit_table_values = [ 
+            self.lineEdit_path_table_ux,
+            self.lineEdit_path_table_uy,
+            self.lineEdit_path_table_uz,
+            self.lineEdit_path_table_rx,
+            self.lineEdit_path_table_ry,
+            self.lineEdit_path_table_rz,
+            ]
 
     def _config_widgets(self):
         #
@@ -160,10 +154,8 @@ class PrescribedDofsInput(QDialog):
 
     def _create_connections(self):
         #
-        self.pushButton_cancel_tab0.clicked.connect(self.close)
-        self.pushButton_cancel_tab1.clicked.connect(self.close)
-        self.pushButton_constant_value_confirm.clicked.connect(self.constant_values_attribution_callback)
-        self.pushButton_table_values_confirm.clicked.connect(self.table_values_attribution_callback)
+        self.pushButton_exit_tab0.clicked.connect(self.close)
+        self.pushButton_attribute.clicked.connect(self.attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_load_ux_table.clicked.connect(self.load_ux_table)
         self.pushButton_load_uy_table.clicked.connect(self.load_uy_table)
@@ -172,6 +164,14 @@ class PrescribedDofsInput(QDialog):
         self.pushButton_load_ry_table.clicked.connect(self.load_ry_table)
         self.pushButton_load_rz_table.clicked.connect(self.load_rz_table)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_all_dof_free.clicked.connect(self.all_dof_free_callback)
+        self.pushButton_all_dof_fixed.clicked.connect(self.all_dof_fixed_callback)
+        self.comboBox_displacement_ux.currentIndexChanged.connect(self.displacement_ux_callback)
+        self.comboBox_displacement_uy.currentIndexChanged.connect(self.displacement_uy_callback)
+        self.comboBox_displacement_uz.currentIndexChanged.connect(self.displacement_uz_callback)
+        self.comboBox_rotation_rx.currentIndexChanged.connect(self.rotation_rx_callback)
+        self.comboBox_rotation_ry.currentIndexChanged.connect(self.rotation_ry_callback)
+        self.comboBox_rotation_rz.currentIndexChanged.connect(self.rotation_rz_callback)
         #
         self.tabWidget_prescribed_dofs.currentChanged.connect(self.tab_event_callback)
         #
@@ -208,34 +208,44 @@ class PrescribedDofsInput(QDialog):
                                     lineEdit_real.setText(str(np.real(values[index])))
                                     lineEdit_imag.setText(str(np.imag(values[index])))
 
-    def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
+    def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit, label: str):
+
+        _real = None
+        input_real = lineEdit_real.text()
 
         stop = False
-        if lineEdit_real.text() != "":
-            try:
-                _real = float(lineEdit_real.text())
-            except Exception:
-                title = f"Invalid entry to the {label}"
-                message = f"Wrong input for real part of {label}."
-                PrintMessageInput([window_title, title, message])
-                lineEdit_real.setFocus()
-                stop = True
-                return stop, None
-        else:
-            _real = None
+        if input_real != "":
+            if input_real == "fixed":
+                _real = 0.
+            elif input_real != "free":
+                try:
+                    _real = float(input_real)
+                except Exception:
+                    title = f"Invalid entry to the {label}"
+                    message = f"Wrong input for real part of {label}."
+                    PrintMessageInput([error_title, title, message])
+                    lineEdit_real.setFocus()
+                    stop = True
+                    return stop, None
+        
 
-        if lineEdit_imag.text() != "":
-            try:
-                _imag = float(lineEdit_imag.text())
-            except Exception:
-                title = f"Invalid entry to the {label}"
-                message = f"Wrong input for imaginary part of {label}."
-                PrintMessageInput([window_title, title, message])
-                lineEdit_imag.setFocus()
-                stop = True
-                return stop, None
-        else:
-            _imag = None
+        _imag = None
+        input_imag = lineEdit_imag.text()
+
+        if input_imag != "":
+            if input_imag == "fixed":
+                _imag = 0.
+            elif input_imag != "free":
+                    
+                try:
+                    _imag = float(input_imag)
+                except Exception:
+                    title = f"Invalid entry to the {label}"
+                    message = f"Wrong input for imaginary part of {label}."
+                    PrintMessageInput([error_title, title, message])
+                    lineEdit_imag.setFocus()
+                    stop = True
+                    return stop, None
         
         if label == 'all dofs':
 
@@ -270,67 +280,57 @@ class PrescribedDofsInput(QDialog):
             self.lineEdit_node_ids.setFocus()
             return
 
-        if self.lineEdit_real_alldofs.text() != "" or self.lineEdit_imag_alldofs.text() != "":
-            stop, prescribed_dofs = self.check_complex_entries(self.lineEdit_real_alldofs, self.lineEdit_imag_alldofs, "all dofs")
-            if stop:
-                return 
-        else:    
+        stop, ux = self.check_complex_entries(self.lineEdit_real_ux, self.lineEdit_imag_ux, "Ux")
+        if stop:
+            return
+        stop, uy = self.check_complex_entries(self.lineEdit_real_uy, self.lineEdit_imag_uy, "Uy")
+        if stop:
+            return        
+        stop, uz = self.check_complex_entries(self.lineEdit_real_uz, self.lineEdit_imag_uz, "Uz")
+        if stop:
+            return        
+            
+        stop, rx = self.check_complex_entries(self.lineEdit_real_rx, self.lineEdit_imag_rx, "Rx")
+        if stop:
+            return        
+        stop, ry = self.check_complex_entries(self.lineEdit_real_ry, self.lineEdit_imag_ry, "Ry")
+        if stop:
+            return        
+        stop, rz = self.check_complex_entries(self.lineEdit_real_rz, self.lineEdit_imag_rz, "Rz")
+        if stop:
+            return
 
-            stop, ux = self.check_complex_entries(self.lineEdit_real_ux, self.lineEdit_imag_ux, "Ux")
-            if stop:
-                return
-            stop, uy = self.check_complex_entries(self.lineEdit_real_uy, self.lineEdit_imag_uy, "Uy")
-            if stop:
-                return        
-            stop, uz = self.check_complex_entries(self.lineEdit_real_uz, self.lineEdit_imag_uz, "Uz")
-            if stop:
-                return        
-                
-            stop, rx = self.check_complex_entries(self.lineEdit_real_rx, self.lineEdit_imag_rx, "Rx")
-            if stop:
-                return        
-            stop, ry = self.check_complex_entries(self.lineEdit_real_ry, self.lineEdit_imag_ry, "Ry")
-            if stop:
-                return        
-            stop, rz = self.check_complex_entries(self.lineEdit_real_rz, self.lineEdit_imag_rz, "Rz")
-            if stop:
-                return
+        prescribed_dofs = [ux, uy, uz, rx, ry, rz]
+        all_dof_free = prescribed_dofs.count(None) == 6
 
-            prescribed_dofs = [ux, uy, uz, rx, ry, rz]
+        self.remove_conflicting_excitations(node_ids, all_dof_free=all_dof_free)
 
-        if prescribed_dofs.count(None) != 6:
+        if all_dof_free:
+            self.actions_to_finalize()
+            return
 
-            self.remove_conflicting_excitations(node_ids)
+        real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
+        imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
 
-            real_values = [value if value is None else np.real(value) for value in prescribed_dofs]
-            imag_values = [value if value is None else np.imag(value) for value in prescribed_dofs]
+        for node_id in node_ids:
 
-            for node_id in node_ids:
+            node = app().project.model.preprocessor.nodes[node_id]
+            coords = np.round(node.coordinates, 5)
 
-                node = app().project.model.preprocessor.nodes[node_id]
-                coords = np.round(node.coordinates, 5)
+            data = {
+                "coords" : list(coords),
+                "values" : prescribed_dofs,
+                "real_values" : real_values,
+                "imag_values" : imag_values
+                }
 
-                data = {
-                        "coords" : list(coords),
-                        "values" : prescribed_dofs,
-                        "real_values" : real_values,
-                        "imag_values" : imag_values
-                        }
+            self.properties._set_nodal_property("prescribed_dofs", data, node_id)
 
-                self.properties._set_nodal_property("prescribed_dofs", data, node_id)
+        app().project.file.write_nodal_properties_in_file()
+        self.load_nodes_info()
+        app().main_window.update_plots(reset_camera=False)
 
-            app().project.file.write_nodal_properties_in_file()
-            self.load_nodes_info()
-            app().main_window.update_plots(reset_camera=False)
-            # self.close()
-
-            print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")  
-
-        else:
-            title = "Additional inputs required"
-            message = "You must inform at least one prescribed dof\n"
-            message += "before confirming the input!"
-            PrintMessageInput([window_title, title, message]) 
+        print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")  
 
     def load_table(self, lineEdit : QLineEdit, dof_label : str, direct_load = False):
 
@@ -366,17 +366,13 @@ class PrescribedDofsInput(QDialog):
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([error_title, title, message])
                 lineEdit.setFocus()
                 return None, None
 
-            imported_values = imported_file[:,1] + 1j*imported_file[:,2]
+            imported_values = imported_file[:, 1] + 1j*imported_file[:, 2]
+            self.frequencies = imported_file[:, 0]
 
-            self.frequencies = imported_file[:,0]
-            f_min = self.frequencies[0]
-            f_max = self.frequencies[-1]
-            f_step = self.frequencies[1] - self.frequencies[0] 
-        
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
             if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
@@ -388,22 +384,19 @@ class PrescribedDofsInput(QDialog):
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
-                PrintMessageInput([window_title, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
 
-                frequency_setup = { "f_min" : f_min,
-                                    "f_max" : f_max,
-                                    "f_step" : f_step }
-
-                app().project.model.set_frequency_setup(frequency_setup)
+                analysis_setup = app().project.model.analysis_setup
+                app().project.file.write_analysis_setup_in_file(analysis_setup)
 
             return imported_values, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([window_title, title, message])
+            PrintMessageInput([error_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -514,22 +507,22 @@ class PrescribedDofsInput(QDialog):
         for node_id in node_ids:
             
             if self.ux_table_values is not None:
-                self.ux_table_name, self.ux_array = self.integrate_and_save_table_files("Ux", node_id, self.ux_table_values, self.ux_table_path, linear = True)
+                self.ux_table_name, self.ux_array = self.integrate_and_save_table_files("Ux", node_id, self.ux_table_values, linear = True)
 
             if self.uy_table_values is not None:
-                self.uy_table_name, self.uy_array = self.integrate_and_save_table_files("Uy", node_id, self.uy_table_values, self.uy_table_path, linear = True)
+                self.uy_table_name, self.uy_array = self.integrate_and_save_table_files("Uy", node_id, self.uy_table_values, linear = True)
 
             if self.uz_table_values is not None:
-                self.uz_table_name, self.uz_array = self.integrate_and_save_table_files("Uz", node_id, self.uz_table_values, self.uz_table_path, linear = True)
+                self.uz_table_name, self.uz_array = self.integrate_and_save_table_files("Uz", node_id, self.uz_table_values, linear = True)
 
             if self.rx_table_values is not None:
-                self.rx_table_name, self.rx_array = self.integrate_and_save_table_files("Rx", node_id, self.rx_table_values, self.rx_table_path, linear = True)
+                self.rx_table_name, self.rx_array = self.integrate_and_save_table_files("Rx", node_id, self.rx_table_values, linear = True)
 
             if self.ry_table_values is not None:
-                self.ry_table_name, self.rx_array = self.integrate_and_save_table_files("Ry", node_id, self.ry_table_values, self.ry_table_path, linear = True)
+                self.ry_table_name, self.rx_array = self.integrate_and_save_table_files("Ry", node_id, self.ry_table_values, linear = True)
 
             if self.rz_table_values is not None:
-                self.rz_table_name, self.rx_array = self.integrate_and_save_table_files("Rz", node_id, self.rz_table_values, self.rz_table_path, linear = True)
+                self.rz_table_name, self.rx_array = self.integrate_and_save_table_files("Rz", node_id, self.rz_table_values, linear = True)
 
             basenames = [   self.ux_table_name, self.uy_table_name, self.uz_table_name, 
                             self.rx_table_name, self.ry_table_name, self.rz_table_name   ]
@@ -544,7 +537,7 @@ class PrescribedDofsInput(QDialog):
                 title = "Additional inputs required"
                 message = "You must inform at least one prescribed dof "
                 message += "table path before confirming the input!"
-                PrintMessageInput([window_title, title, message]) 
+                PrintMessageInput([error_title, title, message]) 
                 return 
 
             node = app().project.model.preprocessor.nodes[node_id]
@@ -563,6 +556,72 @@ class PrescribedDofsInput(QDialog):
 
         self.actions_to_finalize()
         print(f"[Set Prescribed DOF] - defined at node(s) {node_ids}")
+
+    def attribution_callback(self):
+        if self.tabWidget_prescribed_dofs.currentIndex() == TabType.CONSTANT:
+            self.constant_values_attribution_callback()
+
+        elif self.tabWidget_prescribed_dofs.currentIndex() == TabType.TABULAR:
+            self.table_values_attribution_callback()
+
+    def all_dof_free_callback(self):
+        for combobox in self.value_comboboxes:
+            combobox.setCurrentIndex(DOFSetup.FREE)
+
+        for lineEdit_real, lineEdit_imag in self.constant_line_edits.values():
+            lineEdit_real.setText("free")
+            lineEdit_imag.setText("free")
+    
+    def all_dof_fixed_callback(self):
+        for combobox in self.value_comboboxes:
+            combobox.setCurrentIndex(DOFSetup.FIXED)
+
+        for lineEdit_real, lineEdit_imag in self.constant_line_edits.values():
+            lineEdit_real.setText("fixed")
+            lineEdit_imag.setText("fixed")
+
+    def combo_box_callback(self, unit_label: str):
+
+        combo_box = self.dof_setup_combo_boxes[unit_label]
+        value_based = combo_box.currentIndex() == DOFSetup.VALUE
+
+        line_edit_real, line_edit_imag = self.constant_line_edits.get(unit_label, (None, None))
+        if (line_edit_real, line_edit_imag).count(None) == 2:
+            return
+
+        line_edit_real.setText("")
+        line_edit_imag.setText("")
+        line_edit_real.setEnabled(value_based)   
+        line_edit_imag.setEnabled(value_based)
+
+        if value_based:
+            return
+
+        if combo_box.currentIndex() == DOFSetup.FIXED:
+            line_edit_real.setText("fixed")
+            line_edit_imag.setText("fixed")
+
+        elif combo_box.currentIndex() == DOFSetup.FREE:
+            line_edit_real.setText("free")
+            line_edit_imag.setText("free")
+
+    def displacement_ux_callback(self):
+        self.combo_box_callback("Ux")
+
+    def displacement_uy_callback(self):
+        self.combo_box_callback("Uy")
+
+    def displacement_uz_callback(self):
+        self.combo_box_callback("Uz")
+
+    def rotation_rx_callback(self):
+        self.combo_box_callback("Rx")
+
+    def rotation_ry_callback(self):
+        self.combo_box_callback("Ry")
+
+    def rotation_rz_callback(self):
+        self.combo_box_callback("Rz")
 
     def text_label(self, mask):
 
@@ -597,29 +656,30 @@ class PrescribedDofsInput(QDialog):
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_nodal_info.addTopLevelItem(new)
 
-        self.tabWidget_prescribed_dofs.setTabVisible(2, False)
+        self.tabWidget_prescribed_dofs.setTabVisible(TabType.LIST, False)
         for (property, *_) in self.properties.nodal_properties.keys():
             if property == "prescribed_dofs":
-                self.tabWidget_prescribed_dofs.setCurrentIndex(0)
-                self.tabWidget_prescribed_dofs.setTabVisible(2, True)
+                self.tabWidget_prescribed_dofs.setCurrentIndex(TabType.CONSTANT)
+                self.tabWidget_prescribed_dofs.setTabVisible(TabType.LIST, True)
                 return
 
     def tab_event_callback(self):
 
-        self.lineEdit_node_ids.setText("")
+        tab_list = self.tabWidget_prescribed_dofs.currentIndex() == TabType.LIST
+        self.lineEdit_node_ids.setDisabled(tab_list)
+        self.pushButton_attribute.setDisabled(tab_list)
         self.pushButton_remove.setDisabled(True)
 
-        if self.tabWidget_prescribed_dofs.currentIndex() == 2:
-            self.lineEdit_node_ids.setDisabled(True)
-            items = self.treeWidget_nodal_info.selectedItems()
-            if items == list():
-                self.lineEdit_node_ids.setText("")
-            else:
-                self.on_click_item(items[0])
-
-        else:
+        if not tab_list:
             self.lineEdit_node_ids.setEnabled(True)
             self.selection_callback()
+            return
+    
+        selected_items = self.treeWidget_nodal_info.selectedItems()
+        if selected_items == list():
+            self.lineEdit_node_ids.setText("")
+        else:
+            self.on_click_item(selected_items[0])
 
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
@@ -663,19 +723,21 @@ class PrescribedDofsInput(QDialog):
         except Exception as error_log:
             title = "Error while gathering prescribed dofs information"
             message = str(error_log)
-            PrintMessageInput([window_title, title, message])
+            PrintMessageInput([error_title, title, message])
             return
 
-    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
+    def remove_conflicting_excitations(self, node_ids: int | list | tuple, all_dof_free: bool=False):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
 
         for node_id in node_ids:
-            for label in ["nodal_loads"]:
-                table_names = self.properties.get_nodal_related_table_names(label, node_id)
-                self.properties._remove_nodal_property(label, node_id)
+            for _property in ["nodal_loads", "prescribed_dofs"]:
+                if all_dof_free and _property == "nodal_loads":
+                    continue
 
+                table_names = self.properties.get_nodal_related_table_names(_property, node_id)
+                self.properties._remove_nodal_property(_property, node_id)
                 self.process_table_file_removal(table_names)
 
         app().project.file.write_nodal_properties_in_file()
@@ -741,21 +803,26 @@ class PrescribedDofsInput(QDialog):
         for [lineEdit_real, lineEdit_imag] in self.list_lineEdit_constant_values:
             lineEdit_real.setText("")
             lineEdit_imag.setText("")
+
         for lineEdit_table in self.list_lineEdit_table_values:
             lineEdit_table.setText("")
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_prescribed_dofs.currentIndex()==0:
-                self.constant_values_attribution_callback()
-            elif self.tabWidget_prescribed_dofs.currentIndex()==1:
-                self.table_values_attribution_callback()
+            if self.tabWidget_prescribed_dofs.currentIndex() == TabType.LIST:
+                return
+
+            self.attribution_callback()
+
+        elif event.key() == Qt.Key_Delete:
+            self.remove_callback()
 
         elif event.key() == Qt.Key_Escape:
             self.close()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
 
 #fmt: on

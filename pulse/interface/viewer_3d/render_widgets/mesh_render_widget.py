@@ -24,6 +24,7 @@ from pulse.interface.viewer_3d.actors import (
     FixedSymbolsActor,
     TubeActor,
 )
+from pulse.interface.viewer_3d.render_tools import SelectionTool
 
 from ._mesh_picker import MeshPicker
 from ._model_info_text import elements_info_text, lines_info_text, nodes_info_text
@@ -47,6 +48,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.create_axes()
         self.create_logos()
         self.create_scale_bar()
+        self.set_default_render_tool()
+
         self.apply_user_preferences()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
@@ -269,6 +272,12 @@ class MeshRenderWidget(CommonRenderWidget):
     def selection_callback(self, x1, y1):
         if not self._actor_exists():
             return
+        
+        if not isinstance(self.interactor_style, SelectionTool):
+            return
+
+        if not self.interactor_style.is_selecting:
+            return
 
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
@@ -403,3 +412,8 @@ class MeshRenderWidget(CommonRenderWidget):
         self.plane_actor.GetProperty().SetColor(0.5, 0.5, 0.5)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
+
+    def set_default_render_tool(self):
+        tool = SelectionTool()
+        self.set_interactor_style(tool)
+        tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)

@@ -1,25 +1,20 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
+from PySide6.QtWidgets import QGridLayout
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.fluid.set_fluid_input_ui import SetFluidInput_UI
 from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidget
-from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class SetFluidInput(QDialog):
+class SetFluidInput(SetFluidInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/fluid/set_fluid_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
         self.state_properties = kwargs.get("state_properties", dict())
 
@@ -56,30 +51,17 @@ class SetFluidInput(QDialog):
         self.complete = False
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # QFrame
-        self.frame_main_widget : QFrame
-
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-        self.lineEdit_selected_fluid_name : QLineEdit
-
-        # QScrollArea
-        self.scrollArea_table_of_fluids : QScrollArea
         self.scrollArea_table_of_fluids.setLayout(self.grid_layout)
         self._add_fluid_input_widget()
         self.frame_main_widget.adjustSize()
 
         # QPushButton
         self.pushButton_attribute = self.fluid_widget.pushButton_attribute
-        self.pushButton_cancel = self.fluid_widget.pushButton_cancel
+        self.pushButton_exit = self.fluid_widget.pushButton_exit
 
         # QTableWidget
         self.tableWidget_fluid_data = self.fluid_widget.tableWidget_fluid_data
@@ -95,7 +77,7 @@ class SetFluidInput(QDialog):
         self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         #
         # self.tableWidget_fluid_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_fluid_data.currentCellChanged.connect(self.current_cell_changed)
@@ -191,8 +173,6 @@ class SetFluidInput(QDialog):
 
             if self.state_properties:
                 self.close()
-
-            self.pushButton_cancel.setText("Exit")
 
         except Exception as error_log:
             title = "Error detected on fluid list data"

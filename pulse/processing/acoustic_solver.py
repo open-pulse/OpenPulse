@@ -4,8 +4,8 @@ from pulse.processing.assembly_acoustic import AssemblyAcoustic
 
 import numpy as np
 from numpy.linalg import norm
-from scipy.sparse import csr_matrix, bmat, eye, block_array
-from scipy.sparse.linalg import eigs, eigsh, spsolve, inv
+from scipy.sparse import csr_matrix, bmat, eye
+from scipy.sparse.linalg import eigs, spsolve, inv
 
 import logging
 
@@ -46,9 +46,9 @@ class AcousticSolver:
 
         self.nl_pp_elements = self.check_non_linear_perforated_plate()
 
-        self._initialize()
+        self.reset_variables()
 
-    def _initialize(self):
+    def reset_variables(self):
 
         self.solution = None
         self.modal_shapes = None
@@ -89,7 +89,7 @@ class AcousticSolver:
         # self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] for i in range(len(self.frequencies))]
         self.Kadd_lump = [ self.K[i] + self.K_link[i] + self.K_lump[i] + self.T_link[i] for i in range(len(self.frequencies))]
 
-    def _reinsert_prescribed_dofs(self, solution, modal_analysis = False):
+    def _reinsert_prescribed_dofs(self, solution: np.ndarray, modal_analysis: bool=False):
         """
         This method reinsert the value of the prescribed degree of freedom in the solution. If modal analysis is performed, the values are zeros.
 
@@ -98,7 +98,7 @@ class AcousticSolver:
         solution : array
             Solution data from the direct method, modal superposition or modal shapes from modal analysis.
 
-        modal_analysis : boll, optional
+        modal_analysis : bool, optional
             True if the modal analysis was evaluated.
 
         Returns
@@ -194,7 +194,7 @@ class AcousticSolver:
             Modal shapes
         """
 
-        modes = kwargs.get("modes", 40)
+        modes = kwargs.get("number_of_modes", 40)
         which = kwargs.get("which", "LM")
         sigma_factor = kwargs.get("sigma_factor", 1e-4)
 

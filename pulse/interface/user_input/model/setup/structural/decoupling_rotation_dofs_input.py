@@ -1,37 +1,32 @@
 # fmt: off
 
-from PySide6.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.b2p_decoupling_rotation_dofs_input_ui import B2pDecouplingRotationDofsInput_UI
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse.model.structural_element import decoupling_matrix
 
-from molde import load_ui
 
 import numpy as np
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
 
-class DecouplingRotationDOFsInput(QDialog):
+
+class DecouplingRotationDOFsInput(B2pDecouplingRotationDofsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/b2p_decoupling_rotation_dofs_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_decoupling_info()
@@ -53,34 +48,10 @@ class DecouplingRotationDOFsInput(QDialog):
 
         self.before_run = app().project.get_pre_solution_model_checks() 
 
-    def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_rotation_x: QCheckBox
-        self.checkBox_rotation_y: QCheckBox
-        self.checkBox_rotation_z: QCheckBox
-
-        # QLineEdit
-        self.lineEdit_selected_id_to_remove: QLineEdit
-        self.lineEdit_element_id: QLineEdit
-        self.lineEdit_tjoint_node_id: QLineEdit
-
-        # QPushButton       
-        self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_elements_info: QTreeWidget
-
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -160,7 +131,7 @@ class DecouplingRotationDOFsInput(QDialog):
             self.hide()
             title = "Invalid element selected"
             message = f"To proceed, selecting a beam element connected to the pipe is necessary."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return
 
         lineEdit = self.lineEdit_element_id.text()
@@ -184,7 +155,7 @@ class DecouplingRotationDOFsInput(QDialog):
             title = "Invalid element selected"
             message = "The beam-to-pipe decoupling of rotation dofs can only " 
             message += "be applied to the T connections."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return
 
         element_type = element.element_type
@@ -245,7 +216,6 @@ class DecouplingRotationDOFsInput(QDialog):
             
             element_ids = list()
             for (property, element_id) in self.properties.element_properties.keys():
-                print(property, property == "B2P_rotation_decoupling")
                 if property == "B2P_rotation_decoupling":
                     element_ids.append(element_id)
 
@@ -270,7 +240,7 @@ class DecouplingRotationDOFsInput(QDialog):
             title = "Invalid decoupling setup"
             message = "There are no rotation DOFs decoupling in the current setup. "
             message += "You should tick at least one rotation DOF before continue."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return None
 
         else:
@@ -330,6 +300,7 @@ class DecouplingRotationDOFsInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
 
 # fmt: on

@@ -1,7 +1,6 @@
 from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
-from PySide6.QtCore import Qt, QSize, QRect, Signal, QObject
-from pathlib import Path
+from PySide6.QtGui import QFont, QColor
+from PySide6.QtCore import Qt
 
 from pulse.interface.formatters.icons import *
 from pulse.interface.menu.border_item_delegate import BorderItemDelegate

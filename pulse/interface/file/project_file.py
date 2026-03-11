@@ -1,5 +1,5 @@
 from pulse import app, version
-from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model import AnalysisID
 from pulse.utils.common_utils import *
 
 from typing import TYPE_CHECKING
@@ -13,10 +13,6 @@ import h5py
 import numpy as np
 
 from pathlib import Path
-from traceback import print_exception
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
 
 class ProjectFile:
@@ -352,14 +348,14 @@ class ProjectFile:
                 acoustic_solver = self.project.acoustic_solver
                 structural_solver = self.project.structural_solver
 
-                if analysis_id == 2:
+                if analysis_id == AnalysisID.STRUCTURAL_MODAL:
                     if structural_solver.modal_shapes is not None:
                         natural_frequencies = structural_solver.natural_frequencies
                         modal_shape = structural_solver.modal_shapes
                         f.create_dataset("modal_structural/natural_frequencies", data=natural_frequencies, dtype=float)
                         f.create_dataset("modal_structural/modal_shape", data=modal_shape, dtype=float)
 
-                if analysis_id == 4:
+                if analysis_id == AnalysisID.ACOUSTIC_MODAL:
                     if acoustic_solver.modal_shapes is not None:
                         natural_frequencies = acoustic_solver.natural_frequencies
                         modal_shape = acoustic_solver.modal_shapes
@@ -370,21 +366,21 @@ class ProjectFile:
                             f.create_dataset("modal_acoustic/natural_frequencies", data=natural_frequencies, dtype=float)
                         f.create_dataset("modal_acoustic/modal_shape", data=modal_shape, dtype=complex)
 
-                if analysis_id in [3, 5, 6]:
+                if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
                     if acoustic_solver.solution is not None:
                         frequencies = acoustic_solver.frequencies
                         solution = acoustic_solver.solution
                         f.create_dataset("harmonic_acoustic/frequencies", data=frequencies, dtype=float)
                         f.create_dataset("harmonic_acoustic/solution", data=solution, dtype=complex)
 
-                if analysis_id in [0, 1, 5, 6]:
+                if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
                     if structural_solver.solution is not None:
                         frequencies = structural_solver.frequencies
                         solution = structural_solver.solution
                         f.create_dataset("harmonic_structural/frequencies", data=frequencies, dtype=float)
                         f.create_dataset("harmonic_structural/solution", data=solution, dtype=complex)
 
-                if analysis_id == 7:
+                if analysis_id == AnalysisID.STRUCTURAL_STATIC:
                     if structural_solver.solution is not None:
                         solution = structural_solver.solution
                         f.create_dataset("static_structural/solution", data=solution, dtype=complex)

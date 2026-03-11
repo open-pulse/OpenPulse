@@ -1,8 +1,9 @@
-from PySide6.QtWidgets import QDialog, QPushButton, QTableWidget, QTableWidgetItem, QWidget, QHeaderView
+from PySide6.QtWidgets import QDialog, QTableWidgetItem, QHeaderView
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 
-from pulse import app, UI_DIR, TEMP_PROJECT_FILE
+from pulse import app, TEMP_PROJECT_FILE
+from pulse.interface.ui_generated.model.setup.material.material_input_widget_ui import MaterialInputWidget_UI
 
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -11,7 +12,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 from pulse.libraries.default_libraries import default_material_library
 from pulse.model.properties.material import Material
 
-from molde import load_ui
 
 from itertools import count
 import os
@@ -28,21 +28,15 @@ def get_color_rgb(color):
     tokens = color.split(',')
     return list(map(int, tokens))
 
-class MaterialWidget(QWidget):
+class MaterialWidget(MaterialInputWidget_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/material/material_input_widget.ui"
-
-        load_ui(ui_path, self, UI_DIR)
-
         self.project = app().project
         self.properties = app().project.model.properties
 
         self.dialog = kwargs.get("dialog", None)
 
         self._initialize()
-        self.define_qt_variables()
         self.create_connections()
         self._config_widgets()
 
@@ -72,18 +66,6 @@ class MaterialWidget(QWidget):
                                     "thermal_expansion_coefficient",
                                     "color"
                                     ]
-
-    def define_qt_variables(self):
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_add_column: QPushButton
-        self.pushButton_remove_column: QPushButton
-        self.pushButton_reset_library: QPushButton
-
-        # QTableWidget
-        self.tableWidget_material_data: QTableWidget
 
     def create_connections(self):
         #
@@ -255,8 +237,6 @@ class MaterialWidget(QWidget):
         material = self.library_materials[identifier]
 
         self.remove_material_from_file(material)
-        self.pushButton_cancel.setText("Exit")
-
         self._update_size_policy()
 
     def item_changed_callback(self, item : QTableWidgetItem):
@@ -425,7 +405,6 @@ class MaterialWidget(QWidget):
             config[identifier] = material_data
 
             app().project.file.write_material_library_in_file(config)
-            self.pushButton_cancel.setText("Exit")
 
         except Exception as error_log:
             title = "Error while writing material data in file"
@@ -514,8 +493,8 @@ class MaterialWidget(QWidget):
     def reset_library_callback(self):
         if self.get_confirmation_to_proceed():
             self.reset_library_to_default()
-            self.pushButton_cancel.setText("Exit")
             return True
+
         return False
 
     def reset_library_to_default(self):

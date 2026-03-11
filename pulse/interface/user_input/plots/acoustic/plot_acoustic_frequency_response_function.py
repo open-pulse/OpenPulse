@@ -1,25 +1,20 @@
 # fmt: off
 
-from PySide6.QtWidgets import QFrame, QLineEdit, QPushButton, QWidget
 from PySide6.QtCore import Qt, QEvent, QObject, Signal
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.acoustic.get_acoustic_frequency_response_function_ui import GetAcousticFrequencyResponseFunction_UI
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PlotAcousticFrequencyResponseFunction(QWidget):
+class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/acoustic/get_acoustic_frequency_response_function.ui"
-        load_ui(ui_path, self, ui_path.parent)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -35,7 +30,7 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
     def _initialize(self):
         self.solution = self.project.get_acoustic_solution()
         self.before_run = self.project.get_pre_solution_model_checks()
-        self.analysis_method = self.project.analysis_method_label
+        self.analysis_method = self.project.analysis_method
         self.frequencies = self.model.frequencies
 
     def _config_window(self):
@@ -44,20 +39,7 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
         self.setWindowIcon(app().main_window.pulse_icon)
 
     def _define_qt_variables(self):
-
-        # QFrame
-        self.frame_denominator : QFrame
-        self.frame_numerator : QFrame
-
-        # QLineEdit
-        self.lineEdit_input_node_id : QLineEdit
-        self.lineEdit_output_node_id : QLineEdit
         self.current_lineEdit = self.lineEdit_output_node_id
-
-        # QPushButton
-        self.pushButton_flip_nodes : QPushButton
-        self.pushButton_export_data : QPushButton
-        self.pushButton_plot_data : QPushButton
 
     def _create_connections(self):
         #
@@ -150,7 +132,7 @@ class PlotAcousticFrequencyResponseFunction(QWidget):
 
     def join_model_data(self):
 
-        self.title = f"Acoustic frequency response - {self.analysis_method}"        
+        self.title = f"Acoustic frequency response - {self.analysis_method} method"        
         legend_label = f"Acoustic pressure ratio between nodes {self.input_node_id} and {self.output_node_id}"
         unit_label = "--"
         y_label = "Acoustic pressure ratio"

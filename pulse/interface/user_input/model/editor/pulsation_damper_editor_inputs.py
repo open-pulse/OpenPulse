@@ -1,19 +1,14 @@
 import numpy as np
-from molde import load_ui
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
     QComboBox,
-    QDialog,
-    QLabel,
     QLineEdit,
-    QPushButton,
-    QTabWidget,
-    QTreeWidget,
     QTreeWidgetItem,
 )
 
-from pulse import UI_DIR, app
+from pulse import app
+from pulse.interface.ui_generated.model.editor.pulsation_damper_editor_inputs_ui import PulsationDamperEditorInputs_UI
 from pulse.editor.pulsation_damper import PulsationDamper
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
@@ -33,13 +28,9 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class PulsationDamperEditorInputs(QDialog):
+class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
     def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/editor/pulsation_damper_editor_inputs.ui"
-        load_ui(ui_path, self, ui_path.parent)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
@@ -91,55 +82,6 @@ class PulsationDamperEditorInputs(QDialog):
         self.nodes_from_removed_lines = list()
 
     def _define_qt_variables(self):
-        # QComboBox
-        self.comboBox_damper_type: QComboBox
-        self.comboBox_main_axis: QComboBox
-        self.comboBox_fluid_data_source: QComboBox
-        self.comboBox_volume_unit: QComboBox
-        self.comboBox_pressure_units: QComboBox
-        self.comboBox_temperature_units: QComboBox
-        self.comboBox_volume_sections: QComboBox
-
-        # QLabel
-        self.label_damper_volume_unit: QLabel
-        self.label_gas_volume_unit: QLabel
-
-        # QLineEdit
-        self.lineEdit_damper_label: QLineEdit
-        self.lineEdit_connecting_coord_x: QLineEdit
-        self.lineEdit_connecting_coord_y: QLineEdit
-        self.lineEdit_connecting_coord_z: QLineEdit
-        self.lineEdit_damper_volume: QLineEdit
-        self.lineEdit_gas_volume: QLineEdit
-        self.lineEdit_outside_diameter_liquid: QLineEdit
-        self.lineEdit_wall_thickness_liquid: QLineEdit
-        self.lineEdit_outside_diameter_gas: QLineEdit
-        self.lineEdit_wall_thickness_gas: QLineEdit
-        self.lineEdit_outside_diameter_neck: QLineEdit
-        self.lineEdit_neck_height: QLineEdit
-        self.lineEdit_polytropic_exponent: QLineEdit
-        self.lineEdit_gas_pressure: QLineEdit
-        self.lineEdit_gas_temperature: QLineEdit
-        self.lineEdit_selected_liquid_fluid: QLineEdit
-        self.lineEdit_selected_gas_fluid: QLineEdit
-        self.lineEdit_selected_damper_label: QLabel
-        self.lineEdit_damper_type: QLabel
-
-        # QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_show_errors: QPushButton
-        self.pushButton_create: QPushButton
-        self.pushButton_get_liquid_fluid: QPushButton
-        self.pushButton_get_gas_fluid: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_reset_entries: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_pulsation_damper_info: QTreeWidget
 
         # Qwidget
         self.preview_widget: DamperPreviewRenderWidget
@@ -174,7 +116,7 @@ class PulsationDamperEditorInputs(QDialog):
             self.update_sections_info_callback
         )
         #
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_show_errors.clicked.connect(
             self.show_error_window_for_parameters
         )
@@ -329,10 +271,10 @@ class PulsationDamperEditorInputs(QDialog):
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 0:
-            self.pushButton_cancel.setDisabled(False)
+            self.pushButton_exit.setDisabled(False)
             self.pushButton_create.setDisabled(False)
         else:
-            self.pushButton_cancel.setDisabled(True)
+            self.pushButton_exit.setDisabled(True)
             self.pushButton_create.setDisabled(True)
 
     def on_click_item(self, item):
@@ -518,6 +460,12 @@ class PulsationDamperEditorInputs(QDialog):
             damper_volume * volume_unit_factor
         )
         self._pulsation_damper_data["gas_volume"] = gas_volume * volume_unit_factor
+
+        if gas_volume > damper_volume:
+            self.error_title = "Invalid gas volume"
+            self.error_message = "The gas volume must be less than the damper volume."
+            self.lineEdit_gas_volume.setFocus()
+            return True
 
     def check_geometric_entries(self):
         outside_diameter_liquid = self.check_inputs(
@@ -1076,8 +1024,7 @@ class PulsationDamperEditorInputs(QDialog):
         self.load_pulsation_damper_info()
 
         app().main_window.update_plots()
-        self.pushButton_cancel.setText("Exit")
-
+ 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.create_pulsation_damper_callback()

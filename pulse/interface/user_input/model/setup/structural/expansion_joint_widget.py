@@ -1,26 +1,15 @@
 from PySide6.QtWidgets import (
-    QWidget,
-    QFrame,
-    QLabel,
     QLineEdit,
-    QPushButton,
-    QTabWidget,
-    QTreeWidget,
-    QComboBox,
 )
 
-from pulse import UI_DIR
+from pulse.interface.ui_generated.model.setup.structural.expansion_joint_widget_ui import ExpansionJointWidget_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 
-class ExpansionJointWidget(QWidget):
+class ExpansionJointWidget(ExpansionJointWidget_UI):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        ui_path = UI_DIR / "model/setup/structural/expansion_joint_widget.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         self._define_qt_variables()
         self._create_connections()
 
@@ -40,51 +29,7 @@ class ExpansionJointWidget(QWidget):
         self.Kryz_filename = None
 
     def _define_qt_variables(self):
-        # QComboBox
-        self.comboBox_axial_stop_rod: QComboBox
-
-        # QFrame
-        self.selection_frame: QFrame
-
-        # QLabel
-        self.label_selected_id: QLabel
-        self.label_selection: QLabel
-        self.label_axial_lock_criteria: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        #
-        self.lineEdit_effective_diameter: QLineEdit
-        self.lineEdit_joint_mass: QLineEdit
-        self.lineEdit_axial_locking_criteria: QLineEdit
-        #
-        self.lineEdit_axial_stiffness: QLineEdit
-        self.lineEdit_transversal_stiffness: QLineEdit
-        self.lineEdit_torsional_stiffness: QLineEdit
-        self.lineEdit_angular_stiffness: QLineEdit
-        #
-        self.lineEdit_path_table_axial_stiffness: QLineEdit
-        self.lineEdit_path_table_transversal_stiffness: QLineEdit
-        self.lineEdit_path_table_torsional_stiffness: QLineEdit
-        self.lineEdit_path_table_angular_stiffness: QLineEdit
         self._create_lists_of_lineEdits()
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_load_table_axial_stiffness: QPushButton
-        self.pushButton_load_table_transversal_stiffness: QPushButton
-        self.pushButton_load_table_torsional_stiffness: QPushButton
-        self.pushButton_load_table_angular_stiffness: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-        self.tabWidget_inputs: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_expansion_joint_by_lines: QTreeWidget
 
     def _create_connections(self):
         #

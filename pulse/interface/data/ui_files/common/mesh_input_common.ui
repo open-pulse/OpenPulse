@@ -157,7 +157,7 @@
      <item>
       <widget class="QPushButton" name="cancel_button">
        <property name="text">
-        <string>Cancel</string>
+        <string>Exit</string>
        </property>
       </widget>
      </item>
@@ -199,6 +199,6 @@
   <tabstop>apply_button</tabstop>
   <tabstop>confirm_button</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

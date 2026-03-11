@@ -1,4 +1,5 @@
 
+from pulse.model import AnalysisID
 from pulse.model.mesh import Mesh
 from pulse.model.node import DOF_PER_NODE_STRUCTURAL
 from pulse.model.preprocessor import Preprocessor
@@ -37,8 +38,6 @@ class Model:
         self.frequencies = None
         self.list_frequencies = list()
 
-        self.global_damping = [0., 0., 0., 0.]
-
         self.gravity_vector = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
         self.weight_load = False
@@ -51,6 +50,44 @@ class Model:
     def set_gravity_vector(self, gravity_vector: np.ndarray):
         self.gravity_vector = gravity_vector
 
+    def reset_analysis_setup(self):
+        self.analysis_setup.clear()
+
+    @property
+    def analysis_id(self):
+        return self.analysis_setup.get("analysis_id", AnalysisID.NO_ANALYSIS)
+
+    @property
+    def analysis_type_label(self):
+        if self.analysis_id == AnalysisID.STRUCTURAL_HARMONIC:
+            return "Structural Harmonic Analysis"
+        elif self.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
+            return "Acoustic Harmonic Analysis"
+        elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
+            return "Structural Modal Analysis"
+        elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
+            return "Acoustic Modal Analysis"
+        elif self.analysis_id == AnalysisID.STRUCTURAL_STATIC:
+            return "Structural Static Analysis"
+        else:
+            return "Analysis not identified"
+
+    @property
+    def analysis_method(self):
+        return self.analysis_setup.get("analysis_method", "--")
+
+    @property
+    def number_of_modes(self):
+        return self.analysis_setup.get("number_of_modes", 40)
+
+    @property
+    def sigma_factor(self):
+        return self.analysis_setup.get("sigma_factor", 1e-2)
+
+    @property
+    def global_damping(self):
+        return self.analysis_setup.get("global_damping", (0., 0., 0.))
+
     def set_analysis_setup(self, analysis_setup: dict):
 
         self.analysis_setup.update(analysis_setup)
@@ -58,28 +95,31 @@ class Model:
         if "f_min" in analysis_setup.keys():
             self.set_frequency_setup(analysis_setup)
 
-        if "global_damping" in analysis_setup.keys():
-            self.set_global_damping(analysis_setup)
-
         if "weight_load" in analysis_setup.keys():
             self.set_static_analysis_setup(analysis_setup)
 
     def set_frequency_setup(self, analysis_setup: dict):
 
+        self.frequencies = None
         self.f_min = analysis_setup.get("f_min", None)
         self.f_max = analysis_setup.get("f_max", None)
         self.f_step = analysis_setup.get("f_step", None)
-        self.frequencies = analysis_setup.get("frequencies", None)
 
         if "frequencies" in analysis_setup.keys():
             self.frequencies = analysis_setup["frequencies"]
 
-        elif (self.f_min, self.f_max, self.f_step).count(None) != 3:
-            frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step)
-            self.frequencies = frequencies[frequencies <= self.f_max]
+        elif (self.f_min, self.f_max, self.f_step).count(None) == 0:
 
-    def set_global_damping(self, analysis_setup: dict):
-        self.global_damping = analysis_setup.get("global_damping", [0., 0., 0., 0.])
+            try:
+                self.frequencies = np.arange(self.f_min, self.f_max + self.f_step, self.f_step)
+
+                # filters the frequencies vector to mitigate the already identified rounding errors
+                mask = self.frequencies <= self.f_max
+                self.frequencies = self.frequencies[mask]
+
+            except:
+                self.frequencies = None
+                return
 
     def set_static_analysis_setup(self, analysis_setup: dict):
         self.static_analysis_setup = analysis_setup
@@ -108,11 +148,13 @@ class Model:
             f_max = frequencies[-1]
             f_step = frequencies[1] - frequencies[0]
 
-            frequency_setup = { "f_min" : f_min,
-                                "f_max" : f_max,
-                                "f_step" : f_step }
+            frequency_setup = { 
+                "f_min" : f_min,
+                "f_max" : f_max,
+                "f_step" : f_step,
+                }
 
-            self.set_frequency_setup(frequency_setup)
+            self.set_analysis_setup(frequency_setup)
 
             self.list_frequencies = frequencies
 

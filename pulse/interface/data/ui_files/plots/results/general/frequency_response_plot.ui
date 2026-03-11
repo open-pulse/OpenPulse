@@ -319,7 +319,7 @@
                     <property name="font">
                      <font>
                       <family>MS Shell Dlg 2</family>
-                      <pointsize>11</pointsize>
+                      <pointsize>10</pointsize>
                       <weight>50</weight>
                       <italic>false</italic>
                       <bold>false</bold>
@@ -757,7 +757,7 @@
                     <property name="font">
                      <font>
                       <family>MS Shell Dlg 2</family>
-                      <pointsize>11</pointsize>
+                      <pointsize>10</pointsize>
                       <weight>50</weight>
                       <italic>false</italic>
                       <bold>false</bold>
@@ -1337,7 +1337,7 @@
                     </property>
                     <property name="font">
                      <font>
-                      <pointsize>11</pointsize>
+                      <pointsize>10</pointsize>
                       <weight>50</weight>
                       <bold>false</bold>
                      </font>
@@ -1935,7 +1935,7 @@
   <tabstop>pushButton_export_data</tabstop>
   <tabstop>pushButton_import_data</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup_cursor"/>

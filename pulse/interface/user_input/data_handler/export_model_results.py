@@ -1,13 +1,8 @@
-from PySide6.QtWidgets import QDialog, QFileDialog, QLabel, QLineEdit, QPushButton
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QFileDialog
 
-from pulse import app, UI_DIR
+from pulse import app
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
-
-from pathlib import Path
 import os
 import numpy as np
 
@@ -55,7 +50,8 @@ class ExportModelResults(QFileDialog):
             np.savetxt(export_path, data_to_export, delimiter=delimiter, header=header)
 
     def export_data_in_spreadsheet_format(self, export_path):
-        from pandas import DataFrame, ExcelWriter
+        from pandas import ExcelWriter
+        from polars import DataFrame
 
         with ExcelWriter(export_path) as writer:
 
@@ -79,8 +75,8 @@ class ExportModelResults(QFileDialog):
                     header = [x_label, f"{y_label} [{unit}]"]
                     data_to_export = np.array([x_data, y_data]).T
 
-                df = DataFrame(data_to_export, columns=header)
-                df.to_excel(writer, sheet_name=sheet_name, index=False)
+                df = DataFrame(data_to_export, schema=header)
+                df.to_pandas().to_excel(writer, sheet_name=sheet_name, index=False)
 
     def call_file_dialog_and_export_data(self):
 
@@ -104,16 +100,23 @@ class ExportModelResults(QFileDialog):
 
         if not check:
             return
+        
+        file_extension = self.get_path_extension(check)
+        
+        if file_extension not in file_path:
+            file_path += f".{file_extension}"
 
         app().config.write_last_folder_path_in_file("export_data_folder", file_path)
 
-        sufix = Path(file_path).suffix      
-        if sufix == ".xlsx":
+        if file_extension == "xlsx":
             self.export_data_in_spreadsheet_format(file_path)
         else:
             self.export_data_in_text_format(file_path)
 
         # self.print_final_message()
+    
+    def get_path_extension(self, string: str) -> str:
+        return string.split(".")[1][:-1]
 
     def print_final_message(self):
         title = "Information"

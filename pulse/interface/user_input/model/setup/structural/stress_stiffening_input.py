@@ -1,25 +1,21 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.stress_stiffening_input_ui import StressStiffeningInput_UI
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
-import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
-class StressStiffeningInput(QDialog):
+error_title = "Error"
+
+
+class StressStiffeningInput(StressStiffeningInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/stress_stiffening_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-        
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -29,7 +25,6 @@ class StressStiffeningInput(QDialog):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -48,39 +43,12 @@ class StressStiffeningInput(QDialog):
     def _initialize(self):
         self.keep_window_open = True
 
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type: QComboBox
-
-        # QLabel
-        self.label_attribute_to: QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_external_pressure: QLineEdit
-        self.lineEdit_internal_pressure: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_remove: QPushButton
-
-        # QTabWidget
-        self.tabWidget_groups: QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_stress_stiffening: QTreeWidget
-
     def _create_connections(self):
         #
         self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -170,18 +138,18 @@ class StressStiffeningInput(QDialog):
                     if zero_included:
                         if out < 0:
                             message += "\n\nZero value is allowed."
-                            PrintMessageInput([window_title_1, title, message])
+                            PrintMessageInput([error_title, title, message])
                             return True, None
                     else:
                         if out <= 0:
                             message += "\n\nZero value is not allowed."
-                            PrintMessageInput([window_title_1, title, message])
+                            PrintMessageInput([error_title, title, message])
                             return True, None
 
             except Exception as log_error:
                 message = f"Wrong input for {label}.\n\n"
                 message += str(log_error)
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True, None
 
         else:
@@ -189,7 +157,7 @@ class StressStiffeningInput(QDialog):
                 return False, float(0)
             else:
                 message = f"Insert some value at the {label} input field."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True, None
 
         return False, out
@@ -212,7 +180,7 @@ class StressStiffeningInput(QDialog):
             title = "Empty entries at the input pressure fields"
             message = f"You should to insert a value different from zero at the external or internal "
             message += "pressure field inputs to continue."
-            PrintMessageInput([window_title_1, title, message])  
+            PrintMessageInput([error_title, title, message])  
             return
         
         parameters = {  "external_pressure" : external_pressure,
@@ -325,4 +293,5 @@ class StressStiffeningInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)

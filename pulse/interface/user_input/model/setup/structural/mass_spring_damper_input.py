@@ -1,27 +1,24 @@
-from PySide6.QtWidgets import QCheckBox, QDialog, QFrame, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.mass_spring_damper_input_ui import MassSpringDamperInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 import numpy as np
 from pathlib import Path
 
-window_title_1 ="Error"
-window_title_2 ="Warning"
 
-class MassSpringDamperInput(QDialog):
+error_title ="Error"
+
+
+class MassSpringDamperInput(MassSpringDamperInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        ui_path = UI_DIR / "model/setup/structural/mass_spring_damper_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
 
         self.preprocessor = app().project.model.preprocessor
@@ -120,108 +117,12 @@ class MassSpringDamperInput(QDialog):
         self.Crz_table_values = None
 
     def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_remove_mass : QCheckBox
-        self.checkBox_remove_spring : QCheckBox
-        self.checkBox_remove_damper : QCheckBox
-
-        self.lineEdit_node_ids : QLineEdit
-
-        # QFrame
-        self.selection_frame : QFrame
-
-        # QLineEdit
-        self.lineEdit_path_table_Kx : QLineEdit
-        self.lineEdit_path_table_Ky : QLineEdit
-        self.lineEdit_path_table_Kz : QLineEdit
-        self.lineEdit_path_table_Krx : QLineEdit
-        self.lineEdit_path_table_Kry : QLineEdit
-        self.lineEdit_path_table_Krz : QLineEdit
-
-        self.lineEdit_path_table_Cx : QLineEdit
-        self.lineEdit_path_table_Cy : QLineEdit
-        self.lineEdit_path_table_Cz : QLineEdit
-        self.lineEdit_path_table_Crx : QLineEdit
-        self.lineEdit_path_table_Cry : QLineEdit
-        self.lineEdit_path_table_Crz : QLineEdit
-
-        self.lineEdit_Mx : QLineEdit
-        self.lineEdit_My : QLineEdit
-        self.lineEdit_Mz : QLineEdit
-        self.lineEdit_Jx : QLineEdit
-        self.lineEdit_Jy : QLineEdit
-        self.lineEdit_Jz : QLineEdit
-
-        self.lineEdit_Kx : QLineEdit
-        self.lineEdit_Ky : QLineEdit
-        self.lineEdit_Kz : QLineEdit
-        self.lineEdit_Krx : QLineEdit
-        self.lineEdit_Kry : QLineEdit
-        self.lineEdit_Krz : QLineEdit
-
-        self.lineEdit_Cx : QLineEdit
-        self.lineEdit_Cy : QLineEdit
-        self.lineEdit_Cz : QLineEdit
-        self.lineEdit_Crx : QLineEdit
-        self.lineEdit_Cry : QLineEdit
-        self.lineEdit_Crz : QLineEdit
-
-        self.lineEdit_path_table_Mx : QLineEdit
-        self.lineEdit_path_table_My : QLineEdit
-        self.lineEdit_path_table_Mz : QLineEdit
-        self.lineEdit_path_table_Jx : QLineEdit
-        self.lineEdit_path_table_Jy : QLineEdit
-        self.lineEdit_path_table_Jz : QLineEdit
-
         self._create_lists_of_lineEdits()
-
-        # QPushButton       
-        self.pushButton_attribute : QPushButton
-        self.pushButton_cancel : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-
-        self.pushButton_load_Mx_table : QPushButton
-        self.pushButton_load_My_table : QPushButton
-        self.pushButton_load_Mz_table : QPushButton
-        self.pushButton_load_Jx_table : QPushButton
-        self.pushButton_load_Jy_table : QPushButton
-        self.pushButton_load_Jz_table : QPushButton
-
-        self.pushButton_load_Kx_table : QPushButton
-        self.pushButton_load_Ky_table : QPushButton
-        self.pushButton_load_Kz_table : QPushButton
-        self.pushButton_load_Krx_table : QPushButton
-        self.pushButton_load_Kry_table : QPushButton
-        self.pushButton_load_Krz_table : QPushButton         
-
-        self.pushButton_load_Cx_table : QPushButton
-        self.pushButton_load_Cy_table : QPushButton
-        self.pushButton_load_Cz_table : QPushButton
-        self.pushButton_load_Crx_table : QPushButton
-        self.pushButton_load_Cry_table : QPushButton
-        self.pushButton_load_Crz_table : QPushButton
-        
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
-        self.tabWidget_inputs : QTabWidget
-        self.tabWidget_main : QTabWidget
-
-        self.tabWidget_external_elements : QTabWidget
-        self.tabWidget_constant_values : QTabWidget
-        self.tabWidget_table_values : QTabWidget
-        self.tabWidget_remove : QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_springs : QTreeWidget
-        self.treeWidget_dampers : QTreeWidget
-        self.treeWidget_masses : QTreeWidget
 
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
 
@@ -419,7 +320,7 @@ class MassSpringDamperInput(QDialog):
             except Exception:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for {label}."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True, None
         else:
             value = 0
@@ -591,7 +492,7 @@ class MassSpringDamperInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one external element\n"
             message += "before confirming the input!"
-            PrintMessageInput([window_title_1, title, message]) 
+            PrintMessageInput([error_title, title, message]) 
             return
 
         self.actions_to_finalize()
@@ -630,16 +531,12 @@ class MassSpringDamperInput(QDialog):
             if imported_file.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 lineEdit.setFocus()
                 return None, None
 
-            imported_values = imported_file[:,1] + 1j*imported_file[:,2]
-
-            self.frequencies = imported_file[:,0]
-            f_min = self.frequencies[0]
-            f_max = self.frequencies[-1]
-            f_step = self.frequencies[1] - self.frequencies[0] 
+            self.frequencies = imported_file[:, 0]
+            complex_values = imported_file[:, 1] + 1j * imported_file[:, 2]
             
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
@@ -652,22 +549,19 @@ class MassSpringDamperInput(QDialog):
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
 
-                frequency_setup = { "f_min" : f_min,
-                                    "f_max" : f_max,
-                                    "f_step" : f_step }
+                analysis_setup = app().project.model.analysis_setup
+                app().project.file.write_analysis_setup_in_file(analysis_setup)
 
-                app().project.model.set_frequency_setup(frequency_setup)
-            
-            return imported_values, path_imported_table
+            return complex_values, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -834,11 +728,11 @@ class MassSpringDamperInput(QDialog):
                 coords = np.round(node.coordinates, 5)
 
                 _data = {
-                        "coords" : list(coords),
-                        "table_names" : table_names,
-                        "table_paths" : table_paths,
-                        "values" : values
-                        }
+                    "coords" : list(coords),
+                    "table_names" : table_names,
+                    "table_paths" : table_paths,
+                    "values" : values,
+                    }
 
                 self.properties._set_nodal_property("lumped_masses", _data, node_id)
 
@@ -988,7 +882,7 @@ class MassSpringDamperInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one external element\n" 
             message += "table path before confirming the input!"
-            PrintMessageInput([window_title_1, title, message]) 
+            PrintMessageInput([error_title, title, message]) 
             return
 
         self.actions_to_finalize()
@@ -1231,4 +1125,5 @@ class MassSpringDamperInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)

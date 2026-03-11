@@ -1,26 +1,24 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.structural_element_type_input_ui import StructuralElementTypeInput_UI
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 from collections import defaultdict
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
-class StructuralElementTypeInput(QDialog):
+error_title = "Error"
+warning_title = "Warning"
+
+
+class StructuralElementTypeInput(StructuralElementTypeInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/structural_element_type_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -28,7 +26,6 @@ class StructuralElementTypeInput(QDialog):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
 
         self.element_type_change_callback()
@@ -51,43 +48,13 @@ class StructuralElementTypeInput(QDialog):
 
         self.before_run = app().project.get_pre_solution_model_checks()
 
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_selection: QComboBox
-        self.comboBox_element_type: QComboBox
-        self.comboBox_capped_end: QComboBox
-        self.comboBox_force_offset: QComboBox
-        self.comboBox_wall_formulation: QComboBox
-
-        # QLabel
-        self.label_selected_id: QLabel
-        self.label_capped_end: QLabel
-        self.label_force_offset: QLabel
-        self.label_wall_formulation: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_element_type: QTreeWidget
-
     def _create_connections(self):
         #
         self.comboBox_element_type.currentIndexChanged.connect(self.element_type_change_callback)
         self.comboBox_selection.currentIndexChanged.connect(self.attribution_type_callback)
         #
         self.pushButton_attribute.clicked.connect(self.element_type_attribution_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -234,7 +201,7 @@ class StructuralElementTypeInput(QDialog):
 
                 message += "has been modified, therefore, it is necessary to update \n"
                 message += "the cross-section(s) of this(ese) line(s) to continue."
-                PrintMessageInput([window_title_2, title, message])
+                PrintMessageInput([warning_title, title, message])
 
     def update_modified_cross_sections(self, lines_to_reset: list):
         app().project.model.preprocessor.set_cross_section_by_lines(lines_to_reset, None)
@@ -407,12 +374,12 @@ class StructuralElementTypeInput(QDialog):
             else:
                 title = "Invalid selection"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([window_title_2, title, message])
+                PrintMessageInput([warning_title, title, message])
 
         except Exception as error_log:
             title = "Error while getting information of selected group"
             message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
         self.show()
 
@@ -424,4 +391,5 @@ class StructuralElementTypeInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)

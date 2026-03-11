@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
+    pass
 
 
 from copy import deepcopy
@@ -10,7 +10,6 @@ from pulse.editor.structures import ArcBend
 from molde.stylesheets import set_qproperty
 
 from .structure_options import StructureOptions
-from pulse import app
 
 
 class ArcBendOptions(StructureOptions):
@@ -38,7 +37,7 @@ class ArcBendOptions(StructureOptions):
         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, True)
         self.cross_section_widget.lineEdit_outside_diameter.setFocus()
         self.load_data_from_reducer_section()
-        self.cross_section_widget.exec()
+        self.cross_section_dialog.exec()
 
         if not self.cross_section_dialog.complete:
             return

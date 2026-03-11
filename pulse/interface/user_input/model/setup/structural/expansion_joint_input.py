@@ -1,31 +1,28 @@
 # fmt: off
 
-from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_ui import ExpansionJointInput_UI
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.model.cross_section import CrossSection
 
-from molde import load_ui
 
 import numpy as np
 from pathlib import Path
 from os.path import basename
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
-class ExpansionJointInput(QDialog):
+error_title = "Error"
+
+
+class ExpansionJointInput(ExpansionJointInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
-
-        ui_path = UI_DIR / "model/setup/structural/expansion_joint_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         self.render_type = kwargs.get("render_type", "model")
 
         app().main_window.set_input_widget(self)
@@ -72,60 +69,14 @@ class ExpansionJointInput(QDialog):
         self.Kryz_filename = None
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_axial_stop_rod: QComboBox
-
-        # QFrame
-        self.selection_frame: QFrame
-
-        # QLabel
-        self.label_selected_id: QLabel
-        self.label_selection: QLabel
-        self.label_axial_lock_criteria: QLabel
-
-        # QLineEdit 
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_expansion_joint_name: QLineEdit
-        #
-        self.lineEdit_effective_diameter: QLineEdit
-        self.lineEdit_joint_mass: QLineEdit
-        self.lineEdit_axial_locking_criteria: QLineEdit
-        #
-        self.lineEdit_axial_stiffness: QLineEdit
-        self.lineEdit_transversal_stiffness: QLineEdit
-        self.lineEdit_torsional_stiffness: QLineEdit
-        self.lineEdit_angular_stiffness: QLineEdit
-        #
-        self.lineEdit_path_table_axial_stiffness: QLineEdit
-        self.lineEdit_path_table_transversal_stiffness: QLineEdit
-        self.lineEdit_path_table_torsional_stiffness: QLineEdit
-        self.lineEdit_path_table_angular_stiffness: QLineEdit
         self._create_lists_of_lineEdits()
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_load_table_axial_stiffness: QPushButton
-        self.pushButton_load_table_transversal_stiffness: QPushButton
-        self.pushButton_load_table_torsional_stiffness: QPushButton
-        self.pushButton_load_table_angular_stiffness: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-        self.tabWidget_inputs: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_expansion_joints_info: QTreeWidget
 
     def _create_connections(self):
         #
         self.comboBox_axial_stop_rod.currentIndexChanged.connect(self.axial_stop_rod_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -161,7 +112,7 @@ class ExpansionJointInput(QDialog):
         except Exception as log_error:
             title = "Error in 'update' function"
             message = str(log_error) 
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
     def _configure_appearance(self):
 
@@ -264,7 +215,7 @@ class ExpansionJointInput(QDialog):
         except Exception as error_log:
             title = "Error while loading info from entity"
             message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
     def check_input_parameters(self, lineEdit: QLineEdit, label: str, _float=True):
 
@@ -294,7 +245,7 @@ class ExpansionJointInput(QDialog):
             message += "You should to enter a positive value to proceed."
 
         if message != "":
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True, None
         else:
             return False, value
@@ -416,21 +367,17 @@ class ExpansionJointInput(QDialog):
 
             imported_filename = basename(path_imported_table)
             lineEdit.setText(path_imported_table)         
-            imported_file = np.loadtxt(path_imported_table, delimiter=",")
+            imported_data = np.loadtxt(path_imported_table, delimiter=",")
         
-            if imported_file.shape[1] < 3:
+            if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum "
                 message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 lineEdit.setFocus()
                 return None, None
 
-            imported_values = imported_file[:,1] + 1j*imported_file[:,2]
-
-            self.frequencies = imported_file[:,0]
-            f_min = self.frequencies[0]
-            f_max = self.frequencies[-1]
-            f_step = self.frequencies[1] - self.frequencies[0] 
+            self.frequencies = imported_data[:, 0]
+            complex_values = imported_data[:, 1] + 1j * imported_data[:, 2]
             
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
@@ -443,22 +390,19 @@ class ExpansionJointInput(QDialog):
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
 
-                frequency_setup = { "f_min" : f_min,
-                                    "f_max" : f_max,
-                                    "f_step" : f_step }
+                analysis_setup = app().project.model.analysis_setup
+                app().project.file.write_analysis_setup_in_file(analysis_setup)
 
-                app().project.model.set_frequency_setup(frequency_setup)
-
-            return imported_values, path_imported_table
+            return complex_values, path_imported_table
 
         except Exception as log_error:
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -592,7 +536,7 @@ class ExpansionJointInput(QDialog):
         except Exception as log_error:
             title = "Error while loading stiffness table of values"
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
 
     def process_line_length(self, line_id: int):
@@ -819,6 +763,7 @@ class ExpansionJointInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
     
 def get_cross_sections_to_plot_expansion_joint(joint_elements: list, effective_diameter: float):

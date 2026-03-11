@@ -7,12 +7,10 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 import logging
 import numpy as np
 
-from scipy.sparse import triu
 from scipy.sparse.linalg import eigs, spsolve
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
 
 class StructuralSolver:
     """ This class creates a Structural Solution object from input data.
@@ -46,9 +44,9 @@ class StructuralSolver:
         self.prescribed_values, self.array_prescribed_values = self.assembly.get_prescribed_values()
         self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
 
-        self._initialize()
+        self.reset_variables()
 
-    def _initialize(self):
+    def reset_variables(self):
         
         self.natural_frequencies = None
         self.modal_shapes = None
@@ -76,7 +74,7 @@ class StructuralSolver:
         solution : array
             Solution data from the direct method, modal superposition or modal shapes from modal analysis.
 
-        modal_analysis : boll, optional
+        modal_analysis : bool, optional
             True if the modal analysis was evaluated.
 
         Returns
@@ -120,7 +118,7 @@ class StructuralSolver:
         """
 
         unprescribed_indexes = self.unprescribed_indexes
-        alpha_v, beta_v, alpha_h, beta_h = self.model.global_damping
+        alpha, beta, eta = self.model.global_damping
 
         F = self.assembly.get_global_loads(static_analysis=static_analysis)
 
@@ -179,9 +177,9 @@ class StructuralSolver:
 
                 omega = 2*np.pi*freq
                 F_Kadd = Kr_add + Kr_add_lump
-                F_Madd = (-(omega**2))*(Mr_add + Mr_add_lump) 
-                F_Cadd = 1j*((beta_h + omega*beta_v)*Kr_add + (alpha_h + omega*alpha_v)*Mr_add)
-                F_Cadd_lump = 1j*omega*Cr_add_lump
+                F_Madd = (-(omega**2)) * (Mr_add + Mr_add_lump)
+                F_Cadd = 1j * ((eta + omega * beta) * Kr_add + (omega * alpha) * Mr_add)
+                F_Cadd_lump = 1j * omega * Cr_add_lump
                 F_eq[:, i] = F_Kadd + F_Madd + F_Cadd + F_Cadd_lump
 
         F_combined = F - F_eq
@@ -212,7 +210,7 @@ class StructuralSolver:
         sigma : float, optional
             Find eigenvalues near sigma in (rad/s)^2 using shift-invert mode. 
 
-        harmonic_analysis : boll, optional
+        harmonic_analysis : bool, optional
             True when the modal analysis is used to perform mode superposition. False otherwise.
             Default is False.
 
@@ -227,7 +225,7 @@ class StructuralSolver:
 
         K = kwargs.get("K", list())
         M = kwargs.get("M", list())
-        modes = kwargs.get("modes", 40)
+        modes = kwargs.get("number_of_modes", 40)
         which = kwargs.get("which", "LM")
         sigma_factor = kwargs.get("sigma_factor", 1e-2)
         harmonic_analysis = kwargs.get("harmonic_analysis", False)
@@ -292,7 +290,7 @@ class StructuralSolver:
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
 
-        alpha_v, beta_v, alpha_h, beta_h = self.model.global_damping
+        alpha, beta, eta = self.model.global_damping
 
         if self.model.preprocessor.stress_stiffening_enabled:
             static_solution = self.static_analysis()
@@ -320,10 +318,10 @@ class StructuralSolver:
             # F_C = 1j*(( beta_h + omega*beta_v )*self.K + ( alpha_h + omega*alpha_v )*self.M)
 
             F_K = (self.K + self.K_exp_joint[i] + self.K_lump[i])
-            F_M =  (-(omega**2))*(self.M + self.M_exp_joint + self.M_lump[i])
-            F_C = 1j*(( beta_h + omega*beta_v )*(self.K + self.K_exp_joint[i]) + ( alpha_h + omega*alpha_v )*(self.M + self.M_exp_joint))
+            F_M =  (-(omega**2)) * (self.M + self.M_exp_joint + self.M_lump[i])
+            F_C = 1j * ((eta + omega * beta) * (self.K + self.K_exp_joint[i]) + (omega * alpha) * (self.M + self.M_exp_joint))
 
-            F_Clump = 1j*omega*self.C_lump[i]
+            F_Clump = 1j * omega * self.C_lump[i]
             
             A = F_K + F_M + F_C + F_Clump
             solution[:, i] = spsolve(A, F[:, i])
@@ -336,20 +334,14 @@ class StructuralSolver:
         return self.solution
 
 
-    def mode_superposition(self, modes, fastest=True):
+    def mode_superposition(self, fastest: bool=True):
         """
-        This method evaluates the harmonic analysis through mode superposition method. It is suitable for Viscous Proportional and Hysteretic Proportional damping models.
+        This method evaluates the harmonic analysis through mode superposition method. It is suitable for Viscous 
+        Proportional and Hysteretic Proportional damping models.
 
         Parameters
         ----------
-        global_damping : list of floats.
-            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
-
-        F_loaded : ,optional.
-            
-            Default None.
-
-        fastest : boll, optional.
+        fastest : bool, optional.
             True if 3D matrix solution procedure must be used. False otherwise.
             Default True.
 
@@ -358,8 +350,9 @@ class StructuralSolver:
         array
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
+        number_of_modes = self.model.number_of_modes
         global_damping = self.model.global_damping
-        alpha_v, beta_v, alpha_h, beta_h = global_damping
+        alpha, beta, eta = global_damping
 
         self.warning_mode_sup_prescribed_dofs = ""
 
@@ -386,22 +379,25 @@ class StructuralSolver:
 
         #TODO: in the future version implement lets F_loaded operational
 
-        natural_frequencies, modal_shape = self.modal_analysis(K=Kadd_lump, M=Madd_lump, modes=modes, harmonic_analysis=True)
+        natural_frequencies, modal_shape = self.modal_analysis(K=Kadd_lump, M=Madd_lump, modes=number_of_modes, harmonic_analysis=True)
         rows = Kadd_lump.shape[0]
         cols = len(self.frequencies)
 
-        if fastest:    
-        
+        if fastest:
+
             number_modes = len(natural_frequencies)
             omega = 2 * np.pi * self.frequencies.reshape(cols,1,1)
             omega_n = 2 * np.pi * natural_frequencies
+
             F_kg = (omega_n**2)
             F_mg =  -(omega**2)
-            F_cg = 1j*((beta_h + beta_v*omega)*(omega_n**2) + (alpha_h + omega*alpha_v)) 
+            F_cg = 1j * ((eta + beta * omega) * (omega_n**2) + (omega * alpha))
+
             diag = np.divide(1, (F_kg + F_mg + F_cg))*np.eye(number_modes)
             F_aux = modal_shape.T @ F
+
             solution = modal_shape @ (diag @ F_aux)
-            solution = solution.reshape(cols, rows).T 
+            solution = solution.reshape(cols, rows).T
 
             if self.stop_processing():
                 return None
@@ -417,10 +413,10 @@ class StructuralSolver:
 
                 omega = 2*np.pi*freq
                 F_mg =  - (omega**2)
-                F_cg = 1j*((beta_h + beta_v*omega)*(omega_n**2) + (alpha_h + omega*alpha_v)) 
+                F_cg = 1j * ((eta + beta * omega) * (omega_n**2) + (omega * alpha)) 
                 data = np.divide(1, (F_kg + F_mg + F_cg))
                 diag = np.diag(data)
-                solution[:,i] = modal_shape @ (diag @ F_aux[:,i])
+                solution[:, i] = modal_shape @ (diag @ F_aux[:,i])
 
                 if self.stop_processing():
                     return None
@@ -448,7 +444,7 @@ class StructuralSolver:
             Gets the nodal results at the global coordinate system and updates the global matrices to get into account the stress stiffening effect. 
         """
 
-        alpha_v, beta_v, alpha_h, beta_h = self.model.global_damping
+        alpha, beta, eta = self.model.global_damping
         # F = self.assembly.get_global_loads_for_static_analysis()
         F = self.get_combined_loads(static_analysis=True)
 
@@ -460,8 +456,8 @@ class StructuralSolver:
 
         F_K = (self.K + self.K_exp_joint[0] + self.K_lump[0])
         F_M =  (-(omega**2))*(self.M + self.M_exp_joint + self.M_lump[0])
-        F_C = 1j*(( beta_h + omega*beta_v )*(self.K + self.K_exp_joint[0]) + 
-                  ( alpha_h + omega*alpha_v )*(self.M + self.M_exp_joint))
+        F_C = 1j * ((eta + omega * beta) * (self.K + self.K_exp_joint[0]) + 
+                  (omega * alpha) * (self.M + self.M_exp_joint))
 
         F_Clump = 1j*omega*self.C_lump[0]
         A = F_K + F_M + F_C + F_Clump
@@ -487,7 +483,7 @@ class StructuralSolver:
             Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a fixed degree of freedom.
         """
 
-        alpha_h, beta_h, alpha_v, beta_v = self.model.global_damping
+        alpha, beta, eta = self.model.global_damping
 
         if self.solution is not None:    
 
@@ -521,7 +517,7 @@ class StructuralSolver:
 
                     F_K = Ut_Kr
                     F_M = -(omega**2) * Ut_Mr[j, :]
-                    F_C = 1j*((beta_h + omega*beta_v) * Ut_Kr + (alpha_h + omega*alpha_v) * Ut_Mr[j, :])
+                    F_C = 1j * ((eta + omega * beta) * Ut_Kr + (omega * alpha) * Ut_Mr[j, :])
 
                     _reactions[j, :] = F_K + F_M + F_C
 
@@ -622,7 +618,7 @@ class StructuralSolver:
             Static pressure difference between atmosphere and the fluid in the pipeline.
             Default is 0.
             
-        damping : boll, optional.
+        damping : bool, optional.
             True if the damping must be considered when evaluating the stresses. False otherwise.
             Default is False
 
@@ -646,10 +642,13 @@ class StructuralSolver:
 
         self.stress_field_dict = dict()
 
+        # TODO: review the damping effect on the stress evaluation
+
         if damping:
-            _, beta_h, _, beta_v = self.model.global_damping
+            (_, beta, eta) = self.model.global_damping
+            # _, beta_h, _, beta_v = self.model.global_damping
         else:
-            beta_h = beta_v = 0
+            beta = eta = 0
 
         if static_analysis:
             _frequencies = np.array([0], dtype=float)
@@ -657,9 +656,11 @@ class StructuralSolver:
             _frequencies = self.frequencies
 
         structural_elements = self.model.preprocessor.structural_elements.values()
-        omega = 2 * np.pi * _frequencies.reshape(1,-1)
+        omega = 2 * np.pi * _frequencies.reshape(1, -1)
 
-        damping = np.ones([6,1]) @  (1 + 1j*( beta_h + omega * beta_v ))
+        damping = np.ones([6, 1]) @  (1 + 1j*(eta + omega * beta))
+        # damping = np.ones([6,1]) @  (1 + 1j*( beta_h + omega * beta_v ))
+
         p0 = external_pressure
 
         for element in structural_elements:
@@ -674,7 +675,7 @@ class StructuralSolver:
                 if self.solution is None:
                     title = "Empty solution"
                     message = "A strutural analysis must be performed to obtain the stress field."
-                    PrintMessageInput([window_title_1, title, message])
+                    PrintMessageInput([error_title, title, message])
                     return {}
 
                 u = self.solution[structural_dofs, :]
@@ -691,6 +692,7 @@ class StructuralSolver:
                 shear = Dts @ Bts @ T @ rot @ u
 
                 element.internal_load = np.multiply(np.r_[normal, shear], damping)
+
                 # Stress
                 do = element.cross_section.outer_diameter
                 di = element.cross_section.inner_diameter
@@ -717,15 +719,16 @@ class StructuralSolver:
                 if element.wall_formulation == "thin_wall":
                     hoop_stress = pm
                     radial_stress = -nu * np.pi * (do/(do-di) - 1)
-                   
-                stress_data = np.c_[element.internal_load[0]/area - radial_stress,
-                                    element.internal_load[1] * ro/Iy,
-                                    element.internal_load[2] * ro/Iz,
-                                    hoop_stress,
-                                    element.internal_load[3] * ro/J,
-                                    element.internal_load[4]/area,
-                                    element.internal_load[5]/area   ].T
-                
+
+                stress_data = np.c_[
+                    element.internal_load[0] / area - radial_stress,
+                    element.internal_load[1] * ro/Iy,
+                    element.internal_load[2] * ro/Iz,
+                    hoop_stress,
+                    element.internal_load[3] * ro/J,
+                    element.internal_load[4] / area,
+                    element.internal_load[5] / area   ].T
+
                 if real_values:
                     element.stress = np.real(stress_data)
                 else:

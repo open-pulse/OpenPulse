@@ -1,15 +1,6 @@
 from PySide6.QtWidgets import (
-    QWidget,
-    QLineEdit,
-    QComboBox,
-    QFrame,
-    QPushButton,
     QLabel,
-    QStackedWidget,
-    QSlider,
-    QSpinBox,
 )
-from PySide6.QtGui import QAction
 
 from vtkmodules.vtkRenderingCore import vtkCoordinate, vtkCamera
 from vtkmodules.vtkCommonDataModel import vtkRecti
@@ -17,6 +8,7 @@ from vtkmodules.vtkCommonDataModel import vtkRecti
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import re
 from itertools import chain
@@ -26,9 +18,9 @@ import math
 
 from molde.stylesheets import set_qproperty
 from molde.utils import TreeInfo
-from molde import load_ui
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.geometry.geometry_designer_widget_ui import GeometryDesignerWidget_UI
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section_simplified import (
     SetCrossSectionSimplified,
@@ -62,13 +54,9 @@ from pulse.interface.user_input.model.geometry.options import (
 )
 
 
-class GeometryDesignerWidget(QWidget):
+class GeometryDesignerWidget(GeometryDesignerWidget_UI):
     def __init__(self, render_widget: GeometryRenderWidget, parent=None):
         super().__init__(parent)
-
-        ui_path = UI_DIR / "model/geometry/geometry_designer_widget.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         self.render_widget = render_widget
         self.modified = False
         self.tmp_camera = None
@@ -82,69 +70,7 @@ class GeometryDesignerWidget(QWidget):
         self._initialize()
 
     def _define_qt_variables(self):
-        # QAction
-        self.select_all_action: QAction
         self.addAction(self.select_all_action)
-
-        # QComboBox
-        self.unit_combobox: QComboBox
-        self.structure_combobox: QComboBox
-        self.division_combobox: QComboBox
-        self.bending_options_combobox: QComboBox
-        self.deltas_combobox: QComboBox
-        self.selected_point_combo_box: QComboBox
-        self.distance_axis_combo_box: QComboBox
-
-        # QFrame
-        self.frame_bending_options: QFrame
-        self.frame_bounding_box_sizes: QFrame
-        self.frame_division_options: QFrame
-        self.create_structure_frame: QFrame
-
-        # QPushButton
-        self.add_button: QPushButton
-        self.apply_division_button: QPushButton
-        self.attach_button: QPushButton
-        self.cancel_button: QPushButton
-        self.cancel_division_button: QPushButton
-        self.delete_button: QPushButton
-        self.finalize_button: QPushButton
-        self.configure_button: QPushButton
-        self.set_material_button: QPushButton
-
-        # QLineEdit
-        self.x_line_edit: QLineEdit
-        self.y_line_edit: QLineEdit
-        self.z_line_edit: QLineEdit
-        self.unity_x_label: QLineEdit
-        self.unity_y_label: QLineEdit
-        self.unity_z_label: QLineEdit
-        self.bending_radius_line_edit: QLineEdit
-        self.deltas_line_edit: QLineEdit
-        self.distance_value_line_edit: QLineEdit
-
-        # QLabel
-        self.dx_label: QLabel
-        self.dy_label: QLabel
-        self.dz_label: QLabel
-
-        self.division_slider_label: QLabel
-        self.position_slider_label: QLabel
-        self.sizes_coords_label: QLabel
-
-        # QSlider
-        self.division_slider: QSlider
-        self.position_slider: QSlider
-
-        # QSpinBox
-        self.division_amount_spinbox: QSpinBox
-        self.position_spinbox: QSpinBox
-
-        # QStackedWidget
-        self.options_stack_widget: QStackedWidget
-
-        # QWidget
-        self.empty_widget: QWidget
 
     def _create_layout(self):
         self.material_widget = SetMaterialSimplified()
@@ -385,12 +311,17 @@ class GeometryDesignerWidget(QWidget):
 
     def get_pipe_diameter(self):
         try:
-            section_parameters = (
-                self.cross_section_dialog.cross_section_widget.pipe_section_info[
-                    "section_parameters"
-                ]
-            )
-            diameter = section_parameters[0]
+            nps = self.cross_section_dialog.cross_section_widget.nps
+            if nps:
+                diameter = nps
+            else:
+                section_parameters = (
+                    self.cross_section_dialog.cross_section_widget.pipe_section_info[
+                        "section_parameters"
+                    ]
+                )
+                diameter = section_parameters[0]
+        
         except Exception:
             return None
 
@@ -406,6 +337,14 @@ class GeometryDesignerWidget(QWidget):
             self.xyz_changed_callback()
 
     def xyz_changed_callback(self):
+        if self.forbidden_structure():
+            self._reset_xyz()
+            window_title = "Invalid Location"
+            title = "Protected Structure"
+            message = "This location belongs to a PSD or Pulsation Damper, please use the dedicated editor to modify it."
+            PrintMessageInput([window_title, title, message])
+            return
+
         try:
             self.update_bending_radius_visibility()
             xyz = self._get_xyz()
@@ -704,10 +643,12 @@ class GeometryDesignerWidget(QWidget):
                 )
             elif selected_device_type == "damper":
                 message = "To delete a pulsation damper or its parts, please use the dedicated editor."
+
             buttons_config = {
                 "left_button_label": "Cancel",
                 "right_button_label": "Open editor",
             }
+
             read = GetUserConfirmationInput(
                 title, message, buttons_config=buttons_config
             )
@@ -974,3 +915,35 @@ class GeometryDesignerWidget(QWidget):
         app().project.loader.load_mesh_dependent_properties()
         app().main_window.initial_project_action(True)
         self.complete = True
+
+    def forbidden_structure(self):
+        forbidden_parts = [
+            # "pipe #1",
+            # "pipe #2",
+            "volume #1",
+            "volume #2",
+            "pipe #3",
+            # "neck",
+            "liquid_filled",
+            "gas_filled",
+        ]
+        for point in self.pipeline.selected_points:
+            structures = self.pipeline.get_structures_of_point(point)
+            for structure in structures:
+                if "psd_name" in structure.extra_info.keys():
+                    line_properties = app().project.model.properties.line_properties
+                    if structure.tag in line_properties:
+                        psd_segment = line_properties[structure.tag].get("psd_segment")
+                        if psd_segment in forbidden_parts:
+                            return True
+
+                elif "pulsation_damper_name" in structure.extra_info.keys():
+                    line_properties = app().project.model.properties.line_properties
+                    if structure.tag in line_properties:
+                        damper_segment = line_properties[structure.tag].get(
+                            "pulsation_damper_segment"
+                        )
+                        if damper_segment in forbidden_parts:
+                            return True
+
+        return False

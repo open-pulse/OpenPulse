@@ -1,7 +1,8 @@
 # fmt: off
 
-from pulse.model.perforated_plate import Foks_function
+from pulse.model import RadiationImpedanceType
 from pulse.model.node import Node, distance
+from pulse.model.perforated_plate import Foks_function
 
 from numpy import sqrt, pi
 import numpy as np
@@ -994,12 +995,12 @@ class AcousticElement:
 
         Parameters
         -------
-        impedance_type : int
-            Integer number relative to radiation impedance type.
+        impedance_type : str
+            A string or a integer number that represents radiation impedance type.
 
-            0 -> anechoic termination
-            1 -> flanged termination
-            2 -> unflanged termination
+            anechoic or 0 -> anechoic termination
+            flanged or 1 -> flanged termination
+            unflanged or 2 -> unflanged termination
 
         frequencies : float-array
             The frequencies vector of the harmonic analysis.
@@ -1023,13 +1024,14 @@ class AcousticElement:
         elif self.element_type == 'LRF full':
             kappa_complex, impedance_complex = self.get_fetm_thermoviscous_damping_data(frequencies)
 
-        if impedance_type == 0:
+        # the integer numbers ensure the backwards compatibility
+        if impedance_type == RadiationImpedanceType.ANECHOIC:
             return impedance_complex + 0j
 
-        elif impedance_type == 1:
+        elif impedance_type == RadiationImpedanceType.FLANGED:
             return self.flanged_termination_impedance(kappa_complex, impedance_complex)
 
-        elif impedance_type == 2:
+        elif impedance_type == RadiationImpedanceType.UNFLANGED:
             return self.unflanged_termination_impedance(kappa_complex, impedance_complex)
 
 # fmt: on

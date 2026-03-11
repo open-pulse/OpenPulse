@@ -1,29 +1,22 @@
 # fmt: off
 
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
-from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.xaxis_beam_rotation_input_ui import XaxisBeamRotationInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
-from collections import defaultdict
+error_title = "Error"
+warning_title = "Warning"
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
-class BeamXaxisRotationInput(QDialog):
+class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        ui_path = UI_DIR / "model/setup/structural/xaxis_beam_rotation_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
 
         self.properties = app().project.model.properties
@@ -33,7 +26,6 @@ class BeamXaxisRotationInput(QDialog):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._config_widgets()
         self._create_connections()
         self.selection_callback()
@@ -57,32 +49,6 @@ class BeamXaxisRotationInput(QDialog):
 
         self.element_type = 'pipe_1'
 
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_selection: QComboBox
-
-        # QLabel
-        self.label_attribute_to: QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_increment_angle: QLineEdit
-        self.lineEdit_actual_angle: QLineEdit
-
-        # QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QTreeWidget
-        self.treeWidget_xaxis_rotation_angle: QTreeWidget
-
-        # QTabWidget
-        self.tabWidget_xaxis_rotation_angle: QTabWidget
-
     def _config_widgets(self):
         #
         self.pushButton_remove.setDisabled(True)
@@ -95,7 +61,7 @@ class BeamXaxisRotationInput(QDialog):
         self.comboBox_selection.currentIndexChanged.connect(self.change_selection_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -200,7 +166,7 @@ class BeamXaxisRotationInput(QDialog):
             title = f"Invalid X-axis Rotation Angle"
             message = f"Please, inform a valid number at the 'Rotation angle' input field to continue.\n\n"
             message += f"{str(error_log)}"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True, None
         return False, rotation_angle
 
@@ -217,7 +183,7 @@ class BeamXaxisRotationInput(QDialog):
                 title = "Invalid lines selected"
                 message = "No beam lines have been detected in the current selection. "
                 message += "To proceed, it is necessary to change the lines selection."
-                PrintMessageInput([window_title_2, title, message])                
+                PrintMessageInput([warning_title, title, message])                
 
         except:
             return True, beam_lines
@@ -326,6 +292,7 @@ class BeamXaxisRotationInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)
     
 # fmt: on

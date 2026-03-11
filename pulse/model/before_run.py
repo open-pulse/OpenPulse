@@ -1,14 +1,17 @@
 # fmt: off
 
 from pulse import app
+from pulse.model import AnalysisID
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.unit_conversion import mm_to_m
 
 import numpy as np
 from collections import defaultdict
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+
+error_title = "Error"
+warning_title = "Warning"
+
 
 class BeforeRun():
     def __init__(self):
@@ -32,7 +35,7 @@ class BeforeRun():
             message += "take this information into account when checking the obtained results."
             
         if message != "":
-            PrintMessageInput([window_title_2, title, message])
+            PrintMessageInput([warning_title, title, message])
 
     def check_selected_ids(self, selected_ids : str, selection_type : str, single_id = False):
         try:
@@ -61,8 +64,8 @@ class BeforeRun():
             typed_ids = list(map(int, tokens))
             
             if len(typed_ids) == 0:
-                    message = f"An empty input field for the {label.capitalize()} ID has been detected." 
-                    message += f"You should enter a valid  {label.capitalize()} ID to proceed!"
+                    message = f"An empty input field for the {label.capitalize()} ID has been detected. " 
+                    message += f"You should enter a valid {label.capitalize()} ID to proceed."
 
             elif len(typed_ids) >= 1:
 
@@ -94,7 +97,7 @@ class BeforeRun():
             message += str(log_error)
 
         if message != "":
-            PrintMessageInput([window_title_1, title, message])               
+            PrintMessageInput([error_title, title, message])               
             return True, list() 
 
         if single_id:
@@ -258,15 +261,15 @@ class BeforeRun():
 
         Parameters
         ----------
-        acoustic : boll, optional
+        acoustic : bool, optional
             True if a acoustic analysis will be performed. False otherwise.
             Default is False.
 
-        structural : boll, optional
+        structural : bool, optional
             True if a structural analysis will be performed. False otherwise.
             Default is False.
 
-        coupled : boll, optional
+        coupled : bool, optional
             True if a coupled analysis will be performed. False otherwise.
             Default is False.
         """
@@ -370,7 +373,7 @@ class BeforeRun():
                 PrintMessageInput([window_title, title, list_messages[index]])
 
 
-    def check_is_there_a_problem(self, analysis_id):
+    def check_is_there_a_problem(self, analysis_id: int):
 
         title = " Insufficient model inputs "
 
@@ -392,13 +395,13 @@ class BeforeRun():
         acoustic_message += "\n\nAvailable acoustic excitations: acoustic pressure, volume velocity, "
         acoustic_message += "reciprocating compressor excitation, and reciprocating pump excitation."
 
-        if analysis_id == 2:
+        if analysis_id == AnalysisID.STRUCTURAL_MODAL:
 
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             if self.check_set_material:
                 app().main_window.set_selection(lines = lines_without_materials)
                 message = material_message.format(lines_without_materials)
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return True
 
             elif self.check_set_crossSection:
@@ -418,10 +421,10 @@ class BeforeRun():
                     app().main_window.set_selection(lines = line_ids)
                     app().main_window.set_selection(elements = element_ids)
 
-                PrintMessageInput([window_title_1, title, cross_section_message])
+                PrintMessageInput([error_title, title, cross_section_message])
                 return True
 
-        elif analysis_id == 4:
+        elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
 
             lines_without_materials = self.check_material_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
@@ -429,17 +432,17 @@ class BeforeRun():
 
             if self.check_set_material:
                 app().main_window.set_selection(lines = lines_without_materials)
-                PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
+                PrintMessageInput([error_title, title, material_message.format(lines_without_materials)])
                 return True
 
             elif self.check_set_fluid:
                 app().main_window.set_selection(lines = lines_without_fluids)
-                PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
+                PrintMessageInput([error_title, title, fluid_message.format(lines_without_fluids)])
                 return True
 
             elif self.check_all_fluid_inputs:
                 app().main_window.set_selection(lines = lines_without_all_fluids_inputs)
-                PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
+                PrintMessageInput([error_title, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
 
             elif self.check_set_crossSection:
@@ -459,17 +462,17 @@ class BeforeRun():
                     app().main_window.set_selection(lines = line_ids)
                     app().main_window.set_selection(elements = element_ids)
 
-                PrintMessageInput([window_title_1, title, cross_section_message])
+                PrintMessageInput([error_title, title, cross_section_message])
                 return True
 
-        elif analysis_id == 0 or analysis_id == 1:
+        elif analysis_id == AnalysisID.STRUCTURAL_HARMONIC:
 
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             self.check_nodes_attributes(structural=True)
 
             if self.check_set_material:
                 app().main_window.set_selection(lines = lines_without_materials)
-                PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
+                PrintMessageInput([error_title, title, material_message.format(lines_without_materials)])
                 return True
 
             elif self.check_set_crossSection:
@@ -489,14 +492,14 @@ class BeforeRun():
                     app().main_window.set_selection(lines = line_ids)
                     app().main_window.set_selection(elements = element_ids)
 
-                PrintMessageInput([window_title_1, title, cross_section_message])
+                PrintMessageInput([error_title, title, cross_section_message])
                 return True
 
             elif not self.structural_excitation:
-                PrintMessageInput([window_title_1, title, structural_message])
+                PrintMessageInput([error_title, title, structural_message])
                 return True
 
-        elif analysis_id == 3:
+        elif analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
 
             lines_without_materials = self.check_material_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
@@ -505,17 +508,17 @@ class BeforeRun():
 
             if self.check_set_fluid:
                 app().main_window.set_selection(lines =lines_without_fluids)
-                PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
+                PrintMessageInput([error_title, title, fluid_message.format(lines_without_fluids)])
                 return True
 
             elif self.check_all_fluid_inputs:
                 app().main_window.set_selection(lines =lines_without_all_fluids_inputs)
-                PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
+                PrintMessageInput([error_title, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
 
             elif self.check_set_material:
                 app().main_window.set_selection(lines =lines_without_materials)
-                PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
+                PrintMessageInput([error_title, title, material_message.format(lines_without_materials)])
                 return True
 
             elif self.check_set_crossSection:
@@ -536,14 +539,14 @@ class BeforeRun():
                     app().main_window.set_selection(lines = line_ids)
                     app().main_window.set_selection(elements = element_ids)
 
-                PrintMessageInput([window_title_1, title, cross_section_message])
+                PrintMessageInput([error_title, title, cross_section_message])
                 return True
 
             elif not self.acoustic_excitation:
-                PrintMessageInput([window_title_1, title, acoustic_message])
+                PrintMessageInput([error_title, title, acoustic_message])
                 return True
 
-        elif analysis_id == 5 or analysis_id == 6:
+        elif analysis_id == AnalysisID.COUPLED_HARMONIC:
 
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
@@ -552,17 +555,17 @@ class BeforeRun():
 
             if self.check_set_material:
                 app().main_window.set_selection(lines = lines_without_materials)
-                PrintMessageInput([window_title_1, title, material_message.format(lines_without_materials)])
+                PrintMessageInput([error_title, title, material_message.format(lines_without_materials)])
                 return True
 
             elif self.check_set_fluid:
                 app().main_window.set_selection(lines = lines_without_fluids)
-                PrintMessageInput([window_title_1, title, fluid_message.format(lines_without_fluids)])
+                PrintMessageInput([error_title, title, fluid_message.format(lines_without_fluids)])
                 return True
 
             elif self.check_all_fluid_inputs:
                 app().main_window.set_selection(lines = lines_without_all_fluids_inputs)
-                PrintMessageInput([window_title_1, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
+                PrintMessageInput([error_title, title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs)])
                 return True
 
             elif self.check_set_crossSection:
@@ -584,11 +587,11 @@ class BeforeRun():
                     app().main_window.set_selection(lines = line_ids)
                     app().main_window.set_selection(elements = element_ids)
 
-                PrintMessageInput([window_title_1, title, cross_section_message])
+                PrintMessageInput([error_title, title, cross_section_message])
                 return True
 
             elif not self.acoustic_excitation:
-                PrintMessageInput([window_title_1, title, acoustic_message])
+                PrintMessageInput([error_title, title, acoustic_message])
                 return True
 
     def check_cross_section_in_lines_and_elements(self, data):

@@ -1,25 +1,21 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
+from PySide6.QtWidgets import QGridLayout
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.material.set_material_ui import SetMaterial_UI
 from pulse.interface.user_input.model.setup.material.material_widget import MaterialWidget
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class SetMaterialInput(QDialog):
+class SetMaterialInput(SetMaterial_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/material/set_material.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         self.cache_selected_lines = kwargs.get("cache_selected_lines", list())
 
         app().main_window.set_input_widget(self)
@@ -50,30 +46,17 @@ class SetMaterialInput(QDialog):
         self.before_run = app().project.get_pre_solution_model_checks()
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # QFrame
-        self.frame_main_widget : QFrame
-
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-        self.lineEdit_selected_material_name : QLineEdit
-
-        # QScrollArea
-        self.scrollArea_table_of_materials : QScrollArea
         self.scrollArea_table_of_materials.setLayout(self.grid_layout)
         self._add_material_input_widget()
         self.scrollArea_table_of_materials.adjustSize()
 
         # QPushButton
         self.pushButton_attribute = self.material_widget.pushButton_attribute
-        self.pushButton_cancel = self.material_widget.pushButton_cancel
+        self.pushButton_exit = self.material_widget.pushButton_exit
 
         # QTableWidget
         self.tableWidget_material_data = self.material_widget.tableWidget_material_data
@@ -88,7 +71,7 @@ class SetMaterialInput(QDialog):
         self.comboBox_attribution_type.currentIndexChanged.connect(self.attribution_type_callback)
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         #
         # self.tableWidget_material_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_material_data.currentCellChanged.connect(self.current_cell_changed)
@@ -188,8 +171,6 @@ class SetMaterialInput(QDialog):
             geometry_handler = GeometryHandler(app().project)
             geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
             geometry_handler.process_pipeline()
-
-            self.pushButton_cancel.setText("Exit")
 
             if self.comboBox_attribution_type.currentIndex() == 0:
                 self.close()

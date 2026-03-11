@@ -1,13 +1,10 @@
-from PySide6.QtWidgets import QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QIcon, QFont, QPixmap, QColor, QLinearGradient, QBrush, QPen
-from PySide6.QtCore import Qt, QSize, QRect
-from pathlib import Path
+from PySide6.QtGui import QColor, QPen
+from PySide6.QtCore import Qt
 
-from pulse.interface.menu.border_item_delegate import BorderItemDelegate
 from pulse.interface.menu.common_menu_items import CommonMenuItems
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse import app
+from pulse.model import AnalysisID
 
 class ResultsViewerItems(CommonMenuItems):
     """Menu Items
@@ -42,6 +39,7 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_child_plot_acoustic_mode_shapes = self.add_item("Plot acoustic mode shapes")
         self.item_child_plot_acoustic_pressure_field = self.add_item("Plot acoustic pressure field")
         self.item_child_plot_acoustic_frequency_response = self.add_item("Plot acoustic frequency response")
+        self.item_child_plot_acoustic_pressure_waveform = self.add_item("Plot acoustic pressure waveform")
         self.item_child_plot_acoustic_frequency_response_function = self.add_item("Plot acoustic frequency response function")
         self.item_child_plot_acoustic_delta_pressures = self.add_item("Plot acoustic delta pressures")
         self.item_child_plot_transmission_loss = self.add_item("Plot transmission loss")
@@ -68,6 +66,7 @@ class ResultsViewerItems(CommonMenuItems):
         self.item_top_results_viewer_acoustic.setHidden(True)
         self.item_child_plot_acoustic_mode_shapes.setDisabled(True)
         self.item_child_plot_acoustic_frequency_response.setDisabled(True)
+        self.item_child_plot_acoustic_pressure_waveform.setDisabled(True)
         self.item_child_plot_acoustic_frequency_response_function.setDisabled(True)
         self.item_child_plot_acoustic_pressure_field.setDisabled(True)
         self.item_child_plot_acoustic_delta_pressures.setDisabled(True)
@@ -82,39 +81,53 @@ class ResultsViewerItems(CommonMenuItems):
         acoustic_solution = self.project.get_acoustic_solution()
         structural_solution = self.project.get_structural_solution()
 
+        analysis_id = self.project.analysis_id
+
         if structural_solution is not None or acoustic_solution is not None:
 
-            if self.project.analysis_id in [0, 1, 2, 7]:
+            if analysis_id in [
+                AnalysisID.STRUCTURAL_MODAL,
+                AnalysisID.STRUCTURAL_HARMONIC,
+                AnalysisID.STRUCTURAL_STATIC,
+                ]:
+
                 self.item_top_results_viewer_structural.setHidden(False)
-            
-            elif self.project.analysis_id in [3, 4]:
+
+            elif analysis_id in [
+                AnalysisID.ACOUSTIC_MODAL,
+                AnalysisID.ACOUSTIC_HARMONIC,
+                ]:
+
                 self.item_top_results_viewer_acoustic.setHidden(False)
-            
-            elif self.project.analysis_id in [5, 6]:    
+
+            elif analysis_id == AnalysisID.COUPLED_HARMONIC:    
                 self.item_top_results_viewer_acoustic.setHidden(False)
                 self.item_top_results_viewer_structural.setHidden(False)
 
-            if self.project.analysis_id in [0, 1]:
+            if analysis_id == AnalysisID.STRUCTURAL_HARMONIC:
                 self.item_child_plot_structural_frequency_response.setDisabled(False)
                 self.item_child_plot_displacement_field.setDisabled(False)
                 self.item_child_plot_reaction_frequency_response.setDisabled(False)
                 self.item_child_plot_stress_field.setDisabled(False)
                 self.item_child_plot_stress_frequency_response.setDisabled(False)
-            
-            elif self.project.analysis_id == 2:
+
+            elif analysis_id == AnalysisID.STRUCTURAL_MODAL:
                 self.item_child_plot_structural_mode_shapes.setDisabled(False)
                 # self.item_child_plot_structural_mode_shapes.set_warning(True)
                 if self.project.get_acoustic_solution() is not None:
                     self.item_child_plot_acoustic_mode_shapes.setDisabled(False)    
-            
-            elif self.project.analysis_id == 4:
+
+            elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
                 self.item_child_plot_acoustic_mode_shapes.setDisabled(False)
                 if self.project.get_structural_solution() is not None:
                     self.item_child_plot_structural_mode_shapes.setDisabled(False)  
-            
-            elif self.project.analysis_id in [3, 5, 6]:
 
-                if self.project.analysis_id != 3:
+            elif analysis_id in [
+                AnalysisID.ACOUSTIC_HARMONIC,
+                AnalysisID.COUPLED_HARMONIC,
+                ]:
+
+                if analysis_id == AnalysisID.COUPLED_HARMONIC:
                     self.item_child_plot_displacement_field.setDisabled(False)
                     self.item_child_plot_structural_frequency_response.setDisabled(False)
                     self.item_child_plot_stress_field.setDisabled(False)
@@ -126,6 +139,7 @@ class ResultsViewerItems(CommonMenuItems):
                     self.item_child_plot_perforated_plate_convergence_data.setHidden(False)
 
                 self.item_child_plot_acoustic_frequency_response.setDisabled(False)
+                self.item_child_plot_acoustic_pressure_waveform.setDisabled(False)
                 self.item_child_plot_acoustic_frequency_response_function.setDisabled(False)
                 self.item_child_plot_acoustic_pressure_field.setDisabled(False)
                 self.item_child_plot_acoustic_delta_pressures.setDisabled(False)
@@ -135,12 +149,13 @@ class ResultsViewerItems(CommonMenuItems):
                 for (property, *_), data in app().project.model.properties.nodal_properties.items():
                     if property == "reciprocating_compressor_excitation":
                         self.item_child_reciprocating_compressor_pulsation_criteria.setDisabled(False)
+
                     elif property == "reciprocating_pump_excitation":
                         self.item_child_reciprocating_pump_pulsation_criteria.setDisabled(False)
                         if isinstance(data, dict) and data.get("connection_type") == "suction":
                             self.item_child_reciprocating_pump_inlet_pressure_criteria.setDisabled(False)
 
-            elif self.project.analysis_id == 7:
+            elif analysis_id == AnalysisID.STRUCTURAL_STATIC:
                 self.item_child_plot_displacement_field.setDisabled(False)
                 self.item_child_plot_stress_field.setDisabled(False)
                 self.item_child_plot_structural_frequency_response.setDisabled(False)
@@ -157,29 +172,42 @@ class ResultsViewerItems(CommonMenuItems):
             the menu after the solution is done.
         """
 
-        if self.project.analysis_id in [0, 1, 2, 7]:
+        analysis_id = self.project.analysis_id
+
+        if analysis_id in [
+            AnalysisID.STRUCTURAL_MODAL,
+            AnalysisID.STRUCTURAL_HARMONIC,
+            AnalysisID.STRUCTURAL_STATIC,
+            ]:
+
             self.item_top_results_viewer_structural.setHidden(False)
             self.expandItem(self.item_top_results_viewer_structural)            
         
-        elif self.project.analysis_id in [3, 4]:
+        elif analysis_id in [
+            AnalysisID.ACOUSTIC_MODAL,
+            AnalysisID.ACOUSTIC_HARMONIC,
+            ]:
+
             self.item_top_results_viewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_results_viewer_acoustic)
         
-        elif self.project.analysis_id in [5, 6]:
+        elif analysis_id in [AnalysisID.COUPLED_HARMONIC]:
             self.item_top_results_viewer_structural.setHidden(False)
             self.item_top_results_viewer_acoustic.setHidden(False)
             self.expandItem(self.item_top_results_viewer_structural)
             self.expandItem(self.item_top_results_viewer_acoustic)
 
     def modify_item_names_according_to_analysis(self):
-        if self.project.analysis_id == 7:
+
+        if self.project.analysis_id == AnalysisID.STRUCTURAL_STATIC:
             self.item_child_plot_structural_frequency_response.setText(0, "Plot nodal response")
             self.item_child_plot_reaction_frequency_response.setText(0, "Plot reactions")
             self.item_child_plot_stress_frequency_response.setText(0, "Plot stresses")
-        else:
-            self.item_child_plot_structural_frequency_response.setText(0, "Plot structural frequency response")
-            self.item_child_plot_reaction_frequency_response.setText(0, "Plot reactions frequency response")
-            self.item_child_plot_stress_frequency_response.setText(0, "Plot stress frequency response")
+            return
+
+        self.item_child_plot_structural_frequency_response.setText(0, "Plot structural frequency response")
+        self.item_child_plot_reaction_frequency_response.setText(0, "Plot reactions frequency response")
+        self.item_child_plot_stress_frequency_response.setText(0, "Plot stress frequency response")
 
     def set_theme(self, theme : str):
 

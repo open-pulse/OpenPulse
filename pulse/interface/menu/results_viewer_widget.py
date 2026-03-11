@@ -1,17 +1,12 @@
 from PySide6.QtWidgets import QFrame, QWidget
-from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.menus.left_menu_widget_ui import LeftMenuWidget_UI
 from pulse.interface.menu.results_viewer_items import ResultsViewerItems
 
-from molde import load_ui
-
-class ResultsViewerWidget(QWidget):
+class ResultsViewerWidget(LeftMenuWidget_UI):
     def __init__(self):
         super().__init__()
-
-        ui_path = UI_DIR / "menus/left_menu_widget.ui"
-        load_ui(ui_path, self, UI_DIR)
 
         self._reset()
         self._define_qt_variables()
@@ -23,11 +18,6 @@ class ResultsViewerWidget(QWidget):
     def _define_qt_variables(self):
 
         self.main_frame = QFrame()
-
-        # QWidget
-        self.top_widget: QWidget
-        self.bottom_widget: QWidget
-
         self.results_viewer_items = ResultsViewerItems()
         self.layout().replaceWidget(self.top_widget, self.results_viewer_items)
         self.adjustSize()
@@ -57,13 +47,16 @@ class ResultsViewerWidget(QWidget):
 
         self.results_viewer_items.item_child_plot_acoustic_pressure_field.clicked.connect(
             self.add_acoustic_pressure_field_widget)
-        
+
         self.results_viewer_items.item_child_plot_acoustic_frequency_response.clicked.connect(
             self.add_acoustic_frequency_response_widget)
 
+        self.results_viewer_items.item_child_plot_acoustic_pressure_waveform.clicked.connect(
+            self.add_acoustic_pressure_waveform_widget)
+
         self.results_viewer_items.item_child_plot_acoustic_frequency_response_function.clicked.connect(
             self.add_acoustic_frequency_response_function_widget)
-        
+
         self.results_viewer_items.item_child_plot_acoustic_delta_pressures.clicked.connect(
             self.add_acoustic_delta_pressures_widget)
 
@@ -133,6 +126,11 @@ class ResultsViewerWidget(QWidget):
         widget = app().main_window.input_ui.plot_acoustic_frequency_response()
         self.add_widget(widget)
 
+    def add_acoustic_pressure_waveform_widget(self):
+        self.configure_render_according_to_plot_type("nodes")
+        widget = app().main_window.input_ui.plot_acoustic_pressure_waveform()
+        self.add_widget(widget)
+
     def add_acoustic_frequency_response_function_widget(self):
         self.configure_render_according_to_plot_type("nodes")
         widget = app().main_window.input_ui.plot_acoustic_frequency_response_function()
@@ -192,14 +190,23 @@ class ResultsViewerWidget(QWidget):
         lines = app().main_window.action_plot_lines.isChecked()
         lines_with_cross_sections = app().main_window.action_plot_lines_with_cross_section.isChecked()
 
+        app().main_window.use_base_render_tool = False
+
         if set_by == "nodes":
             if not (mesh_data or geometry_data):
                 # app().main_window.plot_mesh()
                 app().main_window.plot_geometry_points()
+                app().main_window.render_tools_toolbar.enable_selection_tool()
 
         elif set_by == "lines":
             if not (lines or lines_with_cross_sections):
                 app().main_window.plot_lines_with_cross_sections()
+                app().main_window.render_tools_toolbar.enable_selection_tool()
 
         else:
             app().main_window.plot_results()
+            app().main_window.render_tools_toolbar.disable_selection_tool()
+            app().main_window.use_base_render_tool = True
+        
+        app().main_window.results_widget.update_render_tool_according_to_results_viewer_widget(has_selection = set_by in ["nodes", "lines"])
+

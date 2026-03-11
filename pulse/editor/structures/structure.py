@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable, TypeVar, Self
+from typing import TYPE_CHECKING, Callable, Self
 
 if TYPE_CHECKING:
     from pulse.editor.structures import Point

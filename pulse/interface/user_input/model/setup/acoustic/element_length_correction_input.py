@@ -1,12 +1,12 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.element_length_correction_input_ui import ElementLengthCorrectionInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import numpy as np
 from collections import defaultdict
@@ -15,20 +15,15 @@ window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class AcousticElementLengthCorrectionInput(QDialog):
+class AcousticElementLengthCorrectionInput(ElementLengthCorrectionInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/element_length_correction_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_elements_info()
@@ -53,33 +48,10 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
         self.before_run = app().project.get_pre_solution_model_checks()
     
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_element_length_correction_type :  QComboBox
-
-        # QLabel
-        self.label_selection : QLabel
-
-        # QLineEdit
-        self.lineEdit_element_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute : QPushButton
-        self.pushButton_cancel : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-
-        # QTabWidget
-        self.tabWidget_main : QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_elements_info : QTreeWidget
-
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -269,7 +241,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
         app().main_window.set_selection()
         self.load_elements_info()
         self.lineEdit_element_id.setText("")
-        self.pushButton_cancel.setText("Exit")
 
     def maps_correction_type_to_elements(self):
 
@@ -337,4 +308,5 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
         app().main_window.set_selection()
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)

@@ -1,12 +1,10 @@
-from PySide6.QtWidgets import QDialog, QPushButton, QSlider, QSpinBox
 from PySide6.QtCore import Qt, Signal
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.render.section_plane_inputs_ui import SectionPlaneInputs_UI
 
-from molde import load_ui
 
-
-class SectionPlaneWidget(QDialog):
+class SectionPlaneWidget(SectionPlaneInputs_UI):
     value_changed_2 = Signal()
 
     value_changed = Signal(float, float, float, float, float, float)
@@ -16,17 +14,12 @@ class SectionPlaneWidget(QDialog):
 
     def __init__(self):
         super().__init__()
-
-        ui_path = UI_DIR / "render/section_plane_inputs.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         self.editing = False
         self.cutting = False
         self.invert_value = False
         self.keep_section_plane = False
 
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
 
     def _config_window(self):
@@ -45,31 +38,6 @@ class SectionPlaneWidget(QDialog):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Section Plane")
 
-    def _define_qt_variables(self):
-        # QPushButton
-        self.pushButton_apply: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_invert: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QSlider
-        self.relative_plane_position_x_slider: QSlider
-        self.relative_plane_position_y_slider: QSlider
-        self.relative_plane_position_z_slider: QSlider
-
-        self.plane_rotation_x_slider: QSlider
-        self.plane_rotation_y_slider: QSlider
-        self.plane_rotation_z_slider: QSlider
-
-        # QSpinBox
-        self.relative_plane_position_x_spinbox: QSpinBox
-        self.relative_plane_position_y_spinbox: QSpinBox
-        self.relative_plane_position_z_spinbox: QSpinBox
-
-        self.plane_rotation_x_spinbox: QSpinBox
-        self.plane_rotation_y_spinbox: QSpinBox
-        self.plane_rotation_z_spinbox: QSpinBox
-
     def _create_connections(self):
         for slider in self._sliders():
             slider.valueChanged.connect(self.value_change_callback)
@@ -77,7 +45,7 @@ class SectionPlaneWidget(QDialog):
             slider.sliderPressed.connect(self.slider_pressed_callback)
 
         self.pushButton_apply.clicked.connect(self.apply_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_reset.clicked.connect(self.reset_button_callback)
         self.pushButton_invert.clicked.connect(self.invert_button_callback)
 

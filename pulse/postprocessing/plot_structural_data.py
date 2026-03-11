@@ -57,9 +57,10 @@ def get_min_max_resultant_displacements(solution: np.ndarray, column: int, **kwa
     uy_imag_values = kwargs.get("uy_imag_values", False)
     uz_imag_values = kwargs.get("uz_imag_values", False)
     absolute_animation = kwargs.get("absolute_animation", False)
-    
+   
     try:
         color_scale_setup = get_color_scale_setup()
+
         if color_scale_setup:
             absolute = color_scale_setup["absolute"]
             ux_abs_values = color_scale_setup["ux_abs_values"]
@@ -75,6 +76,7 @@ def get_min_max_resultant_displacements(solution: np.ndarray, column: int, **kwa
             ux_animation = color_scale_setup["ux_animation"]
             uy_animation = color_scale_setup["uy_animation"]
             uz_animation = color_scale_setup["uz_animation"]
+
     except:
         absolute_animation = True
 
@@ -193,6 +195,9 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
     phases = np.angle(solution)
     _phases = np.array([phases[ind+0, column], phases[ind+1, column], phases[ind+2, column], 
                         phases[ind+3, column], phases[ind+4, column], phases[ind+5, column]]).T
+    
+    _idx_max = np.argmax(np.abs(solution[:, column]))
+    _delta = -np.angle(solution[_idx_max, column])
 
     if new_scf is None:
         scf = preprocessor.structure_principal_diagonal / 50
@@ -211,7 +216,7 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
     if phase_step is None:
         factor = magnif_factor
     else:
-        factor = magnif_factor*np.cos(phase_step + _phases)
+        factor = magnif_factor*np.cos(phase_step + _phases + _delta)
     
     coord_def[:,0] = coord[:,0]
     coord_def[:,1] = coord[:,1] + np.abs(u_x)*factor[:, 0]

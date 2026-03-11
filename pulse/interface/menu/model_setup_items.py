@@ -5,7 +5,6 @@ from pathlib import Path
 
 from pulse import app
 from pulse.interface.menu.common_menu_items import CommonMenuItems
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
 class ModelSetupItems(CommonMenuItems):

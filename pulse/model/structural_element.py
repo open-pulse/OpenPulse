@@ -1,8 +1,7 @@
-from math import pi, sqrt, sin, cos
-from pulse.model.acoustic_element import DOF_PER_NODE
+from math import sqrt
 import numpy as np
 
-from pulse.model.node import Node, distance, DOF_PER_NODE_STRUCTURAL
+from pulse.model.node import distance, DOF_PER_NODE_STRUCTURAL
 
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
@@ -658,12 +657,6 @@ class StructuralElement:
             Fp_x = self.force_vector_stress_stiffening(vector_gcs=False)
             Te = (E*A/L)*(Ue[6] - Ue[0]) - Fp_x
             K_geo = (Te/L)*mat_K_geo
-
-            # if self.index in [12, 13, 14, 15]:
-            #     print("\nElement 12:")
-            #     print(f"UX(first): {self.first_node.static_nodal_solution_gcs[0]}")
-            #     print(f"UX(last): {self.last_node.static_nodal_solution_gcs[0]}")
-            #     print(f"Te: {Te}")
 
         for point, weigth in zip(points, weigths):
 

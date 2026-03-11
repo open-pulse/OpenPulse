@@ -1,21 +1,15 @@
-from PySide6.QtWidgets import QDialog, QFrame, QLabel, QProgressBar, QPushButton
-from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QTimer
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.messages.print_message_ui import PrintMessage_UI
 from pulse.interface.formatters.icons import *
 
-from molde import load_ui
 
 from time import sleep, time 
 
-class PrintMessageInput(QDialog):
+class PrintMessageInput(PrintMessage_UI):
     def __init__(self, text_info, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "messages/print_message.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         self.auto_close = kwargs.get("auto_close", False)
         self.window_title, self.title, self.message = text_info
 
@@ -35,23 +29,6 @@ class PrintMessageInput(QDialog):
         self.setWindowIcon(app().main_window.pulse_icon)
 
     def _define_qt_variables(self):
-
-        # QFrame
-        self.frame_button : QFrame
-        self.frame_message : QFrame
-        self.frame_progress_bar : QFrame
-        self.frame_title : QFrame
-
-        # QLabel
-        self.label_title : QLabel
-        self.label_message : QLabel
-
-        # QProgressBar
-        self.progress_bar_timer : QProgressBar
-
-        # QPushButton
-        self.pushButton_close : QPushButton
-
         # QTimer
         self.timer = QTimer()
 

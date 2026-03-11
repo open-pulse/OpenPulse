@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QApplication
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 
 from pulse import ICON_DIR, app
+from pulse.model import AnalysisID
 from pulse.interface.viewer_3d.actors import (
     SectionPlaneActor,
     ElementLinesActor,
@@ -15,6 +16,9 @@ from pulse.interface.viewer_3d.actors import (
     PointsActor,
     TubeActorResults,
 )
+from pulse.interface.viewer_3d.render_tools import (
+    SelectionTool,
+    RenderTool)
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.viewer_3d.coloring.color_table import ColorTable
 from pulse.postprocessing.plot_acoustic_data import (
@@ -68,6 +72,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.current_phase_step = 0
         self._result_min = 0
         self._result_max = 0
+        self.is_complex_result = False
 
         self._animation_color_map = None
         self._animation_current_frequency = None
@@ -82,6 +87,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.create_scale_bar()
         self.create_logos()
         self.create_color_bar()
+        self.set_default_render_tool()
+
         self.apply_user_preferences()
         self.create_camera_light(0.1, 0.1)
         self._create_connections()
@@ -107,57 +114,56 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if not project.get_structural_elements():
             return
 
-        try:
+        # Default behavior
+        self.colorbar_actor.VisibilityOn()
+        deformed = False
 
-            # Default behavior
-            self.colorbar_actor.VisibilityOn()
-            deformed = False
-    
-            unit_label = ""
-            analysis_id = project.analysis_id
+        unit_label = ""
+        analysis_id = project.analysis_id
 
-            # update the data according to the current analysis
-            if self.analysis_mode == AnalysisMode.DISPLACEMENT:
+        # update the data according to the current analysis
+        if self.analysis_mode == AnalysisMode.DISPLACEMENT:
 
-                if analysis_id in [0, 1, 5, 6, 7]:
-                    unit_label = "Unit: [m]"
-                elif analysis_id in [2]:
-                    unit_label = "Unit: [--]"
+            if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                unit_label = "Unit: [m]"
 
-                deformed = True
-                color_table = self._compute_displacement_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
+            elif analysis_id == AnalysisID.STRUCTURAL_MODAL:
+                unit_label = "Unit: [--]"
 
-            elif self.analysis_mode == AnalysisMode.STRESS:
+            deformed = True
+            color_table, self.is_complex_result = self._compute_displacement_field(
+                self.current_frequency_index,
+                self.current_phase_step,
+            )
 
-                if analysis_id in [0, 1, 5, 6, 7]:
-                    unit_label = "Unit: [Pa]"
+        elif self.analysis_mode == AnalysisMode.STRESS:
 
-                deformed = True
-                color_table = self._compute_stress_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
+            if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                unit_label = "Unit: [Pa]"
 
-            elif self.analysis_mode == AnalysisMode.PRESURE:
+            deformed = True
+            color_table, self.is_complex_result = self._compute_stress_field(
+                self.current_frequency_index,
+                self.current_phase_step,
+            )
 
-                if analysis_id in [3, 5, 6]:
-                    unit_label = "Unit: [Pa]"
-                elif analysis_id in [4]:
-                    unit_label = "Unit: [--]"
+        elif self.analysis_mode == AnalysisMode.PRESURE:
 
-                color_table = self._compute_pressure_field(
-                    self.current_frequency_index, self.current_phase_step
-                )
+            if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
+                unit_label = "Unit: [Pa]"
 
-            else:
-                # Empty color table
-                color_table = ColorTable([], [0, 0], self.colormap)
-                self.colorbar_actor.VisibilityOff()
+            elif analysis_id == AnalysisID.ACOUSTIC_MODAL:
+                unit_label = "Unit: [--]"
 
-        except Exception as error_log:
-            print(str(error_log))
-            return
+            color_table, self.is_complex_result = self._compute_pressure_field(
+                self.current_frequency_index,
+                self.current_phase_step,
+            )
+
+        else:
+            # Empty color table
+            color_table = ColorTable([], [0, 0], self.colormap)
+            self.colorbar_actor.VisibilityOff()
 
         acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
 
@@ -205,6 +211,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         with self.update_lock:
             for frame in range(self._animation_total_frames):
+                if frame in self._animation_cached_data:
+                    continue
+
                 logging.info(f"Caching animation frames [{frame}/{self._animation_total_frames}]")
                 d_theta = 2 * np.pi / self._animation_total_frames
                 phase_step = frame * d_theta
@@ -214,6 +223,11 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 cached = vtkPolyData()
                 cached.DeepCopy(self.tubes_actor.GetMapper().GetInput())
                 self._animation_cached_data[frame] = cached
+                
+                if not self.is_complex_result:
+                    mirrored_frame = self._animation_total_frames - frame - 1
+                    self._animation_cached_data[mirrored_frame] = self._animation_cached_data[frame]
+
         self._animation_current_cycle = 0
 
     def stop_animation(self):
@@ -433,6 +447,12 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         if not self._actor_exists():
             return
 
+        if not isinstance(self.interactor_style, SelectionTool):
+            return
+        
+        if not self.interactor_style.is_selecting:
+            return
+
         x0, y0 = self.mouse_click
         mouse_moved = (abs(x1 - x0) > 10) or (abs(y1 - y0) > 10)
         visualization_filter = app().main_window.visualization_filter
@@ -569,7 +589,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                                  self.colormap,
                                  )
 
-        return color_table
+        is_complex_result = np.imag(solution).any()
+
+        return color_table, is_complex_result
 
     def _compute_stress_field(self, frequency_index, phase_step):
         project = app().project
@@ -596,7 +618,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                                  stress_field_plot = True,
                                  )
 
-        return color_table
+        is_complex_result = np.imag(solution).any()
+
+        return color_table, is_complex_result
 
     def _compute_pressure_field(self, frequency_index, phase_step):
 
@@ -618,7 +642,9 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                                  pressure_field_plot=True,
                                 )
 
-        return color_table
+        is_complex_result = np.imag(solution).any()
+
+        return color_table, is_complex_result
 
     def _reset_min_max_values(self):
         self.count_cycles = 0
@@ -677,3 +703,21 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         self.plane_actor.GetProperty().SetColor(0.5, 0.5, 0.5)
         self.plane_actor.GetProperty().SetOpacity(0.2)
         self.update()
+
+    def update_render_tool_according_to_results_viewer_widget(self, has_selection = True):
+        if has_selection and type(self.interactor_style) is RenderTool:
+            tool = SelectionTool()
+        elif not has_selection and type(self.interactor_style) is SelectionTool:
+            tool = RenderTool()
+        else:
+            tool = self.interactor_style
+
+        self.set_interactor_style(tool)
+
+        if hasattr(tool, "current_cursor"):
+            tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)
+    
+    def set_default_render_tool(self, base_tool = False):
+        tool = RenderTool()
+        self.set_interactor_style(tool)
+        tool.update_mouse_cursor_in_render_widgets(tool.current_cursor)

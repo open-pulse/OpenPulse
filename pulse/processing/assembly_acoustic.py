@@ -1,12 +1,12 @@
 
+from pulse.model import AnalysisID
 from pulse.model.model import Model
 from pulse.model.node import DOF_PER_NODE_ACOUSTIC
 from pulse.model.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 import numpy as np
-from scipy.sparse import csr_matrix, csc_matrix
+from scipy.sparse import csr_matrix
 from scipy.special import jn_zeros, jv
-from time import time
 
 
 def length_correction_expansion(smaller_diameter, larger_diameter):
@@ -431,6 +431,9 @@ class AssemblyAcoustic:
         for (property, *args), data in self.model.properties.nodal_properties.items():
             if property in ["specific_impedance", "radiation_impedance"]:
 
+                if not isinstance(data, dict):
+                    continue
+
                 node_id = args[0]
                 node = self.preprocessor.nodes[node_id]
                 position = node.global_index
@@ -445,7 +448,7 @@ class AssemblyAcoustic:
 
                 elif property == "radiation_impedance":
 
-                    impedance_type = data["impedance_type"]
+                    impedance_type = data.get("impedance_type")
                     elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
 
                     if len(elements) == 1:
@@ -532,6 +535,9 @@ class AssemblyAcoustic:
         for (property, *args), data in self.model.properties.nodal_properties.items():
             if property in ["specific_impedance", "radiation_impedance"]:
 
+                if not isinstance(data, dict):
+                    continue
+
                 node_id = args[0]
                 node = self.preprocessor.nodes[node_id]
                 position = node.global_index
@@ -547,12 +553,13 @@ class AssemblyAcoustic:
 
                 elif property == "radiation_impedance":
 
-                    impedance_type = data["impedance_type"]
+                    impedance_type = data.get("impedance_type")
                     elements = self.preprocessor.acoustic_elements_connected_to_node[node_id]
 
-                    if impedance_type in [1, 2] and self.model.project.analysis_id == 4:
-                        # TODO: show a message after the solution has been finished
-                        continue
+                    if impedance_type in ["flanged", "unflanged"]:
+                        if self.model.project.analysis_id == AnalysisID.ACOUSTIC_MODAL:
+                            # TODO: show a message after the solution has been finished
+                            continue
 
                     if len(elements) == 1:
                         element = elements[0]

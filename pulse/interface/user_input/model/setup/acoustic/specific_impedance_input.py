@@ -1,27 +1,23 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.specific_impedance_input_ui import SpecificImpedanceInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
-from molde import load_ui
 
 import os
 import numpy as np
 from pathlib import Path
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
 
-class SpecificImpedanceInput(QDialog):
+
+class SpecificImpedanceInput(SpecificImpedanceInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/specific_impedance_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 
@@ -54,36 +50,13 @@ class SpecificImpedanceInput(QDialog):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_imag_value: QLineEdit
-        self.lineEdit_real_value: QLineEdit
-        self.lineEdit_node_ids: QLineEdit
-        self.lineEdit_table_path: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_cancel: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_search: QPushButton
-
-        # QSpinBox
-        self.spinBox_skip_wors: QSpinBox
-
-        # QTabWidget
-        self.tabWidget_inputs: QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
         self.treeWidget_nodal_info.setColumnWidth(1, 20)
         self.treeWidget_nodal_info.setColumnWidth(2, 80)
 
     def _create_connections(self):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
-        self.pushButton_cancel.clicked.connect(self.close)
+        self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_search.clicked.connect(self.load_specific_impedance_table)
@@ -166,7 +139,7 @@ class SpecificImpedanceInput(QDialog):
             except Exception:
                 self.hide()
                 message = "Wrong input for real part of specific impedace."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 lineEdit_real.setFocus()
                 app().main_window.set_input_widget(self)
                 return True, None
@@ -183,7 +156,7 @@ class SpecificImpedanceInput(QDialog):
             except Exception:
                 self.hide()
                 message = "Wrong input for imaginary part of specific impedace."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 lineEdit_imag.setFocus()
                 app().main_window.set_input_widget(self)
                 return True, None
@@ -194,7 +167,7 @@ class SpecificImpedanceInput(QDialog):
             self.hide()
             message = "You must inform at least one specific impedace " 
             message += "before confirming the input!"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             self.lineEdit_real_value.setFocus()
             app().main_window.set_input_widget(self)
             return True, None
@@ -278,23 +251,20 @@ class SpecificImpedanceInput(QDialog):
             if path_imported_table == "":
                 return None, None
 
+            lineEdit.setText(path_imported_table)       
             imported_filename = os.path.basename(path_imported_table)
-            lineEdit.setText(path_imported_table)         
-            imported_file = np.loadtxt(path_imported_table, delimiter=",")
+            imported_data = np.loadtxt(path_imported_table, delimiter=",")
 
-            title = "Error reached while loading 'specific impedance' table"
-            if imported_file.shape[1] < 3:
+            title = "Error reached while loading 'acoustic pressure' table"
+            if imported_data.shape[1] < 3:
                 message = "The imported table has insufficient number of columns. The spectrum"
                 message += " data must have only two columns to the frequencies and values."
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
-            imported_values = imported_file[:,1]
-
-            self.frequencies = imported_file[:,0]
-            f_min = self.frequencies[0]
-            f_max = self.frequencies[-1]
-            f_step = self.frequencies[1] - self.frequencies[0] 
+            mask = imported_data[:, 0] > 0
+            self.frequencies = imported_data[mask, 0]
+            complex_values = imported_data[mask, 1] + 1j * imported_data[mask, 2]
 
             app().main_window.config.write_last_folder_path_in_file("imported_table_folder", path_imported_table)
 
@@ -307,23 +277,20 @@ class SpecificImpedanceInput(QDialog):
                 message += "different from the others already imported ones. The current\n"
                 message += "project frequency setup is not going to be modified."
                 message += f"\n\n{imported_filename}"
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 return None, None
 
             else:
 
-                frequency_setup = { "f_min" : f_min,
-                                    "f_max" : f_max,
-                                    "f_step" : f_step }
+                analysis_setup = app().project.model.analysis_setup
+                app().project.file.write_analysis_setup_in_file(analysis_setup)
 
-                app().project.model.set_frequency_setup(frequency_setup)
-
-            return imported_values, imported_filename
+            return complex_values, imported_filename
 
         except Exception as log_error:
             title = "Error reached while loading 'specific impedance' table"
             message = str(log_error)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             lineEdit.setFocus()
             return None, None
 
@@ -380,7 +347,7 @@ class SpecificImpedanceInput(QDialog):
             title = "Additional inputs required"
             message = "You must inform at least one specific impedance " 
             message += "table path before confirming the input!"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             self.lineEdit_table_path.setFocus()
 
     def text_label(self, value):
@@ -471,7 +438,6 @@ class SpecificImpedanceInput(QDialog):
         app().project.file.write_imported_table_data_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
-        self.pushButton_cancel.setText("Exit")
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.setText("")
@@ -489,4 +455,5 @@ class SpecificImpedanceInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)  

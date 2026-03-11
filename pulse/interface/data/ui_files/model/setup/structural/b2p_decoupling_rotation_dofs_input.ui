@@ -611,7 +611,7 @@
               </widget>
              </item>
              <item row="0" column="0">
-              <widget class="QPushButton" name="pushButton_cancel">
+              <widget class="QPushButton" name="pushButton_exit">
                <property name="minimumSize">
                 <size>
                  <width>100</width>
@@ -633,7 +633,7 @@
                 <string notr="true"/>
                </property>
                <property name="text">
-                <string>Cancel</string>
+                <string>Exit</string>
                </property>
               </widget>
              </item>
@@ -1214,12 +1214,12 @@
   <tabstop>checkBox_rotation_x</tabstop>
   <tabstop>checkBox_rotation_y</tabstop>
   <tabstop>checkBox_rotation_z</tabstop>
-  <tabstop>pushButton_cancel</tabstop>
+  <tabstop>pushButton_exit</tabstop>
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>treeWidget_B2P_rotation_decoupling</tabstop>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>pushButton_remove</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

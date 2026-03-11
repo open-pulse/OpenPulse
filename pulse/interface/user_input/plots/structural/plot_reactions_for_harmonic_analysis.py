@@ -1,24 +1,20 @@
-from PySide6.QtWidgets import QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.structural.get_reactions_for_harmonic_analysis_ui import GetReactionsForHarmonicAnalysis_UI
 from pulse.postprocessing.plot_structural_data import get_reactions
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 
-from molde import load_ui
 
 import logging
 import numpy as np
 
-class PlotReactionsForHarmonicAnalysis(QWidget):
+class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/structural/get_reactions_for_harmonic_analysis.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
 
         self.before_run = app().project.get_pre_solution_model_checks()
@@ -40,43 +36,12 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_node_id : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot_data : QPushButton
-        self.pushButton_export_data : QPushButton
-
-        # QRadioButton
-        self.radioButton_Fx : QRadioButton
-        self.radioButton_Fy : QRadioButton
-        self.radioButton_Fz : QRadioButton
-        self.radioButton_Mx : QRadioButton
-        self.radioButton_My : QRadioButton
-        self.radioButton_Mz : QRadioButton
-
         self.list_radioButtons = [  self.radioButton_Fx, 
                                     self.radioButton_Fy, 
                                     self.radioButton_Fz,
                                     self.radioButton_Mx, 
                                     self.radioButton_My, 
                                     self.radioButton_Mz  ]
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-        self.tabWidget_springs_dampers: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_reactions_at_constrained_dofs: QTreeWidget
-        self.treeWidget_reactions_at_dampers: QTreeWidget
-        self.treeWidget_reactions_at_springs: QTreeWidget
-
-        # QWidget
-        self.tab_external_springs_dampers: QWidget
-        self.tab_constrained_dofs: QWidget
-        self.tab_reactions_at_springs: QWidget
-        self.tab_reactions_at_dampers: QWidget
 
     def _create_connections(self):
         #
@@ -268,14 +233,14 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
             return
         self.join_model_data()
         self.plotter = FrequencyResponsePlotter()
-        self.plotter._set_model_results_data_to_plot(app().project.model_results)
+        self.plotter._set_model_results_data_to_plot(self.model_results)
 
     def call_data_exporter(self):
         if self.check_inputs():
             return
         self.join_model_data()
         self.exporter = ExportModelResults()
-        self.exporter._set_data_to_export(app().project.model_results)
+        self.exporter._set_data_to_export(self.model_results)
 
     def check_inputs(self):
         
@@ -326,24 +291,24 @@ class PlotReactionsForHarmonicAnalysis(QWidget):
 
     def join_model_data(self):
 
-        app().project.model_results = dict()
-        analysis_method = app().project.analysis_method_label
-        self.title = f"Structural frequency response - {analysis_method}"
+        self.model_results = dict()
+
+        self.title = f"Structural frequency response - {app().project.analysis_method} method"
         legend_label = f"Reaction {self.local_dof_label} at node {self.node_id}"
 
         key = ("node", self.node_id)
-        app().project.model_results[key] = {
-                                    "x_data" : app().project.model.frequencies,
-                                    "y_data" : self.get_reactions(),
-                                    "x_label" : "Frequency [Hz]",
-                                    "y_label" : "Reaction",
-                                    "title" : self.title,
-                                    "data_information" : legend_label,
-                                    "legend" : legend_label,
-                                    "unit" : self.unit_label,
-                                    "color" : self.get_color(0),
-                                    "linestyle" : "-"  
-                                    }
+        self.model_results[key] = {
+            "x_data" : app().project.model.frequencies,
+            "y_data" : self.get_reactions(),
+            "x_label" : "Frequency [Hz]",
+            "y_label" : "Reaction",
+            "title" : self.title,
+            "data_information" : legend_label,
+            "legend" : legend_label,
+            "unit" : self.unit_label,
+            "color" : self.get_color(0),
+            "linestyle" : "-"  
+            }
 
     def get_color(self, index):
 

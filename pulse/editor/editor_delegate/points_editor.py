@@ -1,6 +1,6 @@
 import numpy as np
 
-from pulse.editor.structures import Bend, Point
+from pulse.editor.structures import Point
 
 from .editor import Editor
 

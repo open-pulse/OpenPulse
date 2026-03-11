@@ -1,28 +1,24 @@
-from PySide6.QtWidgets import QDialog, QCheckBox, QComboBox, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.acoustic_element_type_input_ui import AcousticElementTypeInput_UI
 from pulse.interface.user_input.model.setup.acoustic.reciprocating_machine_selector import ReciprocatingMachineSelector
 from pulse.interface.user_input.model.setup.general.get_information_of_group import GetInformationOfGroup
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.interface_utils import check_inputs
 
-from molde import load_ui
 
 from collections import defaultdict
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class AcousticElementTypeInput(QDialog):
+class AcousticElementTypeInput(AcousticElementTypeInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/acoustic_element_type_input.ui"
-        load_ui(ui_path, self, UI_DIR)
-
         app().main_window.set_input_widget(self)
         self.project = app().project
         self.model = app().project.model
@@ -30,7 +26,6 @@ class AcousticElementTypeInput(QDialog):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -68,39 +63,6 @@ class AcousticElementTypeInput(QDialog):
         self.keep_window_open = True
 
         self.before_run = app().project.get_pre_solution_model_checks()
-
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_element_type: QComboBox
-        self.comboBox_selection: QComboBox
-
-        # QLabel
-        self.label_proportional_damping: QLabel
-        self.label_volumetric_flow_rate: QLabel
-        self.label_volume_rate_unit: QLabel
-        self.label_selected_id: QLabel
-
-        # QLineEdit
-        self.lineEdit_volumetric_flow_rate: QLineEdit
-        self.lineEdit_selected_id: QLineEdit
-        self.lineEdit_proportional_damping: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_get_volumetric_flow_rate: QPushButton
-
-        # QStackedWidget
-        self.stackedWidget_main: QStackedWidget
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_element_type: QTreeWidget
 
     def _create_connections(self):
         #
@@ -342,7 +304,6 @@ class AcousticElementTypeInput(QDialog):
 
     def actions_to_finalize(self):
         app().project.file.write_line_properties_in_file()
-        self.pushButton_exit.setText("Exit")
         self.complete = True
         self.close()
 
@@ -490,4 +451,5 @@ class AcousticElementTypeInput(QDialog):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
         return super().closeEvent(a0)

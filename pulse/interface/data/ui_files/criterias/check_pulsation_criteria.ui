@@ -1002,6 +1002,6 @@ QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); borde
   <tabstop>lineEdit_internal_diameter</tabstop>
   <tabstop>pushButton_plot_filtered_criteria</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -1,6 +1,5 @@
 
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import *
 from pulse.utils.unit_conversion import *
 
@@ -177,8 +176,18 @@ class Mesh:
 
         try:
 
+            # Remove coincident geometric entities (geometry level)
+            # NOTE: check the tags coherence carefully after removing the duplicates
+            gmsh.model.occ.removeAllDuplicates() 
+            gmsh.model.occ.synchronize()
+
             gmsh.model.mesh.generate(3)
-            gmsh.model.mesh.removeDuplicateNodes()
+
+            # NOTE: removes the commented lines below when possible
+            # gmsh.model.mesh.removeDuplicateNodes()
+            # if True:
+            #     gmsh.option.setNumber('General.FltkColorScheme', 1)
+            #     gmsh.fltk.run()
 
             node_indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
             _, element_indexes, connectivity = gmsh.model.mesh.getElements()
