@@ -1,6 +1,7 @@
 from itertools import chain
 from typing import Iterator
 
+from molde.actors import CommonSymbolsActorFixedSize
 import numpy as np
 from molde.colors import Color, color_names
 from molde.utils import set_polydata_colors, read_obj_file, transform_polydata
@@ -14,8 +15,14 @@ from pulse import app, SYMBOLS_DIR
 from pulse.utils.cross_section_sources import valve_data
 from pulse.utils.rotations import align_vtk_geometry
 
+from ..polydata import (
+    create_compressor_discharge,
+    create_compressor_suction,
+    create_pump_discharge,
+    create_pump_suction,
+)
 
-class FixedSymbolsActor(vtkActor):
+class FixedSymbolsActor(CommonSymbolsActorFixedSize):
     def __init__(self):
         super().__init__()
         self.build()
@@ -24,6 +31,9 @@ class FixedSymbolsActor(vtkActor):
     def build(self):
         mapper = vtkPolyDataMapper()
         source = vtkAppendPolyData()
+
+        self.create_compressor_symbol()
+        self.create_reciprocating_pump_excitation()
 
         for symbol in chain(
             self.create_structural_links(),
@@ -37,6 +47,81 @@ class FixedSymbolsActor(vtkActor):
         source.Update()
         mapper.SetInputData(source.GetOutput())
         self.SetMapper(mapper)
+
+        return super().build()
+
+    def create_compressor_symbol(self):
+        nodal_properties = app().project.model.properties.nodal_properties
+
+        for (property_name, *args), data in nodal_properties.items():
+            if property_name == "reciprocating_compressor_excitation":
+                node_id = args[0]
+                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
+
+                if len(elements) != 1:
+                    continue
+
+                node = app().project.model.preprocessor.nodes[node_id]
+                element = elements[0]
+                orientation = element.last_node.coordinates - element.first_node.coordinates
+
+                if node != element.first_node:
+                    orientation = -orientation
+
+                node_id = int(*args)
+                line_ids = app().project.model.mesh.lines_from_node[node_id]
+                outer_diameter = app().project.model.properties._get_property("cross_section", line_id=line_ids[0])
+                scale = outer_diameter.outer_diameter
+
+                if data["connection_type"] == "discharge":
+                    self.add_symbol(
+                        create_compressor_discharge,
+                        data["coords"],
+                        orientation,
+                        color=color_names.RED_2,
+                        scale=scale
+                    )
+
+                elif data["connection_type"] == "suction":
+                    self.add_symbol(
+                        create_compressor_suction,
+                        data["coords"],
+                        orientation,
+                        color=color_names.BLUE_2,
+                        scale=scale
+                    )
+    def create_reciprocating_pump_excitation(self):
+        nodal_properties = app().project.model.properties.nodal_properties
+
+        for (property_name, *args), data in nodal_properties.items():
+            if property_name == "reciprocating_pump_excitation":
+                node_id = args[0]
+                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
+                if len(elements) != 1:
+                    continue
+
+                node = app().project.model.preprocessor.nodes[node_id]
+                element = elements[0]
+                orientation = element.last_node.coordinates - element.first_node.coordinates
+
+                if node != element.first_node:
+                    orientation = -orientation
+
+                if data["connection_type"] == "discharge":
+                    self.add_symbol(
+                        create_pump_discharge,
+                        data["coords"],
+                        orientation,
+                        color=color_names.RED,
+                    )
+
+                elif data["connection_type"] == "suction":
+                    self.add_symbol(
+                        create_pump_suction,
+                        data["coords"],
+                        orientation,
+                        color=color_names.BLUE,
+                    )
 
     def create_structural_links(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
