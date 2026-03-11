@@ -244,15 +244,16 @@ class Ui_Dialog(object):
 
         self.lineEdit_table_path = QLineEdit(self.frame)
         self.lineEdit_table_path.setObjectName(u"lineEdit_table_path")
-        self.lineEdit_table_path.setEnabled(False)
-        self.lineEdit_table_path.setMinimumSize(QSize(260, 26))
-        self.lineEdit_table_path.setMaximumSize(QSize(260, 26))
+        self.lineEdit_table_path.setEnabled(True)
+        self.lineEdit_table_path.setMinimumSize(QSize(280, 26))
+        self.lineEdit_table_path.setMaximumSize(QSize(280, 26))
         font4 = QFont()
         font4.setPointSize(9)
         font4.setBold(False)
         self.lineEdit_table_path.setFont(font4)
         self.lineEdit_table_path.setStyleSheet(u"")
         self.lineEdit_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_table_path.setClearButtonEnabled(True)
 
         self.gridLayout_10.addWidget(self.lineEdit_table_path, 0, 1, 1, 1)
 
