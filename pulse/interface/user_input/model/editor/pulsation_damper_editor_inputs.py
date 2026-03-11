@@ -892,16 +892,10 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         config = app().project.file.read_fluid_library_from_file()
 
-        liquid = config[liquid_identifier]
-        gas = config[gas_identifier]
+        liquid = config[str(liquid_identifier)]
+        gas = config[str(gas_identifier)]
 
-
-
-        # self.liquid_fluid = Fluid()
-        # self.gas_fluid = Fluid()
-
-        # self.lineEdit_polytropic_exponent = 
-
+        
 
         self.tabWidget_main.setCurrentIndex(0)
         self.preview_callback()
@@ -934,6 +928,78 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             self.remove_pulsation_damper_related_line_properties(damper_labels)
             self.remove_pulsation_damper_related_element_properties("_remove_all_")
             self.actions_to_finalize()
+
+    def load_fluid_data(self, identifier):
+            
+        config = app().project.file.read_fluid_library_from_file()
+        if not list(config.sections()):
+            return
+        
+        keys = config[identifier].keys()
+
+        name = identifier['name']
+        density =  float(identifier['density'])
+        speed_of_sound =  float(identifier['speed_of_sound'])
+
+        if 'isentropic_exponent' in keys:
+            isentropic_exponent = float(identifier['isentropic_exponent'])
+        else:
+            isentropic_exponent = ""
+
+        if 'thermal_conductivity' in keys:
+            thermal_conductivity = float(identifier['thermal_conductivity'])
+        else:
+            thermal_conductivity = ""
+
+        if 'specific_heat_Cp' in keys:
+            specific_heat_Cp = float(identifier['specific_heat_Cp'])
+        else:
+            specific_heat_Cp = ""
+
+        if 'dynamic_viscosity' in keys:
+            dynamic_viscosity = float(identifier['dynamic_viscosity'])
+        else:
+            dynamic_viscosity = ""
+        
+        if 'temperature' in keys:
+            temperature = float(identifier['temperature'])
+        else:
+            temperature = None
+
+        if 'pressure' in keys:
+            pressure = float(identifier['pressure'])
+        else:
+            pressure = None
+
+        if 'key mixture' in keys:
+            key_mixture = identifier['key mixture']
+        else:
+            key_mixture = None
+
+        if 'molar fractions' in keys:
+            str_molar_fractions = identifier['molar fractions']
+            molar_fractions = get_list_of_values_from_string(str_molar_fractions, int_values=False)
+        else:
+            molar_fractions = None
+
+        if "molar_mass" in keys:
+            if identifier["molar_mass"] == "None":
+                molar_mass = None
+            else:
+                molar_mass = float(identifier["molar_mass"])
+        else:
+            molar_mass = None
+
+        if 'adiabatic_bulk_modulus' in keys:
+            adiabatic_bulk_modulus = float(identifier['adiabatic_bulk_modulus'])
+        else:
+            adiabatic_bulk_modulus = None
+
+        if 'vapor_pressure' in keys:
+            vapor_pressure = float(identifier['vapor_pressure'])
+        else:
+            vapor_pressure = None
+
 
     def reset_entries_callback(self):
         for key, value in self.__dict__.items():
