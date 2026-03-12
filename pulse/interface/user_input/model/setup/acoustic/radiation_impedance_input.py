@@ -1,8 +1,6 @@
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QTreeWidgetItem,
-)
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import (
@@ -14,13 +12,8 @@ from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
-from pulse.model import RadiationImpedanceType
-from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import RadiationImpedanceInput_UI
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-import numpy as np
-
+from pulse.model import RadiationImpedanceType
 
 warning_title = "Warning"
 
@@ -226,15 +219,3 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
         app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)
