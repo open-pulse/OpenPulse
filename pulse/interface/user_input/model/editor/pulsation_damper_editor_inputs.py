@@ -128,6 +128,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_edit.clicked.connect(self.edit_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_copy.clicked.connect(self.copy_callback)
         self.pushButton_reset_entries.clicked.connect(self.reset_entries_callback)
 
         #
@@ -855,11 +856,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.pushButton_remove.setDisabled(True)
         self.pushButton_edit.setDisabled(True)
 
-    def edit_callback(self):
-        self.pushButton_create.setText("Confirm")
-        self.pushButton_exit.setText("Cancel")
-
-        damper_label = self.lineEdit_selected_damper_label.text()
+    def insert_damper_data_on_interface(self, damper_label, coords: bool = True):
         if damper_label == "" or damper_label not in self.damper_data:
             return
 
@@ -867,10 +864,11 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         self.lineEdit_damper_label.setText(damper_label)
 
-        cx, cy, cz = data["connecting_coords"]
-        self.lineEdit_connecting_coord_x.setText(str(cx))
-        self.lineEdit_connecting_coord_y.setText(str(cy))
-        self.lineEdit_connecting_coord_z.setText(str(cz))
+        if coords:
+            cx, cy, cz = data["connecting_coords"]
+            self.lineEdit_connecting_coord_x.setText(str(cx))
+            self.lineEdit_connecting_coord_y.setText(str(cy))
+            self.lineEdit_connecting_coord_z.setText(str(cz))
 
         type = data["damper_type"]
         idx = self.comboBox_damper_type.findText(type)
@@ -905,13 +903,41 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.fluid_state = 'gas'
         self.get_selected_fluid(gas)
 
+
+    def edit_callback(self):
+        self.pushButton_create.setText("Confirm")
+        self.pushButton_exit.setText("Cancel")
+
+        damper_label = self.lineEdit_selected_damper_label.text()
+
+        self.insert_damper_data_on_interface(damper_label)
+
         self.tabWidget_main.setCurrentIndex(0)
         self.preview_callback()
 
         self.edited_damper = True
         self.previous_damper_label = damper_label
 
+    def copy_callback(self):
+        damper_label = self.lineEdit_selected_damper_label.text()
+
+        self.insert_damper_data_on_interface(damper_label, coords = False)
+
+        self.tabWidget_main.setCurrentIndex(0)
+        self.preview_callback()
+
+        self.lineEdit_connecting_coord_x.setFocus()
         
+        for coord in [
+            self.lineEdit_connecting_coord_x,
+            self.lineEdit_connecting_coord_y,
+            self.lineEdit_connecting_coord_z,
+        ]:
+            coord.setText('')
+
+        self.lineEdit_connecting_coord_x.setFocus()
+        
+
     def reset_callback(self):
         self.hide()
 

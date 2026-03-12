@@ -757,6 +757,16 @@ class Ui_Dialog(object):
 
         self.gridLayout_7.addWidget(self.pushButton_edit, 0, 2, 1, 1)
 
+        self.pushButton_copy = QPushButton(self.frame_remove_buttons)
+        self.pushButton_copy.setObjectName(u"pushButton_copy")
+        self.pushButton_copy.setMinimumSize(QSize(100, 30))
+        self.pushButton_copy.setMaximumSize(QSize(100, 30))
+        self.pushButton_copy.setFont(font1)
+        self.pushButton_copy.setStyleSheet(u"")
+        self.pushButton_copy.setAutoDefault(False)
+
+        self.gridLayout_7.addWidget(self.pushButton_copy, 0, 3, 1, 1)
+
 
         self.gridLayout_9.addWidget(self.frame_remove_buttons, 2, 0, 1, 1)
 
@@ -887,17 +897,6 @@ class Ui_Dialog(object):
         self.gridLayout_3 = QGridLayout(self.frame_4)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.gridLayout_3.setContentsMargins(9, 9, 9, 9)
-        self.preview_widget_placeholder = QWidget(self.frame_4)
-        self.preview_widget_placeholder.setObjectName(u"preview_widget_placeholder")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.preview_widget_placeholder.sizePolicy().hasHeightForWidth())
-        self.preview_widget_placeholder.setSizePolicy(sizePolicy)
-        self.preview_widget_placeholder.setMinimumSize(QSize(400, 400))
-
-        self.gridLayout_3.addWidget(self.preview_widget_placeholder, 1, 0, 1, 1)
-
         self.label_4 = QLabel(self.frame_4)
         self.label_4.setObjectName(u"label_4")
         self.label_4.setEnabled(True)
@@ -912,6 +911,17 @@ class Ui_Dialog(object):
         self.label_4.setWordWrap(False)
 
         self.gridLayout_3.addWidget(self.label_4, 0, 0, 1, 1)
+
+        self.preview_widget_placeholder = QWidget(self.frame_4)
+        self.preview_widget_placeholder.setObjectName(u"preview_widget_placeholder")
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.preview_widget_placeholder.sizePolicy().hasHeightForWidth())
+        self.preview_widget_placeholder.setSizePolicy(sizePolicy)
+        self.preview_widget_placeholder.setMinimumSize(QSize(400, 400))
+
+        self.gridLayout_3.addWidget(self.preview_widget_placeholder, 1, 0, 1, 1)
 
 
         self.gridLayout_6.addWidget(self.frame_4, 1, 1, 1, 1)
@@ -995,6 +1005,42 @@ class Ui_Dialog(object):
 
         self.gridLayout_6.addWidget(self.frame_18, 0, 0, 1, 2)
 
+        QWidget.setTabOrder(self.lineEdit_damper_label, self.lineEdit_connecting_coord_x)
+        QWidget.setTabOrder(self.lineEdit_connecting_coord_x, self.lineEdit_connecting_coord_y)
+        QWidget.setTabOrder(self.lineEdit_connecting_coord_y, self.lineEdit_connecting_coord_z)
+        QWidget.setTabOrder(self.lineEdit_connecting_coord_z, self.scrollArea)
+        QWidget.setTabOrder(self.scrollArea, self.comboBox_damper_type)
+        QWidget.setTabOrder(self.comboBox_damper_type, self.pushButton_reset_entries)
+        QWidget.setTabOrder(self.pushButton_reset_entries, self.comboBox_main_axis)
+        QWidget.setTabOrder(self.comboBox_main_axis, self.comboBox_volume_unit)
+        QWidget.setTabOrder(self.comboBox_volume_unit, self.lineEdit_damper_volume)
+        QWidget.setTabOrder(self.lineEdit_damper_volume, self.lineEdit_gas_volume)
+        QWidget.setTabOrder(self.lineEdit_gas_volume, self.comboBox_volume_sections)
+        QWidget.setTabOrder(self.comboBox_volume_sections, self.lineEdit_outside_diameter_liquid)
+        QWidget.setTabOrder(self.lineEdit_outside_diameter_liquid, self.lineEdit_wall_thickness_liquid)
+        QWidget.setTabOrder(self.lineEdit_wall_thickness_liquid, self.lineEdit_outside_diameter_gas)
+        QWidget.setTabOrder(self.lineEdit_outside_diameter_gas, self.lineEdit_wall_thickness_gas)
+        QWidget.setTabOrder(self.lineEdit_wall_thickness_gas, self.lineEdit_outside_diameter_neck)
+        QWidget.setTabOrder(self.lineEdit_outside_diameter_neck, self.lineEdit_neck_height)
+        QWidget.setTabOrder(self.lineEdit_neck_height, self.comboBox_fluid_data_source)
+        QWidget.setTabOrder(self.comboBox_fluid_data_source, self.lineEdit_selected_liquid_fluid)
+        QWidget.setTabOrder(self.lineEdit_selected_liquid_fluid, self.pushButton_get_liquid_fluid)
+        QWidget.setTabOrder(self.pushButton_get_liquid_fluid, self.lineEdit_selected_gas_fluid)
+        QWidget.setTabOrder(self.lineEdit_selected_gas_fluid, self.pushButton_get_gas_fluid)
+        QWidget.setTabOrder(self.pushButton_get_gas_fluid, self.lineEdit_polytropic_exponent)
+        QWidget.setTabOrder(self.lineEdit_polytropic_exponent, self.lineEdit_gas_pressure)
+        QWidget.setTabOrder(self.lineEdit_gas_pressure, self.comboBox_pressure_units)
+        QWidget.setTabOrder(self.comboBox_pressure_units, self.lineEdit_gas_temperature)
+        QWidget.setTabOrder(self.lineEdit_gas_temperature, self.comboBox_temperature_units)
+        QWidget.setTabOrder(self.comboBox_temperature_units, self.tabWidget_main)
+        QWidget.setTabOrder(self.tabWidget_main, self.pushButton_exit)
+        QWidget.setTabOrder(self.pushButton_exit, self.pushButton_show_errors)
+        QWidget.setTabOrder(self.pushButton_show_errors, self.pushButton_create)
+        QWidget.setTabOrder(self.pushButton_create, self.treeWidget_pulsation_damper_info)
+        QWidget.setTabOrder(self.treeWidget_pulsation_damper_info, self.pushButton_reset)
+        QWidget.setTabOrder(self.pushButton_reset, self.pushButton_remove)
+        QWidget.setTabOrder(self.pushButton_remove, self.pushButton_edit)
+        QWidget.setTabOrder(self.pushButton_edit, self.pushButton_copy)
 
         self.retranslateUi(Dialog)
 
@@ -1106,6 +1152,8 @@ class Ui_Dialog(object):
         self.pushButton_remove.setProperty(u"status", "")
         self.pushButton_edit.setText(QCoreApplication.translate("Dialog", u"Edit", None))
         self.pushButton_edit.setProperty(u"status", "")
+        self.pushButton_copy.setText(QCoreApplication.translate("Dialog", u"Copy", None))
+        self.pushButton_copy.setProperty(u"status", "")
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Devices list", None))
         self.label_12.setText(QCoreApplication.translate("Dialog", u"Damper label:", None))
         self.lineEdit_damper_label.setText("")
@@ -1211,6 +1259,7 @@ class PulsationDamperEditorInputs_UI(QDialog, Ui_Dialog):
                                                                     - pushButton_reset: QPushButton
                                                                     - pushButton_remove: QPushButton
                                                                     - pushButton_edit: QPushButton
+                                                                    - pushButton_copy: QPushButton
                             - frame_5: QFrame
                                 - (Layout): QHBoxLayout
                                         - label_12: QLabel
@@ -1226,8 +1275,8 @@ class PulsationDamperEditorInputs_UI(QDialog, Ui_Dialog):
                                         - lineEdit_connecting_coord_x: QLineEdit
                 - frame_4: QFrame
                     - (Layout): QGridLayout
-                            - preview_widget_placeholder: QWidget
                             - label_4: QLabel
+                            - preview_widget_placeholder: QWidget
                 - frame_2: QFrame
                     - (Layout): QGridLayout
                             - pushButton_exit: QPushButton

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1056</width>
-    <height>730</height>
+    <height>769</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2385,6 +2385,42 @@
                   </property>
                  </widget>
                 </item>
+                <item row="0" column="3">
+                 <widget class="QPushButton" name="pushButton_copy">
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>100</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>MS Shell Dlg 2</family>
+                    <pointsize>10</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="text">
+                   <string>Copy</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                  <property name="status" stdset="0">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>
@@ -2747,22 +2783,6 @@
       <property name="bottomMargin">
        <number>9</number>
       </property>
-      <item row="1" column="0">
-       <widget class="QWidget" name="preview_widget_placeholder" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>400</width>
-          <height>400</height>
-         </size>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_4">
         <property name="enabled">
@@ -2795,6 +2815,22 @@
         </property>
         <property name="wordWrap">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QWidget" name="preview_widget_placeholder" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>400</width>
+          <height>400</height>
+         </size>
         </property>
        </widget>
       </item>
@@ -3019,6 +3055,45 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>lineEdit_damper_label</tabstop>
+  <tabstop>lineEdit_connecting_coord_x</tabstop>
+  <tabstop>lineEdit_connecting_coord_y</tabstop>
+  <tabstop>lineEdit_connecting_coord_z</tabstop>
+  <tabstop>scrollArea</tabstop>
+  <tabstop>comboBox_damper_type</tabstop>
+  <tabstop>pushButton_reset_entries</tabstop>
+  <tabstop>comboBox_main_axis</tabstop>
+  <tabstop>comboBox_volume_unit</tabstop>
+  <tabstop>lineEdit_damper_volume</tabstop>
+  <tabstop>lineEdit_gas_volume</tabstop>
+  <tabstop>comboBox_volume_sections</tabstop>
+  <tabstop>lineEdit_outside_diameter_liquid</tabstop>
+  <tabstop>lineEdit_wall_thickness_liquid</tabstop>
+  <tabstop>lineEdit_outside_diameter_gas</tabstop>
+  <tabstop>lineEdit_wall_thickness_gas</tabstop>
+  <tabstop>lineEdit_outside_diameter_neck</tabstop>
+  <tabstop>lineEdit_neck_height</tabstop>
+  <tabstop>comboBox_fluid_data_source</tabstop>
+  <tabstop>lineEdit_selected_liquid_fluid</tabstop>
+  <tabstop>pushButton_get_liquid_fluid</tabstop>
+  <tabstop>lineEdit_selected_gas_fluid</tabstop>
+  <tabstop>pushButton_get_gas_fluid</tabstop>
+  <tabstop>lineEdit_polytropic_exponent</tabstop>
+  <tabstop>lineEdit_gas_pressure</tabstop>
+  <tabstop>comboBox_pressure_units</tabstop>
+  <tabstop>lineEdit_gas_temperature</tabstop>
+  <tabstop>comboBox_temperature_units</tabstop>
+  <tabstop>tabWidget_main</tabstop>
+  <tabstop>pushButton_exit</tabstop>
+  <tabstop>pushButton_show_errors</tabstop>
+  <tabstop>pushButton_create</tabstop>
+  <tabstop>treeWidget_pulsation_damper_info</tabstop>
+  <tabstop>pushButton_reset</tabstop>
+  <tabstop>pushButton_remove</tabstop>
+  <tabstop>pushButton_edit</tabstop>
+  <tabstop>pushButton_copy</tabstop>
+ </tabstops>
  <resources>
   <include location="../../../icons/resources.qrc"/>
  </resources>
