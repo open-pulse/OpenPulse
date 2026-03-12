@@ -58,6 +58,9 @@ class ModelProperties:
 
     def _reset_variables(self):
 
+        self.fluids_library = dict()
+        self.materials_library = dict()
+
         self.acoustic_imported_tables = dict()
         self.structural_imported_tables = dict()
 
@@ -71,6 +74,12 @@ class ModelProperties:
 
         self.global_properties["material", "global"] = DEFAULT_MATERIAL
         self.global_properties["fluid", "global"] = DEFAULT_FLUID
+
+    def set_materials_library(self, materials_library: dict):
+        self.materials_library = materials_library
+
+    def set_fluids_library(self, fluids_library: dict):
+        self.fluids_library = fluids_library
 
     def get_next_line_id(self):
         line_ids = list(self.line_properties.keys())

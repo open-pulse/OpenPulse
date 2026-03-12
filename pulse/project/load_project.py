@@ -67,7 +67,7 @@ class LoadProject:
 
     def load_fluids_library(self):
 
-        self.library_fluids = dict()
+        self.fluids_library = dict()
         config = self.project.file.read_fluid_library_from_file()
 
         if config is None:
@@ -163,12 +163,14 @@ class LoadProject:
                             vapor_pressure = vapor_pressure
                           )
 
-            self.library_fluids[identifier] = fluid
+            self.fluids_library[identifier] = fluid
+
+        self.properties.set_fluids_library(self.fluids_library)
 
 
     def load_materials_library(self):
 
-        self.library_materials = dict()
+        self.materials_library = dict()
         config = self.project.file.read_material_library_from_file()
 
         if config is None:
@@ -200,9 +202,10 @@ class LoadProject:
                                 color = color
                                 )
             
-            self.library_materials[identifier] = material
+            self.materials_library[identifier] = material
 
-    
+        self.properties.set_materials_library(self.materials_library)
+
     def check_line_properties(self):
 
         line_properties = self.project.file.read_line_properties_from_file()
@@ -285,20 +288,20 @@ class LoadProject:
                         fluid_id = prop_data
                         self.properties._set_line_property(property, fluid_id, line_ids=int(line_id))
 
-                        if fluid_id not in self.library_fluids.keys():
+                        if fluid_id not in self.fluids_library.keys():
                             continue
 
-                        fluid = self.library_fluids[fluid_id]
+                        fluid = self.fluids_library[fluid_id]
                         self.properties._set_line_property("fluid", fluid, line_ids=int(line_id))
 
                     elif property == "material_id":
                         material_id = prop_data
                         self.properties._set_line_property(property, material_id, line_ids=int(line_id))
     
-                        if material_id not in self.library_materials.keys():
+                        if material_id not in self.materials_library.keys():
                             continue
 
-                        material = self.library_materials[material_id]
+                        material = self.materials_library[material_id]
                         self.properties._set_line_property("material", material, line_ids=int(line_id))
                     
                     else:

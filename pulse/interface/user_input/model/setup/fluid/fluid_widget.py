@@ -58,7 +58,7 @@ class FluidWidget(FluidInputWidget_UI):
         self.refprop = None
         self.selected_column = None
 
-        self.fluids_from_library = dict()
+        self.fluids_library = dict()
         self.fluid_data_refprop = dict()
         self.fluid_name_to_refprop_data = dict()
 
@@ -104,7 +104,7 @@ class FluidWidget(FluidInputWidget_UI):
         self.tableWidget_fluid_data.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode(1))
     
     def _update_size_policy(self):
-        if len(self.fluids_from_library) > 6:
+        if len(self.fluids_library) > 6:
             self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents)
         else:
             self.tableWidget_fluid_data.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
@@ -139,7 +139,7 @@ class FluidWidget(FluidInputWidget_UI):
             self.reset_library_to_default()
             return
 
-        self.fluids_from_library.clear()
+        self.fluids_library.clear()
         self.fluid_name_to_refprop_data.clear()
 
         if not list(config.sections()):
@@ -233,7 +233,7 @@ class FluidWidget(FluidInputWidget_UI):
                             vapor_pressure = vapor_pressure
                           )
 
-            self.fluids_from_library[identifier] = fluid
+            self.fluids_library[identifier] = fluid
 
             aux = [
                    name,
@@ -246,6 +246,7 @@ class FluidWidget(FluidInputWidget_UI):
             if aux.count(None) == 0:
                 self.fluid_name_to_refprop_data[name] = aux
 
+        self.properties.set_fluids_library(self.fluids_library)
         self.update_fluid_properties_table()
 
     def update_fluid_properties_table(self):
@@ -253,9 +254,9 @@ class FluidWidget(FluidInputWidget_UI):
         self.tableWidget_fluid_data.clearContents()
         self.tableWidget_fluid_data.blockSignals(True)
         self.tableWidget_fluid_data.setRowCount(COLOR_ROW + 1)
-        self.tableWidget_fluid_data.setColumnCount(len(self.fluids_from_library))
+        self.tableWidget_fluid_data.setColumnCount(len(self.fluids_library))
 
-        for j, fluid in enumerate(self.fluids_from_library.values()):
+        for j, fluid in enumerate(self.fluids_library.values()):
             if isinstance(fluid, Fluid):
 
                 self.tableWidget_fluid_data.setItem( 0, j, QTableWidgetItem(str(fluid.name)))
@@ -317,20 +318,20 @@ class FluidWidget(FluidInputWidget_UI):
         if selected_column < 0:
             return
 
-        if selected_column >= len(self.fluids_from_library):
+        if selected_column >= len(self.fluids_library):
             return
         
         item = self.tableWidget_fluid_data.item(1, selected_column)
         identifier = int(item.text())
 
-        return self.fluids_from_library.get(identifier)
+        return self.fluids_library.get(identifier)
 
     def add_column(self):
 
         self.tableWidget_fluid_data.blockSignals(True)
 
         table_size = self.tableWidget_fluid_data.columnCount()
-        if table_size > len(self.fluids_from_library):
+        if table_size > len(self.fluids_library):
             # it means that if you already have a new row
             # to insert data you don't need another one
             self.tableWidget_fluid_data.blockSignals(False)
@@ -426,7 +427,7 @@ class FluidWidget(FluidInputWidget_UI):
         if selected_column < 0:
             return
 
-        if selected_column >= len(self.fluids_from_library):
+        if selected_column >= len(self.fluids_library):
             # if it is the last item and a not an already configured
             # fluid, just remove the last line
             current_size = self.tableWidget_fluid_data.columnCount()
@@ -438,7 +439,7 @@ class FluidWidget(FluidInputWidget_UI):
 
         item = self.tableWidget_fluid_data.item(1, selected_column)
         identifier = int(item.text())
-        fluid = self.fluids_from_library.get(identifier)
+        fluid = self.fluids_library.get(identifier)
 
         self.remove_fluid_from_file(fluid)
         self._update_size_policy()
@@ -457,7 +458,7 @@ class FluidWidget(FluidInputWidget_UI):
             return
 
         identifier = int(item.text())
-        fluid = self.fluids_from_library.get(identifier)
+        fluid = self.fluids_library.get(identifier)
         if not isinstance(fluid, Fluid):
             return
 
@@ -466,7 +467,7 @@ class FluidWidget(FluidInputWidget_UI):
 
         dfluid.identifier = new_identifier
         dfluid.name = self.get_suffix_for_duplicated_fluid(dfluid.name)
-        self.fluids_from_library[new_identifier] = dfluid
+        self.fluids_library[new_identifier] = dfluid
 
         self.update_fluid_properties_table()
         last_col = self.tableWidget_fluid_data.columnCount()
@@ -479,7 +480,7 @@ class FluidWidget(FluidInputWidget_UI):
     def get_suffix_for_duplicated_fluid(self, fluid_name: str):
 
         already_used_names = set()
-        for fluid in self.fluids_from_library.values():
+        for fluid in self.fluids_library.values():
             fluid: Fluid
             if fluid_name in fluid.name:
                 already_used_names.add(fluid.name)
@@ -553,7 +554,7 @@ class FluidWidget(FluidInputWidget_UI):
         if not column_name:
             return True
 
-        for fluid in self.fluids_from_library.values():
+        for fluid in self.fluids_library.values():
             if fluid.name == column_name:
                 return True
 
@@ -564,7 +565,7 @@ class FluidWidget(FluidInputWidget_UI):
         item = self.tableWidget_fluid_data.item(1, column)
 
         already_used_ids = set()
-        for fluid in self.fluids_from_library.values():
+        for fluid in self.fluids_library.values():
             already_used_ids.add(fluid.identifier)
         
         if item.text() == "":
@@ -747,7 +748,7 @@ class FluidWidget(FluidInputWidget_UI):
     def new_identifier(self):
 
         already_used_ids = set()
-        for fluid in self.fluids_from_library.values():
+        for fluid in self.fluids_library.values():
             fluid: Fluid
             already_used_ids.add(fluid.identifier)
 

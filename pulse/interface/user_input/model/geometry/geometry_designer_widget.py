@@ -866,7 +866,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         material = None
         if self.current_material_info is not None:
             material_id = self.current_material_info
-            material = self.material_widget.material_widget.library_materials[
+            material = self.material_widget.material_widget.materials_library[
                 material_id
             ]
 
