@@ -247,7 +247,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         app().main_window.set_input_widget(self)
 
     def get_selected_fluid(self, fluid: Fluid | None = None):
-        if fluid is None:
+        if fluid is False:
             selected_fluid = self.fluid_dialog.get_selected_fluid()
         
         elif isinstance(fluid, Fluid):
