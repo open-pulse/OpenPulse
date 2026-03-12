@@ -998,7 +998,7 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
 
-        self.tabWidget_main.setCurrentIndex(1)
+        self.tabWidget_main.setCurrentIndex(0)
         self.comboBox_damper_type.setCurrentIndex(0)
         self.comboBox_main_axis.setCurrentIndex(1)
         self.comboBox_pressure_units.setCurrentIndex(5)
