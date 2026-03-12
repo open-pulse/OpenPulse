@@ -19,6 +19,7 @@ from pathlib import Path
 
 
 error_title = "Error"
+warning_title = "Warning"
 
 
 class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
@@ -138,48 +139,40 @@ class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
                 PrintMessageInput([error_title, title, message])
                 return
 
-    def remove_table_files_from_nodes(self, node_id : list):
-        table_names = self.properties.get_nodal_related_table_names("acoustic_transfer_element", node_id)
-        self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
-
     def remove_callback(self):
 
-        if  self.lineEdit_selected_id.text() != "":
+        if  self.lineEdit_selected_id.text() == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            linked_nodes = self.lineEdit_selected_id.text()
-            node_ids = [int(node_id) for node_id in linked_nodes.split("-")]
+        linked_nodes = self.lineEdit_selected_id.text()
+        node_ids = [int(node_id) for node_id in linked_nodes.split("-")]
 
-            self.remove_table_files_from_nodes(node_ids)
-            self.properties._remove_nodal_property("acoustic_transfer_element", node_ids)
-            self.actions_to_finalize()
+        self.properties._remove_nodal_property("acoustic_transfer_element", node_ids)
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
-            self.hide()
+        self.hide()
 
-            title = f"Resetting of acoustic transfer element"
-            message = "Would you like to remove all acoustic transfer element from the acoustic model?"
+        title = f"Resetting of acoustic transfer element"
+        message = "Would you like to remove all acoustic transfer element from the acoustic model?"
 
-            buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._cancel:
-                return
+        if read._cancel:
+            return
 
-            if read._continue:
+        if not read._continue:
+            return
 
-                for (property, *args) in self.properties.nodal_properties.keys():
-                    if property == "acoustic_transfer_element":
-                        self.remove_table_files_from_nodes(args)                    
-
-                self.properties._reset_nodal_property("acoustic_transfer_element")
-                self.actions_to_finalize()
+        self.properties._reset_nodal_property("acoustic_transfer_element")
+        self.actions_to_finalize()
 
     def search_callback(self):
         caption = f"Choose a file to import element transfer data"

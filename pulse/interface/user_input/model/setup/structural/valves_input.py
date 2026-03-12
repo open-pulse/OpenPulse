@@ -9,7 +9,6 @@ from pulse.interface.ui_generated.model.setup.structural.valve_input_ui import (
     ValveInput_UI,
 )
 
-# from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import (
     PerforatedPlateInput,
 )
@@ -124,8 +123,8 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
     def _config_widgets(self):
         #
-        for i, w in enumerate([100, 120, 160]):
-            self.treeWidget_valves_info.setColumnWidth(i, w)
+        for i, width in enumerate([100, 120, 160]):
+            self.treeWidget_valves_info.setColumnWidth(i, width)
             self.treeWidget_valves_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _create_lists_of_lineEdits(self):
@@ -366,7 +365,6 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
                         line_id, line_data
                     )
 
-                    self.remove_table_files_from_expansion_joints(line_id)
                     self.properties._remove_line_property("section_parameters", line_id)
                     self.properties._remove_line_property(
                         "expansion_joint_info", line_id
@@ -383,6 +381,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
     def actions_to_finalize(self):
 
         app().project.file.write_line_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
 
         # geometry_handler = GeometryHandler(app().project)
         # geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
@@ -408,23 +407,25 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            element_ids = list()
-            for line_id in line_ids:
-                line_elements = app().project.model.mesh.elements_from_line[line_id]
-                N = len(line_elements)
-                if np.remainder(N, 2) == 0:
-                    index = int(N / 2) + 1
-                else:
-                    index = int((N + 1) / 2)
+        if not read._continue:
+            return
 
-                element_ids.append(line_elements[index - 1])
+        element_ids = list()
+        for line_id in line_ids:
+            line_elements = app().project.model.mesh.elements_from_line[line_id]
+            N = len(line_elements)
+            if np.remainder(N, 2) == 0:
+                index = int(N/2) + 1
+            else:
+                index = int((N+1)/2)
 
-            perforated_plate = PerforatedPlateInput(valve_element_ids=element_ids)
+            element_ids.append(line_elements[index-1])
 
-            if not perforated_plate.complete:
-                app().main_window.set_input_widget(self)
-                return
+        perforated_plate = PerforatedPlateInput(valve_element_ids = element_ids)
+
+        if not perforated_plate.complete:
+            app().main_window.set_input_widget(self)
+            return
 
     def add_section_parameters_into_valve_info(self):
 
@@ -537,18 +538,6 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
                 )
                 self.properties._set_multiple_line_properties(pipe_info, line_id)
 
-    def remove_table_files_from_expansion_joints(self, line_ids: list):
-        table_names = list()
-        for line_id, data in self.properties.line_properties.items():
-            data: dict
-            if "expansion_joint_info" in data.keys():
-                ej_info = data["expansion_joint_info"]
-                if line_id in line_ids and "table_names" in ej_info.keys():
-                    table_names.append(ej_info["table_names"])
-
-        if table_names:
-            self.process_table_file_removal(table_names)
-
     def remove_callback(self):
         if self.lineEdit_selected_id.text() != "":
             line_id = int(self.lineEdit_selected_id.text())
@@ -576,20 +565,22 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            line_ids = list()
-            for line_id, data in self.properties.line_properties.items():
-                data: dict
-                if "valve_info" in data.keys():
-                    line_ids.append(line_id)
+        if not read._continue:
+            return
 
-            for line_id in line_ids:
-                self.properties._remove_line_property("valve_info", line_id)
-                self.restore_the_cross_section(line_ids)
+        line_ids = list()
+        for line_id, data in self.properties.line_properties.items():
+            data: dict
+            if "valve_info" in data.keys():
+                line_ids.append(line_id)
 
-            if line_ids:
-                self.load_valves_info()
-                self.actions_to_finalize()
+        for line_id in line_ids:
+            self.properties._remove_line_property("valve_info", line_id)
+            self.restore_the_cross_section(line_ids)
+
+        if line_ids:
+            self.load_valves_info()
+            self.actions_to_finalize()
 
     def remove_valve_acoustic_effects_function(self, valve_names: list):
 

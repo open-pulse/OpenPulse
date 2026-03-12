@@ -43,11 +43,9 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
         #
         self.pushButton_remove.setDisabled(True)
         #
-        for i, w in enumerate([120, 100]):
-            self.treeWidget_xaxis_rotation_angle.setColumnWidth(i, w)
-            self.treeWidget_xaxis_rotation_angle.headerItem().setTextAlignment(
-                i, Qt.AlignCenter
-            )
+        for i, width in enumerate([120, 100]):
+            self.treeWidget_xaxis_rotation_angle.setColumnWidth(i, width)
+            self.treeWidget_xaxis_rotation_angle.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _create_connections(self):
         self.comboBox_selection.currentIndexChanged.connect(
@@ -259,19 +257,21 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            self.lineEdit_selected_id.clear()
-            self.lineEdit_increment_angle.clear()
+        if not read._continue:
+            return
 
-            line_ids = list()
-            for line_id, data in self.properties.line_properties.items():
-                if "beam_xaxis_rotation" in data.keys():
-                    line_ids.append(line_id)
+        self.lineEdit_selected_id.clear()
+        self.lineEdit_increment_angle.clear()
 
-            self.preprocessor.set_beam_xaxis_rotation_by_lines(line_ids, 0)
-            self.properties._remove_line_property("beam_xaxis_rotation", line_ids)
+        line_ids = list()
+        for line_id, data in self.properties.line_properties.items():
+            if "beam_xaxis_rotation" in data.keys():
+                line_ids.append(line_id)
 
-            self.actions_to_finalize()
+        self.preprocessor.set_beam_xaxis_rotation_by_lines(line_ids, 0)
+        self.properties._remove_line_property("beam_xaxis_rotation", line_ids)
+
+        self.actions_to_finalize()
 
     def load_lines_info(self):
         self.treeWidget_xaxis_rotation_angle.clear()

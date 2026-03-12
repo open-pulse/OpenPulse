@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'getGroupInformationPerforatedPlate.ui'
+## Form generated from reading UI file 'get_information_for_perforated_plate.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.9.0
 ##
@@ -376,7 +376,7 @@ class Ui_Dialog(object):
 
 
 
-class Getgroupinformationperforatedplate_UI(QDialog, Ui_Dialog):
+class GetInformationForPerforatedPlate_UI(QDialog, Ui_Dialog):
     """
     Component Hierarchy:
     - Dialog: QDialog

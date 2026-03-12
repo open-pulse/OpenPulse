@@ -18,6 +18,9 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.common import update_analysis_setup_in_file
+
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
 
@@ -687,11 +690,19 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
         self.lineEdit_number_of_revolutions.setText(str(self.N_rev))
         self.aquisition_parameters_processed = True
 
-    def save_table_values(
-        self, table_name: str, frequencies: np.ndarray, complex_values: np.ndarray
-    ):
+    def save_table_values(self, table_name: str, imported_values: np.ndarray, filter_zero: bool = True):
+
+        if filter_zero:
+            mask_filter = imported_values[:, 0] > 0
+            _imported_values = imported_values[mask_filter, :]
+        else:
+            _imported_values = imported_values
+
+        # define the frequencies vector
+        frequencies = _imported_values[:, 0]
 
         if app().project.model.change_analysis_frequency_setup(list(frequencies)):
+            self.hide()
             title = "Project frequency setup cannot be modified"
             message = "The following imported table of values has a frequency setup "
             message += "different from the others already imported ones. The current "
@@ -700,12 +711,15 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
             PrintMessageInput([error_title, title, message])
             return True
 
-        analysis_setup = app().project.model.analysis_setup
-        app().project.file.write_analysis_setup_in_file(analysis_setup)
+        update_analysis_setup_in_file(frequencies)
 
-        real_values = np.real(complex_values)
-        imag_values = np.imag(complex_values)
+        # real values vector
+        real_values = _imported_values[:, 1]
+        
+        # imaginary values vector
+        imag_values = _imported_values[:, 2]
 
+        # data to be stored
         data = np.array([frequencies, real_values, imag_values], dtype=float).T
 
         self.properties.add_imported_tables("acoustic", table_name, data)
@@ -772,32 +786,23 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
                 self.N_rev, flow_label
             )
 
-            # remove dc component
-            _freq = freq[1:]
-            _flow_rate = flow_rate[1:]
-
+            vv_data = np.array([freq, np.real(flow_rate), np.imag(flow_rate)]).T
             table_name = f"pump_excitation_{connection_type}_node_{node_id}"
 
+            if self.save_table_values(table_name, vv_data):
+                return
+            
             node = app().project.model.preprocessor.nodes[node_id]
             coords = list(np.round(node.coordinates, 5))
 
             data = {
-                "coords": coords,
-                "connection_type": connection_type,
-                "table_names": [table_name],
-                "parameters": self.parameters,
-            }
+                "coords" : coords,
+                "connection_type" : connection_type,
+                "table_names" : [table_name],
+                "parameters" : self.parameters
+                }
 
-            properties = [
-                "acoustic_pressure",
-                "volume_velocity",
-                "reciprocating_pump_excitation",
-                "reciprocating_compressor_excitation",
-            ]
-            self.remove_conflicting_data(properties, node_id)
-
-            if self.save_table_values(table_name, _freq, _flow_rate):
-                return
+            self.remove_properties_from_node(node_id)
 
             self.properties._set_nodal_property(
                 "reciprocating_pump_excitation", data, node_id
@@ -811,24 +816,21 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
         app().main_window.update_plots()
         self.load_reciprocating_pump_excitation_info()
 
-    def process_table_file_removal(self, table_names: list):
-        for table_name in table_names:
-            self.properties.remove_imported_tables("acoustic", table_name)
-        # if table_names:
-        #     app().project.file.write_imported_table_data_in_file()
+    def remove_properties_from_node(self, node_id: int):
+        for label in ["acoustic_pressure", "volume_velocity", "reciprocating_pump_excitation", "reciprocating_compressor_excitation"]:
+            self.properties._remove_nodal_property(label, node_id)
 
     def remove_callback(self):
 
         if self.lineEdit_selected_node_id.text() == "":
-            title = "Empty node selection"
-            message = "You should to select a node from the list "
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
             message += "to proceed with the removal."
             PrintMessageInput([warning_title, title, message])
             return
 
         node_id = int(self.lineEdit_selected_node_id.text())
-
-        self.remove_table_files_from_nodes("reciprocating_pump_excitation", node_id)
 
         self.properties._remove_nodal_property("reciprocating_pump_excitation", node_id)
         self.actions_to_finalize()
@@ -849,21 +851,11 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            node_ids = list()
+        if not read._continue:
+            return
 
-            for property, *args in self.properties.nodal_properties.keys():
-                if property == "reciprocating_pump_excitation":
-                    node_id = args[0]
-                    node_ids.append(node_id)
-
-            for node_id in node_ids:
-                self.remove_table_files_from_nodes(
-                    "reciprocating_pump_excitation", node_id
-                )
-
-            self.properties._reset_nodal_property("reciprocating_pump_excitation")
-            self.actions_to_finalize()
+        self.properties._reset_nodal_property("reciprocating_pump_excitation")
+        self.actions_to_finalize()
 
     def load_reciprocating_pump_excitation_info(self):
 

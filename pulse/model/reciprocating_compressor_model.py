@@ -4,6 +4,8 @@ import os
 from pathlib import Path
 from scipy.signal import butter, filtfilt
 
+from pulse import OPEN_PULSE_DIR
+
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 pi = np.pi
@@ -364,7 +366,7 @@ class ReciprocatingCompressorModel:
         output[N-index:] = data[:index]
         return output
 
-    def process_head_end_volumes_and_pressures(self, tdc=None, capacity=None, export_data=True):
+    def process_head_end_volumes_and_pressures(self, tdc: float | None = None, capacity: float | None = None, export_data: bool = False):
 
         V0, A, h0 = self.get_clearance_data("HE")
 
@@ -508,11 +510,11 @@ class ReciprocatingCompressorModel:
 
         if export_data:
 
-            fname = f"temporary_data\\PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log = f"temporary_data\\log_info_head_end_{self.crank_angle_1}_cap_{capacity}.txt"
+            folder_path = OPEN_PULSE_DIR.cwd() / "temporary_data"
+            folder_path.mkdir(exist_ok=True)
 
-            if not os.path.exists(os.path.dirname(fname)):
-                os.mkdir("temporary_data")
+            fname = folder_path / f"PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
+            fname_log =folder_path / f"log_info_head_end_{self.crank_angle_1}_cap_{capacity}.txt"
 
             header = "Index, Time [s], Angle [deg], Velocity [m/s], Volumes [m³], Pressures [Pa], Suction valve open [bool], Discharge valve open [bool]\n\n"
             header += f"V1 = {V1}\n"
@@ -538,7 +540,7 @@ class ReciprocatingCompressorModel:
         return volumes, pressures, valves_info
 
 
-    def process_crank_end_volumes_and_pressures(self, tdc=None, capacity=None, export_data=True):
+    def process_crank_end_volumes_and_pressures(self, tdc: float | None = None, capacity: float | None = None, export_data: bool = False):
 
         V0, A, h0 = self.get_clearance_data("CE")
 
@@ -685,11 +687,11 @@ class ReciprocatingCompressorModel:
 
         if export_data:
 
-            fname = f"temporary_data\\PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log = f"temporary_data\\log_info_crank_end_{self.crank_angle_1}_cap_{capacity}.txt"
+            folder_path = OPEN_PULSE_DIR.cwd() / "temporary_data"
+            folder_path.mkdir(exist_ok=True)
 
-            if not os.path.exists(os.path.dirname(fname)):
-                os.mkdir("temporary_data")
+            fname = folder_path / f"PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
+            fname_log =folder_path / f"log_info_crank_end_{self.crank_angle_1}_cap_{capacity}.txt"
 
             header = "Index, Time [s], Angle [deg], Velocity [m/s], Volumes [m³], Pressures [Pa], Suction valve open [bool], Discharge valve open [bool]\n\n"
             header += f"V1 = {V1}\n"

@@ -223,23 +223,23 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
         if read._cancel:
             return
 
-        if read._continue:
-            element_ids = list()
-            for property, element_id in self.properties.element_properties.keys():
-                if property == "B2P_rotation_decoupling":
-                    element_ids.append(element_id)
+        if not read._continue:
+            return
+            
+        element_ids = list()
+        for (property, element_id) in self.properties.element_properties.keys():
+            if property == "B2P_rotation_decoupling":
+                element_ids.append(element_id)
 
-            for element_id in element_ids:
-                element = self.preprocessor.structural_elements[element_id]
-                element.decoupling_matrix = decoupling_matrix
-                element.decoupling_info = None
+        for element_id in element_ids:
+            element = self.preprocessor.structural_elements[element_id]
+            element.decoupling_matrix = decoupling_matrix
+            element.decoupling_info = None
 
-                self.properties._remove_element_property(
-                    "B2P_rotation_decoupling", element_id
-                )
+            self.properties._remove_element_property("B2P_rotation_decoupling", element_id)
 
-            app().project.file.write_element_properties_in_file()
-            self.load_decoupling_info()
+        app().project.file.write_element_properties_in_file()
+        self.load_decoupling_info()
 
     def get_rotation_mask(self):
 

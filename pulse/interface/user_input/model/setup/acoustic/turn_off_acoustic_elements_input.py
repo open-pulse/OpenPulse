@@ -62,11 +62,9 @@ class TurnOffAcousticElementsInput(ElementsInput, TurnOffAcousticElementsInput_U
 
     def _config_widgets(self):
         #
-        for i, w in enumerate([120, 140]):
-            self.treeWidget_elements_info.setColumnWidth(i, w)
-            self.treeWidget_elements_info.headerItem().setTextAlignment(
-                i, Qt.AlignCenter
-            )
+        for i, width in enumerate([120, 140]):
+            self.treeWidget_elements_info.setColumnWidth(i, width)
+            self.treeWidget_elements_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _tab_event_update(self):
 
@@ -140,21 +138,19 @@ class TurnOffAcousticElementsInput(ElementsInput, TurnOffAcousticElementsInput_U
         if read._cancel:
             return
 
-        if read._continue:
+            if not read._continue:
+                return
+
             element_ids = list()
-            for property, element_id in self.properties.element_properties.keys():
+            for (property, element_id) in self.properties.element_properties.keys():
                 if property == "acoustic_element_turned_off":
                     element_ids.append(element_id)
 
             if element_ids:
                 for element_id in element_ids:
-                    self.properties._remove_element_property(
-                        "acoustic_element_turned_off", element_id
-                    )
+                    self.properties._remove_element_property("acoustic_element_turned_off", element_id)
 
-                self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(
-                    element_ids, False
-                )
+                self.preprocessor.set_elements_to_ignore_in_acoustic_analysis(element_ids, False)
                 self.actions_to_finalize()
 
     def actions_to_finalize(self):

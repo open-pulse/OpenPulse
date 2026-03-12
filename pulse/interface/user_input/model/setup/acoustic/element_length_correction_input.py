@@ -14,8 +14,8 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
+warning_title = "Warning"
 
 
 class AcousticElementLengthCorrectionInput(
@@ -67,11 +67,9 @@ class AcousticElementLengthCorrectionInput(
 
     def _config_widgets(self):
         #
-        for i, w in enumerate([80, 120, 140]):
-            self.treeWidget_elements_info.setColumnWidth(i, w)
-            self.treeWidget_elements_info.headerItem().setTextAlignment(
-                i, Qt.AlignCenter
-            )
+        for i, width in enumerate([80, 120, 140]):
+            self.treeWidget_elements_info.setColumnWidth(i, width)
+            self.treeWidget_elements_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _tab_event_update(self):
 
@@ -150,7 +148,7 @@ class AcousticElementLengthCorrectionInput(
                 "the selected group of elements. You should to change the elements "
             )
             message += "selection and/or modify the correction type to proceed."
-            PrintMessageInput([window_title_2, title, message])
+            PrintMessageInput([warning_title, title, message])
             return dict()
 
     def attribute_callback(self):
@@ -202,55 +200,50 @@ class AcousticElementLengthCorrectionInput(
 
     def remove_callback(self):
 
-        if self.lineEdit_element_id.text() != "":
-            str_element = self.lineEdit_element_id.text()
-            stop, element_ids = self.before_run.check_selected_ids(
-                str_element, "elements"
-            )
-            if stop:
-                return
+        if  self.lineEdit_element_id.text() == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            self.preprocessor.set_element_length_correction_by_element(
-                element_ids, None
-            )
-
-            for element_id in element_ids:
-                self.properties._remove_element_property(
-                    "element_length_correction", element_id
-                )
-
-            self.actions_to_finalize()
+        str_element = self.lineEdit_element_id.text()
+        stop, element_ids = self.before_run.check_selected_ids(str_element, "elements")
+        if stop:
+            return
+        
+        self.preprocessor.set_element_length_correction_by_element(element_ids, None)
+        self.properties._remove_element_property("element_length_correction", element_ids)
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
         self.hide()
 
-        title = "Resetting of element length corrections"
+        title = f"Resetting of element length corrections"
         message = "Would you like to remove all element length corrections from the acoustic model?"
 
-        buttons_config = {"left_button_label": "No", "right_button_label": "Yes"}
+        buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
             return
 
-        if read._continue:
-            element_ids = list()
-            for property, element_id in self.properties.element_properties.keys():
-                if property == "element_length_correction":
-                    element_ids.append(element_id)
+        if not read._continue:
+            return
 
-            if element_ids:
-                self.preprocessor.set_element_length_correction_by_element(
-                    element_ids, None
-                )
+        element_ids = list()
+        for (property, element_id) in self.properties.element_properties.keys():
+            if property == "element_length_correction":
+                element_ids.append(element_id)
 
-                for element_id in element_ids:
-                    self.properties._remove_element_property(
-                        "element_length_correction", element_id
-                    )
-
-                self.actions_to_finalize()
+        if not element_ids:
+            return
+    
+        self.preprocessor.set_element_length_correction_by_element(element_ids, None)
+        self.properties._reset_element_property("element_length_correction")
+        self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().project.file.write_element_properties_in_file()

@@ -15,6 +15,14 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.model import RadiationImpedanceType
+from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import RadiationImpedanceInput_UI
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+import numpy as np
+
+
+warning_title = "Warning"
 
 
 class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
@@ -22,7 +30,7 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
         super().__init__(*args, **kwargs)
 
         self._initialize()
-        self._define_qt_variables()
+        self._config_widgets()
         self._create_connections()
 
         self.selection_callback()
@@ -34,9 +42,8 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
     def _initialize(self):
         self.keep_window_open = True
 
-    def _define_qt_variables(self):
-        self.treeWidget_nodal_info.setColumnWidth(1, 20)
-        self.treeWidget_nodal_info.setColumnWidth(2, 80)
+    def _config_widgets(self):
+        self.treeWidget_nodal_info.setColumnWidth(0, 120)
 
     def _create_connections(self):
         #
@@ -92,22 +99,25 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
         self.treeWidget_nodal_info.clear()
 
         for (property, *args), data in self.properties.nodal_properties.items():
+
+            if property != "radiation_impedance":
+                continue
+
             if not isinstance(data, dict):
                 continue
 
-            if property == "radiation_impedance":
-                impedance_type = data.get("impedance_type")
-                if impedance_type is None:
-                    continue
+            impedance_type = data.get("impedance_type")
+            if impedance_type is None:
+                continue
 
-                if isinstance(impedance_type, str):
-                    impedance_text = self.get_radiation_type_text(impedance_type)
-                    impedance_text = impedance_text.capitalize()
+            if isinstance(impedance_type, int):
+                impedance_text = self.get_radiation_type_text(impedance_type)
+                impedance_text = impedance_text.capitalize()
 
-                    new = QTreeWidgetItem([str(args[0]), impedance_text])
-                    new.setTextAlignment(0, Qt.AlignCenter)
-                    new.setTextAlignment(1, Qt.AlignCenter)
-                    self.treeWidget_nodal_info.addTopLevelItem(new)
+                new = QTreeWidgetItem([str(args[0]), impedance_text])
+                new.setTextAlignment(0, Qt.AlignCenter)
+                new.setTextAlignment(1, Qt.AlignCenter)
+                self.treeWidget_nodal_info.addTopLevelItem(new)
 
         self.update_tabs_visibility()
 
@@ -126,8 +136,8 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
         stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
         if stop:
             return
-
-        self.remove_conflicting_data("specific_impedance", node_ids)
+        
+        self.remove_properties_from_node(node_ids)
 
         impedance_type = self.comboBox_radiation_impedance_type.currentIndex()
 
@@ -140,7 +150,6 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
             self.properties._set_nodal_property("radiation_impedance", data, node_id)
 
         self.actions_to_finalize(reset_camera=False)
-        print(f"[Set Radiation Impedance] - defined at node(s) {node_ids}")
 
     def get_radiation_type_text(self, index: int):
         if index == RadiationImpedanceType.ANECHOIC:
@@ -162,20 +171,34 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
     def on_doubleclick_item(self, item):
         self.lineEdit_node_ids.setText(item.text(0))
 
+    def remove_properties_from_node(self, node_ids: int | list | tuple):
+
+        if isinstance(node_ids, int):
+            node_ids = [node_ids]
+
+        for node_id in node_ids:
+            for label in ["radiation_impedance", "specific_impedance"]:
+                self.properties._remove_nodal_property(label, node_id)
+
         app().project.file.write_nodal_properties_in_file()
 
     def remove_callback(self):
 
-        if self.lineEdit_node_ids.text() != "":
-            str_nodes = self.lineEdit_node_ids.text()
-            stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
-            if stop:
-                return
+        if  self.lineEdit_node_ids.text() == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            for node_id in node_ids:
-                self.properties._remove_nodal_property("radiation_impedance", node_id)
+        str_nodes = self.lineEdit_node_ids.text()
+        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
+            return
 
-            self.actions_to_finalize(reset_camera=False)
+        self.properties._remove_nodal_property("radiation_impedance", node_ids)
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -192,11 +215,26 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            node_ids = list()
-            for _property, *args in self.properties.nodal_properties.keys():
-                if _property == "radiation_impedance":
-                    node_ids.append(args[0])
+        if not read._continue:
+            return
 
-            self.properties._reset_nodal_property("radiation_impedance")
-            self.actions_to_finalize(reset_camera=False)
+        self.properties._reset_nodal_property("radiation_impedance")
+        self.actions_to_finalize()
+
+    def actions_to_finalize(self):
+        app().project.file.write_nodal_properties_in_file()
+        app().main_window.update_plots(reset_camera=False)
+        self.load_nodes_info()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.attribute_callback()
+        elif event.key() == Qt.Key_Delete:
+            self.remove_callback()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        app().main_window.selection_changed.disconnect(self.selection_callback)
+        return super().closeEvent(a0)

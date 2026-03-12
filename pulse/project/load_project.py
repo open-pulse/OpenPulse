@@ -369,45 +369,45 @@ class LoadProject:
 
     def load_expansion_joints(self, line_id: int, data: dict):
 
-        expansion_joint = None
-        if "expansion_joint_info" in data.keys():
-            expansion_joint = data["expansion_joint_info"]
+        prop_data = data.get("expansion_joint_info")
+        if not isinstance(prop_data, dict):
+            return
 
-        if isinstance(expansion_joint, dict):
+        prop_data["joint_length"] = self.properties.get_line_length(line_id)
 
-            expansion_joint["joint_length"] = self.properties.get_line_length(line_id)
+        if "effective_diameter" not in prop_data.keys():
+            return
+    
+        self.preprocessor.add_expansion_joint_by_lines(
+            line_id, 
+            prop_data,
+            )
 
-            if "effective_diameter" in expansion_joint.keys():
-
-                self.preprocessor.add_expansion_joint_by_lines(
-                                                               line_id, 
-                                                               expansion_joint
-                                                               )
-
-                self.preprocessor.set_cross_sections_to_expansion_joint(
-                                                                        line_id, 
-                                                                        expansion_joint
-                                                                        )
+        self.preprocessor.set_cross_sections_to_expansion_joint(
+            line_id, 
+            prop_data,
+            )
 
 
     def load_valves(self, line_id: int, data: dict):
 
-        if "valve_info" in data.keys():
+        prop_data = data.get("valve_info")
+        if not isinstance(prop_data, dict):
+            return
 
-            valve_info = data["valve_info"]
-            valve_info["valve_length"] = self.properties.get_line_length(line_id)
+        prop_data["valve_length"] = self.properties.get_line_length(line_id)
 
-            self.preprocessor.add_valve_by_lines(line_id, valve_info)
-            self.preprocessor.set_cross_sections_to_valve_elements(line_id, data)
+        self.preprocessor.add_valve_by_lines(line_id, prop_data)
+        self.preprocessor.set_cross_sections_to_valve_elements(line_id, data)
 
 
     def load_stress_stiffening(self, line_id: list, data: dict):
 
-        if "stress_stiffening" in data.keys():
+        prop_data = data.get("stress_stiffening")
+        if not isinstance(prop_data, dict):
+            return
 
-            prop_data = data["stress_stiffening"]
-            if isinstance(prop_data, dict):
-                self.preprocessor.set_stress_stiffening_by_lines(line_id, prop_data)
+        self.preprocessor.set_stress_stiffening_by_lines(line_id, prop_data)
 
 
     def load_cross_sections(self, line_id: list, data: dict):

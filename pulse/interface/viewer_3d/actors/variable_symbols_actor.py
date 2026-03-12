@@ -89,6 +89,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
                 )
 
             elif property_name == "reciprocating_compressor_excitation":
+
                 node_id = args[0]
                 elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
                 if len(elements) != 1:
@@ -104,7 +105,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
                 self.add_compressor_symbol(
                     position=data["coords"],
                     orientation=orientation,
-                    mode=data["connection_type"],
+                    connection_type=data["connection_type"],
                 )
 
             elif property_name == "reciprocating_pump_excitation":
@@ -123,7 +124,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
                 self.add_pump_symbol(
                     position=data["coords"],
                     orientation=orientation,
-                    mode=data["connection_type"],
+                    connection_type=data["connection_type"],
                 )
 
         return super().build()
@@ -260,8 +261,8 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
             color=color_names.RED,
         )
 
-    def add_compressor_symbol(self, position, orientation, mode):
-        if mode == "discharge":
+    def add_compressor_symbol(self, position, orientation, connection_type):
+        if connection_type == "discharge":
             self.add_symbol(
                 create_compressor_discharge,
                 position,
@@ -269,7 +270,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
                 color=color_names.RED_2,
             )
 
-        elif mode == "suction":
+        elif connection_type == "suction":
             self.add_symbol(
                 create_compressor_suction,
                 position,
@@ -277,8 +278,8 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
                 color=color_names.BLUE_2,
             )
 
-    def add_pump_symbol(self, position, orientation, mode):
-        if mode == "discharge":
+    def add_pump_symbol(self, position, orientation, connection_type):
+        if connection_type == "discharge":
             self.add_symbol(
                 create_pump_discharge,
                 position,
@@ -286,7 +287,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
                 color=color_names.RED,
             )
 
-        elif mode == "suction":
+        elif connection_type == "suction":
             self.add_symbol(
                 create_pump_suction,
                 position,

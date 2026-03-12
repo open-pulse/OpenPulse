@@ -277,23 +277,23 @@ class StructuralElementTypeInput(StructuralElementTypeInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
+        if not read._continue:
+            return
 
-            for (line_id, data) in self.properties.line_properties.items():
-                if "structural_element_type" in data.keys():
+        for (line_id, data) in self.properties.line_properties.items():
+            if "structural_element_type" in data.keys():
 
-                    app().project.model.preprocessor.set_structural_element_type_by_lines(line_id, "pipe_1")
-                    app().project.model.preprocessor.set_capped_end_by_lines(line_id, True)
-                    app().project.model.preprocessor.set_structural_element_force_offset_by_lines(line_id, "pipe_1")
-                    app().project.model.preprocessor.set_structural_element_wall_formulation_by_lines(line_id, "pipe_1")
+                app().project.model.preprocessor.set_structural_element_type_by_lines(line_id, "pipe_1")
+                app().project.model.preprocessor.set_capped_end_by_lines(line_id, True)
+                app().project.model.preprocessor.set_structural_element_force_offset_by_lines(line_id, "pipe_1")
+                app().project.model.preprocessor.set_structural_element_wall_formulation_by_lines(line_id, "pipe_1")
 
-                    app().project.model.properties._remove_line_property("structural_element_type", line_id)
-                    app().project.model.properties._remove_line_property("capped_end", line_id)
+                app().project.model.properties._remove_line_property("structural_element_type", line_id)
+                app().project.model.properties._remove_line_property("capped_end", line_id)
 
-            app().project.file.write_line_properties_in_file()
+        app().project.file.write_line_properties_in_file()
 
-            self.complete = True
-            self.close()
+        self.complete = True
 
     def on_click_item(self, item):
         self.comboBox_selection.setCurrentIndex(1)

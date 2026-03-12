@@ -34,8 +34,8 @@ class Ui_Form(object):
         self.frame_top_inputs.setObjectName(u"frame_top_inputs")
         self.frame_top_inputs.setMinimumSize(QSize(0, 0))
         self.frame_top_inputs.setMaximumSize(QSize(451, 574))
-        self.frame_top_inputs.setFrameShape(QFrame.NoFrame)
-        self.frame_top_inputs.setFrameShadow(QFrame.Raised)
+        self.frame_top_inputs.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_top_inputs.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_12 = QGridLayout(self.frame_top_inputs)
         self.gridLayout_12.setObjectName(u"gridLayout_12")
         self.gridLayout_12.setHorizontalSpacing(8)
@@ -52,9 +52,9 @@ class Ui_Form(object):
         font.setBold(False)
         font.setItalic(False)
         self.lineEdit_joint_mass.setFont(font)
-        self.lineEdit_joint_mass.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_joint_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_joint_mass.setStyleSheet(u"")
-        self.lineEdit_joint_mass.setAlignment(Qt.AlignCenter)
+        self.lineEdit_joint_mass.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_12.addWidget(self.lineEdit_joint_mass, 1, 1, 1, 1)
 
@@ -65,7 +65,7 @@ class Ui_Form(object):
         self.label_axial_lock_criteria.setMaximumSize(QSize(148, 26))
         self.label_axial_lock_criteria.setFont(font)
         self.label_axial_lock_criteria.setMouseTracking(True)
-        self.label_axial_lock_criteria.setAlignment(Qt.AlignCenter)
+        self.label_axial_lock_criteria.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_12.addWidget(self.label_axial_lock_criteria, 2, 0, 1, 1)
 
@@ -76,7 +76,7 @@ class Ui_Form(object):
         self.label_111.setMaximumSize(QSize(100, 26))
         self.label_111.setFont(font)
         self.label_111.setMouseTracking(True)
-        self.label_111.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_111.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_12.addWidget(self.label_111, 1, 2, 1, 1)
 
@@ -87,7 +87,7 @@ class Ui_Form(object):
         self.label_102.setMaximumSize(QSize(148, 26))
         self.label_102.setFont(font)
         self.label_102.setMouseTracking(True)
-        self.label_102.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_102.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_12.addWidget(self.label_102, 1, 0, 1, 1)
 
@@ -108,9 +108,9 @@ class Ui_Form(object):
         self.lineEdit_axial_locking_criteria.setMaximumSize(QSize(120, 26))
         self.lineEdit_axial_locking_criteria.setSizeIncrement(QSize(0, 26))
         self.lineEdit_axial_locking_criteria.setFont(font)
-        self.lineEdit_axial_locking_criteria.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_axial_locking_criteria.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_axial_locking_criteria.setStyleSheet(u"")
-        self.lineEdit_axial_locking_criteria.setAlignment(Qt.AlignCenter)
+        self.lineEdit_axial_locking_criteria.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_12.addWidget(self.lineEdit_axial_locking_criteria, 2, 1, 1, 1)
 
@@ -121,7 +121,7 @@ class Ui_Form(object):
         self.label_109.setMaximumSize(QSize(148, 26))
         self.label_109.setFont(font)
         self.label_109.setMouseTracking(True)
-        self.label_109.setAlignment(Qt.AlignCenter)
+        self.label_109.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_12.addWidget(self.label_109, 3, 0, 1, 1)
 
@@ -132,9 +132,9 @@ class Ui_Form(object):
         self.lineEdit_effective_diameter.setMaximumSize(QSize(120, 26))
         self.lineEdit_effective_diameter.setSizeIncrement(QSize(0, 0))
         self.lineEdit_effective_diameter.setFont(font)
-        self.lineEdit_effective_diameter.setFocusPolicy(Qt.StrongFocus)
+        self.lineEdit_effective_diameter.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_effective_diameter.setStyleSheet(u"")
-        self.lineEdit_effective_diameter.setAlignment(Qt.AlignCenter)
+        self.lineEdit_effective_diameter.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_12.addWidget(self.lineEdit_effective_diameter, 0, 1, 1, 1)
 
@@ -145,7 +145,7 @@ class Ui_Form(object):
         self.label_107.setMaximumSize(QSize(100, 26))
         self.label_107.setFont(font)
         self.label_107.setMouseTracking(True)
-        self.label_107.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_107.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_12.addWidget(self.label_107, 0, 2, 1, 1)
 
@@ -156,7 +156,7 @@ class Ui_Form(object):
         self.label_103.setMaximumSize(QSize(148, 26))
         self.label_103.setFont(font)
         self.label_103.setMouseTracking(True)
-        self.label_103.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_103.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_12.addWidget(self.label_103, 0, 0, 1, 1)
 
@@ -170,8 +170,8 @@ class Ui_Form(object):
         self.frame_bottom_inputs = QFrame(Form)
         self.frame_bottom_inputs.setObjectName(u"frame_bottom_inputs")
         self.frame_bottom_inputs.setMaximumSize(QSize(16777215, 200))
-        self.frame_bottom_inputs.setFrameShape(QFrame.NoFrame)
-        self.frame_bottom_inputs.setFrameShadow(QFrame.Raised)
+        self.frame_bottom_inputs.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_bottom_inputs.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_14 = QGridLayout(self.frame_bottom_inputs)
         self.gridLayout_14.setSpacing(4)
         self.gridLayout_14.setObjectName(u"gridLayout_14")
@@ -191,51 +191,55 @@ class Ui_Form(object):
         self.label_116.setEnabled(True)
         self.label_116.setMinimumSize(QSize(40, 26))
         self.label_116.setMaximumSize(QSize(40, 26))
-        self.label_116.setFont(font)
+        font1 = QFont()
+        font1.setPointSize(11)
+        font1.setBold(False)
+        font1.setItalic(False)
+        self.label_116.setFont(font1)
         self.label_116.setMouseTracking(True)
-        self.label_116.setAlignment(Qt.AlignCenter)
+        self.label_116.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_15.addWidget(self.label_116, 1, 0, 1, 1)
 
-        self.lineEdit_transversal_stiffness = QLineEdit(self.tab_constant_values)
-        self.lineEdit_transversal_stiffness.setObjectName(u"lineEdit_transversal_stiffness")
-        self.lineEdit_transversal_stiffness.setEnabled(True)
-        self.lineEdit_transversal_stiffness.setMinimumSize(QSize(0, 0))
-        self.lineEdit_transversal_stiffness.setMaximumSize(QSize(16777215, 16777215))
-        self.lineEdit_transversal_stiffness.setFont(font)
-        self.lineEdit_transversal_stiffness.setStyleSheet(u"")
-        self.lineEdit_transversal_stiffness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_Kyz = QLineEdit(self.tab_constant_values)
+        self.lineEdit_Kyz.setObjectName(u"lineEdit_Kyz")
+        self.lineEdit_Kyz.setEnabled(True)
+        self.lineEdit_Kyz.setMinimumSize(QSize(0, 0))
+        self.lineEdit_Kyz.setMaximumSize(QSize(16777215, 16777215))
+        self.lineEdit_Kyz.setFont(font)
+        self.lineEdit_Kyz.setStyleSheet(u"")
+        self.lineEdit_Kyz.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_15.addWidget(self.lineEdit_transversal_stiffness, 1, 1, 1, 1)
+        self.gridLayout_15.addWidget(self.lineEdit_Kyz, 1, 1, 1, 1)
 
-        self.lineEdit_axial_stiffness = QLineEdit(self.tab_constant_values)
-        self.lineEdit_axial_stiffness.setObjectName(u"lineEdit_axial_stiffness")
-        self.lineEdit_axial_stiffness.setEnabled(True)
-        self.lineEdit_axial_stiffness.setMinimumSize(QSize(0, 0))
-        self.lineEdit_axial_stiffness.setMaximumSize(QSize(16777215, 16777215))
-        self.lineEdit_axial_stiffness.setFont(font)
-        self.lineEdit_axial_stiffness.setStyleSheet(u"")
-        self.lineEdit_axial_stiffness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_Kx = QLineEdit(self.tab_constant_values)
+        self.lineEdit_Kx.setObjectName(u"lineEdit_Kx")
+        self.lineEdit_Kx.setEnabled(True)
+        self.lineEdit_Kx.setMinimumSize(QSize(0, 0))
+        self.lineEdit_Kx.setMaximumSize(QSize(16777215, 16777215))
+        self.lineEdit_Kx.setFont(font)
+        self.lineEdit_Kx.setStyleSheet(u"")
+        self.lineEdit_Kx.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_15.addWidget(self.lineEdit_axial_stiffness, 0, 1, 1, 1)
+        self.gridLayout_15.addWidget(self.lineEdit_Kx, 0, 1, 1, 1)
 
-        self.lineEdit_angular_stiffness = QLineEdit(self.tab_constant_values)
-        self.lineEdit_angular_stiffness.setObjectName(u"lineEdit_angular_stiffness")
-        self.lineEdit_angular_stiffness.setEnabled(True)
-        self.lineEdit_angular_stiffness.setMinimumSize(QSize(0, 0))
-        self.lineEdit_angular_stiffness.setMaximumSize(QSize(16777215, 16777215))
-        self.lineEdit_angular_stiffness.setFont(font)
-        self.lineEdit_angular_stiffness.setStyleSheet(u"")
-        self.lineEdit_angular_stiffness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_Kryz = QLineEdit(self.tab_constant_values)
+        self.lineEdit_Kryz.setObjectName(u"lineEdit_Kryz")
+        self.lineEdit_Kryz.setEnabled(True)
+        self.lineEdit_Kryz.setMinimumSize(QSize(0, 0))
+        self.lineEdit_Kryz.setMaximumSize(QSize(16777215, 16777215))
+        self.lineEdit_Kryz.setFont(font)
+        self.lineEdit_Kryz.setStyleSheet(u"")
+        self.lineEdit_Kryz.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_15.addWidget(self.lineEdit_angular_stiffness, 3, 1, 1, 1)
+        self.gridLayout_15.addWidget(self.lineEdit_Kryz, 3, 1, 1, 1)
 
         self.label_16 = QLabel(self.tab_constant_values)
         self.label_16.setObjectName(u"label_16")
         self.label_16.setMinimumSize(QSize(0, 0))
         self.label_16.setMaximumSize(QSize(16777215, 16777215))
         self.label_16.setFont(font)
-        self.label_16.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_16.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_15.addWidget(self.label_16, 0, 2, 1, 1)
 
@@ -244,9 +248,9 @@ class Ui_Form(object):
         self.label_93.setEnabled(True)
         self.label_93.setMinimumSize(QSize(0, 0))
         self.label_93.setMaximumSize(QSize(40, 26))
-        self.label_93.setFont(font)
+        self.label_93.setFont(font1)
         self.label_93.setMouseTracking(True)
-        self.label_93.setAlignment(Qt.AlignCenter)
+        self.label_93.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_15.addWidget(self.label_93, 2, 0, 1, 1)
 
@@ -255,9 +259,9 @@ class Ui_Form(object):
         self.label_112.setEnabled(True)
         self.label_112.setMinimumSize(QSize(0, 0))
         self.label_112.setMaximumSize(QSize(40, 26))
-        self.label_112.setFont(font)
+        self.label_112.setFont(font1)
         self.label_112.setMouseTracking(True)
-        self.label_112.setAlignment(Qt.AlignCenter)
+        self.label_112.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_15.addWidget(self.label_112, 3, 0, 1, 1)
 
@@ -266,7 +270,7 @@ class Ui_Form(object):
         self.label_114.setMinimumSize(QSize(0, 0))
         self.label_114.setMaximumSize(QSize(16777215, 16777215))
         self.label_114.setFont(font)
-        self.label_114.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_114.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_15.addWidget(self.label_114, 3, 2, 1, 1)
 
@@ -275,9 +279,9 @@ class Ui_Form(object):
         self.label_115.setEnabled(True)
         self.label_115.setMinimumSize(QSize(0, 0))
         self.label_115.setMaximumSize(QSize(40, 26))
-        self.label_115.setFont(font)
+        self.label_115.setFont(font1)
         self.label_115.setMouseTracking(True)
-        self.label_115.setAlignment(Qt.AlignCenter)
+        self.label_115.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_15.addWidget(self.label_115, 0, 0, 1, 1)
 
@@ -286,7 +290,7 @@ class Ui_Form(object):
         self.label_17.setMinimumSize(QSize(0, 0))
         self.label_17.setMaximumSize(QSize(16777215, 16777215))
         self.label_17.setFont(font)
-        self.label_17.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_17.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_15.addWidget(self.label_17, 1, 2, 1, 1)
 
@@ -295,20 +299,20 @@ class Ui_Form(object):
         self.label_113.setMinimumSize(QSize(0, 0))
         self.label_113.setMaximumSize(QSize(16777215, 16777215))
         self.label_113.setFont(font)
-        self.label_113.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_113.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_15.addWidget(self.label_113, 2, 2, 1, 1)
 
-        self.lineEdit_torsional_stiffness = QLineEdit(self.tab_constant_values)
-        self.lineEdit_torsional_stiffness.setObjectName(u"lineEdit_torsional_stiffness")
-        self.lineEdit_torsional_stiffness.setEnabled(True)
-        self.lineEdit_torsional_stiffness.setMinimumSize(QSize(0, 0))
-        self.lineEdit_torsional_stiffness.setMaximumSize(QSize(16777215, 16777215))
-        self.lineEdit_torsional_stiffness.setFont(font)
-        self.lineEdit_torsional_stiffness.setStyleSheet(u"")
-        self.lineEdit_torsional_stiffness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_Krx = QLineEdit(self.tab_constant_values)
+        self.lineEdit_Krx.setObjectName(u"lineEdit_Krx")
+        self.lineEdit_Krx.setEnabled(True)
+        self.lineEdit_Krx.setMinimumSize(QSize(0, 0))
+        self.lineEdit_Krx.setMaximumSize(QSize(16777215, 16777215))
+        self.lineEdit_Krx.setFont(font)
+        self.lineEdit_Krx.setStyleSheet(u"")
+        self.lineEdit_Krx.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_15.addWidget(self.lineEdit_torsional_stiffness, 2, 1, 1, 1)
+        self.gridLayout_15.addWidget(self.lineEdit_Krx, 2, 1, 1, 1)
 
         self.tabWidget_inputs.addTab(self.tab_constant_values, "")
         self.tab_table_values = QWidget()
@@ -316,167 +320,167 @@ class Ui_Form(object):
         self.gridLayout_16 = QGridLayout(self.tab_table_values)
         self.gridLayout_16.setObjectName(u"gridLayout_16")
         self.gridLayout_16.setContentsMargins(4, 6, 4, 6)
+        self.pushButton_load_table_Kryz = QPushButton(self.tab_table_values)
+        self.pushButton_load_table_Kryz.setObjectName(u"pushButton_load_table_Kryz")
+        self.pushButton_load_table_Kryz.setEnabled(True)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pushButton_load_table_Kryz.sizePolicy().hasHeightForWidth())
+        self.pushButton_load_table_Kryz.setSizePolicy(sizePolicy)
+        self.pushButton_load_table_Kryz.setMinimumSize(QSize(40, 26))
+        self.pushButton_load_table_Kryz.setMaximumSize(QSize(16777215, 16777215))
+        self.pushButton_load_table_Kryz.setStyleSheet(u"")
+        icon = QIcon()
+        icon.addFile(u":/icons/common/new_file.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.pushButton_load_table_Kryz.setIcon(icon)
+        self.pushButton_load_table_Kryz.setIconSize(QSize(20, 20))
+
+        self.gridLayout_16.addWidget(self.pushButton_load_table_Kryz, 4, 2, 1, 1)
+
         self.label_117 = QLabel(self.tab_table_values)
         self.label_117.setObjectName(u"label_117")
         self.label_117.setEnabled(True)
         self.label_117.setMinimumSize(QSize(0, 0))
         self.label_117.setMaximumSize(QSize(40, 26))
-        self.label_117.setFont(font)
+        self.label_117.setFont(font1)
         self.label_117.setMouseTracking(True)
-        self.label_117.setAlignment(Qt.AlignCenter)
+        self.label_117.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_16.addWidget(self.label_117, 0, 0, 1, 1)
 
-        self.pushButton_load_table_transversal_stiffness = QPushButton(self.tab_table_values)
-        self.pushButton_load_table_transversal_stiffness.setObjectName(u"pushButton_load_table_transversal_stiffness")
-        self.pushButton_load_table_transversal_stiffness.setEnabled(True)
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButton_load_table_transversal_stiffness.sizePolicy().hasHeightForWidth())
-        self.pushButton_load_table_transversal_stiffness.setSizePolicy(sizePolicy)
-        self.pushButton_load_table_transversal_stiffness.setMinimumSize(QSize(57, 26))
-        self.pushButton_load_table_transversal_stiffness.setMaximumSize(QSize(16777215, 16777215))
-        self.pushButton_load_table_transversal_stiffness.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u":/icons/common/new_file.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.pushButton_load_table_transversal_stiffness.setIcon(icon)
-        self.pushButton_load_table_transversal_stiffness.setIconSize(QSize(20, 20))
+        self.pushButton_load_table_Krx = QPushButton(self.tab_table_values)
+        self.pushButton_load_table_Krx.setObjectName(u"pushButton_load_table_Krx")
+        self.pushButton_load_table_Krx.setEnabled(True)
+        sizePolicy.setHeightForWidth(self.pushButton_load_table_Krx.sizePolicy().hasHeightForWidth())
+        self.pushButton_load_table_Krx.setSizePolicy(sizePolicy)
+        self.pushButton_load_table_Krx.setMinimumSize(QSize(40, 26))
+        self.pushButton_load_table_Krx.setMaximumSize(QSize(16777215, 16777215))
+        self.pushButton_load_table_Krx.setStyleSheet(u"")
+        self.pushButton_load_table_Krx.setIcon(icon)
+        self.pushButton_load_table_Krx.setIconSize(QSize(20, 20))
 
-        self.gridLayout_16.addWidget(self.pushButton_load_table_transversal_stiffness, 1, 2, 1, 1)
+        self.gridLayout_16.addWidget(self.pushButton_load_table_Krx, 3, 2, 1, 1)
 
-        self.pushButton_load_table_torsional_stiffness = QPushButton(self.tab_table_values)
-        self.pushButton_load_table_torsional_stiffness.setObjectName(u"pushButton_load_table_torsional_stiffness")
-        self.pushButton_load_table_torsional_stiffness.setEnabled(True)
-        sizePolicy.setHeightForWidth(self.pushButton_load_table_torsional_stiffness.sizePolicy().hasHeightForWidth())
-        self.pushButton_load_table_torsional_stiffness.setSizePolicy(sizePolicy)
-        self.pushButton_load_table_torsional_stiffness.setMinimumSize(QSize(57, 26))
-        self.pushButton_load_table_torsional_stiffness.setMaximumSize(QSize(16777215, 16777215))
-        self.pushButton_load_table_torsional_stiffness.setStyleSheet(u"")
-        self.pushButton_load_table_torsional_stiffness.setIcon(icon)
-        self.pushButton_load_table_torsional_stiffness.setIconSize(QSize(20, 20))
+        self.lineEdit_Kx_table_path = QLineEdit(self.tab_table_values)
+        self.lineEdit_Kx_table_path.setObjectName(u"lineEdit_Kx_table_path")
+        self.lineEdit_Kx_table_path.setEnabled(False)
+        self.lineEdit_Kx_table_path.setMinimumSize(QSize(0, 26))
+        self.lineEdit_Kx_table_path.setMaximumSize(QSize(16777215, 26))
+        self.lineEdit_Kx_table_path.setSizeIncrement(QSize(0, 0))
+        font2 = QFont()
+        font2.setPointSize(9)
+        font2.setBold(False)
+        font2.setItalic(False)
+        font2.setKerning(True)
+        self.lineEdit_Kx_table_path.setFont(font2)
+        self.lineEdit_Kx_table_path.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.lineEdit_Kx_table_path.setStyleSheet(u"")
+        self.lineEdit_Kx_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_16.addWidget(self.pushButton_load_table_torsional_stiffness, 2, 2, 1, 1)
+        self.gridLayout_16.addWidget(self.lineEdit_Kx_table_path, 0, 1, 1, 1)
 
-        self.pushButton_load_table_angular_stiffness = QPushButton(self.tab_table_values)
-        self.pushButton_load_table_angular_stiffness.setObjectName(u"pushButton_load_table_angular_stiffness")
-        self.pushButton_load_table_angular_stiffness.setEnabled(True)
-        sizePolicy.setHeightForWidth(self.pushButton_load_table_angular_stiffness.sizePolicy().hasHeightForWidth())
-        self.pushButton_load_table_angular_stiffness.setSizePolicy(sizePolicy)
-        self.pushButton_load_table_angular_stiffness.setMinimumSize(QSize(57, 26))
-        self.pushButton_load_table_angular_stiffness.setMaximumSize(QSize(16777215, 16777215))
-        self.pushButton_load_table_angular_stiffness.setStyleSheet(u"")
-        self.pushButton_load_table_angular_stiffness.setIcon(icon)
-        self.pushButton_load_table_angular_stiffness.setIconSize(QSize(20, 20))
+        self.pushButton_load_table_Kx = QPushButton(self.tab_table_values)
+        self.pushButton_load_table_Kx.setObjectName(u"pushButton_load_table_Kx")
+        self.pushButton_load_table_Kx.setEnabled(True)
+        sizePolicy.setHeightForWidth(self.pushButton_load_table_Kx.sizePolicy().hasHeightForWidth())
+        self.pushButton_load_table_Kx.setSizePolicy(sizePolicy)
+        self.pushButton_load_table_Kx.setMinimumSize(QSize(40, 0))
+        self.pushButton_load_table_Kx.setMaximumSize(QSize(16777215, 16777215))
+        self.pushButton_load_table_Kx.setStyleSheet(u"")
+        self.pushButton_load_table_Kx.setIcon(icon)
+        self.pushButton_load_table_Kx.setIconSize(QSize(20, 20))
 
-        self.gridLayout_16.addWidget(self.pushButton_load_table_angular_stiffness, 3, 2, 1, 1)
+        self.gridLayout_16.addWidget(self.pushButton_load_table_Kx, 0, 2, 1, 1)
+
+        self.lineEdit_Krx_table_path = QLineEdit(self.tab_table_values)
+        self.lineEdit_Krx_table_path.setObjectName(u"lineEdit_Krx_table_path")
+        self.lineEdit_Krx_table_path.setEnabled(False)
+        self.lineEdit_Krx_table_path.setMinimumSize(QSize(0, 26))
+        self.lineEdit_Krx_table_path.setMaximumSize(QSize(16777215, 26))
+        self.lineEdit_Krx_table_path.setSizeIncrement(QSize(0, 0))
+        font3 = QFont()
+        font3.setPointSize(9)
+        font3.setBold(False)
+        font3.setItalic(False)
+        self.lineEdit_Krx_table_path.setFont(font3)
+        self.lineEdit_Krx_table_path.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.lineEdit_Krx_table_path.setStyleSheet(u"")
+        self.lineEdit_Krx_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_16.addWidget(self.lineEdit_Krx_table_path, 3, 1, 1, 1)
 
         self.label_120 = QLabel(self.tab_table_values)
         self.label_120.setObjectName(u"label_120")
         self.label_120.setEnabled(True)
         self.label_120.setMinimumSize(QSize(0, 0))
         self.label_120.setMaximumSize(QSize(40, 26))
-        self.label_120.setFont(font)
+        self.label_120.setFont(font1)
         self.label_120.setMouseTracking(True)
-        self.label_120.setAlignment(Qt.AlignCenter)
+        self.label_120.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_16.addWidget(self.label_120, 3, 0, 1, 1)
+        self.gridLayout_16.addWidget(self.label_120, 4, 0, 1, 1)
 
-        self.lineEdit_path_table_transversal_stiffness = QLineEdit(self.tab_table_values)
-        self.lineEdit_path_table_transversal_stiffness.setObjectName(u"lineEdit_path_table_transversal_stiffness")
-        self.lineEdit_path_table_transversal_stiffness.setEnabled(False)
-        self.lineEdit_path_table_transversal_stiffness.setMinimumSize(QSize(0, 0))
-        self.lineEdit_path_table_transversal_stiffness.setMaximumSize(QSize(16777215, 16777215))
-        self.lineEdit_path_table_transversal_stiffness.setSizeIncrement(QSize(0, 0))
-        font1 = QFont()
-        font1.setPointSize(9)
-        font1.setBold(False)
-        font1.setItalic(False)
-        self.lineEdit_path_table_transversal_stiffness.setFont(font1)
-        self.lineEdit_path_table_transversal_stiffness.setFocusPolicy(Qt.NoFocus)
-        self.lineEdit_path_table_transversal_stiffness.setStyleSheet(u"")
-        self.lineEdit_path_table_transversal_stiffness.setAlignment(Qt.AlignCenter)
+        self.lineEdit_Kryz_table_path = QLineEdit(self.tab_table_values)
+        self.lineEdit_Kryz_table_path.setObjectName(u"lineEdit_Kryz_table_path")
+        self.lineEdit_Kryz_table_path.setEnabled(False)
+        self.lineEdit_Kryz_table_path.setMinimumSize(QSize(0, 26))
+        self.lineEdit_Kryz_table_path.setMaximumSize(QSize(16777215, 26))
+        self.lineEdit_Kryz_table_path.setSizeIncrement(QSize(0, 0))
+        self.lineEdit_Kryz_table_path.setFont(font3)
+        self.lineEdit_Kryz_table_path.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.lineEdit_Kryz_table_path.setStyleSheet(u"")
+        self.lineEdit_Kryz_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_16.addWidget(self.lineEdit_path_table_transversal_stiffness, 1, 1, 1, 1)
-
-        self.lineEdit_path_table_angular_stiffness = QLineEdit(self.tab_table_values)
-        self.lineEdit_path_table_angular_stiffness.setObjectName(u"lineEdit_path_table_angular_stiffness")
-        self.lineEdit_path_table_angular_stiffness.setEnabled(False)
-        self.lineEdit_path_table_angular_stiffness.setMinimumSize(QSize(0, 0))
-        self.lineEdit_path_table_angular_stiffness.setMaximumSize(QSize(16777215, 26))
-        self.lineEdit_path_table_angular_stiffness.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_path_table_angular_stiffness.setFont(font1)
-        self.lineEdit_path_table_angular_stiffness.setFocusPolicy(Qt.NoFocus)
-        self.lineEdit_path_table_angular_stiffness.setStyleSheet(u"")
-        self.lineEdit_path_table_angular_stiffness.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout_16.addWidget(self.lineEdit_path_table_angular_stiffness, 3, 1, 1, 1)
+        self.gridLayout_16.addWidget(self.lineEdit_Kryz_table_path, 4, 1, 1, 1)
 
         self.label_119 = QLabel(self.tab_table_values)
         self.label_119.setObjectName(u"label_119")
         self.label_119.setEnabled(True)
         self.label_119.setMinimumSize(QSize(0, 0))
         self.label_119.setMaximumSize(QSize(40, 26))
-        self.label_119.setFont(font)
+        self.label_119.setFont(font1)
         self.label_119.setMouseTracking(True)
-        self.label_119.setAlignment(Qt.AlignCenter)
+        self.label_119.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_16.addWidget(self.label_119, 2, 0, 1, 1)
+        self.gridLayout_16.addWidget(self.label_119, 3, 0, 1, 1)
 
-        self.pushButton_load_table_axial_stiffness = QPushButton(self.tab_table_values)
-        self.pushButton_load_table_axial_stiffness.setObjectName(u"pushButton_load_table_axial_stiffness")
-        self.pushButton_load_table_axial_stiffness.setEnabled(True)
-        sizePolicy.setHeightForWidth(self.pushButton_load_table_axial_stiffness.sizePolicy().hasHeightForWidth())
-        self.pushButton_load_table_axial_stiffness.setSizePolicy(sizePolicy)
-        self.pushButton_load_table_axial_stiffness.setMinimumSize(QSize(57, 0))
-        self.pushButton_load_table_axial_stiffness.setMaximumSize(QSize(16777215, 16777215))
-        self.pushButton_load_table_axial_stiffness.setStyleSheet(u"")
-        self.pushButton_load_table_axial_stiffness.setIcon(icon)
-        self.pushButton_load_table_axial_stiffness.setIconSize(QSize(20, 20))
+        self.lineEdit_Kyz_table_path = QLineEdit(self.tab_table_values)
+        self.lineEdit_Kyz_table_path.setObjectName(u"lineEdit_Kyz_table_path")
+        self.lineEdit_Kyz_table_path.setEnabled(False)
+        self.lineEdit_Kyz_table_path.setMinimumSize(QSize(0, 26))
+        self.lineEdit_Kyz_table_path.setMaximumSize(QSize(16777215, 16777215))
+        self.lineEdit_Kyz_table_path.setSizeIncrement(QSize(0, 0))
+        self.lineEdit_Kyz_table_path.setFont(font3)
+        self.lineEdit_Kyz_table_path.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.lineEdit_Kyz_table_path.setStyleSheet(u"")
+        self.lineEdit_Kyz_table_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_16.addWidget(self.pushButton_load_table_axial_stiffness, 0, 2, 1, 1)
-
-        self.lineEdit_path_table_axial_stiffness = QLineEdit(self.tab_table_values)
-        self.lineEdit_path_table_axial_stiffness.setObjectName(u"lineEdit_path_table_axial_stiffness")
-        self.lineEdit_path_table_axial_stiffness.setEnabled(False)
-        self.lineEdit_path_table_axial_stiffness.setMinimumSize(QSize(0, 0))
-        self.lineEdit_path_table_axial_stiffness.setMaximumSize(QSize(16777215, 26))
-        self.lineEdit_path_table_axial_stiffness.setSizeIncrement(QSize(0, 0))
-        font2 = QFont()
-        font2.setPointSize(9)
-        font2.setBold(False)
-        font2.setItalic(False)
-        font2.setKerning(True)
-        self.lineEdit_path_table_axial_stiffness.setFont(font2)
-        self.lineEdit_path_table_axial_stiffness.setFocusPolicy(Qt.NoFocus)
-        self.lineEdit_path_table_axial_stiffness.setStyleSheet(u"")
-        self.lineEdit_path_table_axial_stiffness.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout_16.addWidget(self.lineEdit_path_table_axial_stiffness, 0, 1, 1, 1)
-
-        self.lineEdit_path_table_torsional_stiffness = QLineEdit(self.tab_table_values)
-        self.lineEdit_path_table_torsional_stiffness.setObjectName(u"lineEdit_path_table_torsional_stiffness")
-        self.lineEdit_path_table_torsional_stiffness.setEnabled(False)
-        self.lineEdit_path_table_torsional_stiffness.setMinimumSize(QSize(0, 0))
-        self.lineEdit_path_table_torsional_stiffness.setMaximumSize(QSize(16777215, 26))
-        self.lineEdit_path_table_torsional_stiffness.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_path_table_torsional_stiffness.setFont(font1)
-        self.lineEdit_path_table_torsional_stiffness.setFocusPolicy(Qt.NoFocus)
-        self.lineEdit_path_table_torsional_stiffness.setStyleSheet(u"")
-        self.lineEdit_path_table_torsional_stiffness.setAlignment(Qt.AlignCenter)
-
-        self.gridLayout_16.addWidget(self.lineEdit_path_table_torsional_stiffness, 2, 1, 1, 1)
+        self.gridLayout_16.addWidget(self.lineEdit_Kyz_table_path, 2, 1, 1, 1)
 
         self.label_118 = QLabel(self.tab_table_values)
         self.label_118.setObjectName(u"label_118")
         self.label_118.setEnabled(True)
         self.label_118.setMinimumSize(QSize(0, 0))
         self.label_118.setMaximumSize(QSize(40, 26))
-        self.label_118.setFont(font)
+        self.label_118.setFont(font1)
         self.label_118.setMouseTracking(True)
-        self.label_118.setAlignment(Qt.AlignCenter)
+        self.label_118.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_16.addWidget(self.label_118, 1, 0, 1, 1)
+        self.gridLayout_16.addWidget(self.label_118, 2, 0, 1, 1)
+
+        self.pushButton_load_table_Kyz = QPushButton(self.tab_table_values)
+        self.pushButton_load_table_Kyz.setObjectName(u"pushButton_load_table_Kyz")
+        self.pushButton_load_table_Kyz.setEnabled(True)
+        sizePolicy.setHeightForWidth(self.pushButton_load_table_Kyz.sizePolicy().hasHeightForWidth())
+        self.pushButton_load_table_Kyz.setSizePolicy(sizePolicy)
+        self.pushButton_load_table_Kyz.setMinimumSize(QSize(40, 26))
+        self.pushButton_load_table_Kyz.setMaximumSize(QSize(16777215, 16777215))
+        self.pushButton_load_table_Kyz.setStyleSheet(u"")
+        self.pushButton_load_table_Kyz.setIcon(icon)
+        self.pushButton_load_table_Kyz.setIconSize(QSize(20, 20))
+
+        self.gridLayout_16.addWidget(self.pushButton_load_table_Kyz, 2, 2, 1, 1)
 
         self.tabWidget_inputs.addTab(self.tab_table_values, "")
 
@@ -493,18 +497,16 @@ class Ui_Form(object):
         QWidget.setTabOrder(self.lineEdit_joint_mass, self.lineEdit_axial_locking_criteria)
         QWidget.setTabOrder(self.lineEdit_axial_locking_criteria, self.comboBox_axial_stop_rod)
         QWidget.setTabOrder(self.comboBox_axial_stop_rod, self.tabWidget_inputs)
-        QWidget.setTabOrder(self.tabWidget_inputs, self.lineEdit_axial_stiffness)
-        QWidget.setTabOrder(self.lineEdit_axial_stiffness, self.lineEdit_transversal_stiffness)
-        QWidget.setTabOrder(self.lineEdit_transversal_stiffness, self.lineEdit_torsional_stiffness)
-        QWidget.setTabOrder(self.lineEdit_torsional_stiffness, self.lineEdit_angular_stiffness)
-        QWidget.setTabOrder(self.lineEdit_angular_stiffness, self.lineEdit_path_table_axial_stiffness)
-        QWidget.setTabOrder(self.lineEdit_path_table_axial_stiffness, self.pushButton_load_table_axial_stiffness)
-        QWidget.setTabOrder(self.pushButton_load_table_axial_stiffness, self.lineEdit_path_table_transversal_stiffness)
-        QWidget.setTabOrder(self.lineEdit_path_table_transversal_stiffness, self.pushButton_load_table_transversal_stiffness)
-        QWidget.setTabOrder(self.pushButton_load_table_transversal_stiffness, self.lineEdit_path_table_torsional_stiffness)
-        QWidget.setTabOrder(self.lineEdit_path_table_torsional_stiffness, self.pushButton_load_table_torsional_stiffness)
-        QWidget.setTabOrder(self.pushButton_load_table_torsional_stiffness, self.lineEdit_path_table_angular_stiffness)
-        QWidget.setTabOrder(self.lineEdit_path_table_angular_stiffness, self.pushButton_load_table_angular_stiffness)
+        QWidget.setTabOrder(self.tabWidget_inputs, self.lineEdit_Kx)
+        QWidget.setTabOrder(self.lineEdit_Kx, self.lineEdit_Kyz)
+        QWidget.setTabOrder(self.lineEdit_Kyz, self.lineEdit_Krx)
+        QWidget.setTabOrder(self.lineEdit_Krx, self.lineEdit_Kryz)
+        QWidget.setTabOrder(self.lineEdit_Kryz, self.lineEdit_Kx_table_path)
+        QWidget.setTabOrder(self.lineEdit_Kx_table_path, self.pushButton_load_table_Kx)
+        QWidget.setTabOrder(self.pushButton_load_table_Kx, self.lineEdit_Krx_table_path)
+        QWidget.setTabOrder(self.lineEdit_Krx_table_path, self.pushButton_load_table_Krx)
+        QWidget.setTabOrder(self.pushButton_load_table_Krx, self.lineEdit_Kryz_table_path)
+        QWidget.setTabOrder(self.lineEdit_Kryz_table_path, self.pushButton_load_table_Kryz)
 
         self.retranslateUi(Form)
 
@@ -530,9 +532,9 @@ class Ui_Form(object):
         self.label_107.setText(QCoreApplication.translate("Form", u"[m]", None))
         self.label_103.setText(QCoreApplication.translate("Form", u"Effective diameter:", None))
         self.label_116.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\"><span style=\" font-weight:400; font-style:normal;\">k</span><span style=\" font-weight:400; font-style:normal; vertical-align:sub;\">yz</span><span style=\" font-weight:400; font-style:normal;\">:</span></p></body></html>", None))
-        self.lineEdit_transversal_stiffness.setText("")
-        self.lineEdit_axial_stiffness.setText("")
-        self.lineEdit_angular_stiffness.setText("")
+        self.lineEdit_Kyz.setText("")
+        self.lineEdit_Kx.setText("")
+        self.lineEdit_Kryz.setText("")
         self.label_16.setText(QCoreApplication.translate("Form", u"[N/m]", None))
         self.label_93.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\"><span style=\" font-weight:400; font-style:normal;\">k</span><span style=\" font-weight:400; font-style:normal; vertical-align:sub;\">rx</span><span style=\" font-weight:400; font-style:normal;\">:</span></p></body></html>", None))
         self.label_112.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\"><span style=\" font-weight:400; font-style:normal;\">k</span><span style=\" font-weight:400; font-style:normal; vertical-align:sub;\">ryz</span><span style=\" font-weight:400; font-style:normal;\">:</span></p></body></html>", None))
@@ -540,16 +542,16 @@ class Ui_Form(object):
         self.label_115.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\"><span style=\" font-weight:400; font-style:normal;\">k</span><span style=\" font-weight:400; font-style:normal; vertical-align:sub;\">x</span><span style=\" font-weight:400; font-style:normal;\">:</span></p></body></html>", None))
         self.label_17.setText(QCoreApplication.translate("Form", u"[N/m]", None))
         self.label_113.setText(QCoreApplication.translate("Form", u"[N.m/rad]", None))
-        self.lineEdit_torsional_stiffness.setText("")
+        self.lineEdit_Krx.setText("")
         self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_constant_values), QCoreApplication.translate("Form", u"Constant values", None))
+        self.pushButton_load_table_Kryz.setText("")
         self.label_117.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\"><span style=\" font-weight:400; font-style:normal;\">k</span><span style=\" font-weight:400; font-style:normal; vertical-align:sub;\">x</span><span style=\" font-weight:400; font-style:normal;\">:</span></p></body></html>", None))
-        self.pushButton_load_table_transversal_stiffness.setText("")
-        self.pushButton_load_table_torsional_stiffness.setText("")
-        self.pushButton_load_table_angular_stiffness.setText("")
+        self.pushButton_load_table_Krx.setText("")
+        self.pushButton_load_table_Kx.setText("")
         self.label_120.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\">k<span style=\" vertical-align:sub;\">ryz</span>:</p></body></html>", None))
-        self.label_119.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\">k<span style=\" vertical-align:sub;\">rz</span>:</p></body></html>", None))
-        self.pushButton_load_table_axial_stiffness.setText("")
+        self.label_119.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\">k<span style=\" vertical-align:sub;\">rx</span>:</p></body></html>", None))
         self.label_118.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\">k<span style=\" vertical-align:sub;\">yz</span>:</p></body></html>", None))
+        self.pushButton_load_table_Kyz.setText("")
         self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_table_values), QCoreApplication.translate("Form", u"Table of values", None))
     # retranslateUi
 
@@ -578,9 +580,9 @@ class ExpansionJointWidget_UI(QWidget, Ui_Form):
                                 - tab_constant_values: QWidget
                                     - (Layout): QGridLayout
                                             - label_116: QLabel
-                                            - lineEdit_transversal_stiffness: QLineEdit
-                                            - lineEdit_axial_stiffness: QLineEdit
-                                            - lineEdit_angular_stiffness: QLineEdit
+                                            - lineEdit_Kyz: QLineEdit
+                                            - lineEdit_Kx: QLineEdit
+                                            - lineEdit_Kryz: QLineEdit
                                             - label_16: QLabel
                                             - label_93: QLabel
                                             - label_112: QLabel
@@ -588,21 +590,21 @@ class ExpansionJointWidget_UI(QWidget, Ui_Form):
                                             - label_115: QLabel
                                             - label_17: QLabel
                                             - label_113: QLabel
-                                            - lineEdit_torsional_stiffness: QLineEdit
+                                            - lineEdit_Krx: QLineEdit
                                 - tab_table_values: QWidget
                                     - (Layout): QGridLayout
+                                            - pushButton_load_table_Kryz: QPushButton
                                             - label_117: QLabel
-                                            - pushButton_load_table_transversal_stiffness: QPushButton
-                                            - pushButton_load_table_torsional_stiffness: QPushButton
-                                            - pushButton_load_table_angular_stiffness: QPushButton
+                                            - pushButton_load_table_Krx: QPushButton
+                                            - lineEdit_Kx_table_path: QLineEdit
+                                            - pushButton_load_table_Kx: QPushButton
+                                            - lineEdit_Krx_table_path: QLineEdit
                                             - label_120: QLabel
-                                            - lineEdit_path_table_transversal_stiffness: QLineEdit
-                                            - lineEdit_path_table_angular_stiffness: QLineEdit
+                                            - lineEdit_Kryz_table_path: QLineEdit
                                             - label_119: QLabel
-                                            - pushButton_load_table_axial_stiffness: QPushButton
-                                            - lineEdit_path_table_axial_stiffness: QLineEdit
-                                            - lineEdit_path_table_torsional_stiffness: QLineEdit
+                                            - lineEdit_Kyz_table_path: QLineEdit
                                             - label_118: QLabel
+                                            - pushButton_load_table_Kyz: QPushButton
     """
 
     def __init__(self, *args, **kwargs):

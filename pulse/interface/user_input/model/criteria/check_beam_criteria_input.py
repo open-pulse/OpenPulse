@@ -56,12 +56,12 @@ class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
 
     def config_treeWidget(self):
 
-        for i, w in enumerate([80, 120, 160]):
-            self.treeWidget_sections_parameters_by_lines.setColumnWidth(i, w)
+        for i, width in enumerate([80, 120, 160]):
+            self.treeWidget_sections_parameters_by_lines.setColumnWidth(i, width)
             self.treeWidget_sections_parameters_by_lines.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-        for i, w in enumerate([80, 80, 200, 60]):
-            self.treeWidget_non_beam_segments.setColumnWidth(i, w)
+        for i, width in enumerate([80, 80, 200, 60]):
+            self.treeWidget_non_beam_segments.setColumnWidth(i, width)
             self.treeWidget_non_beam_segments.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def load_existing_sections(self):
