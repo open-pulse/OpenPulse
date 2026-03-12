@@ -77,6 +77,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.selected_fluid = None
         self.selected_material = None
         self.error_title = None
+        self.fluid_dialog = None
         self.error_message = None
 
         self.state_properties = dict()
@@ -245,16 +246,22 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.fluid_dialog.exec_and_keep_window_open()
         app().main_window.set_input_widget(self)
 
-    def get_selected_fluid(self):
-        selected_fluid = self.fluid_dialog.get_selected_fluid()
+    def get_selected_fluid(self, fluid: Fluid | None = None):
+        if fluid is None:
+            selected_fluid = self.fluid_dialog.get_selected_fluid()
+        
+        elif isinstance(fluid, Fluid):
+            selected_fluid = fluid
+
+        else:
+            raise TypeError("Invalid fluid")
 
         if isinstance(selected_fluid, Fluid):
-            self.fluid_dialog.close()
-            if (
-                selected_fluid.name
-                in self.fluid_dialog.fluid_widget.fluid_name_to_refprop_data.keys()
-            ):
-                self.comboBox_fluid_data_source.setCurrentIndex(0)
+            if self.fluid_dialog is not None:
+                self.fluid_dialog.close()
+
+                if (selected_fluid.name in self.fluid_dialog.fluid_widget.fluid_name_to_refprop_data.keys()):
+                    self.comboBox_fluid_data_source.setCurrentIndex(0)
 
             if self.fluid_state == "liquid":
                 self.lineEdit_selected_liquid_fluid.setText(selected_fluid.name)
@@ -892,7 +899,11 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         liquid = self.properties.fluids_library.get(liquid_id)
         gas = self.properties.fluids_library.get(gas_id)
-        
+
+        self.fluid_state = 'liquid'
+        self.get_selected_fluid(liquid)
+        self.fluid_state = 'gas'
+        self.get_selected_fluid(gas)
 
         self.tabWidget_main.setCurrentIndex(0)
         self.preview_callback()
