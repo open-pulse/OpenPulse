@@ -167,12 +167,6 @@ class AssemblyStructural:
             else:
                 mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()
 
-            # if element.index == 1:
-            #     print(">>>>>")
-            #     print(element.first_node.external_index, element.last_node.external_index)
-            #     np.savetxt("elementary_matrix_Ke_1.dat", mat_Ke[index,:,:], delimiter=",", fmt="%.24e")
-            #     np.savetxt("elementary_matrix_Me_1.dat", mat_Me[index,:,:], delimiter=",", fmt="%.24e")
-
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
 
@@ -180,16 +174,6 @@ class AssemblyStructural:
         M = full_M[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
         Kr = full_K[:, self.prescribed_indexes]
         Mr = full_M[:, self.prescribed_indexes]
-
-        #TODO: remember to remove these lines
-        # K_data = np.array([rows, cols, mat_Ke.flatten()]).T
-        # M_data = np.array([rows, cols, mat_Me.flatten()]).T
-
-        # np.savetxt("K_data.csv", K_data, delimiter=",", fmt="%i, %i, %.24e")
-        # np.savetxt("M_data.csv", M_data, delimiter=",", fmt="%i, %i, %.24e")
-
-        # np.savetxt("unprescribed_dofs.dat", self.unprescribed_indexes, fmt="%i")
-        # np.savetxt("prescribed_dofs.dat", self.unprescribed_indexes, fmt="%i")
 
         return K, M, Kr, Mr
 
@@ -214,16 +198,16 @@ class AssemblyStructural:
             rows = list()
             cols = list()
 
-            mat_Ke = np.zeros((number_frequencies, number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-            mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+            mat_Ke = np.zeros((number_frequencies, number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
+            mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
 
             for ind, element in enumerate(self.expansion_joint_data.values()):
-                
+
                 i, j = element.global_matrix_indexes()
                 rows.append(i)
                 cols.append(j)
                 mat_Ke[:,ind,:,:], mat_Me[ind,:,:] = element.expansion_joint_matrices_gcs(self.frequencies) 
-            
+
             rows = np.array(rows).flatten()
             cols = np.array(cols).flatten()   
 
@@ -288,9 +272,10 @@ class AssemblyStructural:
                         "lumped_stiffness",
                         "lumped_dampings",
                         "psd_structural_links",
-                        "structural_stiffness_links",
-                        "structural_damping_links"
+                        "stiffness_elastic_links",
+                        "damping_nodal_links",
                        ]
+
 
         for (_property, *args), data in self.model.properties.nodal_properties.items():
 
@@ -337,7 +322,7 @@ class AssemblyStructural:
                 K_data.extend(self.get_bc_array_for_all_frequencies(False, values))
 
             # structural nodal link for stiffness
-            if _property == "structural_stiffness_links":
+            if _property == "stiffness_nodal_links":
                 link_data_K = self.preprocessor.get_structural_links_data(node_ids, data)
                 i_indexes_K.extend(link_data_K["indexes_i"])
                 j_indexes_K.extend(link_data_K["indexes_j"])
@@ -345,7 +330,7 @@ class AssemblyStructural:
                 K_data.extend(self.get_bc_array_for_all_frequencies(loaded_table, values))
 
             # structural nodal link for damping
-            if _property == "structural_damping_links":
+            if _property == "damping_nodal_links":
                 link_data_C = self.preprocessor.get_structural_links_data(node_ids, data)
                 i_indexes_C.extend(link_data_C["indexes_i"])
                 j_indexes_C.extend(link_data_C["indexes_j"])
@@ -566,7 +551,7 @@ class AssemblyStructural:
         return loads
     
 
-    def get_bc_array_for_all_frequencies(self, loaded_table, values):
+    def get_bc_array_for_all_frequencies(self, loaded_table: bool, values: list[np.ndarray | complex | None]):
         """
         This method perform the assembly process of the structural FEM force and moment loads.
 
@@ -594,7 +579,7 @@ class AssemblyStructural:
         zeros = np.zeros(number_frequencies, dtype=float)
 
         if loaded_table:
-            list_arrays = [zeros if value is None else value[0:number_frequencies] for value in values]
+            list_arrays = [zeros if value is None else value[: number_frequencies] for value in values]
             self.no_table = False
         else:
             list_arrays = [zeros if value is None else ones * value for value in values]

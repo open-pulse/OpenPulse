@@ -1046,16 +1046,18 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
-            psds_labels = list(self.psds_data.keys())
-            self.psds_data.clear()
+        if not read._continue:
+            return
 
-            self.remove_psd_related_line_properties(psds_labels)
-            self.remove_psd_related_nodal_properties(psds_labels)
-            self.remove_psd_related_element_properties("_remove_all_")
+        psds_labels = list(self.psds_data.keys())
+        self.psds_data.clear()
 
-            self.actions_to_finalize()
-            app().main_window.update_plots()
+        self.remove_psd_related_line_properties(psds_labels)
+        self.remove_psd_related_nodal_properties(psds_labels)
+        self.remove_psd_related_element_properties("_remove_all_")
+
+        self.actions_to_finalize()
+        app().main_window.update_plots()
 
     def is_valid_number(self, value: str, include_zero: bool = False):
         if value == "":

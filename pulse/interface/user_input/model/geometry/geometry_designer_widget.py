@@ -653,16 +653,18 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
                 title, message, buttons_config=buttons_config
             )
 
-            if read._continue:
-                if selected_device_type == "psd":
-                    app().main_window.input_ui.pulsation_suppression_device_editor(
-                        device_to_delete=selected_device_name
-                    )
+            if not read._continue:
+                return
 
-                elif selected_device_type == "damper":
-                    app().main_window.input_ui.pulsation_damper_editor(
-                        device_to_delete=selected_device_name
-                    )
+            if selected_device_type == "psd":
+                app().main_window.input_ui.pulsation_suppression_device_editor(
+                    device_to_delete=selected_device_name
+                )
+
+            elif selected_device_type == "damper":
+                app().main_window.input_ui.pulsation_damper_editor(
+                    device_to_delete=selected_device_name
+                )
 
         self._reset_xyz()
         self._update_permissions()
@@ -864,7 +866,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         material = None
         if self.current_material_info is not None:
             material_id = self.current_material_info
-            material = self.material_widget.material_widget.library_materials[
+            material = self.material_widget.material_widget.materials_library[
                 material_id
             ]
 

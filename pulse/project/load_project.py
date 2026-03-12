@@ -67,7 +67,7 @@ class LoadProject:
 
     def load_fluids_library(self):
 
-        self.library_fluids = dict()
+        self.fluids_library = dict()
         config = self.project.file.read_fluid_library_from_file()
 
         if config is None:
@@ -163,12 +163,14 @@ class LoadProject:
                             vapor_pressure = vapor_pressure
                           )
 
-            self.library_fluids[identifier] = fluid
+            self.fluids_library[identifier] = fluid
+
+        self.properties.set_fluids_library(self.fluids_library)
 
 
     def load_materials_library(self):
 
-        self.library_materials = dict()
+        self.materials_library = dict()
         config = self.project.file.read_material_library_from_file()
 
         if config is None:
@@ -200,9 +202,10 @@ class LoadProject:
                                 color = color
                                 )
             
-            self.library_materials[identifier] = material
+            self.materials_library[identifier] = material
 
-    
+        self.properties.set_materials_library(self.materials_library)
+
     def check_line_properties(self):
 
         line_properties = self.project.file.read_line_properties_from_file()
@@ -285,20 +288,20 @@ class LoadProject:
                         fluid_id = prop_data
                         self.properties._set_line_property(property, fluid_id, line_ids=int(line_id))
 
-                        if fluid_id not in self.library_fluids.keys():
+                        if fluid_id not in self.fluids_library.keys():
                             continue
 
-                        fluid = self.library_fluids[fluid_id]
+                        fluid = self.fluids_library[fluid_id]
                         self.properties._set_line_property("fluid", fluid, line_ids=int(line_id))
 
                     elif property == "material_id":
                         material_id = prop_data
                         self.properties._set_line_property(property, material_id, line_ids=int(line_id))
     
-                        if material_id not in self.library_materials.keys():
+                        if material_id not in self.materials_library.keys():
                             continue
 
-                        material = self.library_materials[material_id]
+                        material = self.materials_library[material_id]
                         self.properties._set_line_property("material", material, line_ids=int(line_id))
                     
                     else:
@@ -369,45 +372,45 @@ class LoadProject:
 
     def load_expansion_joints(self, line_id: int, data: dict):
 
-        expansion_joint = None
-        if "expansion_joint_info" in data.keys():
-            expansion_joint = data["expansion_joint_info"]
+        prop_data = data.get("expansion_joint_info")
+        if not isinstance(prop_data, dict):
+            return
 
-        if isinstance(expansion_joint, dict):
+        prop_data["joint_length"] = self.properties.get_line_length(line_id)
 
-            expansion_joint["joint_length"] = self.properties.get_line_length(line_id)
+        if "effective_diameter" not in prop_data.keys():
+            return
+    
+        self.preprocessor.add_expansion_joint_by_lines(
+            line_id, 
+            prop_data,
+            )
 
-            if "effective_diameter" in expansion_joint.keys():
-
-                self.preprocessor.add_expansion_joint_by_lines(
-                                                               line_id, 
-                                                               expansion_joint
-                                                               )
-
-                self.preprocessor.set_cross_sections_to_expansion_joint(
-                                                                        line_id, 
-                                                                        expansion_joint
-                                                                        )
+        self.preprocessor.set_cross_sections_to_expansion_joint(
+            line_id, 
+            prop_data,
+            )
 
 
     def load_valves(self, line_id: int, data: dict):
 
-        if "valve_info" in data.keys():
+        prop_data = data.get("valve_info")
+        if not isinstance(prop_data, dict):
+            return
 
-            valve_info = data["valve_info"]
-            valve_info["valve_length"] = self.properties.get_line_length(line_id)
+        prop_data["valve_length"] = self.properties.get_line_length(line_id)
 
-            self.preprocessor.add_valve_by_lines(line_id, valve_info)
-            self.preprocessor.set_cross_sections_to_valve_elements(line_id, data)
+        self.preprocessor.add_valve_by_lines(line_id, prop_data)
+        self.preprocessor.set_cross_sections_to_valve_elements(line_id, data)
 
 
     def load_stress_stiffening(self, line_id: list, data: dict):
 
-        if "stress_stiffening" in data.keys():
+        prop_data = data.get("stress_stiffening")
+        if not isinstance(prop_data, dict):
+            return
 
-            prop_data = data["stress_stiffening"]
-            if isinstance(prop_data, dict):
-                self.preprocessor.set_stress_stiffening_by_lines(line_id, prop_data)
+        self.preprocessor.set_stress_stiffening_by_lines(line_id, prop_data)
 
 
     def load_cross_sections(self, line_id: list, data: dict):

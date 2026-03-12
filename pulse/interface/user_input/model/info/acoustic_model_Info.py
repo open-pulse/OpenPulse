@@ -37,13 +37,13 @@ class AcousticModelInfo(AcousticModelInfo_UI):
 
     def _config_widgets(self):
 
-        for i, w in enumerate([70, 70]):
-            self.treeWidget_acoustic_pressure.setColumnWidth(i, w)
-            self.treeWidget_volume_velocity.setColumnWidth(i, w)
-            self.treeWidget_specific_impedance.setColumnWidth(i, w)
-            self.treeWidget_radiation_impedance.setColumnWidth(i, w)
-            self.treeWidget_perforated_plate.setColumnWidth(i, w)
-            self.treeWidget_element_length_correction.setColumnWidth(i, w)
+        for i, width in enumerate([70, 70]):
+            self.treeWidget_acoustic_pressure.setColumnWidth(i, width)
+            self.treeWidget_volume_velocity.setColumnWidth(i, width)
+            self.treeWidget_specific_impedance.setColumnWidth(i, width)
+            self.treeWidget_radiation_impedance.setColumnWidth(i, width)
+            self.treeWidget_perforated_plate.setColumnWidth(i, width)
+            self.treeWidget_element_length_correction.setColumnWidth(i, width)
 
             self.treeWidget_acoustic_pressure.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_volume_velocity.headerItem().setTextAlignment(i, Qt.AlignCenter)

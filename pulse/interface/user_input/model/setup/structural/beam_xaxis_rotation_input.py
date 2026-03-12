@@ -53,8 +53,8 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         #
         self.pushButton_remove.setDisabled(True)
         #
-        for i, w in enumerate([120, 100]):
-            self.treeWidget_xaxis_rotation_angle.setColumnWidth(i, w)
+        for i, width in enumerate([120, 100]):
+            self.treeWidget_xaxis_rotation_angle.setColumnWidth(i, width)
             self.treeWidget_xaxis_rotation_angle.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def _create_connections(self):
@@ -249,20 +249,21 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
         if read._cancel:
             return
 
-        if read._continue:
+        if not read._continue:
+            return
 
-            self.lineEdit_selected_id.setText("")
-            self.lineEdit_increment_angle.setText("")
+        self.lineEdit_selected_id.setText("")
+        self.lineEdit_increment_angle.setText("")
 
-            line_ids = list()
-            for line_id, data in self.properties.line_properties.items():
-                if "beam_xaxis_rotation" in data.keys():
-                    line_ids.append(line_id)
+        line_ids = list()
+        for line_id, data in self.properties.line_properties.items():
+            if "beam_xaxis_rotation" in data.keys():
+                line_ids.append(line_id)
 
-            self.preprocessor.set_beam_xaxis_rotation_by_lines(line_ids, 0)
-            self.properties._remove_line_property("beam_xaxis_rotation", line_ids)
+        self.preprocessor.set_beam_xaxis_rotation_by_lines(line_ids, 0)
+        self.properties._remove_line_property("beam_xaxis_rotation", line_ids)
 
-            self.actions_to_finalize()
+        self.actions_to_finalize()
 
     def load_lines_info(self):
         self.treeWidget_xaxis_rotation_angle.clear()

@@ -1,9 +1,8 @@
-from PySide6.QtWidgets import (
-    QLineEdit,
-)
+from PySide6.QtWidgets import QLineEdit
 
 from pulse.interface.ui_generated.model.setup.structural.expansion_joint_widget_ui import ExpansionJointWidget_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 
 
 
@@ -37,14 +36,14 @@ class ExpansionJointWidget(ExpansionJointWidget_UI):
             self.axial_stop_rod_callback
         )
         #
-        self.pushButton_load_table_axial_stiffness.clicked.connect(self.load_Kx_table)
-        self.pushButton_load_table_transversal_stiffness.clicked.connect(
+        self.pushButton_load_table_Kx.clicked.connect(self.load_Kx_table)
+        self.pushButton_load_table_Kyz.clicked.connect(
             self.load_Kyz_table
         )
-        self.pushButton_load_table_torsional_stiffness.clicked.connect(
+        self.pushButton_load_table_Krx.clicked.connect(
             self.load_Krx_table
         )
-        self.pushButton_load_table_angular_stiffness.clicked.connect(
+        self.pushButton_load_table_Kryz.clicked.connect(
             self.load_Kryz_table
         )
 
@@ -53,14 +52,14 @@ class ExpansionJointWidget(ExpansionJointWidget_UI):
             self.lineEdit_effective_diameter,
             self.lineEdit_joint_mass,
             self.lineEdit_axial_locking_criteria,
-            self.lineEdit_axial_stiffness,
-            self.lineEdit_transversal_stiffness,
-            self.lineEdit_torsional_stiffness,
-            self.lineEdit_angular_stiffness,
-            self.lineEdit_path_table_axial_stiffness,
-            self.lineEdit_path_table_transversal_stiffness,
-            self.lineEdit_path_table_torsional_stiffness,
-            self.lineEdit_path_table_angular_stiffness,
+            self.lineEdit_Kx,
+            self.lineEdit_Kyz,
+            self.lineEdit_Krx,
+            self.lineEdit_Kryz,
+            self.lineEdit_Kx_table_path,
+            self.lineEdit_Kyz_table_path,
+            self.lineEdit_Krx_table_path,
+            self.lineEdit_Kryz_table_path,
         ]
 
     def axial_stop_rod_callback(self):
@@ -72,40 +71,50 @@ class ExpansionJointWidget(ExpansionJointWidget_UI):
             self.label_axial_lock_criteria.setDisabled(False)
             self.lineEdit_axial_locking_criteria.setDisabled(False)
 
+
     def load_Kx_table(self):
-        stiffness_label = "Axial stiffness"
-        lineEdit = self.lineEdit_path_table_axial_stiffness
-        self.Kx_table, self.Kx_filename = self.load_table(lineEdit, stiffness_label)
-        if self.Kx_table is None:
-            self.lineedit_reset(lineEdit)
+        self.imported_Kx_values, self.Kx_table_path = CommonUserInputs(self).load_table(
+            self.lineEdit_Kx_table_path, 
+            "Kx", 
+            dof_label="axial stiffness",
+            )
+
+        if self.imported_Kx_values is None:
+            self.line_edit_reset(self.lineEdit_Kx_table_path)
 
     def load_Kyz_table(self):
-        stiffness_label = "Transversal stiffness"
-        lineEdit = self.lineEdit_path_table_transversal_stiffness
-        self.Kyz_table, self.Kyz_filename = self.load_table(lineEdit, stiffness_label)
-        if self.Kyz_table is None:
-            self.lineedit_reset(lineEdit)
+        self.imported_Kyz_values, self.Kyz_table_path = CommonUserInputs(self).load_table(
+            self.lineEdit_Kyz_table_path, 
+            "Kyz", 
+            dof_label="transversal stiffness",
+            )
+
+        if self.imported_Kyz_values is None:
+            self.line_edit_reset(self.lineEdit_Kyz_table_path)
 
     def load_Krx_table(self):
-        stiffness_label = "Torsional stiffness"
-        lineEdit = self.lineEdit_path_table_torsional_stiffness
-        self.Krx_table, self.Krx_filename = self.load_table(lineEdit, stiffness_label)
-        if self.Krx_table is None:
-            self.lineedit_reset(lineEdit)
+        self.imported_Krx_values, self.Krx_table_path = CommonUserInputs(self).load_table(
+            self.lineEdit_Krx_table_path, 
+            "Krx", 
+            dof_label="torsional stiffness",
+            )
+
+        if self.imported_Krx_values is None:
+            self.line_edit_reset(self.lineEdit_Krx_table_path)
 
     def load_Kryz_table(self):
-        stiffness_label = "Angular stiffness"
-        lineEdit = self.lineEdit_path_table_angular_stiffness
-        self.Kryz_table, self.Kryz_filename = self.load_table(lineEdit, stiffness_label)
-        if self.Kryz_table is None:
-            self.lineedit_reset(lineEdit)
+        self.imported_Kryz_values, self.Kryz_table_path = CommonUserInputs(self).load_table(
+            self.lineEdit_Kryz_table_path, 
+            "Kryz", 
+            dof_label="angular stiffness"
+            )
 
-    def lineedit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
-        lineEdit.setFocus()
+        if self.Kryz_table_path is None:
+            self.line_edit_reset(self.lineEdit_Kryz_table_path)
 
-    def load_table(self):
-        "implement something here"
+    def line_edit_reset(self, line_edit: QLineEdit):
+        line_edit.setText("")
+        line_edit.setFocus()
 
     def check_initial_inputs(self):
         self.joint_parameters = dict()
@@ -133,31 +142,31 @@ class ExpansionJointWidget(ExpansionJointWidget_UI):
     def check_constant_values_to_stiffness(self):
         _stiffness = list()
 
-        stop, value = self.check_input_parameters(self.lineEdit_axial_stiffness, 'Axial stiffness')
+        stop, value = self.check_input_parameters(self.lineEdit_Kx, 'Kx (axial stiffness)')
         if stop:
-            self.lineEdit_axial_stiffness.setFocus()
+            self.lineEdit_Kx.setFocus()
             return True
         _stiffness.append(value)
 
-        stop, value = self.check_input_parameters(self.lineEdit_transversal_stiffness, 'Transversal stiffness')
+        stop, value = self.check_input_parameters(self.lineEdit_Kyz, 'Kyz (transversal stiffness)')
         if stop:
-            self.lineEdit_transversal_stiffness.setFocus()
+            self.lineEdit_Kyz.setFocus()
             return True
         _stiffness.append(value)
 
-        stop, value = self.check_input_parameters(self.lineEdit_torsional_stiffness, 'Torsional stiffness')
+        stop, value = self.check_input_parameters(self.lineEdit_Krx, 'Krx (torsional stiffness)')
         if stop:
-            self.lineEdit_torsional_stiffness.setFocus()
+            self.lineEdit_Krx.setFocus()
             return True
         _stiffness.append(value)
 
-        stop, value = self.check_input_parameters(self.lineEdit_angular_stiffness, 'Angular stiffness')
+        stop, value = self.check_input_parameters(self.lineEdit_Kryz, 'Kryz (angular stiffness)')
         if stop:
-            self.lineEdit_angular_stiffness.setFocus()
+            self.lineEdit_Kryz.setFocus()
             return True
         _stiffness.append(value)
 
-        self.joint_parameters["stiffness_values"] = _stiffness
+        self.joint_parameters["values"] = _stiffness
 
     def check_input_parameters(self, lineEdit: QLineEdit, label: str, _float=True):
         title = f"Invalid entry to the '{label}'"
