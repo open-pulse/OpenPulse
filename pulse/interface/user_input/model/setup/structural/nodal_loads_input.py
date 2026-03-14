@@ -1,8 +1,9 @@
 from enum import IntEnum
+from functools import partial
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem, QLineEdit
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui import (
@@ -94,12 +95,12 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
         #
         self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_attribute.clicked.connect(self.attribution_callback)
-        self.pushButton_load_fx_table.clicked.connect(self.load_fx_table)
-        self.pushButton_load_fy_table.clicked.connect(self.load_fy_table)
-        self.pushButton_load_fz_table.clicked.connect(self.load_fz_table)
-        self.pushButton_load_mx_table.clicked.connect(self.load_mx_table)
-        self.pushButton_load_my_table.clicked.connect(self.load_my_table)
-        self.pushButton_load_mz_table.clicked.connect(self.load_mz_table)
+        self.pushButton_load_fx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_fx_table_path, dof_label="Fx"))
+        self.pushButton_load_fy_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_fy_table_path, dof_label="Fy"))
+        self.pushButton_load_fz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_fz_table_path, dof_label="Fz"))
+        self.pushButton_load_mx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_mx_table_path, dof_label="Mx"))
+        self.pushButton_load_my_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_my_table_path, dof_label="My"))
+        self.pushButton_load_mz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_mz_table_path, dof_label="Mz"))
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -272,66 +273,6 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
         self.actions_to_finalize()
 
-    def load_fx_table(self):
-        self.imported_fx_values, self.fx_table_path = self.load_table(
-            self.lineEdit_fx_table_path,
-            "nodal loads",
-            dof_label="Fx",
-        )
-
-        if self.fx_table_path is None:
-            self.line_edit_reset(self.lineEdit_fx_table_path)
-
-    def load_fy_table(self):
-        self.imported_fy_values, self.fy_table_path = self.load_table(
-            self.lineEdit_fy_table_path,
-            "nodal loads",
-            dof_label="Fy",
-        )
-
-        if self.fy_table_path is None:
-            self.line_edit_reset(self.lineEdit_fy_table_path)
-
-    def load_fz_table(self):
-        self.imported_fz_values, self.fz_table_path = self.load_table(
-            self.lineEdit_fz_table_path,
-            "nodal loads",
-            dof_label="Fz",
-        )
-
-        if self.fz_table_path is None:
-            self.line_edit_reset(self.lineEdit_fz_table_path)
-
-    def load_mx_table(self):
-        self.imported_mx_values, self.mx_table_path = self.load_table(
-            self.lineEdit_mx_table_path,
-            "nodal loads",
-            dof_label="Mx",
-        )
-
-        if self.mx_table_path is None:
-            self.line_edit_reset(self.lineEdit_mx_table_path)
-
-    def load_my_table(self):
-        self.imported_my_values, self.my_table_path = self.load_table(
-            self.lineEdit_my_table_path,
-            "nodal loads",
-            dof_label="My",
-        )
-
-        if self.my_table_path is None:
-            self.line_edit_reset(self.lineEdit_my_table_path)
-
-    def load_mz_table(self):
-        self.imported_mz_values, self.mz_table_path = self.load_table(
-            self.lineEdit_mz_table_path,
-            "nodal loads",
-            dof_label="Mz",
-        )
-
-        if self.mz_table_path is None:
-            self.line_edit_reset(self.lineEdit_mz_table_path)
-
     def save_table_values(self, table_name: str, imported_values: np.ndarray):
 
         # define the frequencies vector
@@ -361,6 +302,9 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
         self.properties.add_imported_tables("structural", table_name, data)
 
         return False
+
+    def load_table_for_line_edit(self, line_edit, dof_label, bc_label):
+        return super().load_table_for_line_edit(line_edit, dof_label, "")
 
     def load_nodes_info(self):
 

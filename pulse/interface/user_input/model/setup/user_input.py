@@ -110,6 +110,21 @@ class UserInput(QDialog):
             line_edit.setFocus()
             return None, None
     
+    def load_table_for_line_edit(self, line_edit: QLineEdit, dof_label: str, bc_label: str):
+        imported_values, table_path = self.load_table(
+            line_edit,
+            bc_label
+        )
+
+        values_attr = f"imported_{dof_label.lower()}_values"
+        table_attr = f"{dof_label.lower()}_table_path"
+
+        setattr(self, values_attr, imported_values)
+        setattr(self, table_attr, table_path)
+
+        if table_path is None:
+            self.line_edit_reset(line_edit)
+    
     def get_spectral_data_from_array(self, data: np.ndarray | None, return_frequencies: bool=False):
         """
         This function returns two vectors containing the spectral data of interest.

@@ -1,4 +1,5 @@
 from enum import IntEnum
+from functools import partial
 
 import numpy as np
 from PySide6.QtCore import Qt
@@ -132,12 +133,12 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         self.pushButton_exit_tab0.clicked.connect(self.close)
         self.pushButton_attribute.clicked.connect(self.attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
-        self.pushButton_load_ux_table.clicked.connect(self.load_ux_table)
-        self.pushButton_load_uy_table.clicked.connect(self.load_uy_table)
-        self.pushButton_load_uz_table.clicked.connect(self.load_uz_table)
-        self.pushButton_load_rx_table.clicked.connect(self.load_rx_table)
-        self.pushButton_load_ry_table.clicked.connect(self.load_ry_table)
-        self.pushButton_load_rz_table.clicked.connect(self.load_rz_table)
+        self.pushButton_load_ux_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_ux_table_path, dof_label="Ux"))
+        self.pushButton_load_uy_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_uy_table_path, dof_label="Uy"))
+        self.pushButton_load_uz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_uz_table_path, dof_label="Uz"))
+        self.pushButton_load_rx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_rx_table_path, dof_label="Rx"))
+        self.pushButton_load_ry_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_ry_table_path, dof_label="Ry"))
+        self.pushButton_load_rz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_rz_table_path, dof_label="Rz"))
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_all_dof_free.clicked.connect(self.all_dof_free_callback)
         self.pushButton_all_dof_fixed.clicked.connect(self.all_dof_fixed_callback)
@@ -349,66 +350,9 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         app().project.file.write_nodal_properties_in_file()
         self.load_nodes_info()
         app().main_window.update_plots(reset_camera=False)
-
-    def load_ux_table(self):
-        self.imported_ux_values, self.ux_table_path = self.load_table(
-            self.lineEdit_ux_table_path,
-            "prescribed dof",
-            dof_label="Ux",
-        )
-
-        if self.ux_table_path is None:
-            self.line_edit_reset(self.lineEdit_ux_table_path)
-
-    def load_uy_table(self):
-        self.imported_uy_values, self.uy_table_path = self.load_table(
-            self.lineEdit_uy_table_path,
-            "prescribed dof",
-            dof_label="Uy",
-        )
-
-        if self.uy_table_path is None:
-            self.line_edit_reset(self.lineEdit_uy_table_path)
-
-    def load_uz_table(self):
-        self.imported_uz_values, self.uz_table_path = self.load_table(
-            self.lineEdit_uz_table_path,
-            "prescribed dof",
-            dof_label="Uz",
-        )
-
-        if self.uz_table_path is None:
-            self.line_edit_reset(self.lineEdit_uz_table_path)
-
-    def load_rx_table(self):
-        self.imported_rx_values, self.rx_table_path = self.load_table(
-            self.lineEdit_rx_table_path,
-            "prescribed dof",
-            dof_label="Rx",
-        )
-
-        if self.rx_table_path is None:
-            self.line_edit_reset(self.lineEdit_rx_table_path)
-
-    def load_ry_table(self):
-        self.imported_ry_values, self.ry_table_path = self.load_table(
-            self.lineEdit_ry_table_path,
-            "prescribed dof",
-            dof_label="Ry",
-        )
-
-        if self.ry_table_path is None:
-            self.line_edit_reset(self.lineEdit_ry_table_path)
-
-    def load_rz_table(self):
-        self.imported_rz_values, self.rz_table_path = self.load_table(
-            self.lineEdit_rz_table_path,
-            "prescribed dof",
-            dof_label="Rz",
-        )
-
-        if self.rz_table_path is None:
-            self.line_edit_reset(self.lineEdit_rz_table_path)
+    
+    def load_table_for_line_edit(self, line_edit, dof_label):
+        return super().load_table_for_line_edit(line_edit, dof_label, "prescribed_dof")
 
     def integrate_and_save_table_values(
         self,
