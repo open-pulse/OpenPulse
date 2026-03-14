@@ -41,10 +41,3 @@ class StructuralLinesInput(LinesInput):
             return True, None
         else:
             return False, value
-    
-    def process_table_file_removal(self, table_names: list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("structural", table_name)
-            app().project.file.write_imported_table_data_in_file()
- 

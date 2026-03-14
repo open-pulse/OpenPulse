@@ -10,9 +10,6 @@ class AcousticNodesInput(NodesInput):
     def __init__(self):
         super().__init__()
 
-    def process_table_file_removal(self, table_names):
-        super().process_table_file_removal("acoustic", table_names)
-
     def text_label(self, value):
         text = ""
         if isinstance(value, complex):
