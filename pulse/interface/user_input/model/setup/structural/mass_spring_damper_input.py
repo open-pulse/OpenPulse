@@ -1,5 +1,4 @@
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
@@ -10,12 +9,6 @@ from pulse.interface.user_input.model.setup.structural.structural_nodes_input im
 
 import numpy as np
 
-import numpy as np
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QLineEdit,
-    QTreeWidgetItem,
-)
 
 error_title ="Error"
 warning_title = "Warning"
@@ -288,7 +281,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
         if stop:
             return True
 
-        self.remove_properties_from_node(node_ids)
+        self.remove_properties_from_node(node_ids, properties = ["lumped_masses", "lumped_stiffness", "lumped_dampings"])
 
         if self.tabWidget_inputs.currentIndex() == 0:
             self.check_constant_values_inputs(node_ids)
@@ -296,7 +289,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
         elif self.tabWidget_inputs.currentIndex() == 1:
             self.check_table_values_inputs(node_ids)
 
-        self.actions_to_finalize(reset_camera=False)
+        self.actions_to_finalize()
 
     def check_entries(self, lineEdit: QLineEdit, label: str):
 
@@ -489,10 +482,10 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             PrintMessageInput([error_title, title, message])
             return
 
-        self.actions_to_finalize(reset_camera=False)
+        self.actions_to_finalize()
 
     def load_Mx_table(self):
-        self.imported_Mx_values, self.Mx_table_path = CommonUserInputs(self).load_table(
+        self.imported_Mx_values, self.Mx_table_path = self.load_table(
             self.lineEdit_Mx_table_path, 
             "lumped element", 
             dof_label="Mx",
@@ -502,7 +495,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Mx_table_path)
 
     def load_My_table(self):
-        self.imported_My_values, self.My_table_path = CommonUserInputs(self).load_table(
+        self.imported_My_values, self.My_table_path = self.load_table(
             self.lineEdit_My_table_path, 
             "lumped element", 
             dof_label="My",
@@ -512,7 +505,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_My_table_path)
 
     def load_Mz_table(self):
-        self.imported_Mz_values, self.Mz_table_path = CommonUserInputs(self).load_table(
+        self.imported_Mz_values, self.Mz_table_path = self.load_table(
             self.lineEdit_Mz_table_path, 
             "lumped element", 
             dof_label="Mz",
@@ -522,7 +515,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Mz_table_path)
 
     def load_Jx_table(self):
-        self.imported_Jx_values, self.Jx_table_path = CommonUserInputs(self).load_table(
+        self.imported_Jx_values, self.Jx_table_path = self.load_table(
             self.lineEdit_Jx_table_path, 
             "lumped element", 
             dof_label="Jx",
@@ -532,7 +525,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Jx_table_path)
 
     def load_Jy_table(self):
-        self.imported_Jy_values, self.Jy_table_path = CommonUserInputs(self).load_table(
+        self.imported_Jy_values, self.Jy_table_path = self.load_table(
             self.lineEdit_Jy_table_path, 
             "lumped element", 
             dof_label="Jy",
@@ -542,7 +535,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Jy_table_path)
 
     def load_Jz_table(self):
-        self.imported_Jz_values, self.Jz_table_path = CommonUserInputs(self).load_table(
+        self.imported_Jz_values, self.Jz_table_path = self.load_table(
             self.lineEdit_Jz_table_path, 
             "lumped element", 
             dof_label="Jz",
@@ -552,7 +545,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Jz_table_path)
 
     def load_Kx_table(self):
-        self.imported_Kx_values, self.Kx_table_path = CommonUserInputs(self).load_table(
+        self.imported_Kx_values, self.Kx_table_path = self.load_table(
             self.lineEdit_Kx_table_path, 
             "lumped element", 
             dof_label="Kx",
@@ -562,7 +555,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Kx_table_path)
 
     def load_Ky_table(self):
-        self.imported_Ky_values, self.Ky_table_path = CommonUserInputs(self).load_table(
+        self.imported_Ky_values, self.Ky_table_path = self.load_table(
             self.lineEdit_Ky_table_path, 
             "lumped element", 
             dof_label="Ky",
@@ -572,7 +565,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Ky_table_path)
 
     def load_Kz_table(self):
-        self.imported_Kz_values, self.Kz_table_path = CommonUserInputs(self).load_table(
+        self.imported_Kz_values, self.Kz_table_path = self.load_table(
             self.lineEdit_Kz_table_path, 
             "lumped element", 
             dof_label="Kz",
@@ -582,7 +575,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Kz_table_path)
 
     def load_Krx_table(self):
-        self.imported_Krx_values, self.Krx_table_path = CommonUserInputs(self).load_table(
+        self.imported_Krx_values, self.Krx_table_path = self.load_table(
             self.lineEdit_Krx_table_path, 
             "lumped element", 
             dof_label="Krx",
@@ -592,7 +585,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Krx_table_path)
 
     def load_Kry_table(self):
-        self.imported_Kry_values, self.Kry_table_path = CommonUserInputs(self).load_table(
+        self.imported_Kry_values, self.Kry_table_path = self.load_table(
             self.lineEdit_Kry_table_path, 
             "lumped element", 
             dof_label="Kry",
@@ -602,7 +595,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Kry_table_path)
 
     def load_Krz_table(self):
-        self.imported_Krz_values, self.Krz_table_path = CommonUserInputs(self).load_table(
+        self.imported_Krz_values, self.Krz_table_path = self.load_table(
             self.lineEdit_Krz_table_path, 
             "lumped element", 
             dof_label="Krz",
@@ -612,7 +605,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Krz_table_path)
 
     def load_Cx_table(self):
-        self.imported_Cx_values, self.Cx_table_path = CommonUserInputs(self).load_table(
+        self.imported_Cx_values, self.Cx_table_path = self.load_table(
             self.lineEdit_Cx_table_path, 
             "lumped element", 
             dof_label="Cx",
@@ -622,7 +615,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Cx_table_path)
 
     def load_Cy_table(self):
-        self.imported_Cy_values, self.Cy_table_path = CommonUserInputs(self).load_table(
+        self.imported_Cy_values, self.Cy_table_path = self.load_table(
             self.lineEdit_Cy_table_path, 
             "lumped element", 
             dof_label="Cy",
@@ -632,7 +625,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Cy_table_path)
 
     def load_Cz_table(self):
-        self.imported_Cz_values, self.Cz_table_path = CommonUserInputs(self).load_table(
+        self.imported_Cz_values, self.Cz_table_path = self.load_table(
             self.lineEdit_Cz_table_path, 
             "lumped element", 
             dof_label="Cz",
@@ -642,7 +635,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Cz_table_path)
 
     def load_Crx_table(self):
-        self.imported_Crx_values, self.Crx_table_path = CommonUserInputs(self).load_table(
+        self.imported_Crx_values, self.Crx_table_path = self.load_table(
             self.lineEdit_Crx_table_path, 
             "lumped element", 
             dof_label="Crx",
@@ -652,7 +645,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Crx_table_path)
 
     def load_Cry_table(self):
-        self.imported_Cry_values, self.Cry_table_path = CommonUserInputs(self).load_table(
+        self.imported_Cry_values, self.Cry_table_path = self.load_table(
             self.lineEdit_Cry_table_path, 
             "lumped element", 
             dof_label="Cry",
@@ -662,7 +655,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             self.line_edit_reset(self.lineEdit_Cry_table_path)
 
     def load_Crz_table(self):
-        self.imported_Crz_values, self.Crz_table_path = CommonUserInputs(self).load_table(
+        self.imported_Crz_values, self.Crz_table_path = self.load_table(
             self.lineEdit_Crz_table_path, 
             "lumped element", 
             dof_label="Crz",
@@ -670,10 +663,6 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
 
         if self.Crz_table_path is None:
             self.line_edit_reset(self.lineEdit_Crz_table_path)
-
-    def line_edit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
-        lineEdit.setFocus()
 
     def save_table_values(self, table_name: str, imported_values: np.ndarray):
 
@@ -690,7 +679,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             PrintMessageInput([error_title, title, message])
             return True
 
-        update_analysis_setup_in_file(_frequencies)
+        self.update_analysis_setup_in_file(_frequencies)
 
         # real values vector
         real_values = imported_values[:, 1]
@@ -719,12 +708,12 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             if _imported_values is None:
                 line_edit = getattr(self, f"lineEdit_{label}_table_path")
 
-                _imported_values, _table_path = CommonUserInputs(self).load_table(line_edit, "lumped element", dof_label=label, direct_load=True)
+                _imported_values, _table_path = self.load_table(line_edit, "lumped element", dof_label=label, direct_load=True)
                 setattr(self, imported_values_name, _imported_values)
                 setattr(self, table_path_name, _table_path)
 
             _table_path_attr = getattr(self, table_path_name)
-            table_paths.append(_table_path_attr)
+            table_paths.append(str(_table_path_attr))
 
         for node_id in node_ids:
 
@@ -736,7 +725,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
 
                 _table_name = None
                 if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"lumped_{label}", node_id=node_id)
+                    _table_name = self.get_table_name(f"lumped_{label}", node_id=node_id)
                     if self.save_table_values(_table_name, _imported_values):
                         return
 
@@ -771,12 +760,12 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             if _imported_values is None:
                 line_edit = getattr(self, f"lineEdit_{label}_table_path")
 
-                _imported_values, _table_path = CommonUserInputs(self).load_table(line_edit, "lumped element", dof_label=label, direct_load=True)
+                _imported_values, _table_path = self.load_table(line_edit, "lumped element", dof_label=label, direct_load=True)
                 setattr(self, imported_values_name, _imported_values)
                 setattr(self, table_path_name, _table_path)
 
             _table_path_attr = getattr(self, table_path_name)
-            table_paths.append(_table_path_attr)
+            table_paths.append(str(_table_path_attr))
 
         for node_id in node_ids:
 
@@ -788,7 +777,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
 
                 _table_name = None
                 if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"lumped_{label}", node_id=node_id)
+                    _table_name = self.get_table_name(f"lumped_{label}", node_id=node_id)
                     if self.save_table_values(_table_name, _imported_values):
                         return
 
@@ -822,12 +811,12 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             if _imported_values is None:
                 line_edit = getattr(self, f"lineEdit_{label}_table_path")
 
-                _imported_values, _table_path = CommonUserInputs(self).load_table(line_edit, "lumped element", dof_label=label, direct_load=True)
+                _imported_values, _table_path = self.load_table(line_edit, "lumped element", dof_label=label, direct_load=True)
                 setattr(self, imported_values_name, _imported_values)
                 setattr(self, table_path_name, _table_path)
 
             _table_path_attr = getattr(self, table_path_name)
-            table_paths.append(_table_path_attr)
+            table_paths.append(str(_table_path_attr))
 
         for node_id in node_ids:
 
@@ -839,7 +828,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
 
                 _table_name = None
                 if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"lumped_{label}", node_id=node_id)
+                    _table_name = self.get_table_name(f"lumped_{label}", node_id=node_id)
                     if self.save_table_values(_table_name, _imported_values):
                         return
 
@@ -879,15 +868,6 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
 
         self.actions_to_finalize()
 
-    def remove_properties_from_node(self, node_ids: int | list | tuple):
-
-        properties = ["lumped_masses", "lumped_stiffness", "lumped_dampings"]
-
-        for _property in properties:
-            self.properties._remove_nodal_property(_property, node_ids)
-
-        app().project.file.write_nodal_properties_in_file()
-
     def remove_callback(self):
 
         if self.lineEdit_node_ids.text() == "":
@@ -912,7 +892,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
         if self.checkBox_remove_damper.isChecked():
             self.properties._remove_nodal_property("lumped_dampings", node_ids)
 
-        self.actions_to_finalize(reset_camera=False)
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -970,10 +950,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
 
     def actions_to_finalize(self):
         self.reset_table_variables()
-        app().project.file.write_nodal_properties_in_file()
-        app().project.file.write_imported_table_data_in_file()
-        app().main_window.update_plots(reset_camera=False)
-        self.load_nodes_info()
+        super().actions_to_finalize(reset_camera=False)
 
     def load_nodes_info(self):
 
@@ -1068,11 +1045,3 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
             lineEdit_constant_dampings.clear()
         for lineEdit_table_dampings in self.table_values_lumped_dampings:
             lineEdit_table_dampings.clear()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
-            self.close()

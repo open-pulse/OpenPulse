@@ -19,9 +19,8 @@ class NodesInput(UserInput):
         if isinstance(properties, str):
             properties = [properties]
 
-        for node_id in node_ids:
-            for _property in properties:
-                self.properties._remove_nodal_property(_property, node_id)
+        for _property in properties:
+            self.properties._remove_nodal_property(_property, node_ids)
 
         app().project.file.write_nodal_properties_in_file()
 
