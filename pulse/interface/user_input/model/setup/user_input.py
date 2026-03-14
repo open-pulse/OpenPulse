@@ -43,7 +43,7 @@ class UserInput(QDialog):
 
         icons.change_icon_color_for_widgets(widgets, icon_color)
     
-    def _check_table_frequency_vector(frequencies: np.ndarray):
+    def _check_table_frequency_vector(self, frequencies: np.ndarray):
         if len(frequencies) == 1:
             return False
 
@@ -58,7 +58,10 @@ class UserInput(QDialog):
 
         try:
             if direct_load:
-                table_path = line_edit.text()
+                table_path = Path(line_edit.text())
+
+                if not table_path.name:
+                    return None, None
 
             else:
 

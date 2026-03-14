@@ -1,6 +1,5 @@
 import numpy as np
 
-from pulse import app
 from pulse.interface.user_input.model.setup.nodes_input import NodesInput
 
 
