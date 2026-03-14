@@ -671,7 +671,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
                 setattr(self, table_path_name, _table_path)
 
             _table_path_attr = getattr(self, table_path_name)
-            table_paths.append(str(_table_path_attr))
+            table_paths.append(_table_path_attr)
 
         table_names = list()
 
@@ -696,6 +696,8 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
             for node_id in node_ids_pair:
                 node = app().project.model.preprocessor.nodes[node_id]
                 coords.extend(list(np.round(node.coordinates, 5)))
+            
+            table_paths = [str(path) if path is not None else None for path in table_paths]
 
             data = {
                 "coords": coords,

@@ -548,7 +548,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
 
             node = app().project.model.preprocessor.nodes[node_id]
             coords = np.round(node.coordinates, 5)
-
+        
             data = {
                 "coords": list(coords),
                 "table_names": table_names,

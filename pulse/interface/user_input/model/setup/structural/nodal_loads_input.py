@@ -2,7 +2,7 @@ from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui import (
@@ -19,6 +19,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.model.setup.structural.structural_nodes_input import (
     StructuralNodesInput,
 )
+
 
 class TabType(IntEnum):
     CONSTANT = 0
@@ -55,23 +56,23 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
     def create_widgets_lists(self):
 
-        self.list_lineEdit_constant_values = [  
+        self.list_lineEdit_constant_values = [
             [self.lineEdit_real_fx, self.lineEdit_imag_fx],
             [self.lineEdit_real_fy, self.lineEdit_imag_fy],
             [self.lineEdit_real_fz, self.lineEdit_imag_fz],
             [self.lineEdit_real_mx, self.lineEdit_imag_mx],
             [self.lineEdit_real_my, self.lineEdit_imag_my],
             [self.lineEdit_real_mz, self.lineEdit_imag_mz],
-            ]
+        ]
 
-        self.list_lineEdit_table_values = [ 
+        self.list_lineEdit_table_values = [
             self.lineEdit_fx_table_path,
             self.lineEdit_fy_table_path,
             self.lineEdit_fz_table_path,
             self.lineEdit_mx_table_path,
             self.lineEdit_my_table_path,
             self.lineEdit_mz_table_path,
-            ]
+        ]
 
     def reset_table_variables(self):
 
@@ -177,8 +178,8 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
         if _real == 0 and _imag == 0:
             return stop, None
         else:
-            return stop, _real + 1j*_imag
-        
+            return stop, _real + 1j * _imag
+
     def attribution_callback(self):
         tab_index = self.tabWidget_nodal_loads.currentIndex()
         if tab_index == TabType.CONSTANT:
@@ -232,99 +233,98 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             return
 
         nodal_loads = [Fx, Fy, Fz, Mx, My, Mz]
-        
+
         if nodal_loads.count(None) == 6:
             self.hide()
             title = "Additional inputs required"
             message = "You must to inform at least one nodal load "
             message += "before confirming the input!"
-            PrintMessageInput([error_title, title, message]) 
+            PrintMessageInput([error_title, title, message])
             return
 
-        self.remove_properties_from_node(node_ids)
+        self.remove_properties_from_node(node_ids, ["prescribed_dofs"])
 
-        real_values = [value if value is None else np.real(value) for value in nodal_loads]
-        imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
+        real_values = [
+            value if value is None else np.real(value) for value in nodal_loads
+        ]
+        imag_values = [
+            value if value is None else np.imag(value) for value in nodal_loads
+        ]
 
         for node_id in node_ids:
-
             node = app().project.model.preprocessor.nodes[node_id]
             coords = np.round(node.coordinates, 5)
 
             data = {
-                    "coords" : list(coords),
-                    "values" : nodal_loads,
-                    "real_values" : real_values,
-                    "imag_values" : imag_values
-                    }
+                "coords": list(coords),
+                "values": nodal_loads,
+                "real_values": real_values,
+                "imag_values": imag_values,
+            }
 
             self.properties._set_nodal_property("nodal_loads", data, node_id)
 
         self.actions_to_finalize()
 
     def load_fx_table(self):
-        self.imported_fx_values, self.fx_table_path = CommonUserInputs(self).load_table(
-            self.lineEdit_fx_table_path, 
-            "nodal loads", 
+        self.imported_fx_values, self.fx_table_path = self.load_table(
+            self.lineEdit_fx_table_path,
+            "nodal loads",
             dof_label="Fx",
-            )
+        )
 
         if self.fx_table_path is None:
             self.line_edit_reset(self.lineEdit_fx_table_path)
 
     def load_fy_table(self):
-        self.imported_fy_values, self.fy_table_path = CommonUserInputs(self).load_table(
-            self.lineEdit_fy_table_path, 
-            "nodal loads", 
+        self.imported_fy_values, self.fy_table_path = self.load_table(
+            self.lineEdit_fy_table_path,
+            "nodal loads",
             dof_label="Fy",
-            )
+        )
 
         if self.fy_table_path is None:
             self.line_edit_reset(self.lineEdit_fy_table_path)
 
     def load_fz_table(self):
-        self.imported_fz_values, self.fz_table_path = CommonUserInputs(self).load_table(
-            self.lineEdit_fz_table_path, 
-            "nodal loads", 
+        self.imported_fz_values, self.fz_table_path = self.load_table(
+            self.lineEdit_fz_table_path,
+            "nodal loads",
             dof_label="Fz",
-            )
+        )
 
         if self.fz_table_path is None:
             self.line_edit_reset(self.lineEdit_fz_table_path)
 
     def load_mx_table(self):
-        self.imported_mx_values, self.mx_table_path = CommonUserInputs(self).load_table(
-            self.lineEdit_mx_table_path, 
-            "nodal loads", 
+        self.imported_mx_values, self.mx_table_path = self.load_table(
+            self.lineEdit_mx_table_path,
+            "nodal loads",
             dof_label="Mx",
-            )
+        )
 
         if self.mx_table_path is None:
             self.line_edit_reset(self.lineEdit_mx_table_path)
 
     def load_my_table(self):
-        self.imported_my_values, self.my_table_path = CommonUserInputs(self).load_table(
-            self.lineEdit_my_table_path, 
-            "nodal loads", 
+        self.imported_my_values, self.my_table_path = self.load_table(
+            self.lineEdit_my_table_path,
+            "nodal loads",
             dof_label="My",
-            )
+        )
 
         if self.my_table_path is None:
             self.line_edit_reset(self.lineEdit_my_table_path)
 
     def load_mz_table(self):
-        self.imported_mz_values, self.mz_table_path = CommonUserInputs(self).load_table(
-            self.lineEdit_mz_table_path, 
-            "nodal loads", 
+        self.imported_mz_values, self.mz_table_path = self.load_table(
+            self.lineEdit_mz_table_path,
+            "nodal loads",
             dof_label="Mz",
-            )
+        )
 
         if self.mz_table_path is None:
             self.line_edit_reset(self.lineEdit_mz_table_path)
-
-    def line_edit_reset(self, lineEdit : QLineEdit):
-        lineEdit.clear()
-        lineEdit.setFocus() 
 
     def save_table_values(self, table_name: str, imported_values: np.ndarray):
 
@@ -341,11 +341,11 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             PrintMessageInput([error_title, title, message])
             return True
 
-        update_analysis_setup_in_file(_frequencies)
+        self.update_analysis_setup_in_file(_frequencies)
 
         # real values vector
         real_values = imported_values[:, 1]
-        
+
         # imaginary values vector
         imag_values = imported_values[:, 2]
 
@@ -364,13 +364,12 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             self.lineEdit_node_ids.setFocus()
             return
 
-        self.remove_properties_from_node(node_ids)
+        self.remove_properties_from_node(node_ids, ["prescribed_dofs"])
 
         table_paths = list()
         load_labels = ["fx", "fy", "fz", "mx", "my", "mz"]
 
         for label in load_labels:
-
             table_path_name = f"{label}_table_path"
             imported_values_name = f"imported_{label}_values"
             _imported_values = getattr(self, imported_values_name)
@@ -378,15 +377,16 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             if _imported_values is None:
                 line_edit = getattr(self, f"lineEdit_{label}_table_path")
 
-                _imported_values, _table_path = CommonUserInputs(self).load_table(line_edit, "nodal loads", dof_label=label, direct_load=True)
+                _imported_values, _table_path = self.load_table(
+                    line_edit, "nodal loads", dof_label=label, direct_load=True
+                )
                 setattr(self, imported_values_name, _imported_values)
                 setattr(self, table_path_name, _table_path)
 
             _table_path_attr = getattr(self, table_path_name)
-            table_paths.append(_table_path_attr)
+            table_paths.append(str(_table_path_attr))
 
         for node_id in node_ids:
-
             table_names = list()
 
             for label in load_labels:
@@ -395,7 +395,9 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
                 _table_name = None
                 if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"nodal_load_{label}", node_id=node_id)
+                    _table_name = self.get_table_name(
+                        f"nodal_load_{label}", node_id=node_id
+                    )
                     if self.save_table_values(_table_name, _imported_values):
                         return
 
@@ -412,10 +414,10 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             coords = np.round(node.coordinates, 5)
 
             data = {
-                "coords" : list(coords),
-                "table_names" : table_names,
-                "table_paths" : table_paths,
-                }
+                "coords": list(coords),
+                "table_names": table_names,
+                "table_paths": table_paths,
+            }
 
             self.properties._set_nodal_property("nodal_loads", data, node_id)
 
@@ -512,17 +514,6 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
         self.show()
 
-    def remove_properties_from_node(self, node_ids: int | list | tuple):
-
-        if isinstance(node_ids, int):
-            node_ids = [node_ids]
-
-        for node_id in node_ids:
-            for label in ["prescribed_dofs"]:
-                self.properties._remove_nodal_property(label, node_id)
-
-        app().project.file.write_nodal_properties_in_file()
-
     def remove_callback(self):
 
         if self.lineEdit_node_ids.text() == "":
@@ -567,10 +558,7 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
     def actions_to_finalize(self):
         self.reset_table_variables()
-        app().project.file.write_nodal_properties_in_file()
-        app().project.file.write_imported_table_data_in_file()
-        self.load_nodes_info()
-        app().main_window.update_plots(reset_camera=False)
+        super().actions_to_finalize(reset_camera=False)
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.clear()
