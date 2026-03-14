@@ -1,4 +1,6 @@
 import numpy as np
+from functools import partial
+
 from PySide6.QtCore import QEvent, QObject, Qt, Signal
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 
@@ -56,19 +58,19 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         self.Cry_table_path = None
         self.Crz_table_path = None
 
-        self.imported_Kx_values = None
-        self.imported_Ky_values = None
-        self.imported_Kz_values = None
-        self.imported_Krx_values = None
-        self.imported_Kry_values = None
-        self.imported_Krz_values = None
+        self.imported_kx_values = None
+        self.imported_ky_values = None
+        self.imported_kz_values = None
+        self.imported_krx_values = None
+        self.imported_kry_values = None
+        self.imported_krz_values = None
 
-        self.imported_Cx_values = None
-        self.imported_Cy_values = None
-        self.imported_Cz_values = None
-        self.imported_Crx_values = None
-        self.imported_Cry_values = None
-        self.imported_Crz_values = None
+        self.imported_cx_values = None
+        self.imported_cy_values = None
+        self.imported_cz_values = None
+        self.imported_crx_values = None
+        self.imported_cry_values = None
+        self.imported_crz_values = None
 
     def create_widgets_lists(self):
 
@@ -162,19 +164,19 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
 
-        self.pushButton_load_Cx_table.clicked.connect(self.load_Cx_table)
-        self.pushButton_load_Cy_table.clicked.connect(self.load_Cy_table)
-        self.pushButton_load_Cz_table.clicked.connect(self.load_Cz_table)
-        self.pushButton_load_Crx_table.clicked.connect(self.load_Crx_table)
-        self.pushButton_load_Cry_table.clicked.connect(self.load_Cry_table)
-        self.pushButton_load_Crz_table.clicked.connect(self.load_Crz_table)
+        self.pushButton_load_Cx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Cx_table_path, dof_label="Cx"))
+        self.pushButton_load_Cy_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Cy_table_path, dof_label="Cy"))
+        self.pushButton_load_Cz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Cz_table_path, dof_label="Cz"))
+        self.pushButton_load_Crx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Crx_table_path, dof_label="Crx"))
+        self.pushButton_load_Cry_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Cry_table_path, dof_label="Cry"))
+        self.pushButton_load_Crz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Crz_table_path, dof_label="Crz"))
 
-        self.pushButton_load_Kx_table.clicked.connect(self.load_Kx_table)
-        self.pushButton_load_Ky_table.clicked.connect(self.load_Ky_table)
-        self.pushButton_load_Kz_table.clicked.connect(self.load_Kz_table)
-        self.pushButton_load_Krx_table.clicked.connect(self.load_Krx_table)
-        self.pushButton_load_Kry_table.clicked.connect(self.load_Kry_table)
-        self.pushButton_load_Krz_table.clicked.connect(self.load_Krz_table)
+        self.pushButton_load_Kx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Kx_table_path, dof_label="Kx"))
+        self.pushButton_load_Ky_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Ky_table_path, dof_label="Ky"))
+        self.pushButton_load_Kz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Kz_table_path, dof_label="Kz"))
+        self.pushButton_load_Krx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Krx_table_path, dof_label="Krx"))
+        self.pushButton_load_Kry_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Kry_table_path, dof_label="Kry"))
+        self.pushButton_load_Krz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Krz_table_path, dof_label="Krz"))
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
@@ -293,26 +295,6 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
             return True, None
 
         return False, sorted([node_id1, node_id2])
-
-    def check_entries(self, lineEdit: QLineEdit, label: str):
-
-        str_value = lineEdit.text()
-        if str_value != "":
-            try:
-                str_value = str_value.replace(",", ".")
-                value = float(str_value)
-            except Exception:
-                title = f"Invalid entry to the {label}"
-                message = f"Wrong input for {label}."
-                PrintMessageInput([error_title, title, message])
-                return True, None
-        else:
-            value = 0
-
-        if value == 0:
-            return False, None
-        else:
-            return False, value
 
     def check_constant_stiffness_links(self, node_ids: list):
 
@@ -440,130 +422,9 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
         self.reset_nodes_input_fields()
         self.actions_to_finalize()
-
-    def load_Kx_table(self):
-        self.imported_Kx_values, self.Kx_table_path = self.load_table(
-            self.lineEdit_Kx_table_path,
-            "nodal link",
-            dof_label="Kx",
-        )
-
-        if self.Kx_table_path is None:
-            self.line_edit_reset(self.lineEdit_Kx_table_path)
-
-    def load_Ky_table(self):
-        self.imported_Ky_values, self.Ky_table_path = self.load_table(
-            self.lineEdit_Ky_table_path,
-            "nodal link",
-            dof_label="Ky",
-        )
-
-        if self.Ky_table_path is None:
-            self.line_edit_reset(self.lineEdit_Ky_table_path)
-
-    def load_Kz_table(self):
-        self.imported_Kz_values, self.Kz_table_path = self.load_table(
-            self.lineEdit_Kz_table_path,
-            "nodal link",
-            dof_label="Kz",
-        )
-
-        if self.Kz_table_path is None:
-            self.line_edit_reset(self.lineEdit_Kz_table_path)
-
-    def load_Krx_table(self):
-        self.imported_Krx_values, self.Krx_table_path = self.load_table(
-            self.lineEdit_Krx_table_path,
-            "nodal link",
-            dof_label="Krx",
-        )
-
-        if self.Krx_table_path is None:
-            self.line_edit_reset(self.lineEdit_Krx_table_path)
-
-    def load_Kry_table(self):
-        self.imported_Kry_values, self.Kry_table_path = self.load_table(
-            self.lineEdit_Kry_table_path,
-            "nodal link",
-            dof_label="Kry",
-        )
-
-        if self.Kry_table_path is None:
-            self.line_edit_reset(self.lineEdit_Kry_table_path)
-
-    def load_Krz_table(self):
-        self.imported_Krz_values, self.Krz_table_path = self.load_table(
-            self.lineEdit_Krz_table_path,
-            "nodal link",
-            dof_label="Krz",
-        )
-
-        if self.Krz_table_path is None:
-            self.line_edit_reset(self.lineEdit_Krz_table_path)
-
-    def load_Cx_table(self):
-        self.imported_Cx_values, self.Cx_table_path = self.load_table(
-            self.lineEdit_Cx_table_path,
-            "nodal link",
-            dof_label="Cx",
-        )
-
-        if self.Cx_table_path is None:
-            self.line_edit_reset(self.lineEdit_Cx_table_path)
-
-    def load_Cy_table(self):
-        self.imported_Cy_values, self.Cy_table_path = self.load_table(
-            self.lineEdit_Cy_table_path,
-            "nodal link",
-            dof_label="Cy",
-        )
-
-        if self.Cy_table_path is None:
-            self.line_edit_reset(self.lineEdit_Cy_table_path)
-
-    def load_Cz_table(self):
-        self.imported_Cz_values, self.Cz_table_path = self.load_table(
-            self.lineEdit_Cz_table_path,
-            "nodal link",
-            dof_label="Cz",
-        )
-
-        if self.Cz_table_path is None:
-            self.line_edit_reset(self.lineEdit_Cz_table_path)
-
-    def load_Crx_table(self):
-        self.imported_Crx_values, self.Crx_table_path = self.load_table(
-            self.lineEdit_Crx_table_path,
-            "nodal link",
-            dof_label="Crx",
-        )
-
-        if self.Crx_table_path is None:
-            self.line_edit_reset(self.lineEdit_Crx_table_path)
-
-    def load_Cry_table(self):
-        self.imported_Cry_values, self.Cry_table_path = self.load_table(
-            self.lineEdit_Cry_table_path,
-            "nodal link",
-            dof_label="Cry",
-        )
-
-        if self.Cry_table_path is None:
-            self.line_edit_reset(self.lineEdit_Cry_table_path)
-
-    def load_Crz_table(self):
-        self.imported_Crz_values, self.Crz_table_path = self.load_table(
-            self.lineEdit_Crz_table_path,
-            "nodal link",
-            dof_label="Crz",
-        )
-
-        if self.Crz_table_path is None:
-            self.line_edit_reset(self.lineEdit_Crz_table_path)
-
-    def line_edit_reset(self, lineEdit: QLineEdit):
-        lineEdit.clear()
-        lineEdit.setFocus()
+    
+    def load_table_for_line_edit(self, line_edit, dof_label):
+        return super().load_table_for_line_edit(line_edit, dof_label, "nodal link")
 
     def save_table_values(self, table_name: str, imported_values: np.ndarray):
 
@@ -602,7 +463,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
         for label in link_labels:
             table_path_name = f"{label}_table_path"
-            imported_values_name = f"imported_{label}_values"
+            imported_values_name = f"imported_{label.lower()}_values"
             _imported_values = getattr(self, imported_values_name)
 
             if _imported_values is None:
@@ -620,7 +481,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         table_names = list()
 
         for label in link_labels:
-            imported_values_name = f"imported_{label}_values"
+            imported_values_name = f"imported_{label.lower()}_values"
             _imported_values = getattr(self, imported_values_name)
 
             _table_name = None
@@ -658,7 +519,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
         for label in link_labels:
             table_path_name = f"{label}_table_path"
-            imported_values_name = f"imported_{label}_values"
+            imported_values_name = f"imported_{label.lower()}_values"
             _imported_values = getattr(self, imported_values_name)
 
             if _imported_values is None:
@@ -676,7 +537,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         table_names = list()
 
         for label in link_labels:
-            imported_values_name = f"imported_{label}_values"
+            imported_values_name = f"imported_{label.lower()}_values"
             _imported_values = getattr(self, imported_values_name)
 
             _table_name = None
