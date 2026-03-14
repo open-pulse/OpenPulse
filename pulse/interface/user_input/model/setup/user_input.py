@@ -2,10 +2,15 @@ from abc import abstractmethod
 
 from molde.colors import color_names
 from PySide6.QtGui import QCloseEvent, QColor, Qt
-from PySide6.QtWidgets import QDialog, QWidget
+from PySide6.QtWidgets import QDialog, QWidget, QLineEdit
 
 from pulse import app
 from pulse.interface.formatters import icons
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
+from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
+from pathlib import Path
+import numpy as np
 
 
 class UserInput(QDialog):
@@ -37,6 +42,70 @@ class UserInput(QDialog):
         widgets = self.findChildren(QWidget)
 
         icons.change_icon_color_for_widgets(widgets, icon_color)
+    
+    def _check_table_frequency_vector(frequencies: np.ndarray):
+        if len(frequencies) == 1:
+            return False
+
+        f_steps = frequencies[1:] - frequencies[:-1]
+
+        return not np.allclose(f_steps, f_steps[0], atol=1e-8)
+    
+    def load_table(self, line_edit: QLineEdit, bc_label: str, dof_label: str = "", direct_load: bool = False):
+
+        error_title = "Error"
+        title = "Error while loading table"
+
+        try:
+            if direct_load:
+                table_path = line_edit.text()
+
+            else:
+
+                last_path = app().main_window.config.get_last_folder_for("imported_table_folder")
+                if last_path is None:
+                    last_path = str(Path().home())
+
+                caption = f"Choose a table to import the {bc_label}"
+                if dof_label != "":
+                    caption += f" ({dof_label})"
+                
+                extensions = ["csv", "dat", "txt"]
+
+                table_path = FileDialogService.open_file(extensions, caption, last_path)
+
+                if not table_path.exists():
+                    return None, None
+
+            line_edit.setText(str(table_path))
+            imported_file = FileManager().read_text_file(table_path)         
+            imported_data = imported_file.data
+
+            if imported_data.shape[1] < 3:
+                self.parent().hide()
+                message = "The imported table has an insufficient number of columns. The spectrum "
+                message += "data must have frequencies, real and imaginary columns."
+                PrintMessageInput([error_title, title, message])
+                line_edit.setFocus()
+                return None, None
+           
+            if self._check_table_frequency_vector(imported_data[:, 0]):
+                self.parent().hide()
+                message = "The frequencies vector from imported table has a non-uniform frequency "
+                message += "spacing. The frequencies vector must be equally spaced."
+                PrintMessageInput([error_title, title, message])
+                line_edit.setFocus()
+                return None, None
+
+            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", table_path)
+
+            return imported_data, table_path
+
+        except Exception as log_error:
+            message = str(log_error)
+            PrintMessageInput([error_title, title, message])
+            line_edit.setFocus()
+            return None, None
 
     @abstractmethod
     def selection_callback(self):
