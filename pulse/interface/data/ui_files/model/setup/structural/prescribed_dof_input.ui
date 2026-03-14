@@ -3,7 +3,7 @@
  <class>Dialog</class>
  <widget class="QDialog" name="Dialog">
   <property name="windowModality">
-   <enum>Qt::WindowModality::WindowModal</enum>
+   <enum>Qt::NonModal</enum>
   </property>
   <property name="geometry">
    <rect>
@@ -32,7 +32,7 @@
    </size>
   </property>
   <property name="contextMenuPolicy">
-   <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
+   <enum>Qt::NoContextMenu</enum>
   </property>
   <property name="windowTitle">
    <string/>
@@ -75,10 +75,7 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Shape::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Shadow::Raised</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
       <property name="leftMargin">
@@ -104,7 +101,7 @@
          </font>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab_constant_values">
          <attribute name="title">
@@ -134,10 +131,7 @@
              </font>
             </property>
             <property name="frameShape">
-             <enum>QFrame::Shape::NoFrame</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Shadow::Raised</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_8">
              <property name="leftMargin">
@@ -156,7 +150,7 @@
               <number>8</number>
              </property>
              <item row="1" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_ux">
+              <widget class="QLineEdit" name="lineEdit_imag_Ux">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -172,14 +166,12 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -205,13 +197,10 @@
                <property name="text">
                 <string>Imaginary</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
-               </property>
               </widget>
              </item>
              <item row="6" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_rz">
+              <widget class="QLineEdit" name="lineEdit_real_Rz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -227,14 +216,12 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -260,13 +247,10 @@
                <property name="text">
                 <string>Real</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
-               </property>
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_uz">
+              <widget class="QLineEdit" name="lineEdit_real_Uz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -282,19 +266,17 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_ry">
+              <widget class="QLineEdit" name="lineEdit_real_Ry">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -310,19 +292,17 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
-               </property>
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_ux">
+              <widget class="QLineEdit" name="lineEdit_real_Ux">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -338,6 +318,7 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -347,13 +328,10 @@
                <property name="text">
                 <string/>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
-               </property>
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_uz">
+              <widget class="QLineEdit" name="lineEdit_imag_Uz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -369,14 +347,12 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -402,9 +378,6 @@
                <property name="text">
                 <string>Uz:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="2" column="4">
@@ -418,6 +391,7 @@
                <property name="font">
                 <font>
                  <pointsize>9</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -460,9 +434,6 @@
                <property name="text">
                 <string>Ry:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="1" column="1">
@@ -490,13 +461,10 @@
                <property name="text">
                 <string>Ux:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="5" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_ry">
+              <widget class="QLineEdit" name="lineEdit_imag_Ry">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -512,14 +480,12 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -538,10 +504,7 @@
                 </size>
                </property>
                <property name="frameShape">
-                <enum>QFrame::Shape::NoFrame</enum>
-               </property>
-               <property name="frameShadow">
-                <enum>QFrame::Shadow::Raised</enum>
+                <enum>QFrame::NoFrame</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_14">
                 <property name="leftMargin">
@@ -573,6 +536,7 @@
                   <property name="font">
                    <font>
                     <pointsize>10</pointsize>
+                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -604,6 +568,7 @@
                   <property name="font">
                    <font>
                     <pointsize>10</pointsize>
+                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -638,6 +603,7 @@
                <property name="font">
                 <font>
                  <pointsize>9</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -680,9 +646,6 @@
                <property name="text">
                 <string>Uy:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="1" column="4">
@@ -696,6 +659,7 @@
                <property name="font">
                 <font>
                  <pointsize>9</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -738,9 +702,6 @@
                <property name="text">
                 <string>Rz:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="3" column="4">
@@ -754,6 +715,7 @@
                <property name="font">
                 <font>
                  <pointsize>9</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -775,7 +737,7 @@
               </widget>
              </item>
              <item row="4" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_rx">
+              <widget class="QLineEdit" name="lineEdit_real_Rx">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -791,22 +753,17 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
-               </property>
               </widget>
              </item>
              <item row="1" column="5">
               <spacer name="horizontalSpacer_6">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -816,7 +773,7 @@
               </spacer>
              </item>
              <item row="6" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_rz">
+              <widget class="QLineEdit" name="lineEdit_imag_Rz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -832,14 +789,12 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -865,13 +820,10 @@
                <property name="text">
                 <string>Rx:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="4" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_rx">
+              <widget class="QLineEdit" name="lineEdit_imag_Rx">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -887,14 +839,12 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -909,6 +859,7 @@
                <property name="font">
                 <font>
                  <pointsize>9</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -931,9 +882,6 @@
              </item>
              <item row="1" column="0">
               <spacer name="horizontalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -943,7 +891,7 @@
               </spacer>
              </item>
              <item row="2" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_uy">
+              <widget class="QLineEdit" name="lineEdit_imag_Uy">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -959,14 +907,12 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -981,6 +927,7 @@
                <property name="font">
                 <font>
                  <pointsize>9</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
@@ -1002,7 +949,7 @@
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_uy">
+              <widget class="QLineEdit" name="lineEdit_real_Uy">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -1018,14 +965,12 @@
                <property name="font">
                 <font>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <bold>false</bold>
                 </font>
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -1057,10 +1002,7 @@
           <item row="1" column="0">
            <widget class="QFrame" name="frame_9">
             <property name="frameShape">
-             <enum>QFrame::Shape::NoFrame</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Shadow::Raised</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_3">
              <property name="leftMargin">
@@ -1082,7 +1024,7 @@
               <number>7</number>
              </property>
              <item row="4" column="1">
-              <widget class="QLineEdit" name="lineEdit_ry_table_path">
+              <widget class="QLineEdit" name="lineEdit_Ry_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1098,16 +1040,13 @@
                  <height>26</height>
                 </size>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
-               </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
              <item row="4" column="2">
-              <widget class="QPushButton" name="pushButton_load_ry_table">
+              <widget class="QPushButton" name="pushButton_load_Ry_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1167,9 +1106,6 @@
                <property name="text">
                 <string>Ry:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="5" column="0">
@@ -1197,13 +1133,10 @@
                <property name="text">
                 <string>Rz:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QLineEdit" name="lineEdit_rz_table_path">
+              <widget class="QLineEdit" name="lineEdit_Rz_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1219,16 +1152,13 @@
                  <height>26</height>
                 </size>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
-               </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QLineEdit" name="lineEdit_uy_table_path">
+              <widget class="QLineEdit" name="lineEdit_Uy_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1247,16 +1177,13 @@
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
-               </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QPushButton" name="pushButton_load_uz_table">
+              <widget class="QPushButton" name="pushButton_load_Uz_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1292,7 +1219,7 @@
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QPushButton" name="pushButton_load_uy_table">
+              <widget class="QPushButton" name="pushButton_load_Uy_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1328,7 +1255,7 @@
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QPushButton" name="pushButton_load_rx_table">
+              <widget class="QPushButton" name="pushButton_load_Rx_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1388,13 +1315,10 @@
                <property name="text">
                 <string>Ux:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QLineEdit" name="lineEdit_rx_table_path">
+              <widget class="QLineEdit" name="lineEdit_Rx_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1409,9 +1333,6 @@
                  <width>240</width>
                  <height>26</height>
                 </size>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
@@ -1443,13 +1364,10 @@
                <property name="text">
                 <string>Rx:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QLineEdit" name="lineEdit_uz_table_path">
+              <widget class="QLineEdit" name="lineEdit_Uz_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1464,9 +1382,6 @@
                  <width>240</width>
                  <height>26</height>
                 </size>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
@@ -1498,13 +1413,10 @@
                <property name="text">
                 <string>Uy:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QPushButton" name="pushButton_load_rz_table">
+              <widget class="QPushButton" name="pushButton_load_Rz_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1540,7 +1452,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QLineEdit" name="lineEdit_ux_table_path">
+              <widget class="QLineEdit" name="lineEdit_Ux_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1558,9 +1470,6 @@
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
@@ -1592,13 +1501,10 @@
                <property name="text">
                 <string>Uz:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QPushButton" name="pushButton_load_ux_table">
+              <widget class="QPushButton" name="pushButton_load_Ux_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1656,10 +1562,7 @@
              </font>
             </property>
             <property name="frameShape">
-             <enum>QFrame::Shape::NoFrame</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Shadow::Raised</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_2">
              <property name="leftMargin">
@@ -1703,9 +1606,6 @@
              </item>
              <item row="0" column="0">
               <spacer name="horizontalSpacer_7">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -1716,9 +1616,6 @@
              </item>
              <item row="0" column="3">
               <spacer name="horizontalSpacer_11">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -1736,9 +1633,6 @@
                </property>
                <property name="text">
                 <string>Linear:</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
               </widget>
              </item>
@@ -1776,16 +1670,10 @@
                <property name="text">
                 <string>Angular:</string>
                </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-               </property>
               </widget>
              </item>
              <item row="0" column="6">
               <spacer name="horizontalSpacer_8">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -1822,10 +1710,7 @@
           <item row="0" column="0">
            <widget class="QFrame" name="frame_5">
             <property name="frameShape">
-             <enum>QFrame::Shape::NoFrame</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Shadow::Raised</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_11">
              <item row="0" column="0">
@@ -1911,10 +1796,7 @@
              </size>
             </property>
             <property name="frameShape">
-             <enum>QFrame::Shape::NoFrame</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Shadow::Raised</enum>
+             <enum>QFrame::NoFrame</enum>
             </property>
             <layout class="QGridLayout" name="gridLayout_10">
              <property name="leftMargin">
@@ -1950,6 +1832,7 @@
                 <font>
                  <family>MS Shell Dlg 2</family>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <italic>false</italic>
                  <bold>false</bold>
                 </font>
@@ -1986,6 +1869,7 @@
                 <font>
                  <family>MS Shell Dlg 2</family>
                  <pointsize>10</pointsize>
+                 <weight>50</weight>
                  <italic>false</italic>
                  <bold>false</bold>
                 </font>
@@ -2020,10 +1904,7 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::Shape::NoFrame</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Shadow::Raised</enum>
+         <enum>QFrame::NoFrame</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
          <property name="leftMargin">
@@ -2046,9 +1927,6 @@
          </property>
          <item row="0" column="0">
           <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
-           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
@@ -2077,13 +1955,10 @@
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::FocusPolicy::ClickFocus</enum>
+            <enum>Qt::NoFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -2109,16 +1984,10 @@
            <property name="text">
             <string>Node IDs:</string>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-           </property>
           </widget>
          </item>
          <item row="0" column="3">
           <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
-           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
@@ -2165,10 +2034,7 @@
       </font>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Shape::Box</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Shadow::Raised</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="lineWidth">
       <number>1</number>
@@ -2196,17 +2062,14 @@
           <pointsize>11</pointsize>
          </font>
         </property>
-        <property name="frameShadow">
-         <enum>QFrame::Shadow::Raised</enum>
-        </property>
         <property name="text">
          <string>Degrees of freedom prescription setup</string>
         </property>
         <property name="textFormat">
-         <enum>Qt::TextFormat::AutoText</enum>
+         <enum>Qt::PlainText</enum>
         </property>
         <property name="alignment">
-         <set>Qt::AlignmentFlag::AlignCenter</set>
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -2222,10 +2085,7 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Shape::NoFrame</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Shadow::Raised</enum>
+      <enum>QFrame::NoFrame</enum>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
@@ -2298,32 +2158,32 @@
  </widget>
  <tabstops>
   <tabstop>tabWidget_prescribed_dof</tabstop>
-  <tabstop>lineEdit_real_ux</tabstop>
-  <tabstop>lineEdit_imag_ux</tabstop>
-  <tabstop>lineEdit_real_uy</tabstop>
-  <tabstop>lineEdit_imag_uy</tabstop>
-  <tabstop>lineEdit_real_uz</tabstop>
-  <tabstop>lineEdit_imag_uz</tabstop>
-  <tabstop>lineEdit_real_rx</tabstop>
-  <tabstop>lineEdit_imag_rx</tabstop>
-  <tabstop>lineEdit_real_ry</tabstop>
-  <tabstop>lineEdit_imag_ry</tabstop>
-  <tabstop>lineEdit_real_rz</tabstop>
-  <tabstop>lineEdit_imag_rz</tabstop>
+  <tabstop>lineEdit_real_Ux</tabstop>
+  <tabstop>lineEdit_imag_Ux</tabstop>
+  <tabstop>lineEdit_real_Uy</tabstop>
+  <tabstop>lineEdit_imag_Uy</tabstop>
+  <tabstop>lineEdit_real_Uz</tabstop>
+  <tabstop>lineEdit_imag_Uz</tabstop>
+  <tabstop>lineEdit_real_Rx</tabstop>
+  <tabstop>lineEdit_imag_Rx</tabstop>
+  <tabstop>lineEdit_real_Ry</tabstop>
+  <tabstop>lineEdit_imag_Ry</tabstop>
+  <tabstop>lineEdit_real_Rz</tabstop>
+  <tabstop>lineEdit_imag_Rz</tabstop>
   <tabstop>comboBox_linear_data_type</tabstop>
   <tabstop>comboBox_angular_data_type</tabstop>
-  <tabstop>lineEdit_ux_table_path</tabstop>
-  <tabstop>pushButton_load_ux_table</tabstop>
-  <tabstop>lineEdit_uy_table_path</tabstop>
-  <tabstop>pushButton_load_uy_table</tabstop>
-  <tabstop>lineEdit_uz_table_path</tabstop>
-  <tabstop>pushButton_load_uz_table</tabstop>
-  <tabstop>lineEdit_rx_table_path</tabstop>
-  <tabstop>pushButton_load_rx_table</tabstop>
-  <tabstop>lineEdit_ry_table_path</tabstop>
-  <tabstop>pushButton_load_ry_table</tabstop>
-  <tabstop>lineEdit_rz_table_path</tabstop>
-  <tabstop>pushButton_load_rz_table</tabstop>
+  <tabstop>lineEdit_Ux_table_path</tabstop>
+  <tabstop>pushButton_load_Ux_table</tabstop>
+  <tabstop>lineEdit_Uy_table_path</tabstop>
+  <tabstop>pushButton_load_Uy_table</tabstop>
+  <tabstop>lineEdit_Uz_table_path</tabstop>
+  <tabstop>pushButton_load_Uz_table</tabstop>
+  <tabstop>lineEdit_Rx_table_path</tabstop>
+  <tabstop>pushButton_load_Rx_table</tabstop>
+  <tabstop>lineEdit_Ry_table_path</tabstop>
+  <tabstop>pushButton_load_Ry_table</tabstop>
+  <tabstop>lineEdit_Rz_table_path</tabstop>
+  <tabstop>pushButton_load_Rz_table</tabstop>
   <tabstop>treeWidget_nodal_info</tabstop>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>pushButton_remove</tabstop>

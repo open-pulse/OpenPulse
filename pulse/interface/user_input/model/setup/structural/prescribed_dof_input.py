@@ -50,6 +50,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             self.exec()
 
     def _initialize(self):
+        self.dofs_labels = np.array(["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"])
 
         self.reset_table_variables()
         self.create_widgets_lists()
@@ -57,7 +58,6 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         self.keep_window_open = True
 
         self.list_Nones = [None, None, None, None, None, None]
-        self.dofs_labels = np.array(["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"])
 
     def create_widgets_lists(self):
 
@@ -71,12 +71,12 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         ]
 
         self.constant_line_edits = {
-            "Ux": [self.lineEdit_real_ux, self.lineEdit_imag_ux],
-            "Uy": [self.lineEdit_real_uy, self.lineEdit_imag_uy],
-            "Uz": [self.lineEdit_real_uz, self.lineEdit_imag_uz],
-            "Rx": [self.lineEdit_real_rx, self.lineEdit_imag_rx],
-            "Ry": [self.lineEdit_real_ry, self.lineEdit_imag_ry],
-            "Rz": [self.lineEdit_real_rz, self.lineEdit_imag_rz],
+            "Ux": [self.lineEdit_real_Ux, self.lineEdit_imag_Ux],
+            "Uy": [self.lineEdit_real_Uy, self.lineEdit_imag_Uy],
+            "Uz": [self.lineEdit_real_Uz, self.lineEdit_imag_Uz],
+            "Rx": [self.lineEdit_real_Rx, self.lineEdit_imag_Rx],
+            "Ry": [self.lineEdit_real_Ry, self.lineEdit_imag_Ry],
+            "Rz": [self.lineEdit_real_Rz, self.lineEdit_imag_Rz],
         }
 
         self.dof_setup_combo_boxes = {
@@ -89,38 +89,27 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         }
 
         self.list_lineEdit_constant_values = [
-            [self.lineEdit_real_ux, self.lineEdit_imag_ux],
-            [self.lineEdit_real_uy, self.lineEdit_imag_uy],
-            [self.lineEdit_real_uz, self.lineEdit_imag_uz],
-            [self.lineEdit_real_rx, self.lineEdit_imag_rx],
-            [self.lineEdit_real_ry, self.lineEdit_imag_ry],
-            [self.lineEdit_real_rz, self.lineEdit_imag_rz],
+            [self.lineEdit_real_Ux, self.lineEdit_imag_Ux],
+            [self.lineEdit_real_Uy, self.lineEdit_imag_Uy],
+            [self.lineEdit_real_Uz, self.lineEdit_imag_Uz],
+            [self.lineEdit_real_Rx, self.lineEdit_imag_Rx],
+            [self.lineEdit_real_Ry, self.lineEdit_imag_Ry],
+            [self.lineEdit_real_Rz, self.lineEdit_imag_Rz],
         ]
 
         self.list_lineEdit_table_values = [
-            self.lineEdit_ux_table_path,
-            self.lineEdit_uy_table_path,
-            self.lineEdit_uz_table_path,
-            self.lineEdit_rx_table_path,
-            self.lineEdit_ry_table_path,
-            self.lineEdit_rz_table_path,
+            self.lineEdit_Ux_table_path,
+            self.lineEdit_Uy_table_path,
+            self.lineEdit_Uz_table_path,
+            self.lineEdit_Rx_table_path,
+            self.lineEdit_Ry_table_path,
+            self.lineEdit_Rz_table_path,
         ]
 
     def reset_table_variables(self):
-
-        self.imported_ux_values = None
-        self.imported_uy_values = None
-        self.imported_uz_values = None
-        self.imported_rx_values = None
-        self.imported_ry_values = None
-        self.imported_rz_values = None
-
-        self.ux_table_path = None
-        self.uy_table_path = None
-        self.uz_table_path = None
-        self.rx_table_path = None
-        self.ry_table_path = None
-        self.rz_table_path = None
+        for label in self.dofs_labels:
+            setattr(self, f"imported_{label}_values", None)
+            setattr(self, f"{label}_table_path", None)
 
     def _config_widgets(self):
         #
@@ -133,12 +122,9 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         self.pushButton_exit_tab0.clicked.connect(self.close)
         self.pushButton_attribute.clicked.connect(self.attribution_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
-        self.pushButton_load_ux_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_ux_table_path, dof_label="Ux"))
-        self.pushButton_load_uy_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_uy_table_path, dof_label="Uy"))
-        self.pushButton_load_uz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_uz_table_path, dof_label="Uz"))
-        self.pushButton_load_rx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_rx_table_path, dof_label="Rx"))
-        self.pushButton_load_ry_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_ry_table_path, dof_label="Ry"))
-        self.pushButton_load_rz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_rz_table_path, dof_label="Rz"))
+        
+        self.connect_load_table_push_buttons(self.list_lineEdit_table_values, self.dofs_labels)
+
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_all_dof_free.clicked.connect(self.all_dof_free_callback)
         self.pushButton_all_dof_fixed.clicked.connect(self.all_dof_fixed_callback)
@@ -442,9 +428,8 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         self.remove_properties_from_node(node_ids)
 
         table_paths = list()
-        dof_labels = ["ux", "uy", "uz", "rx", "ry", "rz"]
 
-        for label in dof_labels:
+        for label in self.dofs_labels:
             table_path_name = f"{label}_table_path"
             imported_values_name = f"imported_{label}_values"
             _imported_values = getattr(self, imported_values_name)
@@ -467,7 +452,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         for node_id in node_ids:
             table_names = list()
 
-            for i, label in enumerate(dof_labels):
+            for i, label in enumerate(self.dofs_labels):
                 imported_values_name = f"imported_{label}_values"
                 _imported_values = getattr(self, imported_values_name)
 

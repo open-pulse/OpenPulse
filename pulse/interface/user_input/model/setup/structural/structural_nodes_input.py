@@ -1,5 +1,7 @@
 import numpy as np
-from PySide6.QtWidgets import QLineEdit
+from functools import partial
+
+from PySide6.QtWidgets import QLineEdit, QPushButton
 
 from pulse import app
 from pulse.interface.user_input.model.setup.nodes_input import NodesInput
@@ -112,3 +114,9 @@ class StructuralNodesInput(NodesInput):
         app().project.file.write_nodal_properties_in_file()
 
         self.actions_to_finalize()
+    
+    def connect_load_table_push_buttons(self, line_edits: list[QLineEdit], labels: list[str]):
+        for line_edit, label in zip(line_edits, labels):
+            push_button: QPushButton = getattr(self, f"pushButton_load_{label}_table")
+
+            push_button.clicked.connect(partial(self.load_table_for_line_edit, line_edit=line_edit, dof_label=label))
