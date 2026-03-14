@@ -186,9 +186,13 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             self.constant_values_attribution_callback()
 
         elif tab_index == TabType.TABULAR:
-            self.table_values_attribution_callback(self.lineEdit_node_ids, properties_to_remove=["prescribed_dofs"],
-                                                   load_labels=["fx", "fy", "fz", "mx", "my", "mz"], input_name="nodal_loads",
-                                                   save_table_function=self.save_table_values)
+            self.table_values_attribution_callback(
+                self.lineEdit_node_ids,
+                properties_to_remove=["prescribed_dofs"],
+                load_labels=["fx", "fy", "fz", "mx", "my", "mz"],
+                input_name="nodal_loads",
+                save_table_function=self.save_table_values,
+            )
 
     def constant_values_attribution_callback(self):
 
@@ -357,7 +361,7 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
         self.properties.add_imported_tables("structural", table_name, data)
 
         return False
-    
+
     def load_nodes_info(self):
 
         self.treeWidget_nodal_info.clear()
@@ -506,9 +510,13 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             if self.tabWidget_nodal_loads.currentIndex() == 0:
                 self.constant_values_attribution_callback()
             elif self.tabWidget_nodal_loads.currentIndex() == 1:
-                self.self.table_values_attribution_callback(self.lineEdit_node_ids, properties_to_remove=["prescribed_dofs"],
-                                                   load_labels=["fx", "fy", "fz", "mx", "my", "mz"], input_name="nodal_loads",
-                                                   save_table_function=self.save_table_values)
+                self.self.table_values_attribution_callback(
+                    self.lineEdit_node_ids,
+                    properties_to_remove=["prescribed_dofs"],
+                    load_labels=["fx", "fy", "fz", "mx", "my", "mz"],
+                    input_name="nodal_loads",
+                    save_table_function=self.save_table_values,
+                )
 
         elif event.key() == Qt.Key_Escape:
             self.close()
