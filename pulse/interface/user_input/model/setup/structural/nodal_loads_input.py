@@ -303,8 +303,8 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
         return False
 
-    def load_table_for_line_edit(self, line_edit, dof_label, bc_label):
-        return super().load_table_for_line_edit(line_edit, dof_label, "")
+    def load_table_for_line_edit(self, line_edit, dof_label):
+        return super().load_table_for_line_edit(line_edit, dof_label, "nodal loads")
 
     def load_nodes_info(self):
 

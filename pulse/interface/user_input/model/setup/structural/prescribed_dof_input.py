@@ -352,7 +352,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         app().main_window.update_plots(reset_camera=False)
     
     def load_table_for_line_edit(self, line_edit, dof_label):
-        return super().load_table_for_line_edit(line_edit, dof_label, "prescribed_dof")
+        return super().load_table_for_line_edit(line_edit, dof_label, "prescribed dof")
 
     def integrate_and_save_table_values(
         self,
