@@ -116,8 +116,8 @@ class UserInput(QDialog):
             bc_label
         )
 
-        values_attr = f"imported_{dof_label.lower()}_values"
-        table_attr = f"{dof_label.lower()}_table_path"
+        values_attr = f"imported_{dof_label}_values"
+        table_attr = f"{dof_label}_table_path"
 
         setattr(self, values_attr, imported_values)
         setattr(self, table_attr, table_path)
