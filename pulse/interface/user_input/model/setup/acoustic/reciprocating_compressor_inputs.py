@@ -21,7 +21,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.common import update_analysis_setup_in_file
 
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel

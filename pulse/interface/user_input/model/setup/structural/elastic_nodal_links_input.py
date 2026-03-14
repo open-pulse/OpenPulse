@@ -6,7 +6,6 @@ from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.elastic_nodal_links_input_ui import ElasticNodalLinksInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 
 import numpy as np
 

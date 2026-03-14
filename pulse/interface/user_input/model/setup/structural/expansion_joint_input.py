@@ -7,7 +7,6 @@ from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_u
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 from pulse.model.cross_section import CrossSection
 from pulse.interface.user_input.model.setup.structural.structural_lines_input import StructuralLinesInput
 

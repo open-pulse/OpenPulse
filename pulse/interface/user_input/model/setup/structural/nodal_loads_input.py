@@ -8,11 +8,6 @@ from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui import (
     NodalLoadsInput_UI,
 )
-from pulse.interface.user_input.common import (
-    CommonUserInputs,
-    get_table_name,
-    update_analysis_setup_in_file,
-)
 from pulse.interface.user_input.model.setup.general.get_information_of_group import (
     GetInformationOfGroup,
 )

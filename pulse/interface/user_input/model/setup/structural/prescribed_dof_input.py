@@ -8,11 +8,6 @@ from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.prescribed_dof_input_ui import (
     PrescribedDofInput_UI,
 )
-from pulse.interface.user_input.common import (
-    CommonUserInputs,
-    get_table_name,
-    update_analysis_setup_in_file,
-)
 from pulse.interface.user_input.model.setup.general.get_information_of_group import (
     GetInformationOfGroup,
 )
@@ -325,7 +320,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         app().main_window.update_plots(reset_camera=False) 
 
     def load_ux_table(self):
-        self.imported_ux_values, self.ux_table_path = CommonUserInputs(self).load_table(
+        self.imported_ux_values, self.ux_table_path = self.load_table(
             self.lineEdit_ux_table_path, 
             "prescribed dof", 
             dof_label="Ux",
@@ -335,7 +330,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             self.line_edit_reset(self.lineEdit_ux_table_path)
 
     def load_uy_table(self):
-        self.imported_uy_values, self.uy_table_path = CommonUserInputs(self).load_table(
+        self.imported_uy_values, self.uy_table_path = self.load_table(
             self.lineEdit_uy_table_path, 
             "prescribed dof", 
             dof_label="Uy",
@@ -345,7 +340,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             self.line_edit_reset(self.lineEdit_uy_table_path)
 
     def load_uz_table(self):
-        self.imported_uz_values, self.uz_table_path = CommonUserInputs(self).load_table(
+        self.imported_uz_values, self.uz_table_path = self.load_table(
             self.lineEdit_uz_table_path, 
             "prescribed dof", 
             dof_label="Uz",
@@ -355,7 +350,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             self.line_edit_reset(self.lineEdit_uz_table_path)
 
     def load_rx_table(self):
-        self.imported_rx_values, self.rx_table_path = CommonUserInputs(self).load_table(
+        self.imported_rx_values, self.rx_table_path = self.load_table(
             self.lineEdit_rx_table_path, 
             "prescribed dof", 
             dof_label="Rx",
@@ -365,7 +360,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             self.line_edit_reset(self.lineEdit_rx_table_path)
 
     def load_ry_table(self):
-        self.imported_ry_values, self.ry_table_path = CommonUserInputs(self).load_table(
+        self.imported_ry_values, self.ry_table_path = self.load_table(
             self.lineEdit_ry_table_path, 
             "prescribed dof", 
             dof_label="Ry",
@@ -375,7 +370,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             self.line_edit_reset(self.lineEdit_ry_table_path)
             
     def load_rz_table(self):
-        self.imported_rz_values, self.rz_table_path = CommonUserInputs(self).load_table(
+        self.imported_rz_values, self.rz_table_path = self.load_table(
             self.lineEdit_rz_table_path, 
             "prescribed dof", 
             dof_label="Rz",
@@ -383,10 +378,6 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
 
         if self.rz_table_path is None:
             self.line_edit_reset(self.lineEdit_rz_table_path)
-
-    def line_edit_reset(self, lineEdit : QLineEdit):
-        lineEdit.clear()
-        lineEdit.setFocus()
 
     def integrate_and_save_table_values(
             self, 
@@ -443,7 +434,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             PrintMessageInput([error_title, title, message])
             return True
 
-        update_analysis_setup_in_file(_frequencies)
+        self.update_analysis_setup_in_file(_frequencies)
 
         if bool(index_lin) or bool(index_ang):
             # real values vector
@@ -488,7 +479,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             if _imported_values is None:
                 line_edit = getattr(self, f"lineEdit_{label}_table_path")
 
-                _imported_values, _table_path = CommonUserInputs(self).load_table(line_edit, "prescribed dof", dof_label=label.capitalize(), direct_load = True)
+                _imported_values, _table_path = self.load_table(line_edit, "prescribed dof", dof_label=label.capitalize(), direct_load = True)
                 setattr(self, imported_values_name, _imported_values)
                 setattr(self, table_path_name, _table_path)
 
@@ -505,7 +496,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
 
                 _table_name = None
                 if isinstance(_imported_values, np.ndarray):
-                    _table_name = get_table_name(f"prescribed_dof_{label}", node_id=node_id)
+                    _table_name = self.get_table_name(f"prescribed_dof_{label}", node_id=node_id)
                     if self.integrate_and_save_table_values(_table_name, _imported_values, linear= i<=2, angular= i>=3):
                         return
 
@@ -599,26 +590,6 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
 
     def rotation_rz_callback(self):
         self.combo_box_callback("Rz")
-
-    def text_label(self, mask):
-
-        text = ""
-        labels = self.dofs_labels[mask]
-
-        if list(mask).count(True) == 6:
-            text = "[{}, {}, {}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 5:
-            text = "[{}, {}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 4:
-            text = "[{}, {}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 3:
-            text = "[{}, {}, {}]".format(*labels)
-        elif list(mask).count(True) == 2:
-            text = "[{}, {}]".format(*labels)
-        elif list(mask).count(True) == 1:
-            text = "[{}]".format(*labels)
-
-        return text
 
     def load_nodes_info(self):
 
@@ -756,10 +727,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
 
     def actions_to_finalize(self):
         self.reset_table_variables()
-        app().project.file.write_nodal_properties_in_file()
-        app().project.file.write_imported_table_data_in_file()
-        self.load_nodes_info()
-        app().main_window.update_plots()
+        super().actions_to_finalize()
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.clear()
