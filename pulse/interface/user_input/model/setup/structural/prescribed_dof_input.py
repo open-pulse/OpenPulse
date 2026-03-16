@@ -416,86 +416,19 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
 
         return False
 
-    def table_values_attribution_callback(self):
-
-        str_nodes = self.lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
-        if stop:
-            self.lineEdit_node_ids.setFocus()
-            return
-
-        self.remove_properties_from_node(node_ids)
-
-        table_paths = list()
-
-        for label in self.dofs_labels:
-            table_path_name = f"{label}_table_path"
-            imported_values_name = f"imported_{label}_values"
-            _imported_values = getattr(self, imported_values_name)
-
-            if _imported_values is None:
-                line_edit = getattr(self, f"lineEdit_{label}_table_path")
-
-                _imported_values, _table_path = self.load_table(
-                    line_edit,
-                    "prescribed dof",
-                    dof_label=label.capitalize(),
-                    direct_load=True,
-                )
-                setattr(self, imported_values_name, _imported_values)
-                setattr(self, table_path_name, _table_path)
-
-            _table_path_attr = getattr(self, table_path_name)
-            table_paths.append(str(_table_path_attr))
-
-        for node_id in node_ids:
-            table_names = list()
-
-            for i, label in enumerate(self.dofs_labels):
-                imported_values_name = f"imported_{label}_values"
-                _imported_values = getattr(self, imported_values_name)
-
-                _table_name = None
-                if isinstance(_imported_values, np.ndarray):
-                    _table_name = self.get_table_name(
-                        f"prescribed_dof_{label}", node_id=node_id
-                    )
-                    if self.integrate_and_save_table_values(
-                        _table_name, _imported_values, linear=i <= 2, angular=i >= 3
-                    ):
-                        return
-
-                table_names.append(_table_name)
-
-            if table_names == self.list_Nones:
-                title = "Additional inputs required"
-                message = "You must inform at least one prescribed dof "
-                message += "table path before confirming the input!"
-                PrintMessageInput([error_title, title, message])
-                return
-
-            node = app().project.model.preprocessor.nodes[node_id]
-            coords = np.round(node.coordinates, 5)
-        
-            data = {
-                "coords": list(coords),
-                "table_names": table_names,
-                "table_paths": table_paths,
-            }
-
-            self.properties._set_nodal_property("prescribed_dofs", data, node_id)
-
-        app().project.file.write_nodal_properties_in_file()
-
-        self.actions_to_finalize()
-
     def attribution_callback(self):
         tab_index = self.tabWidget_prescribed_dof.currentIndex()
         if tab_index == TabType.CONSTANT:
             self.constant_values_attribution_callback()
 
         elif tab_index == TabType.TABULAR:
-            self.table_values_attribution_callback()
+            self.table_values_attribution_callback(
+                line_edit_node_ids=self.lineEdit_node_ids,
+                properties_to_remove=["nodal_loads", "prescribed_dofs"],
+                load_labels=self.dofs_labels,
+                input_name="prescribed_dofs",
+                save_table_function=self.integrate_and_save_table_values
+            )
 
     def all_dof_free_callback(self):
         for combobox in self.value_comboboxes:
@@ -647,14 +580,16 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             return
 
     def remove_properties_from_node(
-        self, node_ids: int | list | tuple, all_dof_free: bool = False
+        self, node_ids: int | list | tuple, 
+        properties: list[str] = ["nodal_loads", "prescribed_dofs"], 
+        all_dof_free: bool = False
     ):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
 
         for node_id in node_ids:
-            for _property in ["nodal_loads", "prescribed_dofs"]:
+            for _property in properties:
                 if all_dof_free and _property == "nodal_loads":
                     continue
 

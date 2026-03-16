@@ -1,3 +1,4 @@
+import inspect
 import numpy as np
 from functools import partial
 
@@ -79,7 +80,7 @@ class StructuralNodesInput(NodesInput):
         for node_id in node_ids:
             table_names = list()
 
-            for label in load_labels:
+            for i, label in enumerate(load_labels):
                 imported_values_name = f"imported_{label}_values"
                 _imported_values = getattr(self, imported_values_name)
 
@@ -88,6 +89,14 @@ class StructuralNodesInput(NodesInput):
                     _table_name = self.get_table_name(
                         f"{input_name}_{label}", node_id=node_id
                     )
+                    function_parameters = inspect.signature(save_table_function).parameters
+
+                    if "linear" in function_parameters and "angular" in function_parameters:
+                        if save_table_function(_table_name, _imported_values, 
+                                               linear= i <= 2,
+                                               angular= i >= 3):
+                            return
+
                     if save_table_function(_table_name, _imported_values):
                         return
 
@@ -95,7 +104,7 @@ class StructuralNodesInput(NodesInput):
 
             if (table_names).count(None) == 6:
                 title = "Additional inputs required"
-                message = "You must inform at least one nodal load "
+                message = f"You must inform at least one {input_name.replace('_', ' ')} "
                 message += "table path before confirming the input!"
                 PrintMessageInput([error_title, title, message])
                 return
