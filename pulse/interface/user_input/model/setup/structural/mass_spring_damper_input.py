@@ -20,7 +20,6 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._config_window()
         self._config_widgets()
         self._initialize()
         self._create_connections()
