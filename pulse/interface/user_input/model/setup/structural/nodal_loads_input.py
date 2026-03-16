@@ -45,6 +45,7 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             self.exec()
 
     def _initialize(self):
+        self.load_labels = np.array(["Fx", "Fy", "Fz", "Mx", "My", "Mz"])
 
         self.reset_table_variables()
         self.create_widgets_lists()
@@ -52,7 +53,6 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
         self.keep_window_open = True
 
         self.list_Nones = [None, None, None, None, None, None]
-        self.load_labels = np.array(["Fx", "Fy", "Fz", "Mx", "My", "Mz"])
 
     def create_widgets_lists(self):
 
@@ -75,19 +75,9 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
         ]
 
     def reset_table_variables(self):
-        self.imported_Fx_values = None
-        self.imported_Fy_values = None
-        self.imported_Fz_values = None
-        self.imported_Mx_values = None
-        self.imported_My_values = None
-        self.imported_Mz_values = None
-
-        self.Fx_table_path = None
-        self.Fy_table_path = None
-        self.Fz_table_path = None
-        self.Mx_table_path = None
-        self.My_table_path = None
-        self.Mz_table_path = None
+       for label in self.load_labels:
+            setattr(self, f"imported_{label}_values", None)
+            setattr(self, f"{label}_table_path", None)
 
     def _create_connections(self):
         #

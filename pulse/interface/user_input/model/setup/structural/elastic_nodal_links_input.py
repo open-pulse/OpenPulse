@@ -44,34 +44,9 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         self.link_applied = False
 
     def reset_table_variables(self):
-
-        self.Kx_table_path = None
-        self.Ky_table_path = None
-        self.Kz_table_path = None
-        self.Krx_table_path = None
-        self.Kry_table_path = None
-        self.Krz_table_path = None
-
-        self.Cx_table_path = None
-        self.Cy_table_path = None
-        self.Cz_table_path = None
-        self.Crx_table_path = None
-        self.Cry_table_path = None
-        self.Crz_table_path = None
-
-        self.imported_kx_values = None
-        self.imported_ky_values = None
-        self.imported_kz_values = None
-        self.imported_krx_values = None
-        self.imported_kry_values = None
-        self.imported_krz_values = None
-
-        self.imported_cx_values = None
-        self.imported_cy_values = None
-        self.imported_cz_values = None
-        self.imported_crx_values = None
-        self.imported_cry_values = None
-        self.imported_crz_values = None
+        for label in self.damping_labels + self.stiffness_labels:
+            setattr(self, f"imported_{label}_values", None)
+            setattr(self, f"{label}_table_path", None)
 
     def create_widgets_lists(self):
 
@@ -452,7 +427,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
         for label in self.stiffness_labels:
             table_path_name = f"{label}_table_path"
-            imported_values_name = f"imported_{label.lower()}_values"
+            imported_values_name = f"imported_{label}_values"
             _imported_values = getattr(self, imported_values_name)
 
             if _imported_values is None:
@@ -470,7 +445,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         table_names = list()
 
         for label in self.stiffness_labels:
-            imported_values_name = f"imported_{label.lower()}_values"
+            imported_values_name = f"imported_{label}_values"
             _imported_values = getattr(self, imported_values_name)
 
             _table_name = None
@@ -507,7 +482,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
         for label in self.damping_labels:
             table_path_name = f"{label}_table_path"
-            imported_values_name = f"imported_{label.lower()}_values"
+            imported_values_name = f"imported_{label}_values"
             _imported_values = getattr(self, imported_values_name)
 
             if _imported_values is None:
@@ -525,7 +500,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         table_names = list()
 
         for label in self.damping_labels:
-            imported_values_name = f"imported_{label.lower()}_values"
+            imported_values_name = f"imported_{label}_values"
             _imported_values = getattr(self, imported_values_name)
 
             _table_name = None
