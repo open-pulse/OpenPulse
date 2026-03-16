@@ -58,49 +58,45 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
     def create_widgets_lists(self):
 
         self.list_lineEdit_constant_values = [
-            [self.lineEdit_real_fx, self.lineEdit_imag_fx],
-            [self.lineEdit_real_fy, self.lineEdit_imag_fy],
-            [self.lineEdit_real_fz, self.lineEdit_imag_fz],
-            [self.lineEdit_real_mx, self.lineEdit_imag_mx],
-            [self.lineEdit_real_my, self.lineEdit_imag_my],
-            [self.lineEdit_real_mz, self.lineEdit_imag_mz],
+            [self.lineEdit_real_Fx, self.lineEdit_imag_Fx],
+            [self.lineEdit_real_Fy, self.lineEdit_imag_Fy],
+            [self.lineEdit_real_Fz, self.lineEdit_imag_Fz],
+            [self.lineEdit_real_Mx, self.lineEdit_imag_Mx],
+            [self.lineEdit_real_My, self.lineEdit_imag_My],
+            [self.lineEdit_real_Mz, self.lineEdit_imag_Mz],
         ]
 
         self.list_lineEdit_table_values = [
-            self.lineEdit_fx_table_path,
-            self.lineEdit_fy_table_path,
-            self.lineEdit_fz_table_path,
-            self.lineEdit_mx_table_path,
-            self.lineEdit_my_table_path,
-            self.lineEdit_mz_table_path,
+            self.lineEdit_Fx_table_path,
+            self.lineEdit_Fy_table_path,
+            self.lineEdit_Fz_table_path,
+            self.lineEdit_Mx_table_path,
+            self.lineEdit_My_table_path,
+            self.lineEdit_Mz_table_path,
         ]
 
     def reset_table_variables(self):
+        self.imported_Fx_values = None
+        self.imported_Fy_values = None
+        self.imported_Fz_values = None
+        self.imported_Mx_values = None
+        self.imported_My_values = None
+        self.imported_Mz_values = None
 
-        self.imported_fx_values = None
-        self.imported_fy_values = None
-        self.imported_fz_values = None
-        self.imported_mx_values = None
-        self.imported_my_values = None
-        self.imported_mz_values = None
-
-        self.fx_table_path = None
-        self.fy_table_path = None
-        self.fz_table_path = None
-        self.mx_table_path = None
-        self.my_table_path = None
-        self.mz_table_path = None
+        self.Fx_table_path = None
+        self.Fy_table_path = None
+        self.Fz_table_path = None
+        self.Mx_table_path = None
+        self.My_table_path = None
+        self.Mz_table_path = None
 
     def _create_connections(self):
         #
         self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_attribute.clicked.connect(self.attribution_callback)
-        self.pushButton_load_fx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_fx_table_path, dof_label="Fx"))
-        self.pushButton_load_fy_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_fy_table_path, dof_label="Fy"))
-        self.pushButton_load_fz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_fz_table_path, dof_label="Fz"))
-        self.pushButton_load_mx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_mx_table_path, dof_label="Mx"))
-        self.pushButton_load_my_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_my_table_path, dof_label="My"))
-        self.pushButton_load_mz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_mz_table_path, dof_label="Mz"))
+        #
+        self.connect_load_table_push_buttons(self.list_lineEdit_table_values, self.load_labels)
+        #
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
@@ -190,7 +186,7 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             self.table_values_attribution_callback(
                 self.lineEdit_node_ids,
                 properties_to_remove=["prescribed_dofs"],
-                load_labels=["fx", "fy", "fz", "mx", "my", "mz"],
+                load_labels=self.load_labels,
                 input_name="nodal_loads",
                 save_table_function=self.save_table_values,
             )
@@ -457,7 +453,7 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
                 self.self.table_values_attribution_callback(
                     self.lineEdit_node_ids,
                     properties_to_remove=["prescribed_dofs"],
-                    load_labels=["fx", "fy", "fz", "mx", "my", "mz"],
+                    load_labels=self.load_labels,
                     input_name="nodal_loads",
                     save_table_function=self.save_table_values,
                 )

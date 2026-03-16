@@ -187,7 +187,7 @@
          </font>
         </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="tab_constant_values">
          <attribute name="title">
@@ -239,7 +239,7 @@
               <number>8</number>
              </property>
              <item row="4" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_mx">
+              <widget class="QLineEdit" name="lineEdit_imag_Mx">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -294,7 +294,7 @@
               </widget>
              </item>
              <item row="4" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_mx">
+              <widget class="QLineEdit" name="lineEdit_real_Mx">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -322,7 +322,7 @@
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_fx">
+              <widget class="QLineEdit" name="lineEdit_real_Fx">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -383,7 +383,7 @@
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_fz">
+              <widget class="QLineEdit" name="lineEdit_real_Fz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -440,7 +440,7 @@
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_fz">
+              <widget class="QLineEdit" name="lineEdit_imag_Fz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -508,7 +508,7 @@
               </spacer>
              </item>
              <item row="6" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_mz">
+              <widget class="QLineEdit" name="lineEdit_real_Mz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -536,7 +536,7 @@
               </widget>
              </item>
              <item row="6" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_mz">
+              <widget class="QLineEdit" name="lineEdit_imag_Mz">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -564,7 +564,7 @@
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_my">
+              <widget class="QLineEdit" name="lineEdit_real_My">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -661,7 +661,7 @@
               </spacer>
              </item>
              <item row="2" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_fy">
+              <widget class="QLineEdit" name="lineEdit_imag_Fy">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -745,7 +745,7 @@
               </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_fx">
+              <widget class="QLineEdit" name="lineEdit_imag_Fx">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -802,7 +802,7 @@
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QLineEdit" name="lineEdit_real_fy">
+              <widget class="QLineEdit" name="lineEdit_real_Fy">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -830,7 +830,7 @@
               </widget>
              </item>
              <item row="5" column="3">
-              <widget class="QLineEdit" name="lineEdit_imag_my">
+              <widget class="QLineEdit" name="lineEdit_imag_My">
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -1079,7 +1079,7 @@
               </widget>
              </item>
              <item row="2" column="2">
-              <widget class="QLineEdit" name="lineEdit_fz_table_path">
+              <widget class="QLineEdit" name="lineEdit_Fz_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1104,7 +1104,7 @@
               </widget>
              </item>
              <item row="5" column="3">
-              <widget class="QPushButton" name="pushButton_load_mz_table">
+              <widget class="QPushButton" name="pushButton_load_Mz_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1140,7 +1140,7 @@
               </widget>
              </item>
              <item row="0" column="2">
-              <widget class="QLineEdit" name="lineEdit_fx_table_path">
+              <widget class="QLineEdit" name="lineEdit_Fx_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1168,7 +1168,7 @@
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QPushButton" name="pushButton_load_fx_table">
+              <widget class="QPushButton" name="pushButton_load_Fx_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1234,7 +1234,7 @@
               </widget>
              </item>
              <item row="5" column="2">
-              <widget class="QLineEdit" name="lineEdit_mz_table_path">
+              <widget class="QLineEdit" name="lineEdit_Mz_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1262,7 +1262,7 @@
               </widget>
              </item>
              <item row="1" column="2">
-              <widget class="QLineEdit" name="lineEdit_fy_table_path">
+              <widget class="QLineEdit" name="lineEdit_Fy_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1290,7 +1290,7 @@
               </widget>
              </item>
              <item row="2" column="3">
-              <widget class="QPushButton" name="pushButton_load_fz_table">
+              <widget class="QPushButton" name="pushButton_load_Fz_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1326,7 +1326,7 @@
               </widget>
              </item>
              <item row="1" column="3">
-              <widget class="QPushButton" name="pushButton_load_fy_table">
+              <widget class="QPushButton" name="pushButton_load_Fy_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1422,7 +1422,7 @@
               </widget>
              </item>
              <item row="3" column="2">
-              <widget class="QLineEdit" name="lineEdit_mx_table_path">
+              <widget class="QLineEdit" name="lineEdit_Mx_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1447,7 +1447,7 @@
               </widget>
              </item>
              <item row="3" column="3">
-              <widget class="QPushButton" name="pushButton_load_mx_table">
+              <widget class="QPushButton" name="pushButton_load_Mx_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1483,7 +1483,7 @@
               </widget>
              </item>
              <item row="4" column="3">
-              <widget class="QPushButton" name="pushButton_load_my_table">
+              <widget class="QPushButton" name="pushButton_load_My_table">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -1549,7 +1549,7 @@
               </widget>
              </item>
              <item row="4" column="2">
-              <widget class="QLineEdit" name="lineEdit_my_table_path">
+              <widget class="QLineEdit" name="lineEdit_My_table_path">
                <property name="enabled">
                 <bool>true</bool>
                </property>
@@ -2078,32 +2078,32 @@
  <tabstops>
   <tabstop>lineEdit_node_ids</tabstop>
   <tabstop>tabWidget_nodal_loads</tabstop>
-  <tabstop>lineEdit_real_fx</tabstop>
-  <tabstop>lineEdit_imag_fx</tabstop>
-  <tabstop>lineEdit_real_fy</tabstop>
-  <tabstop>lineEdit_imag_fy</tabstop>
-  <tabstop>lineEdit_real_fz</tabstop>
-  <tabstop>lineEdit_imag_fz</tabstop>
-  <tabstop>lineEdit_real_mx</tabstop>
-  <tabstop>lineEdit_imag_mx</tabstop>
-  <tabstop>lineEdit_real_my</tabstop>
-  <tabstop>lineEdit_imag_my</tabstop>
-  <tabstop>lineEdit_real_mz</tabstop>
-  <tabstop>lineEdit_imag_mz</tabstop>
+  <tabstop>lineEdit_real_Fx</tabstop>
+  <tabstop>lineEdit_imag_Fx</tabstop>
+  <tabstop>lineEdit_real_Fy</tabstop>
+  <tabstop>lineEdit_imag_Fy</tabstop>
+  <tabstop>lineEdit_real_Fz</tabstop>
+  <tabstop>lineEdit_imag_Fz</tabstop>
+  <tabstop>lineEdit_real_Mx</tabstop>
+  <tabstop>lineEdit_imag_Mx</tabstop>
+  <tabstop>lineEdit_real_My</tabstop>
+  <tabstop>lineEdit_imag_My</tabstop>
+  <tabstop>lineEdit_real_Mz</tabstop>
+  <tabstop>lineEdit_imag_Mz</tabstop>
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>pushButton_exit</tabstop>
-  <tabstop>lineEdit_fx_table_path</tabstop>
-  <tabstop>pushButton_load_fx_table</tabstop>
-  <tabstop>lineEdit_fy_table_path</tabstop>
-  <tabstop>pushButton_load_fy_table</tabstop>
-  <tabstop>lineEdit_fz_table_path</tabstop>
-  <tabstop>pushButton_load_fz_table</tabstop>
-  <tabstop>lineEdit_mx_table_path</tabstop>
-  <tabstop>pushButton_load_mx_table</tabstop>
-  <tabstop>lineEdit_my_table_path</tabstop>
-  <tabstop>pushButton_load_my_table</tabstop>
-  <tabstop>lineEdit_mz_table_path</tabstop>
-  <tabstop>pushButton_load_mz_table</tabstop>
+  <tabstop>lineEdit_Fx_table_path</tabstop>
+  <tabstop>pushButton_load_Fx_table</tabstop>
+  <tabstop>lineEdit_Fy_table_path</tabstop>
+  <tabstop>pushButton_load_Fy_table</tabstop>
+  <tabstop>lineEdit_Fz_table_path</tabstop>
+  <tabstop>pushButton_load_Fz_table</tabstop>
+  <tabstop>lineEdit_Mx_table_path</tabstop>
+  <tabstop>pushButton_load_Mx_table</tabstop>
+  <tabstop>lineEdit_My_table_path</tabstop>
+  <tabstop>pushButton_load_My_table</tabstop>
+  <tabstop>lineEdit_Mz_table_path</tabstop>
+  <tabstop>pushButton_load_Mz_table</tabstop>
   <tabstop>treeWidget_nodal_info</tabstop>
   <tabstop>pushButton_remove</tabstop>
   <tabstop>pushButton_reset</tabstop>

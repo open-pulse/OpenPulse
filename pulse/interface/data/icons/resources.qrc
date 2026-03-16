@@ -18,7 +18,6 @@
         <file>common/front.png</file>
         <file>common/geometry_icon.png</file>
         <file>common/go_next.png</file>
-        <file>common/grab_icon.png</file>
         <file>common/help.png</file>
         <file>common/image-plus.png</file>
         <file>common/import.png</file>
@@ -45,13 +44,10 @@
         <file>common/png.png</file>
         <file>common/recent.png</file>
         <file>common/reset-image.png</file>
-        <file>common/reset_icon.png</file>
         <file>common/right.png</file>
-        <file>common/rotation_icon.png</file>
         <file>common/save.png</file>
         <file>common/save_as.png</file>
         <file>common/section_plane_icon.png</file>
-        <file>common/selection_icon.png</file>
         <file>common/settings.png</file>
         <file>common/show_geometry_points.png</file>
         <file>common/show_lines.png</file>
@@ -66,33 +62,28 @@
         <file>common/top.png</file>
         <file>common/tube_cut.png</file>
         <file>common/user_preferences_icon.png</file>
-        <file>common/zoom_icon copy.png</file>
         <file>common/zoom_icon.png</file>
-        <file>cursors/pan_cursor.png</file>
-        <file>cursors/rotation_cursor.png</file>
-        <file>cursors/zoom_cursor.png</file>
-        <file>figures/Circular.PNG</file>
-        <file>figures/C_profile.PNG</file>
-        <file>figures/I_profile.PNG</file>
-        <file>figures/Pipe.PNG</file>
-        <file>figures/Rectangular.PNG</file>
-        <file>figures/T_profile.PNG</file>
+        <file>common/reset_icon.png</file>
+        <file>common/grab_icon.png</file>
+        <file>common/rotation_icon.png</file>
+        <file>common/selection_icon.png</file>
+        <file>common/zoom_icon copy.png</file>
         <file>help/help.png</file>
         <file>help/help_desk_icon.png</file>
         <file>help/question.png</file>
         <file>help/support.png</file>
         <file>logos/MOPT.PNG</file>
+        <file>logos/OpenPulse_logo2.png</file>
+        <file>logos/OpenPulse_logo3.png</file>
+        <file>logos/OpenPulse_logo_black.png</file>
+        <file>logos/OpenPulse_logo_gray.png</file>
+        <file>logos/OpenPulse_logo_white.png</file>
         <file>logos/mopt_logo.png</file>
         <file>logos/mopt_logo2.png</file>
         <file>logos/mopt_logo3.png</file>
         <file>logos/mopt_logo_black.png</file>
         <file>logos/mopt_logo_white.png</file>
         <file>logos/openpulse_logo.png</file>
-        <file>logos/OpenPulse_logo2.png</file>
-        <file>logos/OpenPulse_logo3.png</file>
-        <file>logos/OpenPulse_logo_black.png</file>
-        <file>logos/OpenPulse_logo_gray.png</file>
-        <file>logos/OpenPulse_logo_white.png</file>
         <file>mpltoolbar/copy_icon.png</file>
         <file>oldones/003-hard disc.png</file>
         <file>oldones/004-bin.png</file>
@@ -153,14 +144,23 @@
         <file>warnings/transparent_warning.png</file>
         <file>warnings/warning.png</file>
         <file>warnings/warning_2.png</file>
-        <file>figures/backup/Circular.PNG</file>
+        <file>cursors/pan_cursor.png</file>
+        <file>cursors/rotation_cursor.png</file>
+        <file>cursors/zoom_cursor.png</file>
+        <file>figures/C_profile.PNG</file>
+        <file>figures/Circular.PNG</file>
+        <file>figures/I_profile.PNG</file>
+        <file>figures/Pipe.PNG</file>
+        <file>figures/Rectangular.PNG</file>
+        <file>figures/T_profile.PNG</file>
         <file>figures/backup/C_profile.PNG</file>
+        <file>figures/backup/Circular.PNG</file>
         <file>figures/backup/I_profile.PNG</file>
         <file>figures/backup/Pipe.PNG</file>
         <file>figures/backup/Rectangular.PNG</file>
         <file>figures/backup/T_profile.PNG</file>
-        <file>figures/base/Circular.PNG</file>
         <file>figures/base/C_profile.PNG</file>
+        <file>figures/base/Circular.PNG</file>
         <file>figures/base/I_profile.PNG</file>
         <file>figures/base/Rectangular.PNG</file>
         <file>figures/base/T_profile.PNG</file>
