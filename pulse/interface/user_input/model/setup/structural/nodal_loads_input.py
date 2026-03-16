@@ -1,9 +1,8 @@
 from enum import IntEnum
-from functools import partial
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTreeWidgetItem, QLineEdit
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui import (

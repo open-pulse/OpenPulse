@@ -1,5 +1,4 @@
 from enum import IntEnum
-from functools import partial
 
 import numpy as np
 from PySide6.QtCore import Qt

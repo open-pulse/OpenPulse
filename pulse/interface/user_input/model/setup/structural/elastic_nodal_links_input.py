@@ -1,8 +1,7 @@
 import numpy as np
-from functools import partial
 
 from PySide6.QtCore import QEvent, QObject, Qt, Signal
-from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.elastic_nodal_links_input_ui import (
@@ -34,6 +33,8 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
             self.exec()
 
     def _initialize(self):
+        self.damping_labels = ["Cx", "Cy", "Cz", "Crx", "Cry", "Crz"]
+        self.stiffness_labels = ["Kx", "Ky", "Kz", "Krx", "Kry", "Krz"]
 
         self.reset_table_variables()
         self.create_widgets_lists()
@@ -164,19 +165,8 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
 
-        self.pushButton_load_Cx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Cx_table_path, dof_label="Cx"))
-        self.pushButton_load_Cy_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Cy_table_path, dof_label="Cy"))
-        self.pushButton_load_Cz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Cz_table_path, dof_label="Cz"))
-        self.pushButton_load_Crx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Crx_table_path, dof_label="Crx"))
-        self.pushButton_load_Cry_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Cry_table_path, dof_label="Cry"))
-        self.pushButton_load_Crz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Crz_table_path, dof_label="Crz"))
-
-        self.pushButton_load_Kx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Kx_table_path, dof_label="Kx"))
-        self.pushButton_load_Ky_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Ky_table_path, dof_label="Ky"))
-        self.pushButton_load_Kz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Kz_table_path, dof_label="Kz"))
-        self.pushButton_load_Krx_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Krx_table_path, dof_label="Krx"))
-        self.pushButton_load_Kry_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Kry_table_path, dof_label="Kry"))
-        self.pushButton_load_Krz_table.clicked.connect(partial(self.load_table_for_line_edit, line_edit=self.lineEdit_Krz_table_path, dof_label="Krz"))
+        self.connect_load_table_push_buttons(self.lineEdits_table_values_dampings, self.damping_labels)
+        self.connect_load_table_push_buttons(self.lineEdits_table_values_stiffness, self.stiffness_labels)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
