@@ -449,9 +449,8 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
     def check_tables_for_stiffness_links(self, node_ids_pair: list):
 
         table_paths = list()
-        link_labels = ["Kx", "Ky", "Kz", "Krx", "Kry", "Krz"]
 
-        for label in link_labels:
+        for label in self.stiffness_labels:
             table_path_name = f"{label}_table_path"
             imported_values_name = f"imported_{label.lower()}_values"
             _imported_values = getattr(self, imported_values_name)
@@ -470,7 +469,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
         table_names = list()
 
-        for label in link_labels:
+        for label in self.stiffness_labels:
             imported_values_name = f"imported_{label.lower()}_values"
             _imported_values = getattr(self, imported_values_name)
 
@@ -505,9 +504,8 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
     def check_tables_for_dampings_links(self, node_ids_pair: list):
 
         table_paths = list()
-        link_labels = ["Cx", "Cy", "Cz", "Crx", "Cry", "Crz"]
 
-        for label in link_labels:
+        for label in self.damping_labels:
             table_path_name = f"{label}_table_path"
             imported_values_name = f"imported_{label.lower()}_values"
             _imported_values = getattr(self, imported_values_name)
@@ -526,14 +524,14 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
         table_names = list()
 
-        for label in link_labels:
+        for label in self.damping_labels:
             imported_values_name = f"imported_{label.lower()}_values"
             _imported_values = getattr(self, imported_values_name)
 
             _table_name = None
             if isinstance(_imported_values, np.ndarray):
                 _table_name = self.get_table_name(
-                    f"stiffness_link_{label}", node_id=node_ids_pair
+                    f"damping_link_{label}", node_id=node_ids_pair
                 )
                 if self.save_table_values(_table_name, _imported_values):
                     return
