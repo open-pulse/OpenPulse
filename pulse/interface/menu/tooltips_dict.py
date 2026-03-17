@@ -12,7 +12,7 @@ tooltips["set_fluid"] = (
     )
 
 tooltips["set_cross_section"] = (
-    "Configure the cross-section."
+    "Use this feature to configure cross-sections for pipe and beam elements."
     )
 
 # structural model setup
@@ -29,11 +29,11 @@ tooltips["set_nodal_loads"] = (
     )
 
 tooltips["add_mass_spring_damper"] = (
-    "Add a lumped element (mass, grounded stiffness and damping) at selected nodes."
+    "Add a lumped element (mass or grounded stiffness and damping) at selected nodes."
     )
 
 tooltips["add_elastic_nodal_links"] = (
-    "Configure a stiffness or damping links between selected pair of nodes."
+    "Configure a stiffness or damping link between selected pair of nodes."
     )
 
 tooltips["set_beam_xaxis_rotation"] = (
@@ -49,11 +49,11 @@ tooltips["set_stress_stiffening"] = (
     )
 
 tooltips["add_valve"] = (
-    "Configure a valve."
+    "Use this feature to configure and add a valve."
     )
 
 tooltips["add_expansion_joint"] = (
-    "Configure an expansion joint."
+    "Use this feature to configure and add an expansion joint."
     )
 
 tooltips["set_inertial_loads"] = (
