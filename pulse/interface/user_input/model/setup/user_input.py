@@ -1,8 +1,9 @@
 from abc import abstractmethod
+from functools import partial
 
 from molde.colors import color_names
 from PySide6.QtGui import QCloseEvent, QColor, Qt
-from PySide6.QtWidgets import QDialog, QWidget, QLineEdit
+from PySide6.QtWidgets import QDialog, QWidget, QLineEdit, QPushButton
 
 from pulse import app
 from pulse.interface.formatters import icons
@@ -109,6 +110,13 @@ class UserInput(QDialog):
             PrintMessageInput([error_title, title, message])
             line_edit.setFocus()
             return None, None
+    
+    def connect_load_table_push_buttons(self, line_edits: list[QLineEdit], labels: list[str]):
+        for line_edit, label in zip(line_edits, labels):
+            push_button: QPushButton = getattr(self, f"pushButton_load_{label}_table")
+
+            push_button.clicked.connect(partial(self.load_table_for_line_edit, line_edit=line_edit, dof_label=label))
+
     
     def load_table_for_line_edit(self, line_edit: QLineEdit, dof_label: str, bc_label: str):
         imported_values, table_path = self.load_table(

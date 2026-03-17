@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QLineEdit
 
-from pulse import app
 from pulse.interface.user_input.model.setup.lines_input import LinesInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 

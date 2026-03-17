@@ -19,10 +19,6 @@ class LinesInput(UserInput):
         for line_edit in line_edits:
             line_edit.clear()
 
-    def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.clear()
-        lineEdit.setFocus()
-
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()

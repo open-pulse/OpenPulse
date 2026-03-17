@@ -1,22 +1,24 @@
-from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt
-
-from pulse import app
-from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_ui import ExpansionJointInput_UI
-from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.model.cross_section import CrossSection
-from pulse.interface.user_input.model.setup.structural.structural_lines_input import StructuralLinesInput
-
-import numpy as np
-from pathlib import Path
-from os.path import basename
 from enum import IntEnum
 
+import numpy as np
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
+
+from pulse import app
+from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_ui import (
+    ExpansionJointInput_UI,
+)
+from pulse.interface.user_input.model.setup.structural.structural_lines_input import (
+    StructuralLinesInput,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.cross_section import CrossSection
+
 error_title = "Error"
-stiffess_labels = ["Kx", "Kyz", "Krx", "Kryz"]
 
 
 class DataType(IntEnum):
@@ -44,6 +46,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             self.exec()
 
     def _initialize(self):
+        self.stiffness_labels = ["Kx", "Kyz", "Krx", "Kryz"]
 
         self.reset_table_variables()
         self.create_widgets_lists()
@@ -54,33 +57,17 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         self.expansion_joint_info = dict()
 
     def reset_table_variables(self):
-
-        self.imported_Kx_values = None
-        self.imported_Kyz_values = None
-        self.imported_Krx_values = None
-        self.imported_Kryz_values = None
-
-        self.Kx_table_path = None
-        self.Kyz_table_path = None
-        self.Krx_table_path = None
-        self.Kryz_table_path = None
+        for label in self.stiffness_labels:
+            setattr(self, f"imported_{label}_values", None)
+            setattr(self, f"{label}_table_path", None)
 
     def create_widgets_lists(self):
-
-        self.list_line_edits = [
-            self.lineEdit_expansion_joint_name,
-            self.lineEdit_effective_diameter,
-            self.lineEdit_joint_mass,
-            self.lineEdit_axial_locking_criteria,
-            self.lineEdit_Kx,
-            self.lineEdit_Kyz,
-            self.lineEdit_Krx,
-            self.lineEdit_Kryz,
+        self.line_edits_table_path = [
             self.lineEdit_Kx_table_path,
             self.lineEdit_Kyz_table_path,
             self.lineEdit_Krx_table_path,
             self.lineEdit_Kryz_table_path,
-            ]
+        ]
 
     def _create_connections(self):
         #
@@ -93,10 +80,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
-        self.pushButton_load_table_Kx.clicked.connect(self.load_Kx_table)
-        self.pushButton_load_table_Kyz.clicked.connect(self.load_Kyz_table)
-        self.pushButton_load_table_Krx.clicked.connect(self.load_Krx_table)
-        self.pushButton_load_table_Kryz.clicked.connect(self.load_Kryz_table)
+        self.connect_load_table_push_buttons(self.line_edits_table_path, self.stiffness_labels)
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
@@ -178,10 +162,6 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         return False
 
-    def reset_all_line_edits(self):
-        for lineEdit in self.list_line_edits:
-            lineEdit.clear()
-
     def load_input_fields(self, line_id: int):
 
         joint_data = self.properties._get_property(
@@ -192,7 +172,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         try:
 
-            self.reset_all_line_edits()
+            self.reset_input_fields()
             self.lineEdit_effective_diameter.setText(str(joint_data["effective_diameter"]))
             self.lineEdit_joint_mass.setText(str(joint_data["joint_mass"]))
             self.lineEdit_axial_locking_criteria.setText(
@@ -295,7 +275,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         self.expansion_joint_info["values"] = _stiffness
 
     def load_Kx_table(self):
-        self.imported_Kx_values, self.Kx_table_path = CommonUserInputs(self).load_table(
+        self.imported_Kx_values, self.Kx_table_path = self.load_table(
             self.lineEdit_Kx_table_path, 
             "Kx", 
             dof_label="axial stiffness",
@@ -305,7 +285,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             self.line_edit_reset(self.lineEdit_Kx_table_path)
 
     def load_Kyz_table(self):
-        self.imported_Kyz_values, self.Kyz_table_path = CommonUserInputs(self).load_table(
+        self.imported_Kyz_values, self.Kyz_table_path = self.load_table(
             self.lineEdit_Kyz_table_path, 
             "Kyz", 
             dof_label="transversal stiffness",
@@ -315,7 +295,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             self.line_edit_reset(self.lineEdit_Kyz_table_path)
 
     def load_Krx_table(self):
-        self.imported_Krx_values, self.Krx_table_path = CommonUserInputs(self).load_table(
+        self.imported_Krx_values, self.Krx_table_path = self.load_table(
             self.lineEdit_Krx_table_path, 
             "Krx", 
             dof_label="torsional stiffness",
@@ -325,7 +305,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             self.line_edit_reset(self.lineEdit_Krx_table_path)
 
     def load_Kryz_table(self):
-        self.imported_Kryz_values, self.Kryz_table_path = CommonUserInputs(self).load_table(
+        self.imported_Kryz_values, self.Kryz_table_path = self.load_table(
             self.lineEdit_Kryz_table_path, 
             "Kryz", 
             dof_label="angular stiffness"
@@ -333,10 +313,6 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         if self.Kryz_table_path is None:
             self.line_edit_reset(self.lineEdit_Kryz_table_path)
-
-    def line_edit_reset(self, line_edit: QLineEdit):
-        line_edit.clear()
-        line_edit.setFocus()
    
     def save_table_values(self, table_name: str, imported_values: np.ndarray):
 
@@ -353,7 +329,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             PrintMessageInput([error_title, title, message])
             return True
 
-        update_analysis_setup_in_file(_frequencies)
+        self.update_analysis_setup_in_file(_frequencies)
 
         # real values vector
         real_values = imported_values[:, 1]
@@ -383,7 +359,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             if _imported_values is None:
                 line_edit = getattr(self, f"lineEdit_{label}_table_path")
 
-                _imported_values, _table_path = CommonUserInputs(self).load_table(line_edit, "nodal link", dof_label=label, direct_load=True)
+                _imported_values, _table_path = self.load_table(line_edit, "nodal link", dof_label=label, direct_load=True)
                 setattr(self, imported_values_name, _imported_values)
                 setattr(self, table_path_name, _table_path)
 
@@ -399,7 +375,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             message += "Required stiffness: "
             for i, value in enumerate(imported_values):
                 if value is None:
-                    message += f"{stiffess_labels[i]}, "
+                    message += f"{self.stiffness_labels[i]}, "
 
             self.hide()
             PrintMessageInput([error_title, title, message[:-2]])
@@ -414,7 +390,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
             _table_name = None
             if isinstance(_imported_values, np.ndarray):
-                _table_name = get_table_name(f"expansion_joint_stiffness_{label}", line_id=line_id)
+                _table_name = self.get_table_name(f"expansion_joint_stiffness_{label}", line_id=line_id)
                 if self.save_table_values(_table_name, _imported_values):
                     return
 
@@ -583,7 +559,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         if self.lineEdit_selected_id.text() != "":
             line_id = int(self.lineEdit_selected_id.text())
-            self.reset_all_line_edits()
+            self.reset_input_fields()
 
             self.properties._remove_line_property("expansion_joint_info", line_id)
 
