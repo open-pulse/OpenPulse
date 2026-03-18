@@ -116,7 +116,6 @@ class UserInput(QDialog):
             push_button: QPushButton = getattr(self, f"pushButton_load_{label}_table")
 
             push_button.clicked.connect(partial(self.load_table_for_line_edit, line_edit=line_edit, dof_label=label))
-
     
     def load_table_for_line_edit(self, line_edit: QLineEdit, dof_label: str, bc_label: str):
         imported_values, table_path = self.load_table(

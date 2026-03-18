@@ -2,7 +2,7 @@ from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
+from PySide6.QtWidgets import  QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -274,45 +274,17 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         self.expansion_joint_info["values"] = _stiffness
 
-    def load_Kx_table(self):
-        self.imported_Kx_values, self.Kx_table_path = self.load_table(
-            self.lineEdit_Kx_table_path, 
-            "Kx", 
-            dof_label="axial stiffness",
-            )
+    def load_table_for_line_edit(self, line_edit, dof_label):
+        if dof_label == "Kx":
+            bc_label = "axial stiffness"
+        elif dof_label == "Kyz":
+            bc_label = "transversal stiffness"
+        elif dof_label == "Krx":
+            bc_label = "torsional stiffness"
+        else:
+            bc_label = "angular stiffness"
 
-        if self.imported_Kx_values is None:
-            self.line_edit_reset(self.lineEdit_Kx_table_path)
-
-    def load_Kyz_table(self):
-        self.imported_Kyz_values, self.Kyz_table_path = self.load_table(
-            self.lineEdit_Kyz_table_path, 
-            "Kyz", 
-            dof_label="transversal stiffness",
-            )
-
-        if self.imported_Kyz_values is None:
-            self.line_edit_reset(self.lineEdit_Kyz_table_path)
-
-    def load_Krx_table(self):
-        self.imported_Krx_values, self.Krx_table_path = self.load_table(
-            self.lineEdit_Krx_table_path, 
-            "Krx", 
-            dof_label="torsional stiffness",
-            )
-
-        if self.imported_Krx_values is None:
-            self.line_edit_reset(self.lineEdit_Krx_table_path)
-
-    def load_Kryz_table(self):
-        self.imported_Kryz_values, self.Kryz_table_path = self.load_table(
-            self.lineEdit_Kryz_table_path, 
-            "Kryz", 
-            dof_label="angular stiffness"
-            )
-
-        if self.Kryz_table_path is None:
-            self.line_edit_reset(self.lineEdit_Kryz_table_path)
+        return super().load_table_for_line_edit(line_edit, dof_label, bc_label)
    
     def save_table_values(self, table_name: str, imported_values: np.ndarray):
 
@@ -364,7 +336,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
                 setattr(self, table_path_name, _table_path)
 
             _table_path_attr = getattr(self, table_path_name)
-            table_paths.append(_table_path_attr)
+            table_paths.append(str(_table_path_attr))
             imported_values.append(_imported_values)
 
         # check the minimum requisites before storing the tabular data
@@ -554,14 +526,24 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
                     "structural_element_type", element_type, line_id
                 )
                 self.properties._set_multiple_line_properties(pipe_info, line_id)
+    
+    def remove_expansion_joint_properties(self, line_ids: int | list[int]):
+        self.properties._remove_line_property("structure_name", line_ids)
+        self.properties._remove_line_property("expansion_joint_info", line_ids)
+        self.properties._remove_line_property("section_type_label", line_ids)
+        self.properties._remove_line_property("structural_element_type", line_ids)
 
     def remove_callback(self):
+        selected_items = self.treeWidget_expansion_joints_info.selectedItems()
 
-        if self.lineEdit_selected_id.text() != "":
-            line_id = int(self.lineEdit_selected_id.text())
+        if not selected_items:
+            return
+    
+        for selected_item in selected_items:
+            line_id = int(selected_item.data(0, 0))
+
             self.reset_input_fields()
-
-            self.properties._remove_line_property("expansion_joint_info", line_id)
+            self.remove_expansion_joint_properties(line_id)
 
             self.restore_the_cross_section([line_id])
             self.preprocessor.add_expansion_joint_by_lines(line_id, None)
@@ -590,7 +572,8 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             if "expansion_joint_info" in data.keys():
                 line_ids.append(line_id)
 
-        self.properties._remove_line_property("expansion_joint_info", line_ids)
+        self.remove_expansion_joint_properties(line_ids)
+    
         self.preprocessor.add_expansion_joint_by_lines(line_ids, None)
         self.restore_the_cross_section(line_ids)
 
