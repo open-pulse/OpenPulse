@@ -331,11 +331,9 @@ class ModelSetupItems(CommonMenuItems):
             if domain_text in ["structural", "acoustic", "coupled"]:
                 return domain_text
         except Exception:
-            pass
-        return "structural"
+            return "structural"
 
-    def needs_property(self, property_name: str) -> bool:
-        domain = self._get_physical_domain()
+    def needs_property(self, property_name: str, domain: str) -> bool:
 
         if property_name == "set_material":
             return True
@@ -363,6 +361,9 @@ class ModelSetupItems(CommonMenuItems):
         return True
 
     def update_tooltips_warnings(self):
+
+        physical_domain = self._get_physical_domain()
+
         for top_level in self.top_level_items:
             for i in range(top_level.childCount()):
                 item = top_level.child(i)
@@ -371,7 +372,7 @@ class ModelSetupItems(CommonMenuItems):
                 if not prop_name:
                     continue
 
-                is_needed = self.needs_property(prop_name)
+                is_needed = self.needs_property(prop_name, physical_domain)
                 is_filled = self.contains_property(prop_name)
 
                 if is_needed and not is_filled:
