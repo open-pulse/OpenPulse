@@ -518,6 +518,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
                 )
 
                 pipe_info = {
+                    "structure_name": "pipe",
                     "section_type_label": "pipe",
                     "section_parameters": cross.section_parameters,
                 }
