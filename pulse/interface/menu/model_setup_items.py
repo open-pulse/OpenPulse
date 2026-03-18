@@ -1,5 +1,5 @@
 from PySide6.QtGui import QColor, QPen
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.menu.common_menu_items import CommonMenuItems
@@ -20,7 +20,7 @@ class ModelSetupItems(CommonMenuItems):
         self._create_items()
         self._create_connections()
         self.update_tooltips_warnings()
-        QTimer.singleShot(0, self._connect_domain_filter)
+        self._connect_domain_filter()
 
     def _create_items(self):
         """Creates all TreeWidgetItems."""
