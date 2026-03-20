@@ -48,6 +48,10 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
     def _initialize(self):
         self.stiffness_labels = ["Kx", "Kyz", "Krx", "Kryz"]
 
+        self.lineEdit_expansion_joint_name.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_effective_diameter.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_joint_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
         self.reset_table_variables()
         self.create_widgets_lists()
 
