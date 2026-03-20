@@ -78,7 +78,7 @@ class UserInput(QDialog):
 
                 table_path = FileDialogService.open_file(extensions, caption, last_path)
 
-                if not table_path.exists():
+                if table_path is None:
                     return None, None
 
             line_edit.setText(str(table_path))
