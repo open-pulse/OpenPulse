@@ -1,35 +1,38 @@
 # fmt: off
 
+import os
+
+import numpy as np
+from PySide6.QtCore import QEvent, QObject, Qt, Signal
 from PySide6.QtWidgets import QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
-from PySide6.QtCore import Qt, QEvent, QObject, Signal
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.acoustic_transfer_element_input_ui import AcousticTransferElementInput_UI
+from pulse.interface.ui_generated.model.setup.acoustic.acoustic_transfer_element_input_ui import (
+    AcousticTransferElementInput_UI,
+)
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.data_handler.file_managers.file_manager import (
+    FileManager,
+)
+from pulse.interface.user_input.model.setup.nodes_input import UserInput
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-
-
-
-import os
-import numpy as np
-from pathlib import Path
-
 
 error_title = "Error"
 warning_title = "Warning"
 
 
-class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
+class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
+
         self.properties = app().project.model.properties
         self.preprocessor = app().project.model.preprocessor
 
-        self._config_window()
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
@@ -40,12 +43,6 @@ class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
         while self.keep_window_open:
             self.exec()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
-
     def _initialize(self):
 
         self.keep_window_open = True
@@ -55,7 +52,6 @@ class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
     
     def _define_qt_variables(self):
         self.current_lineEdit = self.lineEdit_output_node_id
-
 
     def _create_connections(self):
         #
@@ -375,10 +371,4 @@ class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
             self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)
-
 # fmt: on

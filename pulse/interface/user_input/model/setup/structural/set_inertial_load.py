@@ -1,25 +1,25 @@
+import numpy as np
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.structural.inertial_load_input_ui import InertialLoadInput_UI
+from pulse.interface.ui_generated.model.setup.structural.inertial_load_input_ui import (
+    InertialLoadInput_UI,
+)
+from pulse.interface.user_input.model.setup.user_input import UserInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-
-import numpy as np
 
 error_title = "Error"
 warning_title = "Warning"
 
-class SetInertialLoad(InertialLoadInput_UI):
+class SetInertialLoad(UserInput, InertialLoadInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
+        
         self.project = app().project
         self.model = app().project.model
         self.preprocessor = app().project.model.preprocessor
         
         self._initialize()
-        self._config_window()
         self._create_connections()
         self._config_widgets()
         self._load_inertia_load_setup()
@@ -30,12 +30,6 @@ class SetInertialLoad(InertialLoadInput_UI):
         self.global_damping = [0., 0., 0.]
         # self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
         self.gravity_vector = self.model.gravity_vector
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _create_connections(self):
         self.pushButton_attribute.clicked.connect(self.attribute_callback)

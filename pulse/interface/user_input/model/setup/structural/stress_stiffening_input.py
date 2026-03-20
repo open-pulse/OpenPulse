@@ -1,29 +1,29 @@
-from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.structural.stress_stiffening_input_ui import StressStiffeningInput_UI
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.ui_generated.model.setup.structural.stress_stiffening_input_ui import (
+    StressStiffeningInput_UI,
+)
+from pulse.interface.user_input.model.setup.user_input import UserInput
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-
-
 
 error_title = "Error"
 
 
-class StressStiffeningInput(StressStiffeningInput_UI):
+class StressStiffeningInput(UserInput, StressStiffeningInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
+
         self.project = app().project
         self.model = app().project.model
         self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
         self.before_run = app().project.get_pre_solution_model_checks()
 
-        self._config_window()
         self._initialize()
         self._create_connections()
         self._config_widgets()
@@ -33,12 +33,6 @@ class StressStiffeningInput(StressStiffeningInput_UI):
 
         while self.keep_window_open:
             self.exec()
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
         self.keep_window_open = True
@@ -291,8 +285,3 @@ class StressStiffeningInput(StressStiffeningInput_UI):
             self.remove_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)
