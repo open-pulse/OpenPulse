@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 from PySide6.QtCore import Qt
 
 from pulse import app
@@ -400,7 +400,7 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
             PrintMessageInput([error_title, title, message])
             return True
 
-        update_analysis_setup_in_file(frequencies)
+        self.update_analysis_setup_in_file(frequencies)
 
         # real values vector
         real_values = _imported_values[:, 1]
@@ -416,7 +416,7 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
         return False
 
     def load_table_button_callback(self):
-        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
+        self.imported_values, self.table_path = self.load_table(
             self.lineEdit_load_table_path, 
             "dimensionless impedance",
             )
@@ -596,7 +596,7 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
 
                 if self.lineEdit_load_table_path.text() != "":
                     if self.imported_values is None:
-                        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
+                        self.imported_values, self.table_path = self.load_table(
                             self.lineEdit_load_table_path, 
                             "dimensionless impedance", 
                             direct_load=True,
@@ -611,7 +611,7 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                         self.perforated_plate_inputs.clear()
                         return
 
-                    table_name = get_table_name("perforated_plate_dimensionless_impedance", element_id=element_id)
+                    table_name = self.get_table_name("perforated_plate_dimensionless_impedance", element_id=element_id)
                     if self.save_table_values(table_name, self.imported_values):
                         self.perforated_plate_inputs.clear()
                         return
