@@ -46,6 +46,7 @@ PhysicalDomain = Literal[
 class AnalysisToolbar(QToolBar):
 
     enable_pushbutons = Signal()
+    domain_changed = Signal()
 
     def __init__(self):
         super().__init__()
@@ -247,6 +248,7 @@ class AnalysisToolbar(QToolBar):
         current_analysis_id = self.get_current_analysis_id()
         valid_setup = app().project.is_there_a_valid_analysis_setup(current_analysis_id=current_analysis_id)
         self.set_pushbutton_run_analysis_enabled(valid_setup)
+        self.domain_changed.emit()
 
     def analysis_type_callback(self):
 

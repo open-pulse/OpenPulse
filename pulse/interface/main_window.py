@@ -69,6 +69,7 @@ class MainWindow(MainWindow_UI):
     theme_changed = Signal(str)
     visualization_changed = Signal()
     selection_changed = Signal()
+    analysis_changed = Signal()
 
     def __init__(self):
         super().__init__()
@@ -793,6 +794,9 @@ class MainWindow(MainWindow_UI):
         self.analysis_toolbar = AnalysisToolbar()
         self.addToolBar(self.analysis_toolbar)
         self.analysis_toolbar.setDisabled(True)
+
+        if hasattr(self.analysis_toolbar, "domain_changed"):
+            self.analysis_toolbar.domain_changed.connect(self.analysis_changed)
 
     def _add_animation_toolbar(self):
         self.animation_toolbar = AnimationToolbar()
