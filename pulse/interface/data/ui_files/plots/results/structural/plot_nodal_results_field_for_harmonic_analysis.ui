@@ -946,6 +946,6 @@
   <tabstop>comboBox_color_scale</tabstop>
   <tabstop>pushButton_plot</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

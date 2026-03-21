@@ -1,25 +1,20 @@
-from PySide6.QtWidgets import QComboBox, QFrame, QLineEdit, QPushButton, QSlider, QTreeWidget, QTreeWidgetItem, QWidget
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.plots.results.acoustic.acoustic_mode_shape_ui import AcousticModeShape_UI
 
-from molde import load_ui
 
 import numpy as np
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
-class PlotAcousticModeShape(QWidget):
+class PlotAcousticModeShape(AcousticModeShape_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "plots/results/acoustic/acoustic_mode_shape.ui"
-        load_ui(ui_path, self)
-
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_natural_frequencies()
@@ -39,33 +34,6 @@ class PlotAcousticModeShape(QWidget):
                           "PuOR",
                           "grayscale",
                           ]
-
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_color_scale : QComboBox
-        self.comboBox_colormaps : QComboBox
-
-        # QFrame
-        self.frame_button : QFrame
-
-        # QLineEdit
-        self.lineEdit_natural_frequency : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QLineEdit
-        self.lineEdit_selected_frequency : QLineEdit
-
-        # QPushButton
-        self.pushButton_plot : QPushButton
-
-        # QSlider
-        self.slider_transparency : QSlider
-
-        # QTreeWidget
-        self.treeWidget_frequencies : QTreeWidget
 
     def _create_connections(self):
         #

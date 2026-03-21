@@ -1,26 +1,35 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent, QAction
+from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtGui import QAction
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.cross_section.set_cross_section_ui import SetCrossSection_UI
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
 from pulse.utils.common_utils import *
 
-from molde import load_ui
-
 from collections import defaultdict
+from enum import IntEnum
+
+
+class TabIndex(IntEnum):
+    PIPE = 0
+    BEAM = 1
+    ACTIVE_SECTIONS = 2
+
+
+class SectionType(IntEnum):
+    CONSTANT = 0
+    VARIABLE = 1
+
 
 window_title = "Error"
 
-class SetCrossSectionInput(QDialog):
+class SetCrossSectionInput(SetCrossSection_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/cross_section/set_cross_section.ui"
-        load_ui(ui_path, self)
-
         self.pipe_to_beam = kwargs.get("pipe_to_beam", False)
         self.beam_to_pipe = kwargs.get("beam_to_pipe", False)
         self.lines_to_update_cross_section = kwargs.get("lines_to_update_cross_section", list())
@@ -59,7 +68,6 @@ class SetCrossSectionInput(QDialog):
         self.section_data_lines = dict()
 
     def _define_qt_variables(self):
-
         # QAction
         self.action_all_lines = QAction(self)
         # self.action_all_lines.setVisible(False)
@@ -67,23 +75,11 @@ class SetCrossSectionInput(QDialog):
         self.action_all_lines.triggered.connect(self.select_all_lines_callback)
         self.addAction(self.action_all_lines)
 
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # QFrame
-        self.main_frame : QFrame
-
         # QGridLayout
         self.grid_layout = self.main_frame.layout()
         self.grid_layout.setContentsMargins(0,0,0,0)
         self.main_frame.setLayout(self.grid_layout)
         self.grid_layout.addWidget(self.cross_section_widget)
-
-        # QLabel
-        self.label_selected_id : QLabel
-
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
 
         # QPushButton
         self.pushButton_exit_pipe = self.cross_section_widget.pushButton_exit_pipe
@@ -131,7 +127,7 @@ class SetCrossSectionInput(QDialog):
         self.attribution_type_callback()
 
     def pipe_section_tab_callback(self):
-        if self.tabWidget_pipe_section.currentIndex() == 0:
+        if self.tabWidget_pipe_section.currentIndex() == SectionType.CONSTANT:
             return
 
         selected_lines = app().main_window.list_selected_lines()
@@ -186,8 +182,8 @@ class SetCrossSectionInput(QDialog):
                 section_properties,
                 )
 
-        if self.tabWidget_general.currentIndex() == 0:
-            if self.tabWidget_pipe_section.currentIndex() == 1:
+        if self.tabWidget_general.currentIndex() == TabIndex.PIPE:
+            if self.tabWidget_pipe_section.currentIndex() == SectionType.VARIABLE:
                 self.get_line_elements(line_id)
 
     def get_line_elements(self, line_id: int):
@@ -401,7 +397,7 @@ class SetCrossSectionInput(QDialog):
                     title = "PSD cross-section edition not allowed"
                     message = "The PSD line sections could not be edited in the cross-section setup interface. "
                     message += "You must switch to the PSD configuration interface for this specific section editing."
-                    PrintMessageInput([window_title_2, title, message])
+                    PrintMessageInput([window_title, title, message])
                     return True
 
     def select_all_lines_callback(self):
@@ -431,7 +427,7 @@ class SetCrossSectionInput(QDialog):
         self.lineEdit_selected_id.setEnabled(bool(index))
 
     def main_tab_callback(self):
-        if self.tabWidget_general.currentIndex() == 2:
+        if self.tabWidget_general.currentIndex() == TabIndex.ACTIVE_SECTIONS:
             self.pushButton_edit_section_data.setDisabled(True)
             self.pushButton_load_section_data.setDisabled(True)
             self.comboBox_attribution_type.setDisabled(True)
@@ -440,9 +436,9 @@ class SetCrossSectionInput(QDialog):
         self.comboBox_attribution_type.setDisabled(False)
 
     def attribute_callback(self):
-        if self.tabWidget_general.currentIndex() == 0:
+        if self.tabWidget_general.currentIndex() == TabIndex.PIPE:
             self.pipe_section_attribution_callback()
-        elif self.tabWidget_general.currentIndex() == 1:
+        elif self.tabWidget_general.currentIndex() == TabIndex.BEAM:
             self.beam_section_attribution_callback()
 
     def pipe_section_attribution_callback(self):
@@ -473,17 +469,15 @@ class SetCrossSectionInput(QDialog):
         self.properties._remove_line_property("wall_formulation", line_ids)
         self.properties._remove_line_property("force_offset", line_ids)
         self.properties._remove_line_property("capped_end", line_ids)
-        self.properties._remove_line_property("expansion_joint_info", line_ids)
         self.properties._remove_line_property("valve_info", line_ids)
+        self.properties._remove_line_property("expansion_joint_info", line_ids)
 
-        self.remove_table_files_from_expansion_joints(line_ids)
-
-        if self.tabWidget_general.currentIndex() == 0:
-            if self.tabWidget_pipe_section.currentIndex() == 0:    
+        if self.tabWidget_general.currentIndex() == TabIndex.PIPE:
+            if self.tabWidget_pipe_section.currentIndex() == SectionType.CONSTANT:    
                 if self.cross_section_widget.get_constant_section_pipe_parameters():
                     return               
 
-            elif self.tabWidget_pipe_section.currentIndex() == 1:
+            elif self.tabWidget_pipe_section.currentIndex() == SectionType.VARIABLE:
                 if self.cross_section_widget.get_variable_section_pipe_parameters():
                     return
 
@@ -508,10 +502,10 @@ class SetCrossSectionInput(QDialog):
         self.properties._set_multiple_line_properties(section_info, line_ids)
         self.properties._set_line_property("cross_section", cross_section, line_ids)
 
-        if self.tabWidget_pipe_section.currentIndex() == 0:
+        if self.tabWidget_pipe_section.currentIndex() == SectionType.CONSTANT:
             self.preprocessor.set_cross_section_by_lines(line_ids, cross_section)
 
-        elif self.tabWidget_pipe_section.currentIndex() == 1:
+        elif self.tabWidget_pipe_section.currentIndex() == SectionType.VARIABLE:
             self.preprocessor.set_variable_cross_section_by_line(line_ids, section_info)
 
         self.actions_to_finalize()
@@ -530,7 +524,7 @@ class SetCrossSectionInput(QDialog):
         if self.check_if_lines_belongs_to_psd(line_ids):
             return
 
-        if self.tabWidget_general.currentIndex() == 1:
+        if self.tabWidget_general.currentIndex() == TabIndex.BEAM:
 
             if self.cross_section_widget.get_beam_section_parameters():
                 return
@@ -559,8 +553,6 @@ class SetCrossSectionInput(QDialog):
             self.properties._remove_line_property("valve_info", line_ids)
 
             self.remove_acoustic_related_data_from_lines(line_ids)
-            self.remove_table_files_from_expansion_joints(line_ids)
-
             self.actions_to_finalize()
 
     def actions_to_finalize(self):
@@ -570,6 +562,7 @@ class SetCrossSectionInput(QDialog):
         plt.close()
         self.complete = True
         app().project.file.write_line_properties_in_file()
+        app().project.file.write_imported_table_data_in_file()
 
         geometry_handler = GeometryHandler(app().project)
         geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
@@ -603,13 +596,13 @@ class SetCrossSectionInput(QDialog):
                             remove_data_from_elements[property].append(element_id)
 
             prop_labels = [
-                            "acoustic_pressure", 
-                            "volume_velocity", 
-                            "specific_impedance", 
-                            "radiation_impedance", 
-                            "reciprocating_compressor_excitation", 
-                            "reciprocating_pump_excitation"
-                           ]
+                "acoustic_pressure", 
+                "volume_velocity", 
+                "specific_impedance", 
+                "radiation_impedance", 
+                "reciprocating_compressor_excitation", 
+                "reciprocating_pump_excitation"
+                ]
 
             line_nodes = self.preprocessor.mesh.nodes_from_line[line_id]
             for node_id in line_nodes:
@@ -619,41 +612,14 @@ class SetCrossSectionInput(QDialog):
                             self.properties._remove_nodal_property(property, node_id)
                             remove_data_from_nodes[property].append(node_id)
 
-        for property, element_ids in remove_data_from_elements.items(): 
-            table_names = self.properties.get_element_related_table_names(property, element_ids)
-            self.process_table_file_removal(table_names)
-        
-        for property, node_ids in remove_data_from_nodes.items(): 
-            table_names = self.properties.get_nodal_related_table_names(property, node_ids)
-            self.process_table_file_removal(table_names)
-
-    def process_table_file_removal(self, table_names : list):
-
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
-
-    def remove_table_files_from_expansion_joints(self, line_ids: list):
-
-        table_names = list()
-        for line_id, data in self.properties.line_properties.items():
-            data: dict
-            if "expansion_joint_info" in data.keys():
-                ej_info = data["expansion_joint_info"]
-                if line_id in line_ids and "table_names" in ej_info.keys():
-                    table_names.append(ej_info["table_names"])
-
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("structural", table_name)
-            app().project.file.write_imported_table_data_in_file()
+        app().project.file.write_nodal_properties_in_file()
+        app().project.file.write_element_properties_in_file()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_general.currentIndex() == 0:
+            if self.tabWidget_general.currentIndex() == TabIndex.PIPE:
                 self.pipe_section_attribution_callback()
-            if self.tabWidget_general.currentIndex() == 1:
+            if self.tabWidget_general.currentIndex() == TabIndex.BEAM:
                 self.beam_section_attribution_callback()
 
         elif event.key() == Qt.Key_Escape:

@@ -434,6 +434,6 @@
   <tabstop>pushButton_modal_acoustic</tabstop>
   <tabstop>pushButton_static_analysis</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -430,6 +430,6 @@
  <tabstops>
   <tabstop>comboBox_attribution_type</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

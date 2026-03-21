@@ -4,8 +4,8 @@ from pulse.processing.assembly_acoustic import AssemblyAcoustic
 
 import numpy as np
 from numpy.linalg import norm
-from scipy.sparse import csr_matrix, bmat, eye, block_array
-from scipy.sparse.linalg import eigs, eigsh, spsolve, inv
+from scipy.sparse import csr_matrix, bmat, eye
+from scipy.sparse.linalg import eigs, spsolve, inv
 
 import logging
 

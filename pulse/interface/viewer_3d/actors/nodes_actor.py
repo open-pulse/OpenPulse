@@ -1,6 +1,5 @@
 from molde.actors import GhostActor
-from molde.colors import Color
-from molde.utils import set_polydata_colors, set_polydata_property
+from molde.utils import set_polydata_colors
 from vtkmodules.vtkCommonCore import vtkCharArray, vtkPoints, vtkUnsignedIntArray
 from vtkmodules.vtkCommonDataModel import VTK_VERTEX, vtkPolyData
 from vtkmodules.vtkRenderingCore import vtkPolyDataMapper

@@ -1,28 +1,21 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton
 from PySide6.QtCore import Qt
 from pathlib import Path
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.fluid.load_fluid_composition_ui import LoadFluidComposition_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
-from molde import load_ui
 
-
-class LoadFluidCompositionInput(QDialog):
+class LoadFluidCompositionInput(LoadFluidComposition_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/fluid/load_fluid_composition.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self.file_path = kwargs.get("file_path", "")
        
         self._initialize()
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self._load_file()
@@ -38,19 +31,6 @@ class LoadFluidCompositionInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_sheet_names : QComboBox
-
-        # QLineEdit
-        self.lineEdit_file_path : QLineEdit
-
-        # QPushButton
-        self.pushButton_exit : QPushButton
-        self.pushButton_confirm : QPushButton
-        self.pushButton_search : QPushButton
 
     def _create_connections(self):
         self.pushButton_exit.clicked.connect(self.close)

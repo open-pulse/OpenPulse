@@ -746,6 +746,6 @@
   <tabstop>treeWidget_section_data</tabstop>
   <tabstop>pushButton_confirm_selection</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

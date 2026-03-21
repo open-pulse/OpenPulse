@@ -1,11 +1,11 @@
-from PySide6.QtWidgets import QDialog, QComboBox, QFrame, QGridLayout, QLineEdit, QPushButton, QScrollArea, QTableWidget
+from PySide6.QtWidgets import QGridLayout
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.fluid.set_fluid_input_simplified_ui import SetFluidInputSimplified_UI
 from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidget
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
@@ -17,13 +17,9 @@ def getColorRGB(color):
     tokens = color.split(',')
     return list(map(int, tokens))
 
-class SetFluidInputSimplified(QDialog):
+class SetFluidInputSimplified(SetFluidInputSimplified_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/fluid/set_fluid_input_simplified.ui"
-        load_ui(ui_path, self)
-
         self.main_window = app().main_window
         self.main_window.set_input_widget(self)
 
@@ -50,23 +46,10 @@ class SetFluidInputSimplified(QDialog):
         self.keep_window_open = False
 
     def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_attribution_type : QComboBox
-
-        # QFrame
-        self.frame_main_widget : QFrame
-
         # QGridLayout
         self.grid_layout = QGridLayout()
         self.grid_layout.setContentsMargins(0,0,0,0)
 
-        # QLineEdit
-        self.lineEdit_selected_id : QLineEdit
-        self.lineEdit_selected_fluid_name : QLineEdit
-
-        # QScrollArea
-        self.scrollArea_table_of_fluids : QScrollArea
         self.scrollArea_table_of_fluids.setLayout(self.grid_layout)
         self._add_fluid_input_widget()
         self.frame_main_widget.adjustSize()

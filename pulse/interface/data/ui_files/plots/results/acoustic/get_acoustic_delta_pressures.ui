@@ -282,7 +282,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../../../icons/common/invert_icon.png</normaloff>../../../../icons/common/invert_icon.png</iconset>
+             <normaloff>:/icons/common/invert_icon.png</normaloff>:/icons/common/invert_icon.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -502,6 +502,6 @@
   <tabstop>pushButton_export_data</tabstop>
   <tabstop>pushButton_plot_data</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

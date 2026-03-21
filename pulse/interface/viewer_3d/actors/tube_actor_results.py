@@ -1,4 +1,3 @@
-import numpy as np
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from pulse.utils import cross_section_sources
 from pulse.interface.viewer_3d.actors import TubeActor

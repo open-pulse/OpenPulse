@@ -8,6 +8,7 @@ src/
 *.mtl
 .config
 test.py
+*.md5
 
 .idea/
 
@@ -35,3 +36,5 @@ temporary_data/
 # Do not ignore
 !pulse/libraries/*.dat
 !examples/projects/*.pulse
+
+!examples/Tables/*.dat

@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QLabel, QFileDialog, QPushButton, QSlider, QSpinBo
 from PySide6.QtCore import QSize, Qt 
 from PySide6.QtGui import  QIcon, QFont
 
-from pulse import app, UI_DIR, ICON_DIR
+from pulse import app, ICON_DIR
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.loading_window import LoadingWindow
 from pulse.interface.user_input.project.print_message import PrintMessageInput

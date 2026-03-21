@@ -1,28 +1,22 @@
 
-from PySide6.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.analysis.structural.modal_analysis_ui import ModalAnalysis_UI
 from pulse.model import AnalysisID
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 error_title = "Error"
 
 
-class ModalAnalysisInput(QDialog):
+class ModalAnalysisInput(ModalAnalysis_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "analysis/modal_analysis_setup_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.close_dialogs()
         app().main_window.set_input_widget(self)
 
         self._initialize()
-        self._define_qt_variables()
         self._config_window()
         self._create_connections()
         self._load_analysis_setup()
@@ -38,15 +32,6 @@ class ModalAnalysisInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):       
-        # QLineEdit   
-        self.lineEdit_number_modes : QLineEdit
-        self.lineEdit_sigma_factor : QLineEdit
-
-        # QPushButton
-        self.pushButton_enter_setup : QPushButton
-        self.pushButton_run_analysis : QPushButton
 
     def _create_connections(self):
         self.pushButton_run_analysis.clicked.connect(self.run_analysis)

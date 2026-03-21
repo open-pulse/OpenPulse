@@ -7,7 +7,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 import logging
 import numpy as np
 
-from scipy.sparse import triu
 from scipy.sparse.linalg import eigs, spsolve
 
 

@@ -355,6 +355,6 @@
   <tabstop>pushButton_leftButton</tabstop>
   <tabstop>pushButton_rightButton</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

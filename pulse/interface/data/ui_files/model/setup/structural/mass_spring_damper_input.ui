@@ -61,10 +61,10 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <property name="lineWidth">
       <number>1</number>
@@ -96,10 +96,10 @@
          <string>Lumped elements configuration</string>
         </property>
         <property name="textFormat">
-         <enum>Qt::AutoText</enum>
+         <enum>Qt::TextFormat::AutoText</enum>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -121,10 +121,10 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_12">
       <property name="leftMargin">
@@ -157,10 +157,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_31" rowstretch="0">
          <property name="leftMargin">
@@ -184,7 +184,7 @@
          <item row="0" column="3">
           <spacer name="horizontalSpacer_9">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -211,7 +211,6 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
@@ -219,14 +218,14 @@
             <string>Node IDs:</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
          <item row="0" column="0">
           <spacer name="horizontalSpacer_10">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -257,7 +256,7 @@
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
+            <enum>Qt::FocusPolicy::ClickFocus</enum>
            </property>
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select or type the nodes IDs to apply the lumped elements&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -266,7 +265,7 @@
             <string notr="true"/>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
@@ -282,10 +281,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_14">
          <property name="leftMargin">
@@ -323,7 +322,7 @@
             </font>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tab_setup">
             <attribute name="title">
@@ -437,7 +436,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;J&lt;span style=&quot; vertical-align:sub;&quot;&gt;z&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -470,7 +469,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -503,7 +502,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;m&lt;span style=&quot; vertical-align:sub;&quot;&gt;z&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -536,7 +535,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -569,7 +568,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -596,7 +595,7 @@
                         <string>[kg.m²]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -629,7 +628,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;m&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -662,7 +661,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -689,7 +688,7 @@
                         <string>[kg]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -722,7 +721,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -755,7 +754,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;J&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -788,7 +787,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -821,7 +820,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;J&lt;span style=&quot; vertical-align:sub;&quot;&gt;x&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -854,14 +853,14 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;m&lt;span style=&quot; vertical-align:sub;&quot;&gt;x&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="0">
                       <spacer name="horizontalSpacer">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -874,7 +873,7 @@
                      <item row="0" column="4">
                       <spacer name="horizontalSpacer_2">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -907,7 +906,7 @@
                         <string>[kg]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -934,7 +933,7 @@
                         <string>[kg]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -961,7 +960,7 @@
                         <string>[kg.m²]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -988,7 +987,7 @@
                         <string>[kg.m²]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1002,7 +1001,7 @@
                      <item row="0" column="0">
                       <spacer name="horizontalSpacer_13">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1041,7 +1040,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1068,7 +1067,7 @@
                         <string>[N/m]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1101,7 +1100,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1134,7 +1133,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal; vertical-align:sub;&quot;&gt;x&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1167,7 +1166,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal; vertical-align:sub;&quot;&gt;rx&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1194,7 +1193,7 @@
                         <string>[N.m/rad]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1227,7 +1226,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1260,7 +1259,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;z&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1293,7 +1292,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1320,7 +1319,7 @@
                         <string>[N/m]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1353,7 +1352,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;ry&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1380,7 +1379,7 @@
                         <string>[N.m/rad]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1413,7 +1412,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1440,7 +1439,7 @@
                         <string>[N.m/rad]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1467,7 +1466,7 @@
                         <string>[N/m]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1500,7 +1499,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1533,7 +1532,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1566,14 +1565,14 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;rz&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="4">
                       <spacer name="horizontalSpacer_14">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1593,7 +1592,7 @@
                      <item row="0" column="0">
                       <spacer name="horizontalSpacer_17">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1632,7 +1631,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1659,7 +1658,7 @@
                         <string>[N.m/rad/s]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1692,7 +1691,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;rz&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1725,7 +1724,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1758,7 +1757,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1791,7 +1790,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1824,7 +1823,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;rx&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1851,7 +1850,7 @@
                         <string>[N.s/m]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1878,7 +1877,7 @@
                         <string>[N.s/m]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1911,7 +1910,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1944,7 +1943,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;z&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1977,7 +1976,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;ry&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2004,7 +2003,7 @@
                         <string>[N.m/rad/s]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2031,7 +2030,7 @@
                         <string>[N.m/rad/s]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2064,7 +2063,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2097,7 +2096,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;x&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2130,7 +2129,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2157,14 +2156,14 @@
                         <string>[N.s/m]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="4">
                       <spacer name="horizontalSpacer_18">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -2230,7 +2229,7 @@
                      <item row="0" column="0">
                       <spacer name="horizontalSpacer_5">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -2269,7 +2268,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;J&lt;span style=&quot; vertical-align:sub;&quot;&gt;z&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2302,7 +2301,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;J&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2335,7 +2334,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;J&lt;span style=&quot; vertical-align:sub;&quot;&gt;x&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2404,7 +2403,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;m&lt;span style=&quot; vertical-align:sub;&quot;&gt;x&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -2445,7 +2444,7 @@
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Jx">
+                      <widget class="QLineEdit" name="lineEdit_Jx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2476,7 +2475,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -2517,7 +2519,7 @@
                       </widget>
                      </item>
                      <item row="4" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Jy">
+                      <widget class="QLineEdit" name="lineEdit_Jy_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2548,7 +2550,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -2625,7 +2630,7 @@
                       </widget>
                      </item>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Mx">
+                      <widget class="QLineEdit" name="lineEdit_Mx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2656,12 +2661,15 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="5" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Jz">
+                      <widget class="QLineEdit" name="lineEdit_Jz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2692,7 +2700,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -2725,12 +2736,12 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;m&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_My">
+                      <widget class="QLineEdit" name="lineEdit_My_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2761,12 +2772,15 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Mz">
+                      <widget class="QLineEdit" name="lineEdit_Mz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2797,7 +2811,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -2866,14 +2883,14 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;m&lt;span style=&quot; vertical-align:sub;&quot;&gt;z&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="4">
                       <spacer name="horizontalSpacer_6">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -2903,7 +2920,7 @@
                       <number>4</number>
                      </property>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Kx">
+                      <widget class="QLineEdit" name="lineEdit_Kx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2934,7 +2951,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -3003,7 +3023,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal; vertical-align:sub;&quot;&gt;x&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -3080,7 +3100,7 @@
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Kz">
+                      <widget class="QLineEdit" name="lineEdit_Kz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3111,7 +3131,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -3180,12 +3203,12 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;ry&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Ky">
+                      <widget class="QLineEdit" name="lineEdit_Ky_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3216,7 +3239,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -3249,7 +3275,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -3318,7 +3344,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;rz&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -3351,12 +3377,12 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;rx&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="5" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Krz">
+                      <widget class="QLineEdit" name="lineEdit_Krz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3387,7 +3413,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -3456,12 +3485,12 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;z&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Krx">
+                      <widget class="QLineEdit" name="lineEdit_Krx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3492,12 +3521,15 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="4" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Kry">
+                      <widget class="QLineEdit" name="lineEdit_Kry_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3528,14 +3560,17 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="0">
                       <spacer name="horizontalSpacer_19">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -3548,7 +3583,7 @@
                      <item row="0" column="4">
                       <spacer name="horizontalSpacer_20">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -3580,7 +3615,7 @@
                      <item row="0" column="4">
                       <spacer name="horizontalSpacer_21">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -3619,12 +3654,12 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;x&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Cx">
+                      <widget class="QLineEdit" name="lineEdit_Cx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3655,7 +3690,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -3724,7 +3762,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;y&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -3757,12 +3795,12 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;z&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Cy">
+                      <widget class="QLineEdit" name="lineEdit_Cy_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3793,7 +3831,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -3834,7 +3875,7 @@
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Cz">
+                      <widget class="QLineEdit" name="lineEdit_Cz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -3865,7 +3906,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -3970,12 +4014,12 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;ry&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="4" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Cry">
+                      <widget class="QLineEdit" name="lineEdit_Cry_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -4006,7 +4050,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -4039,12 +4086,12 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;rx&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Crx">
+                      <widget class="QLineEdit" name="lineEdit_Crx_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -4075,7 +4122,10 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -4144,7 +4194,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;c&lt;span style=&quot; vertical-align:sub;&quot;&gt;rz&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -4185,7 +4235,7 @@
                       </widget>
                      </item>
                      <item row="5" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_Crz">
+                      <widget class="QLineEdit" name="lineEdit_Crz_table_path">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -4216,14 +4266,17 @@
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="0">
                       <spacer name="horizontalSpacer_22">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -4256,10 +4309,10 @@
                 </size>
                </property>
                <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
+                <enum>QFrame::Shadow::Raised</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_6">
                 <property name="leftMargin">
@@ -4358,6 +4411,7 @@
             <property name="font">
              <font>
               <family>MS UI Gothic</family>
+              <pointsize>10</pointsize>
              </font>
             </property>
             <attribute name="title">
@@ -4385,10 +4439,10 @@
                 </size>
                </property>
                <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
+                <enum>QFrame::Shadow::Raised</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_3">
                 <property name="leftMargin">
@@ -4447,6 +4501,7 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                        </font>
                       </property>
@@ -4474,6 +4529,7 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                        </font>
                       </property>
@@ -4501,6 +4557,7 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>10</pointsize>
                        </font>
                       </property>
@@ -4515,7 +4572,7 @@
                     <item row="0" column="0">
                      <spacer name="horizontalSpacer_3">
                       <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                       <enum>Qt::Orientation::Horizontal</enum>
                       </property>
                       <property name="sizeHint" stdset="0">
                        <size>
@@ -4528,7 +4585,7 @@
                     <item row="0" column="2">
                      <spacer name="horizontalSpacer_4">
                       <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                       <enum>Qt::Orientation::Horizontal</enum>
                       </property>
                       <property name="sizeHint" stdset="0">
                        <size>
@@ -4561,6 +4618,7 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>9</pointsize>
                        </font>
                       </property>
@@ -4608,6 +4666,7 @@
                       </property>
                       <property name="font">
                        <font>
+                        <family>MS Shell Dlg 2</family>
                         <pointsize>9</pointsize>
                        </font>
                       </property>
@@ -4696,10 +4755,10 @@
                 </size>
                </property>
                <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
+                <enum>QFrame::Shadow::Raised</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_21">
                 <property name="leftMargin">
@@ -4819,41 +4878,41 @@
   <tabstop>lineEdit_Crx</tabstop>
   <tabstop>lineEdit_Cry</tabstop>
   <tabstop>lineEdit_Crz</tabstop>
-  <tabstop>lineEdit_path_table_Mx</tabstop>
+  <tabstop>lineEdit_Mx_table_path</tabstop>
   <tabstop>pushButton_load_Mx_table</tabstop>
-  <tabstop>lineEdit_path_table_My</tabstop>
+  <tabstop>lineEdit_My_table_path</tabstop>
   <tabstop>pushButton_load_My_table</tabstop>
-  <tabstop>lineEdit_path_table_Mz</tabstop>
+  <tabstop>lineEdit_Mz_table_path</tabstop>
   <tabstop>pushButton_load_Mz_table</tabstop>
-  <tabstop>lineEdit_path_table_Jx</tabstop>
+  <tabstop>lineEdit_Jx_table_path</tabstop>
   <tabstop>pushButton_load_Jx_table</tabstop>
-  <tabstop>lineEdit_path_table_Jy</tabstop>
+  <tabstop>lineEdit_Jy_table_path</tabstop>
   <tabstop>pushButton_load_Jy_table</tabstop>
-  <tabstop>lineEdit_path_table_Jz</tabstop>
+  <tabstop>lineEdit_Jz_table_path</tabstop>
   <tabstop>pushButton_load_Jz_table</tabstop>
-  <tabstop>lineEdit_path_table_Kx</tabstop>
+  <tabstop>lineEdit_Kx_table_path</tabstop>
   <tabstop>pushButton_load_Kx_table</tabstop>
-  <tabstop>lineEdit_path_table_Ky</tabstop>
+  <tabstop>lineEdit_Ky_table_path</tabstop>
   <tabstop>pushButton_load_Ky_table</tabstop>
-  <tabstop>lineEdit_path_table_Kz</tabstop>
+  <tabstop>lineEdit_Kz_table_path</tabstop>
   <tabstop>pushButton_load_Kz_table</tabstop>
-  <tabstop>lineEdit_path_table_Krx</tabstop>
+  <tabstop>lineEdit_Krx_table_path</tabstop>
   <tabstop>pushButton_load_Krx_table</tabstop>
-  <tabstop>lineEdit_path_table_Kry</tabstop>
+  <tabstop>lineEdit_Kry_table_path</tabstop>
   <tabstop>pushButton_load_Kry_table</tabstop>
-  <tabstop>lineEdit_path_table_Krz</tabstop>
+  <tabstop>lineEdit_Krz_table_path</tabstop>
   <tabstop>pushButton_load_Krz_table</tabstop>
-  <tabstop>lineEdit_path_table_Cx</tabstop>
+  <tabstop>lineEdit_Cx_table_path</tabstop>
   <tabstop>pushButton_load_Cx_table</tabstop>
-  <tabstop>lineEdit_path_table_Cy</tabstop>
+  <tabstop>lineEdit_Cy_table_path</tabstop>
   <tabstop>pushButton_load_Cy_table</tabstop>
-  <tabstop>lineEdit_path_table_Cz</tabstop>
+  <tabstop>lineEdit_Cz_table_path</tabstop>
   <tabstop>pushButton_load_Cz_table</tabstop>
-  <tabstop>lineEdit_path_table_Crx</tabstop>
+  <tabstop>lineEdit_Crx_table_path</tabstop>
   <tabstop>pushButton_load_Crx_table</tabstop>
-  <tabstop>lineEdit_path_table_Cry</tabstop>
+  <tabstop>lineEdit_Cry_table_path</tabstop>
   <tabstop>pushButton_load_Cry_table</tabstop>
-  <tabstop>lineEdit_path_table_Crz</tabstop>
+  <tabstop>lineEdit_Crz_table_path</tabstop>
   <tabstop>pushButton_load_Crz_table</tabstop>
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>pushButton_exit</tabstop>
@@ -4871,6 +4930,8 @@
   <tabstop>treeWidget_masses</tabstop>
   <tabstop>tabWidget_table_values</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../../../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

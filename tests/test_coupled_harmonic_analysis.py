@@ -1,4 +1,5 @@
 
+from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
 from pulse.model.properties.fluid import Fluid
@@ -10,8 +11,6 @@ import numpy as np
 
 from pathlib import Path
 
-# Setting up model
-@pytest.mark.skip
 def test_coupled_harmonic_analysis(datadir: Path):
 
     ## Initialize a project
@@ -24,7 +23,7 @@ def test_coupled_harmonic_analysis(datadir: Path):
     preprocessor = model.preprocessor
 
     # Load geometry file (only the *.iges and *.step formats are supported)
-    geometry_path = Path("examples/iges_files/new_geometries/example_2_withBeam.iges")
+    geometry_path = get_example_file_path("iges_files/new_geometries/example_2_withBeam.iges")
 
     ## Configure the mesher setup
     mesher_setup = {
@@ -223,7 +222,7 @@ def test_coupled_harmonic_analysis(datadir: Path):
 
     ## Analysis setup for coupled harmonic analysis
     analysis_setup = {
-                      "analysis_id" : AnalysisID.COUPLED_MODAL,
+                      "analysis_id" : AnalysisID.COUPLED_HARMONIC,
                       "f_min" : 1,
                       "f_max" : 300,
                       "f_step" : 1,

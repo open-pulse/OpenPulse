@@ -494,6 +494,6 @@
   <tabstop>checkBox_solution_data</tabstop>
   <tabstop>pushButton_proceed</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

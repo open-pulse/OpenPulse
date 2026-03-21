@@ -39,6 +39,6 @@
  <tabstops>
   <tabstop>set_section_button</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

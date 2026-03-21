@@ -1,4 +1,3 @@
-import numpy as np
 from ordered_set import OrderedSet
 
 from pulse.editor.structures import Point

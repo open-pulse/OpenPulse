@@ -702,6 +702,6 @@
   <tabstop>pushButton_exit</tabstop>
   <tabstop>pushButton_attribute</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

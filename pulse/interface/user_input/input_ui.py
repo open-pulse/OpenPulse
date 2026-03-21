@@ -1,12 +1,9 @@
-#
-from pulse.interface.user_input.model.geometry.geometry_editor_help import GeometryEditorHelp
-#
 from pulse.interface.user_input.model.setup.material.set_material_input import SetMaterialInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.cross_section.set_cross_section import SetCrossSectionInput
 #
 from pulse.interface.user_input.model.setup.structural.structural_element_type_input import StructuralElementTypeInput
-from pulse.interface.user_input.model.setup.structural.prescribed_dofs_input import PrescribedDofsInput
+from pulse.interface.user_input.model.setup.structural.prescribed_dof_input import PrescribedDofInput
 from pulse.interface.user_input.model.setup.structural.nodal_loads_input import NodalLoadsInput
 from pulse.interface.user_input.model.setup.structural.mass_spring_damper_input import MassSpringDamperInput
 from pulse.interface.user_input.model.setup.structural.elastic_nodal_links_input import ElasticNodalLinksInput
@@ -67,7 +64,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse import app
 from pulse.model import AnalysisID
 
-import logging
 
 
 class InputUi:
@@ -119,8 +115,8 @@ class InputUi:
     def set_beam_xaxis_rotation(self):
         self.process_input(BeamXaxisRotationInput)
 
-    def set_prescribed_dofs(self):
-        self.process_input(PrescribedDofsInput)
+    def set_prescribed_dof(self):
+        self.process_input(PrescribedDofInput)
 
     def set_rotation_decoupling_dofs(self):
         self.process_input(DecouplingRotationDOFsInput)
@@ -395,9 +391,6 @@ class InputUi:
 
     def check_beam_criteria(self):
         self.process_input(CheckBeamCriteriaInput)
-
-    def geometry_editor_help(self):
-        self.process_input(GeometryEditorHelp)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'

@@ -228,7 +228,7 @@
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>../../../icons/common/broom.png</normaloff>../../../icons/common/broom.png</iconset>
+                        <normaloff>:/icons/common/broom.png</normaloff>:/icons/common/broom.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -2983,6 +2983,6 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

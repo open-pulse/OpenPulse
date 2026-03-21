@@ -1,35 +1,31 @@
 # fmt: off
 
-from PySide6.QtWidgets import QComboBox, QCheckBox, QDialog, QFrame, QLabel, QLineEdit, QPushButton, QRadioButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import  QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.perforated_plate_input_ui import PerforatedPlateInput_UI
+from pulse.interface.ui_generated.model.info.get_perforated_plate_info_ui import GetPerforatedPlateInfo_UI
 from pulse.interface.user_input.plots.general.frequency_response_plotter import FrequencyResponsePlotter
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
 
-from pulse.model.perforated_plate import PerforatedPlate
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_absortion, get_perforated_plate_impedance
+from pulse.model.perforated_plate import PerforatedPlate, PerforatedPlateFormulation
+from pulse.interface.user_input.common import CommonUserInputs, get_table_name, update_analysis_setup_in_file
 
-from molde import load_ui
+from pulse.postprocessing.plot_acoustic_data import get_perforated_plate_acoustic_absortion, get_perforated_plate_impedance
 
 import numpy as np
-from pathlib import Path
+
 
 error_title = "Error"
 warning_title = "Warning"
 
 
-class PerforatedPlateInput(QDialog):
+class PerforatedPlateInput(PerforatedPlateInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__()
-
-        ui_path = UI_DIR / "model/setup/acoustic/perforated_plate_input.ui"
-        load_ui(ui_path, self)
-
         self.valve_element_ids = kwargs.get("valve_element_ids", list())
 
         app().main_window.set_input_widget(self)
@@ -40,14 +36,11 @@ class PerforatedPlateInput(QDialog):
         self.before_run = app().project.get_pre_solution_model_checks()
 
         self._config_window()
-        self._initialize()
-        self._define_qt_variables()
-        self._create_connections()
         self._config_widgets()
+        self._initialize()
+        self._create_connections()
 
-        self.selection_callback()
         self.load_elements_info()
-
         self.update_valve_line_id()
 
         while self.keep_window_open:
@@ -58,6 +51,13 @@ class PerforatedPlateInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
+
+    def _config_widgets(self):
+
+        for i, w in enumerate([120, 160]):
+            self.treeWidget_elements_info.setColumnWidth(i, w)
+
+        self.update_checkboxes()
 
     def _initialize(self):
 
@@ -73,66 +73,6 @@ class PerforatedPlateInput(QDialog):
         self.perforated_plate_inputs['dimensionless_impedance'] = None
 
         self.frequencies = app().project.model.frequencies
-
-    def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_remove_valve_structural_effects : QCheckBox
-        self.checkBox_single_hole : QCheckBox
-        self.checkBox_bias_flow_coefficient : QCheckBox
-        self.checkBox_dimensionless_impedance : QCheckBox
-        self.checkBox_nonlinear_discharge_coefficient : QCheckBox
-
-        # QComboBox
-        self.comboBox_perforated_plate_model : QComboBox
-
-        # QLabel
-        self.label_selection : QLabel
-        self.label_area_porosity: QLabel
-        self.label_non_linear_discharge_coefficient : QLabel
-        self.label_correction_factor : QLabel
-        self.label_bias_flow_coefficient : QLabel
-
-        # QFrame
-        self.selection_frame: QFrame
-
-        # QLineEdit
-        self.lineEdit_element_id : QLineEdit
-        self.lineEdit_element_id_plot : QLineEdit
-        self.lineEdit_nonlin_discharge : QLineEdit
-        self.lineEdit_correction_factor : QLineEdit
-        self.lineEdit_impedance_real : QLineEdit
-        self.lineEdit_impedance_imag : QLineEdit
-        self.lineEdit_load_table_path : QLineEdit
-        self.lineEdit_specify_element_id : QLineEdit
-        self.lineEdit_bias_flow_coefficient : QLineEdit
-        self.lineEdit_hole_diameter : QLineEdit
-        self.lineEdit_plate_thickness : QLineEdit
-        self.lineEdit_area_porosity : QLineEdit
-        self.lineEdit_discharge_coefficient : QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute : QPushButton
-        self.pushButton_exit : QPushButton
-        self.pushButton_remove : QPushButton
-        self.pushButton_reset : QPushButton
-        self.pushButton_load_table : QPushButton
-        self.pushButton_plot_impedance : QPushButton
-        self.pushButton_plot_absorption_coefficient : QPushButton
-
-        # QRadioButton
-        self.radioButton_impedance : QRadioButton
-        self.radioButton_absortion : QRadioButton
-        self.radioButton_plotReal : QRadioButton
-        self.radioButton_plotImag : QRadioButton
-
-        # QTabWidget
-        self.tabWidget_dimensionless : QTabWidget
-        self.tabWidget_main : QTabWidget
-        self.tabWidget_setup : QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_elements_info : QTreeWidget
 
     def _create_connections(self):
         #
@@ -159,6 +99,7 @@ class PerforatedPlateInput(QDialog):
         self.treeWidget_elements_info.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
+        self.selection_callback()
 
     def selection_callback(self):
 
@@ -199,8 +140,8 @@ class PerforatedPlateInput(QDialog):
                     else:
                         self.checkBox_nonlinear_discharge_coefficient.setChecked(False)
 
-                    if "linear_discharge_coefficient" in pp_data.keys():
-                        self.lineEdit_discharge_coefficient.setText(str(pp_data["linear_discharge_coefficient"]))
+                    if "discharge_coefficient" in pp_data.keys():
+                        self.lineEdit_discharge_coefficient.setText(str(pp_data["discharge_coefficient"]))
 
                     if "bias_flow_effects" in pp_data.keys():
                         bias_flow_effects = pp_data["bias_flow_effects"]
@@ -224,13 +165,6 @@ class PerforatedPlateInput(QDialog):
                         self.lineEdit_impedance_real.setText(str(np.real(dim_impedance)))
                         self.lineEdit_impedance_imag.setText(str(np.imag(dim_impedance)))
 
-    def _config_widgets(self):
-        #
-        for i, w in enumerate([120, 160]):
-            self.treeWidget_elements_info.setColumnWidth(i, w)
-
-        self.update_checkboxes()
-
     def update_valve_line_id(self):
 
         if self.valve_element_ids:
@@ -246,13 +180,13 @@ class PerforatedPlateInput(QDialog):
             self.pushButton_remove.setDisabled(True)
             self.lineEdit_element_id.setText("")
             self.selection_callback()
+            return
 
+        items = self.treeWidget_elements_info.selectedItems()
+        if items == list():
+            self.lineEdit_element_id.setText("")
         else:
-            items = self.treeWidget_elements_info.selectedItems()
-            if items == list():
-                self.lineEdit_element_id.setText("")
-            else:
-                self.on_click_item(items[0])
+            self.on_click_item(items[0])
 
     def checkBoxEvent_nonlinear(self):
         if self.checkBox_nonlinear_discharge_coefficient.isChecked():
@@ -429,92 +363,54 @@ class PerforatedPlateInput(QDialog):
             self.perforated_plate_inputs['dimensionless_impedance'] = z_real + 1j*z_imag
         return False
 
-    def lineEdit_reset(self, lineEdit: QLineEdit):
-        lineEdit.setText("")
-        lineEdit.setFocus()
+    def line_edit_reset(self, line_edit: QLineEdit):
+        line_edit.setText("")
+        line_edit.setFocus()
+
+    def save_table_values(self, table_name: str, imported_values: np.ndarray, filter_zero: bool = True):
+
+        if filter_zero:
+            mask_filter = imported_values[:, 0] > 0
+            _imported_values = imported_values[mask_filter, :]
+        else:
+            _imported_values = imported_values
+
+        # define the frequencies vector
+        frequencies = _imported_values[:, 0]
+
+        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
+            self.hide()
+            title = "Project frequency setup cannot be modified"
+            message = "The following imported table of values has a frequency setup "
+            message += "different from the others already imported ones. The current "
+            message += "project frequency setup is not going to be modified."
+            message += f"\n\n{table_name}"
+            PrintMessageInput([error_title, title, message])
+            return True
+
+        update_analysis_setup_in_file(frequencies)
+
+        # real values vector
+        real_values = _imported_values[:, 1]
+        
+        # imaginary values vector
+        imag_values = _imported_values[:, 2]
+
+        # data to be stored
+        data = np.array([frequencies, real_values, imag_values], dtype=float).T
+
+        self.properties.add_imported_tables("acoustic", table_name, data)
+
+        return False
 
     def load_table_button_callback(self):
-        self.imported_values, self.table_path = self.load_table(button_pressed=True)
+        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
+            self.lineEdit_load_table_path, 
+            "dimensionless impedance",
+            )
 
-    def load_table(self, button_pressed=False):
-
-        try:
-            if not self.lineEdit_load_table_path.text() or button_pressed:
-
-                last_path = app().config.get_last_folder_for("imported_table_folder")
-                if last_path is None:
-                    last_path = Path.home()
-
-                caption = 'Choose a table to import the dimensionless impedance'
-                extensions = ["csv", "dat", "txt"]
-
-                imported_table_path = FileDialogService.open_file(extensions, caption, last_path)
-                
-                if imported_table_path is None:
-                    return None, None
-
-            else:
-                imported_table_path = self.lineEdit_load_table_path.text()
-
-            if not imported_table_path:
-                return None, None
- 
-            imported_filename = imported_table_path.name
-            self.lineEdit_load_table_path.setText(imported_table_path)       
-
-            imported_data = FileManager().read_text_file(imported_table_path).data
-        
-            if imported_data.shape[1] < 3:
-                message = "The imported table has insufficient number of columns. The spectrum "
-                message += "data must have frequencies, real and imaginary columns."
-                PrintMessageInput([error_title, title, message])
-                self.lineEdit_load_table_path.setFocus()
-                return None, None
-            
-            mask = imported_data[:, 0] > 0
-            self.frequencies = imported_data[mask, 0]
-            complex_values = imported_data[mask, 1] + 1j * imported_data[mask, 2]
-            
-            app().main_window.config.write_last_folder_path_in_file("imported_table_folder", imported_table_path)
-
-            if app().project.model.change_analysis_frequency_setup(list(self.frequencies)):
-
-                self.lineEdit_reset(self.lineEdit_load_table_path)
-
-                title = "Project frequency setup cannot be modified"
-                message = f"The following imported table of values has a frequency setup\n"
-                message += "different from the others already imported ones. The current\n"
-                message += "project frequency setup is not going to be modified."
-                message += f"\n\n{imported_filename}"
-                PrintMessageInput([error_title, title, message])
-                return None, None
-
-            else:
-
-                analysis_setup = app().project.model.analysis_setup
-                app().project.file.write_analysis_setup_in_file(analysis_setup)
-
-        except Exception as log_error:
-            title = "Dimensionless impedance Input error"
-            message = str(log_error)
-            PrintMessageInput([error_title, title, message])
-            return
-        
-        self.perforated_plate_inputs['dimensionless_impedance'] = complex_values
-
-        return complex_values, imported_table_path
-
-    def save_table_file(self, element_id: int, values: np.ndarray):
-
-        table_name = f"perforated_plate_dimensionless_impedance_element_{element_id}"
-
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("structural", table_name, data)
-
-        return table_name, data
+        if self.table_path is None:
+            self.line_edit_reset(self.table_path)
 
     def attribute_callback(self):
 
@@ -663,13 +559,31 @@ class PerforatedPlateInput(QDialog):
 
                 if self.lineEdit_load_table_path.text() != "":
                     if self.imported_values is None:
-                        self.imported_values, self.table_path = self.load_table()
-                        self.save_table_file(element_id, self.imported_values)                           
+                        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
+                            self.lineEdit_load_table_path, 
+                            "dimensionless impedance", 
+                            direct_load=True,
+                            )
 
-                    else:
-                        perforated_plate.dimensionless_impedance_table_name = self.table_path
-                        # self.perforated_plate.dimensionless_impedance = self.imported_values
-                
+                    if not isinstance(self.imported_values, np.ndarray):
+                        self.hide()
+                        title = "Invalid tabular data"
+                        message = "Select a valid tabular data for dimensionless impedance "
+                        message += " to proceed with model setup."
+                        PrintMessageInput(error_title, title, message)
+                        self.perforated_plate_inputs.clear()
+                        return
+
+                    table_name = get_table_name("perforated_plate_dimensionless_impedance", element_id=element_id)
+                    if self.save_table_values(table_name, self.imported_values):
+                        self.perforated_plate_inputs.clear()
+                        return
+
+                    self.perforated_plate_inputs['dimensionless_impedance'] = self.imported_values   
+
+                    perforated_plate.dimensionless_impedance_table_name = self.table_path
+                    perforated_plate.dimensionless_impedance = self.imported_values
+
                 coords = list()
                 element = self.preprocessor.acoustic_elements[element_id]
                 coords.extend(list(np.round(element.first_node.coordinates, 5)))
@@ -687,11 +601,6 @@ class PerforatedPlateInput(QDialog):
 
             self.actions_to_finalize()
 
-            if len(element_ids) > 20:
-                print(f"[Set Perforated Plate] - defined at {len(element_ids)} selected elements")
-            else:
-                print(f"[Set Perforated Plate] - defined at elements {element_ids}")
-
         except Exception as log_error:
             title = "Error with the perforated plate data"
             message = str(log_error)
@@ -700,20 +609,22 @@ class PerforatedPlateInput(QDialog):
 
     def remove_callback(self):
 
-        if  self.lineEdit_element_id.text() != "":
+        if  self.lineEdit_element_id.text() == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            element_id = int(self.lineEdit_element_id.text())
+        str_element = self.lineEdit_element_id.text()
+        stop, element_ids = self.before_run.check_selected_ids(str_element, "elements")
+        if stop:
+            return
 
-            self.remove_table_files_from_elements([element_id])
-            self.properties._remove_element_property("perforated_plate", element_id)
-            app().project.file.write_element_properties_in_file()
-
-            self.preprocessor.set_perforated_plate_by_elements(element_id, None)
-            self.actions_to_finalize()
-
-    def remove_table_files_from_elements(self, node_ids : list):
-        table_names = self.properties.get_element_related_table_names("perforated_plate", node_ids)
-        self.process_table_file_removal(table_names)
+        self.properties._remove_element_property("perforated_plate", element_ids)
+        self.preprocessor.set_perforated_plate_by_elements(element_ids, None)
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -728,21 +639,20 @@ class PerforatedPlateInput(QDialog):
         if read._cancel:
             return
 
-        if read._continue:
+        if not read._continue:
+            return
 
-            element_ids = list()
-            for (property, element_id) in self.properties.element_properties.keys():
-                if property == "perforated_plate":
-                    element_ids.append(element_id)
+        element_ids = list()
+        for (property, element_id) in self.properties.element_properties.keys():
+            if property == "perforated_plate":
+                element_ids.append(element_id)
 
-            for element_id in element_ids:
-                self.remove_table_files_from_elements(element_ids)
+        if not element_ids:
+            return
 
-            for element_id in element_ids:
-                self.properties._remove_element_property("perforated_plate", element_id)
-
-            self.preprocessor.set_perforated_plate_by_elements(element_ids, None)
-            self.actions_to_finalize()
+        self.preprocessor.set_perforated_plate_by_elements(element_ids, None)
+        self.properties._reset_element_property("perforated_plate")
+        self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().project.file.write_element_properties_in_file()
@@ -751,30 +661,22 @@ class PerforatedPlateInput(QDialog):
         self.lineEdit_element_id.setText("")
         self.complete = True   
 
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
+    def on_click_item(self, item: QTreeWidgetItem):
+        if item.text(0) == "":
+            return
 
-    def on_click_item(self, item):
-        if item.text(0) != "":
+        self.pushButton_remove.setEnabled(True)
+        self.lineEdit_element_id.setText(item.text(0))
 
-            self.pushButton_remove.setEnabled(True)
-            self.lineEdit_element_id.setText(item.text(0))
+        element_id = int(self.lineEdit_element_id.text())
+        data = self.properties._get_property("perforated_plate", element_id=element_id)
 
-            element_id = int(self.lineEdit_element_id.text())
-            data = self.properties._get_property("perforated_plate", element_id=element_id)
+        if isinstance(data, dict):
+            common_pipe = data["type"] == PerforatedPlateFormulation.COMMON_PIPE
+            self.pushButton_plot_impedance.setDisabled(common_pipe)
+            self.pushButton_plot_absorption_coefficient.setDisabled(common_pipe)
 
-            if isinstance(data, dict):
-                if data["type"] == 2:
-                    self.pushButton_plot_impedance.setEnabled(True)
-                    self.pushButton_plot_absorption_coefficient.setEnabled(True)
-                else:
-                    self.pushButton_plot_impedance.setDisabled(True)
-                    self.pushButton_plot_absorption_coefficient.setDisabled(True)
-
-    def on_doubleclick_item(self, item):
+    def on_doubleclick_item(self, item: QTreeWidgetItem):
         self.on_click_item(item)
         element_id = int(item.text(0))
         self.get_information_of_group(element_id)
@@ -788,58 +690,66 @@ class PerforatedPlateInput(QDialog):
         else:
             return False
 
-    def get_response(self, element_id: int, impedance=False, absorption=False):
+    def get_response(self, element_id: int, impedance: bool = False, absorption: bool = False):
 
         element = app().project.model.preprocessor.acoustic_elements[element_id]
 
         if absorption: 
-            return get_acoustic_absortion(element, self.frequencies)
+            return get_perforated_plate_acoustic_absortion(element, self.frequencies)
 
         elif impedance:
             return get_perforated_plate_impedance(element, self.frequencies)
 
     def plot_impedance_callback(self):
 
-        if self.lineEdit_element_id.text() != "":
+        if self.lineEdit_element_id.text() == "":
+            return
 
-            element_id = int(self.lineEdit_element_id.text())
-            data = self.properties._get_property("perforated_plate", element_id=element_id)
+        element_id = int(self.lineEdit_element_id.text())
+        data = self.properties._get_property("perforated_plate", element_id=element_id)
 
-            if isinstance(data, dict):
-                if data["type"] == 2:
+        if not isinstance(data, dict):
+            return
 
-                    if self.check_frequencies():
-                        return
+        if data["type"] == PerforatedPlateFormulation.COMMON_PIPE:
+            return
 
-                    self.plot(element_id, impedance=True)
+        if self.check_frequencies():
+            return
+
+        self.plot_perforated_plate_data(element_id, impedance=True)
 
     def plot_absorption_coefficient_callback(self):
 
-        if self.lineEdit_element_id.text() != "":
-    
-            element_id = int(self.lineEdit_element_id.text())
-            data = self.properties._get_property("perforated_plate", element_id=element_id)
+        if self.lineEdit_element_id.text() == "":
+            return
 
-            if isinstance(data, dict):
-                if data["type"] == 2:
+        element_id = int(self.lineEdit_element_id.text())
+        data = self.properties._get_property("perforated_plate", element_id=element_id)
 
-                    if self.check_frequencies():
-                        return
+        if not isinstance(data, dict):
+            return
 
-                    self.plot(element_id, absorption=True)
+        if data["type"] == PerforatedPlateFormulation.COMMON_PIPE:
+            return
 
-    def plot(self, element_id: int, **kargs):
+        if self.check_frequencies():
+            return
+
+        self.plot_perforated_plate_data(element_id, absorption=True)
+
+    def plot_perforated_plate_data(self, element_id: int, absorption: bool=False, impedance: bool=False):
         """
         """
-
         frequencies = self.frequencies
-        response = self.get_response(element_id, **kargs)
+        response = self.get_response(element_id, absorption=absorption, impedance=impedance)
 
         self.results_to_plot = dict()
         self.results_to_plot["data"] = { 
-                                        "x_data" : frequencies,
-                                        "y_data" : response
-                                        }
+            "data_type" : "absorption coefficient" if absorption else "dimensionless impedance",
+            "x_data" : frequencies,
+            "y_data" : response
+            }
 
         self.call_plotter()
 
@@ -855,26 +765,26 @@ class PerforatedPlateInput(QDialog):
     def join_model_data(self):
 
         self.hide()
-
         self.model_results = dict()
-        title = "Perforated plate dimensionless impedance"
 
         for k, (label, data) in enumerate(self.results_to_plot.items()):
 
             key = ("element", (label))
-            legend_label = "Impedance"
+            data_type = data["data_type"]
+            legend_label = data_type
+            title = f"Perforated plate {data_type}"
 
             self.model_results[key] = { 
-                                        "x_data" : data["x_data"],
-                                        "y_data" : data["y_data"],
-                                        "x_label" : "Frequency [Hz]",
-                                        "y_label" : "Dimensionless impedance",
-                                        "title" : title,
-                                        "legend" : legend_label,
-                                        "unit" : "--",
-                                        "color" : (0,0,255),
-                                        "linestyle" : "-"
-                                       }
+                "x_data" : data["x_data"],
+                "y_data" : data["y_data"],
+                "x_label" : "Frequency [Hz]",
+                "y_label" : data["data_type"].capitalize(),
+                "title" : title,
+                "legend" : legend_label,
+                "unit" : "--",
+                "color" : (0, 0, 1),
+                "linestyle" : "-"
+                }
 
     def load_elements_info(self):
 
@@ -900,13 +810,13 @@ class PerforatedPlateInput(QDialog):
 
     def update_tabs_visibility(self):
         self.tabWidget_main.setTabVisible(1, False)
-        self.tabWidget_main.setTabVisible(2, False)
         for (property, _) in self.properties.element_properties.keys():
-            if property == "perforated_plate":
-                self.tabWidget_main.setCurrentIndex(0)
-                self.tabWidget_main.setTabVisible(1, True)
-                self.tabWidget_main.setTabVisible(2, True)
-                return
+            if property != "perforated_plate":
+                continue
+
+            self.tabWidget_main.setCurrentIndex(0)
+            self.tabWidget_main.setTabVisible(1, True)
+            return
 
     def get_information_of_group(self, element_id: int):
         try:
@@ -949,15 +859,10 @@ class PerforatedPlateInput(QDialog):
         return super().closeEvent(a0)
 
 
-class GetInformationOfGroup(QDialog):
+class GetInformationOfGroup(GetPerforatedPlateInfo_UI):
     def __init__(self, element_id, pp_data, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/info/get_perforated_plate_info.ui"
-        load_ui(ui_path, self)
-
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_group_info(element_id, pp_data)
@@ -968,29 +873,6 @@ class GetInformationOfGroup(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon) 
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QLabel
-        self.title_label : QLabel
-
-        # QLineEdit
-        self.lineEdit_perforated_plate_elements : QLineEdit
-        self.lineEdit_hole_diameter : QLineEdit
-        self.lineEdit_plate_thickness : QLineEdit
-        self.lineEdit_area_porosity : QLineEdit
-        self.lineEdit_discharge_coefficient : QLineEdit
-        self.lineEdit_single_hole : QLineEdit
-        self.lineEdit_non_linear_discharge_coefficient : QLineEdit
-        self.lineEdit_correction_factor : QLineEdit
-        self.lineEdit_bias_flow_coefficient : QLineEdit
-        self.lineEdit_dimensionless_impedance : QLineEdit
-
-        # QPushButton
-        self.pushButton_close : QPushButton
-
-        # QTreeWidget
-        self.treeWidget_info : QTreeWidget
 
     def _create_connections(self):
         self.pushButton_close.clicked.connect(self.close)
@@ -1013,7 +895,7 @@ class GetInformationOfGroup(QDialog):
             self.lineEdit_area_porosity.setText("---")
 
         if "discharge_coefficient" in pp_data.keys():
-            self.lineEdit_discharge_coefficient.setText(str(pp_data["linear_discharge_coefficient"]))
+            self.lineEdit_discharge_coefficient.setText(str(pp_data["discharge_coefficient"]))
 
         else:
             self.lineEdit_discharge_coefficient.setText("---")

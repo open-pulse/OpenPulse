@@ -1,10 +1,9 @@
 from PySide6.QtWidgets import QLabel, QLineEdit, QPushButton, QToolBar, QWidget
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QColor, QIcon, QKeyEvent, QFont
+from PySide6.QtGui import QFont
 
 from pulse import app
 from pulse.interface.toolbars.mesh_updater import MeshUpdater
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.interface_utils import check_inputs
 
 class MeshToolbar(QToolBar):

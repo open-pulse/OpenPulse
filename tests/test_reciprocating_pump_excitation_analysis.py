@@ -1,4 +1,6 @@
+import os
 
+from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
 from pulse.model.properties.fluid import Fluid
@@ -10,10 +12,8 @@ import numpy as np
 
 from pathlib import Path
 
-# Setting up model
-@pytest.mark.skip
-def test_coupled_harmonic_analysis(datadir: Path):
 
+def test_reciprocating_pump_excitation_analysis(datadir: Path):
     ## Initialize a project
     project = Project()
     project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
@@ -24,7 +24,7 @@ def test_coupled_harmonic_analysis(datadir: Path):
     preprocessor = model.preprocessor
 
     # Load geometry file (only the *.iges and *.step formats are supported)
-    geometry_path = Path("examples/iges_files/run_by_script/reciprocating_pump_piping.step")
+    geometry_path = get_example_file_path("iges_files/run_by_script/reciprocating_pump_piping.step")
 
     ## Configure the mesher setup
     mesher_setup = {
@@ -289,9 +289,9 @@ def test_coupled_harmonic_analysis(datadir: Path):
 
     analysis_setup = {
                       "analysis_id" : AnalysisID.ACOUSTIC_HARMONIC,
-                    #   "f_min" : 1,
-                    #   "f_max" : 300,
-                    #   "f_step" : 1,
+                      "f_min" : freq[0],
+                      "f_max" : freq[-1],
+                      "f_step" : freq[1] - freq[0],
                       "global_damping" : [1e-3, 1e-5, 0.],
                       }
     
@@ -464,14 +464,14 @@ def get_reciprocating_pump_excitation(connection_type: str):
     if np.remainder(T_selected, T_rev) == 0:
         T = T_selected
         df = 1 / T
+        N_rev = int(T / T_rev)
     else:
         i = 0
         df = 1 / (T_rev)
         while df > df_selected:
             i += 1
             df = 1 / (i * T_rev)
-
-    N_rev = i
+        N_rev = i
 
     if connection_type == "discharge":
         flow_label = "out_flow"
@@ -521,6 +521,3 @@ def remove_files_from_temporary_folder():
                     remove(file_path)
                 else:
                     rmtree(file_path)
-
-if __name__ == "__main__":
-    test_coupled_harmonic_analysis()

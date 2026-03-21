@@ -370,6 +370,6 @@
   <tabstop>comboBox_attribution_type</tabstop>
   <tabstop>scrollArea_table_of_materials</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

@@ -56,10 +56,10 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <property name="lineWidth">
       <number>1</number>
@@ -91,10 +91,10 @@
          <string>Expansion joints configuration</string>
         </property>
         <property name="textFormat">
-         <enum>Qt::AutoText</enum>
+         <enum>Qt::TextFormat::AutoText</enum>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -116,10 +116,10 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::Box</enum>
+      <enum>QFrame::Shape::Box</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
       <property name="leftMargin">
@@ -152,10 +152,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_30" rowstretch="0">
          <property name="leftMargin">
@@ -193,7 +193,6 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <bold>false</bold>
             </font>
            </property>
@@ -201,7 +200,7 @@
             <string>Selected lines:</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -226,20 +225,20 @@
             </font>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::StrongFocus</enum>
+            <enum>Qt::FocusPolicy::StrongFocus</enum>
            </property>
            <property name="styleSheet">
             <string notr="true"/>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignmentFlag::AlignCenter</set>
            </property>
           </widget>
          </item>
          <item row="0" column="3">
           <spacer name="horizontalSpacer_7">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -252,7 +251,7 @@
          <item row="0" column="0">
           <spacer name="horizontalSpacer_8">
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Orientation::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
@@ -274,10 +273,10 @@
          </size>
         </property>
         <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+         <enum>QFrame::Shape::NoFrame</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
+         <enum>QFrame::Shadow::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
          <property name="leftMargin">
@@ -312,7 +311,6 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -343,7 +341,7 @@
              <item row="2" column="1">
               <widget class="QScrollArea" name="scrollArea">
                <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <property name="widgetResizable">
                 <bool>true</bool>
@@ -354,7 +352,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>418</width>
-                  <height>354</height>
+                  <height>358</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_8">
@@ -388,10 +386,10 @@
                     </size>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
+                    <enum>QFrame::Shape::NoFrame</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Raised</enum>
+                    <enum>QFrame::Shadow::Raised</enum>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_11">
                     <property name="leftMargin">
@@ -432,6 +430,8 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="mouseTracking">
@@ -441,7 +441,7 @@
                        <string>Effective diameter:</string>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -471,10 +471,12 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="styleSheet">
                        <string notr="true"/>
@@ -483,7 +485,7 @@
                        <string/>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignCenter</set>
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -507,6 +509,8 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="mouseTracking">
@@ -516,7 +520,7 @@
                        <string>[m]</string>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -546,10 +550,12 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="styleSheet">
                        <string notr="true"/>
@@ -558,7 +564,7 @@
                        <string/>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignCenter</set>
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -579,6 +585,8 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="currentIndex">
@@ -616,6 +624,8 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="mouseTracking">
@@ -625,7 +635,7 @@
                        <string>Expansion joint name:</string>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -655,23 +665,25 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="styleSheet">
                        <string notr="true"/>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignCenter</set>
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
                     <item row="1" column="4">
                      <spacer name="horizontalSpacer_6">
                       <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                       <enum>Qt::Orientation::Horizontal</enum>
                       </property>
                       <property name="sizeHint" stdset="0">
                        <size>
@@ -684,7 +696,7 @@
                     <item row="1" column="0">
                      <spacer name="horizontalSpacer_5">
                       <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                       <enum>Qt::Orientation::Horizontal</enum>
                       </property>
                       <property name="sizeHint" stdset="0">
                        <size>
@@ -720,10 +732,12 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="styleSheet">
                        <string notr="true"/>
@@ -732,7 +746,7 @@
                        <string>1.0</string>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignCenter</set>
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -756,6 +770,8 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="mouseTracking">
@@ -765,7 +781,7 @@
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;Axial locking criteria ε:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignCenter</set>
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -789,6 +805,8 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="mouseTracking">
@@ -798,7 +816,7 @@
                        <string>Joint mass:</string>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -822,6 +840,8 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="mouseTracking">
@@ -831,7 +851,7 @@
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Axial stop rods:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignCenter</set>
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -855,6 +875,8 @@
                       <property name="font">
                        <font>
                         <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
                        </font>
                       </property>
                       <property name="mouseTracking">
@@ -864,7 +886,7 @@
                        <string>[kg]</string>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                       <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -894,6 +916,8 @@
                    <property name="font">
                     <font>
                      <pointsize>10</pointsize>
+                     <italic>false</italic>
+                     <bold>false</bold>
                     </font>
                    </property>
                    <property name="currentIndex">
@@ -933,20 +957,22 @@
                        <property name="font">
                         <font>
                          <pointsize>10</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="text">
                         <string>[N/m]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="0">
                       <spacer name="horizontalSpacer">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -975,7 +1001,9 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="mouseTracking">
@@ -985,7 +1013,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal; vertical-align:sub;&quot;&gt;rx&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1008,7 +1036,9 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="mouseTracking">
@@ -1018,7 +1048,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal; vertical-align:sub;&quot;&gt;ryz&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1039,24 +1069,26 @@
                        <property name="font">
                         <font>
                          <pointsize>10</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="text">
                         <string>[N/m]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_angular_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kryz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>120</width>
+                         <width>160</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1069,6 +1101,8 @@
                        <property name="font">
                         <font>
                          <pointsize>10</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="styleSheet">
@@ -1078,18 +1112,18 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_axial_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>120</width>
+                         <width>160</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1102,6 +1136,8 @@
                        <property name="font">
                         <font>
                          <pointsize>10</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="styleSheet">
@@ -1111,7 +1147,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1132,24 +1168,26 @@
                        <property name="font">
                         <font>
                          <pointsize>10</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="text">
                         <string>[N.m/rad]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_torsional_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Krx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>120</width>
+                         <width>160</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1162,6 +1200,8 @@
                        <property name="font">
                         <font>
                          <pointsize>10</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="styleSheet">
@@ -1171,14 +1211,14 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="4">
                       <spacer name="horizontalSpacer_2">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1189,13 +1229,13 @@
                       </spacer>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_transversal_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kyz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>120</width>
+                         <width>160</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1208,6 +1248,8 @@
                        <property name="font">
                         <font>
                          <pointsize>10</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="styleSheet">
@@ -1217,7 +1259,7 @@
                         <string/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1238,13 +1280,15 @@
                        <property name="font">
                         <font>
                          <pointsize>10</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="text">
                         <string>[N.m/rad]</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1267,7 +1311,9 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="mouseTracking">
@@ -1277,7 +1323,7 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal; vertical-align:sub;&quot;&gt;x&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1300,7 +1346,9 @@
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="mouseTracking">
@@ -1310,15 +1358,15 @@
                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal; vertical-align:sub;&quot;&gt;yz&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="tab_table_values">
+                   <widget class="QWidget" name="tab_tabular_values">
                     <attribute name="title">
-                     <string>Table of values</string>
+                     <string>Tabular values</string>
                     </attribute>
                     <layout class="QGridLayout" name="gridLayout_10">
                      <property name="leftMargin">
@@ -1334,7 +1382,7 @@
                       <number>6</number>
                      </property>
                      <item row="0" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_axial_stiffness">
+                      <widget class="QPushButton" name="pushButton_load_table_Kx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1363,8 +1411,8 @@
                         <string/>
                        </property>
                        <property name="icon">
-                        <iconset>
-                         <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+                        <iconset resource="../../../../icons/resources.qrc">
+                         <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -1375,19 +1423,19 @@
                       </widget>
                      </item>
                      <item row="0" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_axial_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kx_table_path">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1400,30 +1448,35 @@
                        <property name="font">
                         <font>
                          <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="styleSheet">
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="1" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_transversal_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kyz_table_path">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1436,20 +1489,25 @@
                        <property name="font">
                         <font>
                          <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="styleSheet">
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="0" column="4">
                       <spacer name="horizontalSpacer_4">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1462,7 +1520,7 @@
                      <item row="0" column="0">
                       <spacer name="horizontalSpacer_3">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -1473,7 +1531,7 @@
                       </spacer>
                      </item>
                      <item row="2" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_torsional_stiffness">
+                      <widget class="QPushButton" name="pushButton_load_table_Krx">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1502,8 +1560,8 @@
                         <string/>
                        </property>
                        <property name="icon">
-                        <iconset>
-                         <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+                        <iconset resource="../../../../icons/resources.qrc">
+                         <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -1514,19 +1572,19 @@
                       </widget>
                      </item>
                      <item row="3" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_angular_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Kryz_table_path">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1539,30 +1597,35 @@
                        <property name="font">
                         <font>
                          <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="styleSheet">
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="2" column="2">
-                      <widget class="QLineEdit" name="lineEdit_path_table_torsional_stiffness">
+                      <widget class="QLineEdit" name="lineEdit_Krx_table_path">
                        <property name="enabled">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>260</width>
+                         <width>280</width>
                          <height>26</height>
                         </size>
                        </property>
@@ -1575,18 +1638,23 @@
                        <property name="font">
                         <font>
                          <pointsize>9</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="styleSheet">
                         <string notr="true"/>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
+                       </property>
+                       <property name="clearButtonEnabled">
+                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
                      <item row="3" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_angular_stiffness">
+                      <widget class="QPushButton" name="pushButton_load_table_Kryz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1615,8 +1683,8 @@
                         <string/>
                        </property>
                        <property name="icon">
-                        <iconset>
-                         <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+                        <iconset resource="../../../../icons/resources.qrc">
+                         <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -1633,34 +1701,36 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="mouseTracking">
                         <bool>true</bool>
                        </property>
                        <property name="text">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal; vertical-align:sub;&quot;&gt;x&lt;/span&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;x&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
                      <item row="1" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_transversal_stiffness">
+                      <widget class="QPushButton" name="pushButton_load_table_Kyz">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1689,8 +1759,8 @@
                         <string/>
                        </property>
                        <property name="icon">
-                        <iconset>
-                         <normaloff>../../../../icons/common/new_file.png</normaloff>../../../../icons/common/new_file.png</iconset>
+                        <iconset resource="../../../../icons/resources.qrc">
+                         <normaloff>:/icons/common/new_file.png</normaloff>:/icons/common/new_file.png</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -1707,29 +1777,31 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="mouseTracking">
                         <bool>true</bool>
                        </property>
                        <property name="text">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;yz&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;yz&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1740,29 +1812,31 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="mouseTracking">
                         <bool>true</bool>
                        </property>
                        <property name="text">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;rz&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;rx&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1773,29 +1847,31 @@
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
-                         <width>40</width>
+                         <width>32</width>
                          <height>26</height>
                         </size>
                        </property>
                        <property name="font">
                         <font>
-                         <pointsize>10</pointsize>
+                         <pointsize>11</pointsize>
+                         <italic>false</italic>
+                         <bold>false</bold>
                         </font>
                        </property>
                        <property name="mouseTracking">
                         <bool>true</bool>
                        </property>
                        <property name="text">
-                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;k&lt;span style=&quot; vertical-align:sub;&quot;&gt;ryz&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;k&lt;/span&gt;&lt;span style=&quot; font-size:11pt; vertical-align:sub;&quot;&gt;ryz&lt;/span&gt;&lt;span style=&quot; font-size:11pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignmentFlag::AlignCenter</set>
                        </property>
                       </widget>
                      </item>
@@ -1813,6 +1889,9 @@
             <property name="font">
              <font>
               <family>MS UI Gothic</family>
+              <pointsize>10</pointsize>
+              <italic>false</italic>
+              <bold>false</bold>
              </font>
             </property>
             <attribute name="title">
@@ -1849,13 +1928,15 @@
                 <font>
                  <family>MS Shell Dlg 2</family>
                  <pointsize>8</pointsize>
+                 <italic>false</italic>
+                 <bold>false</bold>
                 </font>
                </property>
                <property name="frameShape">
-                <enum>QFrame::StyledPanel</enum>
+                <enum>QFrame::Shape::StyledPanel</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Sunken</enum>
+                <enum>QFrame::Shadow::Sunken</enum>
                </property>
                <property name="indentation">
                 <number>0</number>
@@ -1881,7 +1962,7 @@
              <item row="3" column="0">
               <spacer name="verticalSpacer_5">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -1894,7 +1975,7 @@
              <item row="0" column="0">
               <spacer name="verticalSpacer_4">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -1919,10 +2000,10 @@
                 </size>
                </property>
                <property name="frameShape">
-                <enum>QFrame::NoFrame</enum>
+                <enum>QFrame::Shape::NoFrame</enum>
                </property>
                <property name="frameShadow">
-                <enum>QFrame::Raised</enum>
+                <enum>QFrame::Shadow::Raised</enum>
                </property>
                <layout class="QGridLayout" name="gridLayout_7">
                 <property name="leftMargin">
@@ -1958,6 +2039,8 @@
                    <font>
                     <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
                    </font>
                   </property>
                   <property name="styleSheet">
@@ -1992,6 +2075,8 @@
                    <font>
                     <family>MS Shell Dlg 2</family>
                     <pointsize>10</pointsize>
+                    <italic>false</italic>
+                    <bold>false</bold>
                    </font>
                   </property>
                   <property name="styleSheet">
@@ -2036,10 +2121,10 @@
       </size>
      </property>
      <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
+      <enum>QFrame::Shape::NoFrame</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <property name="leftMargin">
@@ -2142,26 +2227,28 @@
   <tabstop>lineEdit_joint_mass</tabstop>
   <tabstop>lineEdit_axial_locking_criteria</tabstop>
   <tabstop>comboBox_axial_stop_rod</tabstop>
-  <tabstop>lineEdit_axial_stiffness</tabstop>
-  <tabstop>lineEdit_transversal_stiffness</tabstop>
-  <tabstop>lineEdit_torsional_stiffness</tabstop>
-  <tabstop>lineEdit_angular_stiffness</tabstop>
+  <tabstop>lineEdit_Kx</tabstop>
+  <tabstop>lineEdit_Kyz</tabstop>
+  <tabstop>lineEdit_Krx</tabstop>
+  <tabstop>lineEdit_Kryz</tabstop>
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>pushButton_exit</tabstop>
-  <tabstop>lineEdit_path_table_axial_stiffness</tabstop>
-  <tabstop>pushButton_load_table_axial_stiffness</tabstop>
-  <tabstop>lineEdit_path_table_transversal_stiffness</tabstop>
-  <tabstop>pushButton_load_table_transversal_stiffness</tabstop>
-  <tabstop>lineEdit_path_table_torsional_stiffness</tabstop>
-  <tabstop>pushButton_load_table_torsional_stiffness</tabstop>
-  <tabstop>lineEdit_path_table_angular_stiffness</tabstop>
-  <tabstop>pushButton_load_table_angular_stiffness</tabstop>
+  <tabstop>lineEdit_Kx_table_path</tabstop>
+  <tabstop>pushButton_load_table_Kx</tabstop>
+  <tabstop>lineEdit_Kyz_table_path</tabstop>
+  <tabstop>pushButton_load_table_Kyz</tabstop>
+  <tabstop>lineEdit_Krx_table_path</tabstop>
+  <tabstop>pushButton_load_table_Krx</tabstop>
+  <tabstop>lineEdit_Kryz_table_path</tabstop>
+  <tabstop>pushButton_load_table_Kryz</tabstop>
   <tabstop>tabWidget_inputs</tabstop>
   <tabstop>pushButton_remove</tabstop>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>treeWidget_expansion_joints_info</tabstop>
   <tabstop>scrollArea</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../../../icons/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

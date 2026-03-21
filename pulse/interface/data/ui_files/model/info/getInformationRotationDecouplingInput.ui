@@ -414,6 +414,6 @@ color: rgb(0, 0, 0);</string>
   <tabstop>pushButton_remove</tabstop>
   <tabstop>pushButton_close</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

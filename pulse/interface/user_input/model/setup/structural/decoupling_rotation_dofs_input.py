@@ -1,16 +1,16 @@
 # fmt: off
 
-from PySide6.QtWidgets import QDialog, QCheckBox, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.b2p_decoupling_rotation_dofs_input_ui import B2pDecouplingRotationDofsInput_UI
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse.model.structural_element import decoupling_matrix
 
-from molde import load_ui
 
 import numpy as np
 
@@ -18,20 +18,15 @@ import numpy as np
 error_title = "Error"
 
 
-class DecouplingRotationDOFsInput(QDialog):
+class DecouplingRotationDOFsInput(B2pDecouplingRotationDofsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/structural/b2p_decoupling_rotation_dofs_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
         self.preprocessor = app().project.model.preprocessor
         self.properties = app().project.model.properties
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_decoupling_info()
@@ -52,30 +47,6 @@ class DecouplingRotationDOFsInput(QDialog):
         self.complete = False
 
         self.before_run = app().project.get_pre_solution_model_checks() 
-
-    def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_rotation_x: QCheckBox
-        self.checkBox_rotation_y: QCheckBox
-        self.checkBox_rotation_z: QCheckBox
-
-        # QLineEdit
-        self.lineEdit_selected_id_to_remove: QLineEdit
-        self.lineEdit_element_id: QLineEdit
-        self.lineEdit_tjoint_node_id: QLineEdit
-
-        # QPushButton       
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_elements_info: QTreeWidget
 
     def _create_connections(self):
         #
@@ -241,22 +212,23 @@ class DecouplingRotationDOFsInput(QDialog):
         if read._cancel:
             return
 
-        if read._continue:
+        if not read._continue:
+            return
             
-            element_ids = list()
-            for (property, element_id) in self.properties.element_properties.keys():
-                if property == "B2P_rotation_decoupling":
-                    element_ids.append(element_id)
+        element_ids = list()
+        for (property, element_id) in self.properties.element_properties.keys():
+            if property == "B2P_rotation_decoupling":
+                element_ids.append(element_id)
 
-            for element_id in element_ids:
-                element = self.preprocessor.structural_elements[element_id]
-                element.decoupling_matrix = decoupling_matrix
-                element.decoupling_info = None
+        for element_id in element_ids:
+            element = self.preprocessor.structural_elements[element_id]
+            element.decoupling_matrix = decoupling_matrix
+            element.decoupling_info = None
 
-                self.properties._remove_element_property("B2P_rotation_decoupling", element_id)
+            self.properties._remove_element_property("B2P_rotation_decoupling", element_id)
 
-            app().project.file.write_element_properties_in_file()
-            self.load_decoupling_info()
+        app().project.file.write_element_properties_in_file()
+        self.load_decoupling_info()
 
     def get_rotation_mask(self):
 

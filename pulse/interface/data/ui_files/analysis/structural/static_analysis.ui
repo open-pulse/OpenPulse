@@ -444,6 +444,6 @@
   <tabstop>checkBox_distributed_element</tabstop>
   <tabstop>pushButton_run_analysis</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

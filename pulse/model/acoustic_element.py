@@ -2,13 +2,13 @@
 
 from pulse.model import RadiationImpedanceType
 from pulse.model.node import Node, distance
-from pulse.model.perforated_plate import Foks_function
+from pulse.model.perforated_plate import Foks_function, PerforatedPlateFormulation
+from pulse.model.properties.fluid import Fluid
 
 from numpy import sqrt, pi
 import numpy as np
 from scipy.special import jv, hankel1
 from scipy.optimize import root, fsolve
-
 
 DOF_PER_NODE = 1
 NODES_PER_ELEMENT = 2
@@ -45,7 +45,7 @@ def j2_j0(z):
     Auxiliary function to compute the ratio between the Bessel functions J2 and J0. When the 
     imaginary part of input z reaches 700, the following syntonic approximation is used:
     
-    ``j2/j0 = -1``, when ``z --> \infty.``
+    j2/j0 = -1, when z --> /infty.
 
     Parameters
     -------
@@ -444,11 +444,11 @@ class AcousticElement:
         """
         self.area_fluid = self.cross_section.area_fluid
         if self.perforated_plate:
-            if self.perforated_plate.type in [0, 1]:
-                return self.perforated_plate_matrix(frequencies)
-            else:
+            if self.perforated_plate.type == PerforatedPlateFormulation.COMMON_PIPE:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2) / 4
+            else:
+                return self.perforated_plate_matrix(frequencies)
 
         self.reset()
         if self.element_type in ['undamped_mean_flow','peters','howe']:
@@ -604,7 +604,7 @@ class AcousticElement:
 
         self.area_fluid = self.cross_section.area_fluid
         if self.perforated_plate:
-            if self.perforated_plate.type in [2]:
+            if self.perforated_plate.type == PerforatedPlateFormulation.COMMON_PIPE:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2)/4
 
@@ -674,13 +674,16 @@ class AcousticElement:
 
         self.area_fluid = self.cross_section.area_fluid
         if self.perforated_plate:
-            if self.perforated_plate.type in [2]:
+            if self.perforated_plate.type == PerforatedPlateFormulation.COMMON_PIPE:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2)/4
 
-        Ke = self.area_fluid / (rho*length) * np.array([[1,-1],[-1,1]])
-        Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
-        
+        Ke = self.area_fluid / (rho*length) * np.array([[1, -1],
+                                                        [-1, 1]], dytpe=float)
+
+        Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2, 1],
+                                                                 [1, 2]], dtype=float) 
+
         return Ke.flatten(), Me.flatten()
 
     def get_fetm_wave_number_and_acoustic_impedance(self, frequencies: np.ndarray):
@@ -847,6 +850,10 @@ class AcousticElement:
         if frequencies[0]==0:
             frequencies[0] = float(1e-4)
 
+        if not isinstance(self.fluid, Fluid):
+            self.pp_impedance = None
+            return
+
         rho = self.fluid.density
         mu = self.fluid.dynamic_viscosity
         gamma = self.fluid.isentropic_exponent
@@ -919,7 +926,13 @@ class AcousticElement:
             xi_nl = 4 * u_n * (1-sigma**2)/(3*pi*c*(sigma*c_l)**2)
             z_orif = - (xi_l + xi_nl) * z 
 
-        self.pp_impedance = z_orif
+        # Common pipe perforated plate impedance
+        if self.perforated_plate.type == PerforatedPlateFormulation.COMMON_PIPE:
+            self.pp_impedance = self.impedance
+
+        # OpenPulse and Melling perforated plate impedance
+        else:
+            self.pp_impedance = z_orif
 
     def perforated_plate_matrix(self, frequencies):
         self.update_pp_impedance(frequencies)

@@ -1,17 +1,12 @@
-from molde import load_ui
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QDialog, QLabel, QPushButton
 
-from pulse import UI_DIR, app, version
+from pulse import app, version
+from pulse.interface.ui_generated.messages.get_user_confirmation_ui import GetUserConfirmation_UI
 
 
-class GetUserConfirmationInput(QDialog):
+class GetUserConfirmationInput(GetUserConfirmation_UI):
     def __init__(self, title, message, *args, **kwargs):
         super().__init__(*args)
-
-        ui_path = UI_DIR / "messages/get_user_confirmation.ui"
-        load_ui(ui_path, self)
-
         self.title = title
         self.message = message
         self.buttons_config = kwargs.get("buttons_config", dict())
@@ -21,7 +16,6 @@ class GetUserConfirmationInput(QDialog):
 
         self._config_window()
         self._reset_variables()
-        self._define_qt_variables()
         self._create_connections()
 
         self._configure_labels()
@@ -37,15 +31,6 @@ class GetUserConfirmationInput(QDialog):
     def _reset_variables(self):
         self._continue = False
         self._cancel = True
-
-    def _define_qt_variables(self):
-        # QLabel
-        self.label_message: QLabel
-        self.label_title: QLabel
-
-        # QPushButton
-        self.pushButton_rightButton: QPushButton
-        self.pushButton_leftButton: QPushButton
 
     def _create_connections(self):
         self.pushButton_rightButton.clicked.connect(self.right_callback)

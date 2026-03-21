@@ -1,7 +1,8 @@
 import numpy as np
+from typing import Callable
 from molde.actors import CommonSymbolsActorFixedSize, CommonSymbolsActorVariableSize  # noqa: F401
 from molde.colors import Color, color_names
-from molde.utils.poly_data_utils import read_obj_file
+from molde.utils.poly_data_utils import read_obj_file, transform_polydata
 
 from pulse import SYMBOLS_DIR, app
 
@@ -12,9 +13,14 @@ from ..polydata import (
     create_sphere_source,
     create_double_arrow_source,
     create_double_cone_source,
+    create_new_lumped_mass,
+    create_lumped_spring,
+    create_lumped_dumper,
+    create_compressor_discharge,
+    create_compressor_suction,
+    create_pump_discharge,
+    create_pump_suction,
 )
-
-from functools import partial
 
 
 class VariableSymbolsActor(CommonSymbolsActorVariableSize):
@@ -83,6 +89,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
                 )
 
             elif property_name == "reciprocating_compressor_excitation":
+
                 node_id = args[0]
                 elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
                 if len(elements) != 1:
@@ -98,7 +105,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
                 self.add_compressor_symbol(
                     position=data["coords"],
                     orientation=orientation,
-                    mode=data["connection_type"],
+                    connection_type=data["connection_type"],
                 )
 
             elif property_name == "reciprocating_pump_excitation":
@@ -117,7 +124,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
                 self.add_pump_symbol(
                     position=data["coords"],
                     orientation=orientation,
-                    mode=data["connection_type"],
+                    connection_type=data["connection_type"],
                 )
 
         return super().build()
@@ -170,7 +177,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     ):
         if any(i is not None for i in values):
             self.add_symbol(
-                partial(read_obj_file, SYMBOLS_DIR / "structural/new_lumped_mass.obj"),
+                create_new_lumped_mass,
                 position,
                 np.array([0, 1, 0]),
                 color_names.BLUE,
@@ -184,7 +191,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     ):
         mask = [(a is not None) or (b is not None) for a, b in zip(displacements, rotations)]
         self.add_symbol_by_axes(
-            partial(read_obj_file, SYMBOLS_DIR / "structural/lumped_spring.obj"),
+            create_lumped_spring,
             position,
             axes_mask=mask,
             color=color_names.ORANGE,
@@ -198,7 +205,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     ):
         mask = [(a is not None) or (b is not None) for a, b in zip(displacements, rotations)]
         self.add_symbol_by_axes(
-            partial(read_obj_file, SYMBOLS_DIR / "structural/lumped_damper.obj"),
+            create_lumped_dumper,
             position,
             axes_mask=mask,
             color=color_names.PINK,
@@ -206,7 +213,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
     def add_symbol_by_axes(
         self,
-        shape_name: str,
+        shape_name: Callable,
         position,
         axes_mask: tuple[bool, bool, bool],
         color: Color,
@@ -254,35 +261,35 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
             color=color_names.RED,
         )
 
-    def add_compressor_symbol(self, position, orientation, mode):
-        if mode == "discharge":
+    def add_compressor_symbol(self, position, orientation, connection_type):
+        if connection_type == "discharge":
             self.add_symbol(
-                partial(read_obj_file, SYMBOLS_DIR / "acoustic/compressor_discharge.obj"),
+                create_compressor_discharge,
                 position,
                 orientation,
                 color=color_names.RED_2,
             )
 
-        elif mode == "suction":
+        elif connection_type == "suction":
             self.add_symbol(
-                partial(read_obj_file, SYMBOLS_DIR / "acoustic/compressor_suction.obj"),
+                create_compressor_suction,
                 position,
                 orientation,
                 color=color_names.BLUE_2,
             )
 
-    def add_pump_symbol(self, position, orientation, mode):
-        if mode == "discharge":
+    def add_pump_symbol(self, position, orientation, connection_type):
+        if connection_type == "discharge":
             self.add_symbol(
-                partial(read_obj_file, SYMBOLS_DIR / "acoustic/pump_discharge.obj"),
+                create_pump_discharge,
                 position,
                 orientation,
                 color=color_names.RED,
             )
 
-        elif mode == "suction":
+        elif connection_type == "suction":
             self.add_symbol(
-                partial(read_obj_file, SYMBOLS_DIR / "acoustic/pump_suction.obj"),
+                create_pump_suction,
                 position,
                 orientation,
                 color=color_names.BLUE,
