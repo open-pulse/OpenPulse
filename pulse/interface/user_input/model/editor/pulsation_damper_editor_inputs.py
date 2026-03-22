@@ -681,19 +681,22 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             self.show_error_window_for_parameters()
             self._pulsation_damper_data.clear()
             return
+        
+        self.damper_data[damper_label] = self._pulsation_damper_data
 
         self.preview_widget.close_preview()
         aux = self.damper_data.copy()
-        for key, data in aux.items():
-            if data == self._pulsation_damper_data:
-                self.damper_data.pop(key)
-                break
+
+        # for key, data in aux.items():
+        #     if data == self._pulsation_damper_data:
+        #         self.damper_data.pop(key)
+        #         PrintMessageInput(['Error', self.error_title, 'There is already an identical Pulsation Damper to this one.'], )
+        #         break
         
         if self.edited_damper:
             if self.previous_damper_label in self.damper_data:
                 self.remove_callback(self.previous_damper_label)
 
-        self.damper_data[damper_label] = self._pulsation_damper_data
 
         device = PulsationDamper(self._pulsation_damper_data)
 
@@ -870,8 +873,8 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             self.lineEdit_connecting_coord_y.setText(str(cy))
             self.lineEdit_connecting_coord_z.setText(str(cz))
 
-        type = data["damper_type"]
-        idx = self.comboBox_damper_type.findText(type)
+        damper_type = data["damper_type"]
+        idx = self.comboBox_damper_type.findText(damper_type)
         if idx >= 0:
             self.comboBox_damper_type.setCurrentIndex(idx)
 
@@ -895,13 +898,17 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         liquid_id = data["liquid_fluid_id"]
         gas_id = data["gas_fluid_id"]
 
+        self.properties.set_fluids_library(self.properties.fluids_library)
         liquid = self.properties.fluids_library.get(liquid_id)
         gas = self.properties.fluids_library.get(gas_id)
 
-        self.fluid_state = 'liquid'
-        self.get_selected_fluid(liquid)
-        self.fluid_state = 'gas'
-        self.get_selected_fluid(gas)
+        if liquid is not None:
+            self.fluid_state = 'liquid'
+            self.get_selected_fluid(liquid)
+        
+        if gas is not None:
+            self.fluid_state = 'gas'
+            self.get_selected_fluid(gas)
 
 
     def edit_callback(self):
@@ -921,13 +928,11 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
     def copy_callback(self):
         damper_label = self.lineEdit_selected_damper_label.text()
 
-        self.insert_damper_data_on_interface(damper_label, coords = False)
+        self.insert_damper_data_on_interface(damper_label, coords=False)
 
         self.tabWidget_main.setCurrentIndex(0)
         self.preview_callback()
 
-        self.lineEdit_connecting_coord_x.setFocus()
-        
         for coord in [
             self.lineEdit_connecting_coord_x,
             self.lineEdit_connecting_coord_y,

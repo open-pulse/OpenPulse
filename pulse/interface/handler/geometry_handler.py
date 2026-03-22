@@ -586,6 +586,7 @@ class GeometryHandler:
         material_info = defaultdict(list)
 
         psd_info = dict()
+        pulsation_damper_info = dict()
         valve_info = dict()
         expansion_joint_info = dict()
 
@@ -634,6 +635,10 @@ class GeometryHandler:
 
             if "psd_name" in structure.extra_info.keys():
                 psd_info[tag] = structure.extra_info["psd_name"]
+            
+            if "pulsation_damper_name" in structure.extra_info.keys():
+                print('pulsation_damper_name está na extra info!!')
+                pulsation_damper_info[tag] = structure.extra_info["pulsation_damper_name"]
 
             tag += 1
 
@@ -666,6 +671,9 @@ class GeometryHandler:
 
         for line_id, psd_label in psd_info.items():
             self.project.model.properties._set_line_property("psd_name", psd_label, line_ids=line_id)
+        
+        for line_id, damper_label in pulsation_damper_info.items():
+            self.project.model.properties._set_line_property("pulsation_damper_name", damper_label, line_ids=line_id)
 
         self.project.file.write_line_properties_in_file()
         self.project.file.modify_project_attributes(import_type = 1)
