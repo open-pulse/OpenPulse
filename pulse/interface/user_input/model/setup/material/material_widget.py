@@ -139,7 +139,7 @@ class MaterialWidget(MaterialInputWidget_UI):
 
             self.materials_library[int(tag)] = material
 
-        self.properties.set_materials_library(self.materials_from_library)
+        self.properties.set_materials_library(self.materials_library)
         self.update_material_properties_table()
 
     def update_material_properties_table(self):
