@@ -685,14 +685,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.damper_data[damper_label] = self._pulsation_damper_data
 
         self.preview_widget.close_preview()
-        aux = self.damper_data.copy()
 
-        # for key, data in aux.items():
-        #     if data == self._pulsation_damper_data:
-        #         self.damper_data.pop(key)
-        #         PrintMessageInput(['Error', self.error_title, 'There is already an identical Pulsation Damper to this one.'], )
-        #         break
-        
         if self.edited_damper:
             if self.previous_damper_label in self.damper_data:
                 self.remove_callback(self.previous_damper_label)

@@ -637,7 +637,6 @@ class GeometryHandler:
                 psd_info[tag] = structure.extra_info["psd_name"]
             
             if "pulsation_damper_name" in structure.extra_info.keys():
-                print('pulsation_damper_name está na extra info!!')
                 pulsation_damper_info[tag] = structure.extra_info["pulsation_damper_name"]
 
             tag += 1
