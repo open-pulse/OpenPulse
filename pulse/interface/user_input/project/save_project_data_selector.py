@@ -3,7 +3,7 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 
-from pulse import app, TEMP_PROJECT_FILE
+from pulse import app, TEMP_PROJECT_DIR
 from pulse.interface.ui_generated.project.save_project_data_selector_ui import SaveProjectDataSelector_UI
 
 
@@ -51,8 +51,8 @@ class SaveProjectDataSelector(SaveProjectDataSelector_UI):
         self.pushButton_proceed.clicked.connect(self.proceed_callback)
 
     def get_required_memory(self):
-        path = TEMP_PROJECT_FILE
-        size_of_file = os.path.getsize(path) / 1e6
+        total_size = sum(f.stat().st_size for f in TEMP_PROJECT_DIR.rglob("*") if f.is_file())
+        size_of_file = total_size / 1e6
         self.lineEdit_required_memory.setText(str(round(size_of_file, 4)))
 
     def remove_solution_data(self):

@@ -23,7 +23,7 @@ def current_model(datadir: Path):
     
     # Initialize project
     project = Project()
-    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
+    project.initialize_pulse_file_and_loader(dir_path=str(datadir))
     
     model = project.model
     mesh = model.mesh

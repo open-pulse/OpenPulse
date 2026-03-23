@@ -16,7 +16,7 @@ from pathlib import Path
 def test_reciprocating_pump_excitation_analysis(datadir: Path):
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
+    project.initialize_pulse_file_and_loader(dir_path=str(datadir))
     
     ## Define usefull objects
     model = project.model
