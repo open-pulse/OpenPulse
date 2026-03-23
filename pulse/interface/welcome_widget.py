@@ -144,7 +144,9 @@ class WelcomeWidget(QWidget):
                     if "thumbnail.png" in zf.namelist():
                         with zf.open("thumbnail.png") as f:
                             thumbnail = Image.open(f).copy()
-            except Exception:
+            except (zipfile.BadZipFile, IOError, OSError) as e:
+                # Log the error for debugging purposes
+                # logging.warning(f"Could not read thumbnail from {path}: {e}")
                 pass
 
             if thumbnail is not None:
