@@ -72,6 +72,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.keep_window_open = True
         self.line_edits = list()
         self.nodes_from_removed_lines = list()
+        self.edited_psd = False
 
     def _define_qt_variables(self):
         # QWidget
@@ -310,6 +311,24 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
             self.lineEdit_rotation_plane.setText("XZ-plane")
         elif index == 2:
             self.lineEdit_rotation_plane.setText("XY-plane")
+    
+    def update_psd_label(self):
+        psd_label = self.lineEdit_device_label.text()
+        if psd_label in self.psds_data.keys():
+            sufix = 0
+            max_iter = 100
+            _psd_label = psd_label
+
+            while _psd_label in self.psds_data.keys() and sufix < max_iter:
+                sufix += 1
+                _psd_label = psd_label + f"_{sufix}"
+
+            if _psd_label in self.psds_data.keys():
+                psd_label = ""
+            else:
+                psd_label = _psd_label
+
+        self.lineEdit_device_label.setText(psd_label)
 
     def check_psd_label(self):
         psd_label = self.lineEdit_device_label.text()
@@ -321,13 +340,16 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
             return True, None
 
         elif psd_label in self.psds_data.keys():
-            self.lineEdit_device_label.setFocus()
+            # self.lineEdit_device_label.setFocus()
 
-            title = "Invalid input"
-            message = "The typed 'device label' has already been applied to other PSD. "
-            message += "You should enter a different label to proceed with the PSD configuration."
-            PrintMessageInput([window_title_2, title, message])
-            return True, None
+            # title = "Invalid input"
+            # message = "The typed 'device label' has already been applied to other PSD. "
+            # message += "You should enter a different label to proceed with the PSD configuration."
+            # PrintMessageInput([window_title_2, title, message])
+            # return True, None
+            self.update_psd_label()
+            psd_label = self.lineEdit_device_label.text()
+            return False, psd_label
 
         return False, psd_label
 
@@ -712,8 +734,6 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
             self.show_errors_for_single_volume_psd_geometric_inputs()
 
     def create_psd_callback(self):
-        self.preview_widget.close_preview()
-
         stop, psd_label = self.check_psd_label()
         if stop:
             return
@@ -734,6 +754,9 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
                 break
 
         self.psds_data[psd_label] = self._psd_data
+        if self.edited_psd:
+            if self.previous_psd_label in self.psds_data:
+                self.remove_callback(self.previous_psd_label)
 
         if "volume #2 parameters" in self._psd_data.keys():
             device = DualVolumePSD(self._psd_data)
@@ -924,20 +947,22 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.properties._remove_element_property("element_length_correction", element_ids)
         app().project.file.write_element_properties_in_file()
 
-    def remove_callback(self):
-        if self.lineEdit_selection.text() != "":
-            psd_name = self.lineEdit_selection.text()
+    def remove_callback(self, psd_label: str | None = None):
+        psd_label = psd_label if isinstance(psd_label, str) else self.lineEdit_selection.text()
 
-            if psd_name in self.psds_data.keys():
-                self.psds_data.pop(psd_name)
+        if not psd_label:
+            return
 
-            self.remove_psd_related_line_properties(psd_name)
-            self.remove_psd_related_nodal_properties(psd_name)
-            self.remove_psd_related_element_properties(psd_name)
+        if psd_label in self.psds_data.keys():
+            self.psds_data.pop(psd_label)
 
-            self.actions_to_finalize()
-            app().main_window.update_plots()
-            self.pushButton_remove.setDisabled(True)
+        self.remove_psd_related_line_properties(psd_label)
+        self.remove_psd_related_nodal_properties(psd_label)
+        self.remove_psd_related_element_properties(psd_label)
+
+        self.actions_to_finalize()
+        app().main_window.update_plots()
+        self.pushButton_remove.setDisabled(True)
 
     def reset_callback(self):
         self.hide()
@@ -968,7 +993,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         app().main_window.update_plots()
 
     def insert_psd_data_on_interface(self, psd_label, coords: bool = True):
-        if psd_label == '' or psd_label not in self.psds_data:
+        if psd_label == "" or psd_label not in self.psds_data:
             return
 
         data = self.psds_data[psd_label]
@@ -976,41 +1001,97 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.lineEdit_device_label.setText(psd_label)
 
         if coords:
-            cx, cy, cz = data['connecting coords']
+            cx, cy, cz = data["connecting coords"]
             self.lineEdit_connecting_coord_x.setText(str(cx))
             self.lineEdit_connecting_coord_y.setText(str(cy))
             self.lineEdit_connecting_coord_z.setText(str(cz))
-        
-        def set_combobox(combobox: QComboBox, text: str, in_data: bool = False):
-            if in_data:
-                index_name = data[text]
-            else:
-                index_name = text
 
-            idx = combobox.findText(index_name)
-            index_name += ' ' if text == 'main axis' else index_name
-            if idx >= 0:
-                combobox.setCurrentIndex(idx)
-            else:
-                print('erro', text)
+        idx = self.comboBox_connection_pipe.findText(data["connection pipe"])
+        if idx >= 0:
+            self.comboBox_connection_pipe.setCurrentIndex(idx)
 
-        set_combobox(self.comboBox_connection_pipe, 'connection pipe')
-        set_combobox(self.comboBox_main_axis, 'main axis')
-        if 'volume #2 parameters' in data[psd_label].keys():
-            number_of_volumes = 'two volumes'
+        idx = self.comboBox_main_axis.findText(" " + data["main axis"])
+        if idx >= 0:
+            self.comboBox_main_axis.setCurrentIndex(idx)
+
+        if "volume #2 parameters" in data.keys():
+            number_of_volumes = "two volumes"
         else:
-            number_of_volumes = 'one volume'
-        set_combobox(self.comboBox_number_volumes, number_of_volumes, in_data=False)
+            number_of_volumes = "one volume"
+        idx = self.comboBox_number_volumes.findText(number_of_volumes)
+        if idx >= 0:
+            self.comboBox_number_volumes.setCurrentIndex(idx)
 
+        self.spinBox_volumes_spacing.setValue(data["volumes spacing"])
+
+        idx = self.comboBox_volumes_connection.findText(data["volumes connection"])
+        if idx >= 0:
+            self.comboBox_volumes_connection.setCurrentIndex(idx)
+
+        idx = self.comboBox_pipe1_connection.findText(data["element_length_correction - 1"]["connection_type"] + " type")
+        if idx >= 0:
+            self.comboBox_pipe1_connection.setCurrentIndex(idx)
+
+        idx = self.comboBox_pipe2_connection.findText(data["element_length_correction - 2"]["connection_type"] + " type")
+        if idx >= 0:
+            self.comboBox_pipe2_connection.setCurrentIndex(idx)
+
+        # idx = self.comboBox_tuned_filter.findText(data[])
+
+        # pipe #n parameters = [diameter, thickness, length, distance, angle]
+        self.spinBox_pipe1_rotation_angle.setValue(data["pipe #1 parameters"][4])
+        self.spinBox_pipe2_rotation_angle.setValue(data["pipe #2 parameters"][4])
+
+        part_key_map = {
+            "volume1": "volume #1 parameters",
+            "volume2": "volume #2 parameters",
+            "pipe1": "pipe #1 parameters",
+            "pipe2": "pipe #2 parameters",
+            "pipe3": "pipe #3 parameters",
+        }
+
+        for part, key in part_key_map.items():
+            for i, variable in enumerate(["diameter", "wall_thickness", "length", "distance"]):
+                name = "lineEdit_" + part + "_" + variable
+                obj = getattr(self, name)
+                parameters = data[key]
+
+                if i < len(parameters):
+                    obj.setText(str(parameters[i]))
 
     def edit_callback(self):
+        self.pushButton_create_psd.setText("Confirm")
+        self.pushButton_exit.setText("Cancel")
+
+        self.previous_psd_label = self.lineEdit_selection.text()
+
         psd_name = self.lineEdit_selection.text()
         if psd_name:
             self.insert_psd_data_on_interface(psd_name)
-        ...
-    
+
+        self.tabWidget_main.setCurrentIndex(0)
+        self.preview_callback()
+
+        self.edited_psd = True
+
     def copy_callback(self):
-        ...
+        self.previous_psd_label = self.lineEdit_selection.text()
+
+        psd_name = self.lineEdit_selection.text()
+        if psd_name:
+            self.insert_psd_data_on_interface(psd_name, coords=False)
+
+        self.tabWidget_main.setCurrentIndex(0)
+        self.preview_callback()
+
+        for coord in [
+            self.lineEdit_connecting_coord_x,
+            self.lineEdit_connecting_coord_y,
+            self.lineEdit_connecting_coord_z,
+        ]:
+            coord.setText("")
+
+        self.lineEdit_connecting_coord_x.setFocus()
 
     def is_valid_number(self, value: str, include_zero: bool = False):
         if value == "":

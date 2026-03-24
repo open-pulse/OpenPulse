@@ -95,7 +95,7 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>0</y>
+               <y>-192</y>
                <width>571</width>
                <height>688</height>
               </rect>
@@ -1434,7 +1434,7 @@
                   </widget>
                  </item>
                  <item row="2" column="6">
-                  <widget class="QLineEdit" name="lineEdit_volume1_distance_2">
+                  <widget class="QLineEdit" name="lineEdit_volume2_distance">
                    <property name="enabled">
                     <bool>false</bool>
                    </property>
@@ -2856,7 +2856,7 @@
   <tabstop>pushButton_remove</tabstop>
   <tabstop>lineEdit_selection</tabstop>
   <tabstop>treeWidget_psd_info</tabstop>
-  <tabstop>lineEdit_volume1_distance_2</tabstop>
+  <tabstop>lineEdit_volume2_distance</tabstop>
   <tabstop>lineEdit_volume1_distance</tabstop>
  </tabstops>
  <resources>

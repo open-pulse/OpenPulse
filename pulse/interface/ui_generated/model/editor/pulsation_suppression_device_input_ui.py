@@ -56,7 +56,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scroll_main = QWidget()
         self.scroll_main.setObjectName(u"scroll_main")
-        self.scroll_main.setGeometry(QRect(0, 0, 571, 688))
+        self.scroll_main.setGeometry(QRect(0, -192, 571, 688))
         self.gridLayout_8 = QGridLayout(self.scroll_main)
         self.gridLayout_8.setSpacing(4)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
@@ -495,15 +495,15 @@ class Ui_Dialog(object):
 
         self.gridLayout_11.addWidget(self.lineEdit_pipe3_diameter, 6, 3, 1, 1)
 
-        self.lineEdit_volume1_distance_2 = QLineEdit(self.frame_7)
-        self.lineEdit_volume1_distance_2.setObjectName(u"lineEdit_volume1_distance_2")
-        self.lineEdit_volume1_distance_2.setEnabled(False)
-        self.lineEdit_volume1_distance_2.setMinimumSize(QSize(100, 26))
-        self.lineEdit_volume1_distance_2.setMaximumSize(QSize(100, 26))
-        self.lineEdit_volume1_distance_2.setFont(font)
-        self.lineEdit_volume1_distance_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_volume2_distance = QLineEdit(self.frame_7)
+        self.lineEdit_volume2_distance.setObjectName(u"lineEdit_volume2_distance")
+        self.lineEdit_volume2_distance.setEnabled(False)
+        self.lineEdit_volume2_distance.setMinimumSize(QSize(100, 26))
+        self.lineEdit_volume2_distance.setMaximumSize(QSize(100, 26))
+        self.lineEdit_volume2_distance.setFont(font)
+        self.lineEdit_volume2_distance.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_11.addWidget(self.lineEdit_volume1_distance_2, 2, 6, 1, 1)
+        self.gridLayout_11.addWidget(self.lineEdit_volume2_distance, 2, 6, 1, 1)
 
         self.label_45 = QLabel(self.frame_7)
         self.label_45.setObjectName(u"label_45")
@@ -1020,12 +1020,12 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.pushButton_reset, self.pushButton_remove)
         QWidget.setTabOrder(self.pushButton_remove, self.lineEdit_selection)
         QWidget.setTabOrder(self.lineEdit_selection, self.treeWidget_psd_info)
-        QWidget.setTabOrder(self.treeWidget_psd_info, self.lineEdit_volume1_distance_2)
-        QWidget.setTabOrder(self.lineEdit_volume1_distance_2, self.lineEdit_volume1_distance)
+        QWidget.setTabOrder(self.treeWidget_psd_info, self.lineEdit_volume2_distance)
+        QWidget.setTabOrder(self.lineEdit_volume2_distance, self.lineEdit_volume1_distance)
 
         self.retranslateUi(Dialog)
 
-        self.tabWidget_main.setCurrentIndex(1)
+        self.tabWidget_main.setCurrentIndex(0)
         self.comboBox_number_volumes.setCurrentIndex(0)
         self.pushButton_edit.setDefault(False)
         self.pushButton_remove.setDefault(False)
@@ -1098,7 +1098,7 @@ class Ui_Dialog(object):
         self.lineEdit_pipe1_distance.setText(QCoreApplication.translate("Dialog", u"0.75", None))
         self.lineEdit_volume1_distance.setText(QCoreApplication.translate("Dialog", u"---", None))
         self.lineEdit_pipe3_diameter.setText(QCoreApplication.translate("Dialog", u"0.20", None))
-        self.lineEdit_volume1_distance_2.setText(QCoreApplication.translate("Dialog", u"---", None))
+        self.lineEdit_volume2_distance.setText(QCoreApplication.translate("Dialog", u"---", None))
         self.label_45.setText(QCoreApplication.translate("Dialog", u"distance [m]", None))
         self.lineEdit_pipe2_distance.setText(QCoreApplication.translate("Dialog", u"2.25", None))
         self.lineEdit_volume1_wall_thickness.setText(QCoreApplication.translate("Dialog", u"0.023", None))
@@ -1125,12 +1125,12 @@ class Ui_Dialog(object):
         self.lineEdit_connecting_coord_z.setText(QCoreApplication.translate("Dialog", u"0.000", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         self.pushButton_edit.setText(QCoreApplication.translate("Dialog", u"Edit", None))
-        self.pushButton_edit.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
+        self.pushButton_edit.setProperty(u"status", "")
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
-        self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
+        self.pushButton_remove.setProperty(u"status", "")
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_copy.setText(QCoreApplication.translate("Dialog", u"Copy", None))
-        self.pushButton_copy.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
+        self.pushButton_copy.setProperty(u"status", "")
         self.label_11.setText(QCoreApplication.translate("Dialog", u"Selection label:", None))
         ___qtreewidgetitem = self.treeWidget_psd_info.headerItem()
         ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Lines", None));
@@ -1204,7 +1204,7 @@ class PulsationSuppressionDeviceInput_UI(QDialog, Ui_Dialog):
                                                                         - lineEdit_pipe1_distance: QLineEdit
                                                                         - lineEdit_volume1_distance: QLineEdit
                                                                         - lineEdit_pipe3_diameter: QLineEdit
-                                                                        - lineEdit_volume1_distance_2: QLineEdit
+                                                                        - lineEdit_volume2_distance: QLineEdit
                                                                         - label_45: QLabel
                                                                         - lineEdit_pipe2_distance: QLineEdit
                                                                         - lineEdit_volume1_wall_thickness: QLineEdit
