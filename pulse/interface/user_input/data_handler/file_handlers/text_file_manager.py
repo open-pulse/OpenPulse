@@ -1,4 +1,4 @@
-from pulse.interface.user_input.data_handler.imported_data.text_data import TextData
+from pulse.interface.user_input.data_handler.imported_data import TextData
 from pulse.interface.user_input.data_handler.file_handlers.io_handler import IOHandler
 from pathlib import Path
 

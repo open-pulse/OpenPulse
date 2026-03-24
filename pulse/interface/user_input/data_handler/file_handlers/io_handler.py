@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from pulse.interface.user_input.data_handler.imported_data.imported_data import ImportedData
+from pulse.interface.user_input.data_handler.imported_data import ImportedData
 
 from pathlib import Path
 

@@ -1,18 +1,14 @@
-from PySide6.QtWidgets import QCheckBox, QFileDialog, QTreeWidgetItem
+from PySide6.QtWidgets import QCheckBox, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.data_handler.import_data_to_compare_ui import ImportDataToCompare_UI
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.data_handler.imported_data.imported_data import ImportedData
+from pulse.interface.user_input.data_handler.imported_data import ImportedData
 from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
 
-
-import os
 import numpy as np
-from pathlib import Path
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
