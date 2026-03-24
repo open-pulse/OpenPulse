@@ -94,6 +94,8 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.pushButton_create_psd.clicked.connect(self.create_psd_callback)
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
+        self.pushButton_edit.clicked.connect(self.edit_callback)
+        self.pushButton_copy.clicked.connect(self.copy_callback)
         #
         self.spinBox_volumes_spacing.valueChanged.connect(self.volumes_spacing_callback)
         #
@@ -965,6 +967,51 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.actions_to_finalize()
         app().main_window.update_plots()
 
+    def insert_psd_data_on_interface(self, psd_label, coords: bool = True):
+        if psd_label == '' or psd_label not in self.psds_data:
+            return
+
+        data = self.psds_data[psd_label]
+
+        self.lineEdit_device_label.setText(psd_label)
+
+        if coords:
+            cx, cy, cz = data['connecting coords']
+            self.lineEdit_connecting_coord_x.setText(str(cx))
+            self.lineEdit_connecting_coord_y.setText(str(cy))
+            self.lineEdit_connecting_coord_z.setText(str(cz))
+        
+        def set_combobox(combobox: QComboBox, text: str, in_data: bool = False):
+            if in_data:
+                index_name = data[text]
+            else:
+                index_name = text
+
+            idx = combobox.findText(index_name)
+            index_name += ' ' if text == 'main axis' else index_name
+            if idx >= 0:
+                combobox.setCurrentIndex(idx)
+            else:
+                print('erro', text)
+
+        set_combobox(self.comboBox_connection_pipe, 'connection pipe')
+        set_combobox(self.comboBox_main_axis, 'main axis')
+        if 'volume #2 parameters' in data[psd_label].keys():
+            number_of_volumes = 'two volumes'
+        else:
+            number_of_volumes = 'one volume'
+        set_combobox(self.comboBox_number_volumes, number_of_volumes, in_data=False)
+
+
+    def edit_callback(self):
+        psd_name = self.lineEdit_selection.text()
+        if psd_name:
+            self.insert_psd_data_on_interface(psd_name)
+        ...
+    
+    def copy_callback(self):
+        ...
+
     def is_valid_number(self, value: str, include_zero: bool = False):
         if value == "":
             return False
@@ -1070,11 +1117,8 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
                 new.setTextAlignment(col, Qt.AlignCenter)
             self.treeWidget_psd_info.addTopLevelItem(new)
 
-        if self.psds_data:
-            self.tabWidget_main.setTabVisible(1, True)
-        else:
-            self.tabWidget_main.setCurrentIndex(0)
-            self.tabWidget_main.setTabVisible(1, False)
+        self.tabWidget_main.setTabVisible(1, True)
+        self.tabWidget_main.setCurrentIndex(0)
 
     def get_device_tag(self):
         index = 1
