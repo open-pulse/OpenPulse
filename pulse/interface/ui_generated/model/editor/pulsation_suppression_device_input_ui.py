@@ -56,7 +56,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scroll_main = QWidget()
         self.scroll_main.setObjectName(u"scroll_main")
-        self.scroll_main.setGeometry(QRect(0, 0, 600, 688))
+        self.scroll_main.setGeometry(QRect(0, 0, 571, 688))
         self.gridLayout_8 = QGridLayout(self.scroll_main)
         self.gridLayout_8.setSpacing(4)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
@@ -765,26 +765,26 @@ class Ui_Dialog(object):
         self.gridLayout_7.addWidget(self.scrollArea, 0, 0, 1, 1)
 
         self.tabWidget_main.addTab(self.tab_setup, "")
-        self.tab_remove = QWidget()
-        self.tab_remove.setObjectName(u"tab_remove")
-        self.gridLayout_9 = QGridLayout(self.tab_remove)
+        self.tab_devices = QWidget()
+        self.tab_devices.setObjectName(u"tab_devices")
+        self.gridLayout_9 = QGridLayout(self.tab_devices)
         self.gridLayout_9.setObjectName(u"gridLayout_9")
-        self.frame_6 = QFrame(self.tab_remove)
+        self.frame_6 = QFrame(self.tab_devices)
         self.frame_6.setObjectName(u"frame_6")
         self.frame_6.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_6.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_10 = QGridLayout(self.frame_6)
         self.gridLayout_10.setObjectName(u"gridLayout_10")
-        self.pushButton_reset = QPushButton(self.frame_6)
-        self.pushButton_reset.setObjectName(u"pushButton_reset")
-        self.pushButton_reset.setMinimumSize(QSize(100, 28))
-        self.pushButton_reset.setMaximumSize(QSize(100, 28))
-        self.pushButton_reset.setFont(font)
-        self.pushButton_reset.setStyleSheet(u"")
-        self.pushButton_reset.setAutoDefault(False)
-        self.pushButton_reset.setFlat(False)
+        self.pushButton_edit = QPushButton(self.frame_6)
+        self.pushButton_edit.setObjectName(u"pushButton_edit")
+        self.pushButton_edit.setMinimumSize(QSize(100, 28))
+        self.pushButton_edit.setMaximumSize(QSize(100, 28))
+        self.pushButton_edit.setFont(font)
+        self.pushButton_edit.setStyleSheet(u"")
+        self.pushButton_edit.setAutoDefault(False)
+        self.pushButton_edit.setFlat(False)
 
-        self.gridLayout_10.addWidget(self.pushButton_reset, 0, 0, 1, 1)
+        self.gridLayout_10.addWidget(self.pushButton_edit, 0, 3, 1, 1)
 
         self.pushButton_remove = QPushButton(self.frame_6)
         self.pushButton_remove.setObjectName(u"pushButton_remove")
@@ -797,10 +797,32 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addWidget(self.pushButton_remove, 0, 1, 1, 1)
 
+        self.pushButton_reset = QPushButton(self.frame_6)
+        self.pushButton_reset.setObjectName(u"pushButton_reset")
+        self.pushButton_reset.setMinimumSize(QSize(100, 28))
+        self.pushButton_reset.setMaximumSize(QSize(100, 28))
+        self.pushButton_reset.setFont(font)
+        self.pushButton_reset.setStyleSheet(u"")
+        self.pushButton_reset.setAutoDefault(False)
+        self.pushButton_reset.setFlat(False)
+
+        self.gridLayout_10.addWidget(self.pushButton_reset, 0, 0, 1, 1)
+
+        self.pushButton_copy = QPushButton(self.frame_6)
+        self.pushButton_copy.setObjectName(u"pushButton_copy")
+        self.pushButton_copy.setMinimumSize(QSize(100, 28))
+        self.pushButton_copy.setMaximumSize(QSize(100, 28))
+        self.pushButton_copy.setFont(font)
+        self.pushButton_copy.setStyleSheet(u"")
+        self.pushButton_copy.setAutoDefault(False)
+        self.pushButton_copy.setFlat(False)
+
+        self.gridLayout_10.addWidget(self.pushButton_copy, 0, 2, 1, 1)
+
 
         self.gridLayout_9.addWidget(self.frame_6, 2, 0, 1, 1)
 
-        self.frame_9 = QFrame(self.tab_remove)
+        self.frame_9 = QFrame(self.tab_devices)
         self.frame_9.setObjectName(u"frame_9")
         self.frame_9.setMinimumSize(QSize(0, 40))
         self.frame_9.setFrameShape(QFrame.Shape.NoFrame)
@@ -836,7 +858,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_9.addWidget(self.frame_9, 0, 0, 1, 1)
 
-        self.treeWidget_psd_info = QTreeWidget(self.tab_remove)
+        self.treeWidget_psd_info = QTreeWidget(self.tab_devices)
         __qtreewidgetitem = QTreeWidgetItem()
         __qtreewidgetitem.setText(0, u"PSD label");
         self.treeWidget_psd_info.setHeaderItem(__qtreewidgetitem)
@@ -851,7 +873,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_9.addWidget(self.treeWidget_psd_info, 1, 0, 1, 1)
 
-        self.tabWidget_main.addTab(self.tab_remove, "")
+        self.tabWidget_main.addTab(self.tab_devices, "")
 
         self.gridLayout_6.addWidget(self.tabWidget_main, 0, 0, 1, 1)
 
@@ -1003,10 +1025,12 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
 
-        self.tabWidget_main.setCurrentIndex(0)
+        self.tabWidget_main.setCurrentIndex(1)
         self.comboBox_number_volumes.setCurrentIndex(0)
-        self.pushButton_reset.setDefault(False)
+        self.pushButton_edit.setDefault(False)
         self.pushButton_remove.setDefault(False)
+        self.pushButton_reset.setDefault(False)
+        self.pushButton_copy.setDefault(False)
         self.pushButton_exit.setDefault(False)
         self.pushButton_create_psd.setDefault(True)
 
@@ -1100,15 +1124,19 @@ class Ui_Dialog(object):
         self.lineEdit_connecting_coord_y.setText(QCoreApplication.translate("Dialog", u"0.000", None))
         self.lineEdit_connecting_coord_z.setText(QCoreApplication.translate("Dialog", u"0.000", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
-        self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
+        self.pushButton_edit.setText(QCoreApplication.translate("Dialog", u"Edit", None))
+        self.pushButton_edit.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
+        self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
+        self.pushButton_copy.setText(QCoreApplication.translate("Dialog", u"Copy", None))
+        self.pushButton_copy.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
         self.label_11.setText(QCoreApplication.translate("Dialog", u"Selection label:", None))
         ___qtreewidgetitem = self.treeWidget_psd_info.headerItem()
         ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Lines", None));
         ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Connection point", None));
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Connection type", None));
-        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_devices), QCoreApplication.translate("Dialog", u"Devices", None))
         self.label_13.setText(QCoreApplication.translate("Dialog", u"Pulsation supression device preview", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"Pulsation suppression device editor", None))
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
@@ -1203,12 +1231,14 @@ class PulsationSuppressionDeviceInput_UI(QDialog, Ui_Dialog):
                                                                         - label_10: QLabel
                                                                         - lineEdit_connecting_coord_y: QLineEdit
                                                                         - lineEdit_connecting_coord_z: QLineEdit
-                                - tab_remove: QWidget
+                                - tab_devices: QWidget
                                     - (Layout): QGridLayout
                                             - frame_6: QFrame
                                                 - (Layout): QGridLayout
-                                                        - pushButton_reset: QPushButton
+                                                        - pushButton_edit: QPushButton
                                                         - pushButton_remove: QPushButton
+                                                        - pushButton_reset: QPushButton
+                                                        - pushButton_copy: QPushButton
                                             - frame_9: QFrame
                                                 - (Layout): QGridLayout
                                                         - lineEdit_selection: QLineEdit
