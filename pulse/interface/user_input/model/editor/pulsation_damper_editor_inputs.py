@@ -196,6 +196,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.lineEdit_damper_type.setDisabled(True)
         self.pushButton_remove.setDisabled(True)
         self.pushButton_edit.setDisabled(True)
+        self.pushButton_copy.setDisabled(True)
         #
         self.config_treeWidget()
 
@@ -256,6 +257,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
         self.pushButton_edit.setDisabled(True)
+        self.pushButton_copy.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 0:
             self.pushButton_exit.setDisabled(False)
             self.pushButton_create.setDisabled(False)
@@ -266,6 +268,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
         self.pushButton_edit.setDisabled(False)
+        self.pushButton_copy.setDisabled(False)
         self.lineEdit_selected_damper_label.setText(item.text(0))
 
         if item.text(0) in self.pulsation_damper_lines.keys():
@@ -778,6 +781,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.actions_to_finalize()
         self.pushButton_remove.setDisabled(True)
         self.pushButton_edit.setDisabled(True)
+        self.pushButton_copy.setDisabled(True)
 
     def insert_damper_data_on_interface(self, damper_label, coords: bool = True):
         if damper_label == "" or damper_label not in self.damper_data:
