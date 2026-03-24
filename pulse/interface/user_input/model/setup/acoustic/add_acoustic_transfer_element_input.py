@@ -8,7 +8,7 @@ from pulse import app
 from pulse.interface.ui_generated.model.setup.acoustic.acoustic_transfer_element_input_ui import AcousticTransferElementInput_UI
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
+from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
 
@@ -210,7 +210,7 @@ class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
     def import_element_transfer_data(self, imported_path: str):
         self.element_transfer_data.clear()
     
-        imported_file = FileManager().read_text_file(imported_path)
+        imported_file = FileHandler().read_text_file(imported_path)
 
         for sheet in imported_file.sheets:
             if sheet.name:

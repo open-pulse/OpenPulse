@@ -1,11 +1,11 @@
 from pulse.interface.user_input.data_handler.imported_data.text_data import TextData
-from pulse.interface.user_input.data_handler.file_managers.io_handler import IOHandler
+from pulse.interface.user_input.data_handler.file_handlers.io_handler import IOHandler
 from pathlib import Path
 
 import numpy as np
 
 
-class TextFileManager(IOHandler):
+class TextFileHandler(IOHandler):
 
     EXTENSIONS = [".txt", ".dat", ".csv"]
 

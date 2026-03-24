@@ -7,7 +7,7 @@ from pulse.interface.ui_generated.data_handler.import_data_to_compare_ui import 
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.data_handler.imported_data.imported_data import ImportedData
-from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
+from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
 
 
 import os
@@ -93,7 +93,7 @@ class ImportDataToCompare(ImportDataToCompare_UI):
         self.lineEdit_import_results_path.setText(imported_path.stem)
 
         key = self.get_data_index()
-        self.imported_results[key] = FileManager().read(imported_path)
+        self.imported_results[key] = FileHandler().read(imported_path)
 
         self.update_treeWidget_info()
         app().config.write_last_folder_path_in_file(last_folder, str(imported_path))
