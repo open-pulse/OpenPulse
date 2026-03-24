@@ -629,12 +629,12 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             self._pulsation_damper_data.clear()
             return
 
-        self.damper_data[damper_label] = self._pulsation_damper_data
+        self.dampers_data[damper_label] = self._pulsation_damper_data
 
         self.preview_widget.close_preview()
 
         if self.edited_damper:
-            if self.previous_damper_label in self.damper_data:
+            if self.previous_damper_label in self.dampers_data:
                 self.remove_callback(self.previous_damper_label)
 
         device = PulsationDamper(self._pulsation_damper_data)
@@ -689,21 +689,21 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.write_pulsation_damper_element_properties_in_file(damper_label, device)
 
     def write_pulsation_damper_element_properties_in_file(self, damper_label: str, device: (PulsationDamper)):
-        if self.damper_data is None:
+        if self.dampers_data is None:
             return
 
         index = 0
-        if damper_label in self.damper_data.keys():
+        if damper_label in self.dampers_data.keys():
             for _coords, _elc_type in device.elc_data:
                 index += 1
                 coords = self.get_values(_coords)
                 key = f"element_length_correction - {index}"
-                self.damper_data[damper_label][key] = {
+                self.dampers_data[damper_label][key] = {
                     "connection_coords": coords,
                     "elc_type": _elc_type,
                 }
 
-        app().project.file.write_pulsation_damper_data_in_file(self.damper_data)
+        app().project.file.write_pulsation_damper_data_in_file(self.dampers_data)
 
     def remove_pulsation_damper_related_line_properties(self, damper_labels: str | list):
         if isinstance(damper_labels, str):
@@ -773,8 +773,8 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         if not damper_label:
             return
 
-        if damper_label in self.damper_data.keys():
-            self.damper_data.pop(damper_label)
+        if damper_label in self.dampers_data.keys():
+            self.dampers_data.pop(damper_label)
 
         self.remove_pulsation_damper_related_line_properties(damper_label)
         self.remove_pulsation_damper_related_element_properties(damper_label)
@@ -784,10 +784,10 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.pushButton_copy.setDisabled(True)
 
     def insert_damper_data_on_interface(self, damper_label, coords: bool = True):
-        if damper_label == "" or damper_label not in self.damper_data:
+        if damper_label == "" or damper_label not in self.dampers_data:
             return
 
-        data = self.damper_data[damper_label]
+        data = self.dampers_data[damper_label]
 
         self.lineEdit_damper_label.setText(damper_label)
 
@@ -883,8 +883,8 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         if not read._continue:
             return
 
-        damper_labels = list(self.damper_data.keys())
-        self.damper_data.clear()
+        damper_labels = list(self.dampers_data.keys())
+        self.dampers_data.clear()
 
         self.remove_pulsation_damper_related_line_properties(damper_labels)
         self.remove_pulsation_damper_related_element_properties("_remove_all_")
@@ -904,11 +904,11 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.treeWidget_pulsation_damper_info.clear()
         self.pulsation_damper_lines = app().project.loader.get_pulsation_damper_related_lines()
 
-        self.damper_data = app().project.file.read_pulsation_damper_data_from_file()
-        if self.damper_data is None:
-            self.damper_data = dict()
+        self.dampers_data = app().project.file.read_pulsation_damper_data_from_file()
+        if self.dampers_data is None:
+            self.dampers_data = dict()
 
-        for key, damper_data in self.damper_data.items():
+        for key, damper_data in self.dampers_data.items():
             gas_volume = damper_data["gas_volume"]
             damper_type = damper_data["damper_type"]
 
@@ -927,20 +927,20 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.tabWidget_main.setTabVisible(1, True)
         self.tabWidget_main.setCurrentIndex(0)
 
-        self.pushButton_reset.setEnabled(bool(self.damper_data))
+        self.pushButton_reset.setEnabled(bool(self.dampers_data))
 
     def update_pulsation_damper_label(self):
         damper_label = self.lineEdit_damper_label.text()
-        if damper_label in self.damper_data.keys():
+        if damper_label in self.dampers_data.keys():
             sufix = 0
             max_iter = 100
             _damper_label = damper_label
 
-            while _damper_label in self.damper_data.keys() and sufix < max_iter:
+            while _damper_label in self.dampers_data.keys() and sufix < max_iter:
                 sufix += 1
                 _damper_label = damper_label + f"_{sufix}"
 
-            if _damper_label in self.damper_data.keys():
+            if _damper_label in self.dampers_data.keys():
                 damper_label = ""
             else:
                 damper_label = _damper_label
@@ -956,7 +956,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             title = "Empty field detected"
             message = "Enter a damper label to proceed."
 
-        elif damper_label in self.damper_data.keys():
+        elif damper_label in self.dampers_data.keys():
             self.update_pulsation_damper_label()
             damper_label = self.lineEdit_damper_label.text()
 
@@ -1025,7 +1025,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         index = 1
         _run = True
         while _run:
-            if index in self.damper_data.keys():
+            if index in self.dampers_data.keys():
                 index += 1
             else:
                 _run = False
@@ -1033,7 +1033,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
     def actions_to_finalize(self):
         app().main_window.set_selection()
-        app().project.file.write_pulsation_damper_data_in_file(self.damper_data)
+        app().project.file.write_pulsation_damper_data_in_file(self.dampers_data)
 
         app().project.loader.load_project_data()
         app().project.initial_load_project_actions()
