@@ -2,10 +2,8 @@ from PySide6.QtWidgets import QComboBox, QLabel, QPushButton, QToolBar, QWidget
 from PySide6.QtCore import QSize, Signal, Qt
 from PySide6.QtGui import  QIcon, QFont
 
-from pulse import app, UI_DIR, ICON_DIR
+from pulse import app, ICON_DIR
 from pulse.model import AnalysisID
-from pulse.interface.user_input.project.loading_window import LoadingWindow
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from pulse.interface.user_input.analysis.harmonic_analysis_setup_input import HarmonicAnalysisSetupInput
@@ -14,7 +12,6 @@ from pulse.interface.user_input.analysis.static_analysis_input import StaticAnal
 
 import logging
 from typing import Literal
-from time import time
 
 AnalysisType = Literal[
     "",
@@ -49,6 +46,7 @@ PhysicalDomain = Literal[
 class AnalysisToolbar(QToolBar):
 
     enable_pushbutons = Signal()
+    domain_changed = Signal()
 
     def __init__(self):
         super().__init__()
@@ -250,6 +248,7 @@ class AnalysisToolbar(QToolBar):
         current_analysis_id = self.get_current_analysis_id()
         valid_setup = app().project.is_there_a_valid_analysis_setup(current_analysis_id=current_analysis_id)
         self.set_pushbutton_run_analysis_enabled(valid_setup)
+        self.domain_changed.emit()
 
     def analysis_type_callback(self):
 

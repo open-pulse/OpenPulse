@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Form</class>
- <widget class="QWidget" name="Form">
+ <widget class="QDialog" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -1107,7 +1107,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/Pipe.PNG</pixmap>
+                 <pixmap>:/icons/figures/Pipe.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -2296,7 +2296,7 @@
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>../../../../icons/common/swap_horizontal_arrows.png</normaloff>../../../../icons/common/swap_horizontal_arrows.png</iconset>
+                     <normaloff>:/icons/common/swap_horizontal_arrows.png</normaloff>:/icons/common/swap_horizontal_arrows.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -3124,7 +3124,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/Rectangular.PNG</pixmap>
+                 <pixmap>:/icons/figures/Rectangular.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -3587,7 +3587,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/Circular.PNG</pixmap>
+                 <pixmap>:/icons/figures/Circular.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -4458,7 +4458,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/C_profile.PNG</pixmap>
+                 <pixmap>:/icons/figures/C_profile.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -5277,7 +5277,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/I_profile.PNG</pixmap>
+                 <pixmap>:/icons/figures/I_profile.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -5932,7 +5932,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>../../../../figures/T_profile.PNG</pixmap>
+                 <pixmap>:/icons/figures/T_profile.PNG</pixmap>
                 </property>
                 <property name="scaledContents">
                  <bool>true</bool>
@@ -6784,6 +6784,6 @@
   <tabstop>lineEdit_shear_coefficient</tabstop>
   <tabstop>pushButton_load_section_data</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

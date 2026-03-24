@@ -15,7 +15,8 @@ def create_cone_source():
     source.Update()
     return transform_polydata(
         source.GetOutput(),
-        position=(-0.5, 0, 0),
+        position=(-0.25, 0, 0),
+        scale=(0.5, 0.5, 0.5),
     )
 
 
@@ -38,7 +39,8 @@ def create_double_cone_source():
 
     return transform_polydata(
         source.GetOutput(),
-        position=(-0.5, 0, 0),
+        position=(-0.25, 0, 0),
+        scale=(0.5, 0.5, 0.5),
     )
 
 
@@ -46,7 +48,11 @@ def create_cube_source():
     source = vtkCubeSource()
     source.SetBounds(0, 1, 0, 1, 0, 1)
     source.Update()
-    return source.GetOutput()
+    return transform_polydata(
+        source.GetOutput(),
+        position=(-0.25, -0.25, -0.25),
+        scale=(0.5, 0.5, 0.5),
+    )
 
 
 def create_sphere_source():

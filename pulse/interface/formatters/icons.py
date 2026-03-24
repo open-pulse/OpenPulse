@@ -1,9 +1,6 @@
-import os
-import numpy as np
-from PIL import Image
 from pathlib import Path
 from PySide6.QtWidgets import QWidget
-from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap, QImage
+from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PySide6.QtCore import QSize
 from pulse import ICON_DIR
 

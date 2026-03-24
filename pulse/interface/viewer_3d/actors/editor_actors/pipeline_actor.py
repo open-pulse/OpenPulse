@@ -11,7 +11,6 @@ from pulse.utils.cell_utils import (
     fill_cell_identifier,
     paint_data,
 )
-from pulse.editor.structures import Pipe
 
 
 class PipelineActor(vtkActor):

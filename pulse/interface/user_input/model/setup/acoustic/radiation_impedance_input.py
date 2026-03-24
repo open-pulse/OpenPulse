@@ -1,29 +1,30 @@
-from PySide6.QtWidgets import QComboBox, QDialog, QLineEdit, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
 from pulse.model import RadiationImpedanceType
+from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import RadiationImpedanceInput_UI
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-
-from molde import load_ui
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 import numpy as np
 
 
-class RadiationImpedanceInput(QDialog):
+warning_title = "Warning"
+
+
+class RadiationImpedanceInput(RadiationImpedanceInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "model/setup/acoustic/radiation_impedance_input.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
+
         self.properties = app().project.model.properties
+        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._initialize()
         self._config_window()
-        self._define_qt_variables()
+        self._config_widgets()
         self._create_connections()
 
         self.selection_callback()
@@ -34,7 +35,6 @@ class RadiationImpedanceInput(QDialog):
 
     def _initialize(self):
         self.keep_window_open = True
-        self.before_run = app().project.get_pre_solution_model_checks()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -42,28 +42,8 @@ class RadiationImpedanceInput(QDialog):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
-    def _define_qt_variables(self):
-
-        # QComboBox
-        self.comboBox_radiation_impedance_type: QComboBox
-
-        # QLineEdit
-        self.lineEdit_node_ids: QLineEdit
-
-        # QPushButton
-        self.pushButton_attribute: QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_remove: QPushButton
-        self.pushButton_reset: QPushButton
-        self.pushButton_search: QPushButton
-
-        # QTabWidget
-        self.tabWidget_main: QTabWidget
-
-        # QTreeWidget
-        self.treeWidget_nodal_info: QTreeWidget
-        self.treeWidget_nodal_info.setColumnWidth(1, 20)
-        self.treeWidget_nodal_info.setColumnWidth(2, 80)
+    def _config_widgets(self):
+        self.treeWidget_nodal_info.setColumnWidth(0, 120)
 
     def _create_connections(self):
         #
@@ -116,22 +96,24 @@ class RadiationImpedanceInput(QDialog):
 
         for (property, *args), data in self.properties.nodal_properties.items():
 
+            if property != "radiation_impedance":
+                continue
+
             if not isinstance(data, dict):
                 continue
 
-            if property == "radiation_impedance":
-                impedance_type = data.get("impedance_type")
-                if impedance_type is None:
-                    continue
+            impedance_type = data.get("impedance_type")
+            if impedance_type is None:
+                continue
 
-                if isinstance(impedance_type, int):
-                    impedance_text = self.get_radiation_type_text(impedance_type)
-                    impedance_text = impedance_text.capitalize()
+            if isinstance(impedance_type, int):
+                impedance_text = self.get_radiation_type_text(impedance_type)
+                impedance_text = impedance_text.capitalize()
 
-                    new = QTreeWidgetItem([str(args[0]), impedance_text])
-                    new.setTextAlignment(0, Qt.AlignCenter)
-                    new.setTextAlignment(1, Qt.AlignCenter)
-                    self.treeWidget_nodal_info.addTopLevelItem(new)
+                new = QTreeWidgetItem([str(args[0]), impedance_text])
+                new.setTextAlignment(0, Qt.AlignCenter)
+                new.setTextAlignment(1, Qt.AlignCenter)
+                self.treeWidget_nodal_info.addTopLevelItem(new)
 
         self.update_tabs_visibility()
 
@@ -151,7 +133,7 @@ class RadiationImpedanceInput(QDialog):
         if stop:
             return
         
-        self.remove_conflicting_excitations(node_ids)
+        self.remove_properties_from_node(node_ids)
 
         impedance_type = self.comboBox_radiation_impedance_type.currentIndex()
 
@@ -168,7 +150,6 @@ class RadiationImpedanceInput(QDialog):
             self.properties._set_nodal_property("radiation_impedance", data, node_id)
 
         self.actions_to_finalize()
-        print(f"[Set Radiation Impedance] - defined at node(s) {node_ids}")
 
     def get_radiation_type_text(self, index: int):
         if index == RadiationImpedanceType.ANECHOIC:
@@ -199,38 +180,34 @@ class RadiationImpedanceInput(QDialog):
     def on_doubleclick_item(self, item):
         self.lineEdit_node_ids.setText(item.text(0))
 
-    def remove_conflicting_excitations(self, node_ids: int | list | tuple):
+    def remove_properties_from_node(self, node_ids: int | list | tuple):
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
 
         for node_id in node_ids:
-            for label in ["specific_impedance"]:
-                table_names = self.properties.get_nodal_related_table_names(label, node_id)
+            for label in ["radiation_impedance", "specific_impedance"]:
                 self.properties._remove_nodal_property(label, node_id)
-
-                self.process_table_file_removal(table_names)
 
         app().project.file.write_nodal_properties_in_file()
 
-    def process_table_file_removal(self, table_names : list):
-        if table_names:
-            for table_name in table_names:
-                self.properties.remove_imported_tables("acoustic", table_name)
-            app().project.file.write_imported_table_data_in_file()
-
     def remove_callback(self):
 
-        if self.lineEdit_node_ids.text() != "":
-            str_nodes = self.lineEdit_node_ids.text()
-            stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
-            if stop:
-                return
+        if  self.lineEdit_node_ids.text() == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
 
-            for node_id in node_ids:
-                self.properties._remove_nodal_property("radiation_impedance", node_id)
+        str_nodes = self.lineEdit_node_ids.text()
+        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
+        if stop:
+            return
 
-            self.actions_to_finalize()
+        self.properties._remove_nodal_property("radiation_impedance", node_ids)
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -245,15 +222,11 @@ class RadiationImpedanceInput(QDialog):
             if read._cancel:
                 return
 
-            if read._continue:
+            if not read._continue:
+                return
 
-                node_ids = list()
-                for (_property, *args) in self.properties.nodal_properties.keys():
-                    if _property == "radiation_impedance":
-                        node_ids.append(args[0])
-
-                self.properties._reset_nodal_property("radiation_impedance")
-                self.actions_to_finalize()
+            self.properties._reset_nodal_property("radiation_impedance")
+            self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().project.file.write_nodal_properties_in_file()

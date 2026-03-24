@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>Form</class>
- <widget class="QWidget" name="Form">
+ <widget class="QDialog" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -958,7 +958,7 @@
   <tabstop>pushButton_exit</tabstop>
   <tabstop>pushButton_apply</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections>
   <connection>
    <sender>relative_plane_position_x_slider</sender>

@@ -1,6 +1,5 @@
 
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import *
 from pulse.utils.unit_conversion import *
 

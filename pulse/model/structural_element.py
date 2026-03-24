@@ -1,8 +1,7 @@
-from math import pi, sqrt, sin, cos
-from pulse.model.acoustic_element import DOF_PER_NODE
+from math import sqrt
 import numpy as np
 
-from pulse.model.node import Node, distance, DOF_PER_NODE_STRUCTURAL
+from pulse.model.node import distance, DOF_PER_NODE_STRUCTURAL
 
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
@@ -206,7 +205,7 @@ class StructuralElement:
             self.joint_axial_locking_criteria = data["axial_locking_criteria"]
             self.joint_rods_included = data["rods"]
 
-            stiffness_values = data["stiffness_values"]
+            stiffness_values = data["values"]
 
             self.joint_axial_stiffness = stiffness_values[0]
             self.joint_transversal_stiffness = stiffness_values[1]
@@ -429,7 +428,7 @@ class StructuralElement:
             mass = Rt @ self.mass_matrix_valve() @ R
 
         # elif self.element_type == "expansion_joint":
-        #     stiffness = Rt @ self.stiffness_matrix_expansion_joint() @ R
+        #     stiffness = Rt @ self.stiffness_matrix_expansion_joint_harmonic() @ R
         #     mass = Rt @ self.mass_matrix_expansion_joint() @ R
 
         return stiffness, mass
@@ -1671,49 +1670,26 @@ class StructuralElement:
 
         return shear_coefficient
 
-    def stiffness_matrix_expansion_joint(self, frequencies=None):
+    def stiffness_matrix_expansion_joint_harmonic(self, frequencies: np.ndarray | None = None):
 
         L_e = self.joint_length / self.length
-        K_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+        n_freq = 1 if frequencies is None else frequencies.size
 
-        K1 = self.joint_axial_stiffness*L_e
-        K2 = K3 = self.joint_transversal_stiffness/L_e
-        K4 = self.joint_torsional_stiffness*L_e
-        K5 = K6 = self.joint_angular_stiffness/L_e  
+        K_matrix = np.zeros((n_freq, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=complex)
 
-        Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float)
-        indexes_1 = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
-        indexes_2 = indexes_1 + 6
+        K1 = self.joint_axial_stiffness * L_e
+        K2 = K3 = self.joint_transversal_stiffness / L_e
+        K4 = self.joint_torsional_stiffness * L_e
+        K5 = K6 = self.joint_angular_stiffness / L_e
 
-        K_matrix[indexes_1,indexes_1] = K_matrix[indexes_2,indexes_2] = Ks
-        K_matrix[indexes_1,indexes_2] = K_matrix[indexes_2,indexes_1] = -Ks
- 
-        return K_matrix
-
-    def stiffness_matrix_expansion_joint_harmonic(self, frequencies=None):
-
-        L_e = self.joint_length / self.length
-
-        if frequencies is None:
-            number_frequencies = 1
-        else:
-            number_frequencies = len(frequencies)
-
-        K_matrix = np.zeros((number_frequencies, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-
-        K1 = self.joint_axial_stiffness*L_e
-        K2 = K3 = self.joint_transversal_stiffness/L_e
-        K4 = self.joint_torsional_stiffness*L_e
-        K5 = K6 = self.joint_angular_stiffness/L_e  
-
-        K1 = self.get_array_values(K1, number_frequencies)
-        K2 = self.get_array_values(K2, number_frequencies)
+        K1 = self.get_array_values(K1, n_freq)
+        K2 = self.get_array_values(K2, n_freq)
         K3 = K2
-        K4 = self.get_array_values(K4, number_frequencies)
-        K5 = self.get_array_values(K5, number_frequencies)
+        K4 = self.get_array_values(K4, n_freq)
+        K5 = self.get_array_values(K5, n_freq)
         K6 = K5   
 
-        Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float).T.reshape(number_frequencies, DOF_PER_NODE_STRUCTURAL)
+        Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=complex).T.reshape(n_freq, DOF_PER_NODE_STRUCTURAL)
         indexes_1 = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
         indexes_2 = indexes_1 + DOF_PER_NODE_STRUCTURAL
 
@@ -1744,14 +1720,14 @@ class StructuralElement:
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]
         return M_matrix
 
-    def get_array_values(self, value, number_frequencies):
+    def get_array_values(self, value: np.ndarray | float, number_frequencies: int):
         if isinstance(value, np.ndarray):
             if number_frequencies == 1:
                 return value[0]
             else:
                 return value
-        else:
-            return value*np.ones(number_frequencies)
+
+        return value * np.ones(number_frequencies)
 
     # def __str__(self):
     #     text = ''

@@ -1,6 +1,5 @@
 from pulse import app, version
 from pulse.model import AnalysisID
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import *
 
 from typing import TYPE_CHECKING
@@ -14,7 +13,6 @@ import h5py
 import numpy as np
 
 from pathlib import Path
-from traceback import print_exception
 
 
 class ProjectFile:
@@ -55,6 +53,7 @@ class ProjectFile:
     def project_data_modified_callback(self):
         if app() is None:
             return
+
         app().main_window.project_data_modified = True
 
     def write_project_setup_in_file(self, data: dict, geometry_path=""):
@@ -181,24 +180,30 @@ class ProjectFile:
         project_setup = self.filebox.read(self.project_setup_filename)
         if project_setup is None:
             return
+       
+        _analysis_setup = dict()
+        for key, data in analysis_setup.items():
 
-        project_setup["analysis_setup"] = analysis_setup
+            if isinstance(data, np.ndarray):
+                if data.size == 0:
+                    continue
+
+                data = list(data)
+
+            _analysis_setup[key] = data
+
+        project_setup["analysis_setup"] = _analysis_setup 
         self.filebox.write(self.project_setup_filename, project_setup)
 
         self.project_data_modified_callback()
 
     def read_analysis_setup_from_file(self):
 
-        analysis_setup = None
         project_setup = self.filebox.read(self.project_setup_filename)
+        if not isinstance(project_setup, dict):
+            return dict()
 
-        if project_setup is None:
-            return
-
-        if "analysis_setup" in project_setup.keys():
-            analysis_setup = project_setup["analysis_setup"]
-
-        return analysis_setup
+        return project_setup.get("analysis_setup", dict())
 
     def write_inertia_load_in_file(self, inertia_load: dict):
 
@@ -596,25 +601,41 @@ def normalize_mesh(prop: dict):
     return output
 
 
-def normalize_lines(prop: dict):
+def normalize_lines(line_properties: dict):
     """
     Sadly json doesn't accepts tuple keys,
     so we need to convert it to a string like:
     "property id" = value
     """
     output = dict()
-    for tag, data in prop.items():
+    for tag, line_data in line_properties.items():
 
         aux = dict()
-        for property in data.keys():
-            value = data[property]
-            if property in ["fluid", "material",  "cross_section"]:
+        line_data: dict
+       
+        for prop_key, prop_data in line_data.items():
+            if prop_key in ["fluid", "material",  "cross_section"]:
                 continue
+
+            if prop_key != "expansion_joint_info":
+                aux[prop_key] = prop_data
+        
             else:
-                aux[property] = value
+
+                if not isinstance(prop_data, dict):
+                    continue
+                
+                aux_ej_data = dict()
+                for _key, _data in prop_data.items():
+                    if isinstance(_data, list | tuple):
+                        if any(isinstance(x, np.ndarray) for x in _data):
+                            continue
+
+                    aux_ej_data[_key] = _data
+
+                aux[prop_key] = aux_ej_data
 
         if aux:
             output[tag] = aux
 
     return output
-

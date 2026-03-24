@@ -1935,7 +1935,7 @@
   <tabstop>pushButton_export_data</tabstop>
   <tabstop>pushButton_import_data</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup_cursor"/>

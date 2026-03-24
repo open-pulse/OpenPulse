@@ -1,30 +1,25 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.criterias.beam_criteria_assistant_ui import BeamCriteriaAssistant_UI
 from pulse.model.before_run import BeforeRun
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from molde import load_ui
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
 
-class CheckBeamCriteriaInput(QDialog):
+class CheckBeamCriteriaInput(BeamCriteriaAssistant_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        ui_path = UI_DIR / "criterias/beam_criteria_assistant.ui"
-        load_ui(ui_path, self)
-
         self.project = app().project
         app().main_window.set_input_widget(self)
 
         self._initialize()
         self._config_window()
-        self.define_qt_variables()
         self.create_connections()
         self._config_widgets()
 
@@ -46,21 +41,6 @@ class CheckBeamCriteriaInput(QDialog):
         self.keep_window_open = True
         self.before_run = BeforeRun()
 
-    def define_qt_variables(self):
-
-        # QLineEdit
-        self.lineEdit_beam_criteria: QLineEdit
-        self.lineEdit_section_id: QLineEdit
-
-        # QPushButton
-        self.pushButton_exit: QPushButton
-        self.pushButton_check_criteria: QPushButton
-        self.pushButton_more_info: QPushButton
-
-        # QTreeWidget
-        self.treeWidget_non_beam_segments: QTreeWidget
-        self.treeWidget_sections_parameters_by_lines: QTreeWidget
-
     def create_connections(self):
         #
         self.pushButton_exit.clicked.connect(self.close)
@@ -76,12 +56,12 @@ class CheckBeamCriteriaInput(QDialog):
 
     def config_treeWidget(self):
 
-        for i, w in enumerate([80, 120, 160]):
-            self.treeWidget_sections_parameters_by_lines.setColumnWidth(i, w)
+        for i, width in enumerate([80, 120, 160]):
+            self.treeWidget_sections_parameters_by_lines.setColumnWidth(i, width)
             self.treeWidget_sections_parameters_by_lines.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-        for i, w in enumerate([80, 80, 200, 60]):
-            self.treeWidget_non_beam_segments.setColumnWidth(i, w)
+        for i, width in enumerate([80, 80, 200, 60]):
+            self.treeWidget_non_beam_segments.setColumnWidth(i, width)
             self.treeWidget_non_beam_segments.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
     def load_existing_sections(self):

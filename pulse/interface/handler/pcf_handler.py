@@ -3,7 +3,7 @@ from itertools import pairwise
 
 import numpy as np
 
-from pulse.editor.structures import Bend, Elbow, Flange, Pipe, Point, Reducer, Valve, Support
+from pulse.editor.structures import Bend, Flange, Pipe, Point, Reducer, Valve
 
 
 class PCFHandler:

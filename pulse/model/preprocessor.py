@@ -1,5 +1,4 @@
 from pulse.model.cross_section import *
-from pulse.model.line import Line
 
 # from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
@@ -24,8 +23,6 @@ import numpy as np
 # from time import time
 from collections import defaultdict, deque
 from scipy.spatial.transform import Rotation
-
-window_title_1 = "Error"
 
 
 class Preprocessor:
@@ -381,7 +378,7 @@ class Preprocessor:
                         except Exception as _log_error:
                             title = "Error while checking mesh at the line edges"
                             message = str(_log_error)
-                            PrintMessageInput([window_title_1, title, message])
+                            PrintMessageInput(["error", title, message])
 
             if len(list_node_ids)>0:
                 title = "Problem detected in connectivity between neighbor nodes"
@@ -390,7 +387,7 @@ class Preprocessor:
                 message += "We strongly recommend reducing the element size or correcting the problem "
                 message += "in the geometry file before proceeding with the model setup.\n\n"
                 message += f"List of disconnected node(s): \n{list_node_ids}"
-                PrintMessageInput([window_title_2, title, message])                
+                PrintMessageInput(["warning", title, message])                
         
     def get_line_from_node_id(self, node_ids):
 
@@ -1830,16 +1827,19 @@ class Preprocessor:
             if "values" in data.keys():
                 values = data["values"]
 
-                pos_data = [value if value is not None else 0. for value in values]
-                neg_data = [-value if value is not None else 0. for value in values]
+                pos_data = [ value if isinstance(value, complex | np.ndarray) else None for value in values]
+                neg_data = [-value if isinstance(value, complex | np.ndarray) else None for value in values]
 
                 indexes_i = [ gdofs_node1, gdofs_node1, gdofs_node2, gdofs_node2 ] 
                 indexes_j = [ gdofs_node1, gdofs_node2, gdofs_node1, gdofs_node2 ] 
-                out_data = [ pos_data, neg_data, neg_data, pos_data ]
+
+                out_data = list()
+                for pn_data in [ pos_data, neg_data, neg_data, pos_data ]:
+                    for _data in pn_data:
+                        out_data.append(_data)
 
                 indexes_i = np.array(indexes_i, dtype=int).flatten()
                 indexes_j = np.array(indexes_j, dtype=int).flatten()
-                out_data = np.array(out_data, dtype=complex).flatten()
 
                 coords_1 = self.nodes[ext_id1].coordinates
                 coords_2 = self.nodes[ext_id2].coordinates

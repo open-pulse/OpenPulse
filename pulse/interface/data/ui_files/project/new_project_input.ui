@@ -591,7 +591,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../data/icons/020-search.png</normaloff>../data/icons/020-search.png</iconset>
+             <normaloff>:/icons/020-search.png</normaloff>:/icons/020-search.png</iconset>
            </property>
            <property name="autoDefault">
             <bool>false</bool>
@@ -1011,6 +1011,6 @@
   <tabstop>pushButton_start_project</tabstop>
   <tabstop>pushButton_cancel</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

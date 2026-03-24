@@ -705,7 +705,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../../icons/common/import.png</normaloff>../../icons/common/import.png</iconset>
+                <normaloff>:/icons/common/import.png</normaloff>:/icons/common/import.png</iconset>
               </property>
               <property name="iconSize">
                <size>
@@ -871,6 +871,6 @@
   <tabstop>treeWidget_import_sheet_files</tabstop>
   <tabstop>pushButton_add_imported_data_to_plot</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

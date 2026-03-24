@@ -1,26 +1,21 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QTreeWidget, QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.info.structural_model_Info_ui import StructuralModelInfo_UI
 
-from molde import load_ui
 
 import numpy as np
 
-class StructuralModelInfo(QDialog):
+class StructuralModelInfo(StructuralModelInfo_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        
-        ui_path = UI_DIR / "model/info/structural_model_Info.ui"
-        load_ui(ui_path, self)
-
         app().main_window.set_input_widget(self)
 
         self.project = app().project
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self.load_nodal_properties()
@@ -36,32 +31,20 @@ class StructuralModelInfo(QDialog):
     def _initialize(self):
         self.preprocessor = app().project.model.preprocessor
 
-    def _define_qt_variables(self):
-        # QLineEdit
-        self.lineEdit_number_nodes : QLineEdit
-        self.lineEdit_number_elements : QLineEdit
-        # QTreeWidget
-        self.treeWidget_prescribed_dofs : QTreeWidget
-        self.treeWidget_constrained_dofs : QTreeWidget
-        self.treeWidget_nodal_loads : QTreeWidget
-        self.treeWidget_masses : QTreeWidget
-        self.treeWidget_springs : QTreeWidget
-        self.treeWidget_dampers : QTreeWidget
-
     def _create_connections(self):
         pass
 
     def _config_widgets(self):
 
-        for i, w in enumerate([70, 70]):
-            self.treeWidget_prescribed_dofs.setColumnWidth(i, w)
-            self.treeWidget_constrained_dofs.setColumnWidth(i, w)
-            self.treeWidget_masses.setColumnWidth(i, w)
-            self.treeWidget_springs.setColumnWidth(i, w)
-            self.treeWidget_dampers.setColumnWidth(i, w)
+        for i, width in enumerate([70, 70]):
+            self.treeWidget_prescribed_dof.setColumnWidth(i, width)
+            self.treeWidget_constrained_dof.setColumnWidth(i, width)
+            self.treeWidget_masses.setColumnWidth(i, width)
+            self.treeWidget_springs.setColumnWidth(i, width)
+            self.treeWidget_dampers.setColumnWidth(i, width)
 
-            self.treeWidget_prescribed_dofs.headerItem().setTextAlignment(i, Qt.AlignCenter)
-            self.treeWidget_constrained_dofs.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_prescribed_dof.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_constrained_dof.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_masses.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_springs.headerItem().setTextAlignment(i, Qt.AlignCenter)
             self.treeWidget_dampers.headerItem().setTextAlignment(i, Qt.AlignCenter)
@@ -130,34 +113,34 @@ class StructuralModelInfo(QDialog):
                 node_id = args[0]
                 values = data["values"]
                 load_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
-                prescribed_dofs_mask = [False, False, False, False, False, False]
-                constrained_dofs_mask = [False, False, False, False, False, False]
+                prescribed_dof_mask = [False, False, False, False, False, False]
+                constrained_dof_mask = [False, False, False, False, False, False]
 
                 for index, value in enumerate(values):
                     if isinstance(value, complex):
                         if value != complex(0):
-                            prescribed_dofs_mask[index] = True
+                            prescribed_dof_mask[index] = True
                     elif isinstance(value, np.ndarray):
-                        prescribed_dofs_mask[index] = True
+                        prescribed_dof_mask[index] = True
 
-                if prescribed_dofs_mask.count(False) != 6:    
-                    item = QTreeWidgetItem([str(node_id), str(self.text_label(prescribed_dofs_mask, load_labels))])
+                if prescribed_dof_mask.count(False) != 6:    
+                    item = QTreeWidgetItem([str(node_id), str(self.text_label(prescribed_dof_mask, load_labels))])
                     for i in range(2):
                         item.setTextAlignment(i, Qt.AlignCenter)
-                    self.treeWidget_prescribed_dofs.addTopLevelItem(item)
+                    self.treeWidget_prescribed_dof.addTopLevelItem(item)
 
                 for index, value in enumerate(values):
                     if isinstance(value, complex):
                         if value == complex(0):
-                            constrained_dofs_mask[index] = True
+                            constrained_dof_mask[index] = True
                     elif isinstance(value, np.ndarray):
-                        constrained_dofs_mask[index] = False
+                        constrained_dof_mask[index] = False
 
-                if constrained_dofs_mask.count(False) != 6:    
-                    item = QTreeWidgetItem([str(node_id), str(self.text_label(constrained_dofs_mask, load_labels))])
+                if constrained_dof_mask.count(False) != 6:    
+                    item = QTreeWidgetItem([str(node_id), str(self.text_label(constrained_dof_mask, load_labels))])
                     for i in range(2):
                         item.setTextAlignment(i, Qt.AlignCenter)
-                    self.treeWidget_constrained_dofs.addTopLevelItem(item)
+                    self.treeWidget_constrained_dof.addTopLevelItem(item)
 
             if property == "nodal_loads":
 

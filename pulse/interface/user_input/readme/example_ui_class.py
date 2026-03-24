@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog, QLineEdit, QPushButton
+from PySide6.QtWidgets import QDialog
 from PySide6.QtCore import Qt
 
 from pulse import app, UI_DIR
@@ -19,7 +19,6 @@ class NomeDaClasse(QDialog):
         self.project = app().project
 
         self._config_window()
-        self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
 
@@ -28,13 +27,6 @@ class NomeDaClasse(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-        # Defina as variáveis do Qt
-        # QLineEdit
-        self.lineEdit : QLineEdit
-        # QPushButton
-        self.pushButton : QPushButton
 
     def _create_connections(self):
         # Crie as conexões

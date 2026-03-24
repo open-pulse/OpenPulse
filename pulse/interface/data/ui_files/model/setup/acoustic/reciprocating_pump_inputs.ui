@@ -1594,7 +1594,7 @@
                       </property>
                       <property name="icon">
                        <iconset>
-                        <normaloff>../../../../icons/common/broom.png</normaloff>../../../../icons/common/broom.png</iconset>
+                        <normaloff>:/icons/common/broom.png</normaloff>:/icons/common/broom.png</iconset>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -4233,6 +4233,6 @@ at suction</string>
   <tabstop>pushButton_reset</tabstop>
   <tabstop>pushButton_remove</tabstop>
  </tabstops>
- <resources/>
+ <resources><include location="../../../../icons/resources.qrc" /></resources>
  <connections/>
 </ui>

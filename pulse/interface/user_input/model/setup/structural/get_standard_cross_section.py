@@ -1,29 +1,24 @@
-from PySide6.QtWidgets import QCheckBox, QComboBox, QDialog, QPushButton, QRadioButton, QTreeWidget, QTreeWidgetItem
-from PySide6.QtGui import QIcon, QBrush, QColor
+from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtGui import QBrush, QColor
 from PySide6.QtCore import Qt
 
-from pulse import app, UI_DIR
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.standard_cross_section_input_ui import StandardCrossSectionInput_UI
 from pulse.libraries.standard_cross_sections import StandardCrossSections
 from pulse.utils.unit_conversion import in_to_m
 
-from molde import load_ui
 
 import numpy as np
 from collections import defaultdict
 
-class GetStandardCrossSection(QDialog):
+class GetStandardCrossSection(StandardCrossSectionInput_UI):
     def __init__(self, *args, **kwargs):
         super(GetStandardCrossSection, self).__init__()
-        
-        ui_path = UI_DIR / "model/setup/structural/standard_cross_section_input.ui"
-        load_ui(ui_path, self)
-
         section_data = kwargs.get("section_data", None)
 
         self._initialize()
         self._config_window()
         self._config_widgets()
-        self._define_qt_variables()
         self._create_connections()
         self._load_cross_section_libraries()
         
@@ -52,23 +47,6 @@ class GetStandardCrossSection(QDialog):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
-
-    def _define_qt_variables(self):
-
-        # QCheckBox
-        self.checkBox_nps_filter : QCheckBox
-
-        # QComboBox
-        self.comboBox_pipe_material : QComboBox
-        self.comboBox_nps_filter : QComboBox
-        self.comboBox_units : QComboBox
-
-        # QPushButton
-        self.pushButton_exit : QPushButton
-        self.pushButton_confirm_selection : QPushButton
-
-        # QTreeWidget
-        self.treeWidget_section_data : QTreeWidget
 
     def _create_connections(self):
         #
