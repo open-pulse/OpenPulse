@@ -542,6 +542,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self._psd_data = dict()
 
         main_axis = self.comboBox_main_axis.currentText()[1:]
+        self._psd_data['tuned filter'] = self.comboBox_tuned_filter.currentText()
         self._psd_data["main axis"] = main_axis
 
         if self.comboBox_connection_pipe.currentIndex() == 0:
@@ -1031,17 +1032,22 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         idx = self.comboBox_pipe1_connection.findText(data["element_length_correction - 1"]["connection_type"] + " type")
         if idx >= 0:
             self.comboBox_pipe1_connection.setCurrentIndex(idx)
+            if idx == 0:
+                self.spinBox_pipe1_rotation_angle.setValue(data["pipe #1 parameters"][4])
+
 
         idx = self.comboBox_pipe2_connection.findText(data["element_length_correction - 2"]["connection_type"] + " type")
         if idx >= 0:
             self.comboBox_pipe2_connection.setCurrentIndex(idx)
+            if idx == 0:
+                self.spinBox_pipe2_rotation_angle.setValue(data["pipe #2 parameters"][4])
 
-        # idx = self.comboBox_tuned_filter.findText(data[])
+        idx = self.comboBox_tuned_filter.findText(data.get('tuned filter'))
+        if idx >= 0:
+            self.comboBox_tuned_filter.setCurrentIndex(idx)
+
 
         # pipe #n parameters = [diameter, thickness, length, distance, angle]
-        self.spinBox_pipe1_rotation_angle.setValue(data["pipe #1 parameters"][4])
-        self.spinBox_pipe2_rotation_angle.setValue(data["pipe #2 parameters"][4])
-
         part_key_map = {
             "volume1": "volume #1 parameters",
             "volume2": "volume #2 parameters",
