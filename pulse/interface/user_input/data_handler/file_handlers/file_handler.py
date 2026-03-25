@@ -1,18 +1,12 @@
-from pulse.interface.user_input.data_handler.file_handlers import (
-    HDF5FileHandler,
-    TextFileHandler,
-    SpreadsheetFileHandler
-)
-from pulse.interface.user_input.data_handler.imported_data import (
-    SimulationData,
-    TextData,
-    SpreadsheetData
-)
-
-from polars import DataFrame as PolarsDataFrame
 from pathlib import Path
 
-import numpy as np  
+import numpy as np
+from polars import DataFrame as PolarsDataFrame
+
+from pulse.interface.user_input.data_handler.file_handlers.hdf5_file_handler import HDF5FileHandler
+from pulse.interface.user_input.data_handler.file_handlers.text_file_manager import TextFileHandler
+from pulse.interface.user_input.data_handler.file_handlers.spreadsheet_file_handler import SpreadsheetFileHandler
+from pulse.interface.user_input.data_handler.imported_data import SimulationData, SpreadsheetData, TextData
 
 
 class FileHandler:
