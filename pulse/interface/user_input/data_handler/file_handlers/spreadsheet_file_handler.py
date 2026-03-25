@@ -1,6 +1,6 @@
-from pulse.interface.user_input.data_handler.file_managers.io_handler import IOHandler
-from pulse.interface.user_input.data_handler.imported_data.spreadsheet_data import SpreadsheetData
-from pulse.interface.user_input.data_handler.imported_data.spreadsheet_sheet import SpreadsheetSheet
+from pulse.interface.user_input.data_handler.file_handlers.io_handler import IOHandler
+from pulse.interface.user_input.data_handler.imported_data import SpreadsheetData
+from pulse.interface.user_input.data_handler.imported_data import SpreadsheetSheet
 
 from polars import DataFrame as PolarsDataFrame
 from pathlib import Path
@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 
 
-class SpreadsheetFileManager(IOHandler):
+class SpreadsheetFileHandler(IOHandler):
 
     EXTENSIONS = [".xls", ".xlsx"]
 

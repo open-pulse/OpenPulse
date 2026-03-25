@@ -16,7 +16,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
 import numpy as np
 
 

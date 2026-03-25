@@ -10,6 +10,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 from pulse.interface.user_input.model.setup.elements_input import ElementsInput
 
 from pulse.model.perforated_plate import PerforatedPlate, PerforatedPlateFormulation
+
 from pulse.postprocessing.plot_acoustic_data import get_perforated_plate_acoustic_absortion, get_perforated_plate_impedance
 
 import numpy as np

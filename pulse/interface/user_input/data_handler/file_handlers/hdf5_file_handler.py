@@ -1,5 +1,5 @@
-from pulse.interface.user_input.data_handler.file_managers.io_handler import IOHandler
-from pulse.interface.user_input.data_handler.imported_data.simulation_data import SimulationData
+from pulse.interface.user_input.data_handler.file_handlers.io_handler import IOHandler
+from pulse.interface.user_input.data_handler.imported_data import SimulationData
 
 from pathlib import Path
 
@@ -7,7 +7,7 @@ import numpy as np
 import h5py
 
 
-class HDF5FileManager(IOHandler):
+class HDF5FileHandler(IOHandler):
 
     EXTENSIONS = [".h5", ".hdf5"]
 

@@ -2,7 +2,7 @@ from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem, QLineEdit
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui import (
@@ -234,12 +234,8 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
         self.remove_properties_from_node(node_ids, ["prescribed_dofs"])
 
-        real_values = [
-            value if value is None else np.real(value) for value in nodal_loads
-        ]
-        imag_values = [
-            value if value is None else np.imag(value) for value in nodal_loads
-        ]
+        real_values = [value if value is None else np.real(value) for value in nodal_loads]
+        imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
 
         for node_id in node_ids:
             node = app().project.model.preprocessor.nodes[node_id]

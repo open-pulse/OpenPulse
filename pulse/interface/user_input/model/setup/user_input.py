@@ -9,7 +9,7 @@ from pulse import app
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.data_handler.file_managers.file_manager import FileManager
+from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
 from pathlib import Path
 import numpy as np
 
@@ -82,7 +82,7 @@ class UserInput(QDialog):
                     return None, None
 
             line_edit.setText(str(table_path))
-            imported_file = FileManager().read_text_file(table_path)         
+            imported_file = FileHandler().read_text_file(table_path)         
             imported_data = imported_file.data
 
             if imported_data.shape[1] < 3:

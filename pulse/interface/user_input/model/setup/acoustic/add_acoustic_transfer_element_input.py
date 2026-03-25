@@ -13,8 +13,8 @@ from pulse.interface.ui_generated.model.setup.acoustic.acoustic_transfer_element
 from pulse.interface.user_input.data_handler.file_dialog_service import (
     FileDialogService,
 )
-from pulse.interface.user_input.data_handler.file_managers.file_manager import (
-    FileManager,
+from pulse.interface.user_input.data_handler.file_handlers.file_handler import (
+    FileHandler,
 )
 from pulse.interface.user_input.model.setup.nodes_input import UserInput
 from pulse.interface.user_input.project.get_user_confirmation_input import (
@@ -127,7 +127,7 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
                     self.process_acoustic_element_transfer_data(path)
                     self.actions_to_finalize()
 
-            except Exception as error_log:
+            except Exception:
                 self.hide()
                 title = "Invalid data imported"
                 message = "An invalid data has been imported to the acoustic transfer element. "
@@ -155,7 +155,7 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
 
         self.hide()
 
-        title = f"Resetting of acoustic transfer element"
+        title = "Resetting of acoustic transfer element"
         message = "Would you like to remove all acoustic transfer element from the acoustic model?"
 
         buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
@@ -171,7 +171,7 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
         self.actions_to_finalize()
 
     def search_callback(self):
-        caption = f"Choose a file to import element transfer data"
+        caption = "Choose a file to import element transfer data"
         last_folder = app().config.get_last_folder_for("imported_table_folder")
         file_extensions = ["xls", "xlsx"]
     
@@ -206,7 +206,7 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
     def import_element_transfer_data(self, imported_path: str):
         self.element_transfer_data.clear()
     
-        imported_file = FileManager().read_text_file(imported_path)
+        imported_file = FileHandler().read_text_file(imported_path)
 
         for sheet in imported_file.sheets:
             if sheet.name:
@@ -219,7 +219,7 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
             self.lineEdit_spreadsheet_path.clear()
 
             title = "Project frequency setup cannot be modified"
-            message = f"The following imported table of values has a frequency setup\n"
+            message = "The following imported table of values has a frequency setup\n"
             message += "different from the others already imported ones. The current\n"
             message += "project frequency setup is not going to be modified."
             message += f"\n\n{os.path.basename(path)}"
