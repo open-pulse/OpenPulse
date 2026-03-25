@@ -4,7 +4,7 @@ import numpy as np
 from polars import DataFrame as PolarsDataFrame
 
 from pulse.interface.user_input.data_handler.file_handlers.hdf5_file_handler import HDF5FileHandler
-from pulse.interface.user_input.data_handler.file_handlers.text_file_manager import TextFileHandler
+from pulse.interface.user_input.data_handler.file_handlers.text_file_handler import TextFileHandler
 from pulse.interface.user_input.data_handler.file_handlers.spreadsheet_file_handler import SpreadsheetFileHandler
 from pulse.interface.user_input.data_handler.imported_data import SimulationData, SpreadsheetData, TextData
 
@@ -31,7 +31,7 @@ class FileHandler:
                 HDF5FileHandler.EXTENSIONS + 
                 SpreadsheetFileHandler.EXTENSIONS
             )
-            self.raise_extensions_error(file_path, all_extensions)
+            raise self.raise_extensions_error(file_path, all_extensions)
 
     def save_text_file(self, file_path: str, data: np.array, delimiter = ",", header = ""):
         file_path = Path(file_path)
@@ -40,7 +40,7 @@ class FileHandler:
             raise FileNotFoundError(f"The path {file_path.parent} does not exist")
 
         if file_path.suffix not in self._text_file_handler.EXTENSIONS:
-            self.raise_extensions_error(file_path, self._text_file_handler.EXTENSIONS)
+            raise self.raise_extensions_error(file_path, self._text_file_handler.EXTENSIONS)
 
         self._text_file_handler.save(file_path, data, delimiter=delimiter, header=header)
     
@@ -51,7 +51,7 @@ class FileHandler:
             raise FileNotFoundError(f"The path {file_path.parent} does not exist")
 
         if file_path.suffix not in self._spreadsheet_file_handler.EXTENSIONS:
-            self.raise_extensions_error(file_path, self._spreadsheet_file_handler.EXTENSIONS)
+            raise self.raise_extensions_error(file_path, self._spreadsheet_file_handler.EXTENSIONS)
 
         self._spreadsheet_file_handler.save(file_path, sheetname, data, index_rows)
     

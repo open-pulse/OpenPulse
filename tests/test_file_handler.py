@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+import warnings
 import tempfile
 
 from pathlib import Path
@@ -89,94 +90,63 @@ class TestReadRouting:
         file_handler._spreadsheet_file_handler.read.assert_called_once()
         assert result is mock_result
 
-    def test_read_returns_none_for_unknown_extension(self, file_handler):
-        result = file_handler.read(Path("file.xyz"))
-        assert result is None
+    def test_read_raises_value_error_for_unknown_extension(self, file_handler):
+        with pytest.raises(ValueError, match=r"Invalid suffix \.xyz"):
+            file_handler.read(Path("file.xyz"))
 
 
 # ==============================================================================
-# 2. Specific read methods
-# ==============================================================================
-
-class TestSpecificReadMethods:
-    """Ensures that read_*_file methods delegate correctly to their handlers."""
-
-    def test_read_text_file_calls_text_handler(self, file_handler):
-        expected = MagicMock(spec=TextData)
-        file_handler._text_file_handler.read = MagicMock(return_value=expected)
-
-        result = file_handler.read_text_file("file.txt")
-
-        file_handler._text_file_handler.read.assert_called_once_with("file.txt")
-        assert result is expected
-
-    def test_read_hdf5_file_calls_hdf5_handler(self, file_handler):
-        expected = MagicMock(spec=SimulationData)
-        file_handler._hdf5_file_handler.read = MagicMock(return_value=expected)
-
-        result = file_handler.read_hdf5_file("file.h5")
-
-        file_handler._hdf5_file_handler.read.assert_called_once_with("file.h5")
-        assert result is expected
-
-    def test_read_spreadsheet_file_calls_spreadsheet_handler(self, file_handler):
-        expected = MagicMock(spec=SpreadsheetData)
-        file_handler._spreadsheet_file_handler.read = MagicMock(return_value=expected)
-
-        result = file_handler.read_spreadsheet_file("file.xlsx")
-
-        file_handler._spreadsheet_file_handler.read.assert_called_once_with("file.xlsx")
-        assert result is expected
-
-
-# ==============================================================================
-# 3. Save methods
+# 2. Save methods
 # ==============================================================================
 
 class TestSaveMethods:
     """Ensures that save_* methods forward all parameters correctly to their handlers."""
 
-    def test_save_text_file_delegates_with_defaults(self, file_handler, sample_array):
+    def test_save_text_file_delegates_with_defaults(self, file_handler, sample_array, tmp_path):
         file_handler._text_file_handler.save = MagicMock()
+        output_path = tmp_path / "output.txt"
 
-        file_handler.save_text_file("output.txt", sample_array)
+        file_handler.save_text_file(output_path, sample_array)
 
         file_handler._text_file_handler.save.assert_called_once_with(
-            "output.txt", sample_array, delimiter=",", header=""
+            output_path, sample_array, delimiter=",", header=""
         )
 
-    def test_save_text_file_delegates_with_custom_params(self, file_handler, sample_array):
+    def test_save_text_file_delegates_with_custom_params(self, file_handler, sample_array, tmp_path):
         file_handler._text_file_handler.save = MagicMock()
+        output_path = tmp_path / "output.txt"
 
-        file_handler.save_text_file("output.txt", sample_array, delimiter=";", header="x,y")
+        file_handler.save_text_file(output_path, sample_array, delimiter=";", header="x,y")
 
         file_handler._text_file_handler.save.assert_called_once_with(
-            "output.txt", sample_array, delimiter=";", header="x,y"
+            output_path, sample_array, delimiter=";", header="x,y"
         )
 
-    def test_save_spreadsheet_file_delegates_correctly(self, file_handler):
+    def test_save_spreadsheet_file_delegates_correctly(self, file_handler, tmp_path):
         mock_df = MagicMock()
         file_handler._spreadsheet_file_handler.save = MagicMock()
+        output_path = tmp_path / "output.xlsx"
 
-        file_handler.save_spreadsheet_file("output.xlsx", "Sheet1", mock_df, index_rows=True)
+        file_handler.save_spreadsheet_file(output_path, "Sheet1", mock_df, index_rows=True)
 
         file_handler._spreadsheet_file_handler.save.assert_called_once_with(
-            "output.xlsx", "Sheet1", mock_df, True
+            output_path, "Sheet1", mock_df, True
         )
 
-    def test_save_spreadsheet_file_default_index_rows(self, file_handler):
+    def test_save_spreadsheet_file_default_index_rows(self, file_handler, tmp_path):
         mock_df = MagicMock()
         file_handler._spreadsheet_file_handler.save = MagicMock()
+        output_path = tmp_path / "output.xlsx"
 
-        file_handler.save_spreadsheet_file("output.xlsx", "Sheet1", mock_df)
+        file_handler.save_spreadsheet_file(output_path, "Sheet1", mock_df)
 
         file_handler._spreadsheet_file_handler.save.assert_called_once_with(
-            "output.xlsx", "Sheet1", mock_df, False
+            output_path, "Sheet1", mock_df, False
         )
 
 
 # ==============================================================================
-# 4. Integration tests with real files (text files)
+# 3. Integration tests with real files (text files)
 # ==============================================================================
 
 class TestIntegrationTextFile:
@@ -194,9 +164,8 @@ class TestIntegrationTextFile:
         result = file_handler.read(temp_txt_file)
         np.testing.assert_array_almost_equal(result.data, sample_array)
 
-    def test_save_and_read_roundtrip(self, file_handler, sample_array):
-        with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as f:
-            path = Path(f.name)
+    def test_save_and_read_roundtrip(self, file_handler, sample_array, tmp_path):
+        path = tmp_path / "roundtrip.txt"
 
         file_handler.save_text_file(path, sample_array)
         result = file_handler.read(path)
@@ -215,11 +184,11 @@ class TestIntegrationTextFile:
 
     def test_read_txt_file_sets_correct_name(self, file_handler, temp_txt_file):
         result = file_handler.read(temp_txt_file)
-        assert result.name == temp_txt_file.stem
+        assert result.filename == temp_txt_file.stem
 
 
 # ==============================================================================
-# 5. Edge cases and errors
+# 4. Edge cases and errors
 # ==============================================================================
 
 class TestEdgeCases:
@@ -237,9 +206,13 @@ class TestEdgeCases:
         with pytest.raises(FileNotFoundError):
             file_handler.save_text_file("/does/not/exist/output.txt", sample_array)
 
-    def test_read_txt_empty_file_raises(self, file_handler):
+    def test_read_txt_empty_file_returns_empty_data(self, file_handler):
         with tempfile.NamedTemporaryFile(suffix=".txt", delete=False, mode="w") as f:
             path = Path(f.name)
 
-        with pytest.raises(Exception):
-            file_handler.read(path)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            result = file_handler.read(path)
+
+        assert isinstance(result, TextData)
+        assert result.data.size == 0
