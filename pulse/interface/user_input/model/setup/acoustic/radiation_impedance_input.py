@@ -53,7 +53,6 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
-
         selected_nodes = app().main_window.list_selected_nodes()
 
         if selected_nodes:

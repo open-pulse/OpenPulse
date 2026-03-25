@@ -18,7 +18,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
@@ -173,7 +172,6 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
             self.lineEdit_bulk_modulus.setEnabled(True)
 
     def selection_callback(self):
-
         selected_nodes = app().main_window.list_selected_nodes()
 
         if len(selected_nodes) == 1:
@@ -710,7 +708,7 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
             PrintMessageInput([error_title, title, message])
             return True
 
-        update_analysis_setup_in_file(frequencies)
+        self.update_analysis_setup_in_file(frequencies)
 
         # real values vector
         real_values = _imported_values[:, 1]

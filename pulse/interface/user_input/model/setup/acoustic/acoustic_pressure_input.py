@@ -1,6 +1,4 @@
-from pathlib import Path
 from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
@@ -10,29 +8,10 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 
 import numpy as np
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QLineEdit,
-    QTreeWidgetItem,
-)
 
-from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.acoustic_pressure_input_ui import (
-    AcousticPressureInput_UI,
-)
-from pulse.interface.user_input.data_handler.file_dialog_service import (
-    FileDialogService,
-)
-from pulse.interface.user_input.data_handler.file_managers.file_manager import (
-    FileManager,
-)
 from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
     AcousticNodesInput,
 )
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
-)
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 error_title = "Error"
 warning_title = "Warning"
@@ -75,8 +54,6 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPressureInput_UI):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
-
-        self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
 
         if selected_nodes:
@@ -189,7 +166,7 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPressureInput_UI):
             PrintMessageInput([error_title, title, message])
             return True
 
-        update_analysis_setup_in_file(frequencies)
+        self.update_analysis_setup_in_file(frequencies)
 
         # real values vector
         real_values = _imported_values[:, 1]
@@ -205,7 +182,7 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPressureInput_UI):
         return False
 
     def load_acoustic_pressure_table(self):
-        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
+        self.imported_values, self.table_path = self.load_table(
             self.lineEdit_table_path, 
             "acoustic pressure",
             )
@@ -232,7 +209,7 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPressureInput_UI):
             return
     
         if self.imported_values is None:
-            self.imported_values, self.table_path = CommonUserInputs(self).load_table(
+            self.imported_values, self.table_path = self.load_table(
                 self.lineEdit_table_path,
                 "acoustic pressure",
                 direct_load = True,
@@ -245,7 +222,7 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPressureInput_UI):
 
             _table_name = None
             if isinstance(self.imported_values, np.ndarray):
-                _table_name = get_table_name(f"acoustic_pressure", node_id=node_id)
+                _table_name = self.get_table_name("acoustic_pressure", node_id=node_id)
                 if self.save_table_values(_table_name, self.imported_values):
                     return
 

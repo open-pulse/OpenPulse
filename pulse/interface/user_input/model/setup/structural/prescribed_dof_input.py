@@ -149,8 +149,6 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
         self.selection_callback()
 
     def selection_callback(self):
-
-        self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
 
         if selected_nodes:

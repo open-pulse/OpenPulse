@@ -1,4 +1,3 @@
-from pathlib import Path
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -10,12 +9,6 @@ from pulse import app
 from pulse.interface.ui_generated.model.setup.acoustic.specific_impedance_input_ui import (
     SpecificImpedanceInput_UI,
 )
-from pulse.interface.user_input.data_handler.file_dialog_service import (
-    FileDialogService,
-)
-from pulse.interface.user_input.data_handler.file_managers.file_manager import (
-    FileManager,
-)
 from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
     AcousticNodesInput,
 )
@@ -23,7 +16,6 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 
 import numpy as np
 
@@ -69,8 +61,6 @@ class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
-
-        self.reset_input_fields()
         selected_nodes = app().main_window.list_selected_nodes()
 
         if selected_nodes:
@@ -242,7 +232,7 @@ class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
             PrintMessageInput([error_title, title, message])
             return True
 
-        update_analysis_setup_in_file(frequencies)
+        self.update_analysis_setup_in_file(frequencies)
 
         # real values vector
         real_values = _imported_values[:, 1]
@@ -258,7 +248,7 @@ class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
         return False
 
     def load_specific_impedance_table(self):
-        self.imported_values, self.table_path = CommonUserInputs(self).load_table(
+        self.imported_values, self.table_path = self.load_table(
             self.lineEdit_table_path, 
             "specific impedance",
             )
@@ -285,7 +275,7 @@ class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
             return
 
         if self.imported_values is None:
-            self.imported_values, self.table_path = CommonUserInputs(self).load_table(
+            self.imported_values, self.table_path = self.load_table(
                 self.lineEdit_table_path,
                 "specific impedance",
                 direct_load = True,
@@ -298,7 +288,7 @@ class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
 
             _table_name = None
             if isinstance(self.imported_values, np.ndarray):
-                _table_name = get_table_name("specific_impedance", node_id=node_id)
+                _table_name = self.get_table_name("specific_impedance", node_id=node_id)
                 if self.save_table_values(_table_name, self.imported_values):
                     return
 
