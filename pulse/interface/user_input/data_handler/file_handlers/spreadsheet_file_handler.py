@@ -16,11 +16,6 @@ class SpreadsheetFileHandler(IOHandler):
         super().__init__()
 
     def read(self, file_path: str | Path) -> SpreadsheetData:
-        file_path = Path(file_path)
-
-        if file_path.suffix not in self.EXTENSIONS:
-            self.raise_extensions_error(file_path, self.EXTENSIONS)
-
         from polars import read_excel
         from openpyxl import load_workbook
 
@@ -58,14 +53,6 @@ class SpreadsheetFileHandler(IOHandler):
         return imported_spreadsheet
 
     def save(self, file_path: str | Path, sheet_name: str, data: PolarsDataFrame, index_rows: bool = False):
-        file_path = Path(file_path)
-
-        if not file_path.parent.exists():
-            raise FileNotFoundError(f"The path {file_path.parent} does not exist")
-        
-        if file_path.suffix not in self.EXTENSIONS:
-            self.raise_extensions_error(file_path, self.EXTENSIONS)
-
         from pandas import ExcelWriter
 
         with ExcelWriter(str(file_path)) as writer:

@@ -16,11 +16,6 @@ class TextFileHandler(IOHandler):
         super().__init__()
 
     def read(self, file_path: str | Path) -> TextData:
-        file_path = Path(file_path)
-
-        if file_path.suffix not in self.EXTENSIONS:
-            self.raise_extensions_error(file_path, self.EXTENSIONS)
-
         try:
             loaded_data = np.loadtxt(file_path, delimiter = self.delimiter)
         except:
@@ -34,14 +29,6 @@ class TextFileHandler(IOHandler):
                         loaded_data)
     
     def save(self, file_path: str | Path, data: np.array, delimiter = ",", header = ""):
-        file_path = Path(file_path)
-
-        if not file_path.parent.exists():
-            raise FileNotFoundError(f"The path {file_path.parent} does not exist")
-        
-        if file_path.suffix not in self.EXTENSIONS:
-            self.raise_extensions_error(file_path, self.EXTENSIONS)
-        
         np.savetxt(str(file_path), data, delimiter=delimiter, header=header)
 
     def _remove_unnecesary_header_in_data(self, data: np.ndarray) -> np.ndarray:

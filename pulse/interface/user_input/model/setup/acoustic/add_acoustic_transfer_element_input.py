@@ -210,7 +210,7 @@ class AddAcousticTransferElementInput(AcousticTransferElementInput_UI):
     def import_element_transfer_data(self, imported_path: str):
         self.element_transfer_data.clear()
     
-        imported_file = FileHandler().read_text_file(imported_path)
+        imported_file = FileHandler().read(imported_path)
 
         for sheet in imported_file.sheets:
             if sheet.name:

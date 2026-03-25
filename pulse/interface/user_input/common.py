@@ -110,7 +110,7 @@ class CommonUserInputs(QDialog):
                     return None, None
 
             line_edit.setText(str(table_path))
-            imported_file = FileHandler().read_text_file(table_path)         
+            imported_file = FileHandler().read(table_path)         
             imported_data = imported_file.data
 
             if imported_data.shape[1] < 3:
