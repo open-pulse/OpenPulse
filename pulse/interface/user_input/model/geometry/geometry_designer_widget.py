@@ -699,6 +699,11 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         app().main_window.use_model_setup_workspace()
 
     def finalize_callback(self):
+
+        # reset the model solution whenever the geometry changed
+        if self.modified:
+            app().main_window.reset_solution()
+
         self.modified = False
         self.pipeline.dismiss()
 

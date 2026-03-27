@@ -1032,6 +1032,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         return index
 
     def actions_to_finalize(self):
+        app().main_window.reset_solution()
         app().main_window.set_selection()
         app().project.file.write_pulsation_damper_data_in_file(self.dampers_data)
 

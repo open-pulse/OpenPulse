@@ -360,17 +360,7 @@ class AnalysisToolbar(QToolBar):
         if not read._continue:
             return
 
-        self.reset_solution()
-
-    def reset_solution(self):
-        app().project.reset_solutions()
-        app().project.file.remove_results_data_from_project_file()
-
-        self.pushButton_reset_solution.setDisabled(True)
-        app().main_window.project_data_modified = True
-        app().main_window.results_widget.show_empty()
-        app().main_window.use_model_setup_workspace()
-        app().main_window.update_results_workspace_button_accessibility()
+        app().main_window.reset_solution()
 
     def configure_analysis(self):
 
@@ -464,7 +454,7 @@ class AnalysisToolbar(QToolBar):
         app().project.run_analysis()
 
     def final_actions(self):
-        self.reset_solution()
+        app().main_window.reset_solution()
         # app().project.create_solver()
         self.update_run_analysis_button()
         #

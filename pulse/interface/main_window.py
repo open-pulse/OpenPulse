@@ -425,6 +425,16 @@ class MainWindow(MainWindow_UI):
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
 
+    def reset_solution(self):
+        self.project.reset_solutions()
+        self.project.file.remove_results_data_from_project_file()
+
+        self.analysis_toolbar.pushButton_reset_solution.setDisabled(True)
+        self.project_data_modified = True
+        self.results_widget.show_empty()
+        self.use_model_setup_workspace()
+        self.update_results_workspace_button_accessibility()
+
     def set_window_title(self, msg=""):
         title = "OpenPulse"
         if (msg != ""):

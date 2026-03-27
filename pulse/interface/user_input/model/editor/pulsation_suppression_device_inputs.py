@@ -1218,6 +1218,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         return index
 
     def actions_to_finalize(self):
+        app().main_window.reset_solution()
         app().main_window.set_selection()
         app().project.file.write_psd_data_in_file(self.psds_data)
         app().project.loader.load_project_data()
