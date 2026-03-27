@@ -191,7 +191,10 @@ class GeometryHandler:
             # Adds common properties to the structure
             structure.tag = int(str_line_id)
             if "material_id" in data.keys():
-                structure.extra_info["material_info"] = data['material_id']
+                structure.extra_info["material_id"] = data["material_id"]
+
+            if "fluid_id" in data.keys():
+                structure.extra_info["fluid_id"] = data["fluid_id"]
 
         if not structures:
             return
@@ -579,14 +582,14 @@ class GeometryHandler:
 
     def export_model_data_file(self):
 
-        structures_data = dict()
         section_info = dict()
+        structures_data = dict()
 
+        fluid_map = defaultdict(list)
+        material_map = defaultdict(list)
         element_type_info = defaultdict(list)
-        material_info = defaultdict(list)
 
         psd_info = dict()
-        pulsation_damper_info = dict()
         valve_info = dict()
         expansion_joint_info = dict()
 
@@ -618,9 +621,13 @@ class GeometryHandler:
             else:
                 section_info[tag] = self.get_dummy_pipe_section_info()
 
-            if "material_info" in structure.extra_info.keys():
-                material_id = structure.extra_info["material_info"]
-                material_info[material_id].append(tag)
+            fluid_id = structure.extra_info.get("fluid_id")
+            if isinstance(fluid_id, int):
+                fluid_map[fluid_id].append(tag)
+
+            material_id = structure.extra_info.get("material_id")
+            if isinstance(material_id, int):
+                material_map[material_id].append(tag)
 
             if "structural_element_type" in structure.extra_info.keys():
                 if structure.extra_info["structural_element_type"] is not None:
@@ -635,9 +642,6 @@ class GeometryHandler:
 
             if "psd_name" in structure.extra_info.keys():
                 psd_info[tag] = structure.extra_info["psd_name"]
-            
-            if "pulsation_damper_name" in structure.extra_info.keys():
-                pulsation_damper_info[tag] = structure.extra_info["pulsation_damper_name"]
 
             tag += 1
 
@@ -659,8 +663,11 @@ class GeometryHandler:
         for element_type, line_ids in element_type_info.items():
             self.project.model.properties._set_line_property("structural_element_type", element_type, line_ids=line_ids)
 
-        for material_id, line_ids in material_info.items():
+        for material_id, line_ids in material_map.items():
             self.project.model.properties._set_line_property("material_id", material_id, line_ids=line_ids)
+
+        for fluid_id, line_ids in fluid_map.items():
+            self.project.model.properties._set_line_property("fluid_id", fluid_id, line_ids=line_ids)
 
         for line_id, ej_data in expansion_joint_info.items():
             self.project.model.properties._set_line_property("expansion_joint_info", ej_data, line_ids=line_id)
@@ -670,9 +677,6 @@ class GeometryHandler:
 
         for line_id, psd_label in psd_info.items():
             self.project.model.properties._set_line_property("psd_name", psd_label, line_ids=line_id)
-        
-        for line_id, damper_label in pulsation_damper_info.items():
-            self.project.model.properties._set_line_property("pulsation_damper_name", damper_label, line_ids=line_id)
 
         self.project.file.write_line_properties_in_file()
         self.project.file.modify_project_attributes(import_type = 1)
@@ -686,7 +690,6 @@ class GeometryHandler:
             data["structure_name"] = structure.name()
             data["start_coords"] = get_data(structure.start.coords())
             data["end_coords"] = get_data(structure.end.coords())
-            # print("-> ", structure.center_coords)
 
             if structure.center_coords is None:
                 data["center_coords"] = get_data(structure.center.coords())
@@ -996,7 +999,7 @@ def get_arc_length(coords_A, coords_B, coords_C):
     #                 structure = self._process_expansion_joint(line_id, data)
 
     #             if "material_id" in data.keys():
-    #                 structure.extra_info["material_info"] = data['material_id']
+    #                 structure.extra_info["material_id"] = data['material_id']
 
     #             if structure is not None:
     #                 structures.append(structure)

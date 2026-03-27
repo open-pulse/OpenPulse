@@ -164,7 +164,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
     def _initialize(self):
         self.current_options: StructureOptions | None = None
         self.current_structure_type = None
-        self.current_material_info = None
+        self.current_material_id = None
 
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback(PipeOptions.name())
@@ -262,7 +262,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.render_widget.update_plot(reset_camera=False)
 
     def define_material_callback(self):
-        self.current_material_info = (
+        self.current_material_id = (
             self.material_widget.material_widget.get_selected_material_id()
         )
         self.material_widget.close()
@@ -829,7 +829,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
 
     def _update_material_of_selected_structures(self):
         for structure in self.pipeline.selected_structures:
-            structure.extra_info["material_info"] = self.current_material_info
+            structure.extra_info["material_id"] = self.current_material_id
 
     def _update_bending_radius_of_selected_structures(self):
         if not isinstance(self.current_options, PipeOptions):
@@ -869,8 +869,8 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
 
         material_id = ""
         material = None
-        if self.current_material_info is not None:
-            material_id = self.current_material_info
+        if self.current_material_id is not None:
+            material_id = self.current_material_id
             material = self.material_widget.material_widget.materials_library[
                 material_id
             ]
