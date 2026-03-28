@@ -40,6 +40,7 @@ dependencies = [
     "polars>=1.37.1,<2",
     "pyarrow>=23.0.0,<24",
     "fastexcel>=0.19.0",
+    "pint>=0.24.4",
 ]
 
 [project.scripts]

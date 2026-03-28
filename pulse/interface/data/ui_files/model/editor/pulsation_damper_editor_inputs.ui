@@ -143,7 +143,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>496</width>
+                  <width>491</width>
                   <height>658</height>
                  </rect>
                 </property>
@@ -830,17 +830,17 @@
                       </property>
                       <item>
                        <property name="text">
-                        <string> cubic meters</string>
+                        <string>cubic meters</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> cubic centimeters</string>
+                        <string>cubic centimeters</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> liters</string>
+                        <string>liters</string>
                        </property>
                       </item>
                      </widget>
@@ -999,12 +999,12 @@
                       </property>
                       <item>
                        <property name="text">
-                        <string> equal sections</string>
+                        <string>equal sections</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> different sections</string>
+                        <string>different sections</string>
                        </property>
                       </item>
                      </widget>
@@ -1540,6 +1540,14 @@
                         <bold>false</bold>
                        </font>
                       </property>
+                      <property name="currentIndex">
+                       <number>1</number>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string> K</string>
+                       </property>
+                      </item>
                       <item>
                        <property name="text">
                         <string>ºC</string>
@@ -1547,7 +1555,7 @@
                       </item>
                       <item>
                        <property name="text">
-                        <string> K</string>
+                        <string>ºF</string>
                        </property>
                       </item>
                      </widget>
@@ -1580,73 +1588,6 @@
                       <property name="alignment">
                        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                       </property>
-                     </widget>
-                    </item>
-                    <item row="5" column="3">
-                     <widget class="QComboBox" name="comboBox_pressure_units">
-                      <property name="minimumSize">
-                       <size>
-                        <width>100</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>100</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="currentIndex">
-                       <number>5</number>
-                      </property>
-                      <item>
-                       <property name="text">
-                        <string>kgf/cm² (a)</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>bar (a)</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>kPa (a)</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Pa (a)</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>kgf/cm² (g)</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>bar (g)</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>kPa (g)</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Pa (g)</string>
-                       </property>
-                      </item>
                      </widget>
                     </item>
                     <item row="6" column="1">
@@ -1951,6 +1892,103 @@
                       <property name="flat">
                        <bool>false</bool>
                       </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="3">
+                     <widget class="QComboBox" name="comboBox_pressure_units">
+                      <property name="minimumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>100</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="font">
+                       <font>
+                        <family>MS Shell Dlg 2</family>
+                        <pointsize>10</pointsize>
+                        <italic>false</italic>
+                        <bold>false</bold>
+                       </font>
+                      </property>
+                      <property name="currentIndex">
+                       <number>3</number>
+                      </property>
+                      <item>
+                       <property name="text">
+                        <string>Pa (a)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>kPa (a)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>atm (a)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>bar (a)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>kgf/cm² (a)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>psi (a)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>ksi (a)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Pa (g)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>kPa (g)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>atm (g)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>bar (g)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>kgf/cm² (g)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>psi (g)</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>ksi (g)</string>
+                       </property>
+                      </item>
                      </widget>
                     </item>
                    </layout>
@@ -3081,7 +3119,6 @@
   <tabstop>pushButton_get_gas_fluid</tabstop>
   <tabstop>lineEdit_polytropic_exponent</tabstop>
   <tabstop>lineEdit_gas_pressure</tabstop>
-  <tabstop>comboBox_pressure_units</tabstop>
   <tabstop>lineEdit_gas_temperature</tabstop>
   <tabstop>comboBox_temperature_units</tabstop>
   <tabstop>tabWidget_main</tabstop>

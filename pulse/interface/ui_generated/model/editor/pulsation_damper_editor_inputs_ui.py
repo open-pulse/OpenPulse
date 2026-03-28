@@ -72,7 +72,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 496, 658))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 491, 658))
         self.gridLayout_11 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_11.setSpacing(0)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
@@ -490,6 +490,7 @@ class Ui_Dialog(object):
         self.comboBox_temperature_units = QComboBox(self.frame_3)
         self.comboBox_temperature_units.addItem("")
         self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.addItem("")
         self.comboBox_temperature_units.setObjectName(u"comboBox_temperature_units")
         self.comboBox_temperature_units.setMinimumSize(QSize(100, 28))
         self.comboBox_temperature_units.setMaximumSize(QSize(100, 28))
@@ -505,22 +506,6 @@ class Ui_Dialog(object):
         self.label_molar_mass.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout.addWidget(self.label_molar_mass, 2, 1, 1, 1)
-
-        self.comboBox_pressure_units = QComboBox(self.frame_3)
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.setObjectName(u"comboBox_pressure_units")
-        self.comboBox_pressure_units.setMinimumSize(QSize(100, 28))
-        self.comboBox_pressure_units.setMaximumSize(QSize(100, 28))
-        self.comboBox_pressure_units.setFont(font1)
-
-        self.gridLayout.addWidget(self.comboBox_pressure_units, 5, 3, 1, 1)
 
         self.label_45 = QLabel(self.frame_3)
         self.label_45.setObjectName(u"label_45")
@@ -610,6 +595,28 @@ class Ui_Dialog(object):
         self.pushButton_get_gas_fluid.setFlat(False)
 
         self.gridLayout.addWidget(self.pushButton_get_gas_fluid, 3, 3, 1, 1)
+
+        self.comboBox_pressure_units = QComboBox(self.frame_3)
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.setObjectName(u"comboBox_pressure_units")
+        self.comboBox_pressure_units.setMinimumSize(QSize(100, 28))
+        self.comboBox_pressure_units.setMaximumSize(QSize(100, 28))
+        self.comboBox_pressure_units.setFont(font1)
+
+        self.gridLayout.addWidget(self.comboBox_pressure_units, 5, 3, 1, 1)
 
 
         self.gridLayout_11.addWidget(self.frame_3, 1, 0, 1, 1)
@@ -1029,8 +1036,7 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.lineEdit_selected_gas_fluid, self.pushButton_get_gas_fluid)
         QWidget.setTabOrder(self.pushButton_get_gas_fluid, self.lineEdit_polytropic_exponent)
         QWidget.setTabOrder(self.lineEdit_polytropic_exponent, self.lineEdit_gas_pressure)
-        QWidget.setTabOrder(self.lineEdit_gas_pressure, self.comboBox_pressure_units)
-        QWidget.setTabOrder(self.comboBox_pressure_units, self.lineEdit_gas_temperature)
+        QWidget.setTabOrder(self.lineEdit_gas_pressure, self.lineEdit_gas_temperature)
         QWidget.setTabOrder(self.lineEdit_gas_temperature, self.comboBox_temperature_units)
         QWidget.setTabOrder(self.comboBox_temperature_units, self.tabWidget_main)
         QWidget.setTabOrder(self.tabWidget_main, self.pushButton_exit)
@@ -1047,10 +1053,11 @@ class Ui_Dialog(object):
         self.tabWidget_main.setCurrentIndex(0)
         self.comboBox_damper_type.setCurrentIndex(0)
         self.comboBox_main_axis.setCurrentIndex(1)
-        self.comboBox_pressure_units.setCurrentIndex(5)
+        self.comboBox_temperature_units.setCurrentIndex(1)
         self.pushButton_get_liquid_fluid.setDefault(True)
         self.comboBox_fluid_data_source.setCurrentIndex(1)
         self.pushButton_get_gas_fluid.setDefault(True)
+        self.comboBox_pressure_units.setCurrentIndex(3)
         self.pushButton_exit.setDefault(False)
         self.pushButton_create.setDefault(True)
 
@@ -1082,9 +1089,9 @@ class Ui_Dialog(object):
         self.label_9.setText(QCoreApplication.translate("Dialog", u"Damper type:", None))
         self.label_26.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Wall thickness (gas):</p></body></html>", None))
         self.label_25.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m]</p></body></html>", None))
-        self.comboBox_volume_unit.setItemText(0, QCoreApplication.translate("Dialog", u" cubic meters", None))
-        self.comboBox_volume_unit.setItemText(1, QCoreApplication.translate("Dialog", u" cubic centimeters", None))
-        self.comboBox_volume_unit.setItemText(2, QCoreApplication.translate("Dialog", u" liters", None))
+        self.comboBox_volume_unit.setItemText(0, QCoreApplication.translate("Dialog", u"cubic meters", None))
+        self.comboBox_volume_unit.setItemText(1, QCoreApplication.translate("Dialog", u"cubic centimeters", None))
+        self.comboBox_volume_unit.setItemText(2, QCoreApplication.translate("Dialog", u"liters", None))
 
         self.comboBox_damper_type.setItemText(0, QCoreApplication.translate("Dialog", u"Bladder", None))
         self.comboBox_damper_type.setItemText(1, QCoreApplication.translate("Dialog", u"Diaphragm", None))
@@ -1092,8 +1099,8 @@ class Ui_Dialog(object):
         self.label_18.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m]</p></body></html>", None))
         self.lineEdit_gas_volume.setText(QCoreApplication.translate("Dialog", u"0.012464", None))
         self.label_29.setText(QCoreApplication.translate("Dialog", u"Sections (liquid/gas):", None))
-        self.comboBox_volume_sections.setItemText(0, QCoreApplication.translate("Dialog", u" equal sections", None))
-        self.comboBox_volume_sections.setItemText(1, QCoreApplication.translate("Dialog", u" different sections", None))
+        self.comboBox_volume_sections.setItemText(0, QCoreApplication.translate("Dialog", u"equal sections", None))
+        self.comboBox_volume_sections.setItemText(1, QCoreApplication.translate("Dialog", u"different sections", None))
 
         self.label_24.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Outside diameter (gas):</p></body></html>", None))
         self.label_27.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Outside diameter (neck):</p></body></html>", None))
@@ -1115,19 +1122,11 @@ class Ui_Dialog(object):
         self.label_13.setText(QCoreApplication.translate("Dialog", u"Define the fluid properties", None))
         self.label_bulk_modulus_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[--]</p></body></html>", None))
         self.lineEdit_gas_pressure.setText(QCoreApplication.translate("Dialog", u"120", None))
-        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"\u00baC", None))
-        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u" K", None))
+        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u" K", None))
+        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00baC", None))
+        self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00baF", None))
 
         self.label_molar_mass.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Selected liquid fluid:</p></body></html>", None))
-        self.comboBox_pressure_units.setItemText(0, QCoreApplication.translate("Dialog", u"kgf/cm\u00b2 (a)", None))
-        self.comboBox_pressure_units.setItemText(1, QCoreApplication.translate("Dialog", u"bar (a)", None))
-        self.comboBox_pressure_units.setItemText(2, QCoreApplication.translate("Dialog", u"kPa (a)", None))
-        self.comboBox_pressure_units.setItemText(3, QCoreApplication.translate("Dialog", u"Pa (a)", None))
-        self.comboBox_pressure_units.setItemText(4, QCoreApplication.translate("Dialog", u"kgf/cm\u00b2 (g)", None))
-        self.comboBox_pressure_units.setItemText(5, QCoreApplication.translate("Dialog", u"bar (g)", None))
-        self.comboBox_pressure_units.setItemText(6, QCoreApplication.translate("Dialog", u"kPa (g)", None))
-        self.comboBox_pressure_units.setItemText(7, QCoreApplication.translate("Dialog", u"Pa (g)", None))
-
         self.label_45.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Gas temperature:</p></body></html>", None))
         self.lineEdit_gas_temperature.setText(QCoreApplication.translate("Dialog", u"45", None))
         self.pushButton_get_liquid_fluid.setText(QCoreApplication.translate("Dialog", u"Get fluid", None))
@@ -1139,6 +1138,21 @@ class Ui_Dialog(object):
         self.label_isentropic_exp.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Polytropic exponent:</p></body></html>", None))
         self.lineEdit_selected_gas_fluid.setText("")
         self.pushButton_get_gas_fluid.setText(QCoreApplication.translate("Dialog", u"Get fluid", None))
+        self.comboBox_pressure_units.setItemText(0, QCoreApplication.translate("Dialog", u"Pa (a)", None))
+        self.comboBox_pressure_units.setItemText(1, QCoreApplication.translate("Dialog", u"kPa (a)", None))
+        self.comboBox_pressure_units.setItemText(2, QCoreApplication.translate("Dialog", u"atm (a)", None))
+        self.comboBox_pressure_units.setItemText(3, QCoreApplication.translate("Dialog", u"bar (a)", None))
+        self.comboBox_pressure_units.setItemText(4, QCoreApplication.translate("Dialog", u"kgf/cm\u00b2 (a)", None))
+        self.comboBox_pressure_units.setItemText(5, QCoreApplication.translate("Dialog", u"psi (a)", None))
+        self.comboBox_pressure_units.setItemText(6, QCoreApplication.translate("Dialog", u"ksi (a)", None))
+        self.comboBox_pressure_units.setItemText(7, QCoreApplication.translate("Dialog", u"Pa (g)", None))
+        self.comboBox_pressure_units.setItemText(8, QCoreApplication.translate("Dialog", u"kPa (g)", None))
+        self.comboBox_pressure_units.setItemText(9, QCoreApplication.translate("Dialog", u"atm (g)", None))
+        self.comboBox_pressure_units.setItemText(10, QCoreApplication.translate("Dialog", u"bar (g)", None))
+        self.comboBox_pressure_units.setItemText(11, QCoreApplication.translate("Dialog", u"kgf/cm\u00b2 (g)", None))
+        self.comboBox_pressure_units.setItemText(12, QCoreApplication.translate("Dialog", u"psi (g)", None))
+        self.comboBox_pressure_units.setItemText(13, QCoreApplication.translate("Dialog", u"ksi (g)", None))
+
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         self.label_2.setText(QCoreApplication.translate("Dialog", u"Damper label:", None))
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Damper type:", None))
@@ -1233,7 +1247,6 @@ class PulsationDamperEditorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - lineEdit_gas_pressure: QLineEdit
                                                                                     - comboBox_temperature_units: QComboBox
                                                                                     - label_molar_mass: QLabel
-                                                                                    - comboBox_pressure_units: QComboBox
                                                                                     - label_45: QLabel
                                                                                     - lineEdit_gas_temperature: QLineEdit
                                                                                     - pushButton_get_liquid_fluid: QPushButton
@@ -1243,6 +1256,7 @@ class PulsationDamperEditorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - label_isentropic_exp: QLabel
                                                                                     - lineEdit_selected_gas_fluid: QLineEdit
                                                                                     - pushButton_get_gas_fluid: QPushButton
+                                                                                    - comboBox_pressure_units: QComboBox
                                             - tab_remove: QWidget
                                                 - (Layout): QGridLayout
                                                         - frame_remove_selection: QFrame
