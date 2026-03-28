@@ -610,6 +610,7 @@ class MainWindow(MainWindow_UI):
         elif not self.action_model_setup_workspace.isEnabled():
             self.action_model_setup_workspace.setEnabled(True)
 
+        self.geometry_input_wigdet.setVisible(False)
         self.setup_widgets_stack.setCurrentWidget(self.results_viewer_widget)
         self.render_widgets_stack.setCurrentWidget(self.results_widget)
         self.results_viewer_widget.update_visibility_items()
