@@ -23,12 +23,41 @@ from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget impor
 )
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
+from pulse.interface.user_input.validator import StrictDoubleValidator
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from enum import IntEnum
+from numbers import Number
+from pint import UnitRegistry
+
+class PressureUnits(IntEnum):
+    Pa_a = 0
+    kPa_a = 1
+    atm_a = 2
+    bar_a = 3
+    kgf_cm2_a = 4
+    psi_a = 5
+    ksi_a = 6
+    Pa_g = 7
+    kPa_g = 8
+    atm_g = 9
+    bar_g = 10
+    kgf_cm2_g = 11
+    psi_g = 12
+    ksi_g = 13
+
+
+class TemperatureUnits(IntEnum):
+    CELSIUS = 0
+    KELVIN = 1
+
+
+error_title = "Error"
+warning_title = "Warning"
 
 
 class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
+
+
     def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__()
         app().main_window.set_input_widget(self)
@@ -38,13 +67,12 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         self._config_window()
         self._initialize()
-        self._define_qt_variables()
+        self._configure_widgets()
         self._create_connections()
         self._config_widgets()
 
         self.load_pulsation_damper_info()
         self.process_line_edits()
-        self.selection_callback()
         self.update_pulsation_damper_label()
         self.preview_callback()
         self.automatic_preview()
@@ -81,10 +109,71 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.state_properties = dict()
         self.nodes_from_removed_lines = list()
 
-    def _define_qt_variables(self):
+    def _configure_widgets(self):
 
         # Qwidget
         self.preview_widget: DamperPreviewRenderWidget
+
+        self.configure_dynamic_validators()
+        self.configure_static_validators()
+
+    def configure_static_validators(self):
+
+        # configure validator for coordinates inputs
+        coords_validator = StrictDoubleValidator(-1e8, 1e8, 8)
+        self.lineEdit_connecting_coord_x.setValidator(coords_validator)
+        self.lineEdit_connecting_coord_y.setValidator(coords_validator)
+        self.lineEdit_connecting_coord_z.setValidator(coords_validator)
+
+        # configure validator for geometry-related inputs
+        geom_validator = StrictDoubleValidator(1e-6, 1e8, 8)
+        self.lineEdit_gas_volume.setValidator(geom_validator)
+        self.lineEdit_damper_volume.setValidator(geom_validator)
+        self.lineEdit_outside_diameter_liquid.setValidator(geom_validator)
+        self.lineEdit_wall_thickness_liquid.setValidator(geom_validator)
+        self.lineEdit_outside_diameter_gas.setValidator(geom_validator)
+        self.lineEdit_wall_thickness_gas.setValidator(geom_validator)
+        self.lineEdit_outside_diameter_neck.setValidator(geom_validator)
+        self.lineEdit_neck_height.setValidator(geom_validator)
+
+        # configure validator for polytric exponent
+        self.lineEdit_polytropic_exponent.setValidator(StrictDoubleValidator(1, 1e8, 6))
+
+    def configure_dynamic_validators(self):
+
+        # adjust temperature bounds (t_min -> zero absolute)
+        t_min = 0
+        t_max = 1e4
+        if self.comboBox_temperature_units.currentIndex() == TemperatureUnits.CELSIUS:
+            t_min = -273.15
+
+        # adjust pressure bounds (p_min -> perfect vacuum)      
+        p_min = 0 
+        p_max = 2e4
+
+        punit_index = self.comboBox_pressure_units.currentIndex()
+        if punit_index == PressureUnits.Pa_a:
+            p_max = 1e8
+        elif punit_index == PressureUnits.Pa_g:
+            p_min = -101325
+            p_max = 1e8
+        elif punit_index == PressureUnits.kPa_g:
+            p_min = -101.325
+            p_max = 1e8
+        elif punit_index == PressureUnits.bar_g:
+            p_min = -1.101325
+            p_max = 2e3
+        elif punit_index == PressureUnits.kgf_cm2_g:
+            p_min = -(9.80665*1e4)
+        elif punit_index == PressureUnits.psi_g:
+            p_min = -(0.45359237*9.80665) / (0.0254**2)
+        elif punit_index == PressureUnits.ksi_g:
+            p_min = -(0.45359237*9.80665) / (1e3 * (0.0254**2))
+            p_max = 1e3
+
+        # configure validator for pressure and temeperature inputs
+        self.lineEdit_gas_pressure.setValidator(StrictDoubleValidator(p_min, p_max, 6))
+        self.lineEdit_gas_temperature.setValidator(StrictDoubleValidator(t_min, t_max, 6))
 
     def _store_deafult_parameters(self):
         self.deafult_parameters = dict()
@@ -98,8 +187,8 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         #
         self.comboBox_volume_sections.currentIndexChanged.connect(self.volume_sections_callback)
         self.comboBox_volume_unit.currentIndexChanged.connect(self.update_volume_unit_callback)
-        self.comboBox_pressure_units.currentIndexChanged.connect(self.load_state_properties)
-        self.comboBox_temperature_units.currentIndexChanged.connect(self.load_state_properties)
+        self.comboBox_pressure_units.currentIndexChanged.connect(self.configure_dynamic_validators)
+        self.comboBox_temperature_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         #
         self.lineEdit_outside_diameter_liquid.textEdited.connect(self.update_sections_info_callback)
         self.lineEdit_wall_thickness_liquid.textEdited.connect(self.update_sections_info_callback)
@@ -114,7 +203,6 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_copy.clicked.connect(self.copy_callback)
         self.pushButton_reset_entries.clicked.connect(self.reset_entries_callback)
-
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
@@ -123,9 +211,12 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         #
         app().main_window.selection_changed.connect(self.selection_callback)
         #
+        self.selection_callback()
         self.volume_sections_callback()
 
     def selection_callback(self):
+
+        self.selected_material = None
         selected_nodes = app().main_window.list_selected_nodes()
         selected_points = app().project.pipeline.selected_points
 
@@ -136,14 +227,10 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             self.lineEdit_connecting_coord_z.setText(f"{node.z:.3f}")
 
             elements = self.preprocessor.structural_elements_connected_to_node[node.external_index]
-            self.selected_material = None
             material = elements[0].material
 
-            if material is None:
-                return
-
-            self.selected_material = material
-            app().main_window.selection_changed.connect(self.selection_callback)
+            if isinstance(material, Material):
+                self.selected_material = material
 
         elif len(selected_points) == 1:
             point = selected_points[0]
@@ -151,6 +238,19 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             self.lineEdit_connecting_coord_y.setText(f"{point.y:.3f}")
             self.lineEdit_connecting_coord_z.setText(f"{point.z:.3f}")
 
+            node_id = self.preprocessor.get_node_id_by_coordinates(point.coords())
+            if isinstance(node_id, Number):
+                node = self.preprocessor.nodes.get(node_id)
+                if node is None:
+                    return
+
+                elements = self.preprocessor.structural_elements_connected_to_node[node.external_index]
+                material = elements[0].material
+
+            if isinstance(material, Material):
+                self.selected_material = material
+
+        app().main_window.selection_changed.connect(self.selection_callback)
         app().main_window.geometry_widget.left_released.connect(self.selection_callback)
 
     def update_sections_info_callback(self):
@@ -218,11 +318,66 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
     def get_fluid_callback(self):
         self.hide()
+        if not self.state_properties:
+
+            self.state_properties["editable_state"] = True
+
+            if self.lineEdit_gas_pressure.text() != "":
+                self.state_properties["pressure"] = float(self.lineEdit_gas_pressure.text())
+                self.state_properties["pressure_unit"] = self.comboBox_pressure_units.currentText()
+
+            if self.lineEdit_gas_temperature.text() != "":
+                self.state_properties["temperature"] = float(self.lineEdit_gas_temperature.text())
+                self.state_properties["temperature_unit"] = self.comboBox_temperature_units.currentText()
+
+        check_ideal_gas = False
+        if isinstance(self.selected_fluid, Fluid) and isinstance(self.gas_fluid, Fluid):
+            check_ideal_gas = self.selected_fluid == self.gas_fluid
+
+        if self.lineEdit_selected_liquid_fluid.text() != "":
+            self.state_properties["editable_state"] = False
+
+        self.state_properties["check_ideal_gas"] = check_ideal_gas
+
         self.fluid_dialog = SetFluidInputSimplified(state_properties=self.state_properties)
         self.fluid_dialog.fluid_widget.pushButton_attribute.setText("Select fluid")
         self.fluid_dialog.pushButton_attribute.clicked.connect(self.get_selected_fluid)
         self.fluid_dialog.exec_and_keep_window_open()
         app().main_window.set_input_widget(self)
+
+    def update_state_properties_from_fluid(self, selected_fluid: Fluid | None):
+        if selected_fluid is None:
+            return
+
+        u_reg = UnitRegistry()
+
+        pressure_Pa = selected_fluid.pressure
+        temperature_K = selected_fluid.temperature
+
+        pressure = pressure_Pa * u_reg.pascal
+        temperature = temperature_K * u_reg.kelvin
+
+        pressure_unit = self.comboBox_pressure_units.currentText()
+        tu_index = self.comboBox_temperature_units.currentIndex()
+
+        _pressure_unit = pressure_unit.split(" ")[0]
+        _temp_unit = ["kelvin", "degC", "degF"][tu_index]
+
+        if "(g)" in pressure_unit:
+            pressure -= 1 * u_reg.atm
+
+        _pressure = pressure.to(_pressure_unit).magnitude
+        _temperature = temperature.to(_temp_unit).magnitude
+
+        self.state_properties["pressure"] = _pressure
+        self.state_properties["temperature"] = _temperature
+
+        self.lineEdit_gas_pressure.setText(f"{_pressure : .8e}")
+        self.lineEdit_gas_temperature.setText(f"{_temperature}")
+        if self.fluid_state == "fluid":
+            return
+
+        self.lineEdit_polytropic_exponent.setText(f"{selected_fluid.isentropic_exponent}")
 
     def get_selected_fluid(self, fluid: Fluid | None = None):
         if fluid is False:
@@ -234,25 +389,25 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         else:
             raise TypeError("Invalid fluid")
 
-        if isinstance(selected_fluid, Fluid):
-            if self.fluid_dialog is not None:
-                self.fluid_dialog.close()
+        if not isinstance(selected_fluid, Fluid):
+            return
 
-                if selected_fluid.name in self.fluid_dialog.fluid_widget.fluid_name_to_refprop_data.keys():
-                    self.comboBox_fluid_data_source.setCurrentIndex(0)
+        if self.fluid_dialog is not None:
+            self.fluid_dialog.close()
 
-            if self.fluid_state == "liquid":
-                self.lineEdit_selected_liquid_fluid.setText(selected_fluid.name)
-                self.liquid_fluid = selected_fluid
-                self.state_properties["pressure"] = selected_fluid.pressure
-                self.state_properties["temperature"] = selected_fluid.temperature
+            if selected_fluid.name in self.fluid_dialog.fluid_widget.fluid_name_to_refprop_data.keys():
+                self.comboBox_fluid_data_source.setCurrentIndex(0)
 
-            else:
-                self.lineEdit_selected_gas_fluid.setText(selected_fluid.name)
-                self.lineEdit_polytropic_exponent.setText(f"{selected_fluid.isentropic_exponent: .6f}")
-                self.gas_fluid = selected_fluid
+        if self.fluid_state == "liquid":
+            self.lineEdit_selected_liquid_fluid.setText(selected_fluid.name)
+            self.liquid_fluid = selected_fluid
+            self.state_properties["editable_state"] = True
 
-            self.load_state_properties()
+        else:
+            self.lineEdit_selected_gas_fluid.setText(selected_fluid.name)
+            self.gas_fluid = selected_fluid
+
+        self.update_state_properties_from_fluid(selected_fluid)
 
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
@@ -279,50 +434,21 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.on_click_item(item)
 
     def load_state_properties(self):
-        if self.state_properties:
-            pressure_Pa = self.state_properties["pressure"]
-            temperature_K = self.state_properties["temperature"]
 
-            tu_index = self.comboBox_temperature_units.currentIndex()
-            if tu_index == 0:
-                temperature_C = temperature_K - 273.15
-                self.lineEdit_gas_temperature.setText(f"{temperature_C}")
+        if not self.state_properties:
+            return
 
-            else:
-                self.lineEdit_gas_temperature.setText(f"{temperature_K}")
+        pressure = self.state_properties["pressure"]
+        temperature = self.state_properties["temperature"]
 
-            pu_index = self.comboBox_pressure_units.currentIndex()
-            if pu_index >= 4:
-                pressure_Pa_g = pressure_Pa - 101325
+        press_unit = self.state_properties.get("pressure_unit", "kgf/cm² (a)")
+        temp_unit = self.state_properties.get("temperature_unit", "°C")
 
-            if pu_index == 0:
-                pressure_value = pressure_Pa / 9.80665e4
+        self.lineEdit_gas_temperature.setText(f"{temperature}")
+        self.lineEdit_gas_pressure.setText(f"{pressure : .8e}")
 
-            elif pu_index == 1:
-                pressure_value = pressure_Pa / 1e5
-
-            elif pu_index == 2:
-                pressure_value = pressure_Pa / 1e3
-
-            elif pu_index == 3:
-                pressure_value = pressure_Pa / 1
-
-            elif pu_index == 4:
-                pressure_value = pressure_Pa_g / 9.80665e4
-
-            elif pu_index == 5:
-                pressure_value = pressure_Pa_g / 1e5
-
-            elif pu_index == 6:
-                pressure_value = pressure_Pa_g / 1e3
-
-            elif pu_index == 7:
-                pressure_value = pressure_Pa_g / 1
-
-            else:
-                raise ValueError(f'Invalid pu_index "{pu_index}"')
-
-            self.lineEdit_gas_pressure.setText(f"{pressure_value: .8e}")
+        self.comboBox_temperature_units.setCurrentText(temp_unit)
+        self.comboBox_pressure_units.setCurrentText(press_unit)
 
     def update_volume_unit_callback(self):
         index = self.comboBox_volume_unit.currentIndex()
@@ -348,93 +474,45 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             self.lineEdit_outside_diameter_gas.setText(outside_diameter)
             self.lineEdit_wall_thickness_gas.setText(wall_thickness)
 
-    def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False, title=None):
-        message = ""
-        if title is None:
-            title = "Invalid input"
-
-        if lineEdit.text() != "":
-            try:
-                str_value = lineEdit.text().replace(",", ".")
-                out = float(str_value)
-
-                if only_positive:
-                    if zero_included:
-                        if out < 0:
-                            message = f"Insert a positive value to the {label}."
-                            message += "\n\nZero value is allowed."
-                            return None
-                    else:
-                        if out <= 0:
-                            message = f"Insert a positive value to the {label}."
-                            message += "\n\nZero value is not allowed."
-                            return None
-
-            except Exception as error_log:
-                message = f"Wrong input for {label}.\n\n"
-                message += str(error_log)
-                return None
-
-        else:
-            if zero_included:
-                return float(0)
-            else:
-                message = f"Insert some value at the {label} input field."
-                return None
-
-        return out
-
     def check_connecting_coords(self):
-        coord_x = self.check_inputs(
+
+        line_edits = [
             self.lineEdit_connecting_coord_x,
-            "'connecting coord. x'",
-            only_positive=False,
-        )
-        if coord_x is None:
-            self.lineEdit_connecting_coord_x.setFocus()
-            return True
-
-        coord_y = self.check_inputs(
             self.lineEdit_connecting_coord_y,
-            "'connecting coord. y'",
-            only_positive=False,
-        )
-        if coord_y is None:
-            self.lineEdit_connecting_coord_y.setFocus()
-            return True
-
-        coord_z = self.check_inputs(
             self.lineEdit_connecting_coord_z,
-            "'connecting coord. z'",
-            only_positive=False,
-        )
-        if coord_z is None:
-            self.lineEdit_connecting_coord_z.setFocus()
-            return True
-
-        self._pulsation_damper_data["connecting_coords"] = [
-            round(coord_x, 6),
-            round(coord_y, 6),
-            round(coord_z, 6),
         ]
 
-    def check_volumes(self):
-        damper_volume = self.check_inputs(self.lineEdit_damper_volume, "'damper volume'", only_positive=False)
-        if damper_volume is None:
-            self.lineEdit_damper_volume.setFocus()
-            return True
+        coords = list()
+        for line_edit in line_edits:
+            if line_edit.text() == "":
+                line_edit.setFocus()
+                return True
 
-        gas_volume = self.check_inputs(self.lineEdit_gas_volume, "'gas volume'", only_positive=False)
-        if gas_volume is None:
-            self.lineEdit_gas_volume.setFocus()
-            return True
+            coords.append(round(float(line_edit.text()), 6))
+
+        self._pulsation_damper_data["connecting_coords"] = coords
+
+    def check_volumes(self):
+
+        line_edits = [
+            self.lineEdit_damper_volume,
+            self.lineEdit_gas_volume,
+        ]
+
+        for line_edit in line_edits:
+            if line_edit.text() == "":
+                line_edit.setFocus()
+                return True
+
+        damper_volume = float(self.lineEdit_damper_volume.text())
+        gas_volume = float(self.lineEdit_gas_volume.text())
 
         unit_label = self.comboBox_volume_unit.currentText()
 
-        if unit_label == " cubic centimeters":
+        if unit_label == "cubic centimeters":
             volume_unit_factor = 1e-6
 
-        elif unit_label == " liters":
+        elif unit_label == "liters":
             volume_unit_factor = 1e-3
 
         else:
@@ -450,62 +528,25 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             return True
 
     def check_geometric_entries(self):
-        outside_diameter_liquid = self.check_inputs(
+
+        line_edits = [
             self.lineEdit_outside_diameter_liquid,
-            "'outside diameter (liquid)'",
-            only_positive=False,
-        )
-        if (outside_diameter_liquid is None or outside_diameter_liquid == 0) and self.lineEdit_outside_diameter_liquid.isEnabled():
-            self.lineEdit_outside_diameter_liquid.setFocus()
-            return True
-
-        wall_thickness_liquid = self.check_inputs(
             self.lineEdit_wall_thickness_liquid,
-            "'wall thickness (liquid)'",
-            only_positive=False,
-        )
-        if (wall_thickness_liquid is None or wall_thickness_liquid == 0) and self.lineEdit_wall_thickness_liquid.isEnabled():
-            self.lineEdit_wall_thickness_liquid.setFocus()
-            return True
-
-        outside_diameter_gas = self.check_inputs(
             self.lineEdit_outside_diameter_gas,
-            "'outside diameter (gas)'",
-            only_positive=False,
-        )
-        if (outside_diameter_gas is None or outside_diameter_gas == 0) and self.lineEdit_outside_diameter_gas.isEnabled():
-            self.lineEdit_outside_diameter_gas.setFocus()
-            return True
-
-        wall_thickness_gas = self.check_inputs(
             self.lineEdit_wall_thickness_gas,
-            "'wall thickness (gas)'",
-            only_positive=False,
-        )
-        if (wall_thickness_gas is None or wall_thickness_gas == 0) and self.lineEdit_wall_thickness_gas.isEnabled():
-            self.lineEdit_wall_thickness_gas.setFocus()
-            return True
-
-        outside_diameter_neck = self.check_inputs(
             self.lineEdit_outside_diameter_neck,
-            "'outside diameter (neck)'",
-            only_positive=False,
-        )
-        if (outside_diameter_neck is None or outside_diameter_neck == 0) and self.lineEdit_outside_diameter_neck.isEnabled():
-            self.lineEdit_outside_diameter_neck.setFocus()
-            return True
+            self.lineEdit_neck_height,
+        ]
 
-        neck_height = self.check_inputs(self.lineEdit_neck_height, "'neck heght'", only_positive=False)
-        if (neck_height is None or neck_height == 0) and self.lineEdit_neck_height.isEnabled():
-            self.lineEdit_neck_height.setFocus()
-            return True
+        for line_edit in line_edits:
 
-        self._pulsation_damper_data["outside_diameter_liquid"] = outside_diameter_liquid
-        self._pulsation_damper_data["wall_thickness_liquid"] = wall_thickness_liquid
-        self._pulsation_damper_data["outside_diameter_gas"] = outside_diameter_gas
-        self._pulsation_damper_data["wall_thickness_gas"] = wall_thickness_gas
-        self._pulsation_damper_data["outside_diameter_neck"] = outside_diameter_neck
-        self._pulsation_damper_data["neck_height"] = neck_height
+            if line_edit.isEnabled():
+                if line_edit.text() == "":    
+                    line_edit.setFocus()
+                    return True           
+
+            key = line_edit.objectName().replace("lineEdit_", "")
+            self._pulsation_damper_data[key] = float(line_edit.text()) if line_edit.text() != "" else 0.
 
     def check_fluids(self):
         if self.liquid_fluid is None:
@@ -521,7 +562,6 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
     def check_pulsation_damper_geometric_inputs(self):
         self._pulsation_damper_data = dict()
-
         self._pulsation_damper_data["main_axis"] = self.comboBox_main_axis.currentText()[1:]
         self._pulsation_damper_data["damper_type"] = self.comboBox_damper_type.currentText()
 
@@ -962,7 +1002,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         if message != "":
             self.hide()
-            return True, None, window_title_2, title, message
+            return True, None, warning_title, title, message
 
         return False, damper_label, None, None, None
 
@@ -1003,19 +1043,19 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         if message != "":
             self.hide()
-            return window_title_1, title, message
+            return error_title, title, message
 
         return value, None, None
 
     def show_error_window_for_parameters(self):
-        if window_title_2 is not None and self.error_title is not None and self.error_message is not None:
+        if warning_title is not None and self.error_title is not None and self.error_message is not None:
             app().main_window.set_input_widget(self)
-            PrintMessageInput([window_title_2, self.error_title, self.error_message])
+            PrintMessageInput([warning_title, self.error_title, self.error_message])
 
         else:
             PrintMessageInput(
                 [
-                    window_title_2,
+                    warning_title,
                     "Invalid input",
                     "An empty or invalid field was detected",
                 ]

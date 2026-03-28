@@ -114,13 +114,26 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.lineEdit_temperature_disch.setVisible(False)
 
     def check_state_properties(self, state_properties: dict):
+        
+        # update the editable state of the state properties
+        editable_state = state_properties.get("editable_state", False)
 
-        self.comboBox_temperature_units.setDisabled(True)
-        self.comboBox_pressure_units.setDisabled(True)
-        self.comboBox_temperature_units.setCurrentIndex(0)
+        self.comboBox_temperature_units.setEnabled(editable_state)
+        self.comboBox_pressure_units.setEnabled(editable_state)
+
+        self.lineEdit_pressure.setEnabled(editable_state)
+        self.lineEdit_temperature.setEnabled(editable_state)
+        self.lineEdit_pressure_disch.setEnabled(editable_state)
+        self.lineEdit_temperature_disch.setEnabled(editable_state)
 
         self.reciprocating_machine = state_properties.get("source", None)
         self.check_ideal_gas = state_properties.get("check_ideal_gas", True)
+
+        pressure_unit = state_properties.get("pressure_unit", "kgf/cm² (a)")
+        temperature_unit = state_properties.get("temperature_unit", "°C")
+
+        self.comboBox_pressure_units.setCurrentText(pressure_unit)
+        self.comboBox_temperature_units.setCurrentText(temperature_unit)
 
         if self.reciprocating_machine is None:
 
@@ -135,27 +148,17 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
         else:
 
-            self.label_discharge.setVisible(True)
-            self.label_suction.setVisible(True)
-            self.label_spacing.setVisible(True)
-
-            self.lineEdit_temperature.setDisabled(True)
-            self.lineEdit_pressure.setDisabled(True)
-
-            self.lineEdit_pressure_disch.setVisible(True)
-            self.lineEdit_pressure_disch.setDisabled(True)
-
-            self.lineEdit_temperature_disch.setVisible(True)
-            self.lineEdit_temperature_disch.setDisabled(True)
-
             self.connection_type = state_properties['connection_type']
-            self.T_suction = state_properties[f'temperature_at_suction']
-            self.P_suction = state_properties[f'suction_pressure']
+            self.T_suction = state_properties['temperature_at_suction']
+            self.P_suction = state_properties['suction_pressure']
 
-            if self.connection_type == "suction":
-                self.lineEdit_pressure_disch.setVisible(False)
-                self.lineEdit_temperature_disch.setVisible(False)
-                self.label_discharge.setVisible(False)
+            connected_at_discharge = self.connection_type == "discharge"
+
+            self.label_discharge.setVisible(connected_at_discharge)
+            self.label_suction.setVisible(connected_at_discharge)
+            self.label_spacing.setVisible(connected_at_discharge)
+            self.lineEdit_pressure_disch.setVisible(connected_at_discharge)
+            self.lineEdit_temperature_disch.setVisible(connected_at_discharge)
 
             if 'suction_pressure' in state_properties.keys():
                 self.lineEdit_temperature.setText(f"{self.T_suction : .4f}")
