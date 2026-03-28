@@ -79,29 +79,7 @@ class Preprocessor:
 
     def generate(self):
         """
-        This method loads geometry file or data and process the mesh.
-
-        Parameters
-        ----------
-        import_type : int
-            This number is equal to 0 if there is an imported geometry file or
-            assumes value equals to 1 otherwise.
-
-        geometry_path : str
-            CAD file path '*.igs' and '*.step' are the file formats supported.
-
-        element_size : float
-            Element size to be used to build the preprocessor.
-        
-        tolerance: : float
-            A small float number that represents the geometry tolerance in GMSH.
-
-        gmsh_geometry : bool
-            This variable reaches True value if the geometry is created by user or False if it is imported.
-
-        length_unit: : str
-            The length unit in use.
-            
+        It loads geometry file or data and process the mesh.            
         """
 
         self.reset_variables()

@@ -39,7 +39,10 @@ class ElementLinesActor(GhostActor):
                 x1, y1, z1 = element.last_node.coordinates
 
             lines.append((x0, y0, z0, x1, y1, z1))
-            entity = self.preprocessor.mesh.line_from_element[i]
+            entity = self.preprocessor.mesh.line_from_element.get(i)
+            if entity is None:
+                continue
+
             entity_index.InsertNextTuple1(entity)
             element_index.InsertNextTuple1(i)
 
