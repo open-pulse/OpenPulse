@@ -25,7 +25,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(1056, 769)
+        Dialog.resize(1012, 769)
         self.gridLayout_6 = QGridLayout(Dialog)
         self.gridLayout_6.setSpacing(4)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
@@ -72,7 +72,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 491, 658))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 447, 658))
         self.gridLayout_11 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_11.setSpacing(0)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
@@ -829,7 +829,7 @@ class Ui_Dialog(object):
         self.label_11 = QLabel(self.frame_8)
         self.label_11.setObjectName(u"label_11")
         self.label_11.setMinimumSize(QSize(0, 20))
-        self.label_11.setMaximumSize(QSize(80, 20))
+        self.label_11.setMaximumSize(QSize(100, 20))
         self.label_11.setFont(font3)
         self.label_11.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -837,8 +837,8 @@ class Ui_Dialog(object):
 
         self.lineEdit_connecting_coord_y = QLineEdit(self.frame_8)
         self.lineEdit_connecting_coord_y.setObjectName(u"lineEdit_connecting_coord_y")
-        self.lineEdit_connecting_coord_y.setMinimumSize(QSize(80, 26))
-        self.lineEdit_connecting_coord_y.setMaximumSize(QSize(80, 26))
+        self.lineEdit_connecting_coord_y.setMinimumSize(QSize(100, 26))
+        self.lineEdit_connecting_coord_y.setMaximumSize(QSize(100, 26))
         self.lineEdit_connecting_coord_y.setFont(font3)
         self.lineEdit_connecting_coord_y.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -846,8 +846,8 @@ class Ui_Dialog(object):
 
         self.lineEdit_connecting_coord_z = QLineEdit(self.frame_8)
         self.lineEdit_connecting_coord_z.setObjectName(u"lineEdit_connecting_coord_z")
-        self.lineEdit_connecting_coord_z.setMinimumSize(QSize(80, 26))
-        self.lineEdit_connecting_coord_z.setMaximumSize(QSize(80, 26))
+        self.lineEdit_connecting_coord_z.setMinimumSize(QSize(100, 26))
+        self.lineEdit_connecting_coord_z.setMaximumSize(QSize(100, 26))
         self.lineEdit_connecting_coord_z.setFont(font3)
         self.lineEdit_connecting_coord_z.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -856,7 +856,7 @@ class Ui_Dialog(object):
         self.label_10 = QLabel(self.frame_8)
         self.label_10.setObjectName(u"label_10")
         self.label_10.setMinimumSize(QSize(0, 20))
-        self.label_10.setMaximumSize(QSize(80, 20))
+        self.label_10.setMaximumSize(QSize(100, 20))
         self.label_10.setFont(font3)
         self.label_10.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -874,7 +874,7 @@ class Ui_Dialog(object):
         self.label_8 = QLabel(self.frame_8)
         self.label_8.setObjectName(u"label_8")
         self.label_8.setMinimumSize(QSize(0, 20))
-        self.label_8.setMaximumSize(QSize(80, 20))
+        self.label_8.setMaximumSize(QSize(100, 20))
         self.label_8.setFont(font3)
         self.label_8.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -882,8 +882,8 @@ class Ui_Dialog(object):
 
         self.lineEdit_connecting_coord_x = QLineEdit(self.frame_8)
         self.lineEdit_connecting_coord_x.setObjectName(u"lineEdit_connecting_coord_x")
-        self.lineEdit_connecting_coord_x.setMinimumSize(QSize(80, 26))
-        self.lineEdit_connecting_coord_x.setMaximumSize(QSize(80, 26))
+        self.lineEdit_connecting_coord_x.setMinimumSize(QSize(100, 26))
+        self.lineEdit_connecting_coord_x.setMaximumSize(QSize(100, 26))
         self.lineEdit_connecting_coord_x.setFont(font3)
         self.lineEdit_connecting_coord_x.setAlignment(Qt.AlignmentFlag.AlignCenter)
 

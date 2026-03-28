@@ -9,25 +9,26 @@ from PySide6.QtWidgets import (
 
 from pulse import app
 from pulse.editor.pulsation_damper import PulsationDamper
+
+from pulse.interface.user_input.validator import StrictDoubleValidator
 from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.ui_generated.model.editor.pulsation_damper_editor_inputs_ui import PulsationDamperEditorInputs_UI
-from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
-    SetFluidInputSimplified,
-)
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
-)
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
+from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget import (
-    DamperPreviewRenderWidget,
-)
+from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget import DamperPreviewRenderWidget
+from pulse.interface.ui_generated.model.editor.pulsation_damper_editor_inputs_ui import PulsationDamperEditorInputs_UI
+
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.interface.user_input.validator import StrictDoubleValidator
+
+from pulse.model.node import Node
+from pulse.editor.structures.point import Point
+
 
 from enum import IntEnum
 from numbers import Number
 from pint import UnitRegistry
+
 
 class PressureUnits(IntEnum):
     Pa_a = 0
@@ -51,12 +52,16 @@ class TemperatureUnits(IntEnum):
     KELVIN = 1
 
 
+class VolumeSections(IntEnum):
+    EQUAL = 0
+    DISTINCT = 1
+
+
 error_title = "Error"
 warning_title = "Warning"
 
 
 class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
-
 
     def __init__(self, *args, device_to_delete=None, **kwargs):
         super().__init__()
@@ -111,7 +116,10 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
     def _configure_widgets(self):
 
-        # Qwidget
+        self.lineEdit_connecting_coord_x.setDisabled(True)
+        self.lineEdit_connecting_coord_y.setDisabled(True)
+        self.lineEdit_connecting_coord_z.setDisabled(True)
+
         self.preview_widget: DamperPreviewRenderWidget
 
         self.configure_dynamic_validators()
@@ -221,10 +229,16 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         selected_points = app().project.pipeline.selected_points
 
         if len(selected_nodes) == 1:
-            node = self.preprocessor.nodes[selected_nodes[0]]
-            self.lineEdit_connecting_coord_x.setText(f"{node.x:.3f}")
-            self.lineEdit_connecting_coord_y.setText(f"{node.y:.3f}")
-            self.lineEdit_connecting_coord_z.setText(f"{node.z:.3f}")
+
+            node_id = selected_nodes[0]
+            if node_id not in self.preprocessor.mesh.geometry_points:
+                return
+
+            node = self.preprocessor.nodes.get(node_id)
+            if node is None:
+                return
+
+            self.load_nodal_coordinates_of_selected_point(node)
 
             elements = self.preprocessor.structural_elements_connected_to_node[node.external_index]
             material = elements[0].material
@@ -234,9 +248,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         elif len(selected_points) == 1:
             point = selected_points[0]
-            self.lineEdit_connecting_coord_x.setText(f"{point.x:.3f}")
-            self.lineEdit_connecting_coord_y.setText(f"{point.y:.3f}")
-            self.lineEdit_connecting_coord_z.setText(f"{point.z:.3f}")
+            self.load_nodal_coordinates_of_selected_point(point)
 
             node_id = self.preprocessor.get_node_id_by_coordinates(point.coords())
             if isinstance(node_id, Number):
@@ -253,25 +265,20 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         app().main_window.selection_changed.connect(self.selection_callback)
         app().main_window.geometry_widget.left_released.connect(self.selection_callback)
 
+    def load_nodal_coordinates_of_selected_point(self, selection: Node | Point):
+        self.lineEdit_connecting_coord_x.setText(f"{selection.x:.5f}")
+        self.lineEdit_connecting_coord_y.setText(f"{selection.y:.5f}")
+        self.lineEdit_connecting_coord_z.setText(f"{selection.z:.5f}")
+
     def update_sections_info_callback(self):
-        if self.comboBox_volume_sections.currentIndex() == 0:
-            try:
-                _outside_diameter = self.lineEdit_outside_diameter_liquid.text()
-                _outside_diameter = _outside_diameter.replace(",", ".")
-                float(_outside_diameter)
-                self.lineEdit_outside_diameter_gas.setText(_outside_diameter)
+        if self.comboBox_volume_sections.currentIndex() == VolumeSections.DISTINCT:
+            return
 
-            except Exception:
-                self.lineEdit_outside_diameter_gas.setText("")
+        _outside_diameter = self.lineEdit_outside_diameter_liquid.text()
+        self.lineEdit_outside_diameter_gas.setText(_outside_diameter)
 
-            try:
-                _wall_thickness = self.lineEdit_wall_thickness_liquid.text()
-                _wall_thickness = _wall_thickness.replace(",", ".")
-                float(_wall_thickness)
-                self.lineEdit_wall_thickness_gas.setText(_wall_thickness)
-
-            except Exception:
-                self.lineEdit_wall_thickness_gas.setText("")
+        _wall_thickness = self.lineEdit_wall_thickness_liquid.text()
+        self.lineEdit_wall_thickness_gas.setText(_wall_thickness)
 
     def load_fluid_properties(self, fluid: Fluid):
         pressure = fluid.pressure
@@ -464,11 +471,11 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.label_gas_volume_unit.setText(f"[{unit_label}]")
 
     def volume_sections_callback(self):
-        index = self.comboBox_volume_sections.currentIndex()
-        self.lineEdit_outside_diameter_gas.setEnabled(bool(index))
-        self.lineEdit_wall_thickness_gas.setEnabled(bool(index))
+        equal_sections = self.comboBox_volume_sections.currentIndex() == VolumeSections.EQUAL
+        self.lineEdit_outside_diameter_gas.setDisabled(equal_sections)
+        self.lineEdit_wall_thickness_gas.setDisabled(equal_sections)
 
-        if index == 0:
+        if equal_sections:
             outside_diameter = self.lineEdit_outside_diameter_liquid.text()
             wall_thickness = self.lineEdit_wall_thickness_liquid.text()
             self.lineEdit_outside_diameter_gas.setText(outside_diameter)

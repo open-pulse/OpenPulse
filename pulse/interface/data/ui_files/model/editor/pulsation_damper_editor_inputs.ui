@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1056</width>
+    <width>1012</width>
     <height>769</height>
    </rect>
   </property>
@@ -143,7 +143,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>491</width>
+                  <width>447</width>
                   <height>658</height>
                  </rect>
                 </property>
@@ -2604,7 +2604,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>100</width>
              <height>20</height>
             </size>
            </property>
@@ -2625,13 +2625,13 @@
           <widget class="QLineEdit" name="lineEdit_connecting_coord_y">
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>100</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>100</width>
              <height>26</height>
             </size>
            </property>
@@ -2652,13 +2652,13 @@
           <widget class="QLineEdit" name="lineEdit_connecting_coord_z">
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>100</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>100</width>
              <height>26</height>
             </size>
            </property>
@@ -2685,7 +2685,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>100</width>
              <height>20</height>
             </size>
            </property>
@@ -2739,7 +2739,7 @@
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>100</width>
              <height>20</height>
             </size>
            </property>
@@ -2760,13 +2760,13 @@
           <widget class="QLineEdit" name="lineEdit_connecting_coord_x">
            <property name="minimumSize">
             <size>
-             <width>80</width>
+             <width>100</width>
              <height>26</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>80</width>
+             <width>100</width>
              <height>26</height>
             </size>
            </property>
