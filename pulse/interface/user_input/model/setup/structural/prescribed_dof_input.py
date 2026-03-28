@@ -270,33 +270,33 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             return
 
         stop, ux = self.check_complex_entries(
-            self.lineEdit_real_ux, self.lineEdit_imag_ux, "Ux"
+            self.lineEdit_real_Ux, self.lineEdit_imag_Ux, "Ux"
         )
         if stop:
             return
         stop, uy = self.check_complex_entries(
-            self.lineEdit_real_uy, self.lineEdit_imag_uy, "Uy"
+            self.lineEdit_real_Uy, self.lineEdit_imag_Uy, "Uy"
         )
         if stop:
             return
         stop, uz = self.check_complex_entries(
-            self.lineEdit_real_uz, self.lineEdit_imag_uz, "Uz"
+            self.lineEdit_real_Uz, self.lineEdit_imag_Uz, "Uz"
         )
         if stop:
             return
 
         stop, rx = self.check_complex_entries(
-            self.lineEdit_real_rx, self.lineEdit_imag_rx, "Rx"
+            self.lineEdit_real_Rx, self.lineEdit_imag_Rx, "Rx"
         )
         if stop:
             return
         stop, ry = self.check_complex_entries(
-            self.lineEdit_real_ry, self.lineEdit_imag_ry, "Ry"
+            self.lineEdit_real_Ry, self.lineEdit_imag_Ry, "Ry"
         )
         if stop:
             return
         stop, rz = self.check_complex_entries(
-            self.lineEdit_real_rz, self.lineEdit_imag_rz, "Rz"
+            self.lineEdit_real_Rz, self.lineEdit_imag_Rz, "Rz"
         )
         if stop:
             return
