@@ -641,11 +641,11 @@ class GeometryHandler:
             if "valve_info" in structure.extra_info.keys():
                 valve_info[tag] = structure.extra_info["valve_info"]
 
-            if "psd_name" in structure.extra_info.keys():
-                psd_info[tag] = structure.extra_info["psd_name"]
+            if "psd_label" in structure.extra_info.keys():
+                psd_info[tag] = structure.extra_info["psd_label"]
             
-            if "pulsation_damper_name" in structure.extra_info.keys():
-                pulsation_damper_info[tag] = structure.extra_info
+            if "pulsation_damper_label" in structure.extra_info.keys():
+                pulsation_damper_info[tag] = structure.extra_info["pulsation_damper_label"]
 
             tag += 1
 
@@ -680,10 +680,10 @@ class GeometryHandler:
             self.project.model.properties._set_line_property("valve_info", valve_data, line_ids=line_id)
 
         for line_id, psd_label in psd_info.items():
-            self.project.model.properties._set_line_property("psd_name", psd_label, line_ids=line_id)
+            self.project.model.properties._set_line_property("psd_label", psd_label, line_ids=line_id)
                 
         for line_id, damper_label in pulsation_damper_info.items():
-            self.project.model.properties._set_line_property("pulsation_damper_name", damper_label, line_ids=line_id)
+            self.project.model.properties._set_line_property("pulsation_damper_label", damper_label, line_ids=line_id)
 
 
         self.project.file.write_line_properties_in_file()

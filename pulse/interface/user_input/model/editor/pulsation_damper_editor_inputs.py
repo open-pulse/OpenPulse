@@ -721,7 +721,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
                     "section_type_label": "pipe",
                     "section_parameters": section_data,
                     "structural_element_type": "pipe_1",
-                    "pulsation_damper_name": damper_label,
+                    "pulsation_damper_label": damper_label,
                     "pulsation_damper_segment": segment_label,
                     "fluid_id": fluid_id,
                 }
@@ -764,8 +764,9 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         remove_gaps = False
         for line_id, data in lines_data.items():
-            if "pulsation_damper_name" in data.keys():
-                if data["pulsation_damper_name"] in damper_labels:
+            if "pulsation_damper_label" in data.keys():
+                pulsation_damper_info = data["pulsation_damper_label"]
+                if pulsation_damper_info["pulsation_damper_label"] in damper_labels:
                     self.properties._remove_line(line_id)
                     line_nodes = self.preprocessor.mesh.nodes_from_line[int(line_id)]
                     self.nodes_from_removed_lines.extend(list(line_nodes))
@@ -791,7 +792,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             data = {
                 "correction_type": _type,
                 "coords": list(np.round(coords, 5)),
-                "pulsation_damper_name": damper_label,
+                "pulsation_damper_label": damper_label,
             }
 
             self.preprocessor.set_element_length_correction_by_element(element_ids, data)
@@ -803,10 +804,10 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         for (_property, element_id), data in self.properties.element_properties.items():
             if _property == "element_length_correction":
                 data: dict
-                if "pulsation_damper_name" in data.keys():
+                if "pulsation_damper_label" in data.keys():
                     if damper_label == "_remove_all_":
                         element_ids.append(element_id)
-                    elif damper_label == data["pulsation_damper_name"]:
+                    elif damper_label == data["pulsation_damper_label"]:
                         element_ids.append(element_id)
 
         self.preprocessor.set_element_length_correction_by_element(element_ids, None)

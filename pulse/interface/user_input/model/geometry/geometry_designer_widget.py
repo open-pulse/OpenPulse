@@ -598,34 +598,34 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
                     app().project.model.properties._remove_line(tag)
 
         selected_device_type = None
-        selected_device_name = None
+        selected_device_label = None
 
         for structure in self.pipeline.structures:
             if (
-                "psd_name" not in structure.extra_info
-                and "pulsation_damper_name" not in structure.extra_info
+                "psd_label" not in structure.extra_info
+                and "pulsation_damper_label" not in structure.extra_info
             ):
                 continue
 
             if structure.selected:
-                if "psd_name" in structure.extra_info:
+                if "psd_label" in structure.extra_info:
                     selected_device_type = "psd"
-                    selected_device_name = structure.extra_info["psd_name"]
+                    selected_device_label = structure.extra_info["psd_label"]
                 else:
                     selected_device_type = "damper"
-                    selected_device_name = structure.extra_info["pulsation_damper_name"]
+                    selected_device_label = structure.extra_info["pulsation_damper_label"]
 
                 break
 
             for point in structure.get_points():
                 if point in self.pipeline.selected_points:
-                    if "psd_name" in structure.extra_info:
+                    if "psd_label" in structure.extra_info:
                         selected_device_type = "psd"
-                        selected_device_name = structure.extra_info["psd_name"]
+                        selected_device_label = structure.extra_info["psd_label"]
                     else:
                         selected_device_type = "damper"
-                        selected_device_name = structure.extra_info[
-                            "pulsation_damper_name"
+                        selected_device_label = structure.extra_info[
+                            "pulsation_damper_label"
                         ]
 
                     break
@@ -658,12 +658,12 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
 
             if selected_device_type == "psd":
                 app().main_window.input_ui.pulsation_suppression_device_editor(
-                    device_to_delete=selected_device_name
+                    device_to_delete=selected_device_label
                 )
 
             elif selected_device_type == "damper":
                 app().main_window.input_ui.pulsation_damper_editor(
-                    device_to_delete=selected_device_name
+                    device_to_delete=selected_device_label
                 )
 
         self._reset_xyz()
@@ -937,14 +937,14 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         for point in self.pipeline.selected_points:
             structures = self.pipeline.get_structures_of_point(point)
             for structure in structures:
-                if "psd_name" in structure.extra_info.keys():
+                if "psd_label" in structure.extra_info.keys():
                     line_properties = app().project.model.properties.line_properties
                     if structure.tag in line_properties:
                         psd_segment = line_properties[structure.tag].get("psd_segment")
                         if psd_segment in forbidden_parts:
                             return True
 
-                elif "pulsation_damper_name" in structure.extra_info.keys():
+                elif "pulsation_damper_label" in structure.extra_info.keys():
                     line_properties = app().project.model.properties.line_properties
                     if structure.tag in line_properties:
                         damper_segment = line_properties[structure.tag].get(

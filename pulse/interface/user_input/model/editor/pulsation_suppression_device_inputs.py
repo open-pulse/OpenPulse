@@ -804,7 +804,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
                     "section_type_label": "pipe",
                     "section_parameters": section_data,
                     "structural_element_type": "pipe_1",
-                    "psd_name": psd_label,
+                    "psd_label": psd_label,
                     "psd_segment": segment_label,
                 }
 
@@ -818,7 +818,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
                 coords.extend(self.get_values(end_coords))
 
                 link = {
-                    "psd_name": psd_label,
+                    "psd_label": psd_label,
                     "coords": coords,
                     "link_type": section_data,
                 }
@@ -877,8 +877,8 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
 
         remove_gaps = False
         for line_id, data in lines_data.items():
-            if "psd_name" in data.keys():
-                if data["psd_name"] in psd_labels:
+            if "psd_label" in data.keys():
+                if data["psd_label"] in psd_labels:
                     self.properties._remove_line(line_id)
                     line_nodes = self.preprocessor.mesh.nodes_from_line[int(line_id)]
                     self.nodes_from_removed_lines.extend(list(line_nodes))
@@ -895,8 +895,8 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
 
         aux = self.properties.nodal_properties.copy()
         for (property, *args), data in aux.items():
-            if "psd_name" in data.keys():
-                if data["psd_name"] in psd_labels:
+            if "psd_label" in data.keys():
+                if data["psd_label"] in psd_labels:
                     self.properties._remove_nodal_property(property, args)
 
             else:
@@ -926,7 +926,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
             data = {
                 "correction_type": _type,
                 "coords": list(np.round(coords, 5)),
-                "psd_name": psd_label,
+                "psd_label": psd_label,
             }
 
             self.preprocessor.set_element_length_correction_by_element(element_ids, data)
@@ -938,10 +938,10 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         for (_property, element_id), data in self.properties.element_properties.items():
             if _property == "element_length_correction":
                 data: dict
-                if "psd_name" in data.keys():
+                if "psd_label" in data.keys():
                     if psd_label == "_remove_all_":
                         element_ids.append(element_id)
-                    elif psd_label == data["psd_name"]:
+                    elif psd_label == data["psd_label"]:
                         element_ids.append(element_id)
 
         self.preprocessor.set_element_length_correction_by_element(element_ids, None)

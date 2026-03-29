@@ -1,21 +1,22 @@
 # fmt: off
 
+from typing import TYPE_CHECKING
+
 from pulse import version
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
+from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.model.perforated_plate import PerforatedPlate
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.common_utils import get_color_rgb
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.project.project import Project
 
 import logging
-import numpy as np
-
 from collections import defaultdict
+
+import numpy as np
 from packaging.version import Version
 
 window_title_1 = "Error"
@@ -540,21 +541,20 @@ class LoadProject:
         for line_id, data in self.properties.line_properties.items():
 
             data: dict
-            if "psd_name" in data.keys():
-                psd_name = data["psd_name"]
-                psd_lines[psd_name].append(line_id)
+            if "psd_label" in data.keys():
+                psd_label = data["psd_label"]
+                psd_lines[psd_label].append(line_id)
 
         return psd_lines
 
 
     def get_pulsation_damper_related_lines(self):
-
         pulsation_damper_lines = defaultdict(list)
         for line_id, data in self.properties.line_properties.items():
 
             data: dict
-            if "pulsation_damper_name" in data.keys():
-                pulsation_damper_name = data["pulsation_damper_name"]
+            if "pulsation_damper_label" in data.keys():
+                pulsation_damper_name = data["pulsation_damper_label"]
                 pulsation_damper_lines[pulsation_damper_name].append(line_id)
 
         return pulsation_damper_lines
