@@ -140,6 +140,9 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.lineEdit_device_label.setFocus()
         self.lineEdit_selection.setDisabled(True)
         self.pushButton_remove.setDisabled(True)
+        self.pushButton_edit.setDisabled(True)
+        self.pushButton_copy.setDisabled(True)
+
         #
         self.config_treeWidget()
 
@@ -285,15 +288,18 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
 
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
+        self.pushButton_edit.setDisabled(True)
+        self.pushButton_copy.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 0:
-            self.pushButton_exit.setDisabled(False)
             self.pushButton_create_psd.setDisabled(False)
         else:
-            self.pushButton_exit.setDisabled(True)
             self.pushButton_create_psd.setDisabled(True)
 
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
+        self.pushButton_edit.setDisabled(False)
+        self.pushButton_copy.setDisabled(False)
+
         self.lineEdit_selection.setText(item.text(0))
 
         if item.text(0) in self.psds_lines.keys():
@@ -964,6 +970,9 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.actions_to_finalize()
         app().main_window.update_plots()
         self.pushButton_remove.setDisabled(True)
+        self.pushButton_edit.setDisabled(True)
+        self.pushButton_copy.setDisabled(True)
+
 
     def reset_callback(self):
         self.hide()
@@ -1206,6 +1215,8 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
 
         self.tabWidget_main.setTabVisible(1, True)
         self.tabWidget_main.setCurrentIndex(0)
+
+        self.pushButton_reset.setEnabled(bool(self.psds_data))
 
     def get_device_tag(self):
         index = 1
