@@ -421,10 +421,8 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.pushButton_edit.setDisabled(True)
         self.pushButton_copy.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 0:
-            self.pushButton_exit.setDisabled(False)
             self.pushButton_create.setDisabled(False)
         else:
-            self.pushButton_exit.setDisabled(True)
             self.pushButton_create.setDisabled(True)
 
     def on_click_item(self, item):
