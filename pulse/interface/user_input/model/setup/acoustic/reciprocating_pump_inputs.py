@@ -14,15 +14,23 @@ from pulse.interface.user_input.common import update_analysis_setup_in_file
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
 
-
 import numpy as np
-
-error_title = "Error"
-warning_title = "Warning"
+from enum import IntEnum
 
 psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
+
+
+class TabIndex(IntEnum):
+    SETUP = 0
+    ADVANCED_OPTIONS = 1
+    REMOVE = 2
+
+
+error_title = "Error"
+warning_title = "Warning"
+
 
 class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
     def __init__(self, *args, **kwargs):
@@ -34,7 +42,6 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self._initialize()
         self._create_connections()
         self._config_widget()
-        self.selection_callback()
         self.load_reciprocating_pump_excitation_info()
 
         while self.keep_window_open:
@@ -50,9 +57,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         self.complete = False
         self.keep_window_open = True
-
         self.aquisition_parameters_processed = False
-        self.not_update_event = False
 
         self.before_run = app().project.get_pre_solution_model_checks()    
 
@@ -108,6 +113,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.update_compressing_cylinders_setup()
         self.spinBox_event_number_of_cylinders()
         self.fluid_data_source_callback()
+        self.selection_callback()
 
     def fluid_data_source_callback(self):
 
@@ -124,33 +130,25 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
     def selection_callback(self):
 
         selected_nodes = app().main_window.list_selected_nodes()
+        if len(selected_nodes) != 1:
+            return
 
-        if len(selected_nodes) == 1:
+        self.lineEdit_selected_node_id.setText(str(selected_nodes[0]))
+        stop, node_id = self.check_node_id(self.lineEdit_selected_node_id)
 
-            self.lineEdit_selected_node_id.setText(str(selected_nodes[0]))
-            stop, node_id = self.check_node_id(self.lineEdit_selected_node_id)
+        if stop:
+            self.lineEdit_selected_node_id.setFocus()
+            return True
 
-            if stop:
-                self.lineEdit_selected_node_id.setFocus()
-                return True
+        data = self.properties._get_property("reciprocating_pump_excitation", node_ids=node_id)
 
-            data = self.properties._get_property("reciprocating_pump_excitation", node_ids=node_id)
-
-            if isinstance(data, dict):
-                self.update_pump_inputs(data)
+        if isinstance(data, dict):
+            self.update_pump_inputs(data)
 
     def tab_event_callback(self):
-        # self.lineEdit_selected_surface_id.setText("")
-        # self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
-        return
-
-        if self.tabWidget_compressor.currentIndex() == 2:
-            self.pushButton_exit.setDisabled(True)
-            self.pushButton_confirm.setDisabled(True)
-        else:
-            self.pushButton_exit.setDisabled(False)
-            self.pushButton_confirm.setDisabled(False)
+        tab_setup = self.tabWidget_main.currentIndex() == TabIndex.SETUP
+        self.pushButton_confirm.setDisabled(tab_setup)
 
     def pressure_unit_callback(self):
         unit_label = self.comboBox_pressure_units.currentText()
@@ -766,22 +764,21 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.update_tabs_visibility()
 
     def on_click_item(self, item):
+        self.pushButton_remove.setDisabled(False)
         self.lineEdit_selected_node_id.setText(item.text(0))
         self.lineEdit_connection_type.setText(item.text(1))
-        self.pushButton_remove.setDisabled(False)
 
     def update_tabs_visibility(self):
-        self.lineEdit_selected_node_id.setText("")
-        self.lineEdit_connection_type.setText("")
         self.pushButton_remove.setDisabled(True)
         for (property, *_) in self.properties.nodal_properties.keys():
             if property == "reciprocating_pump_excitation":
-                self.tabWidget_main.setCurrentIndex(0)
-                self.tabWidget_main.setTabVisible(2, True)
+                self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+                self.tabWidget_main.setTabVisible(TabIndex.REMOVE, True)
                 return
 
-        self.tabWidget_main.setCurrentIndex(0)
-        self.tabWidget_main.setTabVisible(2, False)
+        self.lineEdit_connection_type.setText("")
+        self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+        self.tabWidget_main.setTabVisible(TabIndex.REMOVE, False)
 
     def pulsation_damper_calculator_callback(self):
         self.hide()

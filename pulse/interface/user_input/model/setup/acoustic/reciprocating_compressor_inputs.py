@@ -51,9 +51,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         self.complete = False
         self.keep_window_open = True
-
         self.aquisition_parameters_processed = False
-        self.not_update_event = False
 
         self.before_run = app().project.get_pre_solution_model_checks()    
 
