@@ -150,6 +150,7 @@ class Mesh:
             gmsh.model.occ.removeAllDuplicates() 
             gmsh.model.occ.synchronize()
 
+            # generate the mesh for dim=3
             gmsh.model.mesh.generate(3)
 
             node_indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)

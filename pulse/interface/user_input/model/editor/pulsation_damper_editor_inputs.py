@@ -116,7 +116,8 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.nodes_from_removed_lines = list()
 
     def _configure_widgets(self):
-
+        
+        # disable the connecting coordinates QLineEdits to prevent the user from typing
         self.lineEdit_connecting_coord_x.setDisabled(True)
         self.lineEdit_connecting_coord_y.setDisabled(True)
         self.lineEdit_connecting_coord_z.setDisabled(True)
@@ -267,9 +268,9 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         app().main_window.geometry_widget.left_released.connect(self.selection_callback)
 
     def load_nodal_coordinates_of_selected_point(self, selection: Node | Point):
-        self.lineEdit_connecting_coord_x.setText(f"{selection.x:.5f}")
-        self.lineEdit_connecting_coord_y.setText(f"{selection.y:.5f}")
-        self.lineEdit_connecting_coord_z.setText(f"{selection.z:.5f}")
+        self.lineEdit_connecting_coord_x.setText(f"{selection.x:.6f}")
+        self.lineEdit_connecting_coord_y.setText(f"{selection.y:.6f}")
+        self.lineEdit_connecting_coord_z.setText(f"{selection.z:.6f}")
 
     def update_sections_info_callback(self):
         if self.comboBox_volume_sections.currentIndex() == VolumeSections.DISTINCT:
