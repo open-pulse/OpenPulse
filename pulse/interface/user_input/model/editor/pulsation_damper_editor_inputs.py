@@ -3,6 +3,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
     QComboBox,
+    QHeaderView,
     QLineEdit,
     QTreeWidgetItem,
 )
@@ -308,12 +309,13 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.config_treeWidget()
 
     def config_treeWidget(self):
-        widths = [120, 140, 160, 40]
+
         header_labels = ["Label", "Damper type", "Gas volume [m³]", "Lines"]
         for col, label in enumerate(header_labels):
             self.treeWidget_pulsation_damper_info.headerItem().setText(col, label)
             self.treeWidget_pulsation_damper_info.headerItem().setTextAlignment(col, Qt.AlignCenter)
-            self.treeWidget_pulsation_damper_info.setColumnWidth(col, widths[col])
+
+        self.treeWidget_pulsation_damper_info.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
     def get_liquid_fluid_callback(self):
         self.fluid_state = "liquid"

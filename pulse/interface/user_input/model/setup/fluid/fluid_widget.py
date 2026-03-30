@@ -1,18 +1,18 @@
-from PySide6.QtWidgets import QDialog, QTableWidgetItem, QHeaderView
+from PySide6.QtWidgets import QDialog, QHeaderView, QTableWidgetItem
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 
 from pulse import app, TEMP_PROJECT_FILE
-from pulse.interface.ui_generated.model.setup.fluid.fluid_input_widget_ui import FluidInputWidget_UI
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_composition_input import SetFluidCompositionInput
 from pulse.utils.common_utils import get_list_of_values_from_string
+from pulse.interface.ui_generated.model.setup.fluid.fluid_input_widget_ui import FluidInputWidget_UI
 
 from pulse.model.properties.fluid import Fluid
 from pulse.libraries.default_libraries import default_fluid_library
-from pulse.interface.formatters.icons import *
+from pulse.interface.formatters.icons import change_icon_color_for_widgets
 
 
 from copy import deepcopy
@@ -22,10 +22,8 @@ from os.path import exists
 
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
 
-COLOR_ROW = 13
 
 def get_color_rgb(color):
     color = color.replace(" ", "")
@@ -35,6 +33,10 @@ def get_color_rgb(color):
     return list(map(int, tokens))
 
 class FluidWidget(FluidInputWidget_UI):
+
+    COLOR_ROW = 13
+
+
     def __init__(self, *argas, **kwargs):
         super().__init__()
         self.dialog = kwargs.get("dialog", None)
@@ -253,7 +255,7 @@ class FluidWidget(FluidInputWidget_UI):
 
         self.tableWidget_fluid_data.clearContents()
         self.tableWidget_fluid_data.blockSignals(True)
-        self.tableWidget_fluid_data.setRowCount(COLOR_ROW + 1)
+        self.tableWidget_fluid_data.setRowCount(self.COLOR_ROW + 1)
         self.tableWidget_fluid_data.setColumnCount(len(self.fluids_library))
 
         for j, fluid in enumerate(self.fluids_library.values()):
@@ -294,7 +296,7 @@ class FluidWidget(FluidInputWidget_UI):
                 item = QTableWidgetItem()
                 item.setBackground(QColor(*fluid.color))
                 item.setForeground(QColor(*fluid.color))
-                self.tableWidget_fluid_data.setItem(COLOR_ROW, j, item)
+                self.tableWidget_fluid_data.setItem(self.COLOR_ROW, j, item)
 
                 if fluid.name in self.fluid_name_to_refprop_data.keys():
                     for i in range(13):
@@ -531,14 +533,14 @@ class FluidWidget(FluidInputWidget_UI):
         row = item.row()
         column = item.column()
 
-        if row < COLOR_ROW - 1:
+        if row < self.COLOR_ROW - 1:
             next_item = self.tableWidget_fluid_data.item(row + 1, column)
             if next_item.text() == "":
                 self.tableWidget_fluid_data.setCurrentItem(next_item)
                 self.tableWidget_fluid_data.editItem(next_item)
 
-        elif row == COLOR_ROW - 1:
-            color_item = self.tableWidget_fluid_data.item(COLOR_ROW, column)
+        elif row == self.COLOR_ROW - 1:
+            color_item = self.tableWidget_fluid_data.item(self.COLOR_ROW, column)
             color = color_item.background().color().getRgb()
             if list(color) == 0:
                 self.pick_color(row + 1, column)
@@ -580,13 +582,13 @@ class FluidWidget(FluidInputWidget_UI):
             return True
 
     def column_has_empty_items(self, column):
-        for row in range(COLOR_ROW + 1):
+        for row in range(self.COLOR_ROW + 1):
 
             item = self.tableWidget_fluid_data.item(row, column)
             if item is None:
                 return True
             
-            if row == COLOR_ROW:
+            if row == self.COLOR_ROW:
                 color = item.background().color().getRgb()
                 if list(color) == 0:
                     return True
@@ -604,7 +606,7 @@ class FluidWidget(FluidInputWidget_UI):
             return True
 
         row = item.row()
-        if row == COLOR_ROW:
+        if row == self.COLOR_ROW:
             return
 
         prop_labels = {
@@ -639,14 +641,14 @@ class FluidWidget(FluidInputWidget_UI):
             message = f"The value typed for '{prop_labels[row]}' "
             message += "must be a non-zero positive number.\n\n"
             message += f"Details: {error_log}"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             item.setText("")
             return True
 
         if value < 0:
             title = "Negative value not allowed"
             message = f"The value typed for '{prop_labels[row]}' must be a non-zero positive number."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             item.setText("")
             return True
 
@@ -695,7 +697,7 @@ class FluidWidget(FluidInputWidget_UI):
         except Exception as error_log:
             title = "Error while writing fluid data in file"
             message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
 
     def remove_fluid_from_file(self, fluid: Fluid):
@@ -714,7 +716,7 @@ class FluidWidget(FluidInputWidget_UI):
         self.load_data_from_fluids_library()
 
     def cell_clicked_callback(self, row, col):
-        if row == COLOR_ROW:
+        if row == self.COLOR_ROW:
             self.pick_color(row, col)
 
     def cell_double_clicked_callback(self, row, col):
