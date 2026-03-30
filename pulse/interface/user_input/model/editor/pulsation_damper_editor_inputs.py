@@ -51,8 +51,9 @@ class PressureUnits(IntEnum):
 
 
 class TemperatureUnits(IntEnum):
-    CELSIUS = 0
-    KELVIN = 1
+    KELVIN = 0
+    CELSIUS = 1
+    FARENHEIT = 2
 
 
 class VolumeSections(IntEnum):
@@ -157,6 +158,8 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         t_max = 1e4
         if self.comboBox_temperature_units.currentIndex() == TemperatureUnits.CELSIUS:
             t_min = -273.15
+        elif self.comboBox_temperature_units.currentIndex() == TemperatureUnits.FARENHEIT:
+            t_min = -459.67
 
         # adjust pressure bounds (p_min -> perfect vacuum)      
         p_min = 0 
@@ -375,7 +378,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         _temp_unit = ["kelvin", "degC", "degF"][tu_index]
 
         if "(g)" in pressure_unit:
-            pressure -= 1 * u_reg.atm
+            pressure -= u_reg("1 atm")
 
         _pressure = pressure.to(_pressure_unit).magnitude
         _temperature = temperature.to(_temp_unit).magnitude
@@ -518,17 +521,20 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         unit_label = self.comboBox_volume_unit.currentText()
 
+        u_reg = UnitRegistry()
         if unit_label == "cubic centimeters":
-            volume_unit_factor = 1e-6
+            cubic_centimeter = u_reg("1 cm**3")
+            volume_unit_factor = cubic_centimeter.to('m**3')
 
         elif unit_label == "liters":
-            volume_unit_factor = 1e-3
+            liter = u_reg("1 liter")
+            volume_unit_factor = liter.to('m**3')
 
         else:
-            volume_unit_factor = 1
+            volume_unit_factor = u_reg("1 m**3")
 
-        self._pulsation_damper_data["damper_volume"] = damper_volume * volume_unit_factor
-        self._pulsation_damper_data["gas_volume"] = gas_volume * volume_unit_factor
+        self._pulsation_damper_data["damper_volume"] = damper_volume * volume_unit_factor.magnitude
+        self._pulsation_damper_data["gas_volume"] = gas_volume * volume_unit_factor.magnitude
 
         if gas_volume > damper_volume:
             self.error_title = "Invalid gas volume"
