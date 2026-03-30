@@ -1,12 +1,12 @@
-from configparser import ConfigParser
 
 from pulse import app
 
+
 def default_material_library():
 
-    config = ConfigParser()
+    material_data = dict()
 
-    config["1"] = {
+    material_data["1"] = {
         "name": "Carbon_steel",
         "identifier": 1,
         "color": "[253, 152, 145]",  # Red level 7
@@ -16,7 +16,7 @@ def default_material_library():
         "thermal_expansion_coefficient": 1.2e-5,
     }
 
-    config["2"] = {
+    material_data["2"] = {
         "name": "Stainless_steel",
         "identifier": 2,
         "color": "[132, 170, 255]",  # Blue level 7
@@ -26,7 +26,7 @@ def default_material_library():
         "thermal_expansion_coefficient": 1.7e-5,
     }
 
-    config["3"] = {
+    material_data["3"] = {
         "name": "Cast_iron",
         "identifier": 3,
         "color": "[184, 172, 246]",  # Purple level 7
@@ -36,7 +36,7 @@ def default_material_library():
         "thermal_expansion_coefficient": 1.1e-5,
     }
 
-    config["4"] = {
+    material_data["4"] = {
         "name": "Aluminum",
         "identifier": 4,
         "color": "[255, 211, 135]",  # Yellow level 7
@@ -46,7 +46,7 @@ def default_material_library():
         "thermal_expansion_coefficient": 2.3e-5,
     }
 
-    config["5"] = {
+    material_data["5"] = {
         "name": "Brass",
         "identifier": 5,
         "color": "[248, 136, 174]",  # Pink level 7
@@ -56,7 +56,7 @@ def default_material_library():
         "thermal_expansion_coefficient": 1.9e-5,
     }
 
-    config["6"] = {
+    material_data["6"] = {
         "name": "Ni-Co-Cr_alloy",
         "identifier": 6,
         "color": "[126, 226, 184]",  # Green level 7
@@ -66,16 +66,16 @@ def default_material_library():
         "thermal_expansion_coefficient": 1.2e-5,
     }    
 
-    app().project.file.write_material_library_in_file(config)
+    app().project.file.write_material_library_in_file(material_data)
 
 
 def default_fluid_library():
 
     # Reference: RefProp v10.0
 
-    config = ConfigParser()
+    fluid_data = dict()
 
-    config["1"] = {
+    fluid_data["1"] = {
         "name": "Air",
         "identifier": 1,
         "color": "[197, 212, 255]",  # Blue level 8
@@ -90,7 +90,7 @@ def default_fluid_library():
         "molar_mass" : 28.958601
     }
 
-    config["2"] = {
+    fluid_data["2"] = {
         "name": "Air",
         "identifier": 2,
         "color": "[73, 143, 255]",  # Blue level 6
@@ -105,7 +105,7 @@ def default_fluid_library():
         "molar_mass" : 28.958601
     }
 
-    config["3"] = {
+    fluid_data["3"] = {
         "name": "Hydrogen",
         "identifier": 3,
         "color": "[155, 225, 216]",  # Turquoise level 8
@@ -120,7 +120,7 @@ def default_fluid_library():
         "molar_mass": 2.01588
     }
 
-    config["4"] = {
+    fluid_data["4"] = {
         "name": "Hydrogen",
         "identifier": 4,
         "color": "[54, 160, 148]",  # Turquoise level 6
@@ -135,7 +135,7 @@ def default_fluid_library():
         "molar_mass": 2.01588
     }
 
-    config["5"] = {
+    fluid_data["5"] = {
         "name": "Methane",
         "identifier": 5,
         "color": "[186, 243, 219]",  # Green level 8
@@ -150,4 +150,37 @@ def default_fluid_library():
         "molar_mass": 16.0428
     }
 
-    app().project.file.write_fluid_library_in_file(config)
+    fluid_data["6"] = {
+        "name": "water (damper)",
+        "identifier": 6,
+        "color": "[0, 85, 255]",  # Blue shade color
+        "density": 995.34801025,
+        "speed_of_sound": 1557.37827399,
+        "isentropic_exponent": 1.03333645,
+        "thermal_conductivity": 6.40948452e-01,
+        "specific_heat_Cp": 4152.87289835,
+        "dynamic_viscosity": float(5.97848128e-04),
+        "adiabatic_bulk_modulus": 2414144026.336038,
+        "vapor_pressure": 9595.337826781679,
+        "temperature": 318.15,
+        "pressure": 1.20e+07,
+        "molar_mass": 18.015268
+    }
+
+    fluid_data["7"] = {
+        "name": "N2 (damper)",
+        "identifier": 7,
+        "color": "[255, 241, 52]",  # Yellow shade color
+        "density": 124.25839303,
+        "speed_of_sound": 398.34786089,
+        "isentropic_exponent": 1.56102187,
+        "thermal_conductivity": 3.31592760e-02,
+        "specific_heat_Cp": 1195.37943997,
+        "dynamic_viscosity": float(2.11127851e-05),
+        "adiabatic_bulk_modulus": 19717448.33491681,
+        "temperature": 318.15,
+        "pressure": 1.20e+07,
+        "molar_mass": 28.01348
+    }
+
+    app().project.file.write_fluid_library_in_file(fluid_data)
