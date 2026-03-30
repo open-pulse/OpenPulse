@@ -22,7 +22,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.viewer_3d.render_widgets.psd_preview_render_widget import (
     PSDPreviewRenderWidget,
 )
-
+import re
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
@@ -318,23 +318,40 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         elif index == 2:
             self.lineEdit_rotation_plane.setText("XY-plane")
     
-    def update_psd_label(self):
-        psd_label = self.lineEdit_device_label.text()
-        if psd_label in self.psds_data.keys():
-            sufix = 0
-            max_iter = 100
-            _psd_label = psd_label
 
-            while _psd_label in self.psds_data.keys() and sufix < max_iter:
-                sufix += 1
-                _psd_label = psd_label + f"_{sufix}"
+    def get_duplicated_name(self, name: str) -> str:
+        ends_with_copy_pattern = re.compile(r"\(\d+\)")
+        digits_pattern = re.compile(r"\d+")
 
-            if _psd_label in self.psds_data.keys():
-                psd_label = ""
-            else:
-                psd_label = _psd_label
+        def decouple_copy(text: str) -> tuple[str, str]:
+            match = ends_with_copy_pattern.search(text)
+            if match is None:
+                return text, ""
 
-        self.lineEdit_device_label.setText(psd_label)
+            suffix = match.group().strip()
+            preffix = text[: -len(suffix)].strip()
+            return preffix, suffix
+
+        def get_copy_number(copy_text: str) -> int:
+            match = digits_pattern.search(copy_text)
+            if match is None:
+                return -1
+            return int(match.group())
+
+        preffix, suffix = decouple_copy(name)
+        max_copy = get_copy_number(suffix)
+
+        for name in self.psds_data.keys():
+            item_preffix, item_suffix = decouple_copy(name)
+            if item_preffix == preffix:
+                copy_number = get_copy_number(item_suffix)
+                max_copy = max(max_copy, copy_number)
+
+        name = f"{preffix} ({max_copy + 1})"
+
+        self.lineEdit_device_label.setText(name)
+
+
 
     def check_psd_label(self):
         psd_label = self.lineEdit_device_label.text()
@@ -346,14 +363,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
             return True, None
 
         elif psd_label in self.psds_data.keys():
-            # self.lineEdit_device_label.setFocus()
-
-            # title = "Invalid input"
-            # message = "The typed 'device label' has already been applied to other PSD. "
-            # message += "You should enter a different label to proceed with the PSD configuration."
-            # PrintMessageInput([window_title_2, title, message])
-            # return True, None
-            self.update_psd_label()
+            self.get_duplicated_name(psd_label)
             psd_label = self.lineEdit_device_label.text()
             return False, psd_label
 

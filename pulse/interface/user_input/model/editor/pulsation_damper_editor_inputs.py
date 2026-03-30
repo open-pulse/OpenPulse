@@ -22,6 +22,8 @@ from pulse.interface.ui_generated.model.editor.pulsation_damper_editor_inputs_ui
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 
+import re
+
 from pulse.model.node import Node
 from pulse.editor.structures.point import Point
 
@@ -79,7 +81,6 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         self.load_pulsation_damper_info()
         self.process_line_edits()
-        self.update_pulsation_damper_label()
         self.preview_callback()
         self.automatic_preview()
         self._store_deafult_parameters()
@@ -978,23 +979,37 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         self.pushButton_reset.setEnabled(bool(self.dampers_data))
 
-    def update_pulsation_damper_label(self):
-        damper_label = self.lineEdit_damper_label.text()
-        if damper_label in self.dampers_data.keys():
-            sufix = 0
-            max_iter = 100
-            _damper_label = damper_label
+    def get_duplicated_name(self, name: str) -> str:
+        ends_with_copy_pattern = re.compile(r"\(\d+\)")
+        digits_pattern = re.compile(r"\d+")
 
-            while _damper_label in self.dampers_data.keys() and sufix < max_iter:
-                sufix += 1
-                _damper_label = damper_label + f"_{sufix}"
+        def decouple_copy(text: str) -> tuple[str, str]:
+            match = ends_with_copy_pattern.search(text)
+            if match is None:
+                return text, ""
 
-            if _damper_label in self.dampers_data.keys():
-                damper_label = ""
-            else:
-                damper_label = _damper_label
+            suffix = match.group().strip()
+            preffix = text[: -len(suffix)].strip()
+            return preffix, suffix
 
-        self.lineEdit_damper_label.setText(damper_label)
+        def get_copy_number(copy_text: str) -> int:
+            match = digits_pattern.search(copy_text)
+            if match is None:
+                return -1
+            return int(match.group())
+
+        preffix, suffix = decouple_copy(name)
+        max_copy = get_copy_number(suffix)
+
+        for name in self.dampers_data.keys():
+            item_preffix, item_suffix = decouple_copy(name)
+            if item_preffix == preffix:
+                copy_number = get_copy_number(item_suffix)
+                max_copy = max(max_copy, copy_number)
+
+        name = f"{preffix} ({max_copy + 1})"
+
+        self.lineEdit_damper_label.setText(name)
 
     def check_pulsation_damper_label(self):
         message = ""
@@ -1006,7 +1021,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             message = "Enter a damper label to proceed."
 
         elif damper_label in self.dampers_data.keys():
-            self.update_pulsation_damper_label()
+            self.get_duplicated_name(damper_label)
             damper_label = self.lineEdit_damper_label.text()
 
         if message != "":
