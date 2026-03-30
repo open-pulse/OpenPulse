@@ -26,6 +26,9 @@ import re
 window_title_1 = "Error"
 window_title_2 = "Warning"
 
+from pulse.interface.user_input.validator import StrictDoubleValidator
+
+
 
 class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
     def __init__(self, *args, device_to_delete=None, **kwargs):
@@ -145,6 +148,33 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
 
         #
         self.config_treeWidget()
+        # 
+        self.configure_static_validators()
+
+
+    def configure_static_validators(self):
+        geometric_data_validator = StrictDoubleValidator(0, 1e8, 8)
+
+        part_key_map = {
+            "volume1": "volume #1 parameters",
+            "volume2": "volume #2 parameters",
+            "pipe1": "pipe #1 parameters",
+            "pipe2": "pipe #2 parameters",
+            "pipe3": "pipe #3 parameters",
+        }
+
+        for part, key in part_key_map.items():
+            for i, variable in enumerate(["diameter", "wall_thickness", "length", "distance"]):
+                obj: QLineEdit
+                name = "lineEdit_" + part + "_" + variable
+                obj = getattr(self, name)
+                
+                obj.setValidator(geometric_data_validator)
+
+        coords_validator = StrictDoubleValidator(-1e8, 1e8, 8)
+        self.lineEdit_connecting_coord_x.setValidator(coords_validator)
+        self.lineEdit_connecting_coord_y.setValidator(coords_validator)
+        self.lineEdit_connecting_coord_z.setValidator(coords_validator)
 
     def config_treeWidget(self):
         widths = [120, 140, 140, 140]
