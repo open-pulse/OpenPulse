@@ -276,20 +276,6 @@ wheels = [
 ]
 
 [[package]]
-name = "fileboxes"
-version = "0.1.4"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "pillow" },
-    { name = "treelib" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0a/c6/5373112c57783bafa154e01f54c83ef3f12cb59dd5108c633dac3998b2d7/fileboxes-0.1.4.tar.gz", hash = "sha256:ff6c42ae07b23a983973b4e123d8061610fdd72899ba8ac10ab739f9fdaa0896", size = 5266, upload-time = "2024-12-17T19:08:18.183Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e2/35/e03698bf45ff058c13bcbb61cfab15ee720acd7243a105d519267b3bf34d/fileboxes-0.1.4-py3-none-any.whl", hash = "sha256:808a03c281def30d5457102b58dd8d557c76a1f5322a30d4ab8ac6ec32cc3286", size = 6804, upload-time = "2024-12-17T19:08:16.928Z" },
-]
-
-[[package]]
 name = "fonttools"
 version = "4.57.0"
 source = { registry = "https://pypi.org/simple" }
@@ -958,7 +944,6 @@ source = { editable = "." }
 dependencies = [
     { name = "ctrefprop" },
     { name = "fastexcel" },
-    { name = "fileboxes" },
     { name = "gmsh" },
     { name = "h5py" },
     { name = "matplotlib" },
@@ -993,7 +978,6 @@ dev = [
 requires-dist = [
     { name = "ctrefprop", specifier = ">=0.10.2,<0.11" },
     { name = "fastexcel", specifier = ">=0.19.0" },
-    { name = "fileboxes", specifier = ">=0.1.4,<0.2" },
     { name = "gmsh", specifier = ">=4.13.1,<5" },
     { name = "h5py", specifier = ">=3.12.1,<4" },
     { name = "matplotlib", specifier = ">=3.7.2,<4" },
@@ -1518,18 +1502,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/a8/4b/29b4ef32e036bb34e4ab51796dd745cdba7ed47ad142a9f4a1eb8e0c744d/tqdm-4.67.1.tar.gz", hash = "sha256:f8aef9c52c08c13a65f30ea34f4e5aac3fd1a34959879d7e59e63027286627f2", size = 169737, upload-time = "2024-11-24T20:12:22.481Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d0/30/dc54f88dd4a2b5dc8a0279bdd7270e735851848b762aeb1c1184ed1f6b14/tqdm-4.67.1-py3-none-any.whl", hash = "sha256:26445eca388f82e72884e0d580d5464cd801a3ea01e63e5601bdff9ba6a48de2", size = 78540, upload-time = "2024-11-24T20:12:19.698Z" },
-]
-
-[[package]]
-name = "treelib"
-version = "1.7.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "six" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ad/e2/aae318906d39f160eb5b1046119da6706588d14f0a2d0fe202c9a0db46dd/treelib-1.7.1.tar.gz", hash = "sha256:a2b57ba38290f7da6af97b41de8ff7be98e7a8c00815f95d0782241f77503952", size = 26014, upload-time = "2025-03-02T03:38:30.69Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/01/da/66fb7b0f91a4329d5e0dd49a7464a1ced62a9d495362ae4c5cc055f268ba/treelib-1.7.1-py3-none-any.whl", hash = "sha256:69aa12559c603273c77580cc86089021756654a754a7c674038de20f9daeafde", size = 19339, upload-time = "2025-03-02T03:38:29.065Z" },
 ]
 
 [[package]]

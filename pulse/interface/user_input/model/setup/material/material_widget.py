@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QDialog, QTableWidgetItem, QHeaderView
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 
-from pulse import app, TEMP_PROJECT_FILE
+from pulse import app, TEMP_PROJECT_DIR
 from pulse.interface.ui_generated.model.setup.material.material_input_widget_ui import MaterialInputWidget_UI
 
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
@@ -110,7 +110,7 @@ class MaterialWidget(MaterialInputWidget_UI):
     
     def load_data_from_materials_library(self):
 
-        if not os.path.exists(TEMP_PROJECT_FILE):
+        if not (TEMP_PROJECT_DIR / "project_setup.json").exists():
             self.reset_library_to_default()
             return
 

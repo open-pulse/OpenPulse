@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QDialog, QTableWidgetItem, QHeaderView
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 
-from pulse import app, TEMP_PROJECT_FILE
+from pulse import app, TEMP_PROJECT_DIR
 from pulse.interface.ui_generated.model.setup.fluid.fluid_input_widget_ui import FluidInputWidget_UI
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
@@ -130,7 +130,7 @@ class FluidWidget(FluidInputWidget_UI):
 
     def load_data_from_fluids_library(self):
 
-        if not exists(TEMP_PROJECT_FILE):
+        if not (TEMP_PROJECT_DIR / "project_setup.json").exists():
             self.reset_library_to_default()
             return
 

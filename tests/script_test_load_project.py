@@ -11,7 +11,6 @@ import pytest
 import numpy as np
 
 from pathlib import Path
-from shutil import copy
 from matplotlib import pyplot as plt
 
 # Setting up model
@@ -21,10 +20,10 @@ def test_coupled_harmonic_analysis(datadir: Path, project_path: str | Path):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
-    
-    ## Copy the project to the temp_pulse folder
-    copy(project_path, project.file.path)
+    project.initialize_pulse_file_and_loader(dir_path=datadir)
+
+    ## Extract the project to the working directory
+    project.file.extract_from_file(project_path)
 
     ## Load project
     project.load_project()

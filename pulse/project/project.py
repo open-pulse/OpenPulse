@@ -1,6 +1,6 @@
 # fmt: off
 
-from pulse import app, TEMP_PROJECT_FILE
+from pulse import app, TEMP_PROJECT_DIR
 from pulse.model import AnalysisID
 from pulse.interface.file.project_file import ProjectFile
 from pulse.project.load_project import LoadProject
@@ -119,8 +119,8 @@ class Project:
     def global_damping(self):
         return self.model.global_damping
 
-    def initialize_pulse_file_and_loader(self, file_path: str=TEMP_PROJECT_FILE):   
-        self.file = ProjectFile(self, file_path) 
+    def initialize_pulse_file_and_loader(self, dir_path: Path=TEMP_PROJECT_DIR):
+        self.file = ProjectFile(self, dir_path)
         self.loader = LoadProject(self)
 
     def initial_load_project_actions(self):
