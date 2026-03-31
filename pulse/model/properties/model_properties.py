@@ -9,18 +9,19 @@ from numbers import Number
 DEFAULT_MATERIAL = Material(
     name="Steel",
     identifier=1,
-    color=(200, 200, 200),
     density=7860,
     elasticity_modulus=210e9,
     poisson_ratio=0.3,
+    thermal_expansion_coefficient=1e-6,
+    color=(200, 200, 200),
 )
 
 DEFAULT_FLUID = Fluid(
     name="Air",
     identifier=1,
-    color=(200, 200, 200),
     density=1.215,
     speed_of_sound=343.2021,
+    color=(200, 200, 200),
 )
 
 
