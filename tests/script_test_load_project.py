@@ -20,7 +20,7 @@ def test_coupled_harmonic_analysis(datadir: Path, project_path: str | Path):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader(dir_path=str(datadir))
+    project.initialize_pulse_file_and_loader(dir_path=datadir)
 
     ## Extract the project to the working directory
     project.file.extract_from_file(project_path)

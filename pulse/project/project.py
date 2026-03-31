@@ -119,7 +119,7 @@ class Project:
     def global_damping(self):
         return self.model.global_damping
 
-    def initialize_pulse_file_and_loader(self, dir_path: str=TEMP_PROJECT_DIR):
+    def initialize_pulse_file_and_loader(self, dir_path: Path=TEMP_PROJECT_DIR):
         self.file = ProjectFile(self, dir_path)
         self.loader = LoadProject(self)
 
