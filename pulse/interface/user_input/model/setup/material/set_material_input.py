@@ -9,8 +9,14 @@ from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from enum import IntEnum
+
+class AssignmentType(IntEnum):
+    ALL_LINES = 0
+    SELECTED_LINES = 1
+
+
+error_title = "Error"
 
 
 class SetMaterialInput(SetMaterial_UI):
@@ -79,16 +85,6 @@ class SetMaterialInput(SetMaterial_UI):
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
-    def attribution_type_callback(self):
-
-        index = self.comboBox_attribution_type.currentIndex()
-        if index == 0:
-            self.lineEdit_selected_id.setText("All lines")
-        elif index == 1:
-            self.selection_callback()
-
-        self.lineEdit_selected_id.setEnabled(bool(index))
-
     def selection_callback(self):
 
         self.comboBox_attribution_type.blockSignals(True)
@@ -99,16 +95,26 @@ class SetMaterialInput(SetMaterial_UI):
             self.lineEdit_selected_id.setText(text)
 
             self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)
+            self.comboBox_attribution_type.setCurrentIndex(AssignmentType.SELECTED_LINES)
 
         else:
 
-            if self.comboBox_attribution_type.currentIndex() == 0:
+            if self.comboBox_attribution_type.currentIndex() == AssignmentType.ALL_LINES:
                 self.attribution_type_callback()
             else:
                 self.lineEdit_selected_id.setText("")
 
         self.comboBox_attribution_type.blockSignals(False)
+
+    def attribution_type_callback(self):
+
+        all_lines = self.comboBox_attribution_type.currentIndex() == AssignmentType.ALL_LINES
+        if all_lines:
+            self.lineEdit_selected_id.setText("All lines")
+        else:
+            self.selection_callback()
+
+        self.lineEdit_selected_id.setEnabled(all_lines)
 
     # def on_cell_clicked(self, row, col):
     #     self.selected_column = col
@@ -143,43 +149,34 @@ class SetMaterialInput(SetMaterial_UI):
             self.hide()
             self.title = "No materials selected"
             self.message = "Select a material in the list before confirming the material attribution."
-            PrintMessageInput([window_title_1, self.title, self.message])
+            PrintMessageInput([error_title, self.title, self.message])
             app().main_window.set_input_widget(self)
             return
 
-        try:
+        all_lines_assignment = self.comboBox_attribution_type.currentIndex() == AssignmentType.ALL_LINES
 
-            if self.comboBox_attribution_type.currentIndex():
+        if all_lines_assignment:
+            line_ids = app().project.model.mesh.lines_from_model
 
-                lineEdit = self.lineEdit_selected_id.text()
-                self.stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
-                if self.stop:
-                    return True
+        else:
+            lineEdit = self.lineEdit_selected_id.text()
+            self.stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
+            if self.stop:
+                return True 
 
-                print("[Set Material] - {} defined in the entities {}".format(selected_material.name, line_ids))
+        app().project.model.preprocessor.set_material_by_lines(line_ids, selected_material)
+        self.properties._set_line_property("material_id", selected_material.identifier, line_ids)
+        self.properties._set_line_property("material", selected_material, line_ids)
+        app().project.file.write_line_properties_in_file()
 
-            else:
+        geometry_handler = GeometryHandler(app().project)
+        geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
+        geometry_handler.process_pipeline()
 
-                line_ids = app().project.model.mesh.lines_from_model
-                print("[Set Material] - {} defined in all entities".format(selected_material.name))
+        if all_lines_assignment:
+            self.close()
 
-            app().project.model.preprocessor.set_material_by_lines(line_ids, selected_material)
-            self.properties._set_line_property("material_id", selected_material.identifier, line_ids)
-            self.properties._set_line_property("material", selected_material, line_ids)
-            app().project.file.write_line_properties_in_file()
-
-            geometry_handler = GeometryHandler(app().project)
-            geometry_handler.set_length_unit(app().project.model.mesh.length_unit)
-            geometry_handler.process_pipeline()
-
-            if self.comboBox_attribution_type.currentIndex() == 0:
-                self.close()
-
-        except Exception as error_log:
-            self.title = "Error detected on material list data"
-            self.message = str(error_log)
-            PrintMessageInput([window_title_1, self.title, self.message])
-            return
+        self.complete = True
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

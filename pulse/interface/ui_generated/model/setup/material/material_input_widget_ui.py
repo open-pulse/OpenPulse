@@ -33,8 +33,8 @@ class Ui_Form(object):
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setMinimumSize(QSize(0, 48))
         self.frame_3.setMaximumSize(QSize(16777215, 48))
-        self.frame_3.setFrameShape(QFrame.NoFrame)
-        self.frame_3.setFrameShadow(QFrame.Raised)
+        self.frame_3.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_3 = QGridLayout(self.frame_3)
         self.gridLayout_3.setSpacing(4)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
@@ -67,8 +67,8 @@ class Ui_Form(object):
 
         self.frame_2 = QFrame(Form)
         self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setFrameShape(QFrame.NoFrame)
-        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.frame_2.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_2 = QGridLayout(self.frame_2)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setHorizontalSpacing(4)
@@ -108,8 +108,8 @@ class Ui_Form(object):
         self.frame_6 = QFrame(self.frame_2)
         self.frame_6.setObjectName(u"frame_6")
         self.frame_6.setMinimumSize(QSize(0, 0))
-        self.frame_6.setFrameShape(QFrame.NoFrame)
-        self.frame_6.setFrameShadow(QFrame.Raised)
+        self.frame_6.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_6.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_5 = QGridLayout(self.frame_6)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.gridLayout_5.setHorizontalSpacing(8)
@@ -145,8 +145,8 @@ class Ui_Form(object):
 
         self.frame_7 = QFrame(self.frame_6)
         self.frame_7.setObjectName(u"frame_7")
-        self.frame_7.setFrameShape(QFrame.NoFrame)
-        self.frame_7.setFrameShadow(QFrame.Raised)
+        self.frame_7.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_7.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout = QGridLayout(self.frame_7)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -166,6 +166,19 @@ class Ui_Form(object):
 
 
         self.gridLayout_5.addWidget(self.frame_7, 0, 0, 1, 1)
+
+        self.pushButton_duplicate = QPushButton(self.frame_6)
+        self.pushButton_duplicate.setObjectName(u"pushButton_duplicate")
+        self.pushButton_duplicate.setMinimumSize(QSize(28, 28))
+        self.pushButton_duplicate.setMaximumSize(QSize(28, 28))
+        self.pushButton_duplicate.setFont(font1)
+        self.pushButton_duplicate.setStyleSheet(u"")
+        icon = QIcon()
+        icon.addFile(u":/icons/mpltoolbar/copy_icon.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.pushButton_duplicate.setIcon(icon)
+        self.pushButton_duplicate.setIconSize(QSize(18, 18))
+
+        self.gridLayout_5.addWidget(self.pushButton_duplicate, 0, 4, 1, 1)
 
 
         self.gridLayout_2.addWidget(self.frame_6, 0, 0, 1, 1)
@@ -223,6 +236,10 @@ class Ui_Form(object):
         self.pushButton_reset_library.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-weight:400;\">Reset to default material library</span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.pushButton_reset_library.setText(QCoreApplication.translate("Form", u"Reset", None))
+#if QT_CONFIG(tooltip)
+        self.pushButton_duplicate.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Duplicate the selected fluid</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.pushButton_duplicate.setText("")
     # retranslateUi
 
 
@@ -246,6 +263,7 @@ class MaterialInputWidget_UI(QWidget, Ui_Form):
                                         - frame_7: QFrame
                                             - (Layout): QGridLayout
                                                     - pushButton_reset_library: QPushButton
+                                        - pushButton_duplicate: QPushButton
     """
 
     def __init__(self, *args, **kwargs):
