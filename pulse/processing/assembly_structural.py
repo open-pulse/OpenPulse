@@ -141,17 +141,19 @@ class AssemblyStructural:
 
         Returns
         ----------
-        K : list
-            List of stiffness matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix.
+        K : csr_matrix
+            The global stiffness matrix of the free DOF.
             
-        M : list
-            List of mass matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix.
+        M : csr_matrix
+            The global stiffness matrix of the free DOF.
 
-        Kr : list
-            List of stiffness matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix.
+        Kr : csr_matrix
+            A dropped version of the global stiffness matrix where the rows
+            refer to the free DOF and the columns to the prescribed DOF.
 
-        Mr : list
-            List of mass matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix.
+        Mr : csr_matrix
+            A dropped version of the global mass matrix where the rows
+            refer to the free DOF and the columns to the prescribed DOF.
         """
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         number_elements = len(self.preprocessor.structural_elements)
