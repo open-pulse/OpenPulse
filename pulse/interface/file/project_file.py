@@ -84,7 +84,7 @@ class ProjectFile:
         suffix = path.suffix.lower()
         if suffix == ".json":
             with open(path, "w", encoding="utf-8") as f:
-                json.dump(data, f)
+                json.dump(data, f, indent=2)
         elif suffix == ".config":
             with open(path, "w", encoding="utf-8") as f:
                 data.write(f)
@@ -647,7 +647,7 @@ class ProjectFile:
         if not cpath.exists():
             return
 
-        fluid_data = self.convert_fluid_data_from_configparser_to_dictionary(cpath, remove_after_convert=False)
+        fluid_data = self.convert_fluid_data_from_configparser_to_dictionary(cpath, remove_after_convert=True)
         if fluid_data:
             self.write_fluid_library_in_file(fluid_data)
 
@@ -657,7 +657,7 @@ class ProjectFile:
         if not cpath.exists():
             return
 
-        material_data = self.convert_material_data_from_configparser_to_dictionary(cpath, remove_after_convert=False)
+        material_data = self.convert_material_data_from_configparser_to_dictionary(cpath, remove_after_convert=True)
         if material_data:
             self.write_material_library_in_file(material_data)
 
@@ -683,7 +683,7 @@ class ProjectFile:
             fluid_parameters = {
                 "name" : section.get("name", ""),
                 "identifier" : identifier,
-                "fluid_density" : float(section.get('fluid_density', -1)),
+                "density" : float(section.get('density', -1)),
                 "speed_of_sound" : float(section.get('speed_of_sound', -1)),
                 "isentropic_exponent" : float(section.get('isentropic_exponent', -1)),
                 "thermal_conductivity" : float(section.get('thermal_conductivity', -1)),
@@ -730,7 +730,7 @@ class ProjectFile:
             material_parameters = {
                 "name" : section.get("name", ""),
                 "identifier" : identifier,
-                "material_density" : float(section.get('material_density', -1)),
+                "density" : float(section.get('density', -1)),
                 "poisson_ratio" : float(section.get('poisson_ratio', -1)),
                 "elasticity_modulus" : float(section.get('elasticity_modulus', -1)),
                 "thermal_expansion_coefficient" : float(section.get('thermal_expansion_coefficient', -1)),
