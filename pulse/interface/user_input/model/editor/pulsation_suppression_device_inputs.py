@@ -587,7 +587,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
     def check_psd_inputs(self):
         self._psd_data = dict()
 
-        main_axis = self.comboBox_main_axis.currentText()[1:]
+        main_axis = self.comboBox_main_axis.currentText()
         self._psd_data['tuned filter'] = self.comboBox_tuned_filter.currentText()
         self._psd_data["main axis"] = main_axis
 
@@ -781,6 +781,10 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
             self.show_errors_for_single_volume_psd_geometric_inputs()
 
     def create_psd_callback(self):
+        if self.edited_psd:
+            if self.previous_psd_label in self.psds_data:
+                self.remove_callback(self.previous_psd_label)
+                
         stop, psd_label = self.check_psd_label()
         if stop:
             return
@@ -799,11 +803,8 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
             if data == self._psd_data:
                 self.psds_data.pop(key)
                 break
-
         self.psds_data[psd_label] = self._psd_data
-        if self.edited_psd:
-            if self.previous_psd_label in self.psds_data:
-                self.remove_callback(self.previous_psd_label)
+
 
         if "volume #2 parameters" in self._psd_data.keys():
             device = DualVolumePSD(self._psd_data)
@@ -1060,7 +1061,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         if idx >= 0:
             self.comboBox_connection_pipe.setCurrentIndex(idx)
 
-        idx = self.comboBox_main_axis.findText(" " + data["main axis"])
+        idx = self.comboBox_main_axis.findText(data["main axis"])
         if idx >= 0:
             self.comboBox_main_axis.setCurrentIndex(idx)
 

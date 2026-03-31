@@ -577,7 +577,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
     def check_pulsation_damper_geometric_inputs(self):
         self._pulsation_damper_data = dict()
-        self._pulsation_damper_data["main_axis"] = self.comboBox_main_axis.currentText()[1:]
+        self._pulsation_damper_data["main_axis"] = self.comboBox_main_axis.currentText()
         self._pulsation_damper_data["damper_type"] = self.comboBox_damper_type.currentText()
 
         if self.check_connecting_coords():
@@ -674,6 +674,10 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
             combo_box.currentIndexChanged.connect(self.preview_callback)
 
     def create_pulsation_damper_callback(self):
+        if self.edited_damper:
+            if self.previous_damper_label in self.dampers_data:
+                self.remove_callback(self.previous_damper_label)
+
         stop, damper_label, _, _, _ = self.check_pulsation_damper_label()
         if stop:
             self.show_error_window_for_label()
@@ -687,10 +691,6 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.dampers_data[damper_label] = self._pulsation_damper_data
 
         self.preview_widget.close_preview()
-
-        if self.edited_damper:
-            if self.previous_damper_label in self.dampers_data:
-                self.remove_callback(self.previous_damper_label)
 
         device = PulsationDamper(self._pulsation_damper_data)
 
@@ -859,7 +859,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         if idx >= 0:
             self.comboBox_damper_type.setCurrentIndex(idx)
 
-        idx = self.comboBox_main_axis.findText(" " + data["main_axis"])
+        idx = self.comboBox_main_axis.findText(data["main_axis"])
         if idx >= 0:
             self.comboBox_main_axis.setCurrentIndex(idx)
 
