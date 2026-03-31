@@ -566,14 +566,16 @@ class Preprocessor:
         if coords in list_coordinates:
             ind = list_coordinates.index(coords)
             external_index = int(external_indexes[ind])
+
         else:
             diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coords), axis=1)
             mask = diff < radius
             try:
-                external_index = int(external_indexes[mask])
-            except:
+                external_index = int(external_indexes[mask].item())
+            except Exception as error_log:
+                logging.error(str(error_log))
                 return None
-        
+
         return external_index
 
     def get_element_center_coordinates_matrix(self):
