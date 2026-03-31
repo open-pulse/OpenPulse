@@ -8,8 +8,14 @@ from pulse.interface.user_input.model.setup.fluid.fluid_widget import FluidWidge
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from enum import IntEnum
+
+class AssignmentType(IntEnum):
+    ALL_LINES = 0
+    SELECTED_LINES = 1
+
+
+error_title = "Error"
 
 
 class SetFluidInput(SetFluidInput_UI):
@@ -96,11 +102,11 @@ class SetFluidInput(SetFluidInput_UI):
             self.lineEdit_selected_id.setText(text)
 
             self.lineEdit_selected_id.setEnabled(True)
-            self.comboBox_attribution_type.setCurrentIndex(1)
+            self.comboBox_attribution_type.setCurrentIndex(AssignmentType.SELECTED_LINES)
 
         else:
 
-            if self.comboBox_attribution_type.currentIndex() == 0:
+            if self.comboBox_attribution_type.currentIndex() == AssignmentType.ALL_LINES:
                 self.attribution_type_callback()
             else:
                 self.lineEdit_selected_id.setText("")
@@ -108,14 +114,14 @@ class SetFluidInput(SetFluidInput_UI):
         self.comboBox_attribution_type.blockSignals(False)
 
     def attribution_type_callback(self):
-
-        index = self.comboBox_attribution_type.currentIndex()
-        if index == 0:
+        
+        all_lines = self.comboBox_attribution_type.currentIndex() == AssignmentType.ALL_LINES
+        if all_lines:
             self.lineEdit_selected_id.setText("All lines")
-        elif index == 1:
+        else:
             self.selection_callback()
 
-        self.lineEdit_selected_id.setEnabled(bool(index))
+        self.lineEdit_selected_id.setEnabled(all_lines)
 
     def current_cell_changed(self, current_row, current_col, previous_row, previous_col):
         self.selected_column = current_col
@@ -143,42 +149,31 @@ class SetFluidInput(SetFluidInput_UI):
             self.hide()
             self.title = "No fluids selected"
             self.message = "Select a fluid in the list before confirming the fluid attribution."
-            PrintMessageInput([window_title_1, self.title, self.message])
+            PrintMessageInput([error_title, self.title, self.message])
             app().main_window.set_input_widget(self)
             return
 
-        try:
+        all_lines_assignment = self.comboBox_attribution_type.currentIndex() == AssignmentType.ALL_LINES
 
-            if self.comboBox_attribution_type.currentIndex():
+        if all_lines_assignment:
+            line_ids = app().project.model.mesh.lines_from_model
 
-                lineEdit = self.lineEdit_selected_id.text()
-                self.stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
-                if self.stop:
-                    return True 
+        else:
+            lineEdit = self.lineEdit_selected_id.text()
+            self.stop, line_ids = self.before_run.check_selected_ids(lineEdit, "lines")
+            if self.stop:
+                return True 
 
-                print("[Set fluid] - {} defined in the entities {}".format(selected_fluid.name, line_ids))
+        app().project.model.preprocessor.set_fluid_by_lines(line_ids, selected_fluid)
+        self.properties._set_line_property("fluid_id", selected_fluid.identifier, line_ids)
+        self.properties._set_line_property("fluid", selected_fluid, line_ids)
+        app().project.file.write_line_properties_in_file()
+        app().main_window.update_plots()
 
-            else:
+        self.complete = True
 
-                line_ids = app().project.model.mesh.lines_from_model
-                print("[Set fluid] - {} defined in all entities".format(selected_fluid.name))
-    
-            app().project.model.preprocessor.set_fluid_by_lines(line_ids, selected_fluid)
-            self.properties._set_line_property("fluid_id", selected_fluid.identifier, line_ids)
-            self.properties._set_line_property("fluid", selected_fluid, line_ids)
-            app().project.file.write_line_properties_in_file()
-            app().main_window.update_plots()
-
-            self.complete = True
-
-            if self.state_properties:
-                self.close()
-
-        except Exception as error_log:
-            title = "Error detected on fluid list data"
-            message = str(error_log)
-            PrintMessageInput([window_title_1, title, message])
-            return
+        if self.state_properties or all_lines_assignment:
+            self.close()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
