@@ -1,6 +1,6 @@
 from pulse import app, version
 from pulse.model import AnalysisID
-from pulse.utils.common_utils import *
+from pulse.utils.common_utils import get_color_rgb, get_list_of_values_from_string
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -36,8 +36,8 @@ class ProjectFile:
     def _default_filenames(self):
 
         self.project_setup_filename = "project_setup.json"
-        self.fluid_library_filename = "fluid_library.config"
-        self.material_library_filename = "material_library.config"
+        self.fluid_library_filename = "fluid_library.json"
+        self.material_library_filename = "material_library.json"
 
         self.nodal_properties_filename = "nodal_properties.json"
         self.element_properties_filename = "element_properties.json"
@@ -123,28 +123,20 @@ class ProjectFile:
             os.makedirs(dirname)
         return dirname
 
-    # def write_imported_table_in_file(self, file_name: str, folder_name: str):
-
-    #     suffix = f"imported_tables/{folder_name}"
-    #     dirname = self.project_folder_path / suffix
-    #     temp_path = dirname / file_name
-    #     internal_path = f"imported_tables/{folder_name}/{file_name}"
-
-    #     self.filebox.write_from_path(internal_path, temp_path)
-    #     self.project_data_modified_callback()
-
     def write_material_library_in_file(self, config):
         self.filebox.write(self.material_library_filename, config)
         self.project_data_modified_callback()
 
-    def read_material_library_from_file(self):
+    def read_material_library_from_file(self) -> dict:
+        self.backward_compatibility_for_materials_data_file()
         return self.filebox.read(self.material_library_filename)
 
     def write_fluid_library_in_file(self, config):
         self.filebox.write(self.fluid_library_filename, config)
         self.project_data_modified_callback()
 
-    def read_fluid_library_from_file(self):
+    def read_fluid_library_from_file(self) -> dict:
+        self.backward_compatibility_for_fluids_data_file()
         return self.filebox.read(self.fluid_library_filename)
 
     def write_psd_data_in_file(self, psds_data: dict):
@@ -558,8 +550,8 @@ class ProjectFile:
             app().project.file.write_line_properties_in_file()
 
     def backward_compatibility_for_fluids_data_file(self):
-        fluid_name = deepcopy(str(self.fluid_library_filename))
-        cpath = Path(self.path) / fluid_name.replace(".json", ".config")
+        filename = deepcopy(str(self.fluid_library_filename))
+        cpath = Path(self.path) / filename.replace(".json", ".config")
         if not cpath.exists():
             return
 
@@ -568,12 +560,14 @@ class ProjectFile:
             self.write_fluid_library_in_file(fluid_data)
 
     def backward_compatibility_for_materials_data_file(self):
-        path = deepcopy(str(self.material_library_filename))
-        cpath = Path(path.replace(".json", ".config"))
-        if cpath.exists():
-            material_data = self.convert_material_data_from_configparser_to_dictionary(cpath, remove_after_convert=False)
-            if material_data:
-                self.write_material_library_in_file(material_data)
+        filename = deepcopy(str(self.material_library_filename))
+        cpath = Path(self.path) / filename.replace(".json", ".config")
+        if not cpath.exists():
+            return
+
+        material_data = self.convert_material_data_from_configparser_to_dictionary(cpath, remove_after_convert=False)
+        if material_data:
+            self.write_material_library_in_file(material_data)
 
     def convert_fluid_data_from_configparser_to_dictionary(self, path: Path, remove_after_convert: bool=False) -> dict:
 

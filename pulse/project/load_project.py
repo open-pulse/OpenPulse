@@ -8,7 +8,6 @@ from pulse.model.cross_section import CrossSection
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.utils.common_utils import get_color_rgb
 
 if TYPE_CHECKING:
     from pulse.project.project import Project
@@ -66,146 +65,43 @@ class LoadProject:
         self.load_inertia_load_setup()
 
 
-    def load_fluids_library(self):
+    def load_fluids_library(self) -> dict:
 
         self.fluids_library = dict()
-        config = self.project.file.read_fluid_library_from_file()
+        fluid_library_data = self.project.file.read_fluid_library_from_file()
+        if fluid_library_data is None:
+            return dict()
 
-        if config is None:
-            return
+        for str_fluid_id, fluid_data in fluid_library_data.items():
+            if not isinstance(fluid_data, dict):
+                continue
 
-        for tag in config.sections():
-
-            section = config[tag]
-            keys = section.keys()
-
-            name = section['name']
-            density =  float(section['density'])
-            speed_of_sound =  float(section['speed_of_sound'])
-            identifier =  int(section['identifier'])
-            color =  get_color_rgb(section['color'])
-
-            if len(color) == 4:
-                color = color[:3]
-
-            if 'isentropic_exponent' in keys:
-                isentropic_exponent = float(section['isentropic_exponent'])
-            else:
-                isentropic_exponent = ""
-
-            if 'thermal_conductivity' in keys:
-                thermal_conductivity = float(section['thermal_conductivity'])
-            else:
-                thermal_conductivity = ""
-
-            if 'specific_heat_Cp' in keys:
-                specific_heat_Cp = float(section['specific_heat_Cp'])
-            else:
-                specific_heat_Cp = ""
-
-            if 'dynamic_viscosity' in keys:
-                dynamic_viscosity = float(section['dynamic_viscosity'])
-            else:
-                dynamic_viscosity = ""
-            
-            if 'temperature' in keys:
-                temperature = float(section['temperature'])
-            else:
-                temperature = None
-
-            if 'pressure' in keys:
-                pressure = float(section['pressure'])
-            else:
-                pressure = None
-
-            # if 'key mixture' in keys:
-            #     key_mixture = section['key mixture']
-            # else:
-            #     key_mixture = None
-
-            # if 'molar fractions' in keys:
-            #     str_molar_fractions = section['molar fractions']
-            #     molar_fractions = get_list_of_values_from_string(str_molar_fractions, int_values=False)
-            # else:
-            #     molar_fractions = None
-
-            if "molar_mass" in keys:
-                if section["molar_mass"] == "None":
-                    molar_mass = None
-                else:
-                    molar_mass = float(section["molar_mass"])
-            else:
-                molar_mass = None
-
-            if 'adiabatic_bulk_modulus' in keys:
-                adiabatic_bulk_modulus = float(section['adiabatic_bulk_modulus'])
-            else:
-                adiabatic_bulk_modulus = None
-
-            if 'vapor_pressure' in keys:
-                vapor_pressure = float(section['vapor_pressure'])
-            else:
-                vapor_pressure = None
-
-            fluid = Fluid(  
-                            name = name,
-                            density = density,
-                            speed_of_sound = speed_of_sound,
-                            color =  color,
-                            identifier = identifier,
-                            isentropic_exponent = isentropic_exponent,
-                            thermal_conductivity = thermal_conductivity,
-                            specific_heat_Cp = specific_heat_Cp,
-                            dynamic_viscosity = dynamic_viscosity,
-                            temperature = temperature,
-                            pressure = pressure,
-                            molar_mass = molar_mass,
-                            adiabatic_bulk_modulus = adiabatic_bulk_modulus,
-                            vapor_pressure = vapor_pressure
-                          )
-
-            self.fluids_library[identifier] = fluid
+            fluid = Fluid(**fluid_data)
+            self.fluids_library[int(str_fluid_id)] = fluid
 
         self.properties.set_fluids_library(self.fluids_library)
+
+        return self.fluids_library
 
 
     def load_materials_library(self):
 
         self.materials_library = dict()
-        config = self.project.file.read_material_library_from_file()
-
-        if config is None:
+        material_library_data = self.project.file.read_material_library_from_file()
+        if material_library_data is None:
             return
 
-        for tag in config.sections():
+        for str_material_id, material_data in material_library_data.items():
+            if not isinstance(material_data, dict):
+                continue
 
-            section = config[tag]
-            # keys = section.keys()
-
-            name = section['name']
-            identifier = int(section['identifier'])
-            density = float(section['density'])
-            poisson_ratio = float(section['poisson_ratio'])
-            elasticity_modulus = float(section['elasticity_modulus']) * 1e9
-            thermal_expansion_coefficient = float(section['thermal_expansion_coefficient'])
-            color =  get_color_rgb(section['color'])
-
-            if len(color) == 4:
-                color = color[:3]
-
-            material = Material(
-                                name = name,
-                                identifier = identifier, 
-                                density = density,
-                                poisson_ratio = poisson_ratio,
-                                elasticity_modulus = elasticity_modulus,
-                                thermal_expansion_coefficient = thermal_expansion_coefficient, 
-                                color = color
-                                )
-            
-            self.materials_library[identifier] = material
+            material = Material(**material_data)
+            self.materials_library[int(str_material_id)] = material
 
         self.properties.set_materials_library(self.materials_library)
+
+        return self.materials_library
+
 
     def check_line_properties(self):
 
