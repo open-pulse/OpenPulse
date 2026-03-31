@@ -732,7 +732,7 @@ class ProjectFile:
                 "identifier" : identifier,
                 "density" : float(section.get('density', -1)),
                 "poisson_ratio" : float(section.get('poisson_ratio', -1)),
-                "elasticity_modulus" : float(section.get('elasticity_modulus', -1)),
+                "elasticity_modulus" : 1e9 * float(section.get('elasticity_modulus', -1)),
                 "thermal_expansion_coefficient" : float(section.get('thermal_expansion_coefficient', -1)),
                 "color" : get_color_rgb(section.get('color')),
                 }

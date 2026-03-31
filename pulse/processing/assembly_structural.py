@@ -135,7 +135,7 @@ class AssemblyStructural:
         return np.delete(all_indexes, self.prescribed_indexes)
 
 
-    def get_global_matrices(self):
+    def get_global_matrices(self) -> list[csr_matrix, csr_matrix, csr_matrix, csr_matrix]:
         """
         This method perform the assembly process of the structural FEM matrices.
 

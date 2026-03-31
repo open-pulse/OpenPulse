@@ -737,10 +737,10 @@ class Project:
         self.structural_solver.get_reactions_at_springs_and_dampers(static_analysis=static_analysis)
 
         self.structural_reactions = {
-                                     "reactions_at_constrained_dofs" : self.structural_solver.reactions_at_constrained_dofs,
-                                     "reactions_at_springs" : self.structural_solver.dict_reactions_at_springs,
-                                     "reactions_at_dampers" : self.structural_solver.dict_reactions_at_dampers,
-                                     }
+            "reactions_at_constrained_dofs" : self.structural_solver.reactions_at_constrained_dofs,
+            "reactions_at_springs" : self.structural_solver.reactions_at_springs,
+            "reactions_at_dampers" : self.structural_solver.reactions_at_dampers,
+            }
 
     def post_solution_actions(self):
 

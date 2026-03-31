@@ -86,7 +86,7 @@ class Fluid:
         """
         return self.specific_heat_Cp * self.dynamic_viscosity / self.thermal_conductivity
 
-    def __eq__(self, other):
+    def __eq__(self, other: "Fluid"):
         self_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]
-        other_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]
+        other_parameters = [v for v in other.__dict__.values() if isinstance(v, (float, int))]
         return allclose(self_parameters, other_parameters)
