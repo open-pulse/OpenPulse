@@ -271,7 +271,7 @@ class AnalysisToolbar(QToolBar):
         self.check_analysis_setup_callback()
 
     def run_analysis(self):
-        # reset the existing project solution data just
+        # reset the existing project solution data
         app().main_window.reset_solution()
         app().project.run_analysis()
         self.post_processing_analysis()
