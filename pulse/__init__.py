@@ -17,7 +17,6 @@ FONT_DIR = OPEN_PULSE_DIR / "interface/data/fonts/"
    
 USER_PATH = Path().home()
 TEMP_PROJECT_DIR = USER_PATH / "temp_pulse"
-TEMP_PROJECT_FILE = str(TEMP_PROJECT_DIR / "tmp.pulse")
 
 LIGHT_ICON_COLOR = Color("#1a73e8")
 DARK_ICON_COLOR = Color("#5F9AF4")
