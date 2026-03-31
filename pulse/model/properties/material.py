@@ -1,48 +1,19 @@
+from dataclasses import dataclass, field
 from numpy import allclose
 
+@dataclass
 class Material:
-    """A material class.
-    This class creates a material object from material properties input data.
-
-    Parameters
-    ----------
-    name : str
-        Text to be used as material's name.
-
-    density : float
-        Material density.
-
-    elasticity_modulus : float, optional
-        Material Young's modulus.
-        Default is None.
-
-    poisson_ratio : float, optional
-        Material Poisson's ratio.
-        Default is None.
-
-    shear_modulus : float, optional
-        Material shear modulus.
-        Default is None.
-
-    color : tuple, optional
-        The color associated with the material. Line objects with this material object attributed will be shown with this color in the UI.
-        Default is None.
-
-    identifier : int, optional
-        Material identifier displayed in the UI list of materials.
-        Default is -1.
     """
-    def __init__(self, name, density, **kwargs):
-        self.name = name
-        self.density = density
-        self.identifier = kwargs.get("identifier", -1)
-        self.elasticity_modulus = kwargs.get("elasticity_modulus", None)
-        self.poisson_ratio = kwargs.get("poisson_ratio", None)
-        self.shear_modulus = kwargs.get("shear_modulus", None)
-        self.color = kwargs.get("color", None)
+    This class creates a material object from material properties input data.
+    """
 
-        self.thermal_expansion_coefficient = kwargs.get('thermal_expansion_coefficient', None)
-        self._calculate_remaining_properties()
+    name: str = None
+    identifier: int = 0
+    density: float = 0.0
+    elasticity_modulus: float = 0.0
+    poisson_ratio: float = 0.0
+    thermal_expansion_coefficient: float = 0.0
+    color: tuple = (0, 0, 0)
 
     @property
     def mu_parameter(self):
@@ -75,6 +46,14 @@ class Material:
         mu_parameter : Evaluate Lamé constant `mu`.
         """
         return (self.poisson_ratio * self.elasticity_modulus) / ((1 + self.poisson_ratio) * (1 - 2 * self.poisson_ratio))
+
+    @property
+    def shear_modulus(self):
+        """
+        This method returns the shear modulus G calculated
+        from the elasticity modulus and poisson ratio.
+        """
+        return self.elasticity_modulus / (2 * (1 + self.poisson_ratio))
 
     def _calculate_remaining_properties(self):
         """
