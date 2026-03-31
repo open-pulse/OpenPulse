@@ -772,14 +772,15 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         remove_gaps = False
         for line_id, data in lines_data.items():
-            if "pulsation_damper_label" in data.keys():
-                pulsation_damper_info = data["pulsation_damper_label"]
-                if pulsation_damper_info["pulsation_damper_label"] in damper_labels:
-                    self.properties._remove_line(line_id)
-                    line_nodes = self.preprocessor.mesh.nodes_from_line[int(line_id)]
-                    self.nodes_from_removed_lines.extend(list(line_nodes))
-                    remove_gaps = True
+            pulsation_damper_label = data.get("pulsation_damper_label")
+            if pulsation_damper_label is None:
+                continue
 
+            if pulsation_damper_label in damper_labels:
+                self.properties._remove_line(line_id)
+                line_nodes = self.preprocessor.mesh.nodes_from_line[int(line_id)]
+                self.nodes_from_removed_lines.extend(list(line_nodes))
+                remove_gaps = True
         app().project.file.write_line_properties_in_file()
 
         if remove_gaps:
