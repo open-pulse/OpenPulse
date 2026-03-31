@@ -273,7 +273,9 @@ class AnalysisToolbar(QToolBar):
     def run_analysis(self):
         # reset the existing project solution data
         app().main_window.reset_solution()
-        app().project.run_analysis()
+        if app().project.run_analysis():
+            return
+
         self.post_processing_analysis()
 
     def post_processing_analysis(self):

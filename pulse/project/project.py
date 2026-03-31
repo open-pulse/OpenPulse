@@ -657,7 +657,7 @@ class Project:
                     sleep(1)
 
     def run_analysis(self):
-        LoadingWindow(self.build_model_and_solve).run()
+        return LoadingWindow(self.build_model_and_solve).run()
 
     def build_model_and_solve(self, running_by_script=False):
 
@@ -668,17 +668,17 @@ class Project:
             message = "Please, it is necessary to choose an analysis type "
             message += "and setup it before trying to solve the model."
             PrintMessageInput([error_title, title, message])
-            return
+            return True
 
         if not running_by_script:
             self.before_run = self.get_pre_solution_model_checks()
             if self.before_run.check_is_there_a_problem(self.analysis_id):
-                return
+                return True
 
         logging.info("Processing the cross-sections [10%]")
         if self.model.preprocessor.process_cross_sections_mapping():
             self.model.preprocessor.stop_processing = False
-            return
+            return True
         
         logging.info("Initializing the problem solver [30%]")
         self.initialize_solver()
