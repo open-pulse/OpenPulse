@@ -78,6 +78,7 @@ class SetMaterialInput(SetMaterial_UI):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_exit.clicked.connect(self.close)
+        self.material_widget.pushButton_reset_library.clicked.connect(self.reset_material_library_callback)
         #
         # self.tableWidget_material_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_material_data.currentCellChanged.connect(self.current_cell_changed)
@@ -177,6 +178,11 @@ class SetMaterialInput(SetMaterial_UI):
             self.close()
 
         self.complete = True
+
+    def reset_material_library_callback(self):
+        self.hide()
+        if self.material_widget.reset_library_callback():
+            app().main_window.update_plots()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

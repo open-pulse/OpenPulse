@@ -66,7 +66,7 @@ class MaterialWidget(MaterialInputWidget_UI):
         self.pushButton_add_column.clicked.connect(self.add_column)
         self.pushButton_duplicate.clicked.connect(self.duplicate_selected_material)
         self.pushButton_remove_column.clicked.connect(self.remove_selected_column)
-        self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
+        # self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
         #
         self.tableWidget_material_data.itemChanged.connect(self.item_changed_callback)
         self.tableWidget_material_data.cellClicked.connect(self.cell_clicked_callback)
@@ -281,7 +281,10 @@ class MaterialWidget(MaterialInputWidget_UI):
             self.tableWidget_material_data.blockSignals(False)
             return
 
-        self.add_material_data_in_file(item.column())
+        material_data = self.get_material_data_for_selected_column(item.column())
+        if self.add_material_data_in_file(material_data):
+            return
+
         self.load_data_from_materials_library()
 
         self.tableWidget_material_data.blockSignals(False)
@@ -299,7 +302,7 @@ class MaterialWidget(MaterialInputWidget_UI):
                 self.tableWidget_material_data.editItem(next_item)
 
         elif row == self.COLOR_ROW - 1:
-            self.pick_color(row + 1, column)
+            self.pick_color_for_item(row + 1, column)
 
     def column_has_invalid_name(self, column):
 
@@ -402,7 +405,7 @@ class MaterialWidget(MaterialInputWidget_UI):
 
     def cell_clicked_callback(self, row, col):
         if row == self.COLOR_ROW:
-            self.pick_color(row, col)
+            self.pick_color_for_item(row, col)
 
     def add_material_data_in_file(self, material_data: dict):
 
@@ -423,6 +426,34 @@ class MaterialWidget(MaterialInputWidget_UI):
 
         # save the modified material data in file
         app().project.file.write_material_library_in_file(material_library_data)
+
+    def get_material_data_for_selected_column(self, column: int):
+        try:
+
+            material_data = dict()
+            for i, key in enumerate(self.material_data_keys):
+                item = self.tableWidget_material_data.item(i, column)
+                if key == "name":
+                    material_data[key] = item.text()
+
+                elif key == "color":
+                    color = item.background().color().getRgb()
+                    material_data[key] = list(color[:3])
+
+                elif key == "identifier":
+                    identifier = int(item.text())
+                    material_data[key] = identifier
+
+                else:
+                    material_data[key] = float(item.text())
+
+            return material_data
+                    
+        except Exception as error_log:
+            title = "Error while writing material data in file"
+            message = str(error_log)
+            PrintMessageInput([error_title, title, message])
+            return None
 
     def remove_material_from_file(self, material: Material):
 
@@ -489,18 +520,31 @@ class MaterialWidget(MaterialInputWidget_UI):
 
         return new_identifiers
 
-    def pick_color(self, row, col):
+    def pick_color(self):
 
-        read = PickColorInput()
-        if not read.complete:
+        if isinstance(self.dialog, QDialog):
+            self.dialog.hide()
+
+        pick = PickColorInput()
+        if not pick.complete:
+            return list(0,0,0)
+
+        return pick.color
+
+    def pick_color_for_item(self, row, col):
+
+        picked_color = self.pick_color()
+        if not picked_color:
             return True
 
-        picked_color = read.color
+        self.set_color_to_item(row, col, picked_color)
+        self.tableWidget_fluid_data.item(row, 0).setSelected(True)
+
+    def set_color_to_item(self, row: int, col: int, rgb_color: list):
         item = QTableWidgetItem()
-        item.setBackground(QColor(*picked_color))
-        item.setForeground(QColor(*picked_color))
-        self.tableWidget_material_data.setItem(row, col, item)
-        self.tableWidget_material_data.item(row, 0).setSelected(True)
+        item.setBackground(QColor(*rgb_color))
+        item.setForeground(QColor(*rgb_color))
+        self.tableWidget_fluid_data.setItem(row, col, item)
 
     def get_selected_material_id(self):
         material = self.get_selected_material()
