@@ -70,6 +70,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.cache_number_of_fluids = None
 
         self.complete = False
+        self.check_ideal_gas = True
         self.keep_window_open = True
 
         self.selected_fluid = ""
@@ -177,12 +178,25 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
     def check_state_properties(self, state_properties: dict):
 
-        self.comboBox_temperature_units.setDisabled(True)
-        self.comboBox_pressure_units.setDisabled(True)
-        self.comboBox_temperature_units.setCurrentIndex(0)
+        # update the editable state of the state properties
+        editable_state = state_properties.get("editable_state", False)
 
-        self.reciprocating_machine = state_properties.get("source")
+        self.comboBox_temperature_units.setEnabled(editable_state)
+        self.comboBox_pressure_units.setEnabled(editable_state)
+
+        self.lineEdit_pressure_left.setEnabled(editable_state)
+        self.lineEdit_temperature_left.setEnabled(editable_state)
+        self.lineEdit_pressure_right.setEnabled(editable_state)
+        self.lineEdit_temperature_right.setEnabled(editable_state)
+
+        self.reciprocating_machine = state_properties.get("source", None)
         self.check_ideal_gas = state_properties.get("check_ideal_gas", True)
+
+        pressure_unit = state_properties.get("pressure_unit", "kgf/cm² (a)")
+        temperature_unit = state_properties.get("temperature_unit", "°C")
+
+        self.comboBox_pressure_units.setCurrentText(pressure_unit)
+        self.comboBox_temperature_units.setCurrentText(temperature_unit)
 
         if self.reciprocating_machine is None:
 
@@ -197,24 +211,18 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
         else:
 
-            self.connection_type = state_properties.get('connection_type')
-            self.T_suction = state_properties.get('temperature_at_suction')
-            self.P_suction = state_properties.get('suction_pressure')
+            self.connection_type = state_properties['connection_type']
+            self.T_suction = state_properties['temperature_at_suction']
+            self.P_suction = state_properties['suction_pressure']
 
-            discharge_side = self.connection_type == "discharge"
+            connected_at_discharge = self.connection_type == "discharge"
 
-            self.label_spacing.setVisible(True)
-            self.label_thermostate_left.setVisible(True)
-            self.label_thermostate_right.setVisible(discharge_side)
+            self.label_thermostate_left.setVisible(connected_at_discharge)
+            self.label_thermostate_right.setVisible(connected_at_discharge)
+            self.label_spacing.setVisible(connected_at_discharge)
 
-            self.lineEdit_pressure_right.setVisible(discharge_side)
-            self.lineEdit_temperature_right.setVisible(discharge_side)
-
-            self.lineEdit_pressure_left.setDisabled(True)
-            self.lineEdit_temperature_left.setDisabled(True)
-
-            self.lineEdit_pressure_right.setDisabled(True)
-            self.lineEdit_temperature_right.setDisabled(True)
+            self.lineEdit_pressure_right.setVisible(connected_at_discharge)
+            self.lineEdit_temperature_right.setVisible(connected_at_discharge)
 
             if 'suction_pressure' in state_properties.keys():
                 self.lineEdit_temperature_left.setText(f"{self.T_suction : .4f}")
@@ -240,6 +248,64 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
                 self.lineEdit_temperature_right.setText("---")
                 self.lineEdit_temperature_right.setToolTip(tool_tip)
+
+
+        # if self.reciprocating_machine is None:
+
+        #     pressure = state_properties.get("pressure", None)
+        #     temperature = state_properties.get("temperature", None)
+
+        #     if isinstance(temperature, (int | float)):
+        #         self.lineEdit_temperature_left.setText(str(round(temperature, 4)))
+
+        #     if isinstance(pressure, (int | float)):
+        #         self.lineEdit_pressure_left.setText(f"{pressure : .8e}")
+
+        # else:
+
+        #     self.connection_type = state_properties.get('connection_type')
+        #     self.T_suction = state_properties.get('temperature_at_suction')
+        #     self.P_suction = state_properties.get('suction_pressure')
+
+        #     discharge_side = self.connection_type == "discharge"
+
+        #     self.label_spacing.setVisible(True)
+        #     self.label_thermostate_left.setVisible(True)
+        #     self.label_thermostate_right.setVisible(discharge_side)
+
+        #     self.lineEdit_pressure_right.setVisible(discharge_side)
+        #     self.lineEdit_temperature_right.setVisible(discharge_side)
+
+        #     self.lineEdit_pressure_left.setDisabled(True)
+        #     self.lineEdit_temperature_left.setDisabled(True)
+
+        #     self.lineEdit_pressure_right.setDisabled(True)
+        #     self.lineEdit_temperature_right.setDisabled(True)
+
+        #     if 'suction_pressure' in state_properties.keys():
+        #         self.lineEdit_temperature_left.setText(f"{self.T_suction : .4f}")
+        #         self.lineEdit_pressure_left.setText(f"{self.P_suction : .8e}")
+
+        #     if 'pressure_ratio' in state_properties.keys():
+        #         self.p_ratio =  state_properties['pressure_ratio']
+        #         self.P_discharge = self.p_ratio * self.P_suction
+
+        #     elif 'discharge_pressure' in state_properties.keys():
+        #         self.P_discharge = state_properties['discharge_pressure']
+
+        #     self.lineEdit_pressure_right.setText(f"{self.P_discharge : .8e}")
+
+        #     if 'temperature_at_discharge' in state_properties.keys():
+        #         self.T_discharge = state_properties[f'temperature_at_discharge']
+        #         self.lineEdit_temperature_right.setText(f"{self.T_discharge : .4f}")
+
+        #     else:
+
+        #         tool_tip = "The temperature at discharge will be "
+        #         tool_tip += "calculated after the fluid definition."
+
+        #         self.lineEdit_temperature_right.setText("---")
+        #         self.lineEdit_temperature_right.setToolTip(tool_tip)
 
     def update_selected_fluid(self, fluid_to_edit: None | Fluid = None ):
 
