@@ -1,13 +1,17 @@
-import numpy as np
 from typing import TypeVar
 
+import numpy as np
+
 from pulse.editor.structures import (
+    Arc,
     Bend,
     CBeam,
     CircularBeam,
     ExpansionJoint,
+    Fillet,
     Flange,
     IBeam,
+    LinearStructure,
     Pipe,
     Point,
     RectangularBeam,
@@ -15,14 +19,10 @@ from pulse.editor.structures import (
     Structure,
     TBeam,
     Valve,
-    LinearStructure,
-    Fillet,
-    Arc,
 )
 from pulse.utils.math_utils import normalize
 
 from .editor import Editor
-
 
 t_structure = TypeVar("t_structure", bound=type[Structure])
 
@@ -32,25 +32,56 @@ class MainEditor(Editor):
         super().__init__(*args, **kwargs)
 
         self.next_border = list()
-    
-    def add_structure_deltas(self, structure_type: t_structure, deltas: tuple[float, float, float], **kwargs) -> list[t_structure]:
+
+    def add_structure_deltas(
+        self,
+        structure_type: t_structure,
+        deltas: tuple[float, float, float],
+        **kwargs,
+    ) -> list[t_structure]:
+
         if not issubclass(structure_type, Structure):
-            return
+            return list()
 
         if issubclass(structure_type, Pipe):
             if self.is_bend_allowed(self.pipeline.selected_points):
                 return self.add_bent_pipe(deltas, **kwargs)
             else:
                 return self.add_pipe(deltas, **kwargs)
-    
+
         elif issubclass(structure_type, Bend):
             return self.add_bend(**kwargs)
-        
+
         elif issubclass(structure_type, LinearStructure):
             return self._add_generic_linear_structure(structure_type, deltas, **kwargs)
-        
+
         elif issubclass(structure_type, Arc):
             return self._add_generic_arc(structure_type, deltas, **kwargs)
+
+    def add_structure_length(
+        self,
+        structure_type: t_structure,
+        length: float,
+        **kwargs,
+    ) -> list[t_structure]:
+
+        if len(self.pipeline.selected_points) != 1:
+            return list()
+
+        point = self.pipeline.selected_points[0]
+        tangent_vectors = self.get_point_tangency(point)
+
+        if len(tangent_vectors) != 1:
+            return list()
+
+        vector = tangent_vectors[0]
+        deltas = vector * length
+
+        return self._add_generic_linear_structure(
+            structure_type,
+            deltas,
+            **kwargs,
+        )
 
     def add_pipe(self, deltas, **kwargs) -> list[Pipe]:
         return self._add_generic_linear_structure(Pipe, deltas, **kwargs)
@@ -212,9 +243,8 @@ class MainEditor(Editor):
             if size:
                 directions.append(vector / size)
 
-
         for structure in self.pipeline.structures_of_type(Arc):
-            center = structure.center 
+            center = structure.center
             if center is None:
                 if id(structure.start) == id(point):
                     vector = point.coords() - structure.end.coords()
@@ -230,9 +260,9 @@ class MainEditor(Editor):
                 continue
 
             if id(structure.start) == id(point):
-               u = normalize(structure.start.coords() - structure.center.coords())
+                u = normalize(structure.start.coords() - structure.center.coords())
             elif id(structure.end) == id(point):
-               u = normalize(structure.end.coords() - structure.center.coords())
+                u = normalize(structure.end.coords() - structure.center.coords())
             else:
                 continue
 
@@ -244,7 +274,7 @@ class MainEditor(Editor):
         for structure in self.pipeline.structures_of_type(Fillet):
             if structure.is_colapsed():
                 continue
-            
+
             if id(structure.start) == id(point):
                 vector = structure.end.coords() - structure.corner.coords()
                 size = np.linalg.norm(vector)
@@ -259,12 +289,7 @@ class MainEditor(Editor):
 
         return directions
 
-    def _add_generic_arc(
-            self, 
-            structure_type: type[Arc], 
-            deltas: tuple[float, float, float], 
-            **kwargs
-    ):
+    def _add_generic_arc(self, structure_type: type[Arc], deltas: tuple[float, float, float], **kwargs):
         if not np.array(deltas).any():  # all zeros
             return []
 
@@ -279,20 +304,15 @@ class MainEditor(Editor):
             tangencies = self.get_point_tangency(point)
             tangency = tangencies[0] if tangencies else np.array([1, 0, 0])
             structure = structure_type.from_tangency(point, next_point, tangency, **kwargs)
-            
+
             self.pipeline.add_structure(structure)
             structures.append(structure)
-        
+
         return structures
 
-    def _add_generic_linear_structure(
-        self, 
-        structure_type: type[LinearStructure], 
-        deltas: tuple[float, float, float], 
-        **kwargs
-    ):
+    def _add_generic_linear_structure(self, structure_type: type[LinearStructure], deltas: tuple[float, float, float], **kwargs):
         if not np.array(deltas).any():  # all zeros
-            return []
+            return list()
 
         if not self.pipeline.selected_points:
             self.pipeline.select_last_point()
@@ -345,4 +365,3 @@ class MainEditor(Editor):
             dangling = False
 
         return vec_a, vec_b, dangling
-    
