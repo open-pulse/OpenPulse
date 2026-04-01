@@ -28,6 +28,11 @@ class TabIndex(IntEnum):
     REMOVE = 2
 
 
+class ConnectionType(IntEnum):
+    SUCTION = 0
+    DISCHARGE = 1
+
+
 error_title = "Error"
 warning_title = "Warning"
 
@@ -148,7 +153,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
         tab_setup = self.tabWidget_main.currentIndex() == TabIndex.SETUP
-        self.pushButton_confirm.setDisabled(tab_setup)
+        self.pushButton_confirm.setEnabled(tab_setup)
 
     def pressure_unit_callback(self):
         unit_label = self.comboBox_pressure_units.currentText()
@@ -187,9 +192,9 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
     def get_state_properties(self, check_all_entries: bool):
 
         if self.check_all_parameters(check_all_entries = check_all_entries):
-            return None
+            return dict()
 
-        if self.comboBox_connection_type.currentIndex() == 0:
+        if self.comboBox_connection_type.currentIndex() == ConnectionType.SUCTION:
             pressure = self.P_suction
             temperature = self.T_suction
         else:
@@ -197,24 +202,25 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             temperature = self.T_discharge
 
         state_properties = {
-                            "pressure" : pressure,
-                            "temperature" : temperature,
-                            "check_ideal_gas" : False
-                            }
+            "pressure" : pressure,
+            "temperature" : temperature,
+            "check_ideal_gas" : False
+            }
 
         return state_properties
 
     def get_fluid_callback(self):
 
         state_properties = self.get_state_properties(False)
+        if not state_properties:
+            return
 
-        if state_properties:
-            self.hide()
-            self.fluid_dialog = SetFluidInputSimplified(state_properties = state_properties)
-            self.fluid_dialog.fluid_widget.pushButton_attribute.setText("Select fluid")
-            self.fluid_dialog.pushButton_attribute.clicked.connect(self.get_selected_fluid)
-            self.fluid_dialog.exec_and_keep_window_open()
-            app().main_window.set_input_widget(self)
+        self.hide()
+        self.fluid_dialog = SetFluidInputSimplified(state_properties = state_properties)
+        self.fluid_dialog.fluid_widget.pushButton_attribute.setText("Select fluid")
+        self.fluid_dialog.pushButton_attribute.clicked.connect(self.get_selected_fluid)
+        self.fluid_dialog.exec_and_keep_window_open()
+        app().main_window.set_input_widget(self)
 
     def get_selected_fluid(self):
 
@@ -395,7 +401,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.lineEdit_selected_node_id.setFocus()
             return True
 
-        if self.comboBox_connection_type.currentIndex() == 0:
+        if self.comboBox_connection_type.currentIndex() == ConnectionType.SUCTION:
             self.suction_node_id = node_id
         else:
             self.discharge_node_id = node_id
@@ -634,7 +640,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         self.process_aquisition_parameters()
 
-        if self.comboBox_connection_type.currentIndex() == 0:
+        if self.comboBox_connection_type.currentIndex() == ConnectionType.SUCTION:
             flow_label = "in_flow"
             connection_type = "suction"
             node_id = self.suction_node_id
@@ -647,17 +653,17 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         line_id = app().project.model.preprocessor.get_line_from_node_id(node_id)
 
         recip_pump_info = { 
-                            "node_id" : node_id,
-                            "line_id" : line_id[0],
-                            "connection_type" : connection_type,
-                            "temperature_at_suction" : self.T_suction,
-                            "suction_pressure" : self.P_suction,
-                            "temperature_at_discharge" : self.T_discharge,
-                            "discharge_pressure" : self.P_discharge,
-                            "bulk_modulus" : self.parameters.get('bulk_modulus', None),
-                            "source" : "reciprocating_pump",
-                            "check_ideal_gas" : False
-                            }
+            "source" : "reciprocating_pump",
+            "node_id" : node_id,
+            "line_id" : line_id[0],
+            "connection_type" : connection_type,
+            "temperature_at_suction" : self.T_suction,
+            "suction_pressure" : self.P_suction,
+            "temperature_at_discharge" : self.T_discharge,
+            "discharge_pressure" : self.P_discharge,
+            "bulk_modulus" : self.parameters.get('bulk_modulus', None),
+            "check_ideal_gas" : False,
+            }
 
         self.hide()
         read = SetFluidInput(state_properties = recip_pump_info)
@@ -793,7 +799,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         if self.check_all_parameters():
             return
 
-        if self.comboBox_connection_type.currentIndex() == 0:
+        if self.comboBox_connection_type.currentIndex() == ConnectionType.SUCTION:
             flow_label = "in_flow"
         else:
             flow_label = "out_flow"
@@ -982,7 +988,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
 
-        if self.comboBox_connection_type.currentIndex() == 0:
+        if self.comboBox_connection_type.currentIndex() == ConnectionType.SUCTION:
             flow_label = "in_flow"
         else:
             flow_label = "out_flow"
