@@ -15,11 +15,6 @@ class HDF5FileHandler(IOHandler):
         super().__init__()
 
     def read(self, file_path: str | Path) -> SimulationData:
-        file_path = Path(file_path)
-
-        if file_path.suffix not in self.EXTENSIONS:
-            self.raise_extensions_error(file_path, self.EXTENSIONS)
-
         simulation_data = SimulationData(
             file_path.stem,
             file_path.suffix,
