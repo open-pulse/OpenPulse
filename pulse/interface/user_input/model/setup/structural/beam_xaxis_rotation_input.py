@@ -240,7 +240,7 @@ class BeamXaxisRotationInput(XaxisBeamRotationInput_UI):
 
         self.hide()
 
-        title = "Resetting x-axis beam rotations"
+        title = "Reseting x-axis beam rotations"
         message = "Would you like to remove all x-axis rotations attributed to beam elements?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}

@@ -811,7 +811,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         self.hide()
 
-        title = "Resetting of compressor excitations"
+        title = "Reseting of compressor excitations"
         message = "Would you like to remove all compressor excitations from the acoustic model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}

@@ -203,7 +203,7 @@ class DecouplingRotationDOFsInput(B2pDecouplingRotationDofsInput_UI):
 
         self.hide()
 
-        title = "Resetting of B2P decoupling rotations"
+        title = "Reseting of B2P decoupling rotations"
         message = "Would you like to remove all B2P decoupling rotations from the structural model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}

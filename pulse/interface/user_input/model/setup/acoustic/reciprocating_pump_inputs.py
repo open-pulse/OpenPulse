@@ -737,7 +737,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         self.hide()
 
-        title = "Resetting of the reciprocating pump excitations"
+        title = "Reseting of the reciprocating pump excitations"
         message = "Would you like to remove all reciprocating pump excitations from the acoustic model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
