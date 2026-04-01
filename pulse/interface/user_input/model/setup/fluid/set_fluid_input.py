@@ -73,9 +73,7 @@ class SetFluidInput(SetFluidInput_UI):
         self.tableWidget_fluid_data = self.fluid_widget.tableWidget_fluid_data
 
     def _add_fluid_input_widget(self):
-
         self.fluid_widget = FluidWidget(dialog = self, state_properties = self.state_properties)
-
         self.grid_layout.addWidget(self.fluid_widget)
 
     def _create_connections(self):
@@ -84,6 +82,7 @@ class SetFluidInput(SetFluidInput_UI):
         #
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_exit.clicked.connect(self.close)
+        self.fluid_widget.pushButton_reset_library.clicked.connect(self.reset_fluid_library_callback)
         #
         # self.tableWidget_fluid_data.cellClicked.connect(self.on_cell_clicked)
         self.tableWidget_fluid_data.currentCellChanged.connect(self.current_cell_changed)
@@ -174,6 +173,11 @@ class SetFluidInput(SetFluidInput_UI):
 
         if self.state_properties or all_lines_assignment:
             self.close()
+
+    def reset_fluid_library_callback(self):
+        self.hide()
+        if self.fluid_widget.reset_library_callback():
+            app().main_window.update_plots()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

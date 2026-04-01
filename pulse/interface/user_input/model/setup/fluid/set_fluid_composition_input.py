@@ -181,7 +181,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.comboBox_pressure_units.setDisabled(True)
         self.comboBox_temperature_units.setCurrentIndex(0)
 
-        self.reciprocating_machine = state_properties.get("source", None)
+        self.reciprocating_machine = state_properties.get("source")
         self.check_ideal_gas = state_properties.get("check_ideal_gas", True)
 
         if self.reciprocating_machine is None:
@@ -197,27 +197,24 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
         else:
 
-            self.label_thermostate_right.setVisible(True)
-            self.label_thermostate_left.setVisible(True)
+            self.connection_type = state_properties.get('connection_type')
+            self.T_suction = state_properties.get('temperature_at_suction')
+            self.P_suction = state_properties.get('suction_pressure')
+
+            discharge_side = self.connection_type == "discharge"
+
             self.label_spacing.setVisible(True)
+            self.label_thermostate_left.setVisible(True)
+            self.label_thermostate_right.setVisible(discharge_side)
 
-            self.lineEdit_temperature_left.setDisabled(True)
+            self.lineEdit_pressure_right.setVisible(discharge_side)
+            self.lineEdit_temperature_right.setVisible(discharge_side)
+
             self.lineEdit_pressure_left.setDisabled(True)
+            self.lineEdit_temperature_left.setDisabled(True)
 
-            self.lineEdit_pressure_right.setVisible(True)
             self.lineEdit_pressure_right.setDisabled(True)
-
-            self.lineEdit_temperature_right.setVisible(True)
             self.lineEdit_temperature_right.setDisabled(True)
-
-            self.connection_type = state_properties['connection_type']
-            self.T_suction = state_properties[f'temperature_at_suction']
-            self.P_suction = state_properties[f'suction_pressure']
-
-            if self.connection_type == "suction":
-                self.lineEdit_pressure_right.setVisible(False)
-                self.lineEdit_temperature_right.setVisible(False)
-                self.label_thermostate_right.setVisible(False)
 
             if 'suction_pressure' in state_properties.keys():
                 self.lineEdit_temperature_left.setText(f"{self.T_suction : .4f}")
@@ -312,8 +309,11 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.remaining_composition_highlight(_remain)
         if not self.state_properties:
             return
-        
-        if self.state_properties.get("connection_type", "") == "suction":
+
+        if self.state_properties.get("source") != "reciprocating_compressor":
+            return
+
+        if self.state_properties.get("connection_type") == "suction":
             return
 
         if round(abs(self.remaining_molar_fraction), 6) == 0:
@@ -321,16 +321,18 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
     def remaining_composition_highlight(self, value: float):
         if value >= 0:
-            style_sheet =   """  QLabel{border-radius: 4px; border-color: rgb(100, 100, 100); 
-                                        border-style: solid; border-width: 1px; color: rgb(100, 100, 100); 
-                                        background-color: rgb(255, 255, 255)}
-                            """
+            style_sheet =   """  
+                QLabel{border-radius: 4px; border-color: rgb(100, 100, 100); 
+                    border-style: solid; border-width: 1px; color: rgb(100, 100, 100); 
+                    background-color: rgb(255, 255, 255)}
+                """
 
         else:
-            style_sheet =   """  QLabel{border-radius: 4px; border-color: rgb(250, 10, 10); 
-                                        border-style: solid; border-width: 2px; color: rgb(250, 10, 10); 
-                                        background-color: rgb(255, 255, 255)}
-                            """
+            style_sheet =   """  
+                QLabel{border-radius: 4px; border-color: rgb(250, 10, 10); 
+                    border-style: solid; border-width: 2px; color: rgb(250, 10, 10); 
+                    background-color: rgb(255, 255, 255)}
+                """
 
         self.label_remaining_composition.setStyleSheet(style_sheet)
         self.label_remaining_composition.setText(str(value))
@@ -344,12 +346,12 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
             key_mixture, molar_fractions = composition_data
 
         fluid_property, errors, warnings = self.refprop_interface.get_specific_fluid_property( 
-                                                                                    key_mixture = key_mixture,
-                                                                                    molar_fractions = molar_fractions,
-                                                                                    property_key = self.refprop_interface.isentropic_label,
-                                                                                    temperature_K = self.T_suction,
-                                                                                    pressure_Pa = self.P_suction,
-                                                                                    )
+            key_mixture = key_mixture,
+            molar_fractions = molar_fractions,
+            property_key = self.refprop_interface.isentropic_label,
+            temperature_K = self.T_suction,
+            pressure_Pa = self.P_suction,
+            )
 
         if errors:
             return
@@ -569,12 +571,12 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
                 continue 
 
             fluid_property, errors, warnings = self.refprop_interface.get_specific_fluid_property(
-                                                                                        key_mixture = key_mixture,
-                                                                                        molar_fractions = molar_fractions,
-                                                                                        property_key = key_prop,
-                                                                                        temperature_K = temperature_K,
-                                                                                        pressure_Pa = pressure_Pa,
-                                                                                        )
+                key_mixture = key_mixture,
+                molar_fractions = molar_fractions,
+                property_key = key_prop,
+                temperature_K = temperature_K,
+                pressure_Pa = pressure_Pa,
+                )
 
             if errors:
                 self.errors[prop_label] = errors
@@ -596,12 +598,12 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
                 continue
 
             fluid_property, errors, warnings = self.refprop_interface.get_specific_fluid_property(
-                                                                                        key_mixture = key_mixture,
-                                                                                        molar_fractions = molar_fractions,
-                                                                                        property_key = key_prop,
-                                                                                        temperature_K = temperature_K,
-                                                                                        pressure_Pa = pressure_Pa,
-                                                                                        )
+                key_mixture = key_mixture,
+                molar_fractions = molar_fractions,
+                property_key = key_prop,
+                temperature_K = temperature_K,
+                pressure_Pa = pressure_Pa,
+                )
 
             if errors:
                 self.errors[prop_label] = errors
@@ -620,6 +622,8 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         temperature_K = self.T_discharge
         pressure_Pa = self.P_discharge
 
+        # 
+
         if self.connection_type == "discharge":
             count = 0
             criteria = 100
@@ -631,12 +635,12 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
                         continue    
 
                     fluid_property, errors, warnings = self.refprop_interface.get_specific_fluid_property(
-                                                                                                key_mixture = key_mixture,
-                                                                                                molar_fractions = molar_fractions,
-                                                                                                property_key = key_prop,
-                                                                                                temperature_K = temperature_K,
-                                                                                                pressure_Pa = pressure_Pa,
-                                                                                                )
+                        key_mixture = key_mixture,
+                        molar_fractions = molar_fractions,
+                        property_key = key_prop,
+                        temperature_K = temperature_K,
+                        pressure_Pa = pressure_Pa,
+                        )
 
                     if errors:
                         self.errors[prop_label] = errors
@@ -689,21 +693,21 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
             self.fluid_properties["temperature"] = temperature_K
             self.fluid_properties["pressure"] = pressure_Pa
 
-            if self.state_properties:
+            if self.state_properties.get("source") == "reciprocating_compressor":
                 self.process_fluid_data_for_reciprocating_compressors(
-                                                                    key_mixture = key_mixture,
-                                                                    molar_fractions = molar_fractions,
-                                                                    temperature_K = temperature_K,
-                                                                    pressure_Pa = pressure_Pa,
-                                                                    )
+                    key_mixture = key_mixture,
+                    molar_fractions = molar_fractions,
+                    temperature_K = temperature_K,
+                    pressure_Pa = pressure_Pa,
+                    )
 
             else:
                 self.process_fluid_data_for_general_purposes(
-                                                            key_mixture = key_mixture,
-                                                            molar_fractions = molar_fractions,
-                                                            temperature_K = temperature_K,
-                                                            pressure_Pa = pressure_Pa,
-                                                            )
+                    key_mixture = key_mixture,
+                    molar_fractions = molar_fractions,
+                    temperature_K = temperature_K,
+                    pressure_Pa = pressure_Pa,
+                    )
 
             self.fluid_properties["key_mixture"] = key_mixture
             self.fluid_properties["molar_fractions"] = molar_fractions
@@ -975,6 +979,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
             if molar_fraction != "":
                 molar_fraction = float(molar_fraction)
+
             self.add_selected_fluid(selected_fluid, molar_fraction)
 
         self.tableWidget_new_fluid.blockSignals(False)

@@ -79,7 +79,7 @@ class FluidWidget(FluidInputWidget_UI):
         self.pushButton_duplicate.clicked.connect(self.duplicate_selected_fluid)
         self.pushButton_refprop.clicked.connect(self.refprop_interface_callback)
         self.pushButton_remove_column.clicked.connect(self.remove_selected_column)
-        self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
+        # self.pushButton_reset_library.clicked.connect(self.reset_library_callback)
         #
         self.tableWidget_fluid_data.cellClicked.connect(self.cell_clicked_callback)
         self.tableWidget_fluid_data.itemChanged.connect(self.item_changed_callback)
@@ -248,8 +248,6 @@ class FluidWidget(FluidInputWidget_UI):
             self.tableWidget_fluid_data.setItem(i, last_col, item)
             self.tableWidget_fluid_data.item(i, last_col).setTextAlignment(Qt.AlignCenter)
 
-        self.load_pressure_and_temperature_from_state_properties(last_col)
-
         self.tableWidget_fluid_data.selectColumn(last_col)
         first_item = self.tableWidget_fluid_data.item(0, last_col)
         if self.refprop is None:
@@ -259,69 +257,6 @@ class FluidWidget(FluidInputWidget_UI):
 
         app().processEvents()
         self.set_scroll_bar_to_maximum()
-
-    def load_pressure_and_temperature_from_state_properties(self, last_col: int):
-
-        self.state_properties: dict
-
-        if self.state_properties:
-
-            pressure = None
-            temperature = None
-
-            gamma = None
-            bulk_modulus = None
-
-            source = self.state_properties.get("source", None)
-            if source is None:
-
-                temperature = self.state_properties.get("temperature", "")
-                pressure = self.state_properties.get("pressure", "")
-
-            elif source == "reciprocating_pump":
-                
-                bulk_modulus = self.state_properties.get('bulk_modulus', None)
-
-                if self.state_properties["connection_type"] == "discharge":
-                    temperature = self.state_properties["temperature_at_discharge"]
-                    pressure = self.state_properties["discharge_pressure"]
-
-                else:
-                    temperature = self.state_properties["temperature_at_suction"]
-                    pressure = self.state_properties["suction_pressure"]
-
-            elif source == "reciprocating_compressor":
-
-                gamma = self.state_properties.get('isentropic_exponent', None)
-
-                if self.state_properties["connection_type"] == "discharge":
-                    T_suction = self.state_properties["temperature_at_suction"]
-                    pressure_ratio = self.state_properties["pressure_ratio"]
-                    suction_pressure = self.state_properties["suction_pressure"]
-                    pressure = pressure_ratio * suction_pressure
-
-                    if isinstance(gamma, Number):
-                        temperature = T_suction * (pressure_ratio**((gamma-1)/gamma))
-
-                else:
-                    temperature = self.state_properties["temperature_at_suction"]
-                    pressure = self.state_properties["suction_pressure"]
-
-            if isinstance(temperature, Number):
-                self.tableWidget_fluid_data.setItem(2, last_col, QTableWidgetItem(f"{temperature : .6f}"))
-                self.tableWidget_fluid_data.item(2, last_col).setTextAlignment(Qt.AlignCenter)
-
-            if isinstance(pressure, Number):
-                self.tableWidget_fluid_data.setItem(3, last_col, QTableWidgetItem(f"{pressure : .8e}"))
-                self.tableWidget_fluid_data.item(3, last_col).setTextAlignment(Qt.AlignCenter)
-
-            if isinstance(gamma, Number):
-                self.tableWidget_fluid_data.setItem(6, last_col, QTableWidgetItem(f"{gamma : .6f}"))
-                self.tableWidget_fluid_data.item(6, last_col).setTextAlignment(Qt.AlignCenter)
-
-            if isinstance(bulk_modulus, Number):
-                self.tableWidget_fluid_data.setItem(10, last_col, QTableWidgetItem(f"{bulk_modulus : .8e}"))
-                self.tableWidget_fluid_data.item(6, last_col).setTextAlignment(Qt.AlignCenter)
 
     def remove_selected_column(self):
 
@@ -405,7 +340,7 @@ class FluidWidget(FluidInputWidget_UI):
         app().processEvents()
         scroll_bar.setSliderPosition(scroll_bar.maximum())
 
-    def item_changed_callback(self, item):
+    def item_changed_callback(self, item: QTableWidgetItem):
 
         self.tableWidget_fluid_data.blockSignals(True)
 
@@ -428,9 +363,14 @@ class FluidWidget(FluidInputWidget_UI):
         if self.column_has_empty_items(item.column()):
             self.tableWidget_fluid_data.blockSignals(False)
             return
-        
+
         fluid_data = self.get_fluid_data_for_selected_column(item.column())
+        if fluid_data is None:
+            self.tableWidget_fluid_data.blockSignals(False)
+            return
+
         if self.add_fluid_data_in_file([fluid_data]):
+            self.tableWidget_fluid_data.blockSignals(False)
             return
 
         self.load_data_from_fluids_library()
@@ -533,7 +473,7 @@ class FluidWidget(FluidInputWidget_UI):
         if row not in prop_labels.keys():
             return True
 
-        if item.text() == "":
+        if item.text() in ["", "--"]:
             if row in [10, 11, 12]:
                 return False
             return True
@@ -575,7 +515,7 @@ class FluidWidget(FluidInputWidget_UI):
             # check all inputs before proceeding
             for key in self.fluid_data_keys:
                 value = fluid_data.get(key)
-                print(key, value)
+
                 if value is None:
                     if key in ["vapor_pressure", "adiabatic_bulk_modulus"]:
                         continue
@@ -615,6 +555,13 @@ class FluidWidget(FluidInputWidget_UI):
             fluid_data = dict()
             for i, key in enumerate(self.fluid_data_keys):
                 item = self.tableWidget_fluid_data.item(i, column)
+
+                # ignore the empty entries for vapor pressure, 
+                # adiabatic bulk modulus, and molar mass
+                if item.row() in [10, 11, 12]:
+                    if item.text() in ["", "--"]:
+                        continue
+
                 if key == "name":
                     fluid_data[key] = item.text()
 
@@ -662,36 +609,29 @@ class FluidWidget(FluidInputWidget_UI):
 
     def cell_clicked_callback(self, row, col):
         if row == self.COLOR_ROW:
-            self.pick_color(row, col)
+            self.pick_color_for_item(row, col)
 
     def cell_double_clicked_callback(self, row, col):
 
+        try:
+            identifier = int(self.tableWidget_fluid_data.item(1, col).text())
+        except:
+            return
+
+        selected_fluid = self.fluids_from_library.get(identifier)
+        if not isinstance(selected_fluid, Fluid):
+            return
+
         self.tableWidget_fluid_data.blockSignals(True)
         fluid_name = self.tableWidget_fluid_data.item(0, col).text()
-        
+
         if fluid_name in self.fluid_name_to_refprop_data.keys():
-            if isinstance(self.dialog, QDialog):
-                self.dialog.hide()
-
-            selected_fluid = self.fluid_name_to_refprop_data.get(fluid_name)
-            self.refprop = SetFluidCompositionInput(
-                                                    selected_fluid_to_edit = selected_fluid,
-                                                    state_properties = self.state_properties
-                                                    )
-
-            if not self.refprop.complete:
-                self.refprop = None
-                app().main_window.set_input_widget(self.dialog)
+            if self.refprop_interface_callback(selected_fluid = selected_fluid):
                 self.tableWidget_fluid_data.blockSignals(False)
                 return
 
-            self.selected_column = col
-            self.after_getting_fluid_properties_from_refprop()
-            self.selected_column = None
-
-        # self.tableWidget_fluid_data.selectColumn(col)
+        self.tableWidget_fluid_data.selectColumn(col)
         self.tableWidget_fluid_data.blockSignals(False)
-
 
     def get_new_identifiers(self, N: int):
 
@@ -744,8 +684,6 @@ class FluidWidget(FluidInputWidget_UI):
         self.tableWidget_fluid_data.setItem(row, col, item)
 
     def get_confirmation_to_proceed(self):
-
-        self.hide()
 
         title = "Resetting the fluids library"
         message = "Would you like to reset the fluid library to default values?"
@@ -814,34 +752,35 @@ class FluidWidget(FluidInputWidget_UI):
         app().project.file.write_line_properties_in_file()
         app().main_window.set_selection()
 
-    def refprop_interface_callback(self):
+    def refprop_interface_callback(self, selected_fluid: Fluid | None = None):
 
         if isinstance(self.dialog, QDialog):
             self.dialog.hide()
 
-        self.refprop = SetFluidCompositionInput(state_properties = self.state_properties)
+        self.refprop = SetFluidCompositionInput(
+            fluid_to_edit = selected_fluid,
+            state_properties = self.state_properties,
+            )
+
         if app().main_window.force_close:
             self.dialog.close()
             return True
-
+        
         if not self.refprop.complete:
             self.refprop = None
             app().main_window.set_input_widget(self)
             return True
 
-        self.after_getting_fluid_properties_from_refprop()
+        self.postproc_refprop_fluid_properties()
         self.refprop = None
 
-    def after_getting_fluid_properties_from_refprop(self):
+    def postproc_refprop_fluid_properties(self):
 
         if not self.refprop.complete:
             return
 
         refprop_fluids_data = deepcopy(self.refprop.refprop_fluids_data)
         fluid_properties = self.refprop.fluid_properties
-
-        print(refprop_fluids_data)
-        print(fluid_properties)
 
         if refprop_fluids_data.get("thermodynamic_states") == "multiple_states":
             fluids_data = list(fluid_properties.values())
@@ -858,60 +797,13 @@ class FluidWidget(FluidInputWidget_UI):
 
         self.tableWidget_fluid_data.blockSignals(False)
 
-        # self.fluid_setup = self.refprop.fluid_setup
-        # self.fluid_data_refprop = self.refprop.fluid_properties
-
-        # if self.selected_column is None:
-        #     self.add_column()
-        #     self.tableWidget_fluid_data.blockSignals(True)
-        #     selected_column = self.tableWidget_fluid_data.columnCount() - 1
-        # else:
-        #     selected_column = self.selected_column
-
-        # for row, key in enumerate(self.fluid_data_keys):
-
-        #     if key == "identifier":
-        #         if isinstance(self.selected_column, int):
-        #             item = self.tableWidget_fluid_data.item(1, self.selected_column)
-        #             _data = str(item.text())
-        #         else:
-        #             _data = str(self.new_identifier())
-
-        #     elif key == "color":
-        #         if self.selected_column is None:
-        #             self.pick_color(row, selected_column)
-        #         continue
-
-        #     else:
-
-        #         data = self.fluid_data_refprop.get(key)
-        #         if data is None:
-        #             continue
-
-        #         if isinstance(data, float):
-        #             if key in [
-        #                 "pressure", 
-        #                 "thermal_conductivity", 
-        #                 "dynamic_viscosity", 
-        #                 "adiabatic_bulk_modulus", 
-        #                 "vapor_pressure",
-        #                 ]:
-        #                 _data = f"{data : .8e}"
-
-        #             else:
-        #                 _data = f"{data : .8f}"
-
-        #         elif isinstance(data, str):
-        #             _data = data
-
-        #     self.tableWidget_fluid_data.item(row, selected_column).setText(_data)
-
-        # self.add_fluid_data_in_file(selected_column)
-        # self.tableWidget_fluid_data.blockSignals(False)
-        # self.load_data_from_fluids_library()
         self.load_state_properties_info()
-
         self.refprop = None
+
+        if self.state_properties:
+            if isinstance(self.dialog, QDialog):
+                last_col = self.tableWidget_fluid_data.columnCount()
+                self.dialog.tableWidget_fluid_data.selectColumn(last_col-1)
 
     def load_state_properties_info(self):
 
