@@ -41,14 +41,13 @@ class Preprocessor:
 
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
 
-        self.nodes = dict()
+        self.nodes: dict[int, Node] = dict()
+        self.structural_elements: dict[int, StructuralElement] = dict()
+        self.acoustic_elements: dict[int, AcousticElement] = dict()
+        self.structural_to_acoustic_element: dict[StructuralElement, AcousticElement] = dict()
 
-        self.structural_elements = dict()
-        self.acoustic_elements = dict()
-        self.structural_to_acoustic_element = dict()
-
-        self.connectivity_matrix = list()
-        self.nodal_coordinates_matrix = list()
+        self.connectivity_matrix = np.array([], dtype=float)
+        self.nodal_coordinates_matrix = np.array([], dtype=int)
 
         self.neighbors = defaultdict(list)
         self.structural_elements_connected_to_node = defaultdict(list)
