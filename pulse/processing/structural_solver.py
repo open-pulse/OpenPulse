@@ -605,21 +605,26 @@ class StructuralSolver:
 
             self.reactions_at_dampers = reactions_at_dampers
 
-    def stress_calculate(self, **kwargs):
+    def stress_calculate(self, 
+            external_pressure: float = 0., 
+            damping: bool = False,
+            static_analysis: bool = False,
+            ):
         """
-        This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.
+        This method evaluates the nodal stresses of the structure.
 
         Parameters
         ----------
-        global_damping : list of floats.
-            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
-
         external_pressure : float, optional
             Static pressure difference between atmosphere and the fluid in the pipeline.
             Default is 0.
             
         damping : bool, optional.
             True if the damping must be considered when evaluating the stresses. False otherwise.
+            Default is False
+
+        static_analysis : bool, optional.
+            True if the structural analysis is static, False otherwise.
             Default is False
 
         Returns
@@ -635,12 +640,7 @@ class StructuralSolver:
                 Transversal-xz shear
         """
 
-        external_pressure = kwargs.get("external_pressure", 0.)
-        damping = kwargs.get("damping", False)
-        static_analysis = kwargs.get("static_analysis", False)
-        real_values = kwargs.get("real_values", False)
-
-        self.stress_field_dict = dict()
+        nodal_stresses = dict()
 
         # TODO: review the damping effect on the stress evaluation
 
@@ -729,14 +729,11 @@ class StructuralSolver:
                     element.internal_load[4] / area,
                     element.internal_load[5] / area   ].T
 
-                if real_values:
-                    element.stress = np.real(stress_data)
-                else:
-                    element.stress = stress_data
+                element.stress = stress_data
 
-            self.stress_field_dict[element.index] = element.stress
+            nodal_stresses[element.index] = element.stress
             
-        return self.stress_field_dict
+        return nodal_stresses
 
     def stop_processing(self):
         if self.model.preprocessor.stop_processing:
