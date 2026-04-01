@@ -351,8 +351,6 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
 
         self.lineEdit_device_label.setText(name)
 
-
-
     def check_psd_label(self):
         psd_label = self.lineEdit_device_label.text()
         if psd_label == "":
