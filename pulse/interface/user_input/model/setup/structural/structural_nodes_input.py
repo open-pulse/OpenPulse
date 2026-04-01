@@ -1,7 +1,9 @@
 import inspect
 import numpy as np
 
+from PySide6.QtCore import QLocale
 from PySide6.QtWidgets import QLineEdit
+from PySide6.QtGui import QDoubleValidator, QValidator
 
 from pulse import app
 from pulse.interface.user_input.model.setup.nodes_input import NodesInput
@@ -14,6 +16,9 @@ class StructuralNodesInput(NodesInput):
     def __init__(self):
         super().__init__()
 
+        self.validator = QDoubleValidator()
+        self.validator.setLocale(QLocale.c())
+
     def text_label(self, mask: list[bool], labels: np.array):
         _labels = labels[mask]
         n = list(mask).count(True)
@@ -24,14 +29,14 @@ class StructuralNodesInput(NodesInput):
 
         str_value = lineEdit.text()
         if str_value != "":
-            try:
-                str_value = str_value.replace(",", ".")
-                value = float(str_value)
-            except Exception:
+            state, _, _ = self.validator.validate(str_value, 0)
+            
+            if state != QValidator.Acceptable:
                 title = f"Invalid entry to the {label}"
                 message = f"Wrong input for {label}."
                 PrintMessageInput([error_title, title, message])
                 return True, None
+            value = float(str_value)
         else:
             value = 0
 
