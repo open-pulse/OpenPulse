@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'perforated_plate_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -886,8 +886,8 @@ class Ui_Dialog(object):
         self.gridLayout_29.setObjectName(u"gridLayout_29")
         self.treeWidget_elements_info = QTreeWidget(self.frame_22)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_elements_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_elements_info.setObjectName(u"treeWidget_elements_info")
         self.treeWidget_elements_info.setMinimumSize(QSize(0, 0))
@@ -1117,8 +1117,8 @@ class Ui_Dialog(object):
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         ___qtreewidgetitem = self.treeWidget_elements_info.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Perforated plate parameters", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Element", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Perforated plate parameters", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Element", None))
 #if QT_CONFIG(tooltip)
         self.treeWidget_elements_info.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Select a group to remove the perforated plate or press double-click to get detailed information.</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)

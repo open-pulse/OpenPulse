@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'get_reactions_for_harmonic_analysis.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -169,10 +169,10 @@ class Ui_Form(object):
         self.gridLayout_16.setObjectName(u"gridLayout_16")
         self.treeWidget_reactions_at_constrained_dofs = QTreeWidget(self.tab_constrained_dofs)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font2);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font2);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font2)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font2)
         self.treeWidget_reactions_at_constrained_dofs.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_reactions_at_constrained_dofs.setObjectName(u"treeWidget_reactions_at_constrained_dofs")
         self.treeWidget_reactions_at_constrained_dofs.setMinimumSize(QSize(282, 0))
@@ -200,10 +200,10 @@ class Ui_Form(object):
         self.gridLayout_18.setObjectName(u"gridLayout_18")
         self.treeWidget_reactions_at_springs = QTreeWidget(self.tab_reactions_at_springs)
         __qtreewidgetitem1 = QTreeWidgetItem()
-        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem1.setFont(1, font2);
-        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem1.setFont(0, font2);
+        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem1.setFont(1, font2)
+        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem1.setFont(0, font2)
         self.treeWidget_reactions_at_springs.setHeaderItem(__qtreewidgetitem1)
         self.treeWidget_reactions_at_springs.setObjectName(u"treeWidget_reactions_at_springs")
         self.treeWidget_reactions_at_springs.setMinimumSize(QSize(282, 150))
@@ -225,10 +225,10 @@ class Ui_Form(object):
         self.gridLayout_19.setObjectName(u"gridLayout_19")
         self.treeWidget_reactions_at_dampers = QTreeWidget(self.tab_reactions_at_dampers)
         __qtreewidgetitem2 = QTreeWidgetItem()
-        __qtreewidgetitem2.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem2.setFont(1, font2);
-        __qtreewidgetitem2.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem2.setFont(0, font2);
+        __qtreewidgetitem2.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem2.setFont(1, font2)
+        __qtreewidgetitem2.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem2.setFont(0, font2)
         self.treeWidget_reactions_at_dampers.setHeaderItem(__qtreewidgetitem2)
         self.treeWidget_reactions_at_dampers.setObjectName(u"treeWidget_reactions_at_dampers")
         self.treeWidget_reactions_at_dampers.setMinimumSize(QSize(282, 150))
@@ -521,16 +521,16 @@ class Ui_Form(object):
         self.lineEdit_node_id.setText("")
         self.lineEdit_node_id.setPlaceholderText("")
         ___qtreewidgetitem = self.treeWidget_reactions_at_constrained_dofs.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Form", u"Reactions", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Nodes", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Form", u"Reactions", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Nodes", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_constrained_dofs), QCoreApplication.translate("Form", u"Constrained DOFs", None))
         ___qtreewidgetitem1 = self.treeWidget_reactions_at_springs.headerItem()
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Form", u"Reactions", None));
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Form", u"Nodes", None));
+        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Form", u"Reactions", None))
+        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Form", u"Nodes", None))
         self.tabWidget_springs_dampers.setTabText(self.tabWidget_springs_dampers.indexOf(self.tab_reactions_at_springs), QCoreApplication.translate("Form", u"Reactions at springs", None))
         ___qtreewidgetitem2 = self.treeWidget_reactions_at_dampers.headerItem()
-        ___qtreewidgetitem2.setText(1, QCoreApplication.translate("Form", u"Reactions", None));
-        ___qtreewidgetitem2.setText(0, QCoreApplication.translate("Form", u"Nodes", None));
+        ___qtreewidgetitem2.setText(1, QCoreApplication.translate("Form", u"Reactions", None))
+        ___qtreewidgetitem2.setText(0, QCoreApplication.translate("Form", u"Nodes", None))
         self.tabWidget_springs_dampers.setTabText(self.tabWidget_springs_dampers.indexOf(self.tab_reactions_at_dampers), QCoreApplication.translate("Form", u"Reactions at dampers", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_external_springs_dampers), QCoreApplication.translate("Form", u"External elements", None))
         self.label_11.setText(QCoreApplication.translate("Form", u"Plot the reactions at selected node", None))

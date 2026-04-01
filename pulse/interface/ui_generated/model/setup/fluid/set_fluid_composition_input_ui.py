@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'set_fluid_composition_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -309,7 +309,7 @@ class Ui_Dialog(object):
         self.gridLayout_2.setContentsMargins(4, 4, 4, 4)
         self.treeWidget_reference_gases = QTreeWidget(self.scrollAreaWidgetContents)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_reference_gases.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_reference_gases.setObjectName(u"treeWidget_reference_gases")
         self.treeWidget_reference_gases.setMinimumSize(QSize(390, 0))
@@ -563,14 +563,14 @@ class Ui_Dialog(object):
 
         self.lineEdit_temperature_disch.setText("")
         ___qtreewidgetitem = self.treeWidget_reference_gases.headerItem()
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Default fluid library", None));
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Default fluid library", None))
 #if QT_CONFIG(tooltip)
         self.treeWidget_reference_gases.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Press double-click to add fluid to the mixture</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         ___qtablewidgetitem = self.tableWidget_new_fluid.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("Dialog", u"Fluid name", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("Dialog", u"Fluid name", None))
         ___qtablewidgetitem1 = self.tableWidget_new_fluid.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Dialog", u"Molar fraction [%]", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("Dialog", u"Molar fraction [%]", None))
         self.pushButton_add_gas.setText(QCoreApplication.translate("Dialog", u"Add gas", None))
         self.label_6.setText(QCoreApplication.translate("Dialog", u"Molar fraction [%]", None))
         self.pushButton_load_composition.setText(QCoreApplication.translate("Dialog", u"Load composition", None))

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'nodal_loads_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -610,10 +610,10 @@ class Ui_Dialog(object):
         font5.setFamilies([u"MS Shell Dlg 2"])
         font5.setPointSize(9)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font5);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font5);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font5)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font5)
         self.treeWidget_nodal_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_nodal_info.setObjectName(u"treeWidget_nodal_info")
         self.treeWidget_nodal_info.setMinimumSize(QSize(280, 180))
@@ -827,8 +827,8 @@ class Ui_Dialog(object):
         self.label_Rz_table.setText(QCoreApplication.translate("Dialog", u"Mz:", None))
         self.tabWidget_nodal_loads.setTabText(self.tabWidget_nodal_loads.indexOf(self.tab_table_values), QCoreApplication.translate("Dialog", u"Load tables", None))
         ___qtreewidgetitem = self.treeWidget_nodal_info.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))

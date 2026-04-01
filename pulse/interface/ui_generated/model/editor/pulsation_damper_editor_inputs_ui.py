@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'pulsation_damper_editor_inputs.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -706,11 +706,11 @@ class Ui_Dialog(object):
         font2.setBold(False)
         font2.setItalic(False)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(3, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(2, font2);
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(3, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(2, font2)
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_pulsation_damper_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_pulsation_damper_info.setObjectName(u"treeWidget_pulsation_damper_info")
         self.treeWidget_pulsation_damper_info.setMinimumSize(QSize(0, 0))
@@ -1157,10 +1157,10 @@ class Ui_Dialog(object):
         self.label_2.setText(QCoreApplication.translate("Dialog", u"Damper label:", None))
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Damper type:", None))
         ___qtreewidgetitem = self.treeWidget_pulsation_damper_info.headerItem()
-        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Lines", None));
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Gas volume [m\u00b3]", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Damper type", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Label", None));
+        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Lines", None))
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Gas volume [m\u00b3]", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Damper type", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Label", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", "")

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'material_input_widget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -78,25 +78,25 @@ class Ui_Form(object):
         if (self.tableWidget_material_data.rowCount() < 7):
             self.tableWidget_material_data.setRowCount(7)
         __qtablewidgetitem = QTableWidgetItem()
-        __qtablewidgetitem.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
-        __qtablewidgetitem1.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem1.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(1, __qtablewidgetitem1)
         __qtablewidgetitem2 = QTableWidgetItem()
-        __qtablewidgetitem2.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem2.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(2, __qtablewidgetitem2)
         __qtablewidgetitem3 = QTableWidgetItem()
-        __qtablewidgetitem3.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem3.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(3, __qtablewidgetitem3)
         __qtablewidgetitem4 = QTableWidgetItem()
-        __qtablewidgetitem4.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem4.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(4, __qtablewidgetitem4)
         __qtablewidgetitem5 = QTableWidgetItem()
-        __qtablewidgetitem5.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem5.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(5, __qtablewidgetitem5)
         __qtablewidgetitem6 = QTableWidgetItem()
-        __qtablewidgetitem6.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem6.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(6, __qtablewidgetitem6)
         self.tableWidget_material_data.setObjectName(u"tableWidget_material_data")
         self.tableWidget_material_data.horizontalHeader().setVisible(False)
@@ -211,19 +211,19 @@ class Ui_Form(object):
 #endif // QT_CONFIG(tooltip)
         self.pushButton_exit.setText(QCoreApplication.translate("Form", u"Exit", None))
         ___qtablewidgetitem = self.tableWidget_material_data.verticalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Name", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Name", None))
         ___qtablewidgetitem1 = self.tableWidget_material_data.verticalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Identifier", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Identifier", None))
         ___qtablewidgetitem2 = self.tableWidget_material_data.verticalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Density [kg/m\u00b3]", None));
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Density [kg/m\u00b3]", None))
         ___qtablewidgetitem3 = self.tableWidget_material_data.verticalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Elasticity modulus [GPa]", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Elasticity modulus [GPa]", None))
         ___qtablewidgetitem4 = self.tableWidget_material_data.verticalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"Poisson ratio", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"Poisson ratio", None))
         ___qtablewidgetitem5 = self.tableWidget_material_data.verticalHeaderItem(5)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Thermal expansion coefficient [1/K]", None));
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Thermal expansion coefficient [1/K]", None))
         ___qtablewidgetitem6 = self.tableWidget_material_data.verticalHeaderItem(6)
-        ___qtablewidgetitem6.setText(QCoreApplication.translate("Form", u"Color", None));
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("Form", u"Color", None))
 #if QT_CONFIG(tooltip)
         self.pushButton_remove_column.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-weight:400;\">Remove selected row</span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)

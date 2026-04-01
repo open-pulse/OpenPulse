@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'acoustic_model_info.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -66,8 +66,8 @@ class Ui_dialog(object):
         self.gridLayout.setContentsMargins(4, 4, 4, 4)
         self.treeWidget_specific_impedance = QTreeWidget(self.frame_2)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_specific_impedance.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_specific_impedance.setObjectName(u"treeWidget_specific_impedance")
         self.treeWidget_specific_impedance.setMinimumSize(QSize(280, 130))
@@ -80,8 +80,8 @@ class Ui_dialog(object):
 
         self.treeWidget_acoustic_pressure = QTreeWidget(self.frame_2)
         __qtreewidgetitem1 = QTreeWidgetItem()
-        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_acoustic_pressure.setHeaderItem(__qtreewidgetitem1)
         self.treeWidget_acoustic_pressure.setObjectName(u"treeWidget_acoustic_pressure")
         self.treeWidget_acoustic_pressure.setMinimumSize(QSize(280, 130))
@@ -106,8 +106,8 @@ class Ui_dialog(object):
 
         self.treeWidget_volume_velocity = QTreeWidget(self.frame_2)
         __qtreewidgetitem2 = QTreeWidgetItem()
-        __qtreewidgetitem2.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem2.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem2.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem2.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_volume_velocity.setHeaderItem(__qtreewidgetitem2)
         self.treeWidget_volume_velocity.setObjectName(u"treeWidget_volume_velocity")
         self.treeWidget_volume_velocity.setMinimumSize(QSize(280, 130))
@@ -154,8 +154,8 @@ class Ui_dialog(object):
 
         self.treeWidget_radiation_impedance = QTreeWidget(self.frame_2)
         __qtreewidgetitem3 = QTreeWidgetItem()
-        __qtreewidgetitem3.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem3.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem3.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem3.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_radiation_impedance.setHeaderItem(__qtreewidgetitem3)
         self.treeWidget_radiation_impedance.setObjectName(u"treeWidget_radiation_impedance")
         self.treeWidget_radiation_impedance.setMinimumSize(QSize(280, 130))
@@ -178,8 +178,8 @@ class Ui_dialog(object):
 
         self.treeWidget_perforated_plate = QTreeWidget(self.frame_2)
         __qtreewidgetitem4 = QTreeWidgetItem()
-        __qtreewidgetitem4.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem4.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem4.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem4.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_perforated_plate.setHeaderItem(__qtreewidgetitem4)
         self.treeWidget_perforated_plate.setObjectName(u"treeWidget_perforated_plate")
         self.treeWidget_perforated_plate.setMinimumSize(QSize(280, 130))
@@ -202,8 +202,8 @@ class Ui_dialog(object):
 
         self.treeWidget_element_length_correction = QTreeWidget(self.frame_2)
         __qtreewidgetitem5 = QTreeWidgetItem()
-        __qtreewidgetitem5.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem5.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem5.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem5.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_element_length_correction.setHeaderItem(__qtreewidgetitem5)
         self.treeWidget_element_length_correction.setObjectName(u"treeWidget_element_length_correction")
         self.treeWidget_element_length_correction.setMinimumSize(QSize(280, 130))
@@ -352,29 +352,29 @@ class Ui_dialog(object):
         dialog.setWindowTitle(QCoreApplication.translate("dialog", u"Acoustic Model Information", None))
         self.label_12.setText(QCoreApplication.translate("dialog", u"Acoustic model information", None))
         ___qtreewidgetitem = self.treeWidget_specific_impedance.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("dialog", u"Values", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("dialog", u"Values", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("dialog", u"Nodes", None))
         ___qtreewidgetitem1 = self.treeWidget_acoustic_pressure.headerItem()
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("dialog", u"Values", None));
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
+        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("dialog", u"Values", None))
+        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("dialog", u"Nodes", None))
         self.label_11.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Volume velocity:</p></body></html>", None))
         ___qtreewidgetitem2 = self.treeWidget_volume_velocity.headerItem()
-        ___qtreewidgetitem2.setText(1, QCoreApplication.translate("dialog", u"Values", None));
-        ___qtreewidgetitem2.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
+        ___qtreewidgetitem2.setText(1, QCoreApplication.translate("dialog", u"Values", None))
+        ___qtreewidgetitem2.setText(0, QCoreApplication.translate("dialog", u"Nodes", None))
         self.label_17.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Specific impedance:</p></body></html>", None))
         self.label_10.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Acoustic pressure:</p></body></html>", None))
         self.label_9.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Radiation impedance:</p></body></html>", None))
         ___qtreewidgetitem3 = self.treeWidget_radiation_impedance.headerItem()
-        ___qtreewidgetitem3.setText(1, QCoreApplication.translate("dialog", u"Type", None));
-        ___qtreewidgetitem3.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
+        ___qtreewidgetitem3.setText(1, QCoreApplication.translate("dialog", u"Type", None))
+        ___qtreewidgetitem3.setText(0, QCoreApplication.translate("dialog", u"Nodes", None))
         self.label_15.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Perforated plate:</p></body></html>", None))
         ___qtreewidgetitem4 = self.treeWidget_perforated_plate.headerItem()
-        ___qtreewidgetitem4.setText(1, QCoreApplication.translate("dialog", u"PP parameteres", None));
-        ___qtreewidgetitem4.setText(0, QCoreApplication.translate("dialog", u"Elements", None));
+        ___qtreewidgetitem4.setText(1, QCoreApplication.translate("dialog", u"PP parameteres", None))
+        ___qtreewidgetitem4.setText(0, QCoreApplication.translate("dialog", u"Elements", None))
         self.label_16.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Elements with length correction:</p></body></html>", None))
         ___qtreewidgetitem5 = self.treeWidget_element_length_correction.headerItem()
-        ___qtreewidgetitem5.setText(1, QCoreApplication.translate("dialog", u"Type", None));
-        ___qtreewidgetitem5.setText(0, QCoreApplication.translate("dialog", u"Elements", None));
+        ___qtreewidgetitem5.setText(1, QCoreApplication.translate("dialog", u"Type", None))
+        ___qtreewidgetitem5.setText(0, QCoreApplication.translate("dialog", u"Elements", None))
         self.label_13.setText(QCoreApplication.translate("dialog", u"Number of nodes:", None))
         self.label_14.setText(QCoreApplication.translate("dialog", u"Number of elements:", None))
     # retranslateUi

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'expansion_joint_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -649,8 +649,8 @@ class Ui_Dialog(object):
         self.gridLayout_2.setContentsMargins(4, 4, 4, 4)
         self.treeWidget_expansion_joints_info = QTreeWidget(self.tab_remove)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_expansion_joints_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_expansion_joints_info.setObjectName(u"treeWidget_expansion_joints_info")
         self.treeWidget_expansion_joints_info.setMinimumSize(QSize(320, 200))
@@ -840,8 +840,8 @@ class Ui_Dialog(object):
         self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_tabular_values), QCoreApplication.translate("Dialog", u"Tabular values", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         ___qtreewidgetitem = self.treeWidget_expansion_joints_info.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Joint parameters [L, d_eff, m, \u03b5, rods, kx, kyz, krx, kryz]", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Line ID", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Joint parameters [L, d_eff, m, \u03b5, rods, kx, kyz, krx, kryz]", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Line ID", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))

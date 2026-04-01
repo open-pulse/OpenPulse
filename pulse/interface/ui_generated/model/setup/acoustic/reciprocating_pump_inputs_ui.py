@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'reciprocating_pump_inputs.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -1291,10 +1291,10 @@ class Ui_Dialog(object):
         font7.setBold(False)
         font7.setItalic(False)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font7);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font7);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font7)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font7)
         self.treeWidget_nodal_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_nodal_info.setObjectName(u"treeWidget_nodal_info")
         self.treeWidget_nodal_info.setMinimumSize(QSize(0, 0))
@@ -1567,8 +1567,8 @@ class Ui_Dialog(object):
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_advanced_options), QCoreApplication.translate("Dialog", u"Advanced options", None))
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Connection type:", None))
         ___qtreewidgetitem = self.treeWidget_nodal_info.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Connection", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Node ID", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Connection", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Node ID", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
