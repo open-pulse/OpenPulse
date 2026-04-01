@@ -63,7 +63,7 @@ class AcousticNodesInput(NodesInput):
             message = f"You must inform at least one {input_name} "
             message += "before confirming the input!"
             PrintMessageInput([error_title, title, message])
-            self.lineEdit_real_value.setFocus()
+            lineEdit_real.setFocus()
             app().main_window.set_input_widget(self)
             return True, None
 
@@ -141,7 +141,7 @@ class AcousticNodesInput(NodesInput):
 
             for node_id in node_ids:
                 self.table_name, self.array = self.save_table_file(
-                    node_id, self.table_values
+                    node_id, self.table_values, input_name
                 )
 
                 basenames = [self.table_name]

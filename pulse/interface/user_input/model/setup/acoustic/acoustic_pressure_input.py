@@ -116,7 +116,7 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPressureInput_UI):
             self.lineEdit_node_ids.setFocus()
             return
 
-        stop, acoustic_pressure = self.check_complex_entries(self.lineEdit_real_value, self.lineEdit_imag_value)
+        stop, acoustic_pressure = self.check_complex_entries(self.lineEdit_real_value, self.lineEdit_imag_value, "acoustic pressure")
 
         if stop:
             return

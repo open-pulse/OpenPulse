@@ -368,11 +368,11 @@ class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
         if read._cancel:
             return
 
-            if not read._continue:
-                return
+        if not read._continue:
+            return
 
-            self.properties._reset_nodal_property("specific_impedance")
-            self.actions_to_finalize()
+        self.properties._reset_nodal_property("specific_impedance")
+        self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().project.file.write_nodal_properties_in_file()
