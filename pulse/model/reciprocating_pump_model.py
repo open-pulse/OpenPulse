@@ -705,7 +705,7 @@ class ReciprocatingPumpModel:
         dt = 1 / (f_rot * (N - 1))
 
         # fluctuating volume per piston / plunger in one cycle
-        dV = np.trapz(pos_flow, dx=dt) / self.number_of_cylinders
+        dV = np.trapezoid(pos_flow, dx=dt) / self.number_of_cylinders
 
         return dV, pos_flow
 
@@ -1006,7 +1006,7 @@ class ReciprocatingPumpModel:
 
         # fluctuating volume per piston / plunger in one cycle
         
-        dV = np.trapz(pos_dV, dx=dt) / self.number_of_cylinders
+        dV = np.trapezoid(pos_dV, dx=dt) / self.number_of_cylinders
 
         if flow_label == "in_flow":
             pos_dV *= -1
