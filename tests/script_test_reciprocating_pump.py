@@ -162,7 +162,7 @@ def test_discharge_flow_rate(smooth_data: bool=False):
     V_pos[mask] = np.zeros(sum(mask), dtype=float)
     dt = 1/ (f_rot * (N - 1))
 
-    dVt = np.trapz(V_pos, dx=dt)
+    dVt = np.trapezoid(V_pos, dx=dt)
 
     dV = dVt / reciprocating_pump.number_of_cylinders
 
