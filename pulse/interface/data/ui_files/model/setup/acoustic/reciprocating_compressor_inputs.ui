@@ -2205,7 +2205,7 @@
                      </widget>
                     </item>
                     <item row="6" column="2">
-                     <widget class="QLineEdit" name="lineEdit_pressure_at_suction">
+                     <widget class="QLineEdit" name="lineEdit_suction_pressure">
                       <property name="minimumSize">
                        <size>
                         <width>120</width>
@@ -2421,7 +2421,7 @@
                      </widget>
                     </item>
                     <item row="7" column="2">
-                     <widget class="QLineEdit" name="lineEdit_pressure_at_discharge">
+                     <widget class="QLineEdit" name="lineEdit_discharge_pressure">
                       <property name="enabled">
                        <bool>false</bool>
                       </property>
@@ -2457,7 +2457,7 @@
                      </widget>
                     </item>
                     <item row="9" column="2">
-                     <widget class="QLineEdit" name="lineEdit_temperature_at_suction">
+                     <widget class="QLineEdit" name="lineEdit_suction_temperature">
                       <property name="minimumSize">
                        <size>
                         <width>120</width>
@@ -2563,7 +2563,7 @@
                      </widget>
                     </item>
                     <item row="10" column="2">
-                     <widget class="QLineEdit" name="lineEdit_temperature_at_discharge">
+                     <widget class="QLineEdit" name="lineEdit_discharge_temperature">
                       <property name="minimumSize">
                        <size>
                         <width>120</width>
@@ -2779,8 +2779,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>558</width>
-                  <height>566</height>
+                  <width>448</width>
+                  <height>512</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_18">

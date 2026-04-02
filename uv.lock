@@ -1206,6 +1206,7 @@ dependencies = [
     { name = "pypardiso-mopt" },
     { name = "pyqtdarktheme", marker = "python_full_version < '3.12'" },
     { name = "pyside6" },
+    { name = "pytest" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "vtk" },
@@ -1242,6 +1243,7 @@ requires-dist = [
     { name = "pypardiso-mopt", specifier = ">=0.1.0,<0.2" },
     { name = "pyqtdarktheme", marker = "python_full_version >= '3.10' and python_full_version < '3.12'", specifier = ">=2.1.0,<3" },
     { name = "pyside6", specifier = ">=6.8.1.1,<7" },
+    { name = "pytest", specifier = ">=7.4.4" },
     { name = "scipy", specifier = ">=1.11.2,<2" },
     { name = "vtk", specifier = ">=9,<9.5" },
 ]
@@ -1373,7 +1375,7 @@ name = "pyqtdarktheme"
 version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "darkdetect" },
+    { name = "darkdetect", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/5c/f1/786feaad7a333072b34a913dbe38aef94b5ae43ad188934f5d70007aea79/pyqtdarktheme-2.1.0.tar.gz", hash = "sha256:5f8274ddfa3a5481ed9743cdb0f9debfeb7ff695b3a0d202a8104361d17dadb8", size = 42186, upload-time = "2022-12-25T08:33:11.662Z" }
 wheels = [
