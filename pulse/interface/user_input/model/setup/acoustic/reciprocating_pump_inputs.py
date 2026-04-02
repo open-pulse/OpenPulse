@@ -3,23 +3,26 @@ from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs_ui import ReciprocatingPumpInputs_UI
+from pulse.interface.user_input.common import update_analysis_setup_in_file
+from pulse.interface.user_input.numeric_checks.unit_utilities import (
+    PressureUnits, 
+    TemperatureUnits,
+    pressure_units_labels,
+    temperature_units_labels,
+)
+from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
 from pulse.interface.user_input.model.setup.acoustic.pulsation_damper_calculator_inputs import PulsationDamperCalculatorInputs
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.user_input.common import update_analysis_setup_in_file
+from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs_ui import ReciprocatingPumpInputs_UI
 
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
 
 import numpy as np
 from enum import IntEnum
-
-psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
-kgf_cm2_to_Pa = 9.80665e4
-bar_to_Pa = 1e5
 
 
 class TabIndex(IntEnum):
@@ -45,8 +48,8 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         self._config_window()
         self._initialize()
-        self._create_connections()
         self._config_widget()
+        self._create_connections()
         self.load_reciprocating_pump_excitation_info()
 
         while self.keep_window_open:
@@ -67,10 +70,94 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.before_run = app().project.get_pre_solution_model_checks()    
 
     def _config_widget(self):
+
         self.treeWidget_nodal_info.setColumnWidth(0, 100)
-        # self.treeWidget_nodal_info.setColumnWidth(1, 140)
-        self.treeWidget_nodal_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_nodal_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        for i in range(2):
+            self.treeWidget_nodal_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
+
+        self._load_units_labels()
+        self.configure_dynamic_validators()
+        self.configure_static_validators()
+
+    def configure_dynamic_validators(self):
+
+        # adjust temperature bounds (t_min -> zero absolute)
+        t_min = 0
+        t_max = 1e4
+        if self.comboBox_temperature_units.currentIndex() == TemperatureUnits.CELSIUS:
+            t_min = -273.15
+        elif self.comboBox_temperature_units.currentIndex() == TemperatureUnits.FARENHEIT:
+            t_min = -459.67
+
+        # adjust pressure bounds (p_min -> perfect vacuum)      
+        p_min = 0 
+        p_max = 1e8
+
+        punit_index = self.comboBox_pressure_units.currentIndex()
+        if punit_index == PressureUnits.Pa_g:
+            p_min = -101325
+
+        elif punit_index == PressureUnits.kPa_g:
+            p_min = -101.325
+
+        elif punit_index == PressureUnits.bar_g:
+            p_min = -1.101325
+            p_max = 2e3
+
+        elif punit_index == PressureUnits.kgf_cm2_g:
+            p_min = -(9.80665*1e4)
+
+        elif punit_index == PressureUnits.psi_g:
+            p_min = -(0.45359237*9.80665) / (0.0254**2)
+
+        elif punit_index == PressureUnits.ksi_g:
+            p_min = -(0.45359237*9.80665) / (1e3 * (0.0254**2))
+            p_max = 1e3
+
+        # configure validator for pressure and temeperature inputs
+        self.lineEdit_suction_pressure.setValidator(StrictDoubleValidator(p_min, p_max, 6))
+        self.lineEdit_discharge_pressure.setValidator(StrictDoubleValidator(p_min, p_max, 6))
+        self.lineEdit_suction_temperature.setValidator(StrictDoubleValidator(t_min, t_max, 6))
+        self.lineEdit_discharge_temperature.setValidator(StrictDoubleValidator(t_min, t_max, 6))
+
+        press_unit = self.comboBox_pressure_units.currentText()
+        self.label_suction_pressure_unit.setText(f"[{press_unit}]")
+        self.label_discharge_pressure_unit.setText(f"[{press_unit}]")
+
+        temp_unit = self.comboBox_temperature_units.currentText()
+        self.label_suction_temperature_unit.setText(f"[{temp_unit}]")
+        self.label_discharge_temperature_unit.setText(f"[{temp_unit}]")
+
+    def configure_static_validators(self):
+
+        # configure validator for geometric parameters
+        geom_validator = StrictDoubleValidator(1e-6, 1e8, 8)
+        self.lineEdit_bore_diameter.setValidator(geom_validator)
+        self.lineEdit_stroke.setValidator(geom_validator)
+        self.lineEdit_connecting_rod_length.setValidator(geom_validator)
+        self.lineEdit_rod_diameter.setValidator(geom_validator)
+
+        # configure validator for operational parameters
+        clearance_validator = StrictDoubleValidator(0, 100, 8)
+        self.lineEdit_clearance_crank_end.setValidator(clearance_validator)
+        self.lineEdit_clearance_head_end.setValidator(clearance_validator)
+        self.lineEdit_rotational_speed.setValidator(StrictDoubleValidator(1e-8, 1e6, 8))
+
+        # configure validator for isentropic exponent
+        self.lineEdit_bulk_modulus.setValidator(StrictDoubleValidator(1e-8, 1e14, 6))
+
+    def _load_units_labels(self):
+        # clear data from unit combo boxes
+        self.comboBox_pressure_units.clear()
+        self.comboBox_temperature_units.clear()
+
+        # add temperature and pressure labels into unit combo boxes
+        self.comboBox_pressure_units.addItems(pressure_units_labels)
+        self.comboBox_temperature_units.addItems(temperature_units_labels)
+
+        # set default units
+        self.comboBox_pressure_units.setCurrentText("bar (a)")
+        self.comboBox_temperature_units.setCurrentText("°C")
 
     def _create_connections(self):
         #
@@ -301,29 +388,23 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             bulk_modulus = parameters["bulk_modulus"]
             self.lineEdit_bulk_modulus.setText(f"{bulk_modulus : .8e}")
 
-        if "pressure_at_suction" in parameters.keys():
-            self.lineEdit_suction_pressure.setText(str(parameters["pressure_at_suction"]))
+        p_unit = parameters["pressure_unit"]
+        self.comboBox_pressure_units.setCurrentText(p_unit)
 
-        if "pressure_at_discharge" in parameters.keys():
-            self.lineEdit_discharge_pressure.setText(str(parameters["pressure_at_discharge"]))
+        if "suction_pressure" in parameters.keys():
+            self.lineEdit_suction_pressure.setText(str(parameters["suction_pressure"]))
 
-        pressure_units = ["kgf/cm² (a)", "bar (a)", "kPa (a)", "Pa (a)", "kgf/cm² (g)", "bar (g)", "kPa (g)", "Pa (g)"]
-        if "pressure_unit" in parameters.keys():
-            for i, p_unit in enumerate(pressure_units):
-                if p_unit in parameters["pressure_unit"]:
-                    self.comboBox_pressure_units.setCurrentIndex(i)
+        if "discharge_pressure" in parameters.keys():
+            self.lineEdit_discharge_pressure.setText(str(parameters["discharge_pressure"]))
 
-        if "temperature_at_suction" in parameters.keys():
-            self.lineEdit_suction_temperature.setText(str(parameters["temperature_at_suction"]))
+        T_unit = parameters["temperature_unit"]
+        self.comboBox_temperature_units.setCurrentText(T_unit)
 
-        if "temperature_at_discharge" in parameters.keys():
-            self.lineEdit_discharge_temperature.setText(str(parameters["temperature_at_discharge"]))
+        if "suction_temperature" in parameters.keys():
+            self.lineEdit_suction_temperature.setText(str(parameters["suction_temperature"]))
 
-        temperature_units = ["°C", "K"]
-        if "temperature_unit" in parameters.keys():
-            for i, p_unit in enumerate(temperature_units):
-                if p_unit in parameters["pressure_unit"]:
-                    self.comboBox_temperature_units.setCurrentIndex(i)
+        if "discharge_temperature" in parameters.keys():
+            self.lineEdit_discharge_temperature.setText(str(parameters["discharge_temperature"]))
 
         if "acting_label" in parameters.keys():
             acting_key = int(parameters["acting_label"])
@@ -501,62 +582,41 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.lineEdit_suction_pressure.setFocus()
             return True
         else:
-            self.parameters['pressure_at_suction'] = self.value
-
+            self.parameters['suction_pressure'] = self.value
+            self.P_suction = self.parameters['suction_pressure']
+            
         if self.check_input_parameters(self.lineEdit_discharge_pressure, "Discharge pressure"):
             self.lineEdit_discharge_pressure.setFocus()
             return True
         else:
-            self.parameters['pressure_at_discharge'] = self.value
+            self.parameters['discharge_pressure'] = self.value
+            self.P_discharge = self.parameters['discharge_pressure']
 
-        # unit_labels = ["kgf/cm² (a)", "bar (a)", "kPa (a)", "Pa (a)", "kgf/cm² (g)", "bar (g)", "kPa (g)", "Pa (g)"]
-        unit_label = self.comboBox_pressure_units.currentText()
-        self.parameters['pressure_unit'] = unit_label
-        if self.check_input_parameters(self.lineEdit_suction_temperature, "Temperature at suction"):
+        pressure_unit = self.comboBox_pressure_units.currentText()
+        self.parameters['pressure_unit'] = pressure_unit
+
+        if self.check_input_parameters(self.lineEdit_suction_temperature, "Suction temperature"):
             self.lineEdit_suction_temperature.setFocus()
             return True
         else:
-            self.parameters['temperature_at_suction'] = self.value
+            self.parameters['suction_temperature'] = self.value
+            self.T_suction = self.parameters['suction_temperature']
 
         if self.check_input_parameters(self.lineEdit_discharge_temperature, "Temperature at dischage"):
             self.lineEdit_discharge_temperature.setFocus()
             return True
         else:
-            self.parameters['temperature_at_discharge'] = self.value
+            self.parameters['discharge_temperature'] = self.value
+            self.T_discharge = self.parameters['discharge_temperature']
 
-        tu_labels = ["°C", "K"]
-        tu_index = self.comboBox_temperature_units.currentIndex()
-        self.parameters['temperature_unit'] = tu_labels[tu_index]
+        temperature_unit = self.comboBox_temperature_units.currentText()
+        self.parameters['temperature_unit'] = temperature_unit
 
         self.parameters['number_of_cylinders'] = self.number_of_cylinders
         self.parameters['acting_label'] = self.comboBox_cylinder_acting.currentIndex()
 
         if check_all_entries:
             self.pump_model = ReciprocatingPumpModel(self.parameters)
-
-        if "kgf/cm²" in unit_label:
-            self.P_suction = self.parameters['pressure_at_suction'] * kgf_cm2_to_Pa
-            self.P_discharge = self.parameters['pressure_at_discharge'] * kgf_cm2_to_Pa
-            
-        elif "bar" in unit_label:
-            self.P_suction = self.parameters['pressure_at_suction'] * bar_to_Pa
-            self.P_discharge = self.parameters['pressure_at_discharge'] * bar_to_Pa
-
-        elif "kPa" in unit_label:
-            self.P_suction = self.parameters['pressure_at_suction'] * 1e3
-            self.P_discharge = self.parameters['pressure_at_discharge'] * 1e3
-
-        if "(g)" in unit_label:
-            self.P_suction += 101325
-            self.P_discharge += 101325
-
-        if self.comboBox_temperature_units.currentIndex() == 0:
-            self.T_suction = self.parameters['temperature_at_suction'] + 273.15
-            self.T_discharge = self.parameters['temperature_at_discharge'] + 273.15
-
-        elif self.comboBox_temperature_units.currentIndex() == 1:
-            self.T_suction = self.parameters['temperature_at_suction']
-            self.T_discharge = self.parameters['temperature_at_discharge']
 
         return False
 
@@ -657,9 +717,11 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             "node_id" : node_id,
             "line_id" : line_id[0],
             "connection_type" : connection_type,
-            "temperature_at_suction" : self.T_suction,
+            "pressure_unit" : self.comboBox_pressure_units.currentText(),
+            "temperature_unit" : self.comboBox_temperature_units.currentText(),
+            "suction_temperature" : self.T_suction,
+            "discharge_temperature" : self.T_discharge,
             "suction_pressure" : self.P_suction,
-            "temperature_at_discharge" : self.T_discharge,
             "discharge_pressure" : self.P_discharge,
             "bulk_modulus" : self.parameters.get('bulk_modulus', None),
             "check_ideal_gas" : False,
@@ -849,6 +911,9 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         # if volume_HE is None:
         #     return
+
+        # kgf_cm2_to_Pa = 9.80665e4
+        # bar_to_Pa = 1e5
 
         # if self.pump_model.pressure_unit == "kgf/cm²":
         #     pressure_HE /= kgf_cm2_to_Pa

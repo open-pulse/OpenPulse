@@ -16,6 +16,8 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     convert_pressure_unit, 
     PressureUnits, 
     TemperatureUnits,
+    pressure_units_labels,
+    temperature_units_labels,
 )
 from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
@@ -105,8 +107,22 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         self.preview_widget: DamperPreviewRenderWidget
 
+        self._load_units_labels()
         self.configure_dynamic_validators()
         self.configure_static_validators()
+
+    def _load_units_labels(self):
+        # clear data from unit combo boxes
+        self.comboBox_pressure_units.clear()
+        self.comboBox_temperature_units.clear()
+
+        # add temperature and pressure labels into unit combo boxes
+        self.comboBox_pressure_units.addItems(pressure_units_labels)
+        self.comboBox_temperature_units.addItems(temperature_units_labels)
+
+        # set default units
+        self.comboBox_pressure_units.setCurrentText("bar (a)")
+        self.comboBox_temperature_units.setCurrentText("°C")
 
     def configure_static_validators(self):
 

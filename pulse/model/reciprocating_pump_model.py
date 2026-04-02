@@ -3,6 +3,8 @@ from pathlib import Path
 from scipy.signal import butter, filtfilt
 import os
 
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_pressure_unit, convert_temperature_unit
+
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
 pi = np.pi
@@ -128,17 +130,17 @@ class ReciprocatingPumpModel:
 
     def __init__( self, parameters, **kwargs):
 
-        self._load_compressor_parameters(parameters)
+        self._load_pump_parameters(parameters)
         self.number_points = kwargs.get('number_points', 1000)
         self.max_frequency = kwargs.get('max_frequency', 300)
 
 
-    def _load_compressor_parameters(self, parameters: dict):
+    def _load_pump_parameters(self, parameters: dict):
         """
         """
 
         self.D = parameters['bore_diameter']                            # Cylinder bore diameter [m]
-        self.r = parameters['stroke'] / 2                               # Length of compressor full stroke [m]
+        self.r = parameters['stroke'] / 2                               # Length of pump full stroke [m]
         self.L = parameters['connecting_rod_length']                    # Connecting rod length [m]
         self.rod_diam = parameters.get('rod_diameter', 0)               # Rod diameter [m]
         self.c_HE = parameters['clearance_HE'] / 100                    # Clearance HE volume as percentage of full volume (%)
@@ -148,40 +150,9 @@ class ReciprocatingPumpModel:
         self.acting_label = parameters['acting_label']                  # Active cylinder(s) key (int)
         self.number_of_cylinders = parameters['number_of_cylinders']    # Number of cylinders
 
-        pressure_at_suction = parameters['pressure_at_suction']              # Pressure at suction
-        pressure_at_discharge = parameters['pressure_at_discharge']          # Pressure at discharge
-        temperature_at_suction = parameters['temperature_at_suction']        # Temperature at suction
-        self.pressure_unit = parameters['pressure_unit']                     # Pressure unit
-        self.temperature_unit = parameters['temperature_unit']               # Temperature unit
-        self.bulk_modulus = parameters['bulk_modulus']                       # Fluid bulk modulus (isentropic or isothermal)
+        self.bulk_modulus = parameters['bulk_modulus']                 # Fluid bulk modulus (isentropic or isothermal)
 
-        if "kgf/cm²" in self.pressure_unit:
-            self.P_suc = pressure_at_suction * kgf_cm2_to_Pa
-            self.P_discharge = pressure_at_discharge * kgf_cm2_to_Pa
-            
-        elif "bar" in self.pressure_unit:
-            self.P_suc = pressure_at_suction * bar_to_Pa
-            self.P_discharge = pressure_at_discharge * bar_to_Pa
-
-        elif "kPa" in self.pressure_unit:
-            self.P_suc = pressure_at_suction * 1e3
-            self.P_discharge = pressure_at_discharge * 1e3
-
-        else:
-            self.P_suc = pressure_at_suction
-            self.P_discharge = pressure_at_discharge
-
-        if "(g)" in self.pressure_unit:
-            self.P_suc += 101325
-            self.P_discharge += 101325
-
-        self.delta_P = self.P_discharge - self.P_suc
-        self.p_ratio = self.P_discharge / self.P_suc
-
-        if self.temperature_unit == "°C":
-            self.T_suc = temperature_at_suction + 273.15
-        else:
-            self.T_suc = temperature_at_suction
+        self.process_state_properties_in_SI_units(parameters)
 
         self.area_head_end = pi * (self.D**2) / 4
         self.area_crank_end = pi * ((self.D**2) - (self.rod_diam**2)) / 4
@@ -194,6 +165,25 @@ class ReciprocatingPumpModel:
             self.active_cylinder = 'crank end'
 
         self.tdc_1 = self.crank_angle_1 * pi / 180
+
+    def process_state_properties_in_SI_units(self, parameters: dict):
+
+        self.pressure_unit = parameters['pressure_unit']               # Pressure unit
+        self.temperature_unit = parameters['temperature_unit']         # Temperature unit
+
+        suction_pressure = parameters['suction_pressure']              # Suction pressure
+        suction_temperature = parameters['suction_temperature']        # Suction temperature
+        discharge_pressure = parameters['discharge_pressure']          # Discharge pressure
+        discharge_temperature = parameters['discharge_temperature']    # Discharge temperature
+
+        self.P_suction = convert_pressure_unit(suction_pressure, self.pressure_unit, "Pa")
+        self.T_suction = convert_temperature_unit(suction_temperature, self.temperature_unit, "K")
+
+        self.P_discharge = convert_pressure_unit(discharge_pressure, self.pressure_unit, "Pa")
+        self.T_discharge = convert_temperature_unit(discharge_temperature, self.temperature_unit, "K")
+
+        self.delta_P = self.P_discharge - self.P_suction
+        self.p_ratio = self.P_discharge / self.P_suction
 
     def set_fluid_properties(self, fluid_data: dict):
         """ 
@@ -411,7 +401,7 @@ class ReciprocatingPumpModel:
 
             if (round(V3, 12) >= round(V_i, 12) >= round(V4, 12)) and (round(v_piston[i], 8) >= 0):  
 
-                P_i = self.P_suc + self.bulk_modulus * (1 - V_i / V3)
+                P_i = self.P_suction + self.bulk_modulus * (1 - V_i / V3)
                 
                 if round(V_i, 12) == round(V4, 12):
                     open_disc[i] = True
@@ -457,7 +447,7 @@ class ReciprocatingPumpModel:
             V_i = volumes[i]
 
             if (V2 < round(V_i,8) <= round(V3,8)) and (round(v_piston[i],8) <= 0):
-                P_i = self.P_suc
+                P_i = self.P_suction
                 open_suc[i] = True
 
                 pressures[i] = P_i
@@ -539,7 +529,7 @@ class ReciprocatingPumpModel:
 
             if (round(V3, 12) >= round(V_i, 12) >= round(V4, 12)) and (round(v_piston[i], 8) >= 0):  
 
-                P_i = self.P_suc + self.bulk_modulus * (1 - V_i / V3)
+                P_i = self.P_suction + self.bulk_modulus * (1 - V_i / V3)
                 
                 if round(V_i, 12) == round(V4, 12):
                     open_disc[i] = True
@@ -585,7 +575,7 @@ class ReciprocatingPumpModel:
             V_i = volumes[i]
 
             if (V2 < round(V_i,8) <= round(V3,8)) and (round(v_piston[i],8) <= 0):
-                P_i = self.P_suc
+                P_i = self.P_suction
                 open_suc[i] = True
 
                 pressures[i] = P_i
@@ -1233,9 +1223,9 @@ if __name__ == "__main__":
                     'rotational_speed' : 178,
                     'number_of_cylinders' : 5,
                     'acting_label' : 1,
-                    'pressure_at_suction' : 2.18 + 1.01325,
-                    'pressure_at_discharge' : 322.18 + 1.01325,
-                    'temperature_at_suction' : 45,
+                    'suction_pressure' : 2.18 + 1.01325,
+                    'discharge_pressure' : 322.18 + 1.01325,
+                    'suction_temperature' : 45,
                     'pressure_unit' : "bar",
                     'temperature_unit' : "°C",
                     'bulk_modulus' : 2541031616.236133

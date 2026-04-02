@@ -25,7 +25,7 @@ class TemperatureUnits(IntEnum):
     FARENHEIT = 2
 
 
-pressure_units = [
+pressure_units_labels = [
     "Pa (a)",
     "kPa (a)",
     "atm (a)",
@@ -42,7 +42,7 @@ pressure_units = [
     "ksi (g)",
 ]
 
-temperature_units = [
+temperature_units_labels = [
     "K",
     "°C",
     "°F",

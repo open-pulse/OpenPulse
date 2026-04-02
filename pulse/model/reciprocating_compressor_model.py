@@ -5,6 +5,7 @@ from pathlib import Path
 from scipy.signal import butter, filtfilt
 
 from pulse import OPEN_PULSE_DIR
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_pressure_unit, convert_temperature_unit
 
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
@@ -140,7 +141,6 @@ class ReciprocatingCompressorModel:
     def _load_compressor_parameters(self, parameters: dict):
         """
         """
-        
         self.D = parameters['bore_diameter']                                    # Cylinder bore diameter [m]
         self.r = parameters['stroke']/2                                         # Length of compressor full stroke [m]
         self.L = parameters['connecting_rod_length']                            # Connecting rod length [m]
@@ -173,35 +173,17 @@ class ReciprocatingCompressorModel:
 
     def process_state_properties_in_SI_units(self, parameters: dict):
 
-        pressure_at_suction = parameters['pressure_at_suction']              # Pressure at suction
-        temperature_at_suction = parameters['temperature_at_suction']        # Temperature at suction
+        suction_pressure = parameters['suction_pressure']              # Suction pressure
+        suction_temperature = parameters['suction_temperature']        # Suction temperature
         self.pressure_unit = parameters['pressure_unit']                     # Pressure unit
-        self.temperature_unit = parameters['temperature_unit']               # Temperature unit
         self.temperature_unit = parameters['temperature_unit']               # Temperature unit
         isentropic_exponent = parameters['isentropic_exponent']
         molar_mass = parameters['molar_mass']
 
-        if "kgf/cm²" in self.pressure_unit:
-            self.P_suction = pressure_at_suction * kgf_cm2_to_Pa
-
-        elif "bar" in self.pressure_unit:
-            self.P_suction = pressure_at_suction * bar_to_Pa
-
-        elif "kPa" in self.pressure_unit:
-            self.P_suction = pressure_at_suction * 1e3
-
-        if "(g)" in self.pressure_unit:
-            self.P_suction += 101325
+        self.P_suction = convert_pressure_unit(suction_pressure, self.pressure_unit, "Pa")
+        self.T_suction = convert_temperature_unit(suction_temperature, self.temperature_unit, "K")
 
         self.P_discharge = self.p_ratio * self.P_suction
-
-        if self.temperature_unit == "°C":
-            self.T_suction = temperature_at_suction + 273.15
-            # self.T_discharge = self.parameters['temperature_at_discharge'] + 273.15
-
-        elif self.temperature_unit == "K":
-            self.T_suction = temperature_at_suction
-            # self.T_discharge = self.parameters['temperature_at_discharge']
 
         self.k = isentropic_exponent                # Compressed gas isentropic exponent
         self.molar_mass = molar_mass                # Molar mass [kg/kmol]
@@ -1574,8 +1556,8 @@ if __name__ == "__main__":
                     'rotational_speed' : 360,
                     'capacity' : 100,
                     'acting_label' : 0,
-                    'pressure_at_suction' : 19.65,
-                    'temperature_at_suction' : 45,
+                    'suction_pressure' : 19.65,
+                    'suction_temperature' : 45,
                     'pressure_unit' : "bar",
                     'temperature_unit' : "°C",
                     'isentropic_exponent' : 1.400,
