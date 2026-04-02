@@ -10,50 +10,29 @@ from PySide6.QtWidgets import (
 
 from pulse import app
 from pulse.editor.pulsation_damper import PulsationDamper
-
-from pulse.interface.user_input.validator import StrictDoubleValidator
 from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.user_input.numeric_checks.unit_utilities import (
+    convert_temperature_unit, 
+    convert_pressure_unit, 
+    PressureUnits, 
+    TemperatureUnits,
+)
+from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget import DamperPreviewRenderWidget
 from pulse.interface.ui_generated.model.editor.pulsation_damper_editor_inputs_ui import PulsationDamperEditorInputs_UI
 
+from pulse.model.node import Node
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-
-import re
-
-from pulse.model.node import Node
 from pulse.editor.structures.point import Point
 
-
+import re
 from enum import IntEnum
 from numbers import Number
 from pint import UnitRegistry
-
-
-class PressureUnits(IntEnum):
-    Pa_a = 0
-    kPa_a = 1
-    atm_a = 2
-    bar_a = 3
-    kgf_cm2_a = 4
-    psi_a = 5
-    ksi_a = 6
-    Pa_g = 7
-    kPa_g = 8
-    atm_g = 9
-    bar_g = 10
-    kgf_cm2_g = 11
-    psi_g = 12
-    ksi_g = 13
-
-
-class TemperatureUnits(IntEnum):
-    KELVIN = 0
-    CELSIUS = 1
-    FARENHEIT = 2
 
 
 class VolumeSections(IntEnum):
@@ -149,7 +128,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         self.lineEdit_neck_height.setValidator(geom_validator)
 
         # configure validator for polytric exponent
-        self.lineEdit_polytropic_exponent.setValidator(StrictDoubleValidator(1, 1e8, 6))
+        self.lineEdit_polytropic_exponent.setValidator(StrictDoubleValidator(1e-8, 1e8, 6))
 
     def configure_dynamic_validators(self):
 
@@ -163,24 +142,25 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
         # adjust pressure bounds (p_min -> perfect vacuum)      
         p_min = 0 
-        p_max = 2e4
+        p_max = 1e8
 
         punit_index = self.comboBox_pressure_units.currentIndex()
-        if punit_index == PressureUnits.Pa_a:
-            p_max = 1e8
-        elif punit_index == PressureUnits.Pa_g:
+        if punit_index == PressureUnits.Pa_g:
             p_min = -101325
-            p_max = 1e8
+
         elif punit_index == PressureUnits.kPa_g:
             p_min = -101.325
-            p_max = 1e8
+
         elif punit_index == PressureUnits.bar_g:
             p_min = -1.101325
             p_max = 2e3
+
         elif punit_index == PressureUnits.kgf_cm2_g:
             p_min = -(9.80665*1e4)
+
         elif punit_index == PressureUnits.psi_g:
             p_min = -(0.45359237*9.80665) / (0.0254**2)
+
         elif punit_index == PressureUnits.ksi_g:
             p_min = -(0.45359237*9.80665) / (1e3 * (0.0254**2))
             p_max = 1e3
@@ -336,13 +316,13 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
 
             self.state_properties["editable_state"] = True
 
-            if self.lineEdit_gas_pressure.text() != "":
-                self.state_properties["pressure"] = float(self.lineEdit_gas_pressure.text())
-                self.state_properties["pressure_unit"] = self.comboBox_pressure_units.currentText()
+        if self.lineEdit_gas_pressure.text() != "":
+            self.state_properties["pressure"] = float(self.lineEdit_gas_pressure.text())
+            self.state_properties["pressure_unit"] = self.comboBox_pressure_units.currentText()
 
-            if self.lineEdit_gas_temperature.text() != "":
-                self.state_properties["temperature"] = float(self.lineEdit_gas_temperature.text())
-                self.state_properties["temperature_unit"] = self.comboBox_temperature_units.currentText()
+        if self.lineEdit_gas_temperature.text() != "":
+            self.state_properties["temperature"] = float(self.lineEdit_gas_temperature.text())
+            self.state_properties["temperature_unit"] = self.comboBox_temperature_units.currentText()
 
         check_ideal_gas = False
         if isinstance(self.selected_fluid, Fluid) and isinstance(self.gas_fluid, Fluid):
@@ -363,32 +343,22 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         if selected_fluid is None:
             return
 
-        u_reg = UnitRegistry()
-
         pressure_Pa = selected_fluid.pressure
         temperature_K = selected_fluid.temperature
 
-        pressure = pressure_Pa * u_reg.pascal
-        temperature = temperature_K * u_reg.kelvin
+        pres_unit = self.comboBox_pressure_units.currentText()
+        temp_unit = self.comboBox_temperature_units.currentText()
 
-        pressure_unit = self.comboBox_pressure_units.currentText()
-        tu_index = self.comboBox_temperature_units.currentIndex()
-
-        _pressure_unit = pressure_unit.split(" ")[0]
-        _temp_unit = ["kelvin", "degC", "degF"][tu_index]
-
-        if "(g)" in pressure_unit:
-            pressure -= u_reg("1 atm")
-
-        _pressure = pressure.to(_pressure_unit).magnitude
-        _temperature = temperature.to(_temp_unit).magnitude
+        _pressure = convert_pressure_unit(pressure_Pa, "Pa", pres_unit)
+        _temperature = convert_temperature_unit(temperature_K, "K", temp_unit)
 
         self.state_properties["pressure"] = _pressure
         self.state_properties["temperature"] = _temperature
 
         self.lineEdit_gas_pressure.setText(f"{_pressure : .8e}")
-        self.lineEdit_gas_temperature.setText(f"{_temperature}")
-        if self.fluid_state == "fluid":
+        self.lineEdit_gas_temperature.setText(f"{_temperature : .6f}")
+
+        if self.fluid_state == "liquid":
             return
 
         self.lineEdit_polytropic_exponent.setText(f"{selected_fluid.isentropic_exponent}")
@@ -445,22 +415,22 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
     def on_double_click_item(self, item):
         self.on_click_item(item)
 
-    def load_state_properties(self):
+    # def load_state_properties(self):
 
-        if not self.state_properties:
-            return
+    #     if not self.state_properties:
+    #         return
 
-        pressure = self.state_properties["pressure"]
-        temperature = self.state_properties["temperature"]
+    #     pressure = self.state_properties["pressure"]
+    #     temperature = self.state_properties["temperature"]
 
-        press_unit = self.state_properties.get("pressure_unit", "kgf/cm² (a)")
-        temp_unit = self.state_properties.get("temperature_unit", "°C")
+    #     press_unit = self.state_properties.get("pressure_unit", "kgf/cm² (a)")
+    #     temp_unit = self.state_properties.get("temperature_unit", "°C")
 
-        self.lineEdit_gas_temperature.setText(f"{temperature}")
-        self.lineEdit_gas_pressure.setText(f"{pressure : .8e}")
+    #     self.lineEdit_gas_temperature.setText(f"{temperature}")
+    #     self.lineEdit_gas_pressure.setText(f"{pressure : .8e}")
 
-        self.comboBox_temperature_units.setCurrentText(temp_unit)
-        self.comboBox_pressure_units.setCurrentText(press_unit)
+    #     self.comboBox_temperature_units.setCurrentText(temp_unit)
+    #     self.comboBox_pressure_units.setCurrentText(press_unit)
 
     def update_volume_unit_callback(self):
         index = self.comboBox_volume_unit.currentIndex()
