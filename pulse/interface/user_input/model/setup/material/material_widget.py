@@ -527,7 +527,7 @@ class MaterialWidget(MaterialInputWidget_UI):
 
         pick = PickColorInput()
         if not pick.complete:
-            return list(0,0,0)
+            return list()
 
         return pick.color
 

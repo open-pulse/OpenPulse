@@ -525,7 +525,10 @@ class FluidWidget(FluidInputWidget_UI):
                         continue
 
                     elif key == "color":
-                        filt_fluid_data[key] = self.pick_color()
+                        picked_color = self.pick_color()
+                        if picked_color:
+                            filt_fluid_data[key] = picked_color
+
                         continue
 
                     return True
@@ -664,7 +667,7 @@ class FluidWidget(FluidInputWidget_UI):
 
         pick = PickColorInput()
         if not pick.complete:
-            return list(0,0,0)
+            return list()
 
         return pick.color
 
