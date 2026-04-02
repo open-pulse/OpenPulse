@@ -7,6 +7,8 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     convert_pressure_unit, 
     PressureUnits, 
     TemperatureUnits,
+    pressure_units_labels,
+    temperature_units_labels,
 )
 from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
 from pulse.interface.user_input.model.setup.fluid.refprop_interface import RefpropInterface
@@ -33,8 +35,8 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
         self._config_window()
         self._initialize()
-        self._create_connections()
         self._config_widgets()
+        self._create_connections()
 
         if self.state_properties: 
             self.check_state_properties(self.state_properties)
@@ -76,41 +78,30 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.selected_fluid = ""
         self.composition_file_path = ""
 
-    def initialize_refprop_interface(self):
-        self.refprop_interface = RefpropInterface()
-        if self.refprop_interface.initialize_REFPROP():
-            return True
+    def _config_widgets(self):
+        #
+        self.label_thermostate_right.setVisible(False)
+        self.label_thermostate_left.setVisible(False)
+        self.label_spacing.setVisible(False)
+        #
+        self.lineEdit_pressure_right.setVisible(False)
+        self.lineEdit_temperature_right.setVisible(False)
+        #
+        self._load_units_labels()
+        self.configure_dynamic_validators()
 
-        self.refprop = self.refprop_interface.refprop
-        self.load_default_gases_info(self.refprop_interface.refprop_fluids)
+    def _load_units_labels(self):
+        # clear data from unit combo boxes
+        self.comboBox_pressure_units.clear()
+        self.comboBox_temperature_units.clear()
 
-        version = self.refprop_interface.get_REFPROP_version()
-        self.setWindowTitle(f"OpenPulse (REFPROP v{version})")
+        # add temperature and pressure labels into unit combo boxes
+        self.comboBox_pressure_units.addItems(pressure_units_labels)
+        self.comboBox_temperature_units.addItems(temperature_units_labels)
 
-    def _create_connections(self):
-        #
-        self.comboBox_pressure_units.currentIndexChanged.connect(self.configure_dynamic_validators)
-        self.comboBox_temperature_units.currentIndexChanged.connect(self.configure_dynamic_validators)
-        self.comboBox_distribution_type.currentIndexChanged.connect(self.distribution_type_changed_callback)
-        #
-        self.spinBox_number_of_fluids.valueChanged.connect(self.number_of_fluids_changed_callback)
-        #
-        self.pushButton_add_gas.clicked.connect(self.add_selected_fluid_button_callback)
-        self.pushButton_confirm.clicked.connect(self.get_fluid_data)
-        self.pushButton_exit.clicked.connect(self.close)
-        self.pushButton_load_composition.clicked.connect(self.load_fluid_composition_callback)
-        self.pushButton_remove_gas.clicked.connect(self.remove_selected_gas)
-        self.pushButton_reset_fluid.clicked.connect(self.reset_fluid)
-        self.pushButton_fluid_configuration_mode.clicked.connect(self.fluids_configuration_mode_callback)
-        #
-        self.tableWidget_new_fluid.cellClicked.connect(self.cell_clicked_on_composition_table)
-        self.tableWidget_new_fluid.itemChanged.connect(self.item_changed_callback)
-        #
-        self.treeWidget_refprop_fluids.itemClicked.connect(self.on_click_item_refprop_fluids)
-        self.treeWidget_refprop_fluids.itemDoubleClicked.connect(self.on_double_click_item_refprop_fluids)
-        #
-        self.distribution_type_changed_callback()
-        self.fluids_configuration_mode_callback()
+        # set default units
+        self.comboBox_pressure_units.setCurrentText("Pa (a)")
+        self.comboBox_temperature_units.setCurrentText("°C")
 
     def configure_dynamic_validators(self):
 
@@ -152,6 +143,42 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.lineEdit_pressure_right.setValidator(StrictDoubleValidator(p_min, p_max, 6))
         self.lineEdit_temperature_left.setValidator(StrictDoubleValidator(t_min, t_max, 6))
         self.lineEdit_temperature_right.setValidator(StrictDoubleValidator(t_min, t_max, 6))
+
+    def initialize_refprop_interface(self):
+        self.refprop_interface = RefpropInterface()
+        if self.refprop_interface.initialize_REFPROP():
+            return True
+
+        self.refprop = self.refprop_interface.refprop
+        self.load_default_gases_info(self.refprop_interface.refprop_fluids)
+
+        version = self.refprop_interface.get_REFPROP_version()
+        self.setWindowTitle(f"OpenPulse (REFPROP v{version})")
+
+    def _create_connections(self):
+        #
+        self.comboBox_pressure_units.currentIndexChanged.connect(self.configure_dynamic_validators)
+        self.comboBox_temperature_units.currentIndexChanged.connect(self.configure_dynamic_validators)
+        self.comboBox_distribution_type.currentIndexChanged.connect(self.distribution_type_changed_callback)
+        #
+        self.spinBox_number_of_fluids.valueChanged.connect(self.number_of_fluids_changed_callback)
+        #
+        self.pushButton_add_gas.clicked.connect(self.add_selected_fluid_button_callback)
+        self.pushButton_confirm.clicked.connect(self.get_fluid_data)
+        self.pushButton_exit.clicked.connect(self.close)
+        self.pushButton_load_composition.clicked.connect(self.load_fluid_composition_callback)
+        self.pushButton_remove_gas.clicked.connect(self.remove_selected_gas)
+        self.pushButton_reset_fluid.clicked.connect(self.reset_fluid)
+        self.pushButton_fluid_configuration_mode.clicked.connect(self.fluids_configuration_mode_callback)
+        #
+        self.tableWidget_new_fluid.cellClicked.connect(self.cell_clicked_on_composition_table)
+        self.tableWidget_new_fluid.itemChanged.connect(self.item_changed_callback)
+        #
+        self.treeWidget_refprop_fluids.itemClicked.connect(self.on_click_item_refprop_fluids)
+        self.treeWidget_refprop_fluids.itemDoubleClicked.connect(self.on_double_click_item_refprop_fluids)
+        #
+        self.distribution_type_changed_callback()
+        self.fluids_configuration_mode_callback()
 
     def distribution_type_changed_callback(self):
         distribution_type = self.comboBox_distribution_type.currentText()
@@ -210,17 +237,6 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.pushButton_fluid_configuration_mode.setToolTip(tool_tip)
         self.spinBox_number_of_fluids.blockSignals(False)
 
-    def _config_widgets(self):
-        #
-        self.label_thermostate_right.setVisible(False)
-        self.label_thermostate_left.setVisible(False)
-        self.label_spacing.setVisible(False)
-        #
-        self.lineEdit_pressure_right.setVisible(False)
-        self.lineEdit_temperature_right.setVisible(False)
-        #
-        self.configure_dynamic_validators()
-
     def check_state_properties(self, state_properties: dict):
 
         # update the editable state of the state properties
@@ -255,7 +271,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
         else:
             self.connection_type = state_properties['connection_type']
-            T_suction = state_properties['temperature_at_suction']
+            T_suction = state_properties['suction_temperature']
             P_suction = state_properties['suction_pressure']
 
             connected_at_discharge = self.connection_type == "discharge"
@@ -280,8 +296,8 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
             self.lineEdit_pressure_right.setText(f"{P_discharge : .8e}")
 
-            if 'temperature_at_discharge' in state_properties.keys():
-                T_discharge = state_properties[f'temperature_at_discharge']
+            if 'discharge_temperature' in state_properties.keys():
+                T_discharge = state_properties[f'discharge_temperature']
                 self.lineEdit_temperature_right.setText(f"{T_discharge : .6f}")
 
             else:
