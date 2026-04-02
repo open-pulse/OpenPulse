@@ -122,14 +122,14 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
     def fluid_data_source_callback(self):
 
-        index = self.comboBox_fluid_data_source.currentIndex()
+        fluid_data_source= self.comboBox_fluid_data_source.currentText()
 
         # RefProp
-        if index == 0:
+        if fluid_data_source == "RefProp":
             self.lineEdit_bulk_modulus.setDisabled(True)
 
         # User-defined
-        elif index == 1:
+        elif fluid_data_source == "User-defined":
             self.lineEdit_bulk_modulus.setEnabled(True)
 
     def selection_callback(self):
