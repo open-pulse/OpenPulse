@@ -441,9 +441,9 @@ def get_reciprocating_pump_excitation(connection_type: str):
                   'rotational_speed' : 178,
                   'number_of_cylinders' : 5,
                   'acting_label' : 1,
-                  'pressure_at_suction' : 2.18 + 1.01325,
-                  'pressure_at_discharge' : 322.18 + 1.01325,
-                  'temperature_at_suction' : 45,
+                  'suction_pressure' : 2.18 + 1.01325,
+                  'discharge_pressure' : 322.18 + 1.01325,
+                  'suction_temperature' : 45,
                   'pressure_unit' : "bar",
                   'temperature_unit' : "°C",
                   'bulk_modulus' : fluids[1].bulk_modulus

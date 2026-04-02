@@ -24,9 +24,9 @@ def load_default_compressor_setup(crank_angle=0):
                     'rotational_speed' : 360,
                     'capacity' : 100,
                     'acting_label' : 0,
-                    'pressure_at_suction' : 19.65,
+                    'suction_pressure' : 19.65,
                     'pressure_unit' : "bar",
-                    'temperature_at_suction' : 45,
+                    'suction_temperature' : 45,
                     'temperature_unit' : "°C",
                     'isentropic_exponent' : 1.400,
                     'molar_mass' : 2.01568  }
