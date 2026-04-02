@@ -250,7 +250,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.lineEdit_pressure_right.setEnabled(editable_state)
         self.lineEdit_temperature_right.setEnabled(editable_state)
 
-        self.reciprocating_machine = state_properties.get("source", None)
+        self.reciprocating_machine = state_properties.get("source")
         self.check_ideal_gas = state_properties.get("check_ideal_gas", True)
 
         pressure_unit = state_properties.get("pressure_unit", "kgf/cm² (a)")
@@ -260,8 +260,8 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
         self.comboBox_temperature_units.setCurrentText(temperature_unit)
 
         if self.reciprocating_machine is None:
-            pressure = state_properties.get("pressure", None)
-            temperature = state_properties.get("temperature", None)
+            pressure = state_properties.get("pressure")
+            temperature = state_properties.get("temperature")
 
             if isinstance(temperature, (int | float)):
                 self.lineEdit_temperature_left.setText(f"{temperature : .6f}")

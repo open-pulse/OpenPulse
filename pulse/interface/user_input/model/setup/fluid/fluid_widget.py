@@ -34,12 +34,13 @@ class FluidWidget(FluidInputWidget_UI):
         self.project = app().project
         self.properties = app().project.model.properties
 
+        self.state_properties = kwargs.get("state_properties", dict())
+
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
         self._config_widgets()
         self._paint_icons()
-        self._load_state_properties(**kwargs)
         self.load_data_from_fluids_library()
 
     def _initialize(self):
@@ -114,9 +115,6 @@ class FluidWidget(FluidInputWidget_UI):
 
     def _add_icon_and_title(self):
         self._config_window()
-
-    def _load_state_properties(self, **kwargs):
-        self.state_properties = kwargs.get("state_properties", dict())
 
     def load_data_from_fluids_library(self):
 

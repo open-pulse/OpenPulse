@@ -1,11 +1,19 @@
 import numpy as np
 import os
 
+from enum import IntEnum
 from pathlib import Path
 from scipy.signal import butter, filtfilt
 
 from pulse import OPEN_PULSE_DIR
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_pressure_unit, convert_temperature_unit
+
+
+class CylindersActingSetup(IntEnum):
+    BOTH_ENDS = 0
+    HEAD_END = 1
+    CRANK_END = 2
+
 
 kgf_cm2_to_Pa = 9.80665e4
 bar_to_Pa = 1e5
@@ -778,7 +786,7 @@ class ReciprocatingCompressorModel:
     def process_sum_of_volumetric_flow_rate(self, key: str, capacity=None, smooth_data=False):
         try:
 
-            if self.acting_label == 'both_ends':
+            if self.acting_label == CylindersActingSetup.BOTH_ENDS:
 
                 if self.number_of_cylinders == 1:
                     flow_rate = self.flow_crank_end(tdc=self.tdc_1, capacity=capacity)[key]
@@ -789,7 +797,7 @@ class ReciprocatingCompressorModel:
                     flow_rate += self.flow_crank_end(tdc=self.tdc_2, capacity=capacity)[key] 
                     flow_rate += self.flow_head_end(tdc=self.tdc_2, capacity=capacity)[key]
 
-            elif self.acting_label == 'head_end':
+            elif self.acting_label == CylindersActingSetup.HEAD_END:
 
                 if self.number_of_cylinders == 1:
                     flow_rate = self.flow_head_end(tdc=self.tdc_1, capacity=capacity)[key]
@@ -797,7 +805,7 @@ class ReciprocatingCompressorModel:
                     flow_rate = self.flow_head_end(tdc=self.tdc_1, capacity=capacity)[key]
                     flow_rate += self.flow_head_end(tdc=self.tdc_2, capacity=capacity)[key]
 
-            elif self.acting_label == 'crank_end':
+            elif self.acting_label == CylindersActingSetup.CRANK_END:
 
                 if self.number_of_cylinders == 1:
                     flow_rate = self.flow_crank_end(tdc=self.tdc_1, capacity=capacity)[key]

@@ -15,11 +15,11 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
-    QGridLayout, QHeaderView, QLabel, QLineEdit,
-    QPushButton, QScrollArea, QSizePolicy, QSpacerItem,
-    QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QDoubleSpinBox,
+    QFrame, QGridLayout, QHeaderView, QLabel,
+    QLineEdit, QPushButton, QScrollArea, QSizePolicy,
+    QSpacerItem, QSpinBox, QTabWidget, QTreeWidget,
+    QTreeWidgetItem, QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -261,16 +261,6 @@ class Ui_Dialog(object):
 
         self.gridLayout_14.addWidget(self.label_23, 9, 1, 1, 1)
 
-        self.lineEdit_clearance_head_end = QLineEdit(self.frame_all_parameters)
-        self.lineEdit_clearance_head_end.setObjectName(u"lineEdit_clearance_head_end")
-        self.lineEdit_clearance_head_end.setMinimumSize(QSize(120, 28))
-        self.lineEdit_clearance_head_end.setMaximumSize(QSize(120, 28))
-        self.lineEdit_clearance_head_end.setFont(font4)
-        self.lineEdit_clearance_head_end.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_clearance_head_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_14.addWidget(self.lineEdit_clearance_head_end, 11, 2, 1, 1)
-
         self.spinBox_tdc2_crank_angle = QSpinBox(self.frame_all_parameters)
         self.spinBox_tdc2_crank_angle.setObjectName(u"spinBox_tdc2_crank_angle")
         self.spinBox_tdc2_crank_angle.setMinimumSize(QSize(120, 28))
@@ -392,16 +382,6 @@ class Ui_Dialog(object):
 
         self.gridLayout_14.addWidget(self.label_34, 16, 3, 1, 1)
 
-        self.lineEdit_rotational_speed = QLineEdit(self.frame_all_parameters)
-        self.lineEdit_rotational_speed.setObjectName(u"lineEdit_rotational_speed")
-        self.lineEdit_rotational_speed.setMinimumSize(QSize(120, 28))
-        self.lineEdit_rotational_speed.setMaximumSize(QSize(120, 28))
-        self.lineEdit_rotational_speed.setFont(font4)
-        self.lineEdit_rotational_speed.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_rotational_speed.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_14.addWidget(self.lineEdit_rotational_speed, 16, 2, 1, 1)
-
         self.lineEdit_connecting_rod_length = QLineEdit(self.frame_all_parameters)
         self.lineEdit_connecting_rod_length.setObjectName(u"lineEdit_connecting_rod_length")
         self.lineEdit_connecting_rod_length.setMinimumSize(QSize(120, 28))
@@ -420,16 +400,6 @@ class Ui_Dialog(object):
         self.label_27.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_27, 11, 1, 1, 1)
-
-        self.lineEdit_clearance_crank_end = QLineEdit(self.frame_all_parameters)
-        self.lineEdit_clearance_crank_end.setObjectName(u"lineEdit_clearance_crank_end")
-        self.lineEdit_clearance_crank_end.setMinimumSize(QSize(120, 28))
-        self.lineEdit_clearance_crank_end.setMaximumSize(QSize(120, 28))
-        self.lineEdit_clearance_crank_end.setFont(font4)
-        self.lineEdit_clearance_crank_end.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_clearance_crank_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_14.addWidget(self.lineEdit_clearance_crank_end, 12, 2, 1, 1)
 
         self.spinBox_capacity = QSpinBox(self.frame_all_parameters)
         self.spinBox_capacity.setObjectName(u"spinBox_capacity")
@@ -573,6 +543,45 @@ class Ui_Dialog(object):
         self.pushButton_reset_entries.setAutoDefault(False)
 
         self.gridLayout_14.addWidget(self.pushButton_reset_entries, 2, 3, 1, 1)
+
+        self.doubleSpinBox_rotational_speed = QDoubleSpinBox(self.frame_all_parameters)
+        self.doubleSpinBox_rotational_speed.setObjectName(u"doubleSpinBox_rotational_speed")
+        self.doubleSpinBox_rotational_speed.setMinimumSize(QSize(120, 28))
+        self.doubleSpinBox_rotational_speed.setMaximumSize(QSize(120, 28))
+        self.doubleSpinBox_rotational_speed.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.doubleSpinBox_rotational_speed.setDecimals(6)
+        self.doubleSpinBox_rotational_speed.setMinimum(0.010000000000000)
+        self.doubleSpinBox_rotational_speed.setMaximum(10000.000000000000000)
+        self.doubleSpinBox_rotational_speed.setSingleStep(10.000000000000000)
+        self.doubleSpinBox_rotational_speed.setValue(360.000000000000000)
+
+        self.gridLayout_14.addWidget(self.doubleSpinBox_rotational_speed, 16, 2, 1, 1)
+
+        self.doubleSpinBox_clearance_head_end = QDoubleSpinBox(self.frame_all_parameters)
+        self.doubleSpinBox_clearance_head_end.setObjectName(u"doubleSpinBox_clearance_head_end")
+        self.doubleSpinBox_clearance_head_end.setMinimumSize(QSize(120, 28))
+        self.doubleSpinBox_clearance_head_end.setMaximumSize(QSize(120, 28))
+        self.doubleSpinBox_clearance_head_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.doubleSpinBox_clearance_head_end.setDecimals(4)
+        self.doubleSpinBox_clearance_head_end.setMinimum(0.000000000000000)
+        self.doubleSpinBox_clearance_head_end.setMaximum(10000.000000000000000)
+        self.doubleSpinBox_clearance_head_end.setSingleStep(10.000000000000000)
+        self.doubleSpinBox_clearance_head_end.setValue(15.800000000000001)
+
+        self.gridLayout_14.addWidget(self.doubleSpinBox_clearance_head_end, 11, 2, 1, 1)
+
+        self.doubleSpinBox_clearance_crank_end = QDoubleSpinBox(self.frame_all_parameters)
+        self.doubleSpinBox_clearance_crank_end.setObjectName(u"doubleSpinBox_clearance_crank_end")
+        self.doubleSpinBox_clearance_crank_end.setMinimumSize(QSize(120, 28))
+        self.doubleSpinBox_clearance_crank_end.setMaximumSize(QSize(120, 28))
+        self.doubleSpinBox_clearance_crank_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.doubleSpinBox_clearance_crank_end.setDecimals(4)
+        self.doubleSpinBox_clearance_crank_end.setMinimum(0.000000000000000)
+        self.doubleSpinBox_clearance_crank_end.setMaximum(10000.000000000000000)
+        self.doubleSpinBox_clearance_crank_end.setSingleStep(10.000000000000000)
+        self.doubleSpinBox_clearance_crank_end.setValue(18.390000000000001)
+
+        self.gridLayout_14.addWidget(self.doubleSpinBox_clearance_crank_end, 12, 2, 1, 1)
 
 
         self.gridLayout_11.addWidget(self.frame_all_parameters, 0, 0, 1, 1)
@@ -1438,12 +1447,9 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.lineEdit_stroke, self.lineEdit_connecting_rod_length)
         QWidget.setTabOrder(self.lineEdit_connecting_rod_length, self.lineEdit_rod_diameter)
         QWidget.setTabOrder(self.lineEdit_rod_diameter, self.lineEdit_pressure_ratio)
-        QWidget.setTabOrder(self.lineEdit_pressure_ratio, self.lineEdit_clearance_head_end)
-        QWidget.setTabOrder(self.lineEdit_clearance_head_end, self.lineEdit_clearance_crank_end)
-        QWidget.setTabOrder(self.lineEdit_clearance_crank_end, self.spinBox_tdc1_crank_angle)
+        QWidget.setTabOrder(self.lineEdit_pressure_ratio, self.spinBox_tdc1_crank_angle)
         QWidget.setTabOrder(self.spinBox_tdc1_crank_angle, self.spinBox_tdc2_crank_angle)
-        QWidget.setTabOrder(self.spinBox_tdc2_crank_angle, self.lineEdit_rotational_speed)
-        QWidget.setTabOrder(self.lineEdit_rotational_speed, self.spinBox_capacity)
+        QWidget.setTabOrder(self.spinBox_tdc2_crank_angle, self.spinBox_capacity)
         QWidget.setTabOrder(self.spinBox_capacity, self.pushButton_exit)
         QWidget.setTabOrder(self.pushButton_exit, self.pushButton_confirm)
         QWidget.setTabOrder(self.pushButton_confirm, self.spinBox_max_frequency)
@@ -1459,6 +1465,7 @@ class Ui_Dialog(object):
         self.pushButton_confirm.setDefault(False)
         self.pushButton_exit.setDefault(False)
         self.tabWidget_main.setCurrentIndex(0)
+        self.comboBox_cylinder_acting.setCurrentIndex(0)
         self.comboBox_connection_type.setCurrentIndex(1)
         self.comboBox_fluid_data_source.setCurrentIndex(0)
         self.pushButton_get_fluid.setDefault(True)
@@ -1486,7 +1493,6 @@ class Ui_Dialog(object):
         self.label_16.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m]</p></body></html>", None))
         self.label_30.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Rotational speed:</p></body></html>", None))
         self.label_23.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Rod diameter:</p></body></html>", None))
-        self.lineEdit_clearance_head_end.setText(QCoreApplication.translate("Dialog", u"15.80", None))
         self.lineEdit_bore_diameter.setText(QCoreApplication.translate("Dialog", u"0.78", None))
         self.label_45.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[degree]</p></body></html>", None))
         self.label_28.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">TDC crank angle (#1):</p></body></html>", None))
@@ -1499,27 +1505,25 @@ class Ui_Dialog(object):
         self.lineEdit_rod_diameter.setText(QCoreApplication.translate("Dialog", u"0.135", None))
         self.label_20.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Cylinder bore diameter:</p></body></html>", None))
         self.label_34.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[rpm]</p></body></html>", None))
-        self.lineEdit_rotational_speed.setText(QCoreApplication.translate("Dialog", u"360", None))
         self.lineEdit_connecting_rod_length.setText(QCoreApplication.translate("Dialog", u"1.25", None))
         self.label_27.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Clearance (HE):</p></body></html>", None))
-        self.lineEdit_clearance_crank_end.setText(QCoreApplication.translate("Dialog", u"18.39", None))
         self.label_15.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m]</p></body></html>", None))
         self.label_32.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[degree]</p></body></html>", None))
         self.label_22.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Connecting rod length:</p></body></html>", None))
-        self.comboBox_cylinder_acting.setItemText(0, QCoreApplication.translate("Dialog", u" Both ends", None))
-        self.comboBox_cylinder_acting.setItemText(1, QCoreApplication.translate("Dialog", u" Head end", None))
-        self.comboBox_cylinder_acting.setItemText(2, QCoreApplication.translate("Dialog", u" Crank end", None))
+        self.comboBox_cylinder_acting.setItemText(0, QCoreApplication.translate("Dialog", u"Both ends", None))
+        self.comboBox_cylinder_acting.setItemText(1, QCoreApplication.translate("Dialog", u"Head end", None))
+        self.comboBox_cylinder_acting.setItemText(2, QCoreApplication.translate("Dialog", u"Crank end", None))
 
-        self.comboBox_stage.setItemText(0, QCoreApplication.translate("Dialog", u" First stage", None))
-        self.comboBox_stage.setItemText(1, QCoreApplication.translate("Dialog", u" Second stage", None))
-        self.comboBox_stage.setItemText(2, QCoreApplication.translate("Dialog", u" Third stage", None))
+        self.comboBox_stage.setItemText(0, QCoreApplication.translate("Dialog", u"First stage", None))
+        self.comboBox_stage.setItemText(1, QCoreApplication.translate("Dialog", u"Second stage", None))
+        self.comboBox_stage.setItemText(2, QCoreApplication.translate("Dialog", u"Third stage", None))
 
         self.label_46.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Number of cylinders:</p></body></html>", None))
         self.lineEdit_pressure_ratio.setText(QCoreApplication.translate("Dialog", u"1.90788804", None))
         self.label_9.setText(QCoreApplication.translate("Dialog", u"Connection type:", None))
         self.label_6.setText(QCoreApplication.translate("Dialog", u"Reciprocating compressor parameters", None))
-        self.comboBox_connection_type.setItemText(0, QCoreApplication.translate("Dialog", u" Suction", None))
-        self.comboBox_connection_type.setItemText(1, QCoreApplication.translate("Dialog", u" Discharge", None))
+        self.comboBox_connection_type.setItemText(0, QCoreApplication.translate("Dialog", u"Suction", None))
+        self.comboBox_connection_type.setItemText(1, QCoreApplication.translate("Dialog", u"Discharge", None))
 
 #if QT_CONFIG(tooltip)
         self.pushButton_reset_entries.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Reset entries</p></body></html>", None))
@@ -1664,7 +1668,6 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - label_16: QLabel
                                                                                     - label_30: QLabel
                                                                                     - label_23: QLabel
-                                                                                    - lineEdit_clearance_head_end: QLineEdit
                                                                                     - spinBox_tdc2_crank_angle: QSpinBox
                                                                                     - lineEdit_bore_diameter: QLineEdit
                                                                                     - label_45: QLabel
@@ -1678,10 +1681,8 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - lineEdit_rod_diameter: QLineEdit
                                                                                     - label_20: QLabel
                                                                                     - label_34: QLabel
-                                                                                    - lineEdit_rotational_speed: QLineEdit
                                                                                     - lineEdit_connecting_rod_length: QLineEdit
                                                                                     - label_27: QLabel
-                                                                                    - lineEdit_clearance_crank_end: QLineEdit
                                                                                     - spinBox_capacity: QSpinBox
                                                                                     - label_15: QLabel
                                                                                     - label_32: QLabel
@@ -1695,6 +1696,9 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - label_6: QLabel
                                                                                     - comboBox_connection_type: QComboBox
                                                                                     - pushButton_reset_entries: QPushButton
+                                                                                    - doubleSpinBox_rotational_speed: QDoubleSpinBox
+                                                                                    - doubleSpinBox_clearance_head_end: QDoubleSpinBox
+                                                                                    - doubleSpinBox_clearance_crank_end: QDoubleSpinBox
                                                                         - frame_3: QFrame
                                                                             - (Layout): QGridLayout
                                                                                     - label_suction_temperature_unit: QLabel

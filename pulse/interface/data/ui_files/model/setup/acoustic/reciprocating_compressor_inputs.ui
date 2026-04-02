@@ -736,39 +736,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="11" column="2">
-                     <widget class="QLineEdit" name="lineEdit_clearance_head_end">
-                      <property name="minimumSize">
-                       <size>
-                        <width>120</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>120</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::FocusPolicy::StrongFocus</enum>
-                      </property>
-                      <property name="text">
-                       <string>15.80</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignmentFlag::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="15" column="2">
                      <widget class="QSpinBox" name="spinBox_tdc2_crank_angle">
                       <property name="minimumSize">
@@ -1168,39 +1135,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item row="16" column="2">
-                     <widget class="QLineEdit" name="lineEdit_rotational_speed">
-                      <property name="minimumSize">
-                       <size>
-                        <width>120</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>120</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::FocusPolicy::StrongFocus</enum>
-                      </property>
-                      <property name="text">
-                       <string>360</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignmentFlag::AlignCenter</set>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="8" column="2">
                      <widget class="QLineEdit" name="lineEdit_connecting_rod_length">
                       <property name="minimumSize">
@@ -1261,39 +1195,6 @@
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="12" column="2">
-                     <widget class="QLineEdit" name="lineEdit_clearance_crank_end">
-                      <property name="minimumSize">
-                       <size>
-                        <width>120</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>120</width>
-                        <height>28</height>
-                       </size>
-                      </property>
-                      <property name="font">
-                       <font>
-                        <family>MS Shell Dlg 2</family>
-                        <pointsize>10</pointsize>
-                        <italic>false</italic>
-                        <bold>false</bold>
-                       </font>
-                      </property>
-                      <property name="focusPolicy">
-                       <enum>Qt::FocusPolicy::StrongFocus</enum>
-                      </property>
-                      <property name="text">
-                       <string>18.39</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1448,19 +1349,22 @@
                         <bold>false</bold>
                        </font>
                       </property>
+                      <property name="currentIndex">
+                       <number>0</number>
+                      </property>
                       <item>
                        <property name="text">
-                        <string> Both ends</string>
+                        <string>Both ends</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> Head end</string>
+                        <string>Head end</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> Crank end</string>
+                        <string>Crank end</string>
                        </property>
                       </item>
                      </widget>
@@ -1528,17 +1432,17 @@
                       </property>
                       <item>
                        <property name="text">
-                        <string> First stage</string>
+                        <string>First stage</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> Second stage</string>
+                        <string>Second stage</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> Third stage</string>
+                        <string>Third stage</string>
                        </property>
                       </item>
                      </widget>
@@ -1719,12 +1623,12 @@
                       </property>
                       <item>
                        <property name="text">
-                        <string> Suction</string>
+                        <string>Suction</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> Discharge</string>
+                        <string>Discharge</string>
                        </property>
                       </item>
                      </widget>
@@ -1761,6 +1665,108 @@
                       </property>
                       <property name="autoDefault">
                        <bool>false</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="16" column="2">
+                     <widget class="QDoubleSpinBox" name="doubleSpinBox_rotational_speed">
+                      <property name="minimumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
+                      </property>
+                      <property name="decimals">
+                       <number>6</number>
+                      </property>
+                      <property name="minimum">
+                       <double>0.010000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>360.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="11" column="2">
+                     <widget class="QDoubleSpinBox" name="doubleSpinBox_clearance_head_end">
+                      <property name="minimumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
+                      </property>
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="minimum">
+                       <double>0.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>15.800000000000001</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="12" column="2">
+                     <widget class="QDoubleSpinBox" name="doubleSpinBox_clearance_crank_end">
+                      <property name="minimumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>120</width>
+                        <height>28</height>
+                       </size>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
+                      </property>
+                      <property name="decimals">
+                       <number>4</number>
+                      </property>
+                      <property name="minimum">
+                       <double>0.000000000000000</double>
+                      </property>
+                      <property name="maximum">
+                       <double>10000.000000000000000</double>
+                      </property>
+                      <property name="singleStep">
+                       <double>10.000000000000000</double>
+                      </property>
+                      <property name="value">
+                       <double>18.390000000000001</double>
                       </property>
                      </widget>
                     </item>
@@ -4481,11 +4487,8 @@ at suction</string>
   <tabstop>lineEdit_connecting_rod_length</tabstop>
   <tabstop>lineEdit_rod_diameter</tabstop>
   <tabstop>lineEdit_pressure_ratio</tabstop>
-  <tabstop>lineEdit_clearance_head_end</tabstop>
-  <tabstop>lineEdit_clearance_crank_end</tabstop>
   <tabstop>spinBox_tdc1_crank_angle</tabstop>
   <tabstop>spinBox_tdc2_crank_angle</tabstop>
-  <tabstop>lineEdit_rotational_speed</tabstop>
   <tabstop>spinBox_capacity</tabstop>
   <tabstop>pushButton_exit</tabstop>
   <tabstop>pushButton_confirm</tabstop>
