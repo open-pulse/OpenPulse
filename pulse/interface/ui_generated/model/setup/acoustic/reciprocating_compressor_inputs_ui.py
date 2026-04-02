@@ -25,7 +25,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(500, 783)
+        Dialog.resize(598, 783)
         Dialog.setMinimumSize(QSize(500, 500))
         Dialog.setMaximumSize(QSize(600, 800))
         Dialog.setSizeGripEnabled(True)
@@ -40,8 +40,8 @@ class Ui_Dialog(object):
         font = QFont()
         font.setPointSize(8)
         self.frame_18.setFont(font)
-        self.frame_18.setFrameShape(QFrame.Box)
-        self.frame_18.setFrameShadow(QFrame.Raised)
+        self.frame_18.setFrameShape(QFrame.Shape.Box)
+        self.frame_18.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_12 = QGridLayout(self.frame_18)
         self.gridLayout_12.setSpacing(0)
         self.gridLayout_12.setObjectName(u"gridLayout_12")
@@ -55,9 +55,9 @@ class Ui_Dialog(object):
         font1.setBold(False)
         font1.setItalic(False)
         self.label.setFont(font1)
-        self.label.setFrameShape(QFrame.NoFrame)
-        self.label.setTextFormat(Qt.AutoText)
-        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setFrameShape(QFrame.Shape.NoFrame)
+        self.label.setTextFormat(Qt.TextFormat.AutoText)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_12.addWidget(self.label, 0, 0, 1, 1)
 
@@ -68,8 +68,8 @@ class Ui_Dialog(object):
         self.frame_2.setObjectName(u"frame_2")
         self.frame_2.setMinimumSize(QSize(0, 52))
         self.frame_2.setMaximumSize(QSize(16777215, 52))
-        self.frame_2.setFrameShape(QFrame.NoFrame)
-        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.frame_2.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_2 = QGridLayout(self.frame_2)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setVerticalSpacing(0)
@@ -110,29 +110,29 @@ class Ui_Dialog(object):
         font3 = QFont()
         font3.setPointSize(1)
         self.frame.setFont(font3)
-        self.frame.setFrameShape(QFrame.Box)
-        self.frame.setFrameShadow(QFrame.Raised)
+        self.frame.setFrameShape(QFrame.Shape.Box)
+        self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_4 = QGridLayout(self.frame)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.frame_7 = QFrame(self.frame)
         self.frame_7.setObjectName(u"frame_7")
         self.frame_7.setMinimumSize(QSize(0, 0))
-        self.frame_7.setFrameShape(QFrame.NoFrame)
-        self.frame_7.setFrameShadow(QFrame.Raised)
+        self.frame_7.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_7.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_10 = QGridLayout(self.frame_7)
         self.gridLayout_10.setSpacing(0)
         self.gridLayout_10.setObjectName(u"gridLayout_10")
         self.gridLayout_10.setContentsMargins(0, 0, 0, 0)
-        self.tabWidget_compressor = QTabWidget(self.frame_7)
-        self.tabWidget_compressor.setObjectName(u"tabWidget_compressor")
-        self.tabWidget_compressor.setMinimumSize(QSize(0, 0))
-        self.tabWidget_compressor.setMaximumSize(QSize(600, 800))
+        self.tabWidget_main = QTabWidget(self.frame_7)
+        self.tabWidget_main.setObjectName(u"tabWidget_main")
+        self.tabWidget_main.setMinimumSize(QSize(0, 0))
+        self.tabWidget_main.setMaximumSize(QSize(600, 800))
         font4 = QFont()
         font4.setFamilies([u"MS Shell Dlg 2"])
         font4.setPointSize(10)
         font4.setBold(False)
         font4.setItalic(False)
-        self.tabWidget_compressor.setFont(font4)
+        self.tabWidget_main.setFont(font4)
         self.tab_setup = QWidget()
         self.tab_setup.setObjectName(u"tab_setup")
         self.gridLayout_32 = QGridLayout(self.tab_setup)
@@ -141,11 +141,11 @@ class Ui_Dialog(object):
         self.gridLayout_32.setContentsMargins(4, 8, 4, 8)
         self.scrollArea = QScrollArea(self.tab_setup)
         self.scrollArea.setObjectName(u"scrollArea")
-        self.scrollArea.setFrameShape(QFrame.NoFrame)
+        self.scrollArea.setFrameShape(QFrame.Shape.NoFrame)
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 439, 938))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 537, 938))
         self.gridLayout_11 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_11.setSpacing(0)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
@@ -154,8 +154,8 @@ class Ui_Dialog(object):
         self.frame_all_parameters.setObjectName(u"frame_all_parameters")
         self.frame_all_parameters.setMinimumSize(QSize(120, 0))
         self.frame_all_parameters.setMaximumSize(QSize(16777215, 16777215))
-        self.frame_all_parameters.setFrameShape(QFrame.NoFrame)
-        self.frame_all_parameters.setFrameShadow(QFrame.Raised)
+        self.frame_all_parameters.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_all_parameters.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_14 = QGridLayout(self.frame_all_parameters)
         self.gridLayout_14.setSpacing(6)
         self.gridLayout_14.setObjectName(u"gridLayout_14")
@@ -165,7 +165,7 @@ class Ui_Dialog(object):
         self.label_47.setMinimumSize(QSize(0, 28))
         self.label_47.setMaximumSize(QSize(16777215, 28))
         self.label_47.setFont(font4)
-        self.label_47.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_47.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_47, 18, 3, 1, 1)
 
@@ -173,10 +173,8 @@ class Ui_Dialog(object):
         self.spinBox_tdc1_crank_angle.setObjectName(u"spinBox_tdc1_crank_angle")
         self.spinBox_tdc1_crank_angle.setMinimumSize(QSize(120, 28))
         self.spinBox_tdc1_crank_angle.setMaximumSize(QSize(120, 28))
-        font5 = QFont()
-        font5.setPointSize(10)
-        self.spinBox_tdc1_crank_angle.setFont(font5)
-        self.spinBox_tdc1_crank_angle.setAlignment(Qt.AlignCenter)
+        self.spinBox_tdc1_crank_angle.setFont(font4)
+        self.spinBox_tdc1_crank_angle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.spinBox_tdc1_crank_angle.setMaximum(270)
         self.spinBox_tdc1_crank_angle.setSingleStep(90)
 
@@ -187,7 +185,7 @@ class Ui_Dialog(object):
         self.label_14.setMinimumSize(QSize(0, 28))
         self.label_14.setMaximumSize(QSize(16777215, 28))
         self.label_14.setFont(font4)
-        self.label_14.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_14.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_14, 7, 3, 1, 1)
 
@@ -195,11 +193,8 @@ class Ui_Dialog(object):
         self.label_8.setObjectName(u"label_8")
         self.label_8.setMinimumSize(QSize(0, 28))
         self.label_8.setMaximumSize(QSize(16777215, 28))
-        font6 = QFont()
-        font6.setPointSize(10)
-        font6.setBold(False)
-        self.label_8.setFont(font6)
-        self.label_8.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_8.setFont(font4)
+        self.label_8.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_8, 3, 1, 1, 1)
 
@@ -208,7 +203,7 @@ class Ui_Dialog(object):
         self.label_33.setMinimumSize(QSize(0, 28))
         self.label_33.setMaximumSize(QSize(16777215, 28))
         self.label_33.setFont(font4)
-        self.label_33.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_33.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_33, 18, 1, 1, 1)
 
@@ -216,8 +211,8 @@ class Ui_Dialog(object):
         self.label_48.setObjectName(u"label_48")
         self.label_48.setMinimumSize(QSize(0, 28))
         self.label_48.setMaximumSize(QSize(16777215, 28))
-        self.label_48.setFont(font6)
-        self.label_48.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_48.setFont(font4)
+        self.label_48.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_48, 4, 1, 1, 1)
 
@@ -226,7 +221,7 @@ class Ui_Dialog(object):
         self.label_43.setMinimumSize(QSize(0, 28))
         self.label_43.setMaximumSize(QSize(16777215, 28))
         self.label_43.setFont(font4)
-        self.label_43.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_43.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_43, 15, 1, 1, 1)
 
@@ -235,7 +230,7 @@ class Ui_Dialog(object):
         self.label_36.setMinimumSize(QSize(0, 28))
         self.label_36.setMaximumSize(QSize(16777215, 28))
         self.label_36.setFont(font4)
-        self.label_36.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_36.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_36, 12, 3, 1, 1)
 
@@ -244,7 +239,7 @@ class Ui_Dialog(object):
         self.label_16.setMinimumSize(QSize(0, 26))
         self.label_16.setMaximumSize(QSize(16777215, 26))
         self.label_16.setFont(font4)
-        self.label_16.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_16.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_16, 9, 3, 1, 1)
 
@@ -253,7 +248,7 @@ class Ui_Dialog(object):
         self.label_30.setMinimumSize(QSize(0, 28))
         self.label_30.setMaximumSize(QSize(16777215, 28))
         self.label_30.setFont(font4)
-        self.label_30.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_30.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_30, 16, 1, 1, 1)
 
@@ -262,7 +257,7 @@ class Ui_Dialog(object):
         self.label_23.setMinimumSize(QSize(0, 26))
         self.label_23.setMaximumSize(QSize(16777215, 26))
         self.label_23.setFont(font4)
-        self.label_23.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_23.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_23, 9, 1, 1, 1)
 
@@ -270,9 +265,9 @@ class Ui_Dialog(object):
         self.lineEdit_clearance_head_end.setObjectName(u"lineEdit_clearance_head_end")
         self.lineEdit_clearance_head_end.setMinimumSize(QSize(120, 28))
         self.lineEdit_clearance_head_end.setMaximumSize(QSize(120, 28))
-        self.lineEdit_clearance_head_end.setFont(font5)
-        self.lineEdit_clearance_head_end.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_clearance_head_end.setAlignment(Qt.AlignCenter)
+        self.lineEdit_clearance_head_end.setFont(font4)
+        self.lineEdit_clearance_head_end.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_clearance_head_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_14.addWidget(self.lineEdit_clearance_head_end, 11, 2, 1, 1)
 
@@ -280,8 +275,8 @@ class Ui_Dialog(object):
         self.spinBox_tdc2_crank_angle.setObjectName(u"spinBox_tdc2_crank_angle")
         self.spinBox_tdc2_crank_angle.setMinimumSize(QSize(120, 28))
         self.spinBox_tdc2_crank_angle.setMaximumSize(QSize(120, 28))
-        self.spinBox_tdc2_crank_angle.setFont(font5)
-        self.spinBox_tdc2_crank_angle.setAlignment(Qt.AlignCenter)
+        self.spinBox_tdc2_crank_angle.setFont(font4)
+        self.spinBox_tdc2_crank_angle.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.spinBox_tdc2_crank_angle.setMaximum(270)
         self.spinBox_tdc2_crank_angle.setSingleStep(90)
 
@@ -291,8 +286,8 @@ class Ui_Dialog(object):
         self.lineEdit_bore_diameter.setObjectName(u"lineEdit_bore_diameter")
         self.lineEdit_bore_diameter.setMinimumSize(QSize(120, 28))
         self.lineEdit_bore_diameter.setMaximumSize(QSize(120, 28))
-        self.lineEdit_bore_diameter.setFont(font5)
-        self.lineEdit_bore_diameter.setAlignment(Qt.AlignCenter)
+        self.lineEdit_bore_diameter.setFont(font4)
+        self.lineEdit_bore_diameter.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_14.addWidget(self.lineEdit_bore_diameter, 6, 2, 1, 1)
 
@@ -301,7 +296,7 @@ class Ui_Dialog(object):
         self.label_45.setMinimumSize(QSize(0, 28))
         self.label_45.setMaximumSize(QSize(16777215, 28))
         self.label_45.setFont(font4)
-        self.label_45.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_45.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_45, 15, 3, 1, 1)
 
@@ -310,7 +305,7 @@ class Ui_Dialog(object):
         self.label_28.setMinimumSize(QSize(0, 28))
         self.label_28.setMaximumSize(QSize(16777215, 28))
         self.label_28.setFont(font4)
-        self.label_28.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_28.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_28, 14, 1, 1, 1)
 
@@ -319,7 +314,7 @@ class Ui_Dialog(object):
         self.label_13.setMinimumSize(QSize(0, 28))
         self.label_13.setMaximumSize(QSize(16777215, 28))
         self.label_13.setFont(font4)
-        self.label_13.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_13.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_13, 6, 3, 1, 1)
 
@@ -328,7 +323,7 @@ class Ui_Dialog(object):
         self.label_31.setMinimumSize(QSize(0, 28))
         self.label_31.setMaximumSize(QSize(16777215, 28))
         self.label_31.setFont(font4)
-        self.label_31.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_31.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_31, 11, 3, 1, 1)
 
@@ -336,9 +331,9 @@ class Ui_Dialog(object):
         self.lineEdit_stroke.setObjectName(u"lineEdit_stroke")
         self.lineEdit_stroke.setMinimumSize(QSize(120, 28))
         self.lineEdit_stroke.setMaximumSize(QSize(120, 28))
-        self.lineEdit_stroke.setFont(font5)
-        self.lineEdit_stroke.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_stroke.setAlignment(Qt.AlignCenter)
+        self.lineEdit_stroke.setFont(font4)
+        self.lineEdit_stroke.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_stroke.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_14.addWidget(self.lineEdit_stroke, 7, 2, 1, 1)
 
@@ -347,7 +342,7 @@ class Ui_Dialog(object):
         self.label_35.setMinimumSize(QSize(0, 28))
         self.label_35.setMaximumSize(QSize(16777215, 28))
         self.label_35.setFont(font4)
-        self.label_35.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_35.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_35, 12, 1, 1, 1)
 
@@ -356,7 +351,7 @@ class Ui_Dialog(object):
         self.label_26.setMinimumSize(QSize(0, 28))
         self.label_26.setMaximumSize(QSize(16777215, 28))
         self.label_26.setFont(font4)
-        self.label_26.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_26.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_26, 10, 1, 1, 1)
 
@@ -365,7 +360,7 @@ class Ui_Dialog(object):
         self.label_21.setMinimumSize(QSize(0, 28))
         self.label_21.setMaximumSize(QSize(16777215, 28))
         self.label_21.setFont(font4)
-        self.label_21.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_21.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_21, 7, 1, 1, 1)
 
@@ -373,9 +368,9 @@ class Ui_Dialog(object):
         self.lineEdit_rod_diameter.setObjectName(u"lineEdit_rod_diameter")
         self.lineEdit_rod_diameter.setMinimumSize(QSize(120, 26))
         self.lineEdit_rod_diameter.setMaximumSize(QSize(120, 26))
-        self.lineEdit_rod_diameter.setFont(font5)
-        self.lineEdit_rod_diameter.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_rod_diameter.setAlignment(Qt.AlignCenter)
+        self.lineEdit_rod_diameter.setFont(font4)
+        self.lineEdit_rod_diameter.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_rod_diameter.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_14.addWidget(self.lineEdit_rod_diameter, 9, 2, 1, 1)
 
@@ -384,7 +379,7 @@ class Ui_Dialog(object):
         self.label_20.setMinimumSize(QSize(0, 28))
         self.label_20.setMaximumSize(QSize(16777215, 28))
         self.label_20.setFont(font4)
-        self.label_20.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_20.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_20, 6, 1, 1, 1)
 
@@ -393,7 +388,7 @@ class Ui_Dialog(object):
         self.label_34.setMinimumSize(QSize(0, 28))
         self.label_34.setMaximumSize(QSize(16777215, 28))
         self.label_34.setFont(font4)
-        self.label_34.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_34.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_34, 16, 3, 1, 1)
 
@@ -401,9 +396,9 @@ class Ui_Dialog(object):
         self.lineEdit_rotational_speed.setObjectName(u"lineEdit_rotational_speed")
         self.lineEdit_rotational_speed.setMinimumSize(QSize(120, 28))
         self.lineEdit_rotational_speed.setMaximumSize(QSize(120, 28))
-        self.lineEdit_rotational_speed.setFont(font5)
-        self.lineEdit_rotational_speed.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_rotational_speed.setAlignment(Qt.AlignCenter)
+        self.lineEdit_rotational_speed.setFont(font4)
+        self.lineEdit_rotational_speed.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_rotational_speed.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_14.addWidget(self.lineEdit_rotational_speed, 16, 2, 1, 1)
 
@@ -411,9 +406,9 @@ class Ui_Dialog(object):
         self.lineEdit_connecting_rod_length.setObjectName(u"lineEdit_connecting_rod_length")
         self.lineEdit_connecting_rod_length.setMinimumSize(QSize(120, 28))
         self.lineEdit_connecting_rod_length.setMaximumSize(QSize(120, 28))
-        self.lineEdit_connecting_rod_length.setFont(font5)
-        self.lineEdit_connecting_rod_length.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_connecting_rod_length.setAlignment(Qt.AlignCenter)
+        self.lineEdit_connecting_rod_length.setFont(font4)
+        self.lineEdit_connecting_rod_length.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_connecting_rod_length.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_14.addWidget(self.lineEdit_connecting_rod_length, 8, 2, 1, 1)
 
@@ -422,7 +417,7 @@ class Ui_Dialog(object):
         self.label_27.setMinimumSize(QSize(0, 28))
         self.label_27.setMaximumSize(QSize(16777215, 28))
         self.label_27.setFont(font4)
-        self.label_27.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_27.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_27, 11, 1, 1, 1)
 
@@ -430,9 +425,9 @@ class Ui_Dialog(object):
         self.lineEdit_clearance_crank_end.setObjectName(u"lineEdit_clearance_crank_end")
         self.lineEdit_clearance_crank_end.setMinimumSize(QSize(120, 28))
         self.lineEdit_clearance_crank_end.setMaximumSize(QSize(120, 28))
-        self.lineEdit_clearance_crank_end.setFont(font5)
-        self.lineEdit_clearance_crank_end.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_clearance_crank_end.setAlignment(Qt.AlignCenter)
+        self.lineEdit_clearance_crank_end.setFont(font4)
+        self.lineEdit_clearance_crank_end.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_clearance_crank_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_14.addWidget(self.lineEdit_clearance_crank_end, 12, 2, 1, 1)
 
@@ -440,8 +435,8 @@ class Ui_Dialog(object):
         self.spinBox_capacity.setObjectName(u"spinBox_capacity")
         self.spinBox_capacity.setMinimumSize(QSize(120, 28))
         self.spinBox_capacity.setMaximumSize(QSize(120, 28))
-        self.spinBox_capacity.setFont(font5)
-        self.spinBox_capacity.setAlignment(Qt.AlignCenter)
+        self.spinBox_capacity.setFont(font4)
+        self.spinBox_capacity.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.spinBox_capacity.setMinimum(20)
         self.spinBox_capacity.setMaximum(100)
         self.spinBox_capacity.setSingleStep(1)
@@ -454,7 +449,7 @@ class Ui_Dialog(object):
         self.label_15.setMinimumSize(QSize(0, 28))
         self.label_15.setMaximumSize(QSize(16777215, 28))
         self.label_15.setFont(font4)
-        self.label_15.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_15.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_15, 8, 3, 1, 1)
 
@@ -463,7 +458,7 @@ class Ui_Dialog(object):
         self.label_32.setMinimumSize(QSize(0, 28))
         self.label_32.setMaximumSize(QSize(16777215, 28))
         self.label_32.setFont(font4)
-        self.label_32.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_32.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_32, 14, 3, 1, 1)
 
@@ -472,7 +467,7 @@ class Ui_Dialog(object):
         self.label_22.setMinimumSize(QSize(0, 28))
         self.label_22.setMaximumSize(QSize(16777215, 28))
         self.label_22.setFont(font4)
-        self.label_22.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_22.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_22, 8, 1, 1, 1)
 
@@ -483,7 +478,7 @@ class Ui_Dialog(object):
         self.comboBox_cylinder_acting.setObjectName(u"comboBox_cylinder_acting")
         self.comboBox_cylinder_acting.setMinimumSize(QSize(120, 28))
         self.comboBox_cylinder_acting.setMaximumSize(QSize(120, 28))
-        self.comboBox_cylinder_acting.setFont(font5)
+        self.comboBox_cylinder_acting.setFont(font4)
 
         self.gridLayout_14.addWidget(self.comboBox_cylinder_acting, 4, 2, 1, 1)
 
@@ -491,8 +486,8 @@ class Ui_Dialog(object):
         self.spinBox_number_of_cylinders.setObjectName(u"spinBox_number_of_cylinders")
         self.spinBox_number_of_cylinders.setMinimumSize(QSize(120, 28))
         self.spinBox_number_of_cylinders.setMaximumSize(QSize(120, 28))
-        self.spinBox_number_of_cylinders.setFont(font5)
-        self.spinBox_number_of_cylinders.setAlignment(Qt.AlignCenter)
+        self.spinBox_number_of_cylinders.setFont(font4)
+        self.spinBox_number_of_cylinders.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.spinBox_number_of_cylinders.setMinimum(1)
         self.spinBox_number_of_cylinders.setMaximum(2)
         self.spinBox_number_of_cylinders.setSingleStep(1)
@@ -507,7 +502,7 @@ class Ui_Dialog(object):
         self.comboBox_stage.setObjectName(u"comboBox_stage")
         self.comboBox_stage.setMinimumSize(QSize(120, 28))
         self.comboBox_stage.setMaximumSize(QSize(120, 28))
-        self.comboBox_stage.setFont(font5)
+        self.comboBox_stage.setFont(font4)
 
         self.gridLayout_14.addWidget(self.comboBox_stage, 3, 2, 1, 1)
 
@@ -516,7 +511,7 @@ class Ui_Dialog(object):
         self.label_46.setMinimumSize(QSize(0, 28))
         self.label_46.setMaximumSize(QSize(16777215, 28))
         self.label_46.setFont(font4)
-        self.label_46.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_46.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_46, 5, 1, 1, 1)
 
@@ -524,9 +519,9 @@ class Ui_Dialog(object):
         self.lineEdit_pressure_ratio.setObjectName(u"lineEdit_pressure_ratio")
         self.lineEdit_pressure_ratio.setMinimumSize(QSize(120, 28))
         self.lineEdit_pressure_ratio.setMaximumSize(QSize(120, 28))
-        self.lineEdit_pressure_ratio.setFont(font5)
-        self.lineEdit_pressure_ratio.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_pressure_ratio.setAlignment(Qt.AlignCenter)
+        self.lineEdit_pressure_ratio.setFont(font4)
+        self.lineEdit_pressure_ratio.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_pressure_ratio.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_14.addWidget(self.lineEdit_pressure_ratio, 10, 2, 1, 1)
 
@@ -538,8 +533,8 @@ class Ui_Dialog(object):
         self.label_9.setObjectName(u"label_9")
         self.label_9.setMinimumSize(QSize(0, 28))
         self.label_9.setMaximumSize(QSize(16777215, 28))
-        self.label_9.setFont(font6)
-        self.label_9.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_9.setFont(font4)
+        self.label_9.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_9, 2, 1, 1, 1)
 
@@ -551,9 +546,9 @@ class Ui_Dialog(object):
         self.label_6.setObjectName(u"label_6")
         self.label_6.setMinimumSize(QSize(0, 32))
         self.label_6.setFont(font4)
-        self.label_6.setFrameShape(QFrame.Box)
-        self.label_6.setTextFormat(Qt.AutoText)
-        self.label_6.setAlignment(Qt.AlignCenter)
+        self.label_6.setFrameShape(QFrame.Shape.Box)
+        self.label_6.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_6.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_14.addWidget(self.label_6, 1, 1, 1, 3)
 
@@ -563,7 +558,7 @@ class Ui_Dialog(object):
         self.comboBox_connection_type.setObjectName(u"comboBox_connection_type")
         self.comboBox_connection_type.setMinimumSize(QSize(120, 28))
         self.comboBox_connection_type.setMaximumSize(QSize(120, 28))
-        self.comboBox_connection_type.setFont(font5)
+        self.comboBox_connection_type.setFont(font4)
 
         self.gridLayout_14.addWidget(self.comboBox_connection_type, 2, 2, 1, 1)
 
@@ -584,16 +579,16 @@ class Ui_Dialog(object):
 
         self.frame_3 = QFrame(self.scrollAreaWidgetContents)
         self.frame_3.setObjectName(u"frame_3")
-        self.frame_3.setFrameShape(QFrame.NoFrame)
-        self.frame_3.setFrameShadow(QFrame.Raised)
+        self.frame_3.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_3 = QGridLayout(self.frame_3)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.label_suction_temperature_unit = QLabel(self.frame_3)
         self.label_suction_temperature_unit.setObjectName(u"label_suction_temperature_unit")
-        self.label_suction_temperature_unit.setMinimumSize(QSize(72, 28))
-        self.label_suction_temperature_unit.setMaximumSize(QSize(72, 28))
+        self.label_suction_temperature_unit.setMinimumSize(QSize(84, 28))
+        self.label_suction_temperature_unit.setMaximumSize(QSize(84, 28))
         self.label_suction_temperature_unit.setFont(font4)
-        self.label_suction_temperature_unit.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_suction_temperature_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_suction_temperature_unit, 9, 3, 1, 1)
 
@@ -602,7 +597,7 @@ class Ui_Dialog(object):
         self.label_51.setMinimumSize(QSize(0, 28))
         self.label_51.setMaximumSize(QSize(16777215, 28))
         self.label_51.setFont(font4)
-        self.label_51.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_51.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_51, 7, 1, 1, 1)
 
@@ -611,32 +606,16 @@ class Ui_Dialog(object):
         self.label_52.setMinimumSize(QSize(0, 28))
         self.label_52.setMaximumSize(QSize(16777215, 28))
         self.label_52.setFont(font4)
-        self.label_52.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_52.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_52, 8, 1, 1, 1)
-
-        self.comboBox_pressure_units = QComboBox(self.frame_3)
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.addItem("")
-        self.comboBox_pressure_units.setObjectName(u"comboBox_pressure_units")
-        self.comboBox_pressure_units.setMinimumSize(QSize(120, 28))
-        self.comboBox_pressure_units.setMaximumSize(QSize(120, 28))
-        self.comboBox_pressure_units.setFont(font5)
-
-        self.gridLayout_3.addWidget(self.comboBox_pressure_units, 5, 2, 1, 1)
 
         self.label_molar_mass = QLabel(self.frame_3)
         self.label_molar_mass.setObjectName(u"label_molar_mass")
         self.label_molar_mass.setMinimumSize(QSize(0, 28))
         self.label_molar_mass.setMaximumSize(QSize(16777215, 28))
         self.label_molar_mass.setFont(font4)
-        self.label_molar_mass.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_molar_mass.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_molar_mass, 4, 1, 1, 1)
 
@@ -645,7 +624,7 @@ class Ui_Dialog(object):
         self.label_molar_mass_2.setMinimumSize(QSize(0, 28))
         self.label_molar_mass_2.setMaximumSize(QSize(16777215, 28))
         self.label_molar_mass_2.setFont(font4)
-        self.label_molar_mass_2.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_molar_mass_2.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_molar_mass_2, 1, 1, 1, 1)
 
@@ -653,9 +632,9 @@ class Ui_Dialog(object):
         self.lineEdit_isentropic_exponent.setObjectName(u"lineEdit_isentropic_exponent")
         self.lineEdit_isentropic_exponent.setMinimumSize(QSize(120, 28))
         self.lineEdit_isentropic_exponent.setMaximumSize(QSize(120, 28))
-        self.lineEdit_isentropic_exponent.setFont(font5)
-        self.lineEdit_isentropic_exponent.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_isentropic_exponent.setAlignment(Qt.AlignCenter)
+        self.lineEdit_isentropic_exponent.setFont(font4)
+        self.lineEdit_isentropic_exponent.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_isentropic_exponent.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_isentropic_exponent, 3, 2, 1, 1)
 
@@ -664,9 +643,9 @@ class Ui_Dialog(object):
         self.lineEdit_selected_fluid.setEnabled(False)
         self.lineEdit_selected_fluid.setMinimumSize(QSize(120, 28))
         self.lineEdit_selected_fluid.setMaximumSize(QSize(120, 28))
-        self.lineEdit_selected_fluid.setFont(font5)
-        self.lineEdit_selected_fluid.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_selected_fluid.setAlignment(Qt.AlignCenter)
+        self.lineEdit_selected_fluid.setFont(font4)
+        self.lineEdit_selected_fluid.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_selected_fluid.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_selected_fluid, 2, 2, 1, 1)
 
@@ -675,7 +654,7 @@ class Ui_Dialog(object):
         self.label_42.setMinimumSize(QSize(0, 28))
         self.label_42.setMaximumSize(QSize(16777215, 28))
         self.label_42.setFont(font4)
-        self.label_42.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_42.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_42, 6, 1, 1, 1)
 
@@ -685,7 +664,7 @@ class Ui_Dialog(object):
         self.comboBox_fluid_data_source.setObjectName(u"comboBox_fluid_data_source")
         self.comboBox_fluid_data_source.setMinimumSize(QSize(120, 28))
         self.comboBox_fluid_data_source.setMaximumSize(QSize(120, 28))
-        self.comboBox_fluid_data_source.setFont(font5)
+        self.comboBox_fluid_data_source.setFont(font4)
 
         self.gridLayout_3.addWidget(self.comboBox_fluid_data_source, 1, 2, 1, 1)
 
@@ -694,26 +673,16 @@ class Ui_Dialog(object):
         self.label_50.setMinimumSize(QSize(0, 28))
         self.label_50.setMaximumSize(QSize(16777215, 28))
         self.label_50.setFont(font4)
-        self.label_50.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_50.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_50, 5, 1, 1, 1)
-
-        self.comboBox_temperature_units = QComboBox(self.frame_3)
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.setObjectName(u"comboBox_temperature_units")
-        self.comboBox_temperature_units.setMinimumSize(QSize(120, 28))
-        self.comboBox_temperature_units.setMaximumSize(QSize(120, 28))
-        self.comboBox_temperature_units.setFont(font5)
-
-        self.gridLayout_3.addWidget(self.comboBox_temperature_units, 8, 2, 1, 1)
 
         self.label_44 = QLabel(self.frame_3)
         self.label_44.setObjectName(u"label_44")
         self.label_44.setMinimumSize(QSize(0, 28))
         self.label_44.setMaximumSize(QSize(16777215, 28))
         self.label_44.setFont(font4)
-        self.label_44.setAlignment(Qt.AlignCenter)
+        self.label_44.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.label_44, 9, 1, 1, 1)
 
@@ -725,7 +694,7 @@ class Ui_Dialog(object):
         self.pushButton_get_fluid.setObjectName(u"pushButton_get_fluid")
         self.pushButton_get_fluid.setMinimumSize(QSize(0, 28))
         self.pushButton_get_fluid.setMaximumSize(QSize(16777215, 28))
-        self.pushButton_get_fluid.setFont(font2)
+        self.pushButton_get_fluid.setFont(font4)
         self.pushButton_get_fluid.setStyleSheet(u"")
         self.pushButton_get_fluid.setAutoDefault(False)
         self.pushButton_get_fluid.setFlat(False)
@@ -736,9 +705,9 @@ class Ui_Dialog(object):
         self.label_7.setObjectName(u"label_7")
         self.label_7.setMinimumSize(QSize(0, 32))
         self.label_7.setFont(font4)
-        self.label_7.setFrameShape(QFrame.Box)
-        self.label_7.setTextFormat(Qt.AutoText)
-        self.label_7.setAlignment(Qt.AlignCenter)
+        self.label_7.setFrameShape(QFrame.Shape.Box)
+        self.label_7.setTextFormat(Qt.TextFormat.AutoText)
+        self.label_7.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.label_7, 0, 1, 1, 3)
 
@@ -746,9 +715,9 @@ class Ui_Dialog(object):
         self.lineEdit_pressure_at_suction.setObjectName(u"lineEdit_pressure_at_suction")
         self.lineEdit_pressure_at_suction.setMinimumSize(QSize(120, 28))
         self.lineEdit_pressure_at_suction.setMaximumSize(QSize(120, 28))
-        self.lineEdit_pressure_at_suction.setFont(font5)
-        self.lineEdit_pressure_at_suction.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_pressure_at_suction.setAlignment(Qt.AlignCenter)
+        self.lineEdit_pressure_at_suction.setFont(font4)
+        self.lineEdit_pressure_at_suction.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_pressure_at_suction.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_pressure_at_suction, 6, 2, 1, 1)
 
@@ -757,16 +726,16 @@ class Ui_Dialog(object):
         self.label_isentropic_exp.setMinimumSize(QSize(0, 28))
         self.label_isentropic_exp.setMaximumSize(QSize(16777215, 28))
         self.label_isentropic_exp.setFont(font4)
-        self.label_isentropic_exp.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_isentropic_exp.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_isentropic_exp, 3, 1, 1, 1)
 
         self.label_suction_pressure_unit = QLabel(self.frame_3)
         self.label_suction_pressure_unit.setObjectName(u"label_suction_pressure_unit")
-        self.label_suction_pressure_unit.setMinimumSize(QSize(72, 28))
-        self.label_suction_pressure_unit.setMaximumSize(QSize(72, 28))
+        self.label_suction_pressure_unit.setMinimumSize(QSize(84, 28))
+        self.label_suction_pressure_unit.setMaximumSize(QSize(84, 28))
         self.label_suction_pressure_unit.setFont(font4)
-        self.label_suction_pressure_unit.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_suction_pressure_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_suction_pressure_unit, 6, 3, 1, 1)
 
@@ -774,9 +743,9 @@ class Ui_Dialog(object):
         self.lineEdit_molar_mass.setObjectName(u"lineEdit_molar_mass")
         self.lineEdit_molar_mass.setMinimumSize(QSize(120, 28))
         self.lineEdit_molar_mass.setMaximumSize(QSize(120, 28))
-        self.lineEdit_molar_mass.setFont(font5)
-        self.lineEdit_molar_mass.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_molar_mass.setAlignment(Qt.AlignCenter)
+        self.lineEdit_molar_mass.setFont(font4)
+        self.lineEdit_molar_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_molar_mass.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_molar_mass, 4, 2, 1, 1)
 
@@ -785,25 +754,25 @@ class Ui_Dialog(object):
         self.label_molar_mass_3.setMinimumSize(QSize(0, 28))
         self.label_molar_mass_3.setMaximumSize(QSize(16777215, 28))
         self.label_molar_mass_3.setFont(font4)
-        self.label_molar_mass_3.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_molar_mass_3.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_molar_mass_3, 2, 1, 1, 1)
 
         self.label_molar_mass_unit = QLabel(self.frame_3)
         self.label_molar_mass_unit.setObjectName(u"label_molar_mass_unit")
-        self.label_molar_mass_unit.setMinimumSize(QSize(72, 28))
-        self.label_molar_mass_unit.setMaximumSize(QSize(72, 28))
+        self.label_molar_mass_unit.setMinimumSize(QSize(84, 28))
+        self.label_molar_mass_unit.setMaximumSize(QSize(84, 28))
         self.label_molar_mass_unit.setFont(font4)
-        self.label_molar_mass_unit.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_molar_mass_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_molar_mass_unit, 4, 3, 1, 1)
 
         self.label_discharge_pressure_unit = QLabel(self.frame_3)
         self.label_discharge_pressure_unit.setObjectName(u"label_discharge_pressure_unit")
-        self.label_discharge_pressure_unit.setMinimumSize(QSize(72, 28))
-        self.label_discharge_pressure_unit.setMaximumSize(QSize(72, 28))
+        self.label_discharge_pressure_unit.setMinimumSize(QSize(84, 28))
+        self.label_discharge_pressure_unit.setMaximumSize(QSize(84, 28))
         self.label_discharge_pressure_unit.setFont(font4)
-        self.label_discharge_pressure_unit.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_discharge_pressure_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_discharge_pressure_unit, 7, 3, 1, 1)
 
@@ -812,9 +781,9 @@ class Ui_Dialog(object):
         self.lineEdit_pressure_at_discharge.setEnabled(False)
         self.lineEdit_pressure_at_discharge.setMinimumSize(QSize(120, 28))
         self.lineEdit_pressure_at_discharge.setMaximumSize(QSize(120, 28))
-        self.lineEdit_pressure_at_discharge.setFont(font5)
-        self.lineEdit_pressure_at_discharge.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_pressure_at_discharge.setAlignment(Qt.AlignCenter)
+        self.lineEdit_pressure_at_discharge.setFont(font4)
+        self.lineEdit_pressure_at_discharge.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_pressure_at_discharge.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_pressure_at_discharge, 7, 2, 1, 1)
 
@@ -822,18 +791,18 @@ class Ui_Dialog(object):
         self.lineEdit_temperature_at_suction.setObjectName(u"lineEdit_temperature_at_suction")
         self.lineEdit_temperature_at_suction.setMinimumSize(QSize(120, 28))
         self.lineEdit_temperature_at_suction.setMaximumSize(QSize(120, 28))
-        self.lineEdit_temperature_at_suction.setFont(font5)
-        self.lineEdit_temperature_at_suction.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_temperature_at_suction.setAlignment(Qt.AlignCenter)
+        self.lineEdit_temperature_at_suction.setFont(font4)
+        self.lineEdit_temperature_at_suction.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_temperature_at_suction.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_temperature_at_suction, 9, 2, 1, 1)
 
         self.label_discharge_temperature_unit = QLabel(self.frame_3)
         self.label_discharge_temperature_unit.setObjectName(u"label_discharge_temperature_unit")
-        self.label_discharge_temperature_unit.setMinimumSize(QSize(72, 28))
-        self.label_discharge_temperature_unit.setMaximumSize(QSize(72, 28))
+        self.label_discharge_temperature_unit.setMinimumSize(QSize(84, 28))
+        self.label_discharge_temperature_unit.setMaximumSize(QSize(84, 28))
         self.label_discharge_temperature_unit.setFont(font4)
-        self.label_discharge_temperature_unit.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_discharge_temperature_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_3.addWidget(self.label_discharge_temperature_unit, 10, 3, 1, 1)
 
@@ -846,7 +815,7 @@ class Ui_Dialog(object):
         self.label_53.setMinimumSize(QSize(0, 28))
         self.label_53.setMaximumSize(QSize(16777215, 28))
         self.label_53.setFont(font4)
-        self.label_53.setAlignment(Qt.AlignCenter)
+        self.label_53.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.label_53, 10, 1, 1, 1)
 
@@ -854,11 +823,44 @@ class Ui_Dialog(object):
         self.lineEdit_temperature_at_discharge.setObjectName(u"lineEdit_temperature_at_discharge")
         self.lineEdit_temperature_at_discharge.setMinimumSize(QSize(120, 28))
         self.lineEdit_temperature_at_discharge.setMaximumSize(QSize(120, 28))
-        self.lineEdit_temperature_at_discharge.setFont(font5)
-        self.lineEdit_temperature_at_discharge.setFocusPolicy(Qt.StrongFocus)
-        self.lineEdit_temperature_at_discharge.setAlignment(Qt.AlignCenter)
+        self.lineEdit_temperature_at_discharge.setFont(font4)
+        self.lineEdit_temperature_at_discharge.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_temperature_at_discharge.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_3.addWidget(self.lineEdit_temperature_at_discharge, 10, 2, 1, 1)
+
+        self.comboBox_pressure_units = QComboBox(self.frame_3)
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.addItem("")
+        self.comboBox_pressure_units.setObjectName(u"comboBox_pressure_units")
+        self.comboBox_pressure_units.setMinimumSize(QSize(120, 28))
+        self.comboBox_pressure_units.setMaximumSize(QSize(120, 28))
+        self.comboBox_pressure_units.setFont(font4)
+
+        self.gridLayout_3.addWidget(self.comboBox_pressure_units, 5, 2, 1, 1)
+
+        self.comboBox_temperature_units = QComboBox(self.frame_3)
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.setObjectName(u"comboBox_temperature_units")
+        self.comboBox_temperature_units.setMinimumSize(QSize(120, 28))
+        self.comboBox_temperature_units.setMaximumSize(QSize(120, 28))
+        self.comboBox_temperature_units.setFont(font4)
+
+        self.gridLayout_3.addWidget(self.comboBox_temperature_units, 8, 2, 1, 1)
 
 
         self.gridLayout_11.addWidget(self.frame_3, 1, 0, 1, 1)
@@ -867,7 +869,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_32.addWidget(self.scrollArea, 2, 0, 1, 1)
 
-        self.tabWidget_compressor.addTab(self.tab_setup, "")
+        self.tabWidget_main.addTab(self.tab_setup, "")
         self.tab_advanced_options = QWidget()
         self.tab_advanced_options.setObjectName(u"tab_advanced_options")
         self.gridLayout_26 = QGridLayout(self.tab_advanced_options)
@@ -877,19 +879,19 @@ class Ui_Dialog(object):
         self.gridLayout_26.setContentsMargins(2, 2, 2, 2)
         self.scrollArea_2 = QScrollArea(self.tab_advanced_options)
         self.scrollArea_2.setObjectName(u"scrollArea_2")
-        self.scrollArea_2.setFrameShape(QFrame.NoFrame)
+        self.scrollArea_2.setFrameShape(QFrame.Shape.NoFrame)
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollAreaWidgetContents_2 = QWidget()
         self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
-        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 460, 566))
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 558, 566))
         self.gridLayout_18 = QGridLayout(self.scrollAreaWidgetContents_2)
         self.gridLayout_18.setObjectName(u"gridLayout_18")
         self.frame_4 = QFrame(self.scrollAreaWidgetContents_2)
         self.frame_4.setObjectName(u"frame_4")
         self.frame_4.setMinimumSize(QSize(0, 228))
         self.frame_4.setMaximumSize(QSize(16777215, 228))
-        self.frame_4.setFrameShape(QFrame.NoFrame)
-        self.frame_4.setFrameShadow(QFrame.Raised)
+        self.frame_4.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_4.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout = QGridLayout(self.frame_4)
         self.gridLayout.setObjectName(u"gridLayout")
         self.gridLayout.setHorizontalSpacing(6)
@@ -899,8 +901,8 @@ class Ui_Dialog(object):
         self.label_39.setObjectName(u"label_39")
         self.label_39.setMinimumSize(QSize(180, 28))
         self.label_39.setMaximumSize(QSize(180, 28))
-        self.label_39.setFont(font5)
-        self.label_39.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_39.setFont(font4)
+        self.label_39.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout.addWidget(self.label_39, 5, 1, 1, 1)
 
@@ -913,8 +915,8 @@ class Ui_Dialog(object):
         self.comboBox_frequency_resolution.setObjectName(u"comboBox_frequency_resolution")
         self.comboBox_frequency_resolution.setMinimumSize(QSize(120, 28))
         self.comboBox_frequency_resolution.setMaximumSize(QSize(120, 28))
-        self.comboBox_frequency_resolution.setFont(font5)
-        self.comboBox_frequency_resolution.setLayoutDirection(Qt.LeftToRight)
+        self.comboBox_frequency_resolution.setFont(font4)
+        self.comboBox_frequency_resolution.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
 
         self.gridLayout.addWidget(self.comboBox_frequency_resolution, 4, 2, 1, 1)
 
@@ -922,8 +924,8 @@ class Ui_Dialog(object):
         self.spinBox_max_frequency.setObjectName(u"spinBox_max_frequency")
         self.spinBox_max_frequency.setMinimumSize(QSize(120, 28))
         self.spinBox_max_frequency.setMaximumSize(QSize(120, 28))
-        self.spinBox_max_frequency.setFont(font5)
-        self.spinBox_max_frequency.setAlignment(Qt.AlignCenter)
+        self.spinBox_max_frequency.setFont(font4)
+        self.spinBox_max_frequency.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.spinBox_max_frequency.setMinimum(100)
         self.spinBox_max_frequency.setMaximum(1000)
         self.spinBox_max_frequency.setSingleStep(10)
@@ -936,9 +938,9 @@ class Ui_Dialog(object):
         self.lineEdit_number_of_revolutions.setEnabled(False)
         self.lineEdit_number_of_revolutions.setMinimumSize(QSize(120, 28))
         self.lineEdit_number_of_revolutions.setMaximumSize(QSize(120, 28))
-        self.lineEdit_number_of_revolutions.setFont(font5)
+        self.lineEdit_number_of_revolutions.setFont(font4)
         self.lineEdit_number_of_revolutions.setStyleSheet(u"")
-        self.lineEdit_number_of_revolutions.setAlignment(Qt.AlignCenter)
+        self.lineEdit_number_of_revolutions.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.lineEdit_number_of_revolutions, 6, 2, 1, 1)
 
@@ -947,9 +949,9 @@ class Ui_Dialog(object):
         self.lineEdit_frequency_resolution.setEnabled(False)
         self.lineEdit_frequency_resolution.setMinimumSize(QSize(120, 28))
         self.lineEdit_frequency_resolution.setMaximumSize(QSize(120, 28))
-        self.lineEdit_frequency_resolution.setFont(font5)
+        self.lineEdit_frequency_resolution.setFont(font4)
         self.lineEdit_frequency_resolution.setStyleSheet(u"")
-        self.lineEdit_frequency_resolution.setAlignment(Qt.AlignCenter)
+        self.lineEdit_frequency_resolution.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.lineEdit_frequency_resolution, 5, 2, 1, 1)
 
@@ -957,8 +959,8 @@ class Ui_Dialog(object):
         self.label_40.setObjectName(u"label_40")
         self.label_40.setMinimumSize(QSize(180, 28))
         self.label_40.setMaximumSize(QSize(180, 28))
-        self.label_40.setFont(font5)
-        self.label_40.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_40.setFont(font4)
+        self.label_40.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout.addWidget(self.label_40, 6, 1, 1, 1)
 
@@ -966,8 +968,8 @@ class Ui_Dialog(object):
         self.label_38.setObjectName(u"label_38")
         self.label_38.setMinimumSize(QSize(180, 28))
         self.label_38.setMaximumSize(QSize(180, 28))
-        self.label_38.setFont(font5)
-        self.label_38.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_38.setFont(font4)
+        self.label_38.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout.addWidget(self.label_38, 4, 1, 1, 1)
 
@@ -975,8 +977,8 @@ class Ui_Dialog(object):
         self.label_41.setObjectName(u"label_41")
         self.label_41.setMinimumSize(QSize(180, 28))
         self.label_41.setMaximumSize(QSize(180, 28))
-        self.label_41.setFont(font5)
-        self.label_41.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_41.setFont(font4)
+        self.label_41.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout.addWidget(self.label_41, 3, 1, 1, 1)
 
@@ -984,15 +986,15 @@ class Ui_Dialog(object):
         self.frame_6.setObjectName(u"frame_6")
         self.frame_6.setMinimumSize(QSize(400, 40))
         self.frame_6.setMaximumSize(QSize(480, 40))
-        self.frame_6.setFrameShape(QFrame.Box)
-        self.frame_6.setFrameShadow(QFrame.Raised)
+        self.frame_6.setFrameShape(QFrame.Shape.Box)
+        self.frame_6.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_16 = QGridLayout(self.frame_6)
         self.gridLayout_16.setObjectName(u"gridLayout_16")
         self.gridLayout_16.setContentsMargins(2, 2, 2, 2)
         self.label_4 = QLabel(self.frame_6)
         self.label_4.setObjectName(u"label_4")
-        self.label_4.setFont(font5)
-        self.label_4.setAlignment(Qt.AlignCenter)
+        self.label_4.setFont(font4)
+        self.label_4.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_16.addWidget(self.label_4, 0, 0, 1, 1)
 
@@ -1011,7 +1013,7 @@ class Ui_Dialog(object):
         self.pushButton_process_aquisition_parameters.setObjectName(u"pushButton_process_aquisition_parameters")
         self.pushButton_process_aquisition_parameters.setMinimumSize(QSize(72, 28))
         self.pushButton_process_aquisition_parameters.setMaximumSize(QSize(72, 28))
-        self.pushButton_process_aquisition_parameters.setFont(font5)
+        self.pushButton_process_aquisition_parameters.setFont(font4)
         self.pushButton_process_aquisition_parameters.setStyleSheet(u"")
         self.pushButton_process_aquisition_parameters.setAutoDefault(False)
 
@@ -1021,8 +1023,8 @@ class Ui_Dialog(object):
         self.spinBox_number_of_points.setObjectName(u"spinBox_number_of_points")
         self.spinBox_number_of_points.setMinimumSize(QSize(120, 28))
         self.spinBox_number_of_points.setMaximumSize(QSize(120, 28))
-        self.spinBox_number_of_points.setFont(font5)
-        self.spinBox_number_of_points.setAlignment(Qt.AlignCenter)
+        self.spinBox_number_of_points.setFont(font4)
+        self.spinBox_number_of_points.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.spinBox_number_of_points.setMinimum(60)
         self.spinBox_number_of_points.setMaximum(10000)
         self.spinBox_number_of_points.setSingleStep(1)
@@ -1034,8 +1036,8 @@ class Ui_Dialog(object):
         self.label_37.setObjectName(u"label_37")
         self.label_37.setMinimumSize(QSize(180, 28))
         self.label_37.setMaximumSize(QSize(180, 28))
-        self.label_37.setFont(font5)
-        self.label_37.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_37.setFont(font4)
+        self.label_37.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout.addWidget(self.label_37, 2, 1, 1, 1)
 
@@ -1046,8 +1048,8 @@ class Ui_Dialog(object):
         self.frame_8.setObjectName(u"frame_8")
         self.frame_8.setMinimumSize(QSize(0, 260))
         self.frame_8.setMaximumSize(QSize(16777215, 260))
-        self.frame_8.setFrameShape(QFrame.NoFrame)
-        self.frame_8.setFrameShadow(QFrame.Raised)
+        self.frame_8.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_8.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_17 = QGridLayout(self.frame_8)
         self.gridLayout_17.setObjectName(u"gridLayout_17")
         self.gridLayout_17.setVerticalSpacing(8)
@@ -1059,15 +1061,15 @@ class Ui_Dialog(object):
         self.frame_5.setObjectName(u"frame_5")
         self.frame_5.setMinimumSize(QSize(400, 40))
         self.frame_5.setMaximumSize(QSize(480, 40))
-        self.frame_5.setFrameShape(QFrame.Box)
-        self.frame_5.setFrameShadow(QFrame.Raised)
+        self.frame_5.setFrameShape(QFrame.Shape.Box)
+        self.frame_5.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_15 = QGridLayout(self.frame_5)
         self.gridLayout_15.setObjectName(u"gridLayout_15")
         self.gridLayout_15.setContentsMargins(2, 2, 2, 2)
         self.label_2 = QLabel(self.frame_5)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setFont(font5)
-        self.label_2.setAlignment(Qt.AlignCenter)
+        self.label_2.setFont(font4)
+        self.label_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_15.addWidget(self.label_2, 0, 0, 1, 1)
 
@@ -1089,7 +1091,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time.setObjectName(u"pushButton_plot_volumetric_flow_rate_at_discharge_time")
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_time.setFont(font5)
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_time.setFont(font4)
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time.setStyleSheet(u"")
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time.setAutoDefault(False)
 
@@ -1099,7 +1101,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_volumetric_flow_rate_at_suction_time.setObjectName(u"pushButton_plot_volumetric_flow_rate_at_suction_time")
         self.pushButton_plot_volumetric_flow_rate_at_suction_time.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_volumetric_flow_rate_at_suction_time.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_volumetric_flow_rate_at_suction_time.setFont(font5)
+        self.pushButton_plot_volumetric_flow_rate_at_suction_time.setFont(font4)
         self.pushButton_plot_volumetric_flow_rate_at_suction_time.setStyleSheet(u"")
         self.pushButton_plot_volumetric_flow_rate_at_suction_time.setAutoDefault(False)
 
@@ -1109,7 +1111,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_piston_position_and_velocity_time.setObjectName(u"pushButton_plot_piston_position_and_velocity_time")
         self.pushButton_plot_piston_position_and_velocity_time.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_piston_position_and_velocity_time.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_piston_position_and_velocity_time.setFont(font5)
+        self.pushButton_plot_piston_position_and_velocity_time.setFont(font4)
         self.pushButton_plot_piston_position_and_velocity_time.setStyleSheet(u"")
         self.pushButton_plot_piston_position_and_velocity_time.setAutoDefault(False)
 
@@ -1119,7 +1121,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_rod_pressure_load_time.setObjectName(u"pushButton_plot_rod_pressure_load_time")
         self.pushButton_plot_rod_pressure_load_time.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_rod_pressure_load_time.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_rod_pressure_load_time.setFont(font5)
+        self.pushButton_plot_rod_pressure_load_time.setFont(font4)
         self.pushButton_plot_rod_pressure_load_time.setStyleSheet(u"")
         self.pushButton_plot_rod_pressure_load_time.setAutoDefault(False)
 
@@ -1137,7 +1139,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_pressure_head_end_angle.setEnabled(True)
         self.pushButton_plot_pressure_head_end_angle.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_pressure_head_end_angle.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_pressure_head_end_angle.setFont(font5)
+        self.pushButton_plot_pressure_head_end_angle.setFont(font4)
         self.pushButton_plot_pressure_head_end_angle.setStyleSheet(u"")
         self.pushButton_plot_pressure_head_end_angle.setAutoDefault(False)
 
@@ -1148,7 +1150,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_volume_head_end_angle.setEnabled(True)
         self.pushButton_plot_volume_head_end_angle.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_volume_head_end_angle.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_volume_head_end_angle.setFont(font5)
+        self.pushButton_plot_volume_head_end_angle.setFont(font4)
         self.pushButton_plot_volume_head_end_angle.setStyleSheet(u"")
         self.pushButton_plot_volume_head_end_angle.setAutoDefault(False)
 
@@ -1158,7 +1160,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_pressure_crank_end_angle.setObjectName(u"pushButton_plot_pressure_crank_end_angle")
         self.pushButton_plot_pressure_crank_end_angle.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_pressure_crank_end_angle.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_pressure_crank_end_angle.setFont(font5)
+        self.pushButton_plot_pressure_crank_end_angle.setFont(font4)
         self.pushButton_plot_pressure_crank_end_angle.setStyleSheet(u"")
         self.pushButton_plot_pressure_crank_end_angle.setAutoDefault(False)
 
@@ -1168,7 +1170,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_volume_crank_end_angle.setObjectName(u"pushButton_plot_volume_crank_end_angle")
         self.pushButton_plot_volume_crank_end_angle.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_volume_crank_end_angle.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_volume_crank_end_angle.setFont(font5)
+        self.pushButton_plot_volume_crank_end_angle.setFont(font4)
         self.pushButton_plot_volume_crank_end_angle.setStyleSheet(u"")
         self.pushButton_plot_volume_crank_end_angle.setAutoDefault(False)
 
@@ -1185,7 +1187,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.setObjectName(u"pushButton_plot_volumetric_flow_rate_at_discharge_frequency")
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.setFont(font5)
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.setFont(font4)
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.setStyleSheet(u"")
         self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.setAutoDefault(False)
 
@@ -1195,7 +1197,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.setObjectName(u"pushButton_plot_volumetric_flow_rate_at_suction_frequency")
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.setFont(font5)
+        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.setFont(font4)
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.setStyleSheet(u"")
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.setAutoDefault(False)
 
@@ -1205,7 +1207,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_rod_pressure_load_frequency.setObjectName(u"pushButton_plot_rod_pressure_load_frequency")
         self.pushButton_plot_rod_pressure_load_frequency.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_rod_pressure_load_frequency.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_rod_pressure_load_frequency.setFont(font5)
+        self.pushButton_plot_rod_pressure_load_frequency.setFont(font4)
         self.pushButton_plot_rod_pressure_load_frequency.setStyleSheet(u"")
         self.pushButton_plot_rod_pressure_load_frequency.setAutoDefault(False)
 
@@ -1222,7 +1224,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_PV_diagram_both_ends.setObjectName(u"pushButton_plot_PV_diagram_both_ends")
         self.pushButton_plot_PV_diagram_both_ends.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_PV_diagram_both_ends.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_PV_diagram_both_ends.setFont(font5)
+        self.pushButton_plot_PV_diagram_both_ends.setFont(font4)
         self.pushButton_plot_PV_diagram_both_ends.setStyleSheet(u"")
         self.pushButton_plot_PV_diagram_both_ends.setAutoDefault(False)
 
@@ -1232,7 +1234,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_PV_diagram_crank_end.setObjectName(u"pushButton_plot_PV_diagram_crank_end")
         self.pushButton_plot_PV_diagram_crank_end.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_PV_diagram_crank_end.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_PV_diagram_crank_end.setFont(font5)
+        self.pushButton_plot_PV_diagram_crank_end.setFont(font4)
         self.pushButton_plot_PV_diagram_crank_end.setStyleSheet(u"")
         self.pushButton_plot_PV_diagram_crank_end.setAutoDefault(False)
 
@@ -1242,7 +1244,7 @@ class Ui_Dialog(object):
         self.pushButton_plot_PV_diagram_head_end.setObjectName(u"pushButton_plot_PV_diagram_head_end")
         self.pushButton_plot_PV_diagram_head_end.setMinimumSize(QSize(160, 48))
         self.pushButton_plot_PV_diagram_head_end.setMaximumSize(QSize(160, 48))
-        self.pushButton_plot_PV_diagram_head_end.setFont(font5)
+        self.pushButton_plot_PV_diagram_head_end.setFont(font4)
         self.pushButton_plot_PV_diagram_head_end.setStyleSheet(u"")
         self.pushButton_plot_PV_diagram_head_end.setAutoDefault(False)
 
@@ -1263,7 +1265,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_26.addWidget(self.scrollArea_2, 0, 0, 1, 1)
 
-        self.tabWidget_compressor.addTab(self.tab_advanced_options, "")
+        self.tabWidget_main.addTab(self.tab_advanced_options, "")
         self.tab_remove = QWidget()
         self.tab_remove.setObjectName(u"tab_remove")
         self.gridLayout_9 = QGridLayout(self.tab_remove)
@@ -1274,8 +1276,8 @@ class Ui_Dialog(object):
         self.frame_remove_selection.setObjectName(u"frame_remove_selection")
         self.frame_remove_selection.setMinimumSize(QSize(0, 40))
         self.frame_remove_selection.setMaximumSize(QSize(16777215, 72))
-        self.frame_remove_selection.setFrameShape(QFrame.NoFrame)
-        self.frame_remove_selection.setFrameShadow(QFrame.Raised)
+        self.frame_remove_selection.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_remove_selection.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_5 = QGridLayout(self.frame_remove_selection)
         self.gridLayout_5.setSpacing(4)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
@@ -1285,9 +1287,9 @@ class Ui_Dialog(object):
         self.lineEdit_connection_type.setEnabled(False)
         self.lineEdit_connection_type.setMinimumSize(QSize(130, 0))
         self.lineEdit_connection_type.setMaximumSize(QSize(130, 26))
-        self.lineEdit_connection_type.setFocusPolicy(Qt.ClickFocus)
+        self.lineEdit_connection_type.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.lineEdit_connection_type.setStyleSheet(u"")
-        self.lineEdit_connection_type.setAlignment(Qt.AlignCenter)
+        self.lineEdit_connection_type.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_5.addWidget(self.lineEdit_connection_type, 1, 2, 1, 1)
 
@@ -1295,7 +1297,7 @@ class Ui_Dialog(object):
         self.label_3.setObjectName(u"label_3")
         self.label_3.setMinimumSize(QSize(130, 0))
         self.label_3.setMaximumSize(QSize(130, 16777215))
-        self.label_3.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_3.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_5.addWidget(self.label_3, 1, 1, 1, 1)
 
@@ -1312,37 +1314,33 @@ class Ui_Dialog(object):
 
         self.frame_treeWidget = QFrame(self.tab_remove)
         self.frame_treeWidget.setObjectName(u"frame_treeWidget")
-        self.frame_treeWidget.setFrameShape(QFrame.NoFrame)
-        self.frame_treeWidget.setFrameShadow(QFrame.Raised)
+        self.frame_treeWidget.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_treeWidget.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_8 = QGridLayout(self.frame_treeWidget)
         self.gridLayout_8.setSpacing(4)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
         self.gridLayout_8.setContentsMargins(4, 4, 4, 0)
-        self.treeWidget_compressor_excitation = QTreeWidget(self.frame_treeWidget)
-        font7 = QFont()
-        font7.setFamilies([u"MS Shell Dlg 2"])
-        font7.setPointSize(9)
-        font7.setBold(False)
-        font7.setItalic(False)
+        self.treeWidget_nodal_info = QTreeWidget(self.frame_treeWidget)
+        font5 = QFont()
+        font5.setFamilies([u"MS Shell Dlg 2"])
+        font5.setPointSize(9)
+        font5.setBold(False)
+        font5.setItalic(False)
         __qtreewidgetitem = QTreeWidgetItem()
         __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
-        __qtreewidgetitem.setFont(1, font7)
+        __qtreewidgetitem.setFont(1, font5)
         __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
-        __qtreewidgetitem.setFont(0, font7)
-        self.treeWidget_compressor_excitation.setHeaderItem(__qtreewidgetitem)
-        self.treeWidget_compressor_excitation.setObjectName(u"treeWidget_compressor_excitation")
-        self.treeWidget_compressor_excitation.setMinimumSize(QSize(0, 0))
-        self.treeWidget_compressor_excitation.setMaximumSize(QSize(1000, 1000))
-        font8 = QFont()
-        font8.setPointSize(9)
-        font8.setBold(False)
-        font8.setItalic(False)
-        self.treeWidget_compressor_excitation.setFont(font8)
-        self.treeWidget_compressor_excitation.setFrameShape(QFrame.StyledPanel)
-        self.treeWidget_compressor_excitation.setFrameShadow(QFrame.Sunken)
-        self.treeWidget_compressor_excitation.setIndentation(0)
+        __qtreewidgetitem.setFont(0, font5)
+        self.treeWidget_nodal_info.setHeaderItem(__qtreewidgetitem)
+        self.treeWidget_nodal_info.setObjectName(u"treeWidget_nodal_info")
+        self.treeWidget_nodal_info.setMinimumSize(QSize(0, 0))
+        self.treeWidget_nodal_info.setMaximumSize(QSize(1000, 1000))
+        self.treeWidget_nodal_info.setFont(font5)
+        self.treeWidget_nodal_info.setFrameShape(QFrame.Shape.StyledPanel)
+        self.treeWidget_nodal_info.setFrameShadow(QFrame.Shadow.Sunken)
+        self.treeWidget_nodal_info.setIndentation(0)
 
-        self.gridLayout_8.addWidget(self.treeWidget_compressor_excitation, 1, 0, 1, 1)
+        self.gridLayout_8.addWidget(self.treeWidget_nodal_info, 1, 0, 1, 1)
 
 
         self.gridLayout_9.addWidget(self.frame_treeWidget, 1, 0, 1, 1)
@@ -1351,8 +1349,8 @@ class Ui_Dialog(object):
         self.frame_remove_buttons.setObjectName(u"frame_remove_buttons")
         self.frame_remove_buttons.setMinimumSize(QSize(0, 48))
         self.frame_remove_buttons.setMaximumSize(QSize(16777215, 48))
-        self.frame_remove_buttons.setFrameShape(QFrame.NoFrame)
-        self.frame_remove_buttons.setFrameShadow(QFrame.Raised)
+        self.frame_remove_buttons.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_remove_buttons.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_7 = QGridLayout(self.frame_remove_buttons)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.gridLayout_7.setContentsMargins(0, 0, 0, 0)
@@ -1360,7 +1358,7 @@ class Ui_Dialog(object):
         self.pushButton_remove.setObjectName(u"pushButton_remove")
         self.pushButton_remove.setMinimumSize(QSize(100, 30))
         self.pushButton_remove.setMaximumSize(QSize(100, 30))
-        self.pushButton_remove.setFont(font5)
+        self.pushButton_remove.setFont(font4)
         self.pushButton_remove.setStyleSheet(u"")
         self.pushButton_remove.setAutoDefault(False)
 
@@ -1370,7 +1368,7 @@ class Ui_Dialog(object):
         self.pushButton_reset.setObjectName(u"pushButton_reset")
         self.pushButton_reset.setMinimumSize(QSize(100, 30))
         self.pushButton_reset.setMaximumSize(QSize(100, 30))
-        self.pushButton_reset.setFont(font5)
+        self.pushButton_reset.setFont(font4)
         self.pushButton_reset.setStyleSheet(u"")
         self.pushButton_reset.setAutoDefault(False)
 
@@ -1379,9 +1377,9 @@ class Ui_Dialog(object):
 
         self.gridLayout_9.addWidget(self.frame_remove_buttons, 2, 0, 1, 1)
 
-        self.tabWidget_compressor.addTab(self.tab_remove, "")
+        self.tabWidget_main.addTab(self.tab_remove, "")
 
-        self.gridLayout_10.addWidget(self.tabWidget_compressor, 0, 0, 1, 1)
+        self.gridLayout_10.addWidget(self.tabWidget_main, 0, 0, 1, 1)
 
 
         self.gridLayout_4.addWidget(self.frame_7, 1, 0, 1, 1)
@@ -1390,8 +1388,8 @@ class Ui_Dialog(object):
         self.frame_selection_id.setObjectName(u"frame_selection_id")
         self.frame_selection_id.setMinimumSize(QSize(360, 40))
         self.frame_selection_id.setMaximumSize(QSize(16777215, 40))
-        self.frame_selection_id.setFrameShape(QFrame.NoFrame)
-        self.frame_selection_id.setFrameShadow(QFrame.Raised)
+        self.frame_selection_id.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_selection_id.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_6 = QGridLayout(self.frame_selection_id)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.gridLayout_6.setHorizontalSpacing(8)
@@ -1406,9 +1404,9 @@ class Ui_Dialog(object):
         self.lineEdit_selected_node_id.setMinimumSize(QSize(160, 26))
         self.lineEdit_selected_node_id.setMaximumSize(QSize(160, 26))
         self.lineEdit_selected_node_id.setFont(font4)
-        self.lineEdit_selected_node_id.setFocusPolicy(Qt.ClickFocus)
+        self.lineEdit_selected_node_id.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.lineEdit_selected_node_id.setStyleSheet(u"")
-        self.lineEdit_selected_node_id.setAlignment(Qt.AlignCenter)
+        self.lineEdit_selected_node_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_6.addWidget(self.lineEdit_selected_node_id, 0, 2, 1, 1)
 
@@ -1417,7 +1415,7 @@ class Ui_Dialog(object):
         self.label_5.setMinimumSize(QSize(100, 26))
         self.label_5.setMaximumSize(QSize(16777215, 26))
         self.label_5.setFont(font4)
-        self.label_5.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_5.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_6.addWidget(self.label_5, 0, 1, 1, 1)
 
@@ -1431,7 +1429,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_13.addWidget(self.frame, 1, 0, 1, 1)
 
-        QWidget.setTabOrder(self.tabWidget_compressor, self.scrollArea)
+        QWidget.setTabOrder(self.tabWidget_main, self.scrollArea)
         QWidget.setTabOrder(self.scrollArea, self.comboBox_stage)
         QWidget.setTabOrder(self.comboBox_stage, self.comboBox_cylinder_acting)
         QWidget.setTabOrder(self.comboBox_cylinder_acting, self.spinBox_number_of_cylinders)
@@ -1452,20 +1450,20 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.spinBox_max_frequency, self.comboBox_frequency_resolution)
         QWidget.setTabOrder(self.comboBox_frequency_resolution, self.lineEdit_frequency_resolution)
         QWidget.setTabOrder(self.lineEdit_frequency_resolution, self.lineEdit_number_of_revolutions)
-        QWidget.setTabOrder(self.lineEdit_number_of_revolutions, self.treeWidget_compressor_excitation)
-        QWidget.setTabOrder(self.treeWidget_compressor_excitation, self.pushButton_reset)
+        QWidget.setTabOrder(self.lineEdit_number_of_revolutions, self.treeWidget_nodal_info)
+        QWidget.setTabOrder(self.treeWidget_nodal_info, self.pushButton_reset)
         QWidget.setTabOrder(self.pushButton_reset, self.pushButton_remove)
 
         self.retranslateUi(Dialog)
 
         self.pushButton_confirm.setDefault(False)
         self.pushButton_exit.setDefault(False)
-        self.tabWidget_compressor.setCurrentIndex(0)
+        self.tabWidget_main.setCurrentIndex(0)
         self.comboBox_connection_type.setCurrentIndex(1)
-        self.comboBox_pressure_units.setCurrentIndex(0)
-        self.comboBox_fluid_data_source.setCurrentIndex(1)
-        self.comboBox_temperature_units.setCurrentIndex(1)
+        self.comboBox_fluid_data_source.setCurrentIndex(0)
         self.pushButton_get_fluid.setDefault(True)
+        self.comboBox_pressure_units.setCurrentIndex(4)
+        self.comboBox_temperature_units.setCurrentIndex(1)
         self.comboBox_frequency_resolution.setCurrentIndex(4)
         self.tabWidget_plots_2.setCurrentIndex(0)
 
@@ -1530,15 +1528,6 @@ class Ui_Dialog(object):
         self.label_suction_temperature_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[\u00baC]</p></body></html>", None))
         self.label_51.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Discharge pressure:</p></body></html>", None))
         self.label_52.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Temprature unit:</p></body></html>", None))
-        self.comboBox_pressure_units.setItemText(0, QCoreApplication.translate("Dialog", u"kgf/cm\u00b2 (a)", None))
-        self.comboBox_pressure_units.setItemText(1, QCoreApplication.translate("Dialog", u"bar (a)", None))
-        self.comboBox_pressure_units.setItemText(2, QCoreApplication.translate("Dialog", u"kPa (a)", None))
-        self.comboBox_pressure_units.setItemText(3, QCoreApplication.translate("Dialog", u"Pa (a)", None))
-        self.comboBox_pressure_units.setItemText(4, QCoreApplication.translate("Dialog", u"kgf/cm\u00b2 (g)", None))
-        self.comboBox_pressure_units.setItemText(5, QCoreApplication.translate("Dialog", u"bar (g)", None))
-        self.comboBox_pressure_units.setItemText(6, QCoreApplication.translate("Dialog", u"kPa (g)", None))
-        self.comboBox_pressure_units.setItemText(7, QCoreApplication.translate("Dialog", u"Pa (g)", None))
-
         self.label_molar_mass.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Molar mass:</p></body></html>", None))
         self.label_molar_mass_2.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Fluid data source:</p></body></html>", None))
         self.lineEdit_isentropic_exponent.setText(QCoreApplication.translate("Dialog", u"1.4", None))
@@ -1548,9 +1537,6 @@ class Ui_Dialog(object):
         self.comboBox_fluid_data_source.setItemText(1, QCoreApplication.translate("Dialog", u"User-defined", None))
 
         self.label_50.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Pressure unit:</p></body></html>", None))
-        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"K", None))
-        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00b0C", None))
-
         self.label_44.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Suction temperature:</p></body></html>", None))
         self.pushButton_get_fluid.setText(QCoreApplication.translate("Dialog", u"Get fluid", None))
         self.label_7.setText(QCoreApplication.translate("Dialog", u"Define the fluid properties", None))
@@ -1566,7 +1552,26 @@ class Ui_Dialog(object):
         self.label_discharge_temperature_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[\u00baC]</p></body></html>", None))
         self.label_53.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Discharge temperature:</p></body></html>", None))
         self.lineEdit_temperature_at_discharge.setText(QCoreApplication.translate("Dialog", u"--", None))
-        self.tabWidget_compressor.setTabText(self.tabWidget_compressor.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
+        self.comboBox_pressure_units.setItemText(0, QCoreApplication.translate("Dialog", u"Pa (a)", None))
+        self.comboBox_pressure_units.setItemText(1, QCoreApplication.translate("Dialog", u"kPa (a)", None))
+        self.comboBox_pressure_units.setItemText(2, QCoreApplication.translate("Dialog", u"atm (a)", None))
+        self.comboBox_pressure_units.setItemText(3, QCoreApplication.translate("Dialog", u"bar (a)", None))
+        self.comboBox_pressure_units.setItemText(4, QCoreApplication.translate("Dialog", u"kgf/cm\u00b2 (a)", None))
+        self.comboBox_pressure_units.setItemText(5, QCoreApplication.translate("Dialog", u"psi (a)", None))
+        self.comboBox_pressure_units.setItemText(6, QCoreApplication.translate("Dialog", u"ksi (a)", None))
+        self.comboBox_pressure_units.setItemText(7, QCoreApplication.translate("Dialog", u"Pa (g)", None))
+        self.comboBox_pressure_units.setItemText(8, QCoreApplication.translate("Dialog", u"kPa (g)", None))
+        self.comboBox_pressure_units.setItemText(9, QCoreApplication.translate("Dialog", u"atm (g)", None))
+        self.comboBox_pressure_units.setItemText(10, QCoreApplication.translate("Dialog", u"bar (g)", None))
+        self.comboBox_pressure_units.setItemText(11, QCoreApplication.translate("Dialog", u"kgf/cm\u00b2 (g)", None))
+        self.comboBox_pressure_units.setItemText(12, QCoreApplication.translate("Dialog", u"psi (g)", None))
+        self.comboBox_pressure_units.setItemText(13, QCoreApplication.translate("Dialog", u"ksi (g)", None))
+
+        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"K", None))
+        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00b0C", None))
+        self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00b0F", None))
+
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         self.label_39.setText(QCoreApplication.translate("Dialog", u"Final frequency resolution:", None))
         self.comboBox_frequency_resolution.setItemText(0, QCoreApplication.translate("Dialog", u"    0.1 Hz", None))
         self.comboBox_frequency_resolution.setItemText(1, QCoreApplication.translate("Dialog", u"    0.2 Hz", None))
@@ -1610,15 +1615,15 @@ class Ui_Dialog(object):
         self.pushButton_plot_PV_diagram_head_end.setText(QCoreApplication.translate("Dialog", u"P-V diagram \n"
 " head end", None))
         self.tabWidget_plots_2.setTabText(self.tabWidget_plots_2.indexOf(self.tab_plot_PV_2), QCoreApplication.translate("Dialog", u"Pressure-Volume", None))
-        self.tabWidget_compressor.setTabText(self.tabWidget_compressor.indexOf(self.tab_advanced_options), QCoreApplication.translate("Dialog", u"Advanced options", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_advanced_options), QCoreApplication.translate("Dialog", u"Advanced options", None))
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Connection type:", None))
-        ___qtreewidgetitem = self.treeWidget_compressor_excitation.headerItem()
+        ___qtreewidgetitem = self.treeWidget_nodal_info.headerItem()
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Connection", None))
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Node ID", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", "")
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
-        self.tabWidget_compressor.setTabText(self.tabWidget_compressor.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))
         self.label_5.setText(QCoreApplication.translate("Dialog", u"Selected node ID:", None))
     # retranslateUi
 
@@ -1640,7 +1645,7 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                     - (Layout): QGridLayout
                             - frame_7: QFrame
                                 - (Layout): QGridLayout
-                                        - tabWidget_compressor: QTabWidget
+                                        - tabWidget_main: QTabWidget
                                             - tab_setup: QWidget
                                                 - (Layout): QGridLayout
                                                         - scrollArea: QScrollArea
@@ -1695,7 +1700,6 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - label_suction_temperature_unit: QLabel
                                                                                     - label_51: QLabel
                                                                                     - label_52: QLabel
-                                                                                    - comboBox_pressure_units: QComboBox
                                                                                     - label_molar_mass: QLabel
                                                                                     - label_molar_mass_2: QLabel
                                                                                     - lineEdit_isentropic_exponent: QLineEdit
@@ -1703,7 +1707,6 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - label_42: QLabel
                                                                                     - comboBox_fluid_data_source: QComboBox
                                                                                     - label_50: QLabel
-                                                                                    - comboBox_temperature_units: QComboBox
                                                                                     - label_44: QLabel
                                                                                     - pushButton_get_fluid: QPushButton
                                                                                     - label_7: QLabel
@@ -1719,6 +1722,8 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - label_discharge_temperature_unit: QLabel
                                                                                     - label_53: QLabel
                                                                                     - lineEdit_temperature_at_discharge: QLineEdit
+                                                                                    - comboBox_pressure_units: QComboBox
+                                                                                    - comboBox_temperature_units: QComboBox
                                             - tab_advanced_options: QWidget
                                                 - (Layout): QGridLayout
                                                         - scrollArea_2: QScrollArea
@@ -1776,7 +1781,7 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                                                                     - label_3: QLabel
                                                         - frame_treeWidget: QFrame
                                                             - (Layout): QGridLayout
-                                                                    - treeWidget_compressor_excitation: QTreeWidget
+                                                                    - treeWidget_nodal_info: QTreeWidget
                                                         - frame_remove_buttons: QFrame
                                                             - (Layout): QGridLayout
                                                                     - pushButton_remove: QPushButton
