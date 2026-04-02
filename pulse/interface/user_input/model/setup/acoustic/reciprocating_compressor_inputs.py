@@ -821,7 +821,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             "pressure_unit" : self.comboBox_pressure_units.currentText(),
             "isentropic_exponent" : self.parameters.get('isentropic_exponent', None),
             "pressure_ratio" : self.parameters['pressure_ratio'],
-            "check_ideal_gas" : True
+            "check_ideal_gas" : True,
             }
 
         self.hide()

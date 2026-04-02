@@ -262,9 +262,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.render_widget.update_plot(reset_camera=False)
 
     def define_material_callback(self):
-        self.current_material_id = (
-            self.material_widget.material_widget.get_selected_material_id()
-        )
+        self.current_material_id = self.material_widget.material_widget.get_selected_material_id()
         self.material_widget.close()
         self._update_material_of_selected_structures()
         self._update_permissions()
@@ -869,11 +867,9 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
 
         material_id = ""
         material = None
-        if self.current_material_id is not None:
+        if isinstance(self.current_material_id, int):
             material_id = self.current_material_id
-            material = self.material_widget.material_widget.materials_library[
-                material_id
-            ]
+            material = app().project.model.properties.materials_library.get(material_id)
 
         message = "Active configuration\n\n"
 
