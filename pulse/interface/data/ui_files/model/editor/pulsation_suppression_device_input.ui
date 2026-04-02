@@ -95,7 +95,7 @@
              <property name="geometry">
               <rect>
                <x>0</x>
-               <y>-192</y>
+               <y>0</y>
                <width>571</width>
                <height>688</height>
               </rect>
@@ -284,12 +284,12 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string> disabled</string>
+                     <string>disabled</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> double-tuned</string>
+                     <string>double-tuned</string>
                     </property>
                    </item>
                   </widget>
@@ -342,12 +342,12 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string> pipe #1</string>
+                     <string>pipe #1</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> pipe #2</string>
+                     <string>pipe #2</string>
                     </property>
                    </item>
                   </widget>
@@ -413,12 +413,12 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string> radial type</string>
+                     <string>radial type</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> axial type</string>
+                     <string>axial type</string>
                     </property>
                    </item>
                   </widget>
@@ -570,12 +570,12 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string> two volumes</string>
+                     <string>two volumes</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> one volume</string>
+                     <string>one volume</string>
                     </property>
                    </item>
                   </widget>
@@ -601,12 +601,12 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string> radial type</string>
+                     <string>radial type</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> axial type</string>
+                     <string>axial type</string>
                     </property>
                    </item>
                   </widget>
@@ -773,17 +773,17 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string> pipe</string>
+                     <string>pipe</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> pipe-plate</string>
+                     <string>pipe-plate</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> perf. plate</string>
+                     <string>perf. plate</string>
                     </property>
                    </item>
                   </widget>
@@ -950,32 +950,32 @@
                    </property>
                    <item>
                     <property name="text">
-                     <string> x-axis (+)</string>
+                     <string>x-axis (+)</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> y-axis (+)</string>
+                     <string>y-axis (+)</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> z-axis (+)</string>
+                     <string>z-axis (+)</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> x-axis (-)</string>
+                     <string>x-axis (-)</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> y-axis (-)</string>
+                     <string>y-axis (-)</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string> z-axis (-)</string>
+                     <string>z-axis (-)</string>
                     </property>
                    </item>
                   </widget>

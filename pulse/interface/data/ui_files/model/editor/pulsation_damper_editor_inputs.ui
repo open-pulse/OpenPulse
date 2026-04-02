@@ -142,8 +142,8 @@
                 <property name="geometry">
                  <rect>
                   <x>0</x>
-                  <y>-176</y>
-                  <width>447</width>
+                  <y>0</y>
+                  <width>452</width>
                   <height>658</height>
                  </rect>
                 </property>
@@ -1159,32 +1159,32 @@
                       </property>
                       <item>
                        <property name="text">
-                        <string> x-axis (+)</string>
+                        <string>x-axis (+)</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> y-axis (+)</string>
+                        <string>y-axis (+)</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> z-axis (+)</string>
+                        <string>z-axis (+)</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> x-axis (-)</string>
+                        <string>x-axis (-)</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> y-axis (-)</string>
+                        <string>y-axis (-)</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> z-axis (-)</string>
+                        <string>z-axis (-)</string>
                        </property>
                       </item>
                      </widget>
