@@ -1541,11 +1541,11 @@
                        </font>
                       </property>
                       <property name="currentIndex">
-                       <number>0</number>
+                       <number>1</number>
                       </property>
                       <item>
                        <property name="text">
-                        <string> K</string>
+                        <string>K</string>
                        </property>
                       </item>
                       <item>

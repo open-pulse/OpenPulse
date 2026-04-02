@@ -1053,7 +1053,7 @@ class Ui_Dialog(object):
         self.tabWidget_main.setCurrentIndex(0)
         self.comboBox_damper_type.setCurrentIndex(0)
         self.comboBox_main_axis.setCurrentIndex(1)
-        self.comboBox_temperature_units.setCurrentIndex(0)
+        self.comboBox_temperature_units.setCurrentIndex(1)
         self.pushButton_get_liquid_fluid.setDefault(True)
         self.comboBox_fluid_data_source.setCurrentIndex(1)
         self.pushButton_get_gas_fluid.setDefault(True)
@@ -1122,7 +1122,7 @@ class Ui_Dialog(object):
         self.label_13.setText(QCoreApplication.translate("Dialog", u"Define the fluid properties", None))
         self.label_bulk_modulus_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[--]</p></body></html>", None))
         self.lineEdit_gas_pressure.setText(QCoreApplication.translate("Dialog", u"120", None))
-        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u" K", None))
+        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"K", None))
         self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00b0C", None))
         self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00b0F", None))
 
