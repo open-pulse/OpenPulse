@@ -80,5 +80,5 @@ class ExpansionJointOptions(StructureOptions):
         return dict(
             structural_element_type = "expansion_joint",
             expansion_joint_info = deepcopy(self.structure_info),
-            material_info = self.geometry_designer_widget.current_material_id,
+            material_id = self.geometry_designer_widget.current_material_id,
         )
