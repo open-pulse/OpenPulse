@@ -48,16 +48,31 @@ temperature_units_labels = [
     "°F",
 ]
 
-def convert_temperature_unit(value: float, input_unit: str, output_unit: str | None=None):
+def convert_temperature_unit(value: float, input_unit: str, output_unit: str | None=None) -> float:
+    """
+    This function converts the temperature, scaled in 'input_unit',
+    to a temperature scaled in 'output_unit'.
 
-    if input_unit == output_unit:
-        return value
+    Parameters
+    ----------
+    value: float
+    The temperature value.
+
+    input_unit: str 
+    The input temperature unit. Allowable units are: K, °C and °F.
+
+    output_unit: str or None, optional
+    The output temperature unit. Allowable units are: K, °C and °F.
+    """
 
     unit_map = {
         "K" : "kelvin",
         "°C" : "degC",
         "°F" : "degF",
         }
+
+    if input_unit == output_unit:
+        return value
 
     u_reg = UnitRegistry()
 
@@ -69,6 +84,21 @@ def convert_temperature_unit(value: float, input_unit: str, output_unit: str | N
 
 
 def convert_pressure_unit(value: float, input_unit: str, output_unit: str | None=None):
+    """
+    This function converts the pressure, scaled in 'input_unit',
+    to a pressure scaled in 'output_unit'.
+
+    Parameters
+    ----------
+    value: float
+    The pressure value.
+
+    input_unit: str 
+    The input pressure unit. Allowable units are: K, °C and °F.
+
+    output_unit: str or None, optional
+    The output pressure unit. Allowable units are: K, °C and °F.
+    """
 
     unit_map = {
         "Pa" : "pascal",
