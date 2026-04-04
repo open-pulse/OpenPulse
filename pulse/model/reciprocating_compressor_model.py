@@ -12,7 +12,7 @@ from pulse import OPEN_PULSE_DIR
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_pressure_unit, convert_temperature_unit
 
 
-class CylindersActingSetup(IntEnum):
+class CylindersActingMode(IntEnum):
     BOTH_ENDS = 0
     HEAD_END = 1
     CRANK_END = 2
@@ -61,8 +61,8 @@ class ReciprocatingCompressorModel:
     '''
 
     # compressor configuration
-    acting_label : int = CylindersActingSetup.BOTH_ENDS                     # Active cylinder(s) key
-    number_of_cylinders = int = 1                                           # Number of cylinders
+    acting_mode : int = CylindersActingMode.BOTH_ENDS                       # Active cylinder(s) key
+    number_of_cylinders : int = 1                                           # Number of cylinders
 
     # geometric parameters
     bore_diameter : float = 0.                                              # Cylinder bore diameter [m]
@@ -71,8 +71,8 @@ class ReciprocatingCompressorModel:
     rod_diameter : float = 0.                                               # Rod diameter [m]
     clearance_HE : float = 0.                                               # Clearance HE volume as percentage of HE full volume (%)
     clearance_CE : float = 0.                                               # Clearance CE volume as percentage of CE full volume (%)
-    crank_angle_1 : float = 0.                                              # Crank angle (degrees) at which piston in the head-end chamber is at top dead center
-    crank_angle_2 : float | None = None                                     # Crank angle (degrees) at which piston in the head-end chamber is at top dead center
+    tdc_crank_angle_1 : float = 0.                                          # Crank angle (degrees) at which piston in the head-end chamber is at top dead center
+    tdc_crank_angle_2 : float | None = None                                 # Crank angle (degrees) at which piston in the head-end chamber is at top dead center
  
     # operational parameters
     capacity : float = 100                                                  # Capacity of compression stage (%)
@@ -83,7 +83,7 @@ class ReciprocatingCompressorModel:
     suction_temperature : float = 0.                                        # Suction temperature
     pressure_unit : str = "Pa"                                              # Pressure unit
     temperature_unit : str = "K"                                            # Temperature unit
-    pressure_ratio: float = 0.                                              # Compressor pressure ratio Pd/Ps
+    pressure_ratio : float = 0.                                              # Compressor pressure ratio Pd/Ps
     isentropic_exponent : float = 1.4                                       # Isentropic exponent (Cp/Cv)
     molar_mass : float = 2.0158                                             # Molar mass [kg/kmol] - hydrogen as default
 
@@ -111,13 +111,13 @@ class ReciprocatingCompressorModel:
     
     @property
     def tdc_1(self):
-        return self.crank_angle_1 * pi / 180
+        return self.tdc_crank_angle_1 * pi / 180
 
     @property
     def tdc_2(self):
-        if self.crank_angle_2 is None:
+        if self.tdc_crank_angle_2 is None:
             return None
-        return self.crank_angle_2 * pi / 180
+        return self.tdc_crank_angle_2 * pi / 180
 
     @property
     def rpm(self):
@@ -130,11 +130,6 @@ class ReciprocatingCompressorModel:
     @property
     def area_crank_end(self):
         return pi * ((self.bore_diameter**2) - (self.rod_diameter**2)) / 4
-
-    def update_fluid_properties(self, isentropic_exponent: float, molar_mass: float):
-        self.isentropic_exponent = isentropic_exponent
-        self.molar_mass = molar_mass
-        self.process_remaining_fluid_properties()
 
     def process_remaining_fluid_properties(self):
 
@@ -160,6 +155,11 @@ class ReciprocatingCompressorModel:
 
         # density at the discharge
         self.rho_disc = (self.P_suction * self.pressure_ratio) / (self.R * self.T_discharge)
+
+    def update_fluid_properties(self, isentropic_exponent: float, molar_mass: float):
+        self.isentropic_exponent = isentropic_exponent
+        self.molar_mass = molar_mass
+        self.process_remaining_fluid_properties()
 
     def recip_x(self, tdc : float | None = None):
         """ This method returns the reciprocating piston position.
@@ -358,7 +358,7 @@ class ReciprocatingCompressorModel:
         angle = theta*180/pi
         
         N = len(x_piston)
-        time = np.linspace(0, 60/self.rpm, N)
+        time = np.linspace(0, 60 / self.rpm, N)
 
         volumes = (h0 - x_piston)*A
         pressures = np.zeros(N, dtype=float)
@@ -477,8 +477,8 @@ class ReciprocatingCompressorModel:
             folder_path = OPEN_PULSE_DIR.cwd() / "temporary_data"
             folder_path.mkdir(exist_ok=True)
 
-            fname = folder_path / f"PV_diagram_head_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log =folder_path / f"log_info_head_end_{self.crank_angle_1}_cap_{capacity}.txt"
+            fname = folder_path / f"PV_diagram_head_end_crank_angle_{self.tdc_crank_angle_1}.dat"
+            fname_log =folder_path / f"log_info_head_end_{self.tdc_crank_angle_1}_cap_{capacity}.txt"
 
             header = "Index, Time [s], Angle [deg], Velocity [m/s], Volumes [m³], Pressures [Pa], Suction valve open [bool], Discharge valve open [bool]\n\n"
             header += f"V1 = {V1}\n"
@@ -538,7 +538,7 @@ class ReciprocatingCompressorModel:
         angle = theta*180/pi
         
         N = len(x_piston)
-        time = np.linspace(0, 60/self.rpm, N)
+        time = np.linspace(0, 60 / self.rpm, N)
 
         volumes = (h0 + 2 * self.radius + x_piston) * A
         pressures = np.zeros(N, dtype=float)
@@ -660,8 +660,8 @@ class ReciprocatingCompressorModel:
             folder_path = OPEN_PULSE_DIR.cwd() / "temporary_data"
             folder_path.mkdir(exist_ok=True)
 
-            fname = folder_path / f"PV_diagram_crank_end_crank_angle_{self.crank_angle_1}.dat"
-            fname_log =folder_path / f"log_info_crank_end_{self.crank_angle_1}_cap_{capacity}.txt"
+            fname = folder_path / f"PV_diagram_crank_end_crank_angle_{self.tdc_crank_angle_1}.dat"
+            fname_log =folder_path / f"log_info_crank_end_{self.tdc_crank_angle_1}_cap_{capacity}.txt"
 
             header = "Index, Time [s], Angle [deg], Velocity [m/s], Volumes [m³], Pressures [Pa], Suction valve open [bool], Discharge valve open [bool]\n\n"
             header += f"V1 = {V1}\n"
@@ -780,7 +780,7 @@ class ReciprocatingCompressorModel:
     def process_sum_of_volumetric_flow_rate(self, key: str, capacity=None, smooth_data=False):
         try:
 
-            if self.acting_label == CylindersActingSetup.BOTH_ENDS:
+            if self.acting_mode == CylindersActingMode.BOTH_ENDS:
 
                 if self.number_of_cylinders == 1:
                     flow_rate = self.flow_crank_end(tdc=self.tdc_1, capacity=capacity)[key]
@@ -791,7 +791,7 @@ class ReciprocatingCompressorModel:
                     flow_rate += self.flow_crank_end(tdc=self.tdc_2, capacity=capacity)[key] 
                     flow_rate += self.flow_head_end(tdc=self.tdc_2, capacity=capacity)[key]
 
-            elif self.acting_label == CylindersActingSetup.HEAD_END:
+            elif self.acting_mode == CylindersActingMode.HEAD_END:
 
                 if self.number_of_cylinders == 1:
                     flow_rate = self.flow_head_end(tdc=self.tdc_1, capacity=capacity)[key]
@@ -799,7 +799,7 @@ class ReciprocatingCompressorModel:
                     flow_rate = self.flow_head_end(tdc=self.tdc_1, capacity=capacity)[key]
                     flow_rate += self.flow_head_end(tdc=self.tdc_2, capacity=capacity)[key]
 
-            elif self.acting_label == CylindersActingSetup.CRANK_END:
+            elif self.acting_mode == CylindersActingMode.CRANK_END:
 
                 if self.number_of_cylinders == 1:
                     flow_rate = self.flow_crank_end(tdc=self.tdc_1, capacity=capacity)[key]
@@ -944,18 +944,24 @@ class ReciprocatingCompressorModel:
         return x
 
     def FFT_periodic(self, x_t, one_sided = True):
+
         N = x_t.shape[0]
         if one_sided: # One-sided spectrum
             Xf = 2*np.fft.fft(x_t)
-            Xf[0] = Xf[0]/2
+            Xf[0] = Xf[0] / 2
+
         else: # Two-sided spectrum
             Xf = np.fft.fft(x_t)
+
         return Xf/N
 
-    def extend_signals(self, data, revolutions):
-        Trev = 60/self.rpm
+    def extend_signals(self, data: np.ndarray, revolutions: int):
+
+        Trev = 60 / self.rpm
         T = revolutions*Trev
+
         values_time = np.tile(data[:-1], revolutions) # extending signals
+
         return values_time, T
 
     def process_FFT_of_(self, values, revolutions):
@@ -1042,7 +1048,7 @@ class ReciprocatingCompressorModel:
         _, pressure_HE_Pa, _ = self.process_head_end_volumes_and_pressures()
         _, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
         
-        Trev = 60/self.rpm
+        Trev = 60 / self.rpm
         N = len(pressure_HE)
         time = np.linspace(0, Trev, N)
 
@@ -1068,7 +1074,7 @@ class ReciprocatingCompressorModel:
         volume_HE, _, _ = self.process_head_end_volumes_and_pressures()
         volume_CE, _, _ = self.process_crank_end_volumes_and_pressures()
 
-        Trev = 60/self.rpm
+        Trev = 60 / self.rpm
         N = len(volume_HE)
 
         time = np.linspace(0, Trev, N)
@@ -1090,7 +1096,7 @@ class ReciprocatingCompressorModel:
         if flow_rate is None:
             return
 
-        Trev = 60/self.rpm
+        Trev = 60 / self.rpm
         N = len(flow_rate)
 
         time = np.linspace(0, Trev, N)
@@ -1098,6 +1104,7 @@ class ReciprocatingCompressorModel:
         x_label = "Time [s]"
         y_label = "Volume [m³/s]"
         title = "Volumetric flow rate at suction"
+
         plot(time, flow_rate, x_label, y_label, title)
 
 
@@ -1107,7 +1114,7 @@ class ReciprocatingCompressorModel:
         if flow_rate is None:
             return
 
-        Trev = 60/self.rpm
+        Trev = 60 / self.rpm
         N = len(flow_rate)
         time = np.linspace(0, Trev, N)
         angle = np.linspace(0, 2*pi, N)
@@ -1115,6 +1122,7 @@ class ReciprocatingCompressorModel:
         x_label = "Time [s]"
         y_label = "Volume [m³/s]"
         title = "Volumetric flow rate at discharge"
+
         plot(time, flow_rate, x_label, y_label, title)
 
     def plot_rod_pressure_load_frequency(self, revolutions):
@@ -1150,7 +1158,7 @@ class ReciprocatingCompressorModel:
         # convert the calculate force in kN
         rod_pressure_load_time = (load_head + load_crank) / 1000
 
-        Trev = 60/self.rpm
+        Trev = 60 / self.rpm
         N = len(rod_pressure_load_time)
         time = np.linspace(0, Trev, N)
         
@@ -1164,7 +1172,7 @@ class ReciprocatingCompressorModel:
 
         _, x = self.recip_x(tdc=tdc)
         v = self.recip_v(tdc=tdc)
-        Trev = 60/self.rpm
+        Trev = 60 / self.rpm
         N = len(x)
 
         if domain == "time":
@@ -1433,7 +1441,7 @@ def plot_2_yaxis(data_to_plot, title):
 if __name__ == "__main__":
 
     parameters = {  
-        'acting_label' : CylindersActingSetup.BOTH_ENDS,
+        'acting_label' : CylindersActingMode.BOTH_ENDS,
         'number_of_cylinders' : 1,
         'bore_diameter' : 0.780,
         'stroke' : 0.33,
@@ -1442,7 +1450,7 @@ if __name__ == "__main__":
         'pressure_ratio' : 1.90788804,
         'clearance_HE' : 15.8,
         'clearance_CE' : 18.39,
-        'TDC_crank_angle_1' : 0,
+        'tdc_crank_angle_1' : 0,
         'rotational_speed' : 360,
         'capacity' : 100,
         'suction_pressure' : 19.65,
