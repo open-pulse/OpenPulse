@@ -168,7 +168,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         #
         self.comboBox_cylinder_acting.currentIndexChanged.connect(self.update_compressing_cylinders_setup)
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
-        self.comboBox_stage.currentIndexChanged.connect(self.comboBox_event_stage)
         self.comboBox_pressure_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         self.comboBox_temperature_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         #
@@ -210,7 +209,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         app().main_window.selection_changed.connect(self.selection_callback)
         #
         self.selection_callback()
-        self.comboBox_event_stage()
         self.update_compressing_cylinders_setup()
         self.spinBox_event_number_of_cylinders()
 
@@ -580,6 +578,9 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             key = line_edit.objectName().split("lineEdit_")[1]
             self.parameters[key] = float(line_edit.text())
 
+        self.parameters['acting_label'] = self.comboBox_cylinder_acting.currentIndex()
+        self.parameters['number_of_cylinders'] = self.spinBox_number_of_cylinders.value()
+        self.parameters['compression_stage'] = self.comboBox_stage.currentIndex() + 1
         self.parameters['clearance_HE'] = self.doubleSpinBox_clearance_head_end.value()
         self.parameters['clearance_CE'] = self.doubleSpinBox_clearance_crank_end.value()
         self.parameters['TDC_crank_angle_1'] = self.spinBox_tdc1_crank_angle.value()
@@ -587,16 +588,11 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.parameters['capacity'] = self.spinBox_capacity.value()
         self.parameters['pressure_unit'] = self.comboBox_pressure_units.currentText()
         self.parameters['temperature_unit'] = self.comboBox_temperature_units.currentText()
-        self.parameters['compression_stage'] = self.compression_stage_index
-        self.parameters['number_of_cylinders'] = self.number_of_cylinders
-        self.parameters['acting_label'] = self.comboBox_cylinder_acting.currentIndex()
 
-        if self.number_of_cylinders > 1:
+        if self.parameters['number_of_cylinders'] > 1:
             self.parameters['TDC_crank_angle_2'] = self.spinBox_tdc2_crank_angle.value()
         else:
             self.parameters['TDC_crank_angle_2'] = None
-
-        self.parameters['number_of_cylinders'] = self.number_of_cylinders
 
         if check_all_entries:
             self.compressor = ReciprocatingCompressorModel(**self.parameters)
@@ -608,7 +604,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         self.currentIndex = self.comboBox_frequency_resolution.currentIndex()
         if self.check_all_parameters():
-            return
+            return True
 
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
@@ -887,25 +883,17 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             self.process_aquisition_parameters()
 
     def spinBox_event_number_of_cylinders(self):
-        self.number_of_cylinders = self.spinBox_number_of_cylinders.value()
-        if self.number_of_cylinders == 1:
-            self.spinBox_tdc2_crank_angle.setDisabled(True)
-        else:
-            self.spinBox_tdc2_crank_angle.setDisabled(False)
+        one_cylinder = self.spinBox_number_of_cylinders.value() == 1
+        self.spinBox_tdc2_crank_angle.setDisabled(one_cylinder)
 
     def comboBox_event_frequency_resolution(self):
         if self.aquisition_parameters_processed:
             self.process_aquisition_parameters()
 
-    def comboBox_event_stage(self):
-        self.currentIndex_stage = self.comboBox_stage.currentIndex()
-        list_stage_labels = ['stage_1', 'stage_2', 'stage_3'] 
-        self.compression_stage_label = list_stage_labels[self.currentIndex_stage]
-        self.compression_stage_index = self.currentIndex_stage + 1
-
     def plot_PV_diagram_head_end(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_PV_diagram_head_end()
@@ -913,6 +901,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
     def plot_PV_diagram_crank_end(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_PV_diagram_crank_end()
@@ -920,6 +909,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
     def plot_PV_diagram_both_ends(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_PV_diagram_both_ends()
@@ -927,94 +917,112 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
     def plot_pressure_time(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_pressure_vs_time()
-        return
 
     def plot_volume_time(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_volume_vs_time()
-        return
     
     def plot_volumetric_flow_rate_at_suction_time(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_volumetric_flow_rate_at_suction_time()
-        return
 
     def plot_volumetric_flow_rate_at_discharge_time(self):
         if self.check_all_parameters():
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_volumetric_flow_rate_at_discharge_time()
-        return
-    
+
     def plot_rod_pressure_load_frequency(self):
-        self.process_aquisition_parameters()
+        if self.process_aquisition_parameters():
+            self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+            return
+
         self.compressor.plot_rod_pressure_load_frequency(self.N_rev)
-        return
 
     def plot_rod_pressure_load_time(self):
-        self.process_aquisition_parameters()
+        if self.process_aquisition_parameters():
+            self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+            return
+
         self.compressor.plot_rod_pressure_load_time()
-        return
     
     def plot_piston_position_and_velocity_time(self):
-        self.process_aquisition_parameters()
+        if self.process_aquisition_parameters():
+            self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+            return
+
         self.compressor.plot_piston_position_and_velocity(domain="time")
 
     def plot_piston_position_and_velocity_angle(self):
-        self.process_aquisition_parameters()
+        if self.process_aquisition_parameters():
+            self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+            return
+
         self.compressor.plot_piston_position_and_velocity(domain="angle")
 
     def plot_volumetric_flow_rate_at_suction_frequency(self):
-        self.process_aquisition_parameters()
+        if self.process_aquisition_parameters():
+            self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+            return
+
         self.compressor.plot_volumetric_flow_rate_at_suction_frequency(self.N_rev)
-        return
 
     def plot_volumetric_flow_rate_at_discharge_frequency(self):
-        self.process_aquisition_parameters()
+        if self.process_aquisition_parameters():
+            self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+            return
+
         self.compressor.plot_volumetric_flow_rate_at_discharge_frequency(self.N_rev)
-        return
 
     def plot_pressure_head_end_angle(self):
         if self.check_all_parameters():
+            self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_head_end_pressure_vs_angle()
-        return
 
     def plot_volume_head_end_angle(self):
         if self.check_all_parameters():
+            self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_head_end_volume_vs_angle()
-        return
 
     def plot_pressure_crank_end_angle(self):
         if self.check_all_parameters():
+            self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_crank_end_pressure_vs_angle()
-        return
 
     def plot_volume_crank_end_angle(self):
         if self.check_all_parameters():
+            self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
             return
+
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
         self.compressor.plot_crank_end_volume_vs_angle()
-        return
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
