@@ -25,7 +25,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         if not Dialog.objectName():
             Dialog.setObjectName(u"Dialog")
-        Dialog.resize(598, 783)
+        Dialog.resize(600, 796)
         Dialog.setMinimumSize(QSize(500, 500))
         Dialog.setMaximumSize(QSize(600, 800))
         Dialog.setSizeGripEnabled(True)
@@ -145,7 +145,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 537, 938))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 539, 904))
         self.gridLayout_11 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_11.setSpacing(0)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
@@ -599,105 +599,7 @@ class Ui_Dialog(object):
         self.label_suction_temperature_unit.setFont(font4)
         self.label_suction_temperature_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_3.addWidget(self.label_suction_temperature_unit, 9, 3, 1, 1)
-
-        self.label_51 = QLabel(self.frame_3)
-        self.label_51.setObjectName(u"label_51")
-        self.label_51.setMinimumSize(QSize(0, 28))
-        self.label_51.setMaximumSize(QSize(16777215, 28))
-        self.label_51.setFont(font4)
-        self.label_51.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_51, 7, 1, 1, 1)
-
-        self.label_52 = QLabel(self.frame_3)
-        self.label_52.setObjectName(u"label_52")
-        self.label_52.setMinimumSize(QSize(0, 28))
-        self.label_52.setMaximumSize(QSize(16777215, 28))
-        self.label_52.setFont(font4)
-        self.label_52.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_52, 8, 1, 1, 1)
-
-        self.label_molar_mass = QLabel(self.frame_3)
-        self.label_molar_mass.setObjectName(u"label_molar_mass")
-        self.label_molar_mass.setMinimumSize(QSize(0, 28))
-        self.label_molar_mass.setMaximumSize(QSize(16777215, 28))
-        self.label_molar_mass.setFont(font4)
-        self.label_molar_mass.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_molar_mass, 4, 1, 1, 1)
-
-        self.label_molar_mass_2 = QLabel(self.frame_3)
-        self.label_molar_mass_2.setObjectName(u"label_molar_mass_2")
-        self.label_molar_mass_2.setMinimumSize(QSize(0, 28))
-        self.label_molar_mass_2.setMaximumSize(QSize(16777215, 28))
-        self.label_molar_mass_2.setFont(font4)
-        self.label_molar_mass_2.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_molar_mass_2, 1, 1, 1, 1)
-
-        self.lineEdit_isentropic_exponent = QLineEdit(self.frame_3)
-        self.lineEdit_isentropic_exponent.setObjectName(u"lineEdit_isentropic_exponent")
-        self.lineEdit_isentropic_exponent.setMinimumSize(QSize(120, 28))
-        self.lineEdit_isentropic_exponent.setMaximumSize(QSize(120, 28))
-        self.lineEdit_isentropic_exponent.setFont(font4)
-        self.lineEdit_isentropic_exponent.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_isentropic_exponent.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_3.addWidget(self.lineEdit_isentropic_exponent, 3, 2, 1, 1)
-
-        self.lineEdit_selected_fluid = QLineEdit(self.frame_3)
-        self.lineEdit_selected_fluid.setObjectName(u"lineEdit_selected_fluid")
-        self.lineEdit_selected_fluid.setEnabled(False)
-        self.lineEdit_selected_fluid.setMinimumSize(QSize(120, 28))
-        self.lineEdit_selected_fluid.setMaximumSize(QSize(120, 28))
-        self.lineEdit_selected_fluid.setFont(font4)
-        self.lineEdit_selected_fluid.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_selected_fluid.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_3.addWidget(self.lineEdit_selected_fluid, 2, 2, 1, 1)
-
-        self.label_42 = QLabel(self.frame_3)
-        self.label_42.setObjectName(u"label_42")
-        self.label_42.setMinimumSize(QSize(0, 28))
-        self.label_42.setMaximumSize(QSize(16777215, 28))
-        self.label_42.setFont(font4)
-        self.label_42.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_42, 6, 1, 1, 1)
-
-        self.comboBox_fluid_data_source = QComboBox(self.frame_3)
-        self.comboBox_fluid_data_source.addItem("")
-        self.comboBox_fluid_data_source.addItem("")
-        self.comboBox_fluid_data_source.setObjectName(u"comboBox_fluid_data_source")
-        self.comboBox_fluid_data_source.setMinimumSize(QSize(120, 28))
-        self.comboBox_fluid_data_source.setMaximumSize(QSize(120, 28))
-        self.comboBox_fluid_data_source.setFont(font4)
-
-        self.gridLayout_3.addWidget(self.comboBox_fluid_data_source, 1, 2, 1, 1)
-
-        self.label_50 = QLabel(self.frame_3)
-        self.label_50.setObjectName(u"label_50")
-        self.label_50.setMinimumSize(QSize(0, 28))
-        self.label_50.setMaximumSize(QSize(16777215, 28))
-        self.label_50.setFont(font4)
-        self.label_50.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_50, 5, 1, 1, 1)
-
-        self.label_44 = QLabel(self.frame_3)
-        self.label_44.setObjectName(u"label_44")
-        self.label_44.setMinimumSize(QSize(0, 28))
-        self.label_44.setMaximumSize(QSize(16777215, 28))
-        self.label_44.setFont(font4)
-        self.label_44.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_3.addWidget(self.label_44, 9, 1, 1, 1)
-
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout_3.addItem(self.horizontalSpacer, 2, 0, 1, 1)
+        self.gridLayout_3.addWidget(self.label_suction_temperature_unit, 8, 3, 1, 1)
 
         self.pushButton_get_fluid = QPushButton(self.frame_3)
         self.pushButton_get_fluid.setObjectName(u"pushButton_get_fluid")
@@ -708,7 +610,20 @@ class Ui_Dialog(object):
         self.pushButton_get_fluid.setAutoDefault(False)
         self.pushButton_get_fluid.setFlat(False)
 
-        self.gridLayout_3.addWidget(self.pushButton_get_fluid, 2, 3, 1, 1)
+        self.gridLayout_3.addWidget(self.pushButton_get_fluid, 1, 3, 1, 1)
+
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_3.addItem(self.horizontalSpacer, 1, 0, 1, 1)
+
+        self.label_51 = QLabel(self.frame_3)
+        self.label_51.setObjectName(u"label_51")
+        self.label_51.setMinimumSize(QSize(0, 28))
+        self.label_51.setMaximumSize(QSize(16777215, 28))
+        self.label_51.setFont(font4)
+        self.label_51.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_51, 6, 1, 1, 1)
 
         self.label_7 = QLabel(self.frame_3)
         self.label_7.setObjectName(u"label_7")
@@ -720,6 +635,36 @@ class Ui_Dialog(object):
 
         self.gridLayout_3.addWidget(self.label_7, 0, 1, 1, 3)
 
+        self.label_53 = QLabel(self.frame_3)
+        self.label_53.setObjectName(u"label_53")
+        self.label_53.setMinimumSize(QSize(0, 28))
+        self.label_53.setMaximumSize(QSize(16777215, 28))
+        self.label_53.setFont(font4)
+        self.label_53.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.label_53, 9, 1, 1, 1)
+
+        self.lineEdit_isentropic_exponent = QLineEdit(self.frame_3)
+        self.lineEdit_isentropic_exponent.setObjectName(u"lineEdit_isentropic_exponent")
+        self.lineEdit_isentropic_exponent.setMinimumSize(QSize(120, 28))
+        self.lineEdit_isentropic_exponent.setMaximumSize(QSize(120, 28))
+        self.lineEdit_isentropic_exponent.setFont(font4)
+        self.lineEdit_isentropic_exponent.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_isentropic_exponent.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.lineEdit_isentropic_exponent, 2, 2, 1, 1)
+
+        self.comboBox_temperature_units = QComboBox(self.frame_3)
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.setObjectName(u"comboBox_temperature_units")
+        self.comboBox_temperature_units.setMinimumSize(QSize(120, 28))
+        self.comboBox_temperature_units.setMaximumSize(QSize(120, 28))
+        self.comboBox_temperature_units.setFont(font4)
+
+        self.gridLayout_3.addWidget(self.comboBox_temperature_units, 7, 2, 1, 1)
+
         self.lineEdit_suction_pressure = QLineEdit(self.frame_3)
         self.lineEdit_suction_pressure.setObjectName(u"lineEdit_suction_pressure")
         self.lineEdit_suction_pressure.setMinimumSize(QSize(120, 28))
@@ -728,53 +673,7 @@ class Ui_Dialog(object):
         self.lineEdit_suction_pressure.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_suction_pressure.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_3.addWidget(self.lineEdit_suction_pressure, 6, 2, 1, 1)
-
-        self.label_isentropic_exp = QLabel(self.frame_3)
-        self.label_isentropic_exp.setObjectName(u"label_isentropic_exp")
-        self.label_isentropic_exp.setMinimumSize(QSize(0, 28))
-        self.label_isentropic_exp.setMaximumSize(QSize(16777215, 28))
-        self.label_isentropic_exp.setFont(font4)
-        self.label_isentropic_exp.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_isentropic_exp, 3, 1, 1, 1)
-
-        self.label_suction_pressure_unit = QLabel(self.frame_3)
-        self.label_suction_pressure_unit.setObjectName(u"label_suction_pressure_unit")
-        self.label_suction_pressure_unit.setMinimumSize(QSize(84, 28))
-        self.label_suction_pressure_unit.setMaximumSize(QSize(84, 28))
-        self.label_suction_pressure_unit.setFont(font4)
-        self.label_suction_pressure_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_suction_pressure_unit, 6, 3, 1, 1)
-
-        self.lineEdit_molar_mass = QLineEdit(self.frame_3)
-        self.lineEdit_molar_mass.setObjectName(u"lineEdit_molar_mass")
-        self.lineEdit_molar_mass.setMinimumSize(QSize(120, 28))
-        self.lineEdit_molar_mass.setMaximumSize(QSize(120, 28))
-        self.lineEdit_molar_mass.setFont(font4)
-        self.lineEdit_molar_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_molar_mass.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_3.addWidget(self.lineEdit_molar_mass, 4, 2, 1, 1)
-
-        self.label_molar_mass_3 = QLabel(self.frame_3)
-        self.label_molar_mass_3.setObjectName(u"label_molar_mass_3")
-        self.label_molar_mass_3.setMinimumSize(QSize(0, 28))
-        self.label_molar_mass_3.setMaximumSize(QSize(16777215, 28))
-        self.label_molar_mass_3.setFont(font4)
-        self.label_molar_mass_3.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_molar_mass_3, 2, 1, 1, 1)
-
-        self.label_molar_mass_unit = QLabel(self.frame_3)
-        self.label_molar_mass_unit.setObjectName(u"label_molar_mass_unit")
-        self.label_molar_mass_unit.setMinimumSize(QSize(84, 28))
-        self.label_molar_mass_unit.setMaximumSize(QSize(84, 28))
-        self.label_molar_mass_unit.setFont(font4)
-        self.label_molar_mass_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_molar_mass_unit, 4, 3, 1, 1)
+        self.gridLayout_3.addWidget(self.lineEdit_suction_pressure, 5, 2, 1, 1)
 
         self.label_discharge_pressure_unit = QLabel(self.frame_3)
         self.label_discharge_pressure_unit.setObjectName(u"label_discharge_pressure_unit")
@@ -783,60 +682,7 @@ class Ui_Dialog(object):
         self.label_discharge_pressure_unit.setFont(font4)
         self.label_discharge_pressure_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_3.addWidget(self.label_discharge_pressure_unit, 7, 3, 1, 1)
-
-        self.lineEdit_discharge_pressure = QLineEdit(self.frame_3)
-        self.lineEdit_discharge_pressure.setObjectName(u"lineEdit_discharge_pressure")
-        self.lineEdit_discharge_pressure.setEnabled(False)
-        self.lineEdit_discharge_pressure.setMinimumSize(QSize(120, 28))
-        self.lineEdit_discharge_pressure.setMaximumSize(QSize(120, 28))
-        self.lineEdit_discharge_pressure.setFont(font4)
-        self.lineEdit_discharge_pressure.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_discharge_pressure.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_3.addWidget(self.lineEdit_discharge_pressure, 7, 2, 1, 1)
-
-        self.lineEdit_suction_temperature = QLineEdit(self.frame_3)
-        self.lineEdit_suction_temperature.setObjectName(u"lineEdit_suction_temperature")
-        self.lineEdit_suction_temperature.setMinimumSize(QSize(120, 28))
-        self.lineEdit_suction_temperature.setMaximumSize(QSize(120, 28))
-        self.lineEdit_suction_temperature.setFont(font4)
-        self.lineEdit_suction_temperature.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_suction_temperature.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_3.addWidget(self.lineEdit_suction_temperature, 9, 2, 1, 1)
-
-        self.label_discharge_temperature_unit = QLabel(self.frame_3)
-        self.label_discharge_temperature_unit.setObjectName(u"label_discharge_temperature_unit")
-        self.label_discharge_temperature_unit.setMinimumSize(QSize(84, 28))
-        self.label_discharge_temperature_unit.setMaximumSize(QSize(84, 28))
-        self.label_discharge_temperature_unit.setFont(font4)
-        self.label_discharge_temperature_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_3.addWidget(self.label_discharge_temperature_unit, 10, 3, 1, 1)
-
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout_3.addItem(self.horizontalSpacer_2, 2, 4, 1, 1)
-
-        self.label_53 = QLabel(self.frame_3)
-        self.label_53.setObjectName(u"label_53")
-        self.label_53.setMinimumSize(QSize(0, 28))
-        self.label_53.setMaximumSize(QSize(16777215, 28))
-        self.label_53.setFont(font4)
-        self.label_53.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_3.addWidget(self.label_53, 10, 1, 1, 1)
-
-        self.lineEdit_discharge_temperature = QLineEdit(self.frame_3)
-        self.lineEdit_discharge_temperature.setObjectName(u"lineEdit_discharge_temperature")
-        self.lineEdit_discharge_temperature.setMinimumSize(QSize(120, 28))
-        self.lineEdit_discharge_temperature.setMaximumSize(QSize(120, 28))
-        self.lineEdit_discharge_temperature.setFont(font4)
-        self.lineEdit_discharge_temperature.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_discharge_temperature.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_3.addWidget(self.lineEdit_discharge_temperature, 10, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.label_discharge_pressure_unit, 6, 3, 1, 1)
 
         self.comboBox_pressure_units = QComboBox(self.frame_3)
         self.comboBox_pressure_units.addItem("")
@@ -858,18 +704,153 @@ class Ui_Dialog(object):
         self.comboBox_pressure_units.setMaximumSize(QSize(120, 28))
         self.comboBox_pressure_units.setFont(font4)
 
-        self.gridLayout_3.addWidget(self.comboBox_pressure_units, 5, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.comboBox_pressure_units, 4, 2, 1, 1)
 
-        self.comboBox_temperature_units = QComboBox(self.frame_3)
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.setObjectName(u"comboBox_temperature_units")
-        self.comboBox_temperature_units.setMinimumSize(QSize(120, 28))
-        self.comboBox_temperature_units.setMaximumSize(QSize(120, 28))
-        self.comboBox_temperature_units.setFont(font4)
+        self.label_molar_mass = QLabel(self.frame_3)
+        self.label_molar_mass.setObjectName(u"label_molar_mass")
+        self.label_molar_mass.setMinimumSize(QSize(0, 28))
+        self.label_molar_mass.setMaximumSize(QSize(16777215, 28))
+        self.label_molar_mass.setFont(font4)
+        self.label_molar_mass.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_3.addWidget(self.comboBox_temperature_units, 8, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.label_molar_mass, 3, 1, 1, 1)
+
+        self.label_suction_pressure_unit = QLabel(self.frame_3)
+        self.label_suction_pressure_unit.setObjectName(u"label_suction_pressure_unit")
+        self.label_suction_pressure_unit.setMinimumSize(QSize(84, 28))
+        self.label_suction_pressure_unit.setMaximumSize(QSize(84, 28))
+        self.label_suction_pressure_unit.setFont(font4)
+        self.label_suction_pressure_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_suction_pressure_unit, 5, 3, 1, 1)
+
+        self.label_isentropic_exp = QLabel(self.frame_3)
+        self.label_isentropic_exp.setObjectName(u"label_isentropic_exp")
+        self.label_isentropic_exp.setMinimumSize(QSize(0, 28))
+        self.label_isentropic_exp.setMaximumSize(QSize(16777215, 28))
+        self.label_isentropic_exp.setFont(font4)
+        self.label_isentropic_exp.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_isentropic_exp, 2, 1, 1, 1)
+
+        self.lineEdit_selected_fluid = QLineEdit(self.frame_3)
+        self.lineEdit_selected_fluid.setObjectName(u"lineEdit_selected_fluid")
+        self.lineEdit_selected_fluid.setEnabled(False)
+        self.lineEdit_selected_fluid.setMinimumSize(QSize(120, 28))
+        self.lineEdit_selected_fluid.setMaximumSize(QSize(120, 28))
+        self.lineEdit_selected_fluid.setFont(font4)
+        self.lineEdit_selected_fluid.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_selected_fluid.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.lineEdit_selected_fluid, 1, 2, 1, 1)
+
+        self.label_molar_mass_3 = QLabel(self.frame_3)
+        self.label_molar_mass_3.setObjectName(u"label_molar_mass_3")
+        self.label_molar_mass_3.setMinimumSize(QSize(0, 28))
+        self.label_molar_mass_3.setMaximumSize(QSize(16777215, 28))
+        self.label_molar_mass_3.setFont(font4)
+        self.label_molar_mass_3.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_molar_mass_3, 1, 1, 1, 1)
+
+        self.lineEdit_discharge_temperature = QLineEdit(self.frame_3)
+        self.lineEdit_discharge_temperature.setObjectName(u"lineEdit_discharge_temperature")
+        self.lineEdit_discharge_temperature.setMinimumSize(QSize(120, 28))
+        self.lineEdit_discharge_temperature.setMaximumSize(QSize(120, 28))
+        self.lineEdit_discharge_temperature.setFont(font4)
+        self.lineEdit_discharge_temperature.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_discharge_temperature.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.lineEdit_discharge_temperature, 9, 2, 1, 1)
+
+        self.label_molar_mass_unit = QLabel(self.frame_3)
+        self.label_molar_mass_unit.setObjectName(u"label_molar_mass_unit")
+        self.label_molar_mass_unit.setMinimumSize(QSize(84, 28))
+        self.label_molar_mass_unit.setMaximumSize(QSize(84, 28))
+        self.label_molar_mass_unit.setFont(font4)
+        self.label_molar_mass_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_molar_mass_unit, 3, 3, 1, 1)
+
+        self.label_50 = QLabel(self.frame_3)
+        self.label_50.setObjectName(u"label_50")
+        self.label_50.setMinimumSize(QSize(0, 28))
+        self.label_50.setMaximumSize(QSize(16777215, 28))
+        self.label_50.setFont(font4)
+        self.label_50.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_50, 4, 1, 1, 1)
+
+        self.lineEdit_discharge_pressure = QLineEdit(self.frame_3)
+        self.lineEdit_discharge_pressure.setObjectName(u"lineEdit_discharge_pressure")
+        self.lineEdit_discharge_pressure.setEnabled(False)
+        self.lineEdit_discharge_pressure.setMinimumSize(QSize(120, 28))
+        self.lineEdit_discharge_pressure.setMaximumSize(QSize(120, 28))
+        self.lineEdit_discharge_pressure.setFont(font4)
+        self.lineEdit_discharge_pressure.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_discharge_pressure.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.lineEdit_discharge_pressure, 6, 2, 1, 1)
+
+        self.label_discharge_temperature_unit = QLabel(self.frame_3)
+        self.label_discharge_temperature_unit.setObjectName(u"label_discharge_temperature_unit")
+        self.label_discharge_temperature_unit.setMinimumSize(QSize(84, 28))
+        self.label_discharge_temperature_unit.setMaximumSize(QSize(84, 28))
+        self.label_discharge_temperature_unit.setFont(font4)
+        self.label_discharge_temperature_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_discharge_temperature_unit, 9, 3, 1, 1)
+
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_3.addItem(self.horizontalSpacer_2, 1, 4, 1, 1)
+
+        self.label_52 = QLabel(self.frame_3)
+        self.label_52.setObjectName(u"label_52")
+        self.label_52.setMinimumSize(QSize(0, 28))
+        self.label_52.setMaximumSize(QSize(16777215, 28))
+        self.label_52.setFont(font4)
+        self.label_52.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_52, 7, 1, 1, 1)
+
+        self.lineEdit_suction_temperature = QLineEdit(self.frame_3)
+        self.lineEdit_suction_temperature.setObjectName(u"lineEdit_suction_temperature")
+        self.lineEdit_suction_temperature.setMinimumSize(QSize(120, 28))
+        self.lineEdit_suction_temperature.setMaximumSize(QSize(120, 28))
+        self.lineEdit_suction_temperature.setFont(font4)
+        self.lineEdit_suction_temperature.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_suction_temperature.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.lineEdit_suction_temperature, 8, 2, 1, 1)
+
+        self.label_42 = QLabel(self.frame_3)
+        self.label_42.setObjectName(u"label_42")
+        self.label_42.setMinimumSize(QSize(0, 28))
+        self.label_42.setMaximumSize(QSize(16777215, 28))
+        self.label_42.setFont(font4)
+        self.label_42.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_42, 5, 1, 1, 1)
+
+        self.label_44 = QLabel(self.frame_3)
+        self.label_44.setObjectName(u"label_44")
+        self.label_44.setMinimumSize(QSize(0, 28))
+        self.label_44.setMaximumSize(QSize(16777215, 28))
+        self.label_44.setFont(font4)
+        self.label_44.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.label_44, 8, 1, 1, 1)
+
+        self.lineEdit_molar_mass = QLineEdit(self.frame_3)
+        self.lineEdit_molar_mass.setObjectName(u"lineEdit_molar_mass")
+        self.lineEdit_molar_mass.setMinimumSize(QSize(120, 28))
+        self.lineEdit_molar_mass.setMaximumSize(QSize(120, 28))
+        self.lineEdit_molar_mass.setFont(font4)
+        self.lineEdit_molar_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_molar_mass.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_3.addWidget(self.lineEdit_molar_mass, 3, 2, 1, 1)
 
 
         self.gridLayout_11.addWidget(self.frame_3, 1, 0, 1, 1)
@@ -892,7 +873,7 @@ class Ui_Dialog(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollAreaWidgetContents_2 = QWidget()
         self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
-        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 448, 512))
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 560, 579))
         self.gridLayout_18 = QGridLayout(self.scrollAreaWidgetContents_2)
         self.gridLayout_18.setObjectName(u"gridLayout_18")
         self.frame_4 = QFrame(self.scrollAreaWidgetContents_2)
@@ -1467,10 +1448,9 @@ class Ui_Dialog(object):
         self.tabWidget_main.setCurrentIndex(0)
         self.comboBox_cylinder_acting.setCurrentIndex(0)
         self.comboBox_connection_type.setCurrentIndex(1)
-        self.comboBox_fluid_data_source.setCurrentIndex(0)
         self.pushButton_get_fluid.setDefault(True)
-        self.comboBox_pressure_units.setCurrentIndex(4)
         self.comboBox_temperature_units.setCurrentIndex(1)
+        self.comboBox_pressure_units.setCurrentIndex(4)
         self.comboBox_frequency_resolution.setCurrentIndex(4)
         self.tabWidget_plots_2.setCurrentIndex(0)
 
@@ -1530,32 +1510,17 @@ class Ui_Dialog(object):
 #endif // QT_CONFIG(tooltip)
         self.pushButton_reset_entries.setText("")
         self.label_suction_temperature_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[\u00baC]</p></body></html>", None))
-        self.label_51.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Discharge pressure:</p></body></html>", None))
-        self.label_52.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Temprature unit:</p></body></html>", None))
-        self.label_molar_mass.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Molar mass:</p></body></html>", None))
-        self.label_molar_mass_2.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Fluid data source:</p></body></html>", None))
-        self.lineEdit_isentropic_exponent.setText(QCoreApplication.translate("Dialog", u"1.4", None))
-        self.lineEdit_selected_fluid.setText("")
-        self.label_42.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Suction pressure:</p></body></html>", None))
-        self.comboBox_fluid_data_source.setItemText(0, QCoreApplication.translate("Dialog", u"RefProp", None))
-        self.comboBox_fluid_data_source.setItemText(1, QCoreApplication.translate("Dialog", u"User-defined", None))
-
-        self.label_50.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Pressure unit:</p></body></html>", None))
-        self.label_44.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Suction temperature:</p></body></html>", None))
         self.pushButton_get_fluid.setText(QCoreApplication.translate("Dialog", u"Get fluid", None))
+        self.label_51.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Discharge pressure:</p></body></html>", None))
         self.label_7.setText(QCoreApplication.translate("Dialog", u"Define the fluid properties", None))
-        self.lineEdit_suction_pressure.setText(QCoreApplication.translate("Dialog", u"19.65", None))
-        self.label_isentropic_exp.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Isentropic exponent (C<span style=\" vertical-align:sub;\">p</span>/C<span style=\" vertical-align:sub;\">v</span>):</p></body></html>", None))
-        self.label_suction_pressure_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[kgf/cm\u00b2 (a)]</p></body></html>", None))
-        self.lineEdit_molar_mass.setText(QCoreApplication.translate("Dialog", u"2.0158", None))
-        self.label_molar_mass_3.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Selected working fluid:</p></body></html>", None))
-        self.label_molar_mass_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[kg/kmol]</p></body></html>", None))
-        self.label_discharge_pressure_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[kgf/cm\u00b2 (a)]</p></body></html>", None))
-        self.lineEdit_discharge_pressure.setText(QCoreApplication.translate("Dialog", u"37.49", None))
-        self.lineEdit_suction_temperature.setText(QCoreApplication.translate("Dialog", u"45", None))
-        self.label_discharge_temperature_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[\u00baC]</p></body></html>", None))
         self.label_53.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Discharge temperature:</p></body></html>", None))
-        self.lineEdit_discharge_temperature.setText(QCoreApplication.translate("Dialog", u"--", None))
+        self.lineEdit_isentropic_exponent.setText(QCoreApplication.translate("Dialog", u"1.4", None))
+        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"K", None))
+        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00b0C", None))
+        self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00b0F", None))
+
+        self.lineEdit_suction_pressure.setText(QCoreApplication.translate("Dialog", u"19.65", None))
+        self.label_discharge_pressure_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[kgf/cm\u00b2 (a)]</p></body></html>", None))
         self.comboBox_pressure_units.setItemText(0, QCoreApplication.translate("Dialog", u"Pa (a)", None))
         self.comboBox_pressure_units.setItemText(1, QCoreApplication.translate("Dialog", u"kPa (a)", None))
         self.comboBox_pressure_units.setItemText(2, QCoreApplication.translate("Dialog", u"atm (a)", None))
@@ -1571,10 +1536,21 @@ class Ui_Dialog(object):
         self.comboBox_pressure_units.setItemText(12, QCoreApplication.translate("Dialog", u"psi (g)", None))
         self.comboBox_pressure_units.setItemText(13, QCoreApplication.translate("Dialog", u"ksi (g)", None))
 
-        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"K", None))
-        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00b0C", None))
-        self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00b0F", None))
-
+        self.label_molar_mass.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Molar mass:</p></body></html>", None))
+        self.label_suction_pressure_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[kgf/cm\u00b2 (a)]</p></body></html>", None))
+        self.label_isentropic_exp.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Isentropic exponent (C<span style=\" vertical-align:sub;\">p</span>/C<span style=\" vertical-align:sub;\">v</span>):</p></body></html>", None))
+        self.lineEdit_selected_fluid.setText("")
+        self.label_molar_mass_3.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Selected working fluid:</p></body></html>", None))
+        self.lineEdit_discharge_temperature.setText(QCoreApplication.translate("Dialog", u"--", None))
+        self.label_molar_mass_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[kg/kmol]</p></body></html>", None))
+        self.label_50.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Pressure unit:</p></body></html>", None))
+        self.lineEdit_discharge_pressure.setText(QCoreApplication.translate("Dialog", u"37.49", None))
+        self.label_discharge_temperature_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[\u00baC]</p></body></html>", None))
+        self.label_52.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Temperature unit:</p></body></html>", None))
+        self.lineEdit_suction_temperature.setText(QCoreApplication.translate("Dialog", u"45", None))
+        self.label_42.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Suction pressure:</p></body></html>", None))
+        self.label_44.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Suction temperature:</p></body></html>", None))
+        self.lineEdit_molar_mass.setText(QCoreApplication.translate("Dialog", u"2.0158", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         self.label_39.setText(QCoreApplication.translate("Dialog", u"Final frequency resolution:", None))
         self.comboBox_frequency_resolution.setItemText(0, QCoreApplication.translate("Dialog", u"    0.1 Hz", None))
@@ -1702,32 +1678,30 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                                                                         - frame_3: QFrame
                                                                             - (Layout): QGridLayout
                                                                                     - label_suction_temperature_unit: QLabel
-                                                                                    - label_51: QLabel
-                                                                                    - label_52: QLabel
-                                                                                    - label_molar_mass: QLabel
-                                                                                    - label_molar_mass_2: QLabel
-                                                                                    - lineEdit_isentropic_exponent: QLineEdit
-                                                                                    - lineEdit_selected_fluid: QLineEdit
-                                                                                    - label_42: QLabel
-                                                                                    - comboBox_fluid_data_source: QComboBox
-                                                                                    - label_50: QLabel
-                                                                                    - label_44: QLabel
                                                                                     - pushButton_get_fluid: QPushButton
+                                                                                    - label_51: QLabel
                                                                                     - label_7: QLabel
-                                                                                    - lineEdit_suction_pressure: QLineEdit
-                                                                                    - label_isentropic_exp: QLabel
-                                                                                    - label_suction_pressure_unit: QLabel
-                                                                                    - lineEdit_molar_mass: QLineEdit
-                                                                                    - label_molar_mass_3: QLabel
-                                                                                    - label_molar_mass_unit: QLabel
-                                                                                    - label_discharge_pressure_unit: QLabel
-                                                                                    - lineEdit_discharge_pressure: QLineEdit
-                                                                                    - lineEdit_suction_temperature: QLineEdit
-                                                                                    - label_discharge_temperature_unit: QLabel
                                                                                     - label_53: QLabel
-                                                                                    - lineEdit_discharge_temperature: QLineEdit
-                                                                                    - comboBox_pressure_units: QComboBox
+                                                                                    - lineEdit_isentropic_exponent: QLineEdit
                                                                                     - comboBox_temperature_units: QComboBox
+                                                                                    - lineEdit_suction_pressure: QLineEdit
+                                                                                    - label_discharge_pressure_unit: QLabel
+                                                                                    - comboBox_pressure_units: QComboBox
+                                                                                    - label_molar_mass: QLabel
+                                                                                    - label_suction_pressure_unit: QLabel
+                                                                                    - label_isentropic_exp: QLabel
+                                                                                    - lineEdit_selected_fluid: QLineEdit
+                                                                                    - label_molar_mass_3: QLabel
+                                                                                    - lineEdit_discharge_temperature: QLineEdit
+                                                                                    - label_molar_mass_unit: QLabel
+                                                                                    - label_50: QLabel
+                                                                                    - lineEdit_discharge_pressure: QLineEdit
+                                                                                    - label_discharge_temperature_unit: QLabel
+                                                                                    - label_52: QLabel
+                                                                                    - lineEdit_suction_temperature: QLineEdit
+                                                                                    - label_42: QLabel
+                                                                                    - label_44: QLabel
+                                                                                    - lineEdit_molar_mass: QLineEdit
                                             - tab_advanced_options: QWidget
                                                 - (Layout): QGridLayout
                                                         - scrollArea_2: QScrollArea

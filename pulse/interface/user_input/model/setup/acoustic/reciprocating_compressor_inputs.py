@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QHeaderView, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
@@ -23,6 +23,7 @@ from pulse.model.reciprocating_compressor_model import CylindersActingSetup, Rec
 
 import numpy as np
 from enum import IntEnum
+from time import time
 
 
 class TabIndex(IntEnum):
@@ -43,12 +44,13 @@ warning_title = "Warning"
 class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         app().main_window.set_input_widget(self)
         self.properties = app().project.model.properties
 
         self._config_window()
         self._initialize()
-        self._config_widget()
+        self._config_widgets()
         self._create_connections()
         self.load_compressor_excitation_info()
 
@@ -69,10 +71,15 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         self.before_run = app().project.get_pre_solution_model_checks()    
 
-    def _config_widget(self):
+    def _config_widgets(self):
 
-        self.treeWidget_nodal_info.setColumnWidth(0, 100)
+        self.default_stylesheet = self.lineEdit_selected_node_id.styleSheet()
 
+        # disable the discharge temperature QLineEdit
+        self.lineEdit_discharge_temperature.setDisabled(True)
+
+        # configure the QTreeWidget appearance
+        self.treeWidget_nodal_info.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         for i in range(2):
             self.treeWidget_nodal_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
@@ -160,7 +167,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
     def _create_connections(self):
         #
         self.comboBox_cylinder_acting.currentIndexChanged.connect(self.update_compressing_cylinders_setup)
-        self.comboBox_fluid_data_source.currentIndexChanged.connect(self.fluid_data_source_callback)
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
         self.comboBox_stage.currentIndexChanged.connect(self.comboBox_event_stage)
         self.comboBox_pressure_units.currentIndexChanged.connect(self.configure_dynamic_validators)
@@ -208,20 +214,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.update_compressing_cylinders_setup()
         self.spinBox_event_number_of_cylinders()
 
-    def fluid_data_source_callback(self):
-
-        fluid_data_source = self.comboBox_fluid_data_source.currentText()
-
-        # RefProp
-        if fluid_data_source == "RefProp":
-            self.lineEdit_isentropic_exponent.setDisabled(True)
-            self.lineEdit_molar_mass.setDisabled(True)
-
-        # User-defined
-        elif fluid_data_source == "User-defined":
-            self.lineEdit_isentropic_exponent.setEnabled(True)
-            self.lineEdit_molar_mass.setEnabled(True)
-
     def selection_callback(self):
 
         selected_nodes = app().main_window.list_selected_nodes()
@@ -242,12 +234,9 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             self.update_compressor_inputs(data)
 
     def tab_event_callback(self):
-        tab_setup = self.tabWidget_main.currentIndex() == TabIndex.SETUP
-        self.pushButton_confirm.setEnabled(tab_setup)
+        tab_config = self.tabWidget_main.currentIndex() != TabIndex.REMOVE
+        self.pushButton_confirm.setEnabled(tab_config)
         self.pushButton_remove.setDisabled(True)
-        # if tab_setup:
-        #     self.lineEdit_selected_node_id.setText("")
-        #     self.lineEdit_connection_type.setText("")
 
     def update_compressing_cylinders_setup(self):
 
@@ -303,47 +292,52 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             if self.doubleSpinBox_clearance_crank_end.text() == 0.:
                 self.doubleSpinBox_clearance_crank_end.setValue(18.39)
 
-    def get_state_properties(self, check_all_entries: bool):
+    def get_state_properties(self):
 
-        if self.check_all_parameters(check_all_entries = check_all_entries):
+        if self.check_all_parameters():
             return dict()
-
-        # if self.comboBox_connection_type.currentIndex() == ConnectionType.DISCHARGE:
-        #     pressure = self.P_suction
-        #     temperature = self.T_suction
-
-        # else:
-        #     pressure = self.P_discharge
-        #     p_ratio = self.parameters.get('pressure_ratio', 1.5)
-        #     k = self.parameters.get("isentropic_exponent", 1.4)
-
-        #     temp_unit = self.comboBox_temperature_units.currentText()
-
-        #     # convert temperature to Kelvin scale
-        #     T_suction_K = convert_temperature_unit(self.T_suction, temp_unit, "K")
-
-        #     # compute the temperature at the discharge
-        #     temperature_K = T_suction_K * (p_ratio**((k-1)/k))
-
-        #     # revert the temperature to its original units
-        #     temperature = convert_temperature_unit(temperature_K, "K", temp_unit)
 
         state_properties = {
             "source" : "reciprocating_compressor",
             "connection_type" : self.comboBox_connection_type.currentText().lower(),
             "pressure_unit" : self.comboBox_pressure_units.currentText(),
-            "temprature_unit" : self.comboBox_temperature_units.currentText(),
+            "temperature_unit" : self.comboBox_temperature_units.currentText(),
             "suction_pressure" : self.parameters.get("suction_pressure"),
             "suction_temperature" : self.parameters.get("suction_temperature"),
             "pressure_ratio" : self.parameters.get("pressure_ratio"),
+            "isentropic_exponent" : self.parameters.get("isentropic_exponent"),
+            "molar_mass" : self.parameters.get("molar_mass"),
             "check_ideal_gas" : True,
             }
+
+        if self.comboBox_connection_type.currentIndex() == ConnectionType.DISCHARGE:
+            T_suction = self.parameters.get("suction_temperature")
+            P_suction = self.parameters.get("suction_pressure")
+            p_ratio = self.parameters.get('pressure_ratio')
+            k = self.parameters.get("isentropic_exponent", 1.4)
+
+            P_discharge = p_ratio * P_suction
+
+            # convert temperature to Kelvin scale
+            temp_unit = self.comboBox_temperature_units.currentText()
+            T_suction_K = convert_temperature_unit(T_suction, temp_unit, "K")
+
+            # compute the temperature at the discharge
+            T_discharge_K = T_suction_K * (p_ratio**((k-1)/k))
+
+            # revert the temperature to its original units
+            T_discharge = convert_temperature_unit(T_discharge_K, "K", temp_unit)
+
+            state_properties.update({
+                "discharge_pressure" : P_discharge,
+                "discharge_temperature" : T_discharge,
+            })
 
         return state_properties
 
     def get_fluid_callback(self):
 
-        state_properties = self.get_state_properties(False)
+        state_properties = self.get_state_properties()
         if not state_properties:
             return
 
@@ -357,20 +351,18 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
     def get_selected_fluid(self):
 
         self.selected_fluid = self.fluid_dialog.get_selected_fluid()
-
         if not isinstance(self.selected_fluid, Fluid):
             return
 
         self.fluid_dialog.close()
-        if self.selected_fluid.name in self.fluid_dialog.fluid_widget.fluid_name_to_refprop_data.keys():
-            self.comboBox_fluid_data_source.setCurrentIndex(0)
-
         self.lineEdit_selected_fluid.setText(self.selected_fluid.name)
         self.lineEdit_isentropic_exponent.setText(f"{self.selected_fluid.isentropic_exponent : .6f}")
         self.lineEdit_molar_mass.setText(f"{self.selected_fluid.molar_mass : .6f}")
 
         if self.comboBox_connection_type.currentIndex() == ConnectionType.DISCHARGE:
-            self.lineEdit_discharge_temperature.setText(f"{self.selected_fluid.temperature : .6f}")
+            temp_unit = self.comboBox_temperature_units.currentText()
+            temperature = convert_temperature_unit(self.selected_fluid.temperature, "K", temp_unit)
+            self.lineEdit_discharge_temperature.setText(f"{temperature : .6f}")
 
     def change_aquisition_parameters_controls(self, _bool):
         self.pushButton_process_aquisition_parameters.setDisabled(_bool)
@@ -577,14 +569,17 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
                         continue
 
                 line_edit.setFocus()
+                line_edit.setStyleSheet("border: 2px solid red")
                 return True
-            
+
+            else:
+                _style_sheet = line_edit.styleSheet()
+                if _style_sheet != self.default_stylesheet:
+                    line_edit.setStyleSheet(self.default_stylesheet)
+
             key = line_edit.objectName().split("lineEdit_")[1]
             self.parameters[key] = float(line_edit.text())
 
-        self.parameters['discharge_pressure'] = self.parameters['pressure_ratio'] * self.parameters['suction_pressure']
-        # self.P_suction = self.parameters['suction_pressure']
-        # self.P_discharge = self.parameters['discharge_pressure']
         self.parameters['clearance_HE'] = self.doubleSpinBox_clearance_head_end.value()
         self.parameters['clearance_CE'] = self.doubleSpinBox_clearance_crank_end.value()
         self.parameters['TDC_crank_angle_1'] = self.spinBox_tdc1_crank_angle.value()
@@ -604,7 +599,8 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.parameters['number_of_cylinders'] = self.number_of_cylinders
 
         if check_all_entries:
-            self.compressor = ReciprocatingCompressorModel(self.parameters)
+            self.compressor = ReciprocatingCompressorModel(**self.parameters)
+            self.compressor.process_remaining_fluid_properties()
 
         return False
 
@@ -691,7 +687,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             # compute the discharge pressure
             discharge_pressure = pressure_ratio * suction_pressure
 
-            # update the QLineEdit text
+            # update the discharge pressure text
             self.lineEdit_discharge_pressure.setText(f"{discharge_pressure : .8e}")
 
         except:
@@ -701,7 +697,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             # get the temperature unit
             temp_unit = self.comboBox_temperature_units.currentText()
 
-            # convert the suction temperature to Kelvin scale
+            # convert the suction temperature to the Kelvin scale
             T_suction = float(self.lineEdit_suction_temperature.text())
             T_suction_K = convert_temperature_unit(T_suction, temp_unit, "K") 
 
@@ -711,6 +707,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             # reverts the original units to discharge temperature
             T_discharge = convert_temperature_unit(T_discharge_K, "K", temp_unit)
 
+            # update the discharge temperature text
             self.lineEdit_discharge_temperature.setText(f"{T_discharge : .6f}")
 
         except:
@@ -764,12 +761,14 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             if not isinstance(self.selected_fluid, Fluid):
                 return
 
-        # self.parameters['fluid_properties_source'] = "user-defined" if dialog.fluid_widget.refprop is None else "refprop"
         self.parameters["molar_mass"] = self.selected_fluid.molar_mass
         self.parameters['isentropic_exponent'] = self.selected_fluid.isentropic_exponent
         self.parameters['points_per_revolution'] = self.compressor.number_points
 
-        self.compressor.process_state_properties_in_SI_units(self.parameters)
+        self.compressor.update_fluid_properties(
+            self.selected_fluid.isentropic_exponent,
+            self.selected_fluid.molar_mass,
+            )
 
         freq, flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
 

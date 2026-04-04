@@ -3,6 +3,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 
 from pulse import app
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_pressure_unit, convert_temperature_unit
 from pulse.interface.user_input.model.setup.general.color_selector import PickColorInput
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
@@ -226,6 +227,39 @@ class FluidWidget(FluidInputWidget_UI):
 
         return self.fluids_from_library.get(identifier)
 
+    def load_state_properties_in_SI_units(self, last_col: int):
+        """
+        This method returns the state properties in SI unit system.
+        """
+        if not self.state_properties:
+            return
+
+        if self.state_properties.get('source') is not None:
+            connection_type = self.state_properties.get("connection_type")
+            if connection_type == "discharge":
+                pressure = self.state_properties.get("discharge_pressure")
+                temperature = self.state_properties.get("discharge_temperature")
+            else:
+                pressure = self.state_properties.get("suction_pressure")
+                temperature = self.state_properties.get("suction_temperature")
+
+            pressure_unit = self.state_properties.get("pressure_unit")
+            temperature_unit = self.state_properties.get("temperature_unit")
+
+            pressure_Pa = convert_pressure_unit(pressure, pressure_unit, "Pa")
+            temperature_K = convert_temperature_unit(temperature, temperature_unit, "K")
+
+            self.tableWidget_fluid_data.item(3, last_col).setText(f"{pressure_Pa : .8e}")
+            self.tableWidget_fluid_data.item(2, last_col).setText(f"{temperature_K : .8f}")
+
+            isentropic_exponent = self.state_properties.get("isentropic_exponent")
+            if isinstance(isentropic_exponent, float):
+                self.tableWidget_fluid_data.item(6, last_col).setText(f"{isentropic_exponent}")
+
+            molar_mass = self.state_properties.get("molar_mass")
+            if isinstance(molar_mass, float):
+                self.tableWidget_fluid_data.item(12, last_col).setText(f"{molar_mass}")
+
     def add_column(self):
 
         self.tableWidget_fluid_data.blockSignals(True)
@@ -249,6 +283,7 @@ class FluidWidget(FluidInputWidget_UI):
         self.tableWidget_fluid_data.selectColumn(last_col)
         first_item = self.tableWidget_fluid_data.item(0, last_col)
         if self.refprop is None:
+            self.load_state_properties_in_SI_units(last_col)
             self.tableWidget_fluid_data.editItem(first_item)
 
         self.tableWidget_fluid_data.blockSignals(False)
