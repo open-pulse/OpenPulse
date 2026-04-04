@@ -12,8 +12,9 @@ from pulse import app
 from pulse.editor.pulsation_damper import PulsationDamper
 from pulse.interface.handler.geometry_handler import GeometryHandler
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
+    convert_pressure_unit,
     convert_temperature_unit, 
-    convert_pressure_unit, 
+    convert_volume_unit,
     PressureUnits, 
     TemperatureUnits,
     pressure_units_labels,
@@ -34,7 +35,6 @@ from pulse.editor.structures.point import Point
 import re
 from enum import IntEnum
 from numbers import Number
-from pint import UnitRegistry
 
 
 class VolumeSections(IntEnum):
@@ -502,27 +502,17 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
                 line_edit.setFocus()
                 return True
 
+        volume_unit = self.comboBox_volume_unit.currentText()
         damper_volume = float(self.lineEdit_damper_volume.text())
         gas_volume = float(self.lineEdit_gas_volume.text())
 
-        unit_label = self.comboBox_volume_unit.currentText()
+        damper_volume_m3 = convert_volume_unit(damper_volume, volume_unit, "m³")
+        gas_volume_m3 = convert_volume_unit(gas_volume, volume_unit, "m³")
 
-        u_reg = UnitRegistry()
-        if unit_label == "cubic centimeters":
-            cubic_centimeter = u_reg("1 cm**3")
-            volume_unit_factor = cubic_centimeter.to('m**3')
+        self._pulsation_damper_data["damper_volume"] = damper_volume_m3
+        self._pulsation_damper_data["gas_volume"] = gas_volume_m3
 
-        elif unit_label == "liters":
-            liter = u_reg("1 liter")
-            volume_unit_factor = liter.to('m**3')
-
-        else:
-            volume_unit_factor = u_reg("1 m**3")
-
-        self._pulsation_damper_data["damper_volume"] = damper_volume * volume_unit_factor.magnitude
-        self._pulsation_damper_data["gas_volume"] = gas_volume * volume_unit_factor.magnitude
-
-        if gas_volume > damper_volume:
+        if gas_volume_m3 > damper_volume_m3:
             self.error_title = "Invalid gas volume"
             self.error_message = "The gas volume must be less than the damper volume."
             self.lineEdit_gas_volume.setFocus()
