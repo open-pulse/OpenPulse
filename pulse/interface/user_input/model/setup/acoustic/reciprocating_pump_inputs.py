@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
+from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
@@ -19,7 +19,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs_ui import ReciprocatingPumpInputs_UI
 
 from pulse.model.properties.fluid import Fluid
-from pulse.model.reciprocating_pump_model import ReciprocatingPumpModel
+from pulse.model.reciprocating_pump_model import CylindersActingMode, ReciprocatingPumpModel
 
 import numpy as np
 from enum import IntEnum
@@ -48,7 +48,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         self._config_window()
         self._initialize()
-        self._config_widget()
+        self._config_widgets()
         self._create_connections()
         self.load_reciprocating_pump_excitation_info()
 
@@ -62,16 +62,19 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-
+        self.selected_fluid = None
         self.complete = False
         self.keep_window_open = True
         self.aquisition_parameters_processed = False
 
         self.before_run = app().project.get_pre_solution_model_checks()    
 
-    def _config_widget(self):
+    def _config_widgets(self):
 
-        self.treeWidget_nodal_info.setColumnWidth(0, 100)
+        self.default_stylesheet = self.lineEdit_selected_node_id.styleSheet()
+
+        # configure the QTreeWidget appearance
+        self.treeWidget_nodal_info.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         for i in range(2):
             self.treeWidget_nodal_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
@@ -137,13 +140,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.lineEdit_connecting_rod_length.setValidator(geom_validator)
         self.lineEdit_rod_diameter.setValidator(geom_validator)
 
-        # configure validator for operational parameters
-        clearance_validator = StrictDoubleValidator(0, 100, 8)
-        self.lineEdit_clearance_crank_end.setValidator(clearance_validator)
-        self.lineEdit_clearance_head_end.setValidator(clearance_validator)
-        self.lineEdit_rotational_speed.setValidator(StrictDoubleValidator(1e-8, 1e6, 8))
-
-        # configure validator for isentropic exponent
+        # configure validator for bulk modulus
         self.lineEdit_bulk_modulus.setValidator(StrictDoubleValidator(1e-8, 1e14, 6))
 
     def _load_units_labels(self):
@@ -161,11 +158,10 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
     def _create_connections(self):
         #
-        self.comboBox_pressure_units.currentIndexChanged.connect(self.pressure_unit_callback)
-        self.comboBox_temperature_units.currentIndexChanged.connect(self.temperature_unit_callback)
+        self.comboBox_pressure_units.currentIndexChanged.connect(self.configure_dynamic_validators)
+        self.comboBox_temperature_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         self.comboBox_cylinder_acting.currentIndexChanged.connect(self.update_compressing_cylinders_setup)
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
-        self.comboBox_fluid_data_source.currentIndexChanged.connect(self.fluid_data_source_callback)
         #
         self.pushButton_plot_PV_diagram_head_end.clicked.connect(self.plot_PV_diagram_head_end)
         self.pushButton_plot_PV_diagram_crank_end.clicked.connect(self.plot_PV_diagram_crank_end)
@@ -204,20 +200,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         #
         self.update_compressing_cylinders_setup()
         self.spinBox_event_number_of_cylinders()
-        self.fluid_data_source_callback()
         self.selection_callback()
-
-    def fluid_data_source_callback(self):
-
-        fluid_data_source= self.comboBox_fluid_data_source.currentText()
-
-        # RefProp
-        if fluid_data_source == "RefProp":
-            self.lineEdit_bulk_modulus.setDisabled(True)
-
-        # User-defined
-        elif fluid_data_source == "User-defined":
-            self.lineEdit_bulk_modulus.setEnabled(True)
 
     def selection_callback(self):
 
@@ -238,9 +221,9 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.update_pump_inputs(data)
 
     def tab_event_callback(self):
+        tab_config = self.tabWidget_main.currentIndex() != TabIndex.REMOVE
+        self.pushButton_confirm.setEnabled(tab_config)
         self.pushButton_remove.setDisabled(True)
-        tab_setup = self.tabWidget_main.currentIndex() == TabIndex.SETUP
-        self.pushButton_confirm.setEnabled(tab_setup)
 
     def pressure_unit_callback(self):
         unit_label = self.comboBox_pressure_units.currentText()
@@ -262,7 +245,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.pushButton_plot_volume_head_end_angle.setDisabled(False)
         self.pushButton_plot_volume_crank_end_angle.setDisabled(False)
 
-        if self.comboBox_cylinder_acting.currentIndex() == 1:
+        if self.comboBox_cylinder_acting.currentIndex() == CylindersActingMode.HEAD_END:
             self.lineEdit_rod_diameter.setText("")
             self.lineEdit_rod_diameter.setDisabled(True)
             self.pushButton_plot_PV_diagram_crank_end.setDisabled(True)
@@ -270,35 +253,35 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.pushButton_plot_pressure_crank_end_angle.setDisabled(True)
             self.pushButton_plot_volume_crank_end_angle.setDisabled(True)
 
-        elif self.comboBox_cylinder_acting.currentIndex() == 2:
+        elif self.comboBox_cylinder_acting.currentIndex() == CylindersActingMode.CRANK_END:
             self.pushButton_plot_PV_diagram_head_end.setDisabled(True)
             self.pushButton_plot_PV_diagram_both_ends.setDisabled(False)
             self.pushButton_plot_pressure_head_end_angle.setDisabled(True)
             self.pushButton_plot_volume_head_end_angle.setDisabled(True)
 
-    def get_state_properties(self, check_all_entries: bool):
+    def get_state_properties(self):
 
-        if self.check_all_parameters(check_all_entries = check_all_entries):
+        if self.check_all_parameters():
             return dict()
 
-        if self.comboBox_connection_type.currentIndex() == ConnectionType.SUCTION:
-            pressure = self.P_suction
-            temperature = self.T_suction
-        else:
-            pressure = self.P_discharge
-            temperature = self.T_discharge
-
         state_properties = {
-            "pressure" : pressure,
-            "temperature" : temperature,
-            "check_ideal_gas" : False
+            "source" : "reciprocating_pump",
+            "connection_type" : self.comboBox_connection_type.currentText().lower(),
+            "pressure_unit" : self.comboBox_pressure_units.currentText(),
+            "temperature_unit" : self.comboBox_temperature_units.currentText(),
+            "suction_pressure" : self.parameters.get("suction_pressure"),
+            "suction_temperature" : self.parameters.get("suction_temperature"),
+            "discharge_pressure" : self.parameters.get("discharge_pressure"),
+            "discharge_temperature" : self.parameters.get("discharge_temperature"),
+            "bulk_modulus" : self.parameters.get("bulk_modulus"),
+            "check_ideal_gas" : False,
             }
 
         return state_properties
 
     def get_fluid_callback(self):
 
-        state_properties = self.get_state_properties(False)
+        state_properties = self.get_state_properties()
         if not state_properties:
             return
 
@@ -312,20 +295,17 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
     def get_selected_fluid(self):
 
         self.selected_fluid = self.fluid_dialog.get_selected_fluid()
+        if not isinstance(self.selected_fluid, Fluid):
+            return
 
-        if isinstance(self.selected_fluid, Fluid):
+        if self.selected_fluid.adiabatic_bulk_modulus is None:
+            adiabatic_bulk_modulus = self.selected_fluid.bulk_modulus
+        else:
+            adiabatic_bulk_modulus = self.selected_fluid.adiabatic_bulk_modulus
 
-            self.fluid_dialog.close()
-            if self.selected_fluid.name in self.fluid_dialog.fluid_widget.fluid_name_to_refprop_data.keys():
-                self.comboBox_fluid_data_source.setCurrentIndex(0)
-
-            if self.selected_fluid.adiabatic_bulk_modulus is None:
-                adiabatic_bulk_modulus = self.selected_fluid.bulk_modulus
-            else:
-                adiabatic_bulk_modulus = self.selected_fluid.adiabatic_bulk_modulus
-
-            self.lineEdit_selected_fluid.setText(self.selected_fluid.name)
-            self.lineEdit_bulk_modulus.setText(f"{adiabatic_bulk_modulus : .8e}")
+        self.fluid_dialog.close()
+        self.lineEdit_selected_fluid.setText(self.selected_fluid.name)
+        self.lineEdit_bulk_modulus.setText(f"{adiabatic_bulk_modulus : .8e}")
 
     def change_aquisition_parameters_controls(self, _bool):
         self.pushButton_process_aquisition_parameters.setDisabled(_bool)
@@ -353,13 +333,15 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.lineEdit_selected_node_id.setText(node_id)
 
         if "connection_type" in data.keys():
-            connection_type = data["connection_type"]
-            if connection_type == 'suction':
-                self.comboBox_connection_type.setCurrentIndex(0)
-            elif connection_type == 'discharge':
-                self.comboBox_connection_type.setCurrentIndex(1)
+            connection_type = data.get("connection_type")
+            if isinstance(connection_type, str):
+                self.comboBox_connection_type.setCurrentText(connection_type.capitalize())
 
-        parameters = data["parameters"]
+        # pump model parameters
+        parameters = data.get("parameters")
+        if not isinstance(parameters, dict):
+            return
+
         if "bore_diameter" in parameters.keys():
             self.lineEdit_bore_diameter.setText(str(parameters["bore_diameter"]))
 
@@ -373,23 +355,19 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.lineEdit_rod_diameter.setText(str(parameters["rod_diameter"]))
 
         if "clearance_HE" in parameters.keys():
-            self.lineEdit_clearance_head_end.setText(str(parameters["clearance_HE"]))
+            self.doubleSpinBox_clearance_head_end.setValue(parameters["clearance_HE"])
 
         if "clearance_CE" in parameters.keys():
-            self.lineEdit_clearance_crank_end.setText(str(parameters["clearance_CE"]))
+            self.doubleSpinBox_clearance_crank_end.setValue(parameters["clearance_CE"])
 
-        if "TDC_crank_angle_1" in parameters.keys():
-            self.spinBox_tdc1_crank_angle.setValue(int(parameters["TDC_crank_angle_1"]))
+        if "tdc_crank_angle_1" in parameters.keys():
+            self.spinBox_tdc_crank_angle_1.setValue(parameters["tdc_crank_angle_1"])
 
         if "rotational_speed" in parameters.keys():
-            self.lineEdit_rotational_speed.setText(str(parameters["rotational_speed"]))
+            self.doubleSpinBox_rotational_speed.setValue(parameters["rotational_speed"])
 
         if "bulk_modulus" in parameters.keys():
-            bulk_modulus = parameters["bulk_modulus"]
-            self.lineEdit_bulk_modulus.setText(f"{bulk_modulus : .8e}")
-
-        p_unit = parameters["pressure_unit"]
-        self.comboBox_pressure_units.setCurrentText(p_unit)
+            self.lineEdit_bulk_modulus.setText(f"{parameters["bulk_modulus"] : .8e}")
 
         if "suction_pressure" in parameters.keys():
             self.lineEdit_suction_pressure.setText(str(parameters["suction_pressure"]))
@@ -397,18 +375,20 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         if "discharge_pressure" in parameters.keys():
             self.lineEdit_discharge_pressure.setText(str(parameters["discharge_pressure"]))
 
-        T_unit = parameters["temperature_unit"]
-        self.comboBox_temperature_units.setCurrentText(T_unit)
-
         if "suction_temperature" in parameters.keys():
             self.lineEdit_suction_temperature.setText(str(parameters["suction_temperature"]))
 
         if "discharge_temperature" in parameters.keys():
             self.lineEdit_discharge_temperature.setText(str(parameters["discharge_temperature"]))
 
-        if "acting_label" in parameters.keys():
-            acting_key = int(parameters["acting_label"])
-            self.comboBox_cylinder_acting.setCurrentIndex(acting_key)
+        if "pressure_unit" in parameters.keys():
+            self.comboBox_pressure_units.setCurrentText(parameters["pressure_unit"])
+
+        if "temperature_unit" in parameters.keys():
+            self.comboBox_temperature_units.setCurrentText(parameters["temperature_unit"])
+
+        if "acting_mode" in parameters.keys():
+            self.comboBox_cylinder_acting.setCurrentIndex(parameters["acting_mode"])
 
         if "number_of_cylinders" in parameters.keys():
             self.spinBox_number_of_cylinders.setValue(int(parameters["number_of_cylinders"]))
@@ -427,34 +407,34 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.comboBox_frequency_resolution.setCurrentIndex(index)
 
     def reset_entries(self):
-        #
-        self.comboBox_cylinder_acting.setCurrentIndex(0)
-        self.comboBox_pressure_units.setCurrentIndex(0)
-        self.comboBox_temperature_units.setCurrentIndex(0)
-        #
+
+        self.comboBox_cylinder_acting.setCurrentIndex(CylindersActingMode.BOTH_ENDS)
+        self.comboBox_pressure_units.setCurrentText("bar (a)")
+        self.comboBox_temperature_units.setCurrentText("°C")
+
         self.lineEdit_bore_diameter.setText("")
         self.lineEdit_stroke.setText("")
         self.lineEdit_connecting_rod_length.setText("")
         self.lineEdit_rod_diameter.setText("")
-        self.lineEdit_clearance_head_end.setText("")
-        self.lineEdit_clearance_crank_end.setText("")
-        self.lineEdit_rotational_speed.setText("")
-        self.lineEdit_bulk_modulus.setText("")
         self.lineEdit_suction_pressure.setText("")
         self.lineEdit_suction_temperature.setText("")
         self.lineEdit_discharge_pressure.setText("")
         self.lineEdit_discharge_temperature.setText("")
-        #
-        self.spinBox_number_of_cylinders.setValue(1)
-        self.spinBox_tdc1_crank_angle.setValue(0)
+        self.lineEdit_bulk_modulus.setText("")
+
+        self.spinBox_number_of_cylinders.setValue(7)
+        self.spinBox_tdc_crank_angle_1.setValue(0)
+        self.doubleSpinBox_clearance_head_end.setValue(0)
+        self.doubleSpinBox_clearance_crank_end.setValue(0)
+        self.doubleSpinBox_rotational_speed.setValue(178.0)
 
     def check_node_id(self, lineEdit: QLineEdit):
         
         stop, node_id = self.before_run.check_selected_ids(
-                                                            lineEdit.text(), 
-                                                            "nodes", 
-                                                            single_id=True
-                                                           )
+            lineEdit.text(), 
+            "nodes", 
+            single_id = True,
+            )
 
         if stop:
             return True, None
@@ -463,7 +443,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         if len(neigh_elements) == 1:
             return stop, node_id
-        
+
         else:
             self.hide()
             title = "Invalid node selected"
@@ -489,134 +469,56 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         return False
 
-    def check_input_parameters(self, lineEdit: QLineEdit, label: str, _float=True):
-
-        title = "Input error"
-        value_string = lineEdit.text()
-
-        if value_string != "":
-
-            value_string = value_string.replace(",", ".")
-
-            try:
-
-                if _float:
-                    value = float(value_string)
-                else:
-                    value = int(value_string)
-
-                if value < 0:
-                    message = f"You cannot input a negative value to the {label}."
-                    PrintMessageInput([error_title, title, message])
-                    return True
-                else:
-                    self.value = value
-
-            except Exception:
-                message = f"You have typed an invalid value to the {label}."
-                PrintMessageInput([error_title, title, message])
-                return True
-        else:
-            message = f"None value has been typed to the {label}."
-            PrintMessageInput([error_title, title, message])
-            return True
-        return False
-
     def check_all_parameters(self, check_all_entries=True):
 
         self.parameters = dict()
 
-        if self.check_input_parameters(self.lineEdit_bore_diameter, "Bore diameter"):
-            self.lineEdit_bore_diameter.setFocus()
-            return True
-        else:
-            self.parameters['bore_diameter'] = self.value
-
-        if self.check_input_parameters(self.lineEdit_stroke, "Stroke"):
-            self.lineEdit_stroke.setFocus()
-            return True
-        else:
-            self.parameters['stroke'] = self.value
-
-        if self.check_input_parameters(self.lineEdit_connecting_rod_length, "Connecting rod length"):
-            self.lineEdit_connecting_rod_length.setFocus()
-            return True
-        else:
-            self.parameters['connecting_rod_length'] = self.value
-
-        if self.comboBox_cylinder_acting.currentIndex() in [0, 2]:
-            if self.check_input_parameters(self.lineEdit_rod_diameter, "Rod diameter"):
-                self.lineEdit_rod_diameter.setFocus()
-                return True
-            else:
-                self.parameters['rod_diameter'] = self.value
-
-        if self.check_input_parameters(self.lineEdit_clearance_head_end, "Clearance (HE)"):
-            self.lineEdit_clearance_head_end.setFocus()
-            return True
-        else:
-            self.parameters['clearance_HE'] = self.value
-        
-        if self.check_input_parameters(self.lineEdit_clearance_crank_end, "Clearance (CE)"):
-            self.lineEdit_clearance_crank_end.setFocus()
-            return True
-        else:
-            self.parameters['clearance_CE'] = self.value
-
-        self.parameters['TDC_crank_angle_1'] = self.spinBox_tdc1_crank_angle.value()
-
-        if self.check_input_parameters(self.lineEdit_rotational_speed, "Rotational speed"):
-            self.lineEdit_rotational_speed.setFocus()
-            return True
-        else:
-            self.parameters['rotational_speed'] = self.value
+        line_edits = [
+            self.lineEdit_bore_diameter,
+            self.lineEdit_stroke,
+            self.lineEdit_connecting_rod_length,
+            self.lineEdit_rod_diameter,
+            self.lineEdit_suction_pressure,
+            self.lineEdit_suction_temperature,
+            self.lineEdit_discharge_pressure,
+            self.lineEdit_discharge_temperature,
+        ]
 
         if check_all_entries:
-            if self.check_input_parameters(self.lineEdit_bulk_modulus, "Adiabatic bulk modulus"):
-                self.lineEdit_bulk_modulus.setFocus()
+            line_edits.extend([
+                self.lineEdit_bulk_modulus,
+            ])
+
+        for line_edit in line_edits:
+            if line_edit.text() == "":
+                if line_edit == self.lineEdit_rod_diameter:
+                    if self.comboBox_cylinder_acting.currentIndex() == CylindersActingMode.HEAD_END:
+                        continue
+
+                line_edit.setFocus()
+                line_edit.setStyleSheet("border: 2px solid red")
                 return True
+
             else:
-                self.parameters['bulk_modulus'] = self.value
+                _style_sheet = line_edit.styleSheet()
+                if _style_sheet != self.default_stylesheet:
+                    line_edit.setStyleSheet(self.default_stylesheet)
 
-        if self.check_input_parameters(self.lineEdit_suction_pressure, "Suction pressure"):
-            self.lineEdit_suction_pressure.setFocus()
-            return True
-        else:
-            self.parameters['suction_pressure'] = self.value
-            self.P_suction = self.parameters['suction_pressure']
-            
-        if self.check_input_parameters(self.lineEdit_discharge_pressure, "Discharge pressure"):
-            self.lineEdit_discharge_pressure.setFocus()
-            return True
-        else:
-            self.parameters['discharge_pressure'] = self.value
-            self.P_discharge = self.parameters['discharge_pressure']
+            key = line_edit.objectName().split("lineEdit_")[1]
+            self.parameters[key] = float(line_edit.text())
 
-        pressure_unit = self.comboBox_pressure_units.currentText()
-        self.parameters['pressure_unit'] = pressure_unit
-
-        if self.check_input_parameters(self.lineEdit_suction_temperature, "Suction temperature"):
-            self.lineEdit_suction_temperature.setFocus()
-            return True
-        else:
-            self.parameters['suction_temperature'] = self.value
-            self.T_suction = self.parameters['suction_temperature']
-
-        if self.check_input_parameters(self.lineEdit_discharge_temperature, "Temperature at dischage"):
-            self.lineEdit_discharge_temperature.setFocus()
-            return True
-        else:
-            self.parameters['discharge_temperature'] = self.value
-            self.T_discharge = self.parameters['discharge_temperature']
-
-        temperature_unit = self.comboBox_temperature_units.currentText()
-        self.parameters['temperature_unit'] = temperature_unit
-
-        self.parameters['number_of_cylinders'] = self.number_of_cylinders
-        self.parameters['acting_label'] = self.comboBox_cylinder_acting.currentIndex()
+        self.parameters['acting_mode'] = self.comboBox_cylinder_acting.currentIndex()
+        self.parameters['number_of_cylinders'] = self.spinBox_number_of_cylinders.value()
+        self.parameters['clearance_HE'] = self.doubleSpinBox_clearance_head_end.value()
+        self.parameters['clearance_CE'] = self.doubleSpinBox_clearance_crank_end.value()
+        self.parameters['tdc_crank_angle_1'] = self.spinBox_tdc_crank_angle_1.value()
+        self.parameters['rotational_speed'] = self.doubleSpinBox_rotational_speed.value()
+        self.parameters['pressure_unit'] = self.comboBox_pressure_units.currentText()
+        self.parameters['temperature_unit'] = self.comboBox_temperature_units.currentText()
 
         if check_all_entries:
-            self.pump_model = ReciprocatingPumpModel(self.parameters)
+            self.pump_model = ReciprocatingPumpModel(**self.parameters)
+            self.pump_model.process_remaining_fluid_properties()
 
         return False
 
@@ -702,72 +604,72 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         if self.comboBox_connection_type.currentIndex() == ConnectionType.SUCTION:
             flow_label = "in_flow"
-            connection_type = "suction"
             node_id = self.suction_node_id
 
         else:
             flow_label = "out_flow"
-            connection_type = "discharge"
             node_id = self.discharge_node_id
 
+        connection_type = self.comboBox_connection_type.currentText().lower()
         line_id = app().project.model.preprocessor.get_line_from_node_id(node_id)
 
-        recip_pump_info = { 
+        pump_info = { 
             "source" : "reciprocating_pump",
             "node_id" : node_id,
             "line_id" : line_id[0],
             "connection_type" : connection_type,
             "pressure_unit" : self.comboBox_pressure_units.currentText(),
             "temperature_unit" : self.comboBox_temperature_units.currentText(),
-            "suction_temperature" : self.T_suction,
-            "discharge_temperature" : self.T_discharge,
-            "suction_pressure" : self.P_suction,
-            "discharge_pressure" : self.P_discharge,
+            "suction_temperature" : self.parameters.get("suction_temperature"),
+            "discharge_temperature" : self.parameters.get("discharge_temperature"),
+            "suction_pressure" : self.parameters.get("suction_pressure"),
+            "discharge_pressure" : self.parameters.get("discharge_pressure"),
             "bulk_modulus" : self.parameters.get('bulk_modulus', None),
             "check_ideal_gas" : False,
             }
 
-        self.hide()
-        read = SetFluidInput(state_properties = recip_pump_info)
-        app().main_window.set_input_widget(self)
+        if not isinstance(self.selected_fluid, Fluid):
 
-        if not read.complete:
-            return
+            self.hide()
+            dialog = SetFluidInput(state_properties = pump_info)
+            app().main_window.set_input_widget(self)
 
-        else:
-
-            if read.fluid_widget.refprop is not None:
-                if read.fluid_widget.refprop.complete:
-                    self.parameters["bulk_modulus"] = round(read.fluid_widget.fluid_data_refprop["adiabatic_bulk_modulus"], 6)
-                    self.parameters['fluid_properties_source'] = "refprop"
-            else:
-                self.parameters['fluid_properties_source'] = "user-defined"
-
-            self.parameters['points_per_revolution'] = self.pump_model.number_points
-            self.pump_model.bulk_modulus = self.parameters["bulk_modulus"]
-
-            freq, flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
-
-            vv_data = np.array([freq, np.real(flow_rate), np.imag(flow_rate)]).T
-            table_name = f"pump_excitation_{connection_type}_node_{node_id}"
-
-            if self.save_table_values(table_name, vv_data):
+            if not dialog.complete:
                 return
-            
-            node = app().project.model.preprocessor.nodes[node_id]
-            coords = list(np.round(node.coordinates, 5))
 
-            data = {
-                "coords" : coords,
-                "connection_type" : connection_type,
-                "table_names" : [table_name],
-                "parameters" : self.parameters
-                }
+            self.selected_fluid = dialog.fluid_widget.get_selected_fluid()
+            if not isinstance(self.selected_fluid, Fluid):
+                return
 
-            self.remove_properties_from_node(node_id)
+        self.parameters["bulk_modulus"] = self.selected_fluid.bulk_modulus
+        self.parameters['points_per_revolution'] = self.pump_model.number_points
 
-            self.properties._set_nodal_property("reciprocating_pump_excitation", data, node_id)
-            self.actions_to_finalize()
+        self.pump_model.update_fluid_properties(
+            self.selected_fluid.bulk_modulus,
+            )
+
+        freq, flow_rate = self.pump_model.process_FFT_of_volumetric_flow_rate(self.N_rev, flow_label)
+
+        vv_data = np.array([freq, np.real(flow_rate), np.imag(flow_rate)]).T
+        table_name = f"pump_excitation_{connection_type}_node_{node_id}"
+
+        if self.save_table_values(table_name, vv_data):
+            return
+        
+        node = app().project.model.preprocessor.nodes[node_id]
+        coords = list(np.round(node.coordinates, 5))
+
+        data = {
+            "coords" : coords,
+            "connection_type" : connection_type,
+            "table_names" : [table_name],
+            "parameters" : self.parameters
+            }
+
+        self.remove_properties_from_node(node_id)
+
+        self.properties._set_nodal_property("reciprocating_pump_excitation", data, node_id)
+        self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().project.file.write_nodal_properties_in_file()
@@ -819,15 +721,16 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.treeWidget_nodal_info.clear()
 
         for (property, *args), data in self.properties.nodal_properties.items():
-            if property == "reciprocating_pump_excitation":
-                
-                node_id = args[0]
-                connection_type = data["connection_type"]
+            if property != "reciprocating_pump_excitation":
+                continue
 
-                new = QTreeWidgetItem([str(node_id), connection_type])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_nodal_info.addTopLevelItem(new)
+            node_id = args[0]
+            connection_type = data["connection_type"]
+
+            new = QTreeWidgetItem([str(node_id), connection_type])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
+            self.treeWidget_nodal_info.addTopLevelItem(new)
 
         self.update_tabs_visibility()
 
@@ -851,9 +754,9 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
     def pulsation_damper_calculator_callback(self):
         self.hide()
         PulsationDamperCalculatorInputs(
-                                        fluctuating_volume = self.process_fluctuating_volume(),
-                                        state_properties = self.get_state_properties(True)
-                                        )
+            fluctuating_volume = self.process_fluctuating_volume(),
+            state_properties = self.get_state_properties()
+            )
         app().main_window.set_input_widget(self)
 
     def process_fluctuating_volume(self):
