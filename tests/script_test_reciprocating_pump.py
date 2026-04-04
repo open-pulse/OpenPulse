@@ -21,7 +21,7 @@ def load_default_reciprocating_pump_setup(crank_angle = 0):
                   'rod_diameter' : 0.05,
                   'clearance_HE' : 15,
                   'clearance_CE' : 18,
-                  'TDC_crank_angle_1' : crank_angle,
+                  'tdc_crank_angle_1' : crank_angle,
                   'rotational_speed' : 178,
                   'number_of_cylinders' : 1,
                   'acting_label' : 0,

@@ -20,7 +20,7 @@ def load_default_compressor_setup(crank_angle=0):
                     'pressure_ratio' : 1.90788804,
                     'clearance_HE' : 15.8,
                     'clearance_CE' : 18.39,
-                    'TDC_crank_angle_1' : crank_angle,
+                    'tdc_crank_angle_1' : crank_angle,
                     'rotational_speed' : 360,
                     'capacity' : 100,
                     'acting_label' : 0,

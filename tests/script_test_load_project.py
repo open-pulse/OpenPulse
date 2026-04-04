@@ -165,7 +165,7 @@ def get_reciprocating_pump_excitation(connection_type: str, fluid: Fluid):
                   'pressure_ratio' : 1.90788804,
                   'clearance_HE' : 15.8,
                   'clearance_CE' : 18.39,
-                  'TDC_crank_angle_1' : 0,
+                  'tdc_crank_angle_1' : 0,
                   'rotational_speed' : 178,
                   'number_of_cylinders' : 5,
                   'acting_label' : 1,
