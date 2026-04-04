@@ -140,3 +140,44 @@ def convert_pressure_unit(value: float, input_unit: str, output_unit: str | None
             break
 
     return pressure.to(unit_map.get(_output_unit)).magnitude
+
+
+def convert_volume_unit(value: float, input_unit: str, output_unit: str | None=None) -> float:
+    """
+    This function converts the volume, scaled in 'input_unit',
+    to a volume scaled in 'output_unit'.
+
+    Parameters
+    ----------
+    value: float
+    The volume value.
+
+    input_unit: str 
+    The input volume unit. Allowable units: m³, m**3, m^3, cubic meters, cm³, cm**3, cm^3, cubic centimeters, L, l, litter.
+
+    output_unit: str or None, optional
+    The output volume unit. Allowable units: same as input.
+    """
+
+    unit_map = {
+        "m³" : "m**3",
+        "m**3" : "m**3",
+        "m^3" : "m**3",
+        "cubic meters" : "m**3",
+        "cm³" : "cm**3",
+        "cm**3" : "cm**3",
+        "cm^3" : "cm**3",
+        "cubic centimeters" : "cm**3",
+        "L" : "liter",
+        "l" : "liter",
+        "liters" : "liter",
+        }
+
+    if input_unit == output_unit:
+        return value
+
+    temperature = u_reg.Quantity(value, unit_map.get(input_unit))
+    if output_unit is None:
+        return temperature.magnitude
+
+    return temperature.to(unit_map.get(output_unit)).magnitude
