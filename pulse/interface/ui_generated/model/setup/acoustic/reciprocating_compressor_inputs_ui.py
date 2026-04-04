@@ -169,16 +169,16 @@ class Ui_Dialog(object):
 
         self.gridLayout_14.addWidget(self.label_47, 18, 3, 1, 1)
 
-        self.spinBox_tdc1_crank_angle = QSpinBox(self.frame_all_parameters)
-        self.spinBox_tdc1_crank_angle.setObjectName(u"spinBox_tdc1_crank_angle")
-        self.spinBox_tdc1_crank_angle.setMinimumSize(QSize(120, 28))
-        self.spinBox_tdc1_crank_angle.setMaximumSize(QSize(120, 28))
-        self.spinBox_tdc1_crank_angle.setFont(font4)
-        self.spinBox_tdc1_crank_angle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.spinBox_tdc1_crank_angle.setMaximum(270)
-        self.spinBox_tdc1_crank_angle.setSingleStep(90)
+        self.spinBox_tdc_crank_angle_1 = QSpinBox(self.frame_all_parameters)
+        self.spinBox_tdc_crank_angle_1.setObjectName(u"spinBox_tdc_crank_angle_1")
+        self.spinBox_tdc_crank_angle_1.setMinimumSize(QSize(120, 28))
+        self.spinBox_tdc_crank_angle_1.setMaximumSize(QSize(120, 28))
+        self.spinBox_tdc_crank_angle_1.setFont(font4)
+        self.spinBox_tdc_crank_angle_1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.spinBox_tdc_crank_angle_1.setMaximum(270)
+        self.spinBox_tdc_crank_angle_1.setSingleStep(90)
 
-        self.gridLayout_14.addWidget(self.spinBox_tdc1_crank_angle, 14, 2, 1, 1)
+        self.gridLayout_14.addWidget(self.spinBox_tdc_crank_angle_1, 14, 2, 1, 1)
 
         self.label_14 = QLabel(self.frame_all_parameters)
         self.label_14.setObjectName(u"label_14")
@@ -261,16 +261,16 @@ class Ui_Dialog(object):
 
         self.gridLayout_14.addWidget(self.label_23, 9, 1, 1, 1)
 
-        self.spinBox_tdc2_crank_angle = QSpinBox(self.frame_all_parameters)
-        self.spinBox_tdc2_crank_angle.setObjectName(u"spinBox_tdc2_crank_angle")
-        self.spinBox_tdc2_crank_angle.setMinimumSize(QSize(120, 28))
-        self.spinBox_tdc2_crank_angle.setMaximumSize(QSize(120, 28))
-        self.spinBox_tdc2_crank_angle.setFont(font4)
-        self.spinBox_tdc2_crank_angle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.spinBox_tdc2_crank_angle.setMaximum(270)
-        self.spinBox_tdc2_crank_angle.setSingleStep(90)
+        self.spinBox_tdc_crank_angle_2 = QSpinBox(self.frame_all_parameters)
+        self.spinBox_tdc_crank_angle_2.setObjectName(u"spinBox_tdc_crank_angle_2")
+        self.spinBox_tdc_crank_angle_2.setMinimumSize(QSize(120, 28))
+        self.spinBox_tdc_crank_angle_2.setMaximumSize(QSize(120, 28))
+        self.spinBox_tdc_crank_angle_2.setFont(font4)
+        self.spinBox_tdc_crank_angle_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.spinBox_tdc_crank_angle_2.setMaximum(270)
+        self.spinBox_tdc_crank_angle_2.setSingleStep(90)
 
-        self.gridLayout_14.addWidget(self.spinBox_tdc2_crank_angle, 15, 2, 1, 1)
+        self.gridLayout_14.addWidget(self.spinBox_tdc_crank_angle_2, 15, 2, 1, 1)
 
         self.lineEdit_bore_diameter = QLineEdit(self.frame_all_parameters)
         self.lineEdit_bore_diameter.setObjectName(u"lineEdit_bore_diameter")
@@ -873,7 +873,7 @@ class Ui_Dialog(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollAreaWidgetContents_2 = QWidget()
         self.scrollAreaWidgetContents_2.setObjectName(u"scrollAreaWidgetContents_2")
-        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 560, 579))
+        self.scrollAreaWidgetContents_2.setGeometry(QRect(0, 0, 448, 512))
         self.gridLayout_18 = QGridLayout(self.scrollAreaWidgetContents_2)
         self.gridLayout_18.setObjectName(u"gridLayout_18")
         self.frame_4 = QFrame(self.scrollAreaWidgetContents_2)
@@ -1428,9 +1428,9 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.lineEdit_stroke, self.lineEdit_connecting_rod_length)
         QWidget.setTabOrder(self.lineEdit_connecting_rod_length, self.lineEdit_rod_diameter)
         QWidget.setTabOrder(self.lineEdit_rod_diameter, self.lineEdit_pressure_ratio)
-        QWidget.setTabOrder(self.lineEdit_pressure_ratio, self.spinBox_tdc1_crank_angle)
-        QWidget.setTabOrder(self.spinBox_tdc1_crank_angle, self.spinBox_tdc2_crank_angle)
-        QWidget.setTabOrder(self.spinBox_tdc2_crank_angle, self.spinBox_capacity)
+        QWidget.setTabOrder(self.lineEdit_pressure_ratio, self.spinBox_tdc_crank_angle_1)
+        QWidget.setTabOrder(self.spinBox_tdc_crank_angle_1, self.spinBox_tdc_crank_angle_2)
+        QWidget.setTabOrder(self.spinBox_tdc_crank_angle_2, self.spinBox_capacity)
         QWidget.setTabOrder(self.spinBox_capacity, self.pushButton_exit)
         QWidget.setTabOrder(self.pushButton_exit, self.pushButton_confirm)
         QWidget.setTabOrder(self.pushButton_confirm, self.spinBox_max_frequency)
@@ -1634,7 +1634,7 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                                                                         - frame_all_parameters: QFrame
                                                                             - (Layout): QGridLayout
                                                                                     - label_47: QLabel
-                                                                                    - spinBox_tdc1_crank_angle: QSpinBox
+                                                                                    - spinBox_tdc_crank_angle_1: QSpinBox
                                                                                     - label_14: QLabel
                                                                                     - label_8: QLabel
                                                                                     - label_33: QLabel
@@ -1644,7 +1644,7 @@ class ReciprocatingCompressorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - label_16: QLabel
                                                                                     - label_30: QLabel
                                                                                     - label_23: QLabel
-                                                                                    - spinBox_tdc2_crank_angle: QSpinBox
+                                                                                    - spinBox_tdc_crank_angle_2: QSpinBox
                                                                                     - lineEdit_bore_diameter: QLineEdit
                                                                                     - label_45: QLabel
                                                                                     - label_28: QLabel

@@ -434,7 +434,7 @@
                      </widget>
                     </item>
                     <item row="14" column="2">
-                     <widget class="QSpinBox" name="spinBox_tdc1_crank_angle">
+                     <widget class="QSpinBox" name="spinBox_tdc_crank_angle_1">
                       <property name="minimumSize">
                        <size>
                         <width>120</width>
@@ -737,7 +737,7 @@
                      </widget>
                     </item>
                     <item row="15" column="2">
-                     <widget class="QSpinBox" name="spinBox_tdc2_crank_angle">
+                     <widget class="QSpinBox" name="spinBox_tdc_crank_angle_2">
                       <property name="minimumSize">
                        <size>
                         <width>120</width>
@@ -2718,8 +2718,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>560</width>
-                  <height>579</height>
+                  <width>448</width>
+                  <height>512</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_18">
@@ -4420,8 +4420,8 @@ at suction</string>
   <tabstop>lineEdit_connecting_rod_length</tabstop>
   <tabstop>lineEdit_rod_diameter</tabstop>
   <tabstop>lineEdit_pressure_ratio</tabstop>
-  <tabstop>spinBox_tdc1_crank_angle</tabstop>
-  <tabstop>spinBox_tdc2_crank_angle</tabstop>
+  <tabstop>spinBox_tdc_crank_angle_1</tabstop>
+  <tabstop>spinBox_tdc_crank_angle_2</tabstop>
   <tabstop>spinBox_capacity</tabstop>
   <tabstop>pushButton_exit</tabstop>
   <tabstop>pushButton_confirm</tabstop>

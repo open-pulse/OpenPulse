@@ -15,11 +15,11 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
-    QGridLayout, QHeaderView, QLabel, QLineEdit,
-    QPushButton, QScrollArea, QSizePolicy, QSpacerItem,
-    QSpinBox, QTabWidget, QTreeWidget, QTreeWidgetItem,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QDoubleSpinBox,
+    QFrame, QGridLayout, QHeaderView, QLabel,
+    QLineEdit, QPushButton, QScrollArea, QSizePolicy,
+    QSpacerItem, QSpinBox, QTabWidget, QTreeWidget,
+    QTreeWidgetItem, QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -145,7 +145,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 476, 876))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 476, 842))
         self.gridLayout_11 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_11.setSpacing(0)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
@@ -235,16 +235,6 @@ class Ui_Dialog(object):
 
         self.gridLayout_14.addWidget(self.lineEdit_stroke, 7, 2, 1, 1)
 
-        self.lineEdit_rotational_speed = QLineEdit(self.frame_all_parameters)
-        self.lineEdit_rotational_speed.setObjectName(u"lineEdit_rotational_speed")
-        self.lineEdit_rotational_speed.setMinimumSize(QSize(110, 28))
-        self.lineEdit_rotational_speed.setMaximumSize(QSize(140, 28))
-        self.lineEdit_rotational_speed.setFont(font4)
-        self.lineEdit_rotational_speed.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_rotational_speed.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_14.addWidget(self.lineEdit_rotational_speed, 14, 2, 1, 1)
-
         self.spinBox_number_of_cylinders = QSpinBox(self.frame_all_parameters)
         self.spinBox_number_of_cylinders.setObjectName(u"spinBox_number_of_cylinders")
         self.spinBox_number_of_cylinders.setMinimumSize(QSize(0, 28))
@@ -302,16 +292,6 @@ class Ui_Dialog(object):
         self.label_36.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_36, 11, 3, 1, 1)
-
-        self.lineEdit_clearance_head_end = QLineEdit(self.frame_all_parameters)
-        self.lineEdit_clearance_head_end.setObjectName(u"lineEdit_clearance_head_end")
-        self.lineEdit_clearance_head_end.setMinimumSize(QSize(110, 28))
-        self.lineEdit_clearance_head_end.setMaximumSize(QSize(140, 28))
-        self.lineEdit_clearance_head_end.setFont(font4)
-        self.lineEdit_clearance_head_end.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_clearance_head_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_14.addWidget(self.lineEdit_clearance_head_end, 10, 2, 1, 1)
 
         self.label_16 = QLabel(self.frame_all_parameters)
         self.label_16.setObjectName(u"label_16")
@@ -404,16 +384,16 @@ class Ui_Dialog(object):
 
         self.gridLayout_14.addWidget(self.label_48, 4, 1, 1, 1)
 
-        self.spinBox_tdc1_crank_angle = QSpinBox(self.frame_all_parameters)
-        self.spinBox_tdc1_crank_angle.setObjectName(u"spinBox_tdc1_crank_angle")
-        self.spinBox_tdc1_crank_angle.setMinimumSize(QSize(0, 28))
-        self.spinBox_tdc1_crank_angle.setMaximumSize(QSize(140, 28))
-        self.spinBox_tdc1_crank_angle.setFont(font4)
-        self.spinBox_tdc1_crank_angle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.spinBox_tdc1_crank_angle.setMaximum(270)
-        self.spinBox_tdc1_crank_angle.setSingleStep(1)
+        self.spinBox_tdc_crank_angle_1 = QSpinBox(self.frame_all_parameters)
+        self.spinBox_tdc_crank_angle_1.setObjectName(u"spinBox_tdc_crank_angle_1")
+        self.spinBox_tdc_crank_angle_1.setMinimumSize(QSize(0, 28))
+        self.spinBox_tdc_crank_angle_1.setMaximumSize(QSize(140, 28))
+        self.spinBox_tdc_crank_angle_1.setFont(font4)
+        self.spinBox_tdc_crank_angle_1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.spinBox_tdc_crank_angle_1.setMaximum(270)
+        self.spinBox_tdc_crank_angle_1.setSingleStep(1)
 
-        self.gridLayout_14.addWidget(self.spinBox_tdc1_crank_angle, 13, 2, 1, 1)
+        self.gridLayout_14.addWidget(self.spinBox_tdc_crank_angle_1, 13, 2, 1, 1)
 
         self.label_9 = QLabel(self.frame_all_parameters)
         self.label_9.setObjectName(u"label_9")
@@ -463,16 +443,6 @@ class Ui_Dialog(object):
         self.label_15.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_14.addWidget(self.label_15, 8, 3, 1, 1)
-
-        self.lineEdit_clearance_crank_end = QLineEdit(self.frame_all_parameters)
-        self.lineEdit_clearance_crank_end.setObjectName(u"lineEdit_clearance_crank_end")
-        self.lineEdit_clearance_crank_end.setMinimumSize(QSize(110, 28))
-        self.lineEdit_clearance_crank_end.setMaximumSize(QSize(140, 28))
-        self.lineEdit_clearance_crank_end.setFont(font4)
-        self.lineEdit_clearance_crank_end.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_clearance_crank_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_14.addWidget(self.lineEdit_clearance_crank_end, 11, 2, 1, 1)
 
         self.horizontalSpacer_11 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -530,6 +500,45 @@ class Ui_Dialog(object):
 
         self.gridLayout_14.addWidget(self.pushButton_reset_entries, 1, 3, 1, 1)
 
+        self.doubleSpinBox_clearance_head_end = QDoubleSpinBox(self.frame_all_parameters)
+        self.doubleSpinBox_clearance_head_end.setObjectName(u"doubleSpinBox_clearance_head_end")
+        self.doubleSpinBox_clearance_head_end.setMinimumSize(QSize(110, 28))
+        self.doubleSpinBox_clearance_head_end.setMaximumSize(QSize(140, 28))
+        self.doubleSpinBox_clearance_head_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.doubleSpinBox_clearance_head_end.setDecimals(4)
+        self.doubleSpinBox_clearance_head_end.setMinimum(0.000000000000000)
+        self.doubleSpinBox_clearance_head_end.setMaximum(10000.000000000000000)
+        self.doubleSpinBox_clearance_head_end.setSingleStep(10.000000000000000)
+        self.doubleSpinBox_clearance_head_end.setValue(15.800000000000001)
+
+        self.gridLayout_14.addWidget(self.doubleSpinBox_clearance_head_end, 10, 2, 1, 1)
+
+        self.doubleSpinBox_clearance_crank_end = QDoubleSpinBox(self.frame_all_parameters)
+        self.doubleSpinBox_clearance_crank_end.setObjectName(u"doubleSpinBox_clearance_crank_end")
+        self.doubleSpinBox_clearance_crank_end.setMinimumSize(QSize(110, 28))
+        self.doubleSpinBox_clearance_crank_end.setMaximumSize(QSize(140, 28))
+        self.doubleSpinBox_clearance_crank_end.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.doubleSpinBox_clearance_crank_end.setDecimals(4)
+        self.doubleSpinBox_clearance_crank_end.setMinimum(0.000000000000000)
+        self.doubleSpinBox_clearance_crank_end.setMaximum(10000.000000000000000)
+        self.doubleSpinBox_clearance_crank_end.setSingleStep(10.000000000000000)
+        self.doubleSpinBox_clearance_crank_end.setValue(18.390000000000001)
+
+        self.gridLayout_14.addWidget(self.doubleSpinBox_clearance_crank_end, 11, 2, 1, 1)
+
+        self.doubleSpinBox_rotational_speed = QDoubleSpinBox(self.frame_all_parameters)
+        self.doubleSpinBox_rotational_speed.setObjectName(u"doubleSpinBox_rotational_speed")
+        self.doubleSpinBox_rotational_speed.setMinimumSize(QSize(110, 28))
+        self.doubleSpinBox_rotational_speed.setMaximumSize(QSize(140, 28))
+        self.doubleSpinBox_rotational_speed.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.doubleSpinBox_rotational_speed.setDecimals(6)
+        self.doubleSpinBox_rotational_speed.setMinimum(0.010000000000000)
+        self.doubleSpinBox_rotational_speed.setMaximum(10000.000000000000000)
+        self.doubleSpinBox_rotational_speed.setSingleStep(10.000000000000000)
+        self.doubleSpinBox_rotational_speed.setValue(178.000000000000000)
+
+        self.gridLayout_14.addWidget(self.doubleSpinBox_rotational_speed, 14, 2, 1, 1)
+
 
         self.gridLayout_11.addWidget(self.frame_all_parameters, 0, 0, 1, 1)
 
@@ -539,14 +548,25 @@ class Ui_Dialog(object):
         self.frame_5.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_18 = QGridLayout(self.frame_5)
         self.gridLayout_18.setObjectName(u"gridLayout_18")
-        self.label_isentropic_exp = QLabel(self.frame_5)
-        self.label_isentropic_exp.setObjectName(u"label_isentropic_exp")
-        self.label_isentropic_exp.setMinimumSize(QSize(0, 28))
-        self.label_isentropic_exp.setMaximumSize(QSize(16777215, 28))
-        self.label_isentropic_exp.setFont(font4)
-        self.label_isentropic_exp.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.lineEdit_suction_pressure = QLineEdit(self.frame_5)
+        self.lineEdit_suction_pressure.setObjectName(u"lineEdit_suction_pressure")
+        self.lineEdit_suction_pressure.setMinimumSize(QSize(110, 28))
+        self.lineEdit_suction_pressure.setMaximumSize(QSize(140, 28))
+        self.lineEdit_suction_pressure.setFont(font4)
+        self.lineEdit_suction_pressure.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_suction_pressure.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_18.addWidget(self.label_isentropic_exp, 3, 1, 1, 1)
+        self.gridLayout_18.addWidget(self.lineEdit_suction_pressure, 4, 2, 1, 1)
+
+        self.lineEdit_bulk_modulus = QLineEdit(self.frame_5)
+        self.lineEdit_bulk_modulus.setObjectName(u"lineEdit_bulk_modulus")
+        self.lineEdit_bulk_modulus.setMinimumSize(QSize(110, 28))
+        self.lineEdit_bulk_modulus.setMaximumSize(QSize(140, 28))
+        self.lineEdit_bulk_modulus.setFont(font4)
+        self.lineEdit_bulk_modulus.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_bulk_modulus.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_18.addWidget(self.lineEdit_bulk_modulus, 2, 2, 1, 1)
 
         self.label_10 = QLabel(self.frame_5)
         self.label_10.setObjectName(u"label_10")
@@ -559,54 +579,6 @@ class Ui_Dialog(object):
 
         self.gridLayout_18.addWidget(self.label_10, 0, 1, 1, 3)
 
-        self.label_fluctuating_volume_unit = QLabel(self.frame_5)
-        self.label_fluctuating_volume_unit.setObjectName(u"label_fluctuating_volume_unit")
-        self.label_fluctuating_volume_unit.setMinimumSize(QSize(0, 28))
-        self.label_fluctuating_volume_unit.setMaximumSize(QSize(16777215, 28))
-        self.label_fluctuating_volume_unit.setFont(font4)
-        self.label_fluctuating_volume_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_18.addWidget(self.label_fluctuating_volume_unit, 10, 3, 1, 1)
-
-        self.comboBox_fluid_data_source = QComboBox(self.frame_5)
-        self.comboBox_fluid_data_source.addItem("")
-        self.comboBox_fluid_data_source.addItem("")
-        self.comboBox_fluid_data_source.setObjectName(u"comboBox_fluid_data_source")
-        self.comboBox_fluid_data_source.setMinimumSize(QSize(0, 28))
-        self.comboBox_fluid_data_source.setMaximumSize(QSize(16777215, 28))
-        self.comboBox_fluid_data_source.setFont(font4)
-
-        self.gridLayout_18.addWidget(self.comboBox_fluid_data_source, 1, 2, 1, 1)
-
-        self.lineEdit_fluctuating_volume = QLineEdit(self.frame_5)
-        self.lineEdit_fluctuating_volume.setObjectName(u"lineEdit_fluctuating_volume")
-        self.lineEdit_fluctuating_volume.setEnabled(True)
-        self.lineEdit_fluctuating_volume.setMinimumSize(QSize(110, 28))
-        self.lineEdit_fluctuating_volume.setMaximumSize(QSize(140, 28))
-        self.lineEdit_fluctuating_volume.setFont(font4)
-        self.lineEdit_fluctuating_volume.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_fluctuating_volume.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_18.addWidget(self.lineEdit_fluctuating_volume, 10, 2, 1, 1)
-
-        self.label_59 = QLabel(self.frame_5)
-        self.label_59.setObjectName(u"label_59")
-        self.label_59.setMinimumSize(QSize(0, 28))
-        self.label_59.setMaximumSize(QSize(16777215, 28))
-        self.label_59.setFont(font4)
-        self.label_59.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_18.addWidget(self.label_59, 8, 1, 1, 1)
-
-        self.label_suction_pressure_unit = QLabel(self.frame_5)
-        self.label_suction_pressure_unit.setObjectName(u"label_suction_pressure_unit")
-        self.label_suction_pressure_unit.setMinimumSize(QSize(80, 26))
-        self.label_suction_pressure_unit.setMaximumSize(QSize(80, 26))
-        self.label_suction_pressure_unit.setFont(font4)
-        self.label_suction_pressure_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_18.addWidget(self.label_suction_pressure_unit, 5, 3, 1, 1)
-
         self.lineEdit_discharge_pressure = QLineEdit(self.frame_5)
         self.lineEdit_discharge_pressure.setObjectName(u"lineEdit_discharge_pressure")
         self.lineEdit_discharge_pressure.setMinimumSize(QSize(110, 28))
@@ -615,7 +587,27 @@ class Ui_Dialog(object):
         self.lineEdit_discharge_pressure.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_discharge_pressure.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_18.addWidget(self.lineEdit_discharge_pressure, 6, 2, 1, 1)
+        self.gridLayout_18.addWidget(self.lineEdit_discharge_pressure, 5, 2, 1, 1)
+
+        self.comboBox_temperature_units = QComboBox(self.frame_5)
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.addItem("")
+        self.comboBox_temperature_units.setObjectName(u"comboBox_temperature_units")
+        self.comboBox_temperature_units.setMinimumSize(QSize(110, 28))
+        self.comboBox_temperature_units.setMaximumSize(QSize(140, 28))
+        self.comboBox_temperature_units.setFont(font4)
+
+        self.gridLayout_18.addWidget(self.comboBox_temperature_units, 6, 2, 1, 1)
+
+        self.label_discharge_pressure_unit = QLabel(self.frame_5)
+        self.label_discharge_pressure_unit.setObjectName(u"label_discharge_pressure_unit")
+        self.label_discharge_pressure_unit.setMinimumSize(QSize(80, 26))
+        self.label_discharge_pressure_unit.setMaximumSize(QSize(80, 26))
+        self.label_discharge_pressure_unit.setFont(font4)
+        self.label_discharge_pressure_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_18.addWidget(self.label_discharge_pressure_unit, 5, 3, 1, 1)
 
         self.lineEdit_suction_temperature = QLineEdit(self.frame_5)
         self.lineEdit_suction_temperature.setObjectName(u"lineEdit_suction_temperature")
@@ -625,17 +617,20 @@ class Ui_Dialog(object):
         self.lineEdit_suction_temperature.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_suction_temperature.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_18.addWidget(self.lineEdit_suction_temperature, 8, 2, 1, 1)
+        self.gridLayout_18.addWidget(self.lineEdit_suction_temperature, 7, 2, 1, 1)
 
-        self.lineEdit_bulk_modulus = QLineEdit(self.frame_5)
-        self.lineEdit_bulk_modulus.setObjectName(u"lineEdit_bulk_modulus")
-        self.lineEdit_bulk_modulus.setMinimumSize(QSize(110, 28))
-        self.lineEdit_bulk_modulus.setMaximumSize(QSize(140, 28))
-        self.lineEdit_bulk_modulus.setFont(font4)
-        self.lineEdit_bulk_modulus.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_bulk_modulus.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label_59 = QLabel(self.frame_5)
+        self.label_59.setObjectName(u"label_59")
+        self.label_59.setMinimumSize(QSize(0, 28))
+        self.label_59.setMaximumSize(QSize(16777215, 28))
+        self.label_59.setFont(font4)
+        self.label_59.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_18.addWidget(self.lineEdit_bulk_modulus, 3, 2, 1, 1)
+        self.gridLayout_18.addWidget(self.label_59, 7, 1, 1, 1)
+
+        self.horizontalSpacer_13 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_18.addItem(self.horizontalSpacer_13, 1, 4, 1, 1)
 
         self.label_61 = QLabel(self.frame_5)
         self.label_61.setObjectName(u"label_61")
@@ -644,116 +639,7 @@ class Ui_Dialog(object):
         self.label_61.setFont(font4)
         self.label_61.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_18.addWidget(self.label_61, 7, 1, 1, 1)
-
-        self.label_discharge_temperature_unit = QLabel(self.frame_5)
-        self.label_discharge_temperature_unit.setObjectName(u"label_discharge_temperature_unit")
-        self.label_discharge_temperature_unit.setMinimumSize(QSize(80, 26))
-        self.label_discharge_temperature_unit.setMaximumSize(QSize(80, 26))
-        self.label_discharge_temperature_unit.setFont(font4)
-        self.label_discharge_temperature_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_18.addWidget(self.label_discharge_temperature_unit, 9, 3, 1, 1)
-
-        self.label_57 = QLabel(self.frame_5)
-        self.label_57.setObjectName(u"label_57")
-        self.label_57.setMinimumSize(QSize(0, 28))
-        self.label_57.setMaximumSize(QSize(16777215, 28))
-        self.label_57.setFont(font4)
-        self.label_57.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_18.addWidget(self.label_57, 6, 1, 1, 1)
-
-        self.label_suction_temperature_unit = QLabel(self.frame_5)
-        self.label_suction_temperature_unit.setObjectName(u"label_suction_temperature_unit")
-        self.label_suction_temperature_unit.setMinimumSize(QSize(80, 26))
-        self.label_suction_temperature_unit.setMaximumSize(QSize(80, 26))
-        self.label_suction_temperature_unit.setFont(font4)
-        self.label_suction_temperature_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_18.addWidget(self.label_suction_temperature_unit, 8, 3, 1, 1)
-
-        self.label_17 = QLabel(self.frame_5)
-        self.label_17.setObjectName(u"label_17")
-        self.label_17.setMinimumSize(QSize(152, 28))
-        self.label_17.setMaximumSize(QSize(16777215, 28))
-        self.label_17.setFont(font4)
-        self.label_17.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_18.addWidget(self.label_17, 10, 1, 1, 1)
-
-        self.label_bulk_modulus_unit = QLabel(self.frame_5)
-        self.label_bulk_modulus_unit.setObjectName(u"label_bulk_modulus_unit")
-        self.label_bulk_modulus_unit.setMinimumSize(QSize(80, 28))
-        self.label_bulk_modulus_unit.setMaximumSize(QSize(80, 28))
-        self.label_bulk_modulus_unit.setFont(font4)
-        self.label_bulk_modulus_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_18.addWidget(self.label_bulk_modulus_unit, 3, 3, 1, 1)
-
-        self.lineEdit_suction_pressure = QLineEdit(self.frame_5)
-        self.lineEdit_suction_pressure.setObjectName(u"lineEdit_suction_pressure")
-        self.lineEdit_suction_pressure.setMinimumSize(QSize(110, 28))
-        self.lineEdit_suction_pressure.setMaximumSize(QSize(140, 28))
-        self.lineEdit_suction_pressure.setFont(font4)
-        self.lineEdit_suction_pressure.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_suction_pressure.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_18.addWidget(self.lineEdit_suction_pressure, 5, 2, 1, 1)
-
-        self.label_60 = QLabel(self.frame_5)
-        self.label_60.setObjectName(u"label_60")
-        self.label_60.setMinimumSize(QSize(0, 28))
-        self.label_60.setMaximumSize(QSize(16777215, 28))
-        self.label_60.setFont(font4)
-        self.label_60.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_18.addWidget(self.label_60, 9, 1, 1, 1)
-
-        self.label_58 = QLabel(self.frame_5)
-        self.label_58.setObjectName(u"label_58")
-        self.label_58.setMinimumSize(QSize(0, 28))
-        self.label_58.setMaximumSize(QSize(16777215, 28))
-        self.label_58.setFont(font4)
-        self.label_58.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_18.addWidget(self.label_58, 5, 1, 1, 1)
-
-        self.horizontalSpacer_14 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout_18.addItem(self.horizontalSpacer_14, 2, 0, 1, 1)
-
-        self.lineEdit_discharge_temperature = QLineEdit(self.frame_5)
-        self.lineEdit_discharge_temperature.setObjectName(u"lineEdit_discharge_temperature")
-        self.lineEdit_discharge_temperature.setMinimumSize(QSize(110, 28))
-        self.lineEdit_discharge_temperature.setMaximumSize(QSize(140, 28))
-        self.lineEdit_discharge_temperature.setFont(font4)
-        self.lineEdit_discharge_temperature.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
-        self.lineEdit_discharge_temperature.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_18.addWidget(self.lineEdit_discharge_temperature, 9, 2, 1, 1)
-
-        self.label_discharge_pressure_unit = QLabel(self.frame_5)
-        self.label_discharge_pressure_unit.setObjectName(u"label_discharge_pressure_unit")
-        self.label_discharge_pressure_unit.setMinimumSize(QSize(80, 26))
-        self.label_discharge_pressure_unit.setMaximumSize(QSize(80, 26))
-        self.label_discharge_pressure_unit.setFont(font4)
-        self.label_discharge_pressure_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_18.addWidget(self.label_discharge_pressure_unit, 6, 3, 1, 1)
-
-        self.label_62 = QLabel(self.frame_5)
-        self.label_62.setObjectName(u"label_62")
-        self.label_62.setMinimumSize(QSize(0, 28))
-        self.label_62.setMaximumSize(QSize(16777215, 28))
-        self.label_62.setFont(font4)
-        self.label_62.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_18.addWidget(self.label_62, 4, 1, 1, 1)
-
-        self.horizontalSpacer_13 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout_18.addItem(self.horizontalSpacer_13, 2, 4, 1, 1)
+        self.gridLayout_18.addWidget(self.label_61, 6, 1, 1, 1)
 
         self.lineEdit_selected_fluid = QLineEdit(self.frame_5)
         self.lineEdit_selected_fluid.setObjectName(u"lineEdit_selected_fluid")
@@ -764,7 +650,82 @@ class Ui_Dialog(object):
         self.lineEdit_selected_fluid.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.lineEdit_selected_fluid.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_18.addWidget(self.lineEdit_selected_fluid, 2, 2, 1, 1)
+        self.gridLayout_18.addWidget(self.lineEdit_selected_fluid, 1, 2, 1, 1)
+
+        self.lineEdit_discharge_temperature = QLineEdit(self.frame_5)
+        self.lineEdit_discharge_temperature.setObjectName(u"lineEdit_discharge_temperature")
+        self.lineEdit_discharge_temperature.setMinimumSize(QSize(110, 28))
+        self.lineEdit_discharge_temperature.setMaximumSize(QSize(140, 28))
+        self.lineEdit_discharge_temperature.setFont(font4)
+        self.lineEdit_discharge_temperature.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_discharge_temperature.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_18.addWidget(self.lineEdit_discharge_temperature, 8, 2, 1, 1)
+
+        self.lineEdit_fluctuating_volume = QLineEdit(self.frame_5)
+        self.lineEdit_fluctuating_volume.setObjectName(u"lineEdit_fluctuating_volume")
+        self.lineEdit_fluctuating_volume.setEnabled(True)
+        self.lineEdit_fluctuating_volume.setMinimumSize(QSize(110, 28))
+        self.lineEdit_fluctuating_volume.setMaximumSize(QSize(140, 28))
+        self.lineEdit_fluctuating_volume.setFont(font4)
+        self.lineEdit_fluctuating_volume.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_fluctuating_volume.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_18.addWidget(self.lineEdit_fluctuating_volume, 9, 2, 1, 1)
+
+        self.label_57 = QLabel(self.frame_5)
+        self.label_57.setObjectName(u"label_57")
+        self.label_57.setMinimumSize(QSize(0, 28))
+        self.label_57.setMaximumSize(QSize(16777215, 28))
+        self.label_57.setFont(font4)
+        self.label_57.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_18.addWidget(self.label_57, 5, 1, 1, 1)
+
+        self.label_60 = QLabel(self.frame_5)
+        self.label_60.setObjectName(u"label_60")
+        self.label_60.setMinimumSize(QSize(0, 28))
+        self.label_60.setMaximumSize(QSize(16777215, 28))
+        self.label_60.setFont(font4)
+        self.label_60.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_18.addWidget(self.label_60, 8, 1, 1, 1)
+
+        self.label_suction_pressure_unit = QLabel(self.frame_5)
+        self.label_suction_pressure_unit.setObjectName(u"label_suction_pressure_unit")
+        self.label_suction_pressure_unit.setMinimumSize(QSize(80, 26))
+        self.label_suction_pressure_unit.setMaximumSize(QSize(80, 26))
+        self.label_suction_pressure_unit.setFont(font4)
+        self.label_suction_pressure_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_18.addWidget(self.label_suction_pressure_unit, 4, 3, 1, 1)
+
+        self.label_58 = QLabel(self.frame_5)
+        self.label_58.setObjectName(u"label_58")
+        self.label_58.setMinimumSize(QSize(0, 28))
+        self.label_58.setMaximumSize(QSize(16777215, 28))
+        self.label_58.setFont(font4)
+        self.label_58.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_18.addWidget(self.label_58, 4, 1, 1, 1)
+
+        self.label_62 = QLabel(self.frame_5)
+        self.label_62.setObjectName(u"label_62")
+        self.label_62.setMinimumSize(QSize(0, 28))
+        self.label_62.setMaximumSize(QSize(16777215, 28))
+        self.label_62.setFont(font4)
+        self.label_62.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_18.addWidget(self.label_62, 3, 1, 1, 1)
+
+        self.label_discharge_temperature_unit = QLabel(self.frame_5)
+        self.label_discharge_temperature_unit.setObjectName(u"label_discharge_temperature_unit")
+        self.label_discharge_temperature_unit.setMinimumSize(QSize(80, 26))
+        self.label_discharge_temperature_unit.setMaximumSize(QSize(80, 26))
+        self.label_discharge_temperature_unit.setFont(font4)
+        self.label_discharge_temperature_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_18.addWidget(self.label_discharge_temperature_unit, 8, 3, 1, 1)
 
         self.pushButton_get_fluid = QPushButton(self.frame_5)
         self.pushButton_get_fluid.setObjectName(u"pushButton_get_fluid")
@@ -775,25 +736,38 @@ class Ui_Dialog(object):
         self.pushButton_get_fluid.setAutoDefault(False)
         self.pushButton_get_fluid.setFlat(False)
 
-        self.gridLayout_18.addWidget(self.pushButton_get_fluid, 2, 3, 1, 1)
+        self.gridLayout_18.addWidget(self.pushButton_get_fluid, 1, 3, 1, 1)
 
-        self.label_selected_fluid = QLabel(self.frame_5)
-        self.label_selected_fluid.setObjectName(u"label_selected_fluid")
-        self.label_selected_fluid.setMinimumSize(QSize(0, 28))
-        self.label_selected_fluid.setMaximumSize(QSize(16777215, 28))
-        self.label_selected_fluid.setFont(font4)
-        self.label_selected_fluid.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.label_suction_temperature_unit = QLabel(self.frame_5)
+        self.label_suction_temperature_unit.setObjectName(u"label_suction_temperature_unit")
+        self.label_suction_temperature_unit.setMinimumSize(QSize(80, 26))
+        self.label_suction_temperature_unit.setMaximumSize(QSize(80, 26))
+        self.label_suction_temperature_unit.setFont(font4)
+        self.label_suction_temperature_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_18.addWidget(self.label_selected_fluid, 2, 1, 1, 1)
+        self.gridLayout_18.addWidget(self.label_suction_temperature_unit, 7, 3, 1, 1)
 
-        self.label_fluid_data_source = QLabel(self.frame_5)
-        self.label_fluid_data_source.setObjectName(u"label_fluid_data_source")
-        self.label_fluid_data_source.setMinimumSize(QSize(0, 28))
-        self.label_fluid_data_source.setMaximumSize(QSize(16777215, 28))
-        self.label_fluid_data_source.setFont(font4)
-        self.label_fluid_data_source.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.horizontalSpacer_14 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.gridLayout_18.addWidget(self.label_fluid_data_source, 1, 1, 1, 1)
+        self.gridLayout_18.addItem(self.horizontalSpacer_14, 1, 0, 1, 1)
+
+        self.label_isentropic_exp = QLabel(self.frame_5)
+        self.label_isentropic_exp.setObjectName(u"label_isentropic_exp")
+        self.label_isentropic_exp.setMinimumSize(QSize(0, 28))
+        self.label_isentropic_exp.setMaximumSize(QSize(16777215, 28))
+        self.label_isentropic_exp.setFont(font4)
+        self.label_isentropic_exp.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_18.addWidget(self.label_isentropic_exp, 2, 1, 1, 1)
+
+        self.label_bulk_modulus_unit = QLabel(self.frame_5)
+        self.label_bulk_modulus_unit.setObjectName(u"label_bulk_modulus_unit")
+        self.label_bulk_modulus_unit.setMinimumSize(QSize(80, 28))
+        self.label_bulk_modulus_unit.setMaximumSize(QSize(80, 28))
+        self.label_bulk_modulus_unit.setFont(font4)
+        self.label_bulk_modulus_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_18.addWidget(self.label_bulk_modulus_unit, 2, 3, 1, 1)
 
         self.comboBox_pressure_units = QComboBox(self.frame_5)
         self.comboBox_pressure_units.addItem("")
@@ -811,22 +785,38 @@ class Ui_Dialog(object):
         self.comboBox_pressure_units.addItem("")
         self.comboBox_pressure_units.addItem("")
         self.comboBox_pressure_units.setObjectName(u"comboBox_pressure_units")
-        self.comboBox_pressure_units.setMinimumSize(QSize(120, 28))
-        self.comboBox_pressure_units.setMaximumSize(QSize(120, 28))
+        self.comboBox_pressure_units.setMinimumSize(QSize(110, 28))
+        self.comboBox_pressure_units.setMaximumSize(QSize(140, 28))
         self.comboBox_pressure_units.setFont(font4)
 
-        self.gridLayout_18.addWidget(self.comboBox_pressure_units, 4, 2, 1, 1)
+        self.gridLayout_18.addWidget(self.comboBox_pressure_units, 3, 2, 1, 1)
 
-        self.comboBox_temperature_units = QComboBox(self.frame_5)
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.addItem("")
-        self.comboBox_temperature_units.setObjectName(u"comboBox_temperature_units")
-        self.comboBox_temperature_units.setMinimumSize(QSize(120, 28))
-        self.comboBox_temperature_units.setMaximumSize(QSize(120, 28))
-        self.comboBox_temperature_units.setFont(font4)
+        self.label_selected_fluid = QLabel(self.frame_5)
+        self.label_selected_fluid.setObjectName(u"label_selected_fluid")
+        self.label_selected_fluid.setMinimumSize(QSize(0, 28))
+        self.label_selected_fluid.setMaximumSize(QSize(16777215, 28))
+        self.label_selected_fluid.setFont(font4)
+        self.label_selected_fluid.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_18.addWidget(self.comboBox_temperature_units, 7, 2, 1, 1)
+        self.gridLayout_18.addWidget(self.label_selected_fluid, 1, 1, 1, 1)
+
+        self.label_fluctuating_volume_unit = QLabel(self.frame_5)
+        self.label_fluctuating_volume_unit.setObjectName(u"label_fluctuating_volume_unit")
+        self.label_fluctuating_volume_unit.setMinimumSize(QSize(0, 28))
+        self.label_fluctuating_volume_unit.setMaximumSize(QSize(16777215, 28))
+        self.label_fluctuating_volume_unit.setFont(font4)
+        self.label_fluctuating_volume_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_18.addWidget(self.label_fluctuating_volume_unit, 9, 3, 1, 1)
+
+        self.label_17 = QLabel(self.frame_5)
+        self.label_17.setObjectName(u"label_17")
+        self.label_17.setMinimumSize(QSize(152, 28))
+        self.label_17.setMaximumSize(QSize(16777215, 28))
+        self.label_17.setFont(font4)
+        self.label_17.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_18.addWidget(self.label_17, 9, 1, 1, 1)
 
 
         self.gridLayout_11.addWidget(self.frame_5, 1, 0, 1, 1)
@@ -1402,11 +1392,8 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.lineEdit_bore_diameter, self.lineEdit_stroke)
         QWidget.setTabOrder(self.lineEdit_stroke, self.lineEdit_connecting_rod_length)
         QWidget.setTabOrder(self.lineEdit_connecting_rod_length, self.lineEdit_rod_diameter)
-        QWidget.setTabOrder(self.lineEdit_rod_diameter, self.lineEdit_clearance_head_end)
-        QWidget.setTabOrder(self.lineEdit_clearance_head_end, self.lineEdit_clearance_crank_end)
-        QWidget.setTabOrder(self.lineEdit_clearance_crank_end, self.spinBox_tdc1_crank_angle)
-        QWidget.setTabOrder(self.spinBox_tdc1_crank_angle, self.lineEdit_rotational_speed)
-        QWidget.setTabOrder(self.lineEdit_rotational_speed, self.pushButton_exit)
+        QWidget.setTabOrder(self.lineEdit_rod_diameter, self.spinBox_tdc_crank_angle_1)
+        QWidget.setTabOrder(self.spinBox_tdc_crank_angle_1, self.pushButton_exit)
         QWidget.setTabOrder(self.pushButton_exit, self.pushButton_confirm)
         QWidget.setTabOrder(self.pushButton_confirm, self.treeWidget_nodal_info)
         QWidget.setTabOrder(self.treeWidget_nodal_info, self.pushButton_reset)
@@ -1422,10 +1409,9 @@ class Ui_Dialog(object):
         self.pushButton_pulsation_damper_calculator.setDefault(True)
         self.comboBox_cylinder_acting.setCurrentIndex(1)
         self.comboBox_connection_type.setCurrentIndex(1)
-        self.comboBox_fluid_data_source.setCurrentIndex(1)
+        self.comboBox_temperature_units.setCurrentIndex(1)
         self.pushButton_get_fluid.setDefault(True)
         self.comboBox_pressure_units.setCurrentIndex(4)
-        self.comboBox_temperature_units.setCurrentIndex(1)
         self.comboBox_frequency_resolution.setCurrentIndex(3)
         self.tabWidget_plots_2.setCurrentIndex(0)
 
@@ -1441,18 +1427,16 @@ class Ui_Dialog(object):
         self.pushButton_process_fluctuating_volume.setText(QCoreApplication.translate("Dialog", u"Process \u0394V", None))
         self.pushButton_plot_fluctuating_volume.setText(QCoreApplication.translate("Dialog", u"Plot \u0394V integral", None))
         self.pushButton_pulsation_damper_calculator.setText(QCoreApplication.translate("Dialog", u"Pulsation damper calculator", None))
-        self.comboBox_cylinder_acting.setItemText(0, QCoreApplication.translate("Dialog", u" Both ends", None))
-        self.comboBox_cylinder_acting.setItemText(1, QCoreApplication.translate("Dialog", u" Head end", None))
-        self.comboBox_cylinder_acting.setItemText(2, QCoreApplication.translate("Dialog", u" Crank end", None))
+        self.comboBox_cylinder_acting.setItemText(0, QCoreApplication.translate("Dialog", u"Both ends", None))
+        self.comboBox_cylinder_acting.setItemText(1, QCoreApplication.translate("Dialog", u"Head end", None))
+        self.comboBox_cylinder_acting.setItemText(2, QCoreApplication.translate("Dialog", u"Crank end", None))
 
         self.lineEdit_stroke.setText(QCoreApplication.translate("Dialog", u"0.205", None))
-        self.lineEdit_rotational_speed.setText(QCoreApplication.translate("Dialog", u"178", None))
         self.label_22.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Connecting rod length:</p></body></html>", None))
         self.label_46.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Number of cylinders:</p></body></html>", None))
         self.label_34.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[rpm]</p></body></html>", None))
         self.label_13.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m]</p></body></html>", None))
         self.label_36.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[%]</p></body></html>", None))
-        self.lineEdit_clearance_head_end.setText(QCoreApplication.translate("Dialog", u"15", None))
         self.label_16.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m]</p></body></html>", None))
         self.label_35.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Clearance (CE):</p></body></html>", None))
         self.lineEdit_bore_diameter.setText(QCoreApplication.translate("Dialog", u"0.105", None))
@@ -1468,45 +1452,41 @@ class Ui_Dialog(object):
         self.label_32.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[degree]</p></body></html>", None))
         self.label_27.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Clearance (HE):</p></body></html>", None))
         self.label_15.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m]</p></body></html>", None))
-        self.lineEdit_clearance_crank_end.setText(QCoreApplication.translate("Dialog", u"18", None))
         self.lineEdit_connecting_rod_length.setText(QCoreApplication.translate("Dialog", u"0.4", None))
         self.label_20.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Plunger diameter:</p></body></html>", None))
-        self.comboBox_connection_type.setItemText(0, QCoreApplication.translate("Dialog", u" Suction", None))
-        self.comboBox_connection_type.setItemText(1, QCoreApplication.translate("Dialog", u" Discharge", None))
+        self.comboBox_connection_type.setItemText(0, QCoreApplication.translate("Dialog", u"Suction", None))
+        self.comboBox_connection_type.setItemText(1, QCoreApplication.translate("Dialog", u"Discharge", None))
 
         self.label_6.setText(QCoreApplication.translate("Dialog", u"Reciprocating pump parameters", None))
 #if QT_CONFIG(tooltip)
         self.pushButton_reset_entries.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Reset entries</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.pushButton_reset_entries.setText("")
-        self.label_isentropic_exp.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Bulk modulus:</p></body></html>", None))
-        self.label_10.setText(QCoreApplication.translate("Dialog", u"Define the fluid properties", None))
-        self.label_fluctuating_volume_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m\u00b3]</p></body></html>", None))
-        self.comboBox_fluid_data_source.setItemText(0, QCoreApplication.translate("Dialog", u"RefProp", None))
-        self.comboBox_fluid_data_source.setItemText(1, QCoreApplication.translate("Dialog", u"User-defined", None))
-
-        self.lineEdit_fluctuating_volume.setText("")
-        self.label_59.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Suction temperature:</p></body></html>", None))
-        self.label_suction_pressure_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[bar (g)]</p></body></html>", None))
-        self.lineEdit_discharge_pressure.setText(QCoreApplication.translate("Dialog", u"322.18", None))
-        self.lineEdit_suction_temperature.setText(QCoreApplication.translate("Dialog", u"45", None))
-        self.lineEdit_bulk_modulus.setText(QCoreApplication.translate("Dialog", u"2.541031616e9", None))
-        self.label_61.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Temperature unit:</p></body></html>", None))
-        self.label_discharge_temperature_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[\u00b0C]</p></body></html>", None))
-        self.label_57.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Discharge pressure:</p></body></html>", None))
-        self.label_suction_temperature_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[\u00b0C]</p></body></html>", None))
-        self.label_17.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Fluctuating volume \u0394V:</p></body></html>", None))
-        self.label_bulk_modulus_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[Pa]</p></body></html>", None))
         self.lineEdit_suction_pressure.setText(QCoreApplication.translate("Dialog", u"2.18", None))
-        self.label_60.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Discharge temperature:</p></body></html>", None))
-        self.label_58.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Suction pressure:</p></body></html>", None))
-        self.lineEdit_discharge_temperature.setText(QCoreApplication.translate("Dialog", u"45", None))
+        self.lineEdit_bulk_modulus.setText(QCoreApplication.translate("Dialog", u"2.541031616e9", None))
+        self.label_10.setText(QCoreApplication.translate("Dialog", u"Define the fluid properties", None))
+        self.lineEdit_discharge_pressure.setText(QCoreApplication.translate("Dialog", u"322.18", None))
+        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"K", None))
+        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00b0C", None))
+        self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00b0F", None))
+
         self.label_discharge_pressure_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[bar (g)]</p></body></html>", None))
-        self.label_62.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Pressure unit:</p></body></html>", None))
+        self.lineEdit_suction_temperature.setText(QCoreApplication.translate("Dialog", u"45", None))
+        self.label_59.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Suction temperature:</p></body></html>", None))
+        self.label_61.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Temperature unit:</p></body></html>", None))
         self.lineEdit_selected_fluid.setText("")
+        self.lineEdit_discharge_temperature.setText(QCoreApplication.translate("Dialog", u"45", None))
+        self.lineEdit_fluctuating_volume.setText("")
+        self.label_57.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Discharge pressure:</p></body></html>", None))
+        self.label_60.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Discharge temperature:</p></body></html>", None))
+        self.label_suction_pressure_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[bar (g)]</p></body></html>", None))
+        self.label_58.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Suction pressure:</p></body></html>", None))
+        self.label_62.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Pressure unit:</p></body></html>", None))
+        self.label_discharge_temperature_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[\u00b0C]</p></body></html>", None))
         self.pushButton_get_fluid.setText(QCoreApplication.translate("Dialog", u"Get fluid", None))
-        self.label_selected_fluid.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Selected working fluid:</p></body></html>", None))
-        self.label_fluid_data_source.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Fluid data source:</p></body></html>", None))
+        self.label_suction_temperature_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[\u00b0C]</p></body></html>", None))
+        self.label_isentropic_exp.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Bulk modulus:</p></body></html>", None))
+        self.label_bulk_modulus_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[Pa]</p></body></html>", None))
         self.comboBox_pressure_units.setItemText(0, QCoreApplication.translate("Dialog", u"Pa (a)", None))
         self.comboBox_pressure_units.setItemText(1, QCoreApplication.translate("Dialog", u"kPa (a)", None))
         self.comboBox_pressure_units.setItemText(2, QCoreApplication.translate("Dialog", u"atm (a)", None))
@@ -1522,10 +1502,9 @@ class Ui_Dialog(object):
         self.comboBox_pressure_units.setItemText(12, QCoreApplication.translate("Dialog", u"psi (g)", None))
         self.comboBox_pressure_units.setItemText(13, QCoreApplication.translate("Dialog", u"ksi (g)", None))
 
-        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"K", None))
-        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00b0C", None))
-        self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00b0F", None))
-
+        self.label_selected_fluid.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Selected working fluid:</p></body></html>", None))
+        self.label_fluctuating_volume_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m\u00b3]</p></body></html>", None))
+        self.label_17.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Fluctuating volume \u0394V:</p></body></html>", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         self.label_39.setText(QCoreApplication.translate("Dialog", u"Final frequency resolution:", None))
         self.comboBox_frequency_resolution.setItemText(0, QCoreApplication.translate("Dialog", u"    0.1 Hz", None))
@@ -1617,14 +1596,12 @@ class ReciprocatingPumpInputs_UI(QDialog, Ui_Dialog):
                                                                             - (Layout): QGridLayout
                                                                                     - comboBox_cylinder_acting: QComboBox
                                                                                     - lineEdit_stroke: QLineEdit
-                                                                                    - lineEdit_rotational_speed: QLineEdit
                                                                                     - spinBox_number_of_cylinders: QSpinBox
                                                                                     - label_22: QLabel
                                                                                     - label_46: QLabel
                                                                                     - label_34: QLabel
                                                                                     - label_13: QLabel
                                                                                     - label_36: QLabel
-                                                                                    - lineEdit_clearance_head_end: QLineEdit
                                                                                     - label_16: QLabel
                                                                                     - label_35: QLabel
                                                                                     - lineEdit_bore_diameter: QLineEdit
@@ -1635,48 +1612,48 @@ class ReciprocatingPumpInputs_UI(QDialog, Ui_Dialog):
                                                                                     - label_21: QLabel
                                                                                     - label_14: QLabel
                                                                                     - label_48: QLabel
-                                                                                    - spinBox_tdc1_crank_angle: QSpinBox
+                                                                                    - spinBox_tdc_crank_angle_1: QSpinBox
                                                                                     - label_9: QLabel
                                                                                     - label_30: QLabel
                                                                                     - label_32: QLabel
                                                                                     - label_27: QLabel
                                                                                     - label_15: QLabel
-                                                                                    - lineEdit_clearance_crank_end: QLineEdit
                                                                                     - lineEdit_connecting_rod_length: QLineEdit
                                                                                     - label_20: QLabel
                                                                                     - comboBox_connection_type: QComboBox
                                                                                     - label_6: QLabel
                                                                                     - pushButton_reset_entries: QPushButton
+                                                                                    - doubleSpinBox_clearance_head_end: QDoubleSpinBox
+                                                                                    - doubleSpinBox_clearance_crank_end: QDoubleSpinBox
+                                                                                    - doubleSpinBox_rotational_speed: QDoubleSpinBox
                                                                         - frame_5: QFrame
                                                                             - (Layout): QGridLayout
-                                                                                    - label_isentropic_exp: QLabel
-                                                                                    - label_10: QLabel
-                                                                                    - label_fluctuating_volume_unit: QLabel
-                                                                                    - comboBox_fluid_data_source: QComboBox
-                                                                                    - lineEdit_fluctuating_volume: QLineEdit
-                                                                                    - label_59: QLabel
-                                                                                    - label_suction_pressure_unit: QLabel
-                                                                                    - lineEdit_discharge_pressure: QLineEdit
-                                                                                    - lineEdit_suction_temperature: QLineEdit
-                                                                                    - lineEdit_bulk_modulus: QLineEdit
-                                                                                    - label_61: QLabel
-                                                                                    - label_discharge_temperature_unit: QLabel
-                                                                                    - label_57: QLabel
-                                                                                    - label_suction_temperature_unit: QLabel
-                                                                                    - label_17: QLabel
-                                                                                    - label_bulk_modulus_unit: QLabel
                                                                                     - lineEdit_suction_pressure: QLineEdit
-                                                                                    - label_60: QLabel
-                                                                                    - label_58: QLabel
-                                                                                    - lineEdit_discharge_temperature: QLineEdit
-                                                                                    - label_discharge_pressure_unit: QLabel
-                                                                                    - label_62: QLabel
-                                                                                    - lineEdit_selected_fluid: QLineEdit
-                                                                                    - pushButton_get_fluid: QPushButton
-                                                                                    - label_selected_fluid: QLabel
-                                                                                    - label_fluid_data_source: QLabel
-                                                                                    - comboBox_pressure_units: QComboBox
+                                                                                    - lineEdit_bulk_modulus: QLineEdit
+                                                                                    - label_10: QLabel
+                                                                                    - lineEdit_discharge_pressure: QLineEdit
                                                                                     - comboBox_temperature_units: QComboBox
+                                                                                    - label_discharge_pressure_unit: QLabel
+                                                                                    - lineEdit_suction_temperature: QLineEdit
+                                                                                    - label_59: QLabel
+                                                                                    - label_61: QLabel
+                                                                                    - lineEdit_selected_fluid: QLineEdit
+                                                                                    - lineEdit_discharge_temperature: QLineEdit
+                                                                                    - lineEdit_fluctuating_volume: QLineEdit
+                                                                                    - label_57: QLabel
+                                                                                    - label_60: QLabel
+                                                                                    - label_suction_pressure_unit: QLabel
+                                                                                    - label_58: QLabel
+                                                                                    - label_62: QLabel
+                                                                                    - label_discharge_temperature_unit: QLabel
+                                                                                    - pushButton_get_fluid: QPushButton
+                                                                                    - label_suction_temperature_unit: QLabel
+                                                                                    - label_isentropic_exp: QLabel
+                                                                                    - label_bulk_modulus_unit: QLabel
+                                                                                    - comboBox_pressure_units: QComboBox
+                                                                                    - label_selected_fluid: QLabel
+                                                                                    - label_fluctuating_volume_unit: QLabel
+                                                                                    - label_17: QLabel
                                             - tab_advanced_options: QWidget
                                                 - (Layout): QGridLayout
                                                         - scrollArea_2: QScrollArea
