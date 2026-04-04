@@ -48,6 +48,11 @@ temperature_units_labels = [
     "°F",
 ]
 
+
+# instantiate the unit registry
+u_reg = UnitRegistry()
+
+
 def convert_temperature_unit(value: float, input_unit: str, output_unit: str | None=None) -> float:
     """
     This function converts the temperature, scaled in 'input_unit',
@@ -73,8 +78,6 @@ def convert_temperature_unit(value: float, input_unit: str, output_unit: str | N
 
     if input_unit == output_unit:
         return value
-
-    u_reg = UnitRegistry()
 
     temperature = u_reg.Quantity(value, unit_map.get(input_unit))
     if output_unit is None:
@@ -116,17 +119,16 @@ def convert_pressure_unit(value: float, input_unit: str, output_unit: str | None
             _input_unit = input_unit.split(f" {suffix}")[0]
             break
 
-    u_reg = UnitRegistry()
     pressure = u_reg.Quantity(value, unit_map.get(_input_unit))
 
     if "(g)" in input_unit:
-        pressure += u_reg(1, "atm")
+        pressure += u_reg.Quantity(1, "atm")
 
     if output_unit is None:
         return pressure.magnitude
 
     if "(g)" in output_unit:
-        pressure -= u_reg(1, "atm")
+        pressure -= u_reg.Quantity(1, "atm")
 
     if input_unit == output_unit:
         return pressure.magnitude
