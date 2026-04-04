@@ -19,7 +19,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import GetUs
 from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_compressor_inputs_ui import ReciprocatingCompressorInputs_UI
 
 from pulse.model.properties.fluid import Fluid
-from pulse.model.reciprocating_compressor_model import CylindersActingSetup, ReciprocatingCompressorModel
+from pulse.model.reciprocating_compressor_model import CylindersActingMode, ReciprocatingCompressorModel
 
 import numpy as np
 from enum import IntEnum
@@ -249,7 +249,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.pushButton_plot_volume_head_end_angle.setDisabled(False)
         self.pushButton_plot_volume_crank_end_angle.setDisabled(False)
 
-        if self.comboBox_cylinder_acting.currentIndex() == CylindersActingSetup.HEAD_END:
+        if self.comboBox_cylinder_acting.currentIndex() == CylindersActingMode.HEAD_END:
 
             self.lineEdit_rod_diameter.setText("")
             self.lineEdit_rod_diameter.setDisabled(True)
@@ -264,7 +264,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             self.pushButton_plot_pressure_crank_end_angle.setDisabled(True)
             self.pushButton_plot_volume_crank_end_angle.setDisabled(True)
 
-        elif self.comboBox_cylinder_acting.currentIndex() == CylindersActingSetup.CRANK_END:
+        elif self.comboBox_cylinder_acting.currentIndex() == CylindersActingMode.CRANK_END:
 
             if self.lineEdit_rod_diameter.text() == "":
                 self.lineEdit_rod_diameter.setText("0.135")
@@ -279,7 +279,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             self.pushButton_plot_pressure_head_end_angle.setDisabled(True)
             self.pushButton_plot_volume_head_end_angle.setDisabled(True)
 
-        elif self.comboBox_cylinder_acting.currentIndex() == CylindersActingSetup.BOTH_ENDS:
+        elif self.comboBox_cylinder_acting.currentIndex() == CylindersActingMode.BOTH_ENDS:
 
             if self.lineEdit_rod_diameter.text() == "":
                 self.lineEdit_rod_diameter.setText("0.135")
@@ -392,9 +392,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             if isinstance(connection_type, str):
                 self.comboBox_connection_type.setCurrentText(connection_type.capitalize())
 
-        if not isinstance(parameters, dict):
-            return
-
         # compressor model parameters
         parameters = data.get("parameters")
         if not isinstance(parameters, dict):
@@ -421,14 +418,14 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         if "clearance_CE" in parameters.keys():
             self.doubleSpinBox_clearance_crank_end.setValue(parameters["clearance_CE"])
 
-        if "TDC_crank_angle_1" in parameters.keys():
-            self.spinBox_tdc1_crank_angle.setValue(int(parameters["TDC_crank_angle_1"]))
+        if "tdc_crank_angle_1" in parameters.keys():
+            self.spinBox_tdc_crank_angle_1.setValue(parameters["tdc_crank_angle_1"])
 
         if "rotational_speed" in parameters.keys():
             self.doubleSpinBox_rotational_speed.setValue(parameters["rotational_speed"])
 
         if "capacity" in parameters.keys():
-            self.spinBox_capacity.setValue(int(parameters["capacity"]))
+            self.spinBox_capacity.setValue(parameters["capacity"])
 
         if "isentropic_exponent" in parameters.keys():
             self.lineEdit_isentropic_exponent.setText(str(parameters["isentropic_exponent"]))
@@ -448,16 +445,15 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         if "temperature_unit" in parameters.keys():
             self.comboBox_temperature_units.setCurrentText(parameters["temperature_unit"])
 
-        if "acting_label" in parameters.keys():
-            self.comboBox_cylinder_acting.setCurrentIndex(parameters["acting_label"])
+        if "acting_mode" in parameters.keys():
+            self.comboBox_cylinder_acting.setCurrentIndex(parameters["acting_mode"])
 
         if "number_of_cylinders" in parameters.keys():
-            if parameters["number_of_cylinders"] == 1:
-                self.spinBox_number_of_cylinders.setValue(1)
-            elif parameters["number_of_cylinders"] == 2:
-                self.spinBox_number_of_cylinders.setValue(2)
-                if "TDC_crank_angle_2" in parameters.keys():
-                    self.spinBox_tdc2_crank_angle.setValue(parameters["TDC_crank_angle_2"])
+            number_of_cylinders = parameters["number_of_cylinders"]
+            self.spinBox_number_of_cylinders.setValue(number_of_cylinders)
+            if number_of_cylinders == 2:
+                if "tdc_crank_angle_2" in parameters.keys():
+                    self.spinBox_tdc_crank_angle_2.setValue(parameters["tdc_crank_angle_2"])
 
         if "points_per_revolution" in parameters.keys():
             self.spinBox_number_of_points.setValue(int(parameters["points_per_revolution"]))
@@ -474,7 +470,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
     def reset_entries(self):
 
-        self.comboBox_cylinder_acting.setCurrentIndex(CylindersActingSetup.BOTH_ENDS)
+        self.comboBox_cylinder_acting.setCurrentIndex(CylindersActingMode.BOTH_ENDS)
         self.comboBox_stage.setCurrentText("First stage")
         self.comboBox_pressure_units.setCurrentText("kgf/cm² (a)")
         self.comboBox_temperature_units.setCurrentText("°C")
@@ -492,8 +488,8 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.lineEdit_molar_mass.setText("")
 
         self.spinBox_number_of_cylinders.setValue(1)
-        self.spinBox_tdc1_crank_angle.setValue(0)
-        self.spinBox_tdc2_crank_angle.setValue(0)
+        self.spinBox_tdc_crank_angle_1.setValue(0)
+        self.spinBox_tdc_crank_angle_2.setValue(0)
         self.spinBox_capacity.setValue(100)
         self.doubleSpinBox_clearance_head_end.setValue(0)
         self.doubleSpinBox_clearance_crank_end.setValue(0)
@@ -502,10 +498,10 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
     def check_node_id(self, lineEdit: QLineEdit):
         
         stop, node_id = self.before_run.check_selected_ids(
-                                                            lineEdit.text(), 
-                                                            "nodes", 
-                                                            single_id=True
-                                                           )
+            lineEdit.text(), 
+            "nodes", 
+            single_id = True,
+            )
 
         if stop:
             return True, None
@@ -514,7 +510,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         if len(neigh_elements) == 1:
             return stop, node_id
-        
+
         else:
             self.hide()
             title = "Invalid node selected"
@@ -563,7 +559,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         for line_edit in line_edits:
             if line_edit.text() == "":
                 if line_edit == self.lineEdit_rod_diameter:
-                    if self.comboBox_cylinder_acting.currentIndex() == CylindersActingSetup.HEAD_END:
+                    if self.comboBox_cylinder_acting.currentIndex() == CylindersActingMode.HEAD_END:
                         continue
 
                 line_edit.setFocus()
@@ -578,21 +574,21 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             key = line_edit.objectName().split("lineEdit_")[1]
             self.parameters[key] = float(line_edit.text())
 
-        self.parameters['acting_label'] = self.comboBox_cylinder_acting.currentIndex()
+        self.parameters['acting_mode'] = self.comboBox_cylinder_acting.currentIndex()
         self.parameters['number_of_cylinders'] = self.spinBox_number_of_cylinders.value()
         self.parameters['compression_stage'] = self.comboBox_stage.currentIndex() + 1
         self.parameters['clearance_HE'] = self.doubleSpinBox_clearance_head_end.value()
         self.parameters['clearance_CE'] = self.doubleSpinBox_clearance_crank_end.value()
-        self.parameters['TDC_crank_angle_1'] = self.spinBox_tdc1_crank_angle.value()
+        self.parameters['tdc_crank_angle_1'] = self.spinBox_tdc_crank_angle_1.value()
         self.parameters['rotational_speed'] = self.doubleSpinBox_rotational_speed.value()
         self.parameters['capacity'] = self.spinBox_capacity.value()
         self.parameters['pressure_unit'] = self.comboBox_pressure_units.currentText()
         self.parameters['temperature_unit'] = self.comboBox_temperature_units.currentText()
 
         if self.parameters['number_of_cylinders'] > 1:
-            self.parameters['TDC_crank_angle_2'] = self.spinBox_tdc2_crank_angle.value()
+            self.parameters['tdc_crank_angle_2'] = self.spinBox_tdc_crank_angle_2.value()
         else:
-            self.parameters['TDC_crank_angle_2'] = None
+            self.parameters['tdc_crank_angle_2'] = None
 
         if check_all_entries:
             self.compressor = ReciprocatingCompressorModel(**self.parameters)
@@ -884,7 +880,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
     def spinBox_event_number_of_cylinders(self):
         one_cylinder = self.spinBox_number_of_cylinders.value() == 1
-        self.spinBox_tdc2_crank_angle.setDisabled(one_cylinder)
+        self.spinBox_tdc_crank_angle_2.setDisabled(one_cylinder)
 
     def comboBox_event_frequency_resolution(self):
         if self.aquisition_parameters_processed:
