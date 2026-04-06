@@ -45,7 +45,7 @@ from ._model_info_text import (
 class AnalysisMode(Enum):
     EMPTY = auto()
     STRESS = auto()
-    PRESURE = auto()
+    PRESSURE = auto()
     DISPLACEMENT = auto()
 
 
@@ -147,7 +147,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 self.current_phase_step,
             )
 
-        elif self.analysis_mode == AnalysisMode.PRESURE:
+        elif self.analysis_mode == AnalysisMode.PRESSURE:
 
             if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
                 unit_label = "Unit: [Pa]"
@@ -165,7 +165,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             color_table = ColorTable([], [0, 0], self.colormap)
             self.colorbar_actor.VisibilityOff()
 
-        acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
+        acoustic_plot = (self.analysis_mode == AnalysisMode.PRESSURE)
 
         self.lines_actor = ElementLinesActor(show_deformed=deformed)
         self.nodes_actor = NodesActor(show_deformed=deformed)
@@ -332,7 +332,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         self.current_frequency_index = frequency_index
         self.current_phase_step = 0
-        self.analysis_mode = AnalysisMode.PRESURE
+        self.analysis_mode = AnalysisMode.PRESSURE
 
         self._reset_min_max_values()
         tmp = get_max_min_values_of_pressures(solution, frequency_index)
