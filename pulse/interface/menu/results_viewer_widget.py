@@ -147,7 +147,7 @@ class ResultsViewerWidget(LeftMenuWidget_UI):
         self.add_widget(widget)
 
     def plot_perforated_plate_convergence_data(self):
-        app().project.acoustic_solver.xy_plot.show()
+        app().project.acoustic_solver.plot_2d.show()
 
     def add_reciprocating_compressor_pulsation_criteria_widget(self):
         self.configure_render_according_to_plot_type("nodes")

@@ -1,24 +1,39 @@
-# fmt: off
-
 from PySide6.QtWidgets import QDialog, QToolButton, QVBoxLayout, QWidget
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.plots.graphs.plot_xy_widget_ui import PlotXyWidget_UI
+# from pulse.interface.ui_generated.plots.graphs.plot_2d_widget_ui import PlotXyWidget_UI
+from pulse.interface.ui_generated.plots.graphs.plot_2d_dialog_ui import Plot2dDialog_UI
 from pulse.interface.formatters import icons
 
-
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
-from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
-
+# import matplotlib
 # matplotlib.use('Qt5Agg')
+
+import matplotlib.pyplot as plt
+import numpy as np
+from dataclasses import dataclass, field
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
+
 plt.rcParams.update({'font.size': 10})
 
 
-class MplCanvas(PlotXyWidget_UI):
+@dataclass
+class PlotSettings:
+    number_of_plots: int = 1
+    legends : list = field(default_factory=list())
+    title : str = ""
+    x_label : str = ""
+    y_label : str = ""
+    line_styles : str = "-"
+    colors : tuple = field(default_factory=(0,0,1))
+    markers : str | None = None
+    marker_size : int = 5
 
+
+class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None, width=5, height=4, dpi=None, secondary_axis=False):
         fig = Figure()#(figsize=(width+5, height+5), dpi=dpi)
         self.ax_left = fig.add_subplot(111)
@@ -27,26 +42,18 @@ class MplCanvas(PlotXyWidget_UI):
         fig.set_tight_layout(True)
         super(MplCanvas, self).__init__(fig)
 
-class XYPlot(QWidget):
 
-    def __init__(self, plot_config: dict, **kwargs):
+class Plot2DSimplified(Plot2dDialog_UI):
+
+    def __init__(self, plot_config: PlotSettings, **kwargs):
         super().__init__()
         app().main_window.set_input_widget(self)
         app().main_window.theme_changed.connect(self.paint_toolbar_icons)
 
-        self.dialog = kwargs.get("dialog", None)
-
-        self.number_of_plots = plot_config.get("number_of_plots", 1)
-        self.x_label = plot_config.get("x_label", "")
-        self.y_label = plot_config.get("y_label", "")
-        self.title = plot_config.get("title", "")
-        self.legends = plot_config.get("legends", list())
-        self.colors = plot_config.get("colors", (0,0,1))
-        self.line_styles = plot_config.get("line_styles", "-")
-        self.markers = plot_config.get("markers", None)
+        self.plot_config = plot_config
 
         self._config_window()
-        self._initialize_canvas()
+        self._create_connections()
         self._add_plots_to_widget()
         self._create_plots()
         self._configure_plots()
@@ -56,34 +63,37 @@ class XYPlot(QWidget):
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
+    
+    def _create_connections(self):
+        self.pushButton_exit.clicked.connect(self.close)
 
-    def _initialize_canvas(self):
+    def _add_plots_to_widget(self):
+
         self.plots = list()
         self.results_plot = MplCanvas(self, width=8, height=6, dpi=110, secondary_axis=False)
 
-    def _add_plots_to_widget(self):
-        if self.layout() is None:
+        if self.plot_2d_widget.layout() is None:
             toolbar = NavigationToolbar2QT(self.results_plot, self)
             self.paint_toolbar_for_current_mpl(toolbar, self.results_plot)
             #
             layout = QVBoxLayout()
             layout.addWidget(toolbar)
             layout.addWidget(self.results_plot)
-            self.setLayout(layout)
+            self.plot_2d_widget.setLayout(layout)
 
     def _create_plots(self):
 
-        for i in range(self.number_of_plots):
+        for i in range(self.plot_config.number_of_plots):
             plot_i, = self.results_plot.ax_left.plot(
-                                                     [], 
-                                                     [], 
-                                                     color = self.colors[i], 
-                                                     linewidth = 1, 
-                                                     linestyle = self.line_styles[i], 
-                                                     marker = self.markers[i], 
-                                                     markersize = 5, 
-                                                     markerfacecolor = self.colors[i]
-                                                     )
+                [],
+                [],
+                color = self.plot_config.colors[i],
+                linewidth = 1,
+                linestyle = self.plot_config.line_styles[i],
+                marker = self.plot_config.markers[i],
+                markersize = 5, 
+                markerfacecolor = self.plot_config.colors[i],
+                )
 
             self.plots.append(plot_i)
 
@@ -91,12 +101,18 @@ class XYPlot(QWidget):
         self.results_plot.draw()
 
     def _configure_plots(self):
-        self.results_plot.ax_left.set_xlabel(self.x_label)
-        self.results_plot.ax_left.set_ylabel(self.y_label)
-        self.results_plot.ax_left.set_title(self.title)
-        self.results_plot.ax_left.legend(self.plots, self.legends, loc="upper right")
+        self.results_plot.ax_left.set_xlabel(self.plot_config.x_label)
+        self.results_plot.ax_left.set_ylabel(self.plot_config.y_label)
+        self.results_plot.ax_left.set_title(self.plot_config.title)
+        self.results_plot.ax_left.legend(self.plots, self.plot_config.legends, loc="upper right")
 
-    def set_plot_data(self, x_data, y_data, plot_index: int, axes_limits: (list | tuple | str)):
+    def set_plot_data(
+            self, 
+            x_data: np.ndarray, 
+            y_data: np.ndarray, 
+            plot_index: int, 
+            axes_limits: (list | tuple | str),
+            ):
 
         self.plots[plot_index].set_data(x_data, y_data)
 
@@ -136,8 +152,6 @@ class XYPlot(QWidget):
             icons.change_icon_color_for_widgets(buttons, color)
 
     def closeEvent(self, a0):
-        if isinstance(self.dialog, QDialog):
-            app().main_window.set_input_widget(self.dialog)
         return super().closeEvent(a0)
 
     # def create_convergence_plots(self):
@@ -173,7 +187,7 @@ class XYPlot(QWidget):
 
     # def initialize_xy_plotter(self):
 
-    #     from pulse.interface.user_input.plots.general.xy_plot import XYPlot
+    #     from pulse.interface.user_input.plots.general.xy_plot import Plot2DSimplified
 
     #     legends = [f'Target: {self.target*100}%', "Pressure residues", "Delta pressure residues"]
 
@@ -187,7 +201,7 @@ class XYPlot(QWidget):
     #                     "title" : "Perforated plate convergence plot"
     #                     }
 
-    #     self.xy_plot = XYPlot(plots_config)
+    #     self.xy_plot = Plot2DSimplified(plots_config)
     #     self.xy_plot.show()
 
     # def create_convergence_plots(self):
@@ -242,5 +256,3 @@ class XYPlot(QWidget):
     #         self.third_plot.set_ydata(self.deltaP_errors)
 
     #     self.plt.draw()
-
-# fmt: on

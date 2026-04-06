@@ -9,6 +9,7 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     TemperatureUnits,
     pressure_units_labels,
     temperature_units_labels,
+    convert_pressure_unit,
 )
 from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
@@ -20,6 +21,7 @@ from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs
 
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import CylindersActingMode, ReciprocatingPumpModel
+from pulse.interface.user_input.plots.general.plot_2d_simplified import PlotSettings, Plot2DSimplified 
 
 import numpy as np
 from enum import IntEnum
@@ -791,14 +793,6 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         if self.aquisition_parameters_processed:
             self.process_aquisition_parameters()
 
-    def initialize_xy_plotter(self):
-
-
-        legends = [f'Target: {self.target*100}%', "Pressure residues", "Delta pressure residues"]
-
-
-        # self.xy_plot.show()
-
     def plot_PV_diagram_head_end(self):
 
         if self.check_all_parameters():
@@ -807,40 +801,36 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
 
-        self.pump_model.plot_PV_diagram_head_end()
+        # self.pump_model.plot_PV_diagram_head_end()
 
         #TODO: check axes limits
-        # volume_HE, pressure_HE, _ = self.pump_model.process_head_end_volumes_and_pressures()
+        volume_HE_m3, pressure_HE_Pa, _ = self.pump_model.process_head_end_volumes_and_pressures()
+        if pressure_HE_Pa is None:
+            return
 
-        # if volume_HE is None:
-        #     return
+        # convert pressure units
+        pressure_unit = self.comboBox_pressure_units.currentText()
+        pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", pressure_unit)
 
-        # kgf_cm2_to_Pa = 9.80665e4
-        # bar_to_Pa = 1e5
+        # define the plot settings
+        _plot_settings = {
+            "number_of_plots" : 1,
+            "legends" : ["head end"],
+            "title" : "P-V diagram (head end)",
+            "x_label" : "Volume [m³]",
+            "y_label" : f"Pressure [{self.pump_model.pressure_unit}]",
+            "line_styles" : ["--", "-", "-"],
+            "colors" : [(0,0,0), (0,0,1), (1,0,0)],
+            "markers" : [None, "o", "o"],
+            "marker_size" : 5,
+            }
 
-        # if self.pump_model.pressure_unit == "kgf/cm²":
-        #     pressure_HE /= kgf_cm2_to_Pa
-        # else:
-        #     pressure_HE /= bar_to_Pa
+        plot_settings = PlotSettings(**_plot_settings)
 
-        # x_label = "Volume [m³]"
-        # y_label = f"Pressure [{self.pump_model.pressure_unit}]"
-        # title = "P-V diagram (head end)"
-
-        # plots_config = {
-        #                 "number_of_plots" : 1,
-        #                 "x_label" : x_label,
-        #                 "y_label" : y_label,
-        #                 "colors" : [(0,0,0), (0,0,1), (1,0,0)],
-        #                 "line_styles" : ["--", "-", "-"],
-        #                 "markers" : [None, "o", "o"],
-        #                 "legends" : ["head end"],
-        #                 "title" : title
-        #                 }
-
-        # self.xy_plot = XYPlot(plots_config, dialog=self)
-        # self.xy_plot.set_plot_data(volume_HE, pressure_HE, 0, "auto")
-        # self.xy_plot.show()
+        # call the 2D plotter
+        self.plot_2d = Plot2DSimplified(plot_settings)
+        self.plot_2d.set_plot_data(volume_HE_m3, pressure_HE, 0, "auto")
+        self.plot_2d.exec()
 
     def plot_PV_diagram_crank_end(self):
         if self.check_all_parameters():
