@@ -58,6 +58,7 @@ class SetMaterialSimplified(SetMaterialSimplified_UI):
 
     def _create_connections(self):
         self.material_widget.pushButton_exit.clicked.connect(self.close)
+        self.material_widget.pushButton_reset_library.clicked.connect(self.reset_material_library_callback)
         self.tableWidget_material_data.currentCellChanged.connect(self.current_cell_changed)
 
     def _add_material_widget(self):
@@ -67,7 +68,8 @@ class SetMaterialSimplified(SetMaterialSimplified_UI):
 
     def reset_material_library_callback(self):
         self.hide()
-        self.material_widget.reset_library_callback()
+        if self.material_widget.reset_library_callback():
+            app().main_window.update_plots()
 
     def reset_selected_material_lineEdit(self):
         self.lineEdit_selected_name.setText("")

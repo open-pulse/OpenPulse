@@ -574,7 +574,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         # effects. It interprets the structural analysis and puts the meaningfull
         # data inside the correspondent nodes.
         # The return values are just extra information.
-        _, _, u_def, self._magnification_factor = get_structural_response(
+        _, _, u_def, self._magnification_factor, _ = get_structural_response(
             preprocessor,
             solution,
             frequency_index,
@@ -598,7 +598,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         preprocessor = project.model.preprocessor
         solution = project.get_structural_solution()
 
-        *_, self._magnification_factor = get_structural_response(
+        *_, self._magnification_factor, _delta = get_structural_response(
             preprocessor,
             solution,
             frequency_index,
@@ -607,7 +607,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         )
 
         stresses_data, self.min_max_stresses_values_current = get_stresses_to_plot(
-            phase_step=phase_step
+            phase_step=phase_step,
+            shift_phase = _delta,
         )
 
         min_max_values = (self.stress_min, self.stress_max)

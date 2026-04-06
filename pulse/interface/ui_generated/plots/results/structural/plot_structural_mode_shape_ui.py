@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'plot_structural_mode_shape.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -219,11 +219,11 @@ class Ui_Form(object):
         self.gridLayout_3.setContentsMargins(10, 2, 10, 2)
         self.treeWidget_frequencies = QTreeWidget(self.frame_4)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setText(1, u"Natural frequency [Hz]");
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font1);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font1);
+        __qtreewidgetitem.setText(1, u"Natural frequency [Hz]")
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font1)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font1)
         self.treeWidget_frequencies.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_frequencies.setObjectName(u"treeWidget_frequencies")
         self.treeWidget_frequencies.setMinimumSize(QSize(260, 0))
@@ -363,7 +363,7 @@ class Ui_Form(object):
 
         self.label_2.setText(QCoreApplication.translate("Form", u"Color scaling:", None))
         ___qtreewidgetitem = self.treeWidget_frequencies.headerItem()
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Mode", None));
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Mode", None))
 #if QT_CONFIG(tooltip)
         self.treeWidget_frequencies.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Select the mode shape to be plotted</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)

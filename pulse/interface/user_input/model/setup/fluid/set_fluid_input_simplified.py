@@ -72,7 +72,8 @@ class SetFluidInputSimplified(SetFluidInputSimplified_UI):
 
     def reset_fluid_library_callback(self):
         self.hide()
-        self.fluid_widget.reset_library_callback()
+        if self.fluid_widget.reset_library_callback():
+            app().main_window.update_plots()
 
     def reset_selected_fluid_lineEdit(self):
         self.lineEdit_selected_fluid_name.setText("")
@@ -86,24 +87,23 @@ class SetFluidInputSimplified(SetFluidInputSimplified_UI):
         if self.selected_column is None:
             return
 
-        item_0 = self.tableWidget_fluid_data.item(0, self.selected_column)
-        if item_0 is None:
+        item_name = self.tableWidget_fluid_data.item(0, self.selected_column)
+        if item_name is None:
             return
         else:
-            fluid_name = item_0.text()
-        
-        item_1 = self.tableWidget_fluid_data.item(1, self.selected_column)
-        if item_1 is None:
+            fluid_name = item_name.text()
+
+        item_id = self.tableWidget_fluid_data.item(1, self.selected_column)
+        if item_id is None:
             return
         else:
-            fluid_identifier = item_1.text()
+            fluid_identifier = item_id.text()
 
         self.lineEdit_selected_fluid_name.setText("")
-        self.lineEdit_fluid_identifier.setText("")
-
         if fluid_name != "":
             self.lineEdit_selected_fluid_name.setText(fluid_name)
 
+        self.lineEdit_fluid_identifier.setText("")
         if fluid_identifier != "":
             self.lineEdit_fluid_identifier.setText(fluid_identifier)
 

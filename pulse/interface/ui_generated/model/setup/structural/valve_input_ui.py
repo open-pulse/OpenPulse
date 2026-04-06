@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'valve_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -462,11 +462,11 @@ class Ui_Dialog(object):
         font3.setBold(False)
         font3.setItalic(False)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(2, font3);
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font2);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(2, font3)
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font2)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_valves_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_valves_info.setObjectName(u"treeWidget_valves_info")
         self.treeWidget_valves_info.setMinimumSize(QSize(0, 0))
@@ -699,9 +699,9 @@ class Ui_Dialog(object):
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_valve_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         ___qtreewidgetitem = self.treeWidget_valves_info.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Valve parameters", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Lines", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Name", None));
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Valve parameters", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Lines", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Name", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))

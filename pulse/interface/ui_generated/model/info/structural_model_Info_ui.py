@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'structural_model_Info.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -104,8 +104,8 @@ class Ui_dialog(object):
 
         self.treeWidget_nodal_loads = QTreeWidget(self.frame_2)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_nodal_loads.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_nodal_loads.setObjectName(u"treeWidget_nodal_loads")
         self.treeWidget_nodal_loads.setMinimumSize(QSize(280, 140))
@@ -120,8 +120,8 @@ class Ui_dialog(object):
 
         self.treeWidget_constrained_dof = QTreeWidget(self.frame_2)
         __qtreewidgetitem1 = QTreeWidgetItem()
-        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_constrained_dof.setHeaderItem(__qtreewidgetitem1)
         self.treeWidget_constrained_dof.setObjectName(u"treeWidget_constrained_dof")
         self.treeWidget_constrained_dof.setMinimumSize(QSize(280, 140))
@@ -132,8 +132,8 @@ class Ui_dialog(object):
 
         self.treeWidget_prescribed_dof = QTreeWidget(self.frame_2)
         __qtreewidgetitem2 = QTreeWidgetItem()
-        __qtreewidgetitem2.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem2.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem2.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem2.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_prescribed_dof.setHeaderItem(__qtreewidgetitem2)
         self.treeWidget_prescribed_dof.setObjectName(u"treeWidget_prescribed_dof")
         self.treeWidget_prescribed_dof.setMinimumSize(QSize(280, 140))
@@ -156,8 +156,8 @@ class Ui_dialog(object):
 
         self.treeWidget_masses = QTreeWidget(self.frame_2)
         __qtreewidgetitem3 = QTreeWidgetItem()
-        __qtreewidgetitem3.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem3.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem3.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem3.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_masses.setHeaderItem(__qtreewidgetitem3)
         self.treeWidget_masses.setObjectName(u"treeWidget_masses")
         self.treeWidget_masses.setMinimumSize(QSize(280, 140))
@@ -180,8 +180,8 @@ class Ui_dialog(object):
 
         self.treeWidget_springs = QTreeWidget(self.frame_2)
         __qtreewidgetitem4 = QTreeWidgetItem()
-        __qtreewidgetitem4.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem4.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem4.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem4.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_springs.setHeaderItem(__qtreewidgetitem4)
         self.treeWidget_springs.setObjectName(u"treeWidget_springs")
         self.treeWidget_springs.setMinimumSize(QSize(280, 140))
@@ -204,8 +204,8 @@ class Ui_dialog(object):
 
         self.treeWidget_dampers = QTreeWidget(self.frame_2)
         __qtreewidgetitem5 = QTreeWidgetItem()
-        __qtreewidgetitem5.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem5.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem5.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem5.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_dampers.setHeaderItem(__qtreewidgetitem5)
         self.treeWidget_dampers.setObjectName(u"treeWidget_dampers")
         self.treeWidget_dampers.setMinimumSize(QSize(280, 140))
@@ -380,26 +380,26 @@ class Ui_dialog(object):
         self.label_11.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Constrained dofs:</p></body></html>", None))
         self.label_10.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Prescribed dofs:</p></body></html>", None))
         ___qtreewidgetitem = self.treeWidget_nodal_loads.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("dialog", u"Loads", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("dialog", u"Loads", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("dialog", u"Nodes", None))
         ___qtreewidgetitem1 = self.treeWidget_constrained_dof.headerItem()
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("dialog", u"DOFs", None));
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
+        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("dialog", u"DOFs", None))
+        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("dialog", u"Nodes", None))
         ___qtreewidgetitem2 = self.treeWidget_prescribed_dof.headerItem()
-        ___qtreewidgetitem2.setText(1, QCoreApplication.translate("dialog", u"DOFs", None));
-        ___qtreewidgetitem2.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
+        ___qtreewidgetitem2.setText(1, QCoreApplication.translate("dialog", u"DOFs", None))
+        ___qtreewidgetitem2.setText(0, QCoreApplication.translate("dialog", u"Nodes", None))
         self.label_9.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Lumped masses:</p></body></html>", None))
         ___qtreewidgetitem3 = self.treeWidget_masses.headerItem()
-        ___qtreewidgetitem3.setText(1, QCoreApplication.translate("dialog", u"DOFs", None));
-        ___qtreewidgetitem3.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
+        ___qtreewidgetitem3.setText(1, QCoreApplication.translate("dialog", u"DOFs", None))
+        ___qtreewidgetitem3.setText(0, QCoreApplication.translate("dialog", u"Nodes", None))
         self.label_15.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Lumped springs:</p></body></html>", None))
         ___qtreewidgetitem4 = self.treeWidget_springs.headerItem()
-        ___qtreewidgetitem4.setText(1, QCoreApplication.translate("dialog", u"DOFs", None));
-        ___qtreewidgetitem4.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
+        ___qtreewidgetitem4.setText(1, QCoreApplication.translate("dialog", u"DOFs", None))
+        ___qtreewidgetitem4.setText(0, QCoreApplication.translate("dialog", u"Nodes", None))
         self.label_16.setText(QCoreApplication.translate("dialog", u"<html><head/><body><p align=\"center\">Lumped dampers:</p></body></html>", None))
         ___qtreewidgetitem5 = self.treeWidget_dampers.headerItem()
-        ___qtreewidgetitem5.setText(1, QCoreApplication.translate("dialog", u"DOFs", None));
-        ___qtreewidgetitem5.setText(0, QCoreApplication.translate("dialog", u"Nodes", None));
+        ___qtreewidgetitem5.setText(1, QCoreApplication.translate("dialog", u"DOFs", None))
+        ___qtreewidgetitem5.setText(0, QCoreApplication.translate("dialog", u"Nodes", None))
         self.label_14.setText(QCoreApplication.translate("dialog", u"Number of elements:", None))
         self.label_13.setText(QCoreApplication.translate("dialog", u"Number of nodes:", None))
     # retranslateUi

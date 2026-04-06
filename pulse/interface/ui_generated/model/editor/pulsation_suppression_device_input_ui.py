@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'pulsation_suppression_device_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -56,7 +56,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scroll_main = QWidget()
         self.scroll_main.setObjectName(u"scroll_main")
-        self.scroll_main.setGeometry(QRect(0, 0, 600, 688))
+        self.scroll_main.setGeometry(QRect(0, 0, 571, 688))
         self.gridLayout_8 = QGridLayout(self.scroll_main)
         self.gridLayout_8.setSpacing(4)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
@@ -495,15 +495,15 @@ class Ui_Dialog(object):
 
         self.gridLayout_11.addWidget(self.lineEdit_pipe3_diameter, 6, 3, 1, 1)
 
-        self.lineEdit_volume1_distance_2 = QLineEdit(self.frame_7)
-        self.lineEdit_volume1_distance_2.setObjectName(u"lineEdit_volume1_distance_2")
-        self.lineEdit_volume1_distance_2.setEnabled(False)
-        self.lineEdit_volume1_distance_2.setMinimumSize(QSize(100, 26))
-        self.lineEdit_volume1_distance_2.setMaximumSize(QSize(100, 26))
-        self.lineEdit_volume1_distance_2.setFont(font)
-        self.lineEdit_volume1_distance_2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_volume2_distance = QLineEdit(self.frame_7)
+        self.lineEdit_volume2_distance.setObjectName(u"lineEdit_volume2_distance")
+        self.lineEdit_volume2_distance.setEnabled(False)
+        self.lineEdit_volume2_distance.setMinimumSize(QSize(100, 26))
+        self.lineEdit_volume2_distance.setMaximumSize(QSize(100, 26))
+        self.lineEdit_volume2_distance.setFont(font)
+        self.lineEdit_volume2_distance.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_11.addWidget(self.lineEdit_volume1_distance_2, 2, 6, 1, 1)
+        self.gridLayout_11.addWidget(self.lineEdit_volume2_distance, 2, 6, 1, 1)
 
         self.label_45 = QLabel(self.frame_7)
         self.label_45.setObjectName(u"label_45")
@@ -765,26 +765,26 @@ class Ui_Dialog(object):
         self.gridLayout_7.addWidget(self.scrollArea, 0, 0, 1, 1)
 
         self.tabWidget_main.addTab(self.tab_setup, "")
-        self.tab_remove = QWidget()
-        self.tab_remove.setObjectName(u"tab_remove")
-        self.gridLayout_9 = QGridLayout(self.tab_remove)
+        self.tab_devices = QWidget()
+        self.tab_devices.setObjectName(u"tab_devices")
+        self.gridLayout_9 = QGridLayout(self.tab_devices)
         self.gridLayout_9.setObjectName(u"gridLayout_9")
-        self.frame_6 = QFrame(self.tab_remove)
+        self.frame_6 = QFrame(self.tab_devices)
         self.frame_6.setObjectName(u"frame_6")
         self.frame_6.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_6.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_10 = QGridLayout(self.frame_6)
         self.gridLayout_10.setObjectName(u"gridLayout_10")
-        self.pushButton_reset = QPushButton(self.frame_6)
-        self.pushButton_reset.setObjectName(u"pushButton_reset")
-        self.pushButton_reset.setMinimumSize(QSize(100, 28))
-        self.pushButton_reset.setMaximumSize(QSize(100, 28))
-        self.pushButton_reset.setFont(font)
-        self.pushButton_reset.setStyleSheet(u"")
-        self.pushButton_reset.setAutoDefault(False)
-        self.pushButton_reset.setFlat(False)
+        self.pushButton_edit = QPushButton(self.frame_6)
+        self.pushButton_edit.setObjectName(u"pushButton_edit")
+        self.pushButton_edit.setMinimumSize(QSize(100, 28))
+        self.pushButton_edit.setMaximumSize(QSize(100, 28))
+        self.pushButton_edit.setFont(font)
+        self.pushButton_edit.setStyleSheet(u"")
+        self.pushButton_edit.setAutoDefault(False)
+        self.pushButton_edit.setFlat(False)
 
-        self.gridLayout_10.addWidget(self.pushButton_reset, 0, 0, 1, 1)
+        self.gridLayout_10.addWidget(self.pushButton_edit, 0, 3, 1, 1)
 
         self.pushButton_remove = QPushButton(self.frame_6)
         self.pushButton_remove.setObjectName(u"pushButton_remove")
@@ -797,10 +797,32 @@ class Ui_Dialog(object):
 
         self.gridLayout_10.addWidget(self.pushButton_remove, 0, 1, 1, 1)
 
+        self.pushButton_reset = QPushButton(self.frame_6)
+        self.pushButton_reset.setObjectName(u"pushButton_reset")
+        self.pushButton_reset.setMinimumSize(QSize(100, 28))
+        self.pushButton_reset.setMaximumSize(QSize(100, 28))
+        self.pushButton_reset.setFont(font)
+        self.pushButton_reset.setStyleSheet(u"")
+        self.pushButton_reset.setAutoDefault(False)
+        self.pushButton_reset.setFlat(False)
+
+        self.gridLayout_10.addWidget(self.pushButton_reset, 0, 0, 1, 1)
+
+        self.pushButton_copy = QPushButton(self.frame_6)
+        self.pushButton_copy.setObjectName(u"pushButton_copy")
+        self.pushButton_copy.setMinimumSize(QSize(100, 28))
+        self.pushButton_copy.setMaximumSize(QSize(100, 28))
+        self.pushButton_copy.setFont(font)
+        self.pushButton_copy.setStyleSheet(u"")
+        self.pushButton_copy.setAutoDefault(False)
+        self.pushButton_copy.setFlat(False)
+
+        self.gridLayout_10.addWidget(self.pushButton_copy, 0, 2, 1, 1)
+
 
         self.gridLayout_9.addWidget(self.frame_6, 2, 0, 1, 1)
 
-        self.frame_9 = QFrame(self.tab_remove)
+        self.frame_9 = QFrame(self.tab_devices)
         self.frame_9.setObjectName(u"frame_9")
         self.frame_9.setMinimumSize(QSize(0, 40))
         self.frame_9.setFrameShape(QFrame.Shape.NoFrame)
@@ -836,9 +858,9 @@ class Ui_Dialog(object):
 
         self.gridLayout_9.addWidget(self.frame_9, 0, 0, 1, 1)
 
-        self.treeWidget_psd_info = QTreeWidget(self.tab_remove)
+        self.treeWidget_psd_info = QTreeWidget(self.tab_devices)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setText(0, u"PSD label");
+        __qtreewidgetitem.setText(0, u"PSD label")
         self.treeWidget_psd_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_psd_info.setObjectName(u"treeWidget_psd_info")
         self.treeWidget_psd_info.setMinimumSize(QSize(0, 240))
@@ -851,7 +873,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_9.addWidget(self.treeWidget_psd_info, 1, 0, 1, 1)
 
-        self.tabWidget_main.addTab(self.tab_remove, "")
+        self.tabWidget_main.addTab(self.tab_devices, "")
 
         self.gridLayout_6.addWidget(self.tabWidget_main, 0, 0, 1, 1)
 
@@ -998,15 +1020,17 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.pushButton_reset, self.pushButton_remove)
         QWidget.setTabOrder(self.pushButton_remove, self.lineEdit_selection)
         QWidget.setTabOrder(self.lineEdit_selection, self.treeWidget_psd_info)
-        QWidget.setTabOrder(self.treeWidget_psd_info, self.lineEdit_volume1_distance_2)
-        QWidget.setTabOrder(self.lineEdit_volume1_distance_2, self.lineEdit_volume1_distance)
+        QWidget.setTabOrder(self.treeWidget_psd_info, self.lineEdit_volume2_distance)
+        QWidget.setTabOrder(self.lineEdit_volume2_distance, self.lineEdit_volume1_distance)
 
         self.retranslateUi(Dialog)
 
         self.tabWidget_main.setCurrentIndex(0)
         self.comboBox_number_volumes.setCurrentIndex(0)
-        self.pushButton_reset.setDefault(False)
+        self.pushButton_edit.setDefault(False)
         self.pushButton_remove.setDefault(False)
+        self.pushButton_reset.setDefault(False)
+        self.pushButton_copy.setDefault(False)
         self.pushButton_exit.setDefault(False)
         self.pushButton_create_psd.setDefault(True)
 
@@ -1018,32 +1042,32 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
         self.label_12.setText(QCoreApplication.translate("Dialog", u"Device label:", None))
         self.lineEdit_device_label.setText("")
-        self.comboBox_tuned_filter.setItemText(0, QCoreApplication.translate("Dialog", u" disabled", None))
-        self.comboBox_tuned_filter.setItemText(1, QCoreApplication.translate("Dialog", u" double-tuned", None))
+        self.comboBox_tuned_filter.setItemText(0, QCoreApplication.translate("Dialog", u"disabled", None))
+        self.comboBox_tuned_filter.setItemText(1, QCoreApplication.translate("Dialog", u"double-tuned", None))
 
         self.label_7.setText(QCoreApplication.translate("Dialog", u"Pipe #2 connection:", None))
-        self.comboBox_connection_pipe.setItemText(0, QCoreApplication.translate("Dialog", u" pipe #1", None))
-        self.comboBox_connection_pipe.setItemText(1, QCoreApplication.translate("Dialog", u" pipe #2", None))
+        self.comboBox_connection_pipe.setItemText(0, QCoreApplication.translate("Dialog", u"pipe #1", None))
+        self.comboBox_connection_pipe.setItemText(1, QCoreApplication.translate("Dialog", u"pipe #2", None))
 
         self.label_rotation_angle_pipe2_unit.setText(QCoreApplication.translate("Dialog", u"[deg]", None))
-        self.comboBox_pipe1_connection.setItemText(0, QCoreApplication.translate("Dialog", u" radial type", None))
-        self.comboBox_pipe1_connection.setItemText(1, QCoreApplication.translate("Dialog", u" axial type", None))
+        self.comboBox_pipe1_connection.setItemText(0, QCoreApplication.translate("Dialog", u"radial type", None))
+        self.comboBox_pipe1_connection.setItemText(1, QCoreApplication.translate("Dialog", u"axial type", None))
 
         self.label_rotation_angle_pipe1_unit.setText(QCoreApplication.translate("Dialog", u"[deg]", None))
         self.label_rotation_plane.setText(QCoreApplication.translate("Dialog", u"Rotation plane:", None))
-        self.comboBox_number_volumes.setItemText(0, QCoreApplication.translate("Dialog", u" two volumes", None))
-        self.comboBox_number_volumes.setItemText(1, QCoreApplication.translate("Dialog", u" one volume", None))
+        self.comboBox_number_volumes.setItemText(0, QCoreApplication.translate("Dialog", u"two volumes", None))
+        self.comboBox_number_volumes.setItemText(1, QCoreApplication.translate("Dialog", u"one volume", None))
 
-        self.comboBox_pipe2_connection.setItemText(0, QCoreApplication.translate("Dialog", u" radial type", None))
-        self.comboBox_pipe2_connection.setItemText(1, QCoreApplication.translate("Dialog", u" axial type", None))
+        self.comboBox_pipe2_connection.setItemText(0, QCoreApplication.translate("Dialog", u"radial type", None))
+        self.comboBox_pipe2_connection.setItemText(1, QCoreApplication.translate("Dialog", u"axial type", None))
 
         self.label_5.setText(QCoreApplication.translate("Dialog", u"Device main axis:", None))
         self.label_volumes_spacing_unit.setText(QCoreApplication.translate("Dialog", u"[m]", None))
         self.label_volumes_connection.setText(QCoreApplication.translate("Dialog", u"Volumes connection:", None))
         self.label_20.setText("")
-        self.comboBox_volumes_connection.setItemText(0, QCoreApplication.translate("Dialog", u" pipe", None))
-        self.comboBox_volumes_connection.setItemText(1, QCoreApplication.translate("Dialog", u" pipe-plate", None))
-        self.comboBox_volumes_connection.setItemText(2, QCoreApplication.translate("Dialog", u" perf. plate", None))
+        self.comboBox_volumes_connection.setItemText(0, QCoreApplication.translate("Dialog", u"pipe", None))
+        self.comboBox_volumes_connection.setItemText(1, QCoreApplication.translate("Dialog", u"pipe-plate", None))
+        self.comboBox_volumes_connection.setItemText(2, QCoreApplication.translate("Dialog", u"perf. plate", None))
 
         self.label_2.setText(QCoreApplication.translate("Dialog", u"Number of volumes:", None))
         self.label_4.setText(QCoreApplication.translate("Dialog", u"Connection pipe:", None))
@@ -1053,12 +1077,12 @@ class Ui_Dialog(object):
         self.lineEdit_rotation_plane.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Orthogonal plane to the main axis</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.lineEdit_rotation_plane.setText("")
-        self.comboBox_main_axis.setItemText(0, QCoreApplication.translate("Dialog", u" x-axis (+)", None))
-        self.comboBox_main_axis.setItemText(1, QCoreApplication.translate("Dialog", u" y-axis (+)", None))
-        self.comboBox_main_axis.setItemText(2, QCoreApplication.translate("Dialog", u" z-axis (+)", None))
-        self.comboBox_main_axis.setItemText(3, QCoreApplication.translate("Dialog", u" x-axis (-)", None))
-        self.comboBox_main_axis.setItemText(4, QCoreApplication.translate("Dialog", u" y-axis (-)", None))
-        self.comboBox_main_axis.setItemText(5, QCoreApplication.translate("Dialog", u" z-axis (-)", None))
+        self.comboBox_main_axis.setItemText(0, QCoreApplication.translate("Dialog", u"x-axis (+)", None))
+        self.comboBox_main_axis.setItemText(1, QCoreApplication.translate("Dialog", u"y-axis (+)", None))
+        self.comboBox_main_axis.setItemText(2, QCoreApplication.translate("Dialog", u"z-axis (+)", None))
+        self.comboBox_main_axis.setItemText(3, QCoreApplication.translate("Dialog", u"x-axis (-)", None))
+        self.comboBox_main_axis.setItemText(4, QCoreApplication.translate("Dialog", u"y-axis (-)", None))
+        self.comboBox_main_axis.setItemText(5, QCoreApplication.translate("Dialog", u"z-axis (-)", None))
 
         self.label_tunned_filter.setText(QCoreApplication.translate("Dialog", u"Tuned filter:", None))
         self.label_rotation_angle_pipe2.setText(QCoreApplication.translate("Dialog", u"Rotation angle (pipe #2):", None))
@@ -1074,7 +1098,7 @@ class Ui_Dialog(object):
         self.lineEdit_pipe1_distance.setText(QCoreApplication.translate("Dialog", u"0.75", None))
         self.lineEdit_volume1_distance.setText(QCoreApplication.translate("Dialog", u"---", None))
         self.lineEdit_pipe3_diameter.setText(QCoreApplication.translate("Dialog", u"0.20", None))
-        self.lineEdit_volume1_distance_2.setText(QCoreApplication.translate("Dialog", u"---", None))
+        self.lineEdit_volume2_distance.setText(QCoreApplication.translate("Dialog", u"---", None))
         self.label_45.setText(QCoreApplication.translate("Dialog", u"distance [m]", None))
         self.lineEdit_pipe2_distance.setText(QCoreApplication.translate("Dialog", u"2.25", None))
         self.lineEdit_volume1_wall_thickness.setText(QCoreApplication.translate("Dialog", u"0.023", None))
@@ -1100,15 +1124,19 @@ class Ui_Dialog(object):
         self.lineEdit_connecting_coord_y.setText(QCoreApplication.translate("Dialog", u"0.000", None))
         self.lineEdit_connecting_coord_z.setText(QCoreApplication.translate("Dialog", u"0.000", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
-        self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
+        self.pushButton_edit.setText(QCoreApplication.translate("Dialog", u"Edit", None))
+        self.pushButton_edit.setProperty(u"status", "")
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
-        self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
+        self.pushButton_remove.setProperty(u"status", "")
+        self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
+        self.pushButton_copy.setText(QCoreApplication.translate("Dialog", u"Copy", None))
+        self.pushButton_copy.setProperty(u"status", "")
         self.label_11.setText(QCoreApplication.translate("Dialog", u"Selection label:", None))
         ___qtreewidgetitem = self.treeWidget_psd_info.headerItem()
-        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Lines", None));
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Connection point", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Connection type", None));
-        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))
+        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Lines", None))
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Connection point", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Connection type", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_devices), QCoreApplication.translate("Dialog", u"Devices", None))
         self.label_13.setText(QCoreApplication.translate("Dialog", u"Pulsation supression device preview", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"Pulsation suppression device editor", None))
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
@@ -1176,7 +1204,7 @@ class PulsationSuppressionDeviceInput_UI(QDialog, Ui_Dialog):
                                                                         - lineEdit_pipe1_distance: QLineEdit
                                                                         - lineEdit_volume1_distance: QLineEdit
                                                                         - lineEdit_pipe3_diameter: QLineEdit
-                                                                        - lineEdit_volume1_distance_2: QLineEdit
+                                                                        - lineEdit_volume2_distance: QLineEdit
                                                                         - label_45: QLabel
                                                                         - lineEdit_pipe2_distance: QLineEdit
                                                                         - lineEdit_volume1_wall_thickness: QLineEdit
@@ -1203,12 +1231,14 @@ class PulsationSuppressionDeviceInput_UI(QDialog, Ui_Dialog):
                                                                         - label_10: QLabel
                                                                         - lineEdit_connecting_coord_y: QLineEdit
                                                                         - lineEdit_connecting_coord_z: QLineEdit
-                                - tab_remove: QWidget
+                                - tab_devices: QWidget
                                     - (Layout): QGridLayout
                                             - frame_6: QFrame
                                                 - (Layout): QGridLayout
-                                                        - pushButton_reset: QPushButton
+                                                        - pushButton_edit: QPushButton
                                                         - pushButton_remove: QPushButton
+                                                        - pushButton_reset: QPushButton
+                                                        - pushButton_copy: QPushButton
                                             - frame_9: QFrame
                                                 - (Layout): QGridLayout
                                                         - lineEdit_selection: QLineEdit

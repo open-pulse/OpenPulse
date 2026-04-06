@@ -27,7 +27,7 @@ t0 = time()
 speed_of_sound = 331.2 # speed of sound at 0ºC
 density = 1.204
 air = Fluid('air', density, speed_of_sound)
-steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
+steel = Material(name='Steel', identifier=1, density=7860, elasticity_modulus=210e9, poisson_ratio=0.3)
 offset = [0.005, 0.005]
 element_type = 'pipe_1'
 cross_section = CrossSection(0.05, 0.008, offset_y = offset[0], offset_z = offset[1], poisson_ratio=steel.poisson_ratio)
