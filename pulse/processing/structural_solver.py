@@ -234,7 +234,10 @@ class StructuralSolver:
         self.warning_modal_prescribed_dofs = ""
 
         if isinstance(K, csr_matrix) and isinstance(M, csr_matrix):
+            Kadd_lump = K
+            Madd_lump = M
 
+        else:
             if self.model.preprocessor.stress_stiffening_enabled:
                 static_solution = self.static_analysis()
                 self.model.preprocessor.update_nodal_solution_info(np.real(static_solution))
@@ -245,10 +248,6 @@ class StructuralSolver:
 
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
             Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
-
-        else:
-            Kadd_lump = K
-            Madd_lump = M
 
         eigen_values, eigen_vectors = eigs(Kadd_lump, M=Madd_lump, k=modes, which=which, sigma=sigma_factor)
 
