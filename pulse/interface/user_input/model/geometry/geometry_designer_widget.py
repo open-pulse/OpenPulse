@@ -356,13 +356,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             return
 
         self._reset_xyz()
-        self.pipeline.dismiss()
-        self.pipeline.add_structure_length(
-            self.current_options.structure_type,
-            length,
-            **kwargs,
-        )
-
+        self.current_options.length_callback(length)
         self._update_permissions()
         self.render_widget.update_plot(reset_camera=False)
         self.update_zoom_to_fit_new_points()

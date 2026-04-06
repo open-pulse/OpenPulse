@@ -38,6 +38,27 @@ class StructureOptions:
         self.pipeline.clear_structure_selection()
         self.pipeline.add_structure_deltas(self.structure_type, xyz, **kwargs)
 
+    def length_callback(self, length: float):
+        if self.structure_type is None:
+            return
+
+        kwargs = self.get_kwargs()
+        if kwargs is None:
+            return        
+
+        if self.pipeline.staged_structures or self.pipeline.staged_points:
+            self.geometry_designer_widget.load_tmp_camera()
+        else:
+            self.geometry_designer_widget.save_tmp_camera()
+
+        self.pipeline.dismiss()
+        self.pipeline.clear_structure_selection()
+        self.pipeline.add_structure_length(
+            self.structure_type,
+            length,
+            **kwargs,
+        )
+
     def attach_callback(self):
         if self.structure_type is None:
             return
