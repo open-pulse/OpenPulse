@@ -724,6 +724,11 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         app().main_window.plot_lines_with_cross_sections()
         self.render_widget.set_info_text("")
 
+    def reject(self):
+        # QDialog.reject() calls hide() when Esc is pressed, which makes the
+        # widget disappear when embedded in a QStackedWidget. Override to no-op.
+        pass
+
     def showEvent(self, event):
         self._update_permissions()
 
