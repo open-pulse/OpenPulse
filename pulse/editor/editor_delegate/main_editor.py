@@ -65,23 +65,25 @@ class MainEditor(Editor):
         **kwargs,
     ) -> list[t_structure]:
 
-        if len(self.pipeline.selected_points) != 1:
-            return list()
+        structures = list()
+        for point in self.pipeline.selected_points:
+            tangent_vectors = self.get_point_tangency(point)
 
-        point = self.pipeline.selected_points[0]
-        tangent_vectors = self.get_point_tangency(point)
+            if len(tangent_vectors) != 1:
+                continue
 
-        if len(tangent_vectors) != 1:
-            return list()
+            vector = tangent_vectors[0]
+            deltas = vector * length
+            structure = self._add_generic_linear_structure_to_point(
+                structure_type,
+                deltas,
+                point,
+                **kwargs,
+            )
+            structures.append(structure)
 
-        vector = tangent_vectors[0]
-        deltas = vector * length
-
-        return self._add_generic_linear_structure(
-            structure_type,
-            deltas,
-            **kwargs,
-        )
+        self.pipeline.main_editor._colapse_overloaded_bends()
+        return structures
 
     def add_pipe(self, deltas, **kwargs) -> list[Pipe]:
         return self._add_generic_linear_structure(Pipe, deltas, **kwargs)
@@ -310,7 +312,12 @@ class MainEditor(Editor):
 
         return structures
 
-    def _add_generic_linear_structure(self, structure_type: type[LinearStructure], deltas: tuple[float, float, float], **kwargs):
+    def _add_generic_linear_structure(
+        self,
+        structure_type: type[LinearStructure],
+        deltas: tuple[float, float, float],
+        **kwargs,
+    ):
         if not np.array(deltas).any():  # all zeros
             return list()
 
@@ -319,13 +326,23 @@ class MainEditor(Editor):
 
         structures = list()
         for point in self.pipeline.selected_points:
-            next_point = Point(*(point.coords() + deltas))
-            self.next_border.append(next_point)
-            structure = structure_type(point, next_point, **kwargs)
-            self.pipeline.add_structure(structure)
+            structure = self._add_generic_linear_structure_to_point(structure_type, deltas, point)
             structures.append(structure)
         self.pipeline.main_editor._colapse_overloaded_bends()
         return structures
+
+    def _add_generic_linear_structure_to_point(
+        self,
+        structure_type: type[LinearStructure],
+        deltas: tuple[float, float, float],
+        point: Point,
+        **kwargs,
+    ):
+        next_point = Point(*(point.coords() + deltas))
+        self.next_border.append(next_point)
+        structure = structure_type(point, next_point, **kwargs)
+        self.pipeline.add_structure(structure)
+        return structure
 
     def _colapse_overloaded_bends(self):
         """
