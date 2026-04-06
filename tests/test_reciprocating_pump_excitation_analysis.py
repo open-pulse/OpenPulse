@@ -1,5 +1,5 @@
-import os
 
+from pulse import TEMP_PROJECT_DIR
 from examples.example_file_helper import get_example_file_path
 from pulse.model import AnalysisID
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
@@ -7,13 +7,14 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
 from pulse.project.project import Project
 
+import os
 import pytest
 import numpy as np
 
 from pathlib import Path
 
 
-def test_reciprocating_pump_excitation_analysis(datadir: Path):
+def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
     ## Initialize a project
     project = Project()
     project.initialize_pulse_file_and_loader(dir_path=datadir)
@@ -162,7 +163,6 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path):
         model.properties._set_element_property("element_length_correction", data, element_ids)
 
     ## Apply the dofs prescriptions
-
     dofs_prescription_data = list()
 
     # campled nodes
@@ -327,37 +327,37 @@ def create_fluids():
 
     fluids = dict()
     fluids[1] = Fluid(  
-                      'water_discharge',
-                      1003.82244263,
-                      1592.49759889,
-                      identifier = 1,
-                      isentropic_exponent = 1.03559951,
-                      thermal_conductivity = 6.51065153e-01,
-                      specific_heat_Cp = 4110.65882430,
-                      dynamic_viscosity = 6.01700293e-04,
-                      temperature = 318.15,
-                      pressure = 3.23193250e+07,
-                      molar_mass  = 18.015268,
-                      adiabatic_bulk_modulus = 2545742502.755067,
-                      vapor_pressure = 9595.337826781679,
-                      color = [0, 170, 255]
-                      )
+        name = 'water_discharge',
+        identifier = 1,
+        density = 1003.82244263,
+        speed_of_sound = 1592.49759889,
+        isentropic_exponent = 1.03559951,
+        thermal_conductivity = 6.51065153e-01,
+        specific_heat_Cp = 4110.65882430,
+        dynamic_viscosity = 6.01700293e-04,
+        temperature = 318.15,
+        pressure = 3.23193250e+07,
+        molar_mass  = 18.015268,
+        adiabatic_bulk_modulus = 2545742502.755067,
+        vapor_pressure = 9595.337826781679,
+        color = [0, 170, 255]
+        )
 
     fluids[2] = Fluid(  
-                      'N2_discharge',
-                      292.28440365,
-                      500.45290389,
-                      identifier = 2,
-                      isentropic_exponent = 1.67039582,
-                      thermal_conductivity = 4.53652092e-02,
-                      specific_heat_Cp = 1322.24682798,
-                      dynamic_viscosity = 2.74922337e-05,
-                      temperature = 318.15,
-                      pressure = 3.23193250e+07,
-                      molar_mass  = 28.01348,
-                      adiabatic_bulk_modulus = 73203537.61198233,
-                      color = [255, 255, 0]
-                      )
+        name = 'N2_discharge',
+        identifier = 2,
+        density = 292.28440365,
+        speed_of_sound = 500.45290389,
+        isentropic_exponent = 1.67039582,
+        thermal_conductivity = 4.53652092e-02,
+        specific_heat_Cp = 1322.24682798,
+        dynamic_viscosity = 2.74922337e-05,
+        temperature = 318.15,
+        pressure = 3.23193250e+07,
+        molar_mass  = 28.01348,
+        adiabatic_bulk_modulus = 73203537.61198233,
+        color = [255, 255, 0]
+        )
 
     return fluids
 
@@ -366,61 +366,59 @@ def create_materials():
 
     materials = dict()
     materials[1] = Material(
-                            'stainless_steel', 
-                            7860, 
-                            identifier = 1, 
-                            elasticity_modulus = 210e9, 
-                            poisson_ratio = 0.3,
-                            thermal_expansion_coefficient = 1.2e-5,
-                            color = [253, 152, 145]
-                            )
+        name = 'stainless_steel', 
+        identifier = 1, 
+        density = 7860, 
+        elasticity_modulus = 210e9, 
+        poisson_ratio = 0.3,
+        thermal_expansion_coefficient = 1.2e-5,
+        color = [253, 152, 145]
+        )
 
     return materials
 
 
 def create_temporary_fluid_library(project: Project, fluids: dict):
 
-    from configparser import ConfigParser
-    config = ConfigParser()
+    fluid_data = dict()
 
     for fluid_id, fluid in fluids.items():
         fluid: Fluid
 
-        config[f"{fluid_id}"] = {
-                                 "name": fluid.name,
-                                 "identifier": fluid.identifier,
-                                 "pressure": fluid.pressure,
-                                 "temperature": fluid.temperature,
-                                 "density": fluid.density,
-                                 "speed_of_sound": fluid.speed_of_sound,
-                                 "isentropic_exponent": fluid.isentropic_exponent,
-                                 "thermal_conductivity": fluid.thermal_conductivity,
-                                 "dynamic_viscosity": fluid.dynamic_viscosity,
-                                 "molar_mass": fluid.molar_mass,
-                                 "color": fluid.color,
-                                 }
+        fluid_data[f"{fluid_id}"] = {
+            "name": fluid.name,
+            "identifier": fluid.identifier,
+            "pressure": fluid.pressure,
+            "temperature": fluid.temperature,
+            "density": fluid.density,
+            "speed_of_sound": fluid.speed_of_sound,
+            "isentropic_exponent": fluid.isentropic_exponent,
+            "thermal_conductivity": fluid.thermal_conductivity,
+            "dynamic_viscosity": fluid.dynamic_viscosity,
+            "molar_mass": fluid.molar_mass,
+            "color": fluid.color,
+            }
 
-    project.file.write_fluid_library_in_file(config)
+    project.file.write_fluid_library_in_file(fluid_data)
 
 
 def create_temporary_material_library(project: Project, materials: dict):
 
-    from configparser import ConfigParser
-    config = ConfigParser()
+    material_data = dict()
 
     for mat_id, material in materials.items():
         material: Material
-        config[f"{mat_id}"] = {
-                                "name": material.name,
-                                "identifier": material.identifier,
-                                "color": material.color,
-                                "density": material.density,
-                                "elasticity_modulus": material.elasticity_modulus / 1e9,
-                                "poisson_ratio": material.poisson_ratio,
-                                "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
-                                }
+        material_data[f"{mat_id}"] = {
+            "name": material.name,
+            "identifier": material.identifier,
+            "color": material.color,
+            "density": material.density,
+            "elasticity_modulus": material.elasticity_modulus / 1e9,
+            "poisson_ratio": material.poisson_ratio,
+            "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
+            }
 
-    project.file.write_material_library_in_file(config)
+    project.file.write_material_library_in_file(material_data)
 
 
 def get_reciprocating_pump_excitation(connection_type: str):
@@ -437,22 +435,22 @@ def get_reciprocating_pump_excitation(connection_type: str):
                   'pressure_ratio' : 1.90788804,
                   'clearance_HE' : 15.8,
                   'clearance_CE' : 18.39,
-                  'TDC_crank_angle_1' : 0,
+                  'tdc_crank_angle_1' : 0,
                   'rotational_speed' : 178,
                   'number_of_cylinders' : 5,
                   'acting_label' : 1,
-                  'pressure_at_suction' : 2.18 + 1.01325,
-                  'pressure_at_discharge' : 322.18 + 1.01325,
-                  'temperature_at_suction' : 45,
+                  'suction_pressure' : 2.18 + 1.01325,
+                  'discharge_pressure' : 322.18 + 1.01325,
+                  'suction_temperature' : 45,
                   'pressure_unit' : "bar",
                   'temperature_unit' : "°C",
-                  'bulk_modulus' : fluids[1].bulk_modulus
+                  'bulk_modulus' : fluids[1].bulk_modulus,
+                  'number_points' : 1000,
+                  'max_frequency' : 300,
                   }
 
-    pump_model = ReciprocatingPumpModel(parameters)
-
-    pump_model.number_points = 1000
-    pump_model.max_frequency = 300
+    pump_model = ReciprocatingPumpModel(**parameters)
+    pump_model.process_remaining_fluid_properties()
 
     T_rev = 60 / pump_model.rpm
     list_T = [10, 5, 4, 2, 1, 0.5]
@@ -521,3 +519,7 @@ def remove_files_from_temporary_folder():
                     remove(file_path)
                 else:
                     rmtree(file_path)
+
+
+if __name__ == "__main__":
+    test_reciprocating_pump_excitation_analysis()

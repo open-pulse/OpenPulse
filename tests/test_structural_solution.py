@@ -19,8 +19,15 @@ def current_model(datadir: Path):
     cross_section = CrossSection(pipe_section_info=pipe_section_info)
     cross_section.update_properties()
 
-    steel = Material('Steel', 7850, elasticity_modulus=200e9, poisson_ratio=0.3, identifier=1)
-    
+    # create a material object
+    steel = Material(
+        name = 'Steel', 
+        identifier = 1,
+        density = 7850, 
+        elasticity_modulus = 200e9, 
+        poisson_ratio = 0.3,
+        )
+
     # Initialize project
     project = Project()
     project.initialize_pulse_file_and_loader(dir_path=datadir)

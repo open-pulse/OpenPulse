@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'stress_stiffening_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -254,9 +254,9 @@ class Ui_Dialog(object):
         self.gridLayout_4.setContentsMargins(6, 6, 6, 6)
         self.treeWidget_stress_stiffening = QTreeWidget(self.tab_remove)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_stress_stiffening.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_stress_stiffening.setObjectName(u"treeWidget_stress_stiffening")
         self.treeWidget_stress_stiffening.setMinimumSize(QSize(0, 0))
@@ -348,9 +348,9 @@ class Ui_Dialog(object):
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_model), QCoreApplication.translate("Dialog", u"Model", None))
         ___qtreewidgetitem = self.treeWidget_stress_stiffening.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Internal pressure [Pa]", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"External pressure [Pa]", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Lines", None));
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Internal pressure [Pa]", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"External pressure [Pa]", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Lines", None))
 #if QT_CONFIG(tooltip)
         self.treeWidget_stress_stiffening.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p><span style=\" font-weight:400; font-style:normal;\">Select a group to remove the capped end attributed to lines</span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)

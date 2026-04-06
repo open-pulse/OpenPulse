@@ -21,14 +21,14 @@ def load_default_reciprocating_pump_setup(crank_angle = 0):
                   'rod_diameter' : 0.05,
                   'clearance_HE' : 15,
                   'clearance_CE' : 18,
-                  'TDC_crank_angle_1' : crank_angle,
+                  'tdc_crank_angle_1' : crank_angle,
                   'rotational_speed' : 178,
                   'number_of_cylinders' : 1,
                   'acting_label' : 0,
-                  'pressure_at_suction' : 2.18,
-                  'pressure_at_discharge' : 322.18,
-                  'temperature_at_suction' : 45,
-                  'temperature_at_discharge' : 45,
+                  'suction_pressure' : 2.18,
+                  'discharge_pressure' : 322.18,
+                  'suction_temperature' : 45,
+                  'discharge_temperature' : 45,
                   'pressure_unit' : "bar (g)",
                   'temperature_unit' : "°C",
                   'bulk_modulus' : 2541031616.236133
@@ -162,7 +162,7 @@ def test_discharge_flow_rate(smooth_data: bool=False):
     V_pos[mask] = np.zeros(sum(mask), dtype=float)
     dt = 1/ (f_rot * (N - 1))
 
-    dVt = np.trapz(V_pos, dx=dt)
+    dVt = np.trapezoid(V_pos, dx=dt)
 
     dV = dVt / reciprocating_pump.number_of_cylinders
 

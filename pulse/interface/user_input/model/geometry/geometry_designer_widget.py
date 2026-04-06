@@ -140,7 +140,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
     def _initialize(self):
         self.current_options: StructureOptions | None = None
         self.current_structure_type = None
-        self.current_material_info = None
+        self.current_material_id = None
 
         self.unity_changed_callback("meter")
         self.structure_type_changed_callback(PipeOptions.name())
@@ -240,7 +240,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.render_widget.update_plot(reset_camera=False)
 
     def define_material_callback(self):
-        self.current_material_info = self.material_widget.material_widget.get_selected_material_id()
+        self.current_material_id = self.material_widget.material_widget.get_selected_material_id()
         self.material_widget.close()
         self._update_material_of_selected_structures()
         self._update_permissions()
@@ -603,30 +603,30 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
                     app().project.model.properties._remove_line(tag)
 
         selected_device_type = None
-        selected_device_name = None
+        selected_device_label = None
 
         for structure in self.pipeline.structures:
-            if "psd_name" not in structure.extra_info and "pulsation_damper_name" not in structure.extra_info:
+            if "psd_label" not in structure.extra_info and "pulsation_damper_label" not in structure.extra_info:
                 continue
 
             if structure.selected:
-                if "psd_name" in structure.extra_info:
+                if "psd_label" in structure.extra_info:
                     selected_device_type = "psd"
-                    selected_device_name = structure.extra_info["psd_name"]
+                    selected_device_label = structure.extra_info["psd_label"]
                 else:
                     selected_device_type = "damper"
-                    selected_device_name = structure.extra_info["pulsation_damper_name"]
+                    selected_device_label = structure.extra_info["pulsation_damper_label"]
 
                 break
 
             for point in structure.get_points():
                 if point in self.pipeline.selected_points:
-                    if "psd_name" in structure.extra_info:
+                    if "psd_label" in structure.extra_info:
                         selected_device_type = "psd"
-                        selected_device_name = structure.extra_info["psd_name"]
+                        selected_device_label = structure.extra_info["psd_label"]
                     else:
                         selected_device_type = "damper"
-                        selected_device_name = structure.extra_info["pulsation_damper_name"]
+                        selected_device_label = structure.extra_info["pulsation_damper_label"]
 
                     break
 
@@ -653,10 +653,10 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
                 return
 
             if selected_device_type == "psd":
-                app().main_window.input_ui.pulsation_suppression_device_editor(device_to_delete=selected_device_name)
+                app().main_window.input_ui.pulsation_suppression_device_editor(device_to_delete=selected_device_label)
 
             elif selected_device_type == "damper":
-                app().main_window.input_ui.pulsation_damper_editor(device_to_delete=selected_device_name)
+                app().main_window.input_ui.pulsation_damper_editor(device_to_delete=selected_device_label)
 
         self._reset_xyz()
         self._update_permissions()
@@ -689,6 +689,11 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         app().main_window.use_model_setup_workspace()
 
     def finalize_callback(self):
+
+        # reset the model solution whenever the geometry changed
+        if self.modified:
+            app().main_window.reset_solution()
+
         self.modified = False
         self.pipeline.dismiss()
 
@@ -820,7 +825,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
 
     def _update_material_of_selected_structures(self):
         for structure in self.pipeline.selected_structures:
-            structure.extra_info["material_info"] = self.current_material_info
+            structure.extra_info["material_id"] = self.current_material_id
 
     def _update_bending_radius_of_selected_structures(self):
         if not isinstance(self.current_options, PipeOptions):
@@ -860,9 +865,9 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
 
         material_id = ""
         material = None
-        if self.current_material_info is not None:
-            material_id = self.current_material_info
-            material = self.material_widget.material_widget.library_materials[material_id]
+        if isinstance(self.current_material_id, int):
+            material_id = self.current_material_id
+            material = app().project.model.properties.materials_library.get(material_id)
 
         message = "Active configuration\n\n"
 
@@ -926,14 +931,14 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         for point in self.pipeline.selected_points:
             structures = self.pipeline.get_structures_of_point(point)
             for structure in structures:
-                if "psd_name" in structure.extra_info.keys():
+                if "psd_label" in structure.extra_info.keys():
                     line_properties = app().project.model.properties.line_properties
                     if structure.tag in line_properties:
                         psd_segment = line_properties[structure.tag].get("psd_segment")
                         if psd_segment in forbidden_parts:
                             return True
 
-                elif "pulsation_damper_name" in structure.extra_info.keys():
+                elif "pulsation_damper_label" in structure.extra_info.keys():
                     line_properties = app().project.model.properties.line_properties
                     if structure.tag in line_properties:
                         damper_segment = line_properties[structure.tag].get("pulsation_damper_segment")
