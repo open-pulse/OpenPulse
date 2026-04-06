@@ -890,7 +890,7 @@ class ReciprocatingPumpModel:
             return
 
         avg_flow_rate = np.average(flow_rate)
-        print(f"Average flow rate at suction: {round(avg_flow_rate, 6)} [m³/h]")
+        # print(f"Average flow rate at suction: {round(avg_flow_rate, 6)} [m³/h]")
 
         Trev = 60 / self.rpm
         N = len(flow_rate)
@@ -911,7 +911,7 @@ class ReciprocatingPumpModel:
             return
 
         avg_flow_rate = np.average(flow_rate)
-        print(f"Average flow rate at discharge: {round(avg_flow_rate, 6)} [m³/h]")
+        # print(f"Average flow rate at discharge: {round(avg_flow_rate, 6)} [m³/h]")
 
         Trev = 60 / self.rpm
         N = len(flow_rate)
@@ -1290,8 +1290,6 @@ if __name__ == "__main__":
 
     pump = ReciprocatingPumpModel(**parameters)
     pump.process_remaining_fluid_properties()
-
-    print(pump.__dict__)
 
     pump.number_points = 3600
     # pump.plot_rod_pressure_load_frequency(6)

@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
+from matplotlib.lines import Line2D
 
 plt.rcParams.update({'font.size': 10})
 
@@ -23,14 +24,15 @@ plt.rcParams.update({'font.size': 10})
 @dataclass
 class PlotSettings:
     number_of_plots: int = 1
-    legends : list = field(default_factory=list())
+    legends : list = field(default_factory=[""])
     title : str = ""
     x_label : str = ""
     y_label : str = ""
-    line_styles : str = "-"
+    line_styles : list = field(default_factory=["-"])
+    line_widths : list = field(default_factory=[2])
     colors : tuple = field(default_factory=(0,0,1))
-    markers : str | None = None
-    marker_size : int = 5
+    markers : list = field(default_factory=[None])
+    marker_sizes : list = field(default_factory=[5])
 
 
 class MplCanvas(FigureCanvasQTAgg):
@@ -83,15 +85,17 @@ class Plot2DSimplified(Plot2dDialog_UI):
 
     def _create_plots(self):
 
+        self.plots: list[Line2D]
+
         for i in range(self.plot_config.number_of_plots):
             plot_i, = self.results_plot.ax_left.plot(
                 [],
                 [],
                 color = self.plot_config.colors[i],
-                linewidth = 1,
+                linewidth = self.plot_config.line_widths[i],
                 linestyle = self.plot_config.line_styles[i],
                 marker = self.plot_config.markers[i],
-                markersize = 5, 
+                markersize = self.plot_config.marker_sizes[i], 
                 markerfacecolor = self.plot_config.colors[i],
                 )
 
@@ -116,6 +120,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
 
         self.plots[plot_index].set_data(x_data, y_data)
 
+        # TODO: try to find a solution to better adjust the axes limits
         if isinstance(axes_limits, (list | tuple)):
             xlim, ylim = axes_limits
 

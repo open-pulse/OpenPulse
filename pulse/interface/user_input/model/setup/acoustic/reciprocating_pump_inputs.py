@@ -818,11 +818,12 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             "legends" : ["head end"],
             "title" : "P-V diagram (head end)",
             "x_label" : "Volume [m³]",
-            "y_label" : f"Pressure [{self.pump_model.pressure_unit}]",
-            "line_styles" : ["--", "-", "-"],
-            "colors" : [(0,0,0), (0,0,1), (1,0,0)],
-            "markers" : [None, "o", "o"],
-            "marker_size" : 5,
+            "y_label" : f"Pressure [{pressure_unit}]",
+            "line_styles" : ["-"],
+            "line_widths" : [1.5],
+            "colors" : [(0,0,1)],
+            "markers" : [None],
+            "marker_sizes" : [5],
             }
 
         plot_settings = PlotSettings(**_plot_settings)
