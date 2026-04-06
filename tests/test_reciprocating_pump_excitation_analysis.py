@@ -163,7 +163,6 @@ def test_reciprocating_pump_excitation_analysis(datadir: Path=TEMP_PROJECT_DIR):
         model.properties._set_element_property("element_length_correction", data, element_ids)
 
     ## Apply the dofs prescriptions
-
     dofs_prescription_data = list()
 
     # campled nodes
@@ -445,13 +444,13 @@ def get_reciprocating_pump_excitation(connection_type: str):
                   'suction_temperature' : 45,
                   'pressure_unit' : "bar",
                   'temperature_unit' : "°C",
-                  'bulk_modulus' : fluids[1].bulk_modulus
+                  'bulk_modulus' : fluids[1].bulk_modulus,
+                  'number_points' : 1000,
+                  'max_frequency' : 300,
                   }
 
-    pump_model = ReciprocatingPumpModel(parameters)
-
-    pump_model.number_points = 1000
-    pump_model.max_frequency = 300
+    pump_model = ReciprocatingPumpModel(**parameters)
+    pump_model.process_remaining_fluid_properties()
 
     T_rev = 60 / pump_model.rpm
     list_T = [10, 5, 4, 2, 1, 0.5]
@@ -520,3 +519,7 @@ def remove_files_from_temporary_folder():
                     remove(file_path)
                 else:
                     rmtree(file_path)
+
+
+if __name__ == "__main__":
+    test_reciprocating_pump_excitation_analysis()
