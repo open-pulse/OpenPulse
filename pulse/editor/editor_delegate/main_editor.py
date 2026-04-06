@@ -82,7 +82,6 @@ class MainEditor(Editor):
             )
             structures.append(structure)
 
-        self.pipeline.main_editor._colapse_overloaded_bends()
         return structures
 
     def add_pipe(self, deltas, **kwargs) -> list[Pipe]:
