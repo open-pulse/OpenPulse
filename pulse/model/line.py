@@ -1,4 +1,4 @@
-# from pulse.properties.material import Material
+# from pulse.model.properties.material import Material
 
 class Line:
     """A entity class.
