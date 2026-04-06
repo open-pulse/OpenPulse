@@ -830,7 +830,7 @@ class ElasticNodalLinksInput(ElasticNodalLinksInput_UI):
         
         self.hide()
 
-        title = "Resetting of structural links"
+        title = "Reseting of structural links"
         message = "Would you like to remove all structural links from the structural model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mass_spring_damper_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -1570,8 +1570,8 @@ class Ui_Dialog(object):
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.treeWidget_masses = QTreeWidget(self.tab_mass_remove)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_masses.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_masses.setObjectName(u"treeWidget_masses")
         self.treeWidget_masses.setMinimumSize(QSize(280, 0))
@@ -1591,8 +1591,8 @@ class Ui_Dialog(object):
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.treeWidget_springs = QTreeWidget(self.tab_spring_remove)
         __qtreewidgetitem1 = QTreeWidgetItem()
-        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_springs.setHeaderItem(__qtreewidgetitem1)
         self.treeWidget_springs.setObjectName(u"treeWidget_springs")
         self.treeWidget_springs.setMinimumSize(QSize(280, 0))
@@ -1609,8 +1609,8 @@ class Ui_Dialog(object):
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.treeWidget_dampers = QTreeWidget(self.tab_damper_remove)
         __qtreewidgetitem2 = QTreeWidgetItem()
-        __qtreewidgetitem2.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem2.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem2.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem2.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_dampers.setHeaderItem(__qtreewidgetitem2)
         self.treeWidget_dampers.setObjectName(u"treeWidget_dampers")
         self.treeWidget_dampers.setMinimumSize(QSize(280, 0))
@@ -1866,16 +1866,16 @@ class Ui_Dialog(object):
         self.checkBox_remove_damper.setText(QCoreApplication.translate("Dialog", u"Damper (translational/torsional)", None))
         self.tabWidget_remove.setTabText(self.tabWidget_remove.indexOf(self.tab_multiple_remove), QCoreApplication.translate("Dialog", u"Multiple", None))
         ___qtreewidgetitem = self.treeWidget_masses.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None))
         self.tabWidget_remove.setTabText(self.tabWidget_remove.indexOf(self.tab_mass_remove), QCoreApplication.translate("Dialog", u"Mass", None))
         ___qtreewidgetitem1 = self.treeWidget_springs.headerItem()
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None));
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None));
+        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None))
+        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None))
         self.tabWidget_remove.setTabText(self.tabWidget_remove.indexOf(self.tab_spring_remove), QCoreApplication.translate("Dialog", u"Spring", None))
         ___qtreewidgetitem2 = self.treeWidget_dampers.headerItem()
-        ___qtreewidgetitem2.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None));
-        ___qtreewidgetitem2.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None));
+        ___qtreewidgetitem2.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None))
+        ___qtreewidgetitem2.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None))
         self.tabWidget_remove.setTabText(self.tabWidget_remove.indexOf(self.tab_damper_remove), QCoreApplication.translate("Dialog", u"Damper", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))

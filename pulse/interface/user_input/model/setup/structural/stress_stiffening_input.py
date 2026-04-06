@@ -230,7 +230,7 @@ class StressStiffeningInput(StressStiffeningInput_UI):
 
         self.hide()
 
-        title = "Resetting of stress stiffenings"
+        title = "Reseting of stress stiffenings"
         message = "Would you like to remove the stress stiffenings from the structural model?"
 
         buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}

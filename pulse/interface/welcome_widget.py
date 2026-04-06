@@ -1,11 +1,11 @@
 from PySide6.QtCore import QSize, Qt, Signal, QByteArray
 from PySide6.QtGui import QIcon, QImage, QPixmap
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget, QBoxLayout
-from fileboxes import Filebox
-
 from pulse import app, EXAMPLES_DIR, ICON_DIR
 
 import io
+import logging
+import zipfile
 from PIL import Image, ImageDraw, ImageFont
 
 from functools import partial
@@ -85,9 +85,13 @@ class WelcomeWidget(QWidget):
             thumbnail = None
             icon = None
 
-            with Filebox(path, override=False) as fb:
-                if "thumbnail.png" in fb:
-                    thumbnail = fb.read("thumbnail.png")
+            try:
+                with zipfile.ZipFile(path, "r") as zf:
+                    if "thumbnail.png" in zf.namelist():
+                        with zf.open("thumbnail.png") as f:
+                            thumbnail = Image.open(f).copy()
+            except (zipfile.BadZipFile, IOError, OSError) as e:
+                logging.warning(f"Could not read thumbnail from {path}: {e}")
 
             if thumbnail is not None:
                 bytes = io.BytesIO()
@@ -136,9 +140,13 @@ class WelcomeWidget(QWidget):
             thumbnail = None
             icon = None
 
-            with Filebox(path, override=False) as fb:
-                if "thumbnail.png" in fb:
-                    thumbnail = fb.read("thumbnail.png")
+            try:
+                with zipfile.ZipFile(path, "r") as zf:
+                    if "thumbnail.png" in zf.namelist():
+                        with zf.open("thumbnail.png") as f:
+                            thumbnail = Image.open(f).copy()
+            except (zipfile.BadZipFile, IOError, OSError) as e:
+                logging.warning(f"Could not read thumbnail from {path}: {e}")
 
             if thumbnail is not None:
                 bytes = io.BytesIO()

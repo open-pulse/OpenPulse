@@ -1,5 +1,3 @@
-# fmt: off
-
 import numpy as np
 from vtkmodules.vtkCommonCore import vtkLookupTable
 from vtkmodules.vtkRenderingCore import vtkColorTransferFunction
@@ -98,8 +96,8 @@ class ColorTable(vtkLookupTable):
     def get_element_color(self, element):
 
         index = element.index
-        key1 = element.first_node.global_index
-        key2 = element.last_node.global_index
+        first_gid = element.first_node.global_index
+        last_gid = element.last_node.global_index
 
         if self.is_empty():
             return [255, 255, 255]
@@ -117,15 +115,13 @@ class ColorTable(vtkLookupTable):
                 return [255, 255, 255]
             elif element.turned_off:
                 return [255, 255, 255]
-            else:
-                value = (self.valueVector[key1] + self.valueVector[key2]) / 2
+
+            value = (self.valueVector[first_gid] + self.valueVector[last_gid]) / 2
 
         else:
-            value = (self.valueVector[key1] + self.valueVector[key2]) / 2
+            value = (self.valueVector[first_gid] + self.valueVector[last_gid]) / 2
 
         self.GetColor(value, color_temp)
         color_temp = [int(i * 255) for i in color_temp]
 
         return color_temp
-
-# fmt: on

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'beam_criteria_assistant.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -165,9 +165,9 @@ class Ui_Dialog(object):
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.treeWidget_sections_parameters_by_lines = QTreeWidget(self.frame_3)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_sections_parameters_by_lines.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_sections_parameters_by_lines.setObjectName(u"treeWidget_sections_parameters_by_lines")
         self.treeWidget_sections_parameters_by_lines.setMinimumSize(QSize(0, 100))
@@ -216,10 +216,10 @@ class Ui_Dialog(object):
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.treeWidget_non_beam_segments = QTreeWidget(self.frame_5)
         __qtreewidgetitem1 = QTreeWidgetItem()
-        __qtreewidgetitem1.setTextAlignment(3, Qt.AlignCenter);
-        __qtreewidgetitem1.setTextAlignment(2, Qt.AlignCenter);
-        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem1.setTextAlignment(3, Qt.AlignCenter)
+        __qtreewidgetitem1.setTextAlignment(2, Qt.AlignCenter)
+        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_non_beam_segments.setHeaderItem(__qtreewidgetitem1)
         self.treeWidget_non_beam_segments.setObjectName(u"treeWidget_non_beam_segments")
         self.treeWidget_non_beam_segments.setMinimumSize(QSize(0, 100))
@@ -302,18 +302,18 @@ class Ui_Dialog(object):
         self.lineEdit_section_id.setText("")
         self.pushButton_more_info.setText("")
         ___qtreewidgetitem = self.treeWidget_sections_parameters_by_lines.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Section parameters", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Element type", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Section ID", None));
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Section parameters", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Element type", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Section ID", None))
 #if QT_CONFIG(tooltip)
         self.treeWidget_sections_parameters_by_lines.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Model section information</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Branches out-of the beam theory validity", None))
         ___qtreewidgetitem1 = self.treeWidget_non_beam_segments.headerItem()
-        ___qtreewidgetitem1.setText(3, QCoreApplication.translate("Dialog", u"Ratio L/d", None));
-        ___qtreewidgetitem1.setText(2, QCoreApplication.translate("Dialog", u"Group lines", None));
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Dialog", u"Section ID", None));
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Dialog", u"Group ID", None));
+        ___qtreewidgetitem1.setText(3, QCoreApplication.translate("Dialog", u"Ratio L/d", None))
+        ___qtreewidgetitem1.setText(2, QCoreApplication.translate("Dialog", u"Group lines", None))
+        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Dialog", u"Section ID", None))
+        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Dialog", u"Group ID", None))
 #if QT_CONFIG(tooltip)
         self.treeWidget_non_beam_segments.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Segments whose the L/d ratios are lower than user-defined value</p></body></html>", None))
 #endif // QT_CONFIG(tooltip)

@@ -16,11 +16,19 @@ from pulse.processing.assembly_structural import AssemblyStructural
 @pytest.fixture
 def model():
 
+    # create a material object
+    steel = Material(
+        name = 'Steel', 
+        identifier = 1,
+        density = 7850, 
+        elasticity_modulus = 200e9, 
+        poisson_ratio = 0.3,
+        )
+
     section_parameters = [0.05, 0.008, 0, 0, 0, 0]
     pipe_section_info = {  "section_type_label" : "pipe" ,
                             "section_parameters" : section_parameters  }
 
-    steel = Material('Steel', 7860, elasticity_modulus=210e9, poisson_ratio=0.3)
     cross_section = CrossSection(pipe_section_info=pipe_section_info)
     cross_section.update_properties()
 

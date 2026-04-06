@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'material_input_widget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -33,8 +33,8 @@ class Ui_Form(object):
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setMinimumSize(QSize(0, 48))
         self.frame_3.setMaximumSize(QSize(16777215, 48))
-        self.frame_3.setFrameShape(QFrame.NoFrame)
-        self.frame_3.setFrameShadow(QFrame.Raised)
+        self.frame_3.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_3 = QGridLayout(self.frame_3)
         self.gridLayout_3.setSpacing(4)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
@@ -67,8 +67,8 @@ class Ui_Form(object):
 
         self.frame_2 = QFrame(Form)
         self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setFrameShape(QFrame.NoFrame)
-        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.frame_2.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_2 = QGridLayout(self.frame_2)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setHorizontalSpacing(4)
@@ -78,25 +78,25 @@ class Ui_Form(object):
         if (self.tableWidget_material_data.rowCount() < 7):
             self.tableWidget_material_data.setRowCount(7)
         __qtablewidgetitem = QTableWidgetItem()
-        __qtablewidgetitem.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(0, __qtablewidgetitem)
         __qtablewidgetitem1 = QTableWidgetItem()
-        __qtablewidgetitem1.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem1.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(1, __qtablewidgetitem1)
         __qtablewidgetitem2 = QTableWidgetItem()
-        __qtablewidgetitem2.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem2.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(2, __qtablewidgetitem2)
         __qtablewidgetitem3 = QTableWidgetItem()
-        __qtablewidgetitem3.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem3.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(3, __qtablewidgetitem3)
         __qtablewidgetitem4 = QTableWidgetItem()
-        __qtablewidgetitem4.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem4.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(4, __qtablewidgetitem4)
         __qtablewidgetitem5 = QTableWidgetItem()
-        __qtablewidgetitem5.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem5.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(5, __qtablewidgetitem5)
         __qtablewidgetitem6 = QTableWidgetItem()
-        __qtablewidgetitem6.setTextAlignment(Qt.AlignCenter);
+        __qtablewidgetitem6.setTextAlignment(Qt.AlignCenter)
         self.tableWidget_material_data.setVerticalHeaderItem(6, __qtablewidgetitem6)
         self.tableWidget_material_data.setObjectName(u"tableWidget_material_data")
         self.tableWidget_material_data.horizontalHeader().setVisible(False)
@@ -108,8 +108,8 @@ class Ui_Form(object):
         self.frame_6 = QFrame(self.frame_2)
         self.frame_6.setObjectName(u"frame_6")
         self.frame_6.setMinimumSize(QSize(0, 0))
-        self.frame_6.setFrameShape(QFrame.NoFrame)
-        self.frame_6.setFrameShadow(QFrame.Raised)
+        self.frame_6.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_6.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_5 = QGridLayout(self.frame_6)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.gridLayout_5.setHorizontalSpacing(8)
@@ -145,8 +145,8 @@ class Ui_Form(object):
 
         self.frame_7 = QFrame(self.frame_6)
         self.frame_7.setObjectName(u"frame_7")
-        self.frame_7.setFrameShape(QFrame.NoFrame)
-        self.frame_7.setFrameShadow(QFrame.Raised)
+        self.frame_7.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_7.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout = QGridLayout(self.frame_7)
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -166,6 +166,19 @@ class Ui_Form(object):
 
 
         self.gridLayout_5.addWidget(self.frame_7, 0, 0, 1, 1)
+
+        self.pushButton_duplicate = QPushButton(self.frame_6)
+        self.pushButton_duplicate.setObjectName(u"pushButton_duplicate")
+        self.pushButton_duplicate.setMinimumSize(QSize(28, 28))
+        self.pushButton_duplicate.setMaximumSize(QSize(28, 28))
+        self.pushButton_duplicate.setFont(font1)
+        self.pushButton_duplicate.setStyleSheet(u"")
+        icon = QIcon()
+        icon.addFile(u":/icons/mpltoolbar/copy_icon.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        self.pushButton_duplicate.setIcon(icon)
+        self.pushButton_duplicate.setIconSize(QSize(18, 18))
+
+        self.gridLayout_5.addWidget(self.pushButton_duplicate, 0, 4, 1, 1)
 
 
         self.gridLayout_2.addWidget(self.frame_6, 0, 0, 1, 1)
@@ -198,19 +211,19 @@ class Ui_Form(object):
 #endif // QT_CONFIG(tooltip)
         self.pushButton_exit.setText(QCoreApplication.translate("Form", u"Exit", None))
         ___qtablewidgetitem = self.tableWidget_material_data.verticalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Name", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Name", None))
         ___qtablewidgetitem1 = self.tableWidget_material_data.verticalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Identifier", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Identifier", None))
         ___qtablewidgetitem2 = self.tableWidget_material_data.verticalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Density [kg/m\u00b3]", None));
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Density [kg/m\u00b3]", None))
         ___qtablewidgetitem3 = self.tableWidget_material_data.verticalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Elasticity modulus [GPa]", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Elasticity modulus [GPa]", None))
         ___qtablewidgetitem4 = self.tableWidget_material_data.verticalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"Poisson ratio", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"Poisson ratio", None))
         ___qtablewidgetitem5 = self.tableWidget_material_data.verticalHeaderItem(5)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Thermal expansion coefficient [1/K]", None));
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Thermal expansion coefficient [1/K]", None))
         ___qtablewidgetitem6 = self.tableWidget_material_data.verticalHeaderItem(6)
-        ___qtablewidgetitem6.setText(QCoreApplication.translate("Form", u"Color", None));
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("Form", u"Color", None))
 #if QT_CONFIG(tooltip)
         self.pushButton_remove_column.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-weight:400;\">Remove selected row</span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
@@ -223,6 +236,10 @@ class Ui_Form(object):
         self.pushButton_reset_library.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-weight:400;\">Reset to default material library</span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)
         self.pushButton_reset_library.setText(QCoreApplication.translate("Form", u"Reset", None))
+#if QT_CONFIG(tooltip)
+        self.pushButton_duplicate.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p>Duplicate the selected fluid</p></body></html>", None))
+#endif // QT_CONFIG(tooltip)
+        self.pushButton_duplicate.setText("")
     # retranslateUi
 
 
@@ -246,6 +263,7 @@ class MaterialInputWidget_UI(QWidget, Ui_Form):
                                         - frame_7: QFrame
                                             - (Layout): QGridLayout
                                                     - pushButton_reset_library: QPushButton
+                                        - pushButton_duplicate: QPushButton
     """
 
     def __init__(self, *args, **kwargs):

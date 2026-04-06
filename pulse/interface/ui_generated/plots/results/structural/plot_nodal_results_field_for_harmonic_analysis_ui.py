@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'plot_nodal_results_field_for_harmonic_analysis.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -158,11 +158,11 @@ class Ui_Form(object):
         font3.setFamilies([u"MS Shell Dlg 2"])
         font3.setPointSize(10)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setText(1, u"Frequency [Hz]");
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font3);
+        __qtreewidgetitem.setText(1, u"Frequency [Hz]")
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font3)
         self.treeWidget_frequencies.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_frequencies.setObjectName(u"treeWidget_frequencies")
         self.treeWidget_frequencies.setMinimumSize(QSize(260, 0))
@@ -364,7 +364,7 @@ class Ui_Form(object):
 
         self.label_2.setText(QCoreApplication.translate("Form", u"Color scaling:", None))
         ___qtreewidgetitem = self.treeWidget_frequencies.headerItem()
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Index", None));
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Index", None))
         self.comboBox_colormaps.setItemText(0, QCoreApplication.translate("Form", u" Jet scale", None))
         self.comboBox_colormaps.setItemText(1, QCoreApplication.translate("Form", u" Viridis scale", None))
         self.comboBox_colormaps.setItemText(2, QCoreApplication.translate("Form", u" Inferno scale", None))

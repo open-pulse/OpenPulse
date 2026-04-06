@@ -111,7 +111,7 @@ class Model:
                 frequencies = np.round(frequencies, 14)
 
                 # filters the frequencies vector
-                mask = frequencies <= self.f_max
+                mask = frequencies <= self.f_max + self.f_step / 20
                 _frequencies = frequencies[mask]
 
             except Exception as error_log:

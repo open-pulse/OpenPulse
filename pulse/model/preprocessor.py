@@ -41,14 +41,13 @@ class Preprocessor:
 
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
 
-        self.nodes = dict()
+        self.nodes: dict[int, Node] = dict()
+        self.structural_elements: dict[int, StructuralElement] = dict()
+        self.acoustic_elements: dict[int, AcousticElement] = dict()
+        self.structural_to_acoustic_element: dict[StructuralElement, AcousticElement] = dict()
 
-        self.structural_elements = dict()
-        self.acoustic_elements = dict()
-        self.structural_to_acoustic_element = dict()
-
-        self.connectivity_matrix = list()
-        self.nodal_coordinates_matrix = list()
+        self.connectivity_matrix = np.array([], dtype=float)
+        self.nodal_coordinates_matrix = np.array([], dtype=int)
 
         self.neighbors = defaultdict(list)
         self.structural_elements_connected_to_node = defaultdict(list)
@@ -79,29 +78,7 @@ class Preprocessor:
 
     def generate(self):
         """
-        This method loads geometry file or data and process the mesh.
-
-        Parameters
-        ----------
-        import_type : int
-            This number is equal to 0 if there is an imported geometry file or
-            assumes value equals to 1 otherwise.
-
-        geometry_path : str
-            CAD file path '*.igs' and '*.step' are the file formats supported.
-
-        element_size : float
-            Element size to be used to build the preprocessor.
-        
-        tolerance: : float
-            A small float number that represents the geometry tolerance in GMSH.
-
-        gmsh_geometry : bool
-            This variable reaches True value if the geometry is created by user or False if it is imported.
-
-        length_unit: : str
-            The length unit in use.
-            
+        It loads geometry file or data and process the mesh.            
         """
 
         self.reset_variables()
@@ -588,14 +565,16 @@ class Preprocessor:
         if coords in list_coordinates:
             ind = list_coordinates.index(coords)
             external_index = int(external_indexes[ind])
+
         else:
             diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coords), axis=1)
             mask = diff < radius
             try:
-                external_index = int(external_indexes[mask])
-            except:
+                external_index = int(external_indexes[mask].item())
+            except Exception as error_log:
+                logging.error(str(error_log))
                 return None
-        
+
         return external_index
 
     def get_element_center_coordinates_matrix(self):
