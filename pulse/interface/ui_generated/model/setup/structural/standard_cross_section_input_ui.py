@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'standard_cross_section_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -90,7 +90,7 @@ class Ui_Dialog(object):
         self.gridLayout_6.setContentsMargins(4, 4, 4, 4)
         self.treeWidget_section_data = QTreeWidget(self.frame_4)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setText(0, u"1");
+        __qtreewidgetitem.setText(0, u"1")
         self.treeWidget_section_data.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_section_data.setObjectName(u"treeWidget_section_data")
         self.treeWidget_section_data.setMinimumSize(QSize(500, 0))

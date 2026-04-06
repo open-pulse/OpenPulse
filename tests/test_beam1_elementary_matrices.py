@@ -12,7 +12,7 @@ def test_elementary_matrices_for_beam1_element(datadir: Path, ndarrays_regressio
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
+    project.initialize_pulse_file_and_loader(dir_path=datadir)
 
     ## Define usefull objects
     model = project.model

@@ -143,7 +143,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>452</width>
+                  <width>447</width>
                   <height>658</height>
                  </rect>
                 </property>
@@ -807,7 +807,7 @@
                      </widget>
                     </item>
                     <item row="4" column="2">
-                     <widget class="QComboBox" name="comboBox_volume_unit">
+                     <widget class="QComboBox" name="comboBox_volume_units">
                       <property name="minimumSize">
                        <size>
                         <width>140</width>
@@ -830,17 +830,17 @@
                       </property>
                       <item>
                        <property name="text">
-                        <string>cubic meters</string>
+                        <string>m³</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>cubic centimeters</string>
+                        <string>cm³</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>liters</string>
+                        <string>L</string>
                        </property>
                       </item>
                      </widget>
@@ -1545,17 +1545,17 @@
                       </property>
                       <item>
                        <property name="text">
-                        <string> K</string>
+                        <string>K</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>ºC</string>
+                        <string>°C</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string>ºF</string>
+                        <string>°F</string>
                        </property>
                       </item>
                      </widget>
@@ -3102,7 +3102,7 @@
   <tabstop>comboBox_damper_type</tabstop>
   <tabstop>pushButton_reset_entries</tabstop>
   <tabstop>comboBox_main_axis</tabstop>
-  <tabstop>comboBox_volume_unit</tabstop>
+  <tabstop>comboBox_volume_units</tabstop>
   <tabstop>lineEdit_damper_volume</tabstop>
   <tabstop>lineEdit_gas_volume</tabstop>
   <tabstop>comboBox_volume_sections</tabstop>

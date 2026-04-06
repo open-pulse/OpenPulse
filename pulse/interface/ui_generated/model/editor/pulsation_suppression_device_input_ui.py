@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'pulsation_suppression_device_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -860,7 +860,7 @@ class Ui_Dialog(object):
 
         self.treeWidget_psd_info = QTreeWidget(self.tab_devices)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setText(0, u"PSD label");
+        __qtreewidgetitem.setText(0, u"PSD label")
         self.treeWidget_psd_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_psd_info.setObjectName(u"treeWidget_psd_info")
         self.treeWidget_psd_info.setMinimumSize(QSize(0, 240))
@@ -1133,9 +1133,9 @@ class Ui_Dialog(object):
         self.pushButton_copy.setProperty(u"status", "")
         self.label_11.setText(QCoreApplication.translate("Dialog", u"Selection label:", None))
         ___qtreewidgetitem = self.treeWidget_psd_info.headerItem()
-        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Lines", None));
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Connection point", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Connection type", None));
+        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Lines", None))
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Connection point", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Connection type", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_devices), QCoreApplication.translate("Dialog", u"Devices", None))
         self.label_13.setText(QCoreApplication.translate("Dialog", u"Pulsation supression device preview", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"Pulsation suppression device editor", None))

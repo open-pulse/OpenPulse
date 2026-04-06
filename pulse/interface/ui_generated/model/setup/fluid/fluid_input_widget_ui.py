@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'fluid_input_widget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -228,33 +228,33 @@ class Ui_Form(object):
 #endif // QT_CONFIG(tooltip)
         self.pushButton_exit.setText(QCoreApplication.translate("Form", u"Exit", None))
         ___qtablewidgetitem = self.tableWidget_fluid_data.verticalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Name", None));
+        ___qtablewidgetitem.setText(QCoreApplication.translate("Form", u"Name", None))
         ___qtablewidgetitem1 = self.tableWidget_fluid_data.verticalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Identifier", None));
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("Form", u"Identifier", None))
         ___qtablewidgetitem2 = self.tableWidget_fluid_data.verticalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Temperature [K]", None));
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("Form", u"Temperature [K]", None))
         ___qtablewidgetitem3 = self.tableWidget_fluid_data.verticalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Pressure [Pa]", None));
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("Form", u"Pressure [Pa]", None))
         ___qtablewidgetitem4 = self.tableWidget_fluid_data.verticalHeaderItem(4)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"Density [kg/m\u00b3]", None));
+        ___qtablewidgetitem4.setText(QCoreApplication.translate("Form", u"Density [kg/m\u00b3]", None))
         ___qtablewidgetitem5 = self.tableWidget_fluid_data.verticalHeaderItem(5)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Speed of sound [m/s]", None));
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("Form", u"Speed of sound [m/s]", None))
         ___qtablewidgetitem6 = self.tableWidget_fluid_data.verticalHeaderItem(6)
-        ___qtablewidgetitem6.setText(QCoreApplication.translate("Form", u"Isentropic exponent", None));
+        ___qtablewidgetitem6.setText(QCoreApplication.translate("Form", u"Isentropic exponent", None))
         ___qtablewidgetitem7 = self.tableWidget_fluid_data.verticalHeaderItem(7)
-        ___qtablewidgetitem7.setText(QCoreApplication.translate("Form", u"Thermal conductivity [W/mK]", None));
+        ___qtablewidgetitem7.setText(QCoreApplication.translate("Form", u"Thermal conductivity [W/mK]", None))
         ___qtablewidgetitem8 = self.tableWidget_fluid_data.verticalHeaderItem(8)
-        ___qtablewidgetitem8.setText(QCoreApplication.translate("Form", u"Specific heat Cp [J/kgK]", None));
+        ___qtablewidgetitem8.setText(QCoreApplication.translate("Form", u"Specific heat Cp [J/kgK]", None))
         ___qtablewidgetitem9 = self.tableWidget_fluid_data.verticalHeaderItem(9)
-        ___qtablewidgetitem9.setText(QCoreApplication.translate("Form", u"Dynamic viscosity [Ns/m\u00b2]", None));
+        ___qtablewidgetitem9.setText(QCoreApplication.translate("Form", u"Dynamic viscosity [Ns/m\u00b2]", None))
         ___qtablewidgetitem10 = self.tableWidget_fluid_data.verticalHeaderItem(10)
-        ___qtablewidgetitem10.setText(QCoreApplication.translate("Form", u"Adiabatic bulk modulus [Pa]", None));
+        ___qtablewidgetitem10.setText(QCoreApplication.translate("Form", u"Adiabatic bulk modulus [Pa]", None))
         ___qtablewidgetitem11 = self.tableWidget_fluid_data.verticalHeaderItem(11)
-        ___qtablewidgetitem11.setText(QCoreApplication.translate("Form", u"Vapor pressure [Pa]", None));
+        ___qtablewidgetitem11.setText(QCoreApplication.translate("Form", u"Vapor pressure [Pa]", None))
         ___qtablewidgetitem12 = self.tableWidget_fluid_data.verticalHeaderItem(12)
-        ___qtablewidgetitem12.setText(QCoreApplication.translate("Form", u"Molar mass [kg/kmol]", None));
+        ___qtablewidgetitem12.setText(QCoreApplication.translate("Form", u"Molar mass [kg/kmol]", None))
         ___qtablewidgetitem13 = self.tableWidget_fluid_data.verticalHeaderItem(13)
-        ___qtablewidgetitem13.setText(QCoreApplication.translate("Form", u"Color", None));
+        ___qtablewidgetitem13.setText(QCoreApplication.translate("Form", u"Color", None))
 #if QT_CONFIG(tooltip)
         self.pushButton_reset_library.setToolTip(QCoreApplication.translate("Form", u"<html><head/><body><p><span style=\" font-weight:400;\">Reset to default material library</span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)

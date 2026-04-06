@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'structural_element_type_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -292,8 +292,8 @@ class Ui_Dialog(object):
         self.gridLayout_10.setContentsMargins(8, 8, 8, 4)
         self.treeWidget_element_type = QTreeWidget(self.tab_details)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_element_type.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_element_type.setObjectName(u"treeWidget_element_type")
         self.treeWidget_element_type.setMinimumSize(QSize(0, 0))
@@ -404,8 +404,8 @@ class Ui_Dialog(object):
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         ___qtreewidgetitem = self.treeWidget_element_type.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Lines", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Element type", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Lines", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Element type", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))

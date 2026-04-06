@@ -8,11 +8,6 @@ from pulse.interface.user_input.plots.general.frequency_response_plotter import 
 
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
-psi_to_Pa = (0.45359237 * 9.80665) / ((0.0254)**2)
-kgf_cm2_to_Pa = 9.80665e4
 
 class ReciprocatingCompressorPulsationCriteriaInput(PulsationCriteriaWidget_UI):
     def __init__(self, *args, **kwargs):
@@ -108,7 +103,7 @@ class ReciprocatingCompressorPulsationCriteriaInput(PulsationCriteriaWidget_UI):
         if parameters is None:
             return
 
-        self.suction_pressure = parameters["pressure_at_suction"]
+        self.suction_pressure = parameters["suction_pressure"]
         self.pressure_ratio = parameters["pressure_ratio"]
         self.unfiltered_criteria = min([7, 3*self.pressure_ratio])
         self.lineEdit_pressure_ratio.setText(str(self.pressure_ratio))

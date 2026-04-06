@@ -11,7 +11,6 @@ import pytest
 import numpy as np
 
 from pathlib import Path
-from shutil import copy
 from matplotlib import pyplot as plt
 
 # Setting up model
@@ -21,10 +20,10 @@ def test_coupled_harmonic_analysis(datadir: Path, project_path: str | Path):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
-    
-    ## Copy the project to the temp_pulse folder
-    copy(project_path, project.file.path)
+    project.initialize_pulse_file_and_loader(dir_path=datadir)
+
+    ## Extract the project to the working directory
+    project.file.extract_from_file(project_path)
 
     ## Load project
     project.load_project()
@@ -166,13 +165,13 @@ def get_reciprocating_pump_excitation(connection_type: str, fluid: Fluid):
                   'pressure_ratio' : 1.90788804,
                   'clearance_HE' : 15.8,
                   'clearance_CE' : 18.39,
-                  'TDC_crank_angle_1' : 0,
+                  'tdc_crank_angle_1' : 0,
                   'rotational_speed' : 178,
                   'number_of_cylinders' : 5,
                   'acting_label' : 1,
-                  'pressure_at_suction' : 2.18 + 1.01325,
-                  'pressure_at_discharge' : 322.18 + 1.01325,
-                  'temperature_at_suction' : 45,
+                  'suction_pressure' : 2.18 + 1.01325,
+                  'discharge_pressure' : 322.18 + 1.01325,
+                  'suction_temperature' : 45,
                   'pressure_unit' : "bar",
                   'temperature_unit' : "°C",
                   'bulk_modulus' : fluid.bulk_modulus

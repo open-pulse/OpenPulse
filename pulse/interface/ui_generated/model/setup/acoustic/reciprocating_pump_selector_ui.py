@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'reciprocating_pump_selector.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -167,9 +167,9 @@ class Ui_Dialog(object):
 
         self.treeWidget_reciprocating_machine_data = QTreeWidget(self.frame)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_reciprocating_machine_data.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_reciprocating_machine_data.setObjectName(u"treeWidget_reciprocating_machine_data")
         self.treeWidget_reciprocating_machine_data.setMinimumSize(QSize(0, 0))
@@ -244,9 +244,9 @@ class Ui_Dialog(object):
         self.lineEdit_connection_type.setText("")
         self.pushButton_reset_selection.setText("")
         ___qtreewidgetitem = self.treeWidget_reciprocating_machine_data.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Volumetric flow rate [m\u00b3/s]", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Connection type", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Node ID", None));
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Volumetric flow rate [m\u00b3/s]", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Connection type", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Node ID", None))
         self.pushButton_select.setText(QCoreApplication.translate("Dialog", u"Select", None))
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
     # retranslateUi

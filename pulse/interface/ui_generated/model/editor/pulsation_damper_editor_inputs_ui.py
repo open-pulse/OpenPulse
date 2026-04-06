@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'pulsation_damper_editor_inputs.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -72,7 +72,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 452, 658))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 447, 658))
         self.gridLayout_11 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_11.setSpacing(0)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
@@ -272,16 +272,16 @@ class Ui_Dialog(object):
 
         self.gridLayout_14.addWidget(self.label_25, 10, 3, 1, 1)
 
-        self.comboBox_volume_unit = QComboBox(self.frame_all_parameters)
-        self.comboBox_volume_unit.addItem("")
-        self.comboBox_volume_unit.addItem("")
-        self.comboBox_volume_unit.addItem("")
-        self.comboBox_volume_unit.setObjectName(u"comboBox_volume_unit")
-        self.comboBox_volume_unit.setMinimumSize(QSize(140, 28))
-        self.comboBox_volume_unit.setMaximumSize(QSize(140, 28))
-        self.comboBox_volume_unit.setFont(font1)
+        self.comboBox_volume_units = QComboBox(self.frame_all_parameters)
+        self.comboBox_volume_units.addItem("")
+        self.comboBox_volume_units.addItem("")
+        self.comboBox_volume_units.addItem("")
+        self.comboBox_volume_units.setObjectName(u"comboBox_volume_units")
+        self.comboBox_volume_units.setMinimumSize(QSize(140, 28))
+        self.comboBox_volume_units.setMaximumSize(QSize(140, 28))
+        self.comboBox_volume_units.setFont(font1)
 
-        self.gridLayout_14.addWidget(self.comboBox_volume_unit, 4, 2, 1, 1)
+        self.gridLayout_14.addWidget(self.comboBox_volume_units, 4, 2, 1, 1)
 
         self.comboBox_damper_type = QComboBox(self.frame_all_parameters)
         self.comboBox_damper_type.addItem("")
@@ -706,11 +706,11 @@ class Ui_Dialog(object):
         font2.setBold(False)
         font2.setItalic(False)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(3, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(2, font2);
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(3, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(2, font2)
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_pulsation_damper_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_pulsation_damper_info.setObjectName(u"treeWidget_pulsation_damper_info")
         self.treeWidget_pulsation_damper_info.setMinimumSize(QSize(0, 0))
@@ -1019,8 +1019,8 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.scrollArea, self.comboBox_damper_type)
         QWidget.setTabOrder(self.comboBox_damper_type, self.pushButton_reset_entries)
         QWidget.setTabOrder(self.pushButton_reset_entries, self.comboBox_main_axis)
-        QWidget.setTabOrder(self.comboBox_main_axis, self.comboBox_volume_unit)
-        QWidget.setTabOrder(self.comboBox_volume_unit, self.lineEdit_damper_volume)
+        QWidget.setTabOrder(self.comboBox_main_axis, self.comboBox_volume_units)
+        QWidget.setTabOrder(self.comboBox_volume_units, self.lineEdit_damper_volume)
         QWidget.setTabOrder(self.lineEdit_damper_volume, self.lineEdit_gas_volume)
         QWidget.setTabOrder(self.lineEdit_gas_volume, self.comboBox_volume_sections)
         QWidget.setTabOrder(self.comboBox_volume_sections, self.lineEdit_outside_diameter_liquid)
@@ -1089,9 +1089,9 @@ class Ui_Dialog(object):
         self.label_9.setText(QCoreApplication.translate("Dialog", u"Damper type:", None))
         self.label_26.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Wall thickness (gas):</p></body></html>", None))
         self.label_25.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m]</p></body></html>", None))
-        self.comboBox_volume_unit.setItemText(0, QCoreApplication.translate("Dialog", u"cubic meters", None))
-        self.comboBox_volume_unit.setItemText(1, QCoreApplication.translate("Dialog", u"cubic centimeters", None))
-        self.comboBox_volume_unit.setItemText(2, QCoreApplication.translate("Dialog", u"liters", None))
+        self.comboBox_volume_units.setItemText(0, QCoreApplication.translate("Dialog", u"m\u00b3", None))
+        self.comboBox_volume_units.setItemText(1, QCoreApplication.translate("Dialog", u"cm\u00b3", None))
+        self.comboBox_volume_units.setItemText(2, QCoreApplication.translate("Dialog", u"L", None))
 
         self.comboBox_damper_type.setItemText(0, QCoreApplication.translate("Dialog", u"Bladder", None))
         self.comboBox_damper_type.setItemText(1, QCoreApplication.translate("Dialog", u"Diaphragm", None))
@@ -1122,9 +1122,9 @@ class Ui_Dialog(object):
         self.label_13.setText(QCoreApplication.translate("Dialog", u"Define the fluid properties", None))
         self.label_bulk_modulus_unit.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[--]</p></body></html>", None))
         self.lineEdit_gas_pressure.setText(QCoreApplication.translate("Dialog", u"120", None))
-        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u" K", None))
-        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00baC", None))
-        self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00baF", None))
+        self.comboBox_temperature_units.setItemText(0, QCoreApplication.translate("Dialog", u"K", None))
+        self.comboBox_temperature_units.setItemText(1, QCoreApplication.translate("Dialog", u"\u00b0C", None))
+        self.comboBox_temperature_units.setItemText(2, QCoreApplication.translate("Dialog", u"\u00b0F", None))
 
         self.label_molar_mass.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Selected liquid fluid:</p></body></html>", None))
         self.label_45.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Gas temperature:</p></body></html>", None))
@@ -1157,10 +1157,10 @@ class Ui_Dialog(object):
         self.label_2.setText(QCoreApplication.translate("Dialog", u"Damper label:", None))
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Damper type:", None))
         ___qtreewidgetitem = self.treeWidget_pulsation_damper_info.headerItem()
-        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Lines", None));
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Gas volume [m\u00b3]", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Damper type", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Label", None));
+        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Dialog", u"Lines", None))
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Gas volume [m\u00b3]", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Damper type", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Label", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", "")
@@ -1223,7 +1223,7 @@ class PulsationDamperEditorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - label_9: QLabel
                                                                                     - label_26: QLabel
                                                                                     - label_25: QLabel
-                                                                                    - comboBox_volume_unit: QComboBox
+                                                                                    - comboBox_volume_units: QComboBox
                                                                                     - comboBox_damper_type: QComboBox
                                                                                     - label_18: QLabel
                                                                                     - lineEdit_gas_volume: QLineEdit

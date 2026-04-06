@@ -16,7 +16,7 @@ from pathlib import Path
 def test_reciprocating_pump_excitation_analysis(datadir: Path):
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
+    project.initialize_pulse_file_and_loader(dir_path=datadir)
     
     ## Define usefull objects
     model = project.model
@@ -437,13 +437,13 @@ def get_reciprocating_pump_excitation(connection_type: str):
                   'pressure_ratio' : 1.90788804,
                   'clearance_HE' : 15.8,
                   'clearance_CE' : 18.39,
-                  'TDC_crank_angle_1' : 0,
+                  'tdc_crank_angle_1' : 0,
                   'rotational_speed' : 178,
                   'number_of_cylinders' : 5,
                   'acting_label' : 1,
-                  'pressure_at_suction' : 2.18 + 1.01325,
-                  'pressure_at_discharge' : 322.18 + 1.01325,
-                  'temperature_at_suction' : 45,
+                  'suction_pressure' : 2.18 + 1.01325,
+                  'discharge_pressure' : 322.18 + 1.01325,
+                  'suction_temperature' : 45,
                   'pressure_unit' : "bar",
                   'temperature_unit' : "°C",
                   'bulk_modulus' : fluids[1].bulk_modulus

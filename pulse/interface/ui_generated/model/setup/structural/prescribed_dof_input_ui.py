@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'prescribed_dof_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -666,10 +666,10 @@ class Ui_Dialog(object):
         font3.setFamilies([u"MS Shell Dlg 2"])
         font3.setPointSize(9)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font3);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font3);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font3)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font3)
         self.treeWidget_nodal_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_nodal_info.setObjectName(u"treeWidget_nodal_info")
         self.treeWidget_nodal_info.setMinimumSize(QSize(280, 180))
@@ -938,8 +938,8 @@ class Ui_Dialog(object):
         self.label_5.setText(QCoreApplication.translate("Dialog", u"Angular:", None))
         self.tabWidget_prescribed_dof.setTabText(self.tabWidget_prescribed_dof.indexOf(self.tab_table_values), QCoreApplication.translate("Dialog", u"Load tables", None))
         ___qtreewidgetitem = self.treeWidget_nodal_info.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.tabWidget_prescribed_dof.setTabText(self.tabWidget_prescribed_dof.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))

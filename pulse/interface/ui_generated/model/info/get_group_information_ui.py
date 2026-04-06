@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'get_group_information.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -93,8 +93,8 @@ class Ui_Dialog(object):
         self.gridLayout_5.setContentsMargins(4, 4, -1, 4)
         self.treeWidget_group_info = QTreeWidget(self.frame_treeWidget)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_group_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_group_info.setObjectName(u"treeWidget_group_info")
         self.treeWidget_group_info.setMinimumSize(QSize(0, 0))
@@ -206,8 +206,8 @@ class Ui_Dialog(object):
         self.lineEdit_selected_id.setText("")
         self.label_selected_id.setText(QCoreApplication.translate("Dialog", u"Selected ID:", None))
         ___qtreewidgetitem = self.treeWidget_group_info.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Type", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Elements", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Type", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Elements", None))
         self.label_title.setText(QCoreApplication.translate("Dialog", u"Information of selected group", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
