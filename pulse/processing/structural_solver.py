@@ -7,6 +7,7 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 import logging
 import numpy as np
 
+from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import eigs, spsolve
 
 
@@ -232,16 +233,19 @@ class StructuralSolver:
 
         self.warning_modal_prescribed_dofs = ""
 
-        if K == list() and M == list():
+        if isinstance(K, csr_matrix) and isinstance(M, csr_matrix):
 
             if self.model.preprocessor.stress_stiffening_enabled:
                 static_solution = self.static_analysis()
                 self.model.preprocessor.update_nodal_solution_info(np.real(static_solution))
                 self.update_global_matrices()
   
+            # NOTE: stiffness and mass/moment of inertia parameters imported from tables  
+            # are not considered in modal analysis, only single values are allowable
+
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
             Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
-            ##Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.
+
         else:
             Kadd_lump = K
             Madd_lump = M
