@@ -105,6 +105,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.configure_button.clicked.connect(self.configure_structure_callback)
         self.material_widget.material_widget.pushButton_attribute.clicked.connect(self.define_material_callback)
 
+        self.length_line_edit.textEdited.connect(self.length_changed_callback)
         self.x_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.y_line_edit.textEdited.connect(self.xyz_changed_callback)
         self.z_line_edit.textEdited.connect(self.xyz_changed_callback)
@@ -168,6 +169,8 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             self.pipeline.main_editor.remove_collapsed_bends()
             self.cancel_division_callback()
 
+        self._reset_xyz()
+        self._reset_length()
         self._update_permissions()
         self._update_information_text()
 
@@ -325,6 +328,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         except TypeError:
             return
 
+        self._reset_length()
         self.current_options.xyz_callback(xyz)
         self._update_permissions()
         self.render_widget.update_plot(reset_camera=False)
@@ -332,13 +336,37 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.render_widget.update()
 
     def length_changed_callback(self):
+        if self.current_options is None:
+            return
+
         kwargs = self.current_options.get_kwargs()
         if kwargs is None:
             return
-        self.pipeline.add_structure_length(self.current_options.structure_type, 2, **kwargs)
+
+        length = self._eval_number(self.length_line_edit.text())
+        if length is None:
+            length = 0
+
+        if self.forbidden_structure():
+            self._reset_xyz()
+            window_title = "Invalid Location"
+            title = "Protected Structure"
+            message = "This location belongs to a PSD or Pulsation Damper, please use the dedicated editor to modify it."
+            PrintMessageInput([window_title, title, message])
+            return
+
+        self._reset_xyz()
+        self.pipeline.dismiss()
+        self.pipeline.add_structure_length(
+            self.current_options.structure_type,
+            length,
+            **kwargs,
+        )
+
+        self._update_permissions()
         self.render_widget.update_plot(reset_camera=False)
+        self.update_zoom_to_fit_new_points()
         self.render_widget.update()
-        return
 
     def update_zoom_to_fit_new_points(self):
         renderer = self.render_widget.renderer
@@ -738,13 +766,19 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
 
         return dx, dy, dz
 
-    def _set_xyz(self, x, y, z):
+    def _set_xyz(self, x: float, y: float, z: float):
         self.x_line_edit.setText(str(x))
         self.y_line_edit.setText(str(y))
         self.z_line_edit.setText(str(z))
 
+    def _set_length(self, lenght: float):
+        self.length_line_edit.setText(str(lenght))
+
     def _reset_xyz(self):
         self._set_xyz("", "", "")
+
+    def _reset_length(self):
+        self._set_length("")
 
     def _set_xyz_to_selected_point(self):
         if len(self.pipeline.selected_points) != 1:
