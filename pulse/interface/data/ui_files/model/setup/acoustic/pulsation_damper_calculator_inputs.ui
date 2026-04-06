@@ -867,7 +867,7 @@
           </widget>
          </item>
          <item row="0" column="2">
-          <widget class="QComboBox" name="comboBox_volume_unit">
+          <widget class="QComboBox" name="comboBox_volume_units">
            <property name="minimumSize">
             <size>
              <width>72</width>
@@ -887,17 +887,17 @@
            </property>
            <item>
             <property name="text">
-             <string>cubic meters</string>
+             <string>m³</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>cubic centimeters</string>
+             <string>cm³</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>liters</string>
+             <string>L</string>
             </property>
            </item>
           </widget>

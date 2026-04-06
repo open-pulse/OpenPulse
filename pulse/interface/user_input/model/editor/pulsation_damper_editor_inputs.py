@@ -17,8 +17,10 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     convert_volume_unit,
     PressureUnits, 
     TemperatureUnits,
+    VolumeUnits,
     pressure_units_labels,
     temperature_units_labels,
+    volume_units_labels,
 )
 from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
@@ -115,14 +117,17 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
         # clear data from unit combo boxes
         self.comboBox_pressure_units.clear()
         self.comboBox_temperature_units.clear()
+        self.comboBox_volume_units.clear()
 
         # add temperature and pressure labels into unit combo boxes
         self.comboBox_pressure_units.addItems(pressure_units_labels)
         self.comboBox_temperature_units.addItems(temperature_units_labels)
+        self.comboBox_volume_units.addItems(volume_units_labels)
 
         # set default units
         self.comboBox_pressure_units.setCurrentText("bar (a)")
         self.comboBox_temperature_units.setCurrentText("°C")
+        self.comboBox_volume_units.setCurrentText("m³")
 
     def configure_static_validators(self):
 
@@ -196,7 +201,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
     def _create_connections(self):
         #
         self.comboBox_volume_sections.currentIndexChanged.connect(self.volume_sections_callback)
-        self.comboBox_volume_unit.currentIndexChanged.connect(self.update_volume_unit_callback)
+        self.comboBox_volume_units.currentIndexChanged.connect(self.update_volume_unit_callback)
         self.comboBox_pressure_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         self.comboBox_temperature_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         #
@@ -449,14 +454,19 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
     #     self.comboBox_pressure_units.setCurrentText(press_unit)
 
     def update_volume_unit_callback(self):
-        index = self.comboBox_volume_unit.currentIndex()
 
-        if index == 0:
+        index = self.comboBox_volume_units.currentIndex()
+        if index == VolumeUnits.CUBIC_METER:
             unit_label = "m³"
-        elif index == 1:
+
+        elif index == VolumeUnits.CUBIC_CENTIMETER:
             unit_label = "cm³"
-        else:
+
+        elif index == VolumeUnits.LITER:
             unit_label = "L"
+
+        else:
+            return
 
         self.label_damper_volume_unit.setText(f"[{unit_label}]")
         self.label_gas_volume_unit.setText(f"[{unit_label}]")
@@ -502,7 +512,7 @@ class PulsationDamperEditorInputs(PulsationDamperEditorInputs_UI):
                 line_edit.setFocus()
                 return True
 
-        volume_unit = self.comboBox_volume_unit.currentText()
+        volume_unit = self.comboBox_volume_units.currentText()
         damper_volume = float(self.lineEdit_damper_volume.text())
         gas_volume = float(self.lineEdit_gas_volume.text())
 

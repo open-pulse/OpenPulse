@@ -309,16 +309,16 @@ class Ui_Dialog(object):
 
         self.gridLayout_3.addWidget(self.label_16, 0, 1, 1, 1)
 
-        self.comboBox_volume_unit = QComboBox(self.frame_3)
-        self.comboBox_volume_unit.addItem("")
-        self.comboBox_volume_unit.addItem("")
-        self.comboBox_volume_unit.addItem("")
-        self.comboBox_volume_unit.setObjectName(u"comboBox_volume_unit")
-        self.comboBox_volume_unit.setMinimumSize(QSize(72, 28))
-        self.comboBox_volume_unit.setMaximumSize(QSize(140, 28))
-        self.comboBox_volume_unit.setFont(font1)
+        self.comboBox_volume_units = QComboBox(self.frame_3)
+        self.comboBox_volume_units.addItem("")
+        self.comboBox_volume_units.addItem("")
+        self.comboBox_volume_units.addItem("")
+        self.comboBox_volume_units.setObjectName(u"comboBox_volume_units")
+        self.comboBox_volume_units.setMinimumSize(QSize(72, 28))
+        self.comboBox_volume_units.setMaximumSize(QSize(140, 28))
+        self.comboBox_volume_units.setFont(font1)
 
-        self.gridLayout_3.addWidget(self.comboBox_volume_unit, 0, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.comboBox_volume_units, 0, 2, 1, 1)
 
         self.label_15 = QLabel(self.frame_3)
         self.label_15.setObjectName(u"label_15")
@@ -511,9 +511,9 @@ class Ui_Dialog(object):
         self.label_9.setText(QCoreApplication.translate("Dialog", u"Compression type:", None))
         self.lineEdit_pressure.setText("")
         self.label_16.setText(QCoreApplication.translate("Dialog", u"Volume unit:", None))
-        self.comboBox_volume_unit.setItemText(0, QCoreApplication.translate("Dialog", u"cubic meters", None))
-        self.comboBox_volume_unit.setItemText(1, QCoreApplication.translate("Dialog", u"cubic centimeters", None))
-        self.comboBox_volume_unit.setItemText(2, QCoreApplication.translate("Dialog", u"liters", None))
+        self.comboBox_volume_units.setItemText(0, QCoreApplication.translate("Dialog", u"m\u00b3", None))
+        self.comboBox_volume_units.setItemText(1, QCoreApplication.translate("Dialog", u"cm\u00b3", None))
+        self.comboBox_volume_units.setItemText(2, QCoreApplication.translate("Dialog", u"L", None))
 
         self.label_15.setText(QCoreApplication.translate("Dialog", u"Effective volume:", None))
         self.lineEdit_effective_volume.setText("")
@@ -561,7 +561,7 @@ class PulsationDamperCalculatorInputs_UI(QDialog, Ui_Dialog):
                             - frame_3: QFrame
                                 - (Layout): QGridLayout
                                         - label_16: QLabel
-                                        - comboBox_volume_unit: QComboBox
+                                        - comboBox_volume_units: QComboBox
                                         - label_15: QLabel
                                         - lineEdit_effective_volume: QLineEdit
                                         - label_17: QLabel

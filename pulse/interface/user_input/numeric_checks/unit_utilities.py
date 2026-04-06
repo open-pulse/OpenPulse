@@ -1,7 +1,6 @@
 from enum import IntEnum
 from pint import UnitRegistry
 
-
 class PressureUnits(IntEnum):
     Pa_a = 0
     kPa_a = 1
@@ -18,12 +17,15 @@ class PressureUnits(IntEnum):
     psi_g = 12
     ksi_g = 13
 
-
 class TemperatureUnits(IntEnum):
     KELVIN = 0
     CELSIUS = 1
     FARENHEIT = 2
 
+class VolumeUnits(IntEnum):
+    CUBIC_METER = 0
+    CUBIC_CENTIMETER = 1
+    LITER = 2
 
 pressure_units_labels = [
     "Pa (a)",
@@ -48,6 +50,11 @@ temperature_units_labels = [
     "°F",
 ]
 
+volume_units_labels = [
+    "m³",
+    "cm³",
+    "L",
+]
 
 # instantiate the unit registry
 u_reg = UnitRegistry()

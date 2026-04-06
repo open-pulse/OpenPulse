@@ -12,8 +12,10 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     convert_volume_unit,
     PressureUnits, 
     TemperatureUnits,
+    VolumeUnits,
     pressure_units_labels,
     temperature_units_labels,
+    volume_units_labels,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
@@ -25,12 +27,6 @@ from enum import IntEnum
 class CompressionType(IntEnum):
     ISENTROPIC = 0
     ISOTHERMAL = 1
-
-
-class VolumeUnit(IntEnum):
-    CUBIC_METERS = 0
-    CUBIC_CENTIMETERS = 1
-    LITERS = 2
 
 
 error_title = "Error"
@@ -77,17 +73,21 @@ class PulsationDamperCalculatorInputs(PulsationDamperCalculatorInputs_UI):
         # self.configure_static_validators()
 
     def _load_units_labels(self):
+
         # clear data from unit combo boxes
         self.comboBox_pressure_units.clear()
         self.comboBox_temperature_units.clear()
+        self.comboBox_volume_units.clear()
 
         # add temperature and pressure labels into unit combo boxes
         self.comboBox_pressure_units.addItems(pressure_units_labels)
         self.comboBox_temperature_units.addItems(temperature_units_labels)
+        self.comboBox_volume_units.addItems(volume_units_labels)
 
         # set default units
         self.comboBox_pressure_units.setCurrentText("bar (a)")
         self.comboBox_temperature_units.setCurrentText("°C")
+        self.comboBox_volume_units.setCurrentText("m³")
 
     def configure_dynamic_validators(self):
 
@@ -139,7 +139,7 @@ class PulsationDamperCalculatorInputs(PulsationDamperCalculatorInputs_UI):
     def _create_connections(self):
         #
         self.comboBox_compression_type.currentIndexChanged.connect(self.change_compression_type_callback)
-        self.comboBox_volume_unit.currentIndexChanged.connect(self.update_volume_unit_callback)
+        self.comboBox_volume_units.currentIndexChanged.connect(self.update_volume_unit_callback)
         self.comboBox_pressure_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         self.comboBox_temperature_units.currentIndexChanged.connect(self.configure_dynamic_validators)
         #
@@ -227,18 +227,19 @@ class PulsationDamperCalculatorInputs(PulsationDamperCalculatorInputs_UI):
 
     def update_volume_unit_callback(self):
 
-        index = self.comboBox_volume_unit.currentIndex()
-        if index == VolumeUnit.CUBIC_METERS:
+        index = self.comboBox_volume_units.currentIndex()
+        if index == VolumeUnits.CUBIC_METER:
             unit_label = "m³"
-        elif index == VolumeUnit.CUBIC_CENTIMETERS:
+        elif index == VolumeUnits.CUBIC_CENTIMETER:
             unit_label = "cm³"
-        elif index == VolumeUnit.LITERS:
+        elif index == VolumeUnits.LITER:
             unit_label = "L"
         else:
             return
 
         self.label_effective_volume_unit.setText(f"[{unit_label}]")
         self.label_volume_avg_pressure_unit.setText(f"[{unit_label}]")
+
         self.calculate_effective_volume()
 
     def calculate_effective_volume(self):
@@ -266,7 +267,7 @@ class PulsationDamperCalculatorInputs(PulsationDamperCalculatorInputs_UI):
         V0_m3 = dV_m3 / ((phi / (1 - x))**(1 / k) - (phi / (1 + x))**(1 / k))
         Vm_m3 = V0_m3 * (phi**(1 / k))
 
-        volume_unit = self.comboBox_volume_unit.currentText()
+        volume_unit = self.comboBox_volume_units.currentText()
         V0 = convert_volume_unit(V0_m3, "m³", volume_unit)
         Vm = convert_volume_unit(Vm_m3, "m³", volume_unit)
 

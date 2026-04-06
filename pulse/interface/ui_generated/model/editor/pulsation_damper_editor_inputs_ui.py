@@ -72,7 +72,7 @@ class Ui_Dialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 452, 658))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 447, 658))
         self.gridLayout_11 = QGridLayout(self.scrollAreaWidgetContents)
         self.gridLayout_11.setSpacing(0)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
@@ -272,16 +272,16 @@ class Ui_Dialog(object):
 
         self.gridLayout_14.addWidget(self.label_25, 10, 3, 1, 1)
 
-        self.comboBox_volume_unit = QComboBox(self.frame_all_parameters)
-        self.comboBox_volume_unit.addItem("")
-        self.comboBox_volume_unit.addItem("")
-        self.comboBox_volume_unit.addItem("")
-        self.comboBox_volume_unit.setObjectName(u"comboBox_volume_unit")
-        self.comboBox_volume_unit.setMinimumSize(QSize(140, 28))
-        self.comboBox_volume_unit.setMaximumSize(QSize(140, 28))
-        self.comboBox_volume_unit.setFont(font1)
+        self.comboBox_volume_units = QComboBox(self.frame_all_parameters)
+        self.comboBox_volume_units.addItem("")
+        self.comboBox_volume_units.addItem("")
+        self.comboBox_volume_units.addItem("")
+        self.comboBox_volume_units.setObjectName(u"comboBox_volume_units")
+        self.comboBox_volume_units.setMinimumSize(QSize(140, 28))
+        self.comboBox_volume_units.setMaximumSize(QSize(140, 28))
+        self.comboBox_volume_units.setFont(font1)
 
-        self.gridLayout_14.addWidget(self.comboBox_volume_unit, 4, 2, 1, 1)
+        self.gridLayout_14.addWidget(self.comboBox_volume_units, 4, 2, 1, 1)
 
         self.comboBox_damper_type = QComboBox(self.frame_all_parameters)
         self.comboBox_damper_type.addItem("")
@@ -1019,8 +1019,8 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.scrollArea, self.comboBox_damper_type)
         QWidget.setTabOrder(self.comboBox_damper_type, self.pushButton_reset_entries)
         QWidget.setTabOrder(self.pushButton_reset_entries, self.comboBox_main_axis)
-        QWidget.setTabOrder(self.comboBox_main_axis, self.comboBox_volume_unit)
-        QWidget.setTabOrder(self.comboBox_volume_unit, self.lineEdit_damper_volume)
+        QWidget.setTabOrder(self.comboBox_main_axis, self.comboBox_volume_units)
+        QWidget.setTabOrder(self.comboBox_volume_units, self.lineEdit_damper_volume)
         QWidget.setTabOrder(self.lineEdit_damper_volume, self.lineEdit_gas_volume)
         QWidget.setTabOrder(self.lineEdit_gas_volume, self.comboBox_volume_sections)
         QWidget.setTabOrder(self.comboBox_volume_sections, self.lineEdit_outside_diameter_liquid)
@@ -1089,9 +1089,9 @@ class Ui_Dialog(object):
         self.label_9.setText(QCoreApplication.translate("Dialog", u"Damper type:", None))
         self.label_26.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Wall thickness (gas):</p></body></html>", None))
         self.label_25.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p>[m]</p></body></html>", None))
-        self.comboBox_volume_unit.setItemText(0, QCoreApplication.translate("Dialog", u"cubic meters", None))
-        self.comboBox_volume_unit.setItemText(1, QCoreApplication.translate("Dialog", u"cubic centimeters", None))
-        self.comboBox_volume_unit.setItemText(2, QCoreApplication.translate("Dialog", u"liters", None))
+        self.comboBox_volume_units.setItemText(0, QCoreApplication.translate("Dialog", u"m\u00b3", None))
+        self.comboBox_volume_units.setItemText(1, QCoreApplication.translate("Dialog", u"cm\u00b3", None))
+        self.comboBox_volume_units.setItemText(2, QCoreApplication.translate("Dialog", u"L", None))
 
         self.comboBox_damper_type.setItemText(0, QCoreApplication.translate("Dialog", u"Bladder", None))
         self.comboBox_damper_type.setItemText(1, QCoreApplication.translate("Dialog", u"Diaphragm", None))
@@ -1223,7 +1223,7 @@ class PulsationDamperEditorInputs_UI(QDialog, Ui_Dialog):
                                                                                     - label_9: QLabel
                                                                                     - label_26: QLabel
                                                                                     - label_25: QLabel
-                                                                                    - comboBox_volume_unit: QComboBox
+                                                                                    - comboBox_volume_units: QComboBox
                                                                                     - comboBox_damper_type: QComboBox
                                                                                     - label_18: QLabel
                                                                                     - lineEdit_gas_volume: QLineEdit
