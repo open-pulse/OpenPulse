@@ -1,3 +1,5 @@
+
+from pulse import TEMP_PROJECT_DIR
 from pulse.model.cross_section import CrossSection, get_beam_section_properties
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
@@ -8,11 +10,11 @@ import numpy as np
 from pathlib import Path
 
 
-def test_elementary_matrices_for_beam1_element(datadir: Path, ndarrays_regression):
+def test_elementary_matrices_for_beam1_element(ndarrays_regression, datadir: Path=TEMP_PROJECT_DIR):
 
     ## Initialize a project
     project = Project()
-    project.initialize_pulse_file_and_loader(file_path=str(datadir / "tmp.pulse"))
+    project.initialize_pulse_file_and_loader(dir_path=datadir)
 
     ## Define usefull objects
     model = project.model
@@ -144,37 +146,37 @@ def create_materials():
 
     materials = dict()
     materials[1] = Material(
-                            'carbon_steel', 
-                            7850, 
-                            identifier = 1, 
-                            elasticity_modulus = 200e9, 
-                            poisson_ratio = 0.3,
-                            thermal_expansion_coefficient = 1.2e-5,
-                            color = [253, 152, 145]
-                            )
+        name = 'carbon_steel', 
+        identifier = 1, 
+        density = 7850, 
+        elasticity_modulus = 200e9, 
+        poisson_ratio = 0.3,
+        thermal_expansion_coefficient = 1.2e-5,
+        color = [253, 152, 145]
+        )
 
     return materials
 
 
 def create_temporary_material_library(project: Project, materials: dict):
 
-    from configparser import ConfigParser
-    config = ConfigParser()
+    material_data = dict()
 
     for mat_id, material in materials.items():
         material: Material
-        config[f"{mat_id}"] = {
-                                "name": material.name,
-                                "identifier": material.identifier,
-                                "color": material.color,
-                                "density": material.density,
-                                "elasticity_modulus": material.elasticity_modulus / 1e9,
-                                "poisson_ratio": material.poisson_ratio,
-                                "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
-                                }
+        material_data[f"{mat_id}"] = {
+            "name": material.name,
+            "identifier": material.identifier,
+            "color": material.color,
+            "density": material.density,
+            "elasticity_modulus": material.elasticity_modulus / 1e9,
+            "poisson_ratio": material.poisson_ratio,
+            "thermal_expansion_coefficient": material.thermal_expansion_coefficient,
+            }
 
-    project.file.write_material_library_in_file(config)
-    
+    project.file.write_material_library_in_file(material_data)
+ 
+
 def remove_files_from_temporary_folder():
 
     from pulse import TEMP_PROJECT_DIR

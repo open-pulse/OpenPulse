@@ -113,7 +113,10 @@ class BeforeRun():
         self.check_poisson = False
         lines_without_materials = list()
         for element in self.structural_elements.values():
-            line_id = self.model.mesh.line_from_element[element.index]
+            line_id = self.model.mesh.line_from_element.get(element.index)
+            if line_id is None:
+                continue
+
             if element.material is None:
                 self.check_set_material = True
                 if line_id not in lines_without_materials:

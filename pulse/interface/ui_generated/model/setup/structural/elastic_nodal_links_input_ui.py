@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'elastic_nodal_links_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -1144,8 +1144,8 @@ class Ui_Dialog(object):
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.treeWidget_stiffness_nodal_links = QTreeWidget(self.tab_stiffness_link)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_stiffness_nodal_links.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_stiffness_nodal_links.setObjectName(u"treeWidget_stiffness_nodal_links")
         self.treeWidget_stiffness_nodal_links.setMinimumSize(QSize(320, 100))
@@ -1167,8 +1167,8 @@ class Ui_Dialog(object):
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.treeWidget_damping_nodal_links = QTreeWidget(self.tab_dampings_link)
         __qtreewidgetitem1 = QTreeWidgetItem()
-        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_damping_nodal_links.setHeaderItem(__qtreewidgetitem1)
         self.treeWidget_damping_nodal_links.setObjectName(u"treeWidget_damping_nodal_links")
         self.treeWidget_damping_nodal_links.setMinimumSize(QSize(320, 100))
@@ -1372,12 +1372,12 @@ class Ui_Dialog(object):
         self.checkBox_link_stiffness.setText(QCoreApplication.translate("Dialog", u"Stiffness link (translational/torsional)", None))
         self.tabWidget_remove.setTabText(self.tabWidget_remove.indexOf(self.tab_multiple), QCoreApplication.translate("Dialog", u"Multiple", None))
         ___qtreewidgetitem = self.treeWidget_stiffness_nodal_links.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Active parameters", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Linked nodes", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Active parameters", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Linked nodes", None))
         self.tabWidget_remove.setTabText(self.tabWidget_remove.indexOf(self.tab_stiffness_link), QCoreApplication.translate("Dialog", u"Stiffness link", None))
         ___qtreewidgetitem1 = self.treeWidget_damping_nodal_links.headerItem()
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Dialog", u"Active parameters", None));
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Dialog", u"Linked nodes", None));
+        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Dialog", u"Active parameters", None))
+        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Dialog", u"Linked nodes", None))
         self.tabWidget_remove.setTabText(self.tabWidget_remove.indexOf(self.tab_dampings_link), QCoreApplication.translate("Dialog", u"Dampings link", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))

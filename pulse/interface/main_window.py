@@ -1,8 +1,9 @@
+
 import logging
 import os
 from functools import partial
 from pathlib import Path
-from shutil import copy, rmtree
+from shutil import rmtree
 from sys import argv
 from time import time
 
@@ -19,10 +20,10 @@ from PySide6.QtWidgets import (
 )
 
 # TODO: remove this import
+# TODO: remove this import
 from pulse import (
     QSS_DIR,
     TEMP_PROJECT_DIR,
-    TEMP_PROJECT_FILE,
     UI_DIR,
     USER_PATH,
     app,
@@ -428,6 +429,16 @@ class MainWindow(MainWindow_UI):
 
     def plot_geometry_editor(self):
         self.use_geometry_workspace()
+
+    def reset_solution(self):
+        self.project.reset_solutions()
+        self.project.file.remove_results_data_from_project_file()
+
+        self.analysis_toolbar.pushButton_reset_solution.setDisabled(True)
+        self.project_data_modified = True
+        self.results_widget.show_empty()
+        self.use_model_setup_workspace()
+        self.update_results_workspace_button_accessibility()
 
     def set_window_title(self, msg=""):
         title = "OpenPulse"
@@ -930,7 +941,7 @@ class MainWindow(MainWindow_UI):
     def new_project(self):
 
         none_save_path = self.project.save_path is None
-        temp_file_exists = os.path.exists(TEMP_PROJECT_FILE)
+        temp_file_exists = (TEMP_PROJECT_DIR / "project_setup.json").exists()
         data_modified = self.project_data_modified
 
         condition = (none_save_path and temp_file_exists) or data_modified
@@ -963,8 +974,8 @@ class MainWindow(MainWindow_UI):
             self.reset_geometry_render()
 
             if project_path is not None:
-            
-                copy(project_path, TEMP_PROJECT_FILE)
+
+                app().project.file.extract_from_file(project_path)
 
                 if app().project.loader.check_file_version():
                     self.reset_temporary_folder()
@@ -1073,7 +1084,7 @@ class MainWindow(MainWindow_UI):
 
             logging.info("Saving the project data... [75%]")
             # self.project_menu.update_recents_menu()
-            copy(TEMP_PROJECT_FILE, path)
+            app().project.file.archive_to_file(path)
             self.update_window_title(path)
             self.project_data_modified = False
 
@@ -1150,7 +1161,7 @@ class MainWindow(MainWindow_UI):
         self.minimize_dialogs()
 
         none_save_path = self.project.save_path is None
-        temp_file_exists = os.path.exists(TEMP_PROJECT_FILE)
+        temp_file_exists = (TEMP_PROJECT_DIR / "project_setup.json").exists()
         data_modified = self.project_data_modified
 
         condition = (none_save_path and temp_file_exists) or data_modified

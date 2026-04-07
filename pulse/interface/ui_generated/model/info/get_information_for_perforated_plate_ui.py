@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'get_information_for_perforated_plate.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -66,8 +66,8 @@ class Ui_Dialog(object):
         font1 = QFont()
         font1.setPointSize(9)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font1);
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font1)
         self.treeWidget_group_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_group_info.setObjectName(u"treeWidget_group_info")
         self.treeWidget_group_info.setMinimumSize(QSize(0, 0))
@@ -357,7 +357,7 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Information of selected group", None))
         self.title_label.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"center\"><span style=\" font-size:12pt;\">Information of selected perforated plate</span></p></body></html>", None))
         ___qtreewidgetitem = self.treeWidget_group_info.headerItem()
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Elements", None));
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Elements", None))
         self.label_21.setText(QCoreApplication.translate("Dialog", u"[m]", None))
         self.label_20.setText(QCoreApplication.translate("Dialog", u"[m]", None))
         self.label_porosity.setText(QCoreApplication.translate("Dialog", u"Area porosity:", None))

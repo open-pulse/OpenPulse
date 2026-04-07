@@ -560,7 +560,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         self.hide()
 
-        title = "Resetting of expansion joints"
+        title = "Reseting of expansion joints"
         message = "Would you like to remove all expansion joints from the model?"
 
         buttons_config = {

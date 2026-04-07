@@ -1,6 +1,6 @@
 # fmt: off
 
-from pulse import app, TEMP_PROJECT_FILE
+from pulse import app, TEMP_PROJECT_DIR
 from pulse.model import AnalysisID
 from pulse.interface.file.project_file import ProjectFile
 from pulse.project.load_project import LoadProject
@@ -119,8 +119,8 @@ class Project:
     def global_damping(self):
         return self.model.global_damping
 
-    def initialize_pulse_file_and_loader(self, file_path: str=TEMP_PROJECT_FILE):   
-        self.file = ProjectFile(self, file_path) 
+    def initialize_pulse_file_and_loader(self, dir_path: Path=TEMP_PROJECT_DIR):
+        self.file = ProjectFile(self, dir_path)
         self.loader = LoadProject(self)
 
     def initial_load_project_actions(self):
@@ -657,7 +657,7 @@ class Project:
                     sleep(1)
 
     def run_analysis(self):
-        LoadingWindow(self.build_model_and_solve).run()
+        return LoadingWindow(self.build_model_and_solve).run()
 
     def build_model_and_solve(self, running_by_script=False):
 
@@ -668,17 +668,17 @@ class Project:
             message = "Please, it is necessary to choose an analysis type "
             message += "and setup it before trying to solve the model."
             PrintMessageInput([error_title, title, message])
-            return
+            return True
 
         if not running_by_script:
             self.before_run = self.get_pre_solution_model_checks()
             if self.before_run.check_is_there_a_problem(self.analysis_id):
-                return
+                return True
 
         logging.info("Processing the cross-sections [10%]")
         if self.model.preprocessor.process_cross_sections_mapping():
             self.model.preprocessor.stop_processing = False
-            return
+            return True
         
         logging.info("Initializing the problem solver [30%]")
         self.initialize_solver()
@@ -737,10 +737,10 @@ class Project:
         self.structural_solver.get_reactions_at_springs_and_dampers(static_analysis=static_analysis)
 
         self.structural_reactions = {
-                                     "reactions_at_constrained_dofs" : self.structural_solver.reactions_at_constrained_dofs,
-                                     "reactions_at_springs" : self.structural_solver.dict_reactions_at_springs,
-                                     "reactions_at_dampers" : self.structural_solver.dict_reactions_at_dampers,
-                                     }
+            "reactions_at_constrained_dofs" : self.structural_solver.reactions_at_constrained_dofs,
+            "reactions_at_springs" : self.structural_solver.reactions_at_springs,
+            "reactions_at_dampers" : self.structural_solver.reactions_at_dampers,
+            }
 
     def post_solution_actions(self):
 

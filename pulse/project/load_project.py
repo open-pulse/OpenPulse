@@ -1,21 +1,21 @@
 # fmt: off
 
+from typing import TYPE_CHECKING
+
 from pulse import version
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
+from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.model.perforated_plate import PerforatedPlate
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.common_utils import get_color_rgb
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.project.project import Project
 
 import logging
-import numpy as np
-
 from collections import defaultdict
+
+import numpy as np
 from packaging.version import Version
 
 window_title_1 = "Error"
@@ -65,144 +65,44 @@ class LoadProject:
         self.load_inertia_load_setup()
 
 
-    def load_fluids_library(self):
+    def load_fluids_library(self) -> dict:
 
-        self.library_fluids = dict()
-        config = self.project.file.read_fluid_library_from_file()
+        self.fluids_library = dict()
+        fluid_library_data = self.project.file.read_fluid_library_from_file()
+        if fluid_library_data is None:
+            return dict()
 
-        if config is None:
-            return
+        for str_fluid_id, fluid_data in fluid_library_data.items():
+            if not isinstance(fluid_data, dict):
+                continue
 
-        for tag in config.sections():
+            fluid = Fluid(**fluid_data)
+            self.fluids_library[int(str_fluid_id)] = fluid
 
-            section = config[tag]
-            keys = section.keys()
+        self.properties.set_fluids_library(self.fluids_library)
 
-            name = section['name']
-            density =  float(section['density'])
-            speed_of_sound =  float(section['speed_of_sound'])
-            identifier =  int(section['identifier'])
-            color =  get_color_rgb(section['color'])
-
-            if len(color) == 4:
-                color = color[:3]
-
-            if 'isentropic_exponent' in keys:
-                isentropic_exponent = float(section['isentropic_exponent'])
-            else:
-                isentropic_exponent = ""
-
-            if 'thermal_conductivity' in keys:
-                thermal_conductivity = float(section['thermal_conductivity'])
-            else:
-                thermal_conductivity = ""
-
-            if 'specific_heat_Cp' in keys:
-                specific_heat_Cp = float(section['specific_heat_Cp'])
-            else:
-                specific_heat_Cp = ""
-
-            if 'dynamic_viscosity' in keys:
-                dynamic_viscosity = float(section['dynamic_viscosity'])
-            else:
-                dynamic_viscosity = ""
-            
-            if 'temperature' in keys:
-                temperature = float(section['temperature'])
-            else:
-                temperature = None
-
-            if 'pressure' in keys:
-                pressure = float(section['pressure'])
-            else:
-                pressure = None
-
-            # if 'key mixture' in keys:
-            #     key_mixture = section['key mixture']
-            # else:
-            #     key_mixture = None
-
-            # if 'molar fractions' in keys:
-            #     str_molar_fractions = section['molar fractions']
-            #     molar_fractions = get_list_of_values_from_string(str_molar_fractions, int_values=False)
-            # else:
-            #     molar_fractions = None
-
-            if "molar_mass" in keys:
-                if section["molar_mass"] == "None":
-                    molar_mass = None
-                else:
-                    molar_mass = float(section["molar_mass"])
-            else:
-                molar_mass = None
-
-            if 'adiabatic_bulk_modulus' in keys:
-                adiabatic_bulk_modulus = float(section['adiabatic_bulk_modulus'])
-            else:
-                adiabatic_bulk_modulus = None
-
-            if 'vapor_pressure' in keys:
-                vapor_pressure = float(section['vapor_pressure'])
-            else:
-                vapor_pressure = None
-
-            fluid = Fluid(  
-                            name = name,
-                            density = density,
-                            speed_of_sound = speed_of_sound,
-                            color =  color,
-                            identifier = identifier,
-                            isentropic_exponent = isentropic_exponent,
-                            thermal_conductivity = thermal_conductivity,
-                            specific_heat_Cp = specific_heat_Cp,
-                            dynamic_viscosity = dynamic_viscosity,
-                            temperature = temperature,
-                            pressure = pressure,
-                            molar_mass = molar_mass,
-                            adiabatic_bulk_modulus = adiabatic_bulk_modulus,
-                            vapor_pressure = vapor_pressure
-                          )
-
-            self.library_fluids[identifier] = fluid
+        return self.fluids_library
 
 
     def load_materials_library(self):
 
-        self.library_materials = dict()
-        config = self.project.file.read_material_library_from_file()
-
-        if config is None:
+        self.materials_library = dict()
+        material_library_data = self.project.file.read_material_library_from_file()
+        if material_library_data is None:
             return
 
-        for tag in config.sections():
+        for str_material_id, material_data in material_library_data.items():
+            if not isinstance(material_data, dict):
+                continue
 
-            section = config[tag]
-            # keys = section.keys()
+            material = Material(**material_data)
+            self.materials_library[int(str_material_id)] = material
 
-            name = section['name']
-            identifier = int(section['identifier'])
-            density = float(section['density'])
-            poisson_ratio = float(section['poisson_ratio'])
-            elasticity_modulus = float(section['elasticity_modulus']) * 1e9
-            thermal_expansion_coefficient = float(section['thermal_expansion_coefficient'])
-            color =  get_color_rgb(section['color'])
+        self.properties.set_materials_library(self.materials_library)
 
-            if len(color) == 4:
-                color = color[:3]
+        return self.materials_library
 
-            material = Material(
-                                name = name,
-                                identifier = identifier, 
-                                density = density,
-                                poisson_ratio = poisson_ratio,
-                                elasticity_modulus = elasticity_modulus,
-                                thermal_expansion_coefficient = thermal_expansion_coefficient, 
-                                color = color
-                                )
-            
-            self.library_materials[identifier] = material
 
-    
     def check_line_properties(self):
 
         line_properties = self.project.file.read_line_properties_from_file()
@@ -285,20 +185,20 @@ class LoadProject:
                         fluid_id = prop_data
                         self.properties._set_line_property(property, fluid_id, line_ids=int(line_id))
 
-                        if fluid_id not in self.library_fluids.keys():
+                        if fluid_id not in self.fluids_library.keys():
                             continue
 
-                        fluid = self.library_fluids[fluid_id]
+                        fluid = self.fluids_library[fluid_id]
                         self.properties._set_line_property("fluid", fluid, line_ids=int(line_id))
 
                     elif property == "material_id":
                         material_id = prop_data
                         self.properties._set_line_property(property, material_id, line_ids=int(line_id))
     
-                        if material_id not in self.library_materials.keys():
+                        if material_id not in self.materials_library.keys():
                             continue
 
-                        material = self.library_materials[material_id]
+                        material = self.materials_library[material_id]
                         self.properties._set_line_property("material", material, line_ids=int(line_id))
                     
                     else:
@@ -537,21 +437,20 @@ class LoadProject:
         for line_id, data in self.properties.line_properties.items():
 
             data: dict
-            if "psd_name" in data.keys():
-                psd_name = data["psd_name"]
-                psd_lines[psd_name].append(line_id)
+            if "psd_label" in data.keys():
+                psd_label = data["psd_label"]
+                psd_lines[psd_label].append(line_id)
 
         return psd_lines
 
 
     def get_pulsation_damper_related_lines(self):
-
         pulsation_damper_lines = defaultdict(list)
         for line_id, data in self.properties.line_properties.items():
 
             data: dict
-            if "pulsation_damper_name" in data.keys():
-                pulsation_damper_name = data["pulsation_damper_name"]
+            if "pulsation_damper_label" in data.keys():
+                pulsation_damper_name = data["pulsation_damper_label"]
                 pulsation_damper_lines[pulsation_damper_name].append(line_id)
 
         return pulsation_damper_lines

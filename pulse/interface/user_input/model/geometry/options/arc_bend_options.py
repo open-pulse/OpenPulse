@@ -89,5 +89,5 @@ class ArcBendOptions(StructureOptions):
         return dict(
             structural_element_type = "pipe_1",
             cross_section_info = deepcopy(self.structure_info),
-            material_info = self.geometry_designer_widget.current_material_info,
+            material_id = self.geometry_designer_widget.current_material_id,
         )

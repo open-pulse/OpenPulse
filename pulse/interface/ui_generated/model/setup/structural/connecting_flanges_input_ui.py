@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'connecting_flanges_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -550,10 +550,10 @@ class Ui_Dialog(object):
         self.gridLayout_11.setObjectName(u"gridLayout_11")
         self.treeWidget_flange_by_elements = QTreeWidget(self.frame_5)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font2);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font2);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font2)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font2)
         self.treeWidget_flange_by_elements.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_flange_by_elements.setObjectName(u"treeWidget_flange_by_elements")
         self.treeWidget_flange_by_elements.setMinimumSize(QSize(320, 140))
@@ -983,8 +983,8 @@ class Ui_Dialog(object):
         self.label_114.setText(QCoreApplication.translate("Dialog", u"[m]", None))
         self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_nodes), QCoreApplication.translate("Dialog", u"Node selection", None))
         ___qtreewidgetitem = self.treeWidget_flange_by_elements.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Flange length [m]", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Line", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Flange length [m]", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Line", None))
         self.label_unit_outer_diameter_element.setText(QCoreApplication.translate("Dialog", u"[m]", None))
         self.label_outer_diameter_element.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Outer diameter:</p></body></html>", None))
         self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_elements), QCoreApplication.translate("Dialog", u"Element selection", None))

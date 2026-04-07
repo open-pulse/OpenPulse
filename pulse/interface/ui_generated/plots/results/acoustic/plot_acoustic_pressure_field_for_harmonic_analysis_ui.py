@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'plot_acoustic_pressure_field_for_harmonic_analysis.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -237,11 +237,11 @@ class Ui_Form(object):
         font2.setFamilies([u"MS Shell Dlg 2"])
         font2.setPointSize(10)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setText(1, u"Frequency [Hz]");
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font1);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font2);
+        __qtreewidgetitem.setText(1, u"Frequency [Hz]")
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font1)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font2)
         self.treeWidget_frequencies.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_frequencies.setObjectName(u"treeWidget_frequencies")
         self.treeWidget_frequencies.setMinimumSize(QSize(260, 0))
@@ -367,7 +367,7 @@ class Ui_Form(object):
         self.label_4.setText(QCoreApplication.translate("Form", u"Frequency:", None))
         self.label_5.setText(QCoreApplication.translate("Form", u"[Hz]", None))
         ___qtreewidgetitem = self.treeWidget_frequencies.headerItem()
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Index", None));
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"Index", None))
         self.label_3.setText(QCoreApplication.translate("Form", u"Transparency:", None))
         self.label.setText(QCoreApplication.translate("Form", u"Select the frequency to be plotted", None))
     # retranslateUi

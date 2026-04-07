@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'cross_section_widget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -2262,10 +2262,10 @@ class Ui_Form(object):
 
         self.treeWidget_sections_parameters_by_lines = QTreeWidget(self.tab_sections)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(3, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(3, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_sections_parameters_by_lines.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_sections_parameters_by_lines.setObjectName(u"treeWidget_sections_parameters_by_lines")
         self.treeWidget_sections_parameters_by_lines.setMinimumSize(QSize(500, 300))
@@ -2527,10 +2527,10 @@ class Ui_Form(object):
         self.pushButton_load_section_data.setText(QCoreApplication.translate("Form", u"Load section data", None))
         self.pushButton_edit_section_data.setText(QCoreApplication.translate("Form", u"Edit section data", None))
         ___qtreewidgetitem = self.treeWidget_sections_parameters_by_lines.headerItem()
-        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Form", u"Section parameters", None));
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Form", u"Section type", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Form", u"Element type", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"ID", None));
+        ___qtreewidgetitem.setText(3, QCoreApplication.translate("Form", u"Section parameters", None))
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Form", u"Section type", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Form", u"Element type", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Form", u"ID", None))
         self.tabWidget_general.setTabText(self.tabWidget_general.indexOf(self.tab_sections), QCoreApplication.translate("Form", u"Active sections", None))
     # retranslateUi
 

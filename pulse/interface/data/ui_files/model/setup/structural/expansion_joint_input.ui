@@ -351,7 +351,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>418</width>
+                  <width>420</width>
                   <height>358</height>
                  </rect>
                 </property>
@@ -921,7 +921,7 @@
                     </font>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>1</number>
                    </property>
                    <widget class="QWidget" name="tab_constant_values">
                     <attribute name="title">
@@ -1382,7 +1382,7 @@
                       <number>6</number>
                      </property>
                      <item row="0" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_Kx">
+                      <widget class="QPushButton" name="pushButton_load_Kx_table">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1531,7 +1531,7 @@
                       </spacer>
                      </item>
                      <item row="2" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_Krx">
+                      <widget class="QPushButton" name="pushButton_load_Krx_table">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1654,7 +1654,7 @@
                       </widget>
                      </item>
                      <item row="3" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_Kryz">
+                      <widget class="QPushButton" name="pushButton_load_Kryz_table">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -1730,7 +1730,7 @@
                       </widget>
                      </item>
                      <item row="1" column="3">
-                      <widget class="QPushButton" name="pushButton_load_table_Kyz">
+                      <widget class="QPushButton" name="pushButton_load_Kyz_table">
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
@@ -2234,13 +2234,13 @@
   <tabstop>pushButton_attribute</tabstop>
   <tabstop>pushButton_exit</tabstop>
   <tabstop>lineEdit_Kx_table_path</tabstop>
-  <tabstop>pushButton_load_table_Kx</tabstop>
+  <tabstop>pushButton_load_Kx_table</tabstop>
   <tabstop>lineEdit_Kyz_table_path</tabstop>
-  <tabstop>pushButton_load_table_Kyz</tabstop>
+  <tabstop>pushButton_load_Kyz_table</tabstop>
   <tabstop>lineEdit_Krx_table_path</tabstop>
-  <tabstop>pushButton_load_table_Krx</tabstop>
+  <tabstop>pushButton_load_Krx_table</tabstop>
   <tabstop>lineEdit_Kryz_table_path</tabstop>
-  <tabstop>pushButton_load_table_Kryz</tabstop>
+  <tabstop>pushButton_load_Kryz_table</tabstop>
   <tabstop>tabWidget_inputs</tabstop>
   <tabstop>pushButton_remove</tabstop>
   <tabstop>pushButton_reset</tabstop>

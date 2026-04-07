@@ -762,9 +762,9 @@ def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
 def get_angle_between_vectors(vect_1, vect_2):
     return np.arccos(np.linalg.norm(np.dot(vect_1,vect_2))/(np.linalg.norm(vect_1)*np.linalg.norm(vect_2)))
 
-def get_color_rgb(color):
+def get_color_rgb(color) -> tuple:
     color = color.replace(" ", "")
     if ("[" or "(") in color:
         color = color[1:-1]
     tokens = color.split(',')
-    return list(map(int, tokens))
+    return tuple(map(int, tokens))
