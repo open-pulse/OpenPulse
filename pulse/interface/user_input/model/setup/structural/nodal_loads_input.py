@@ -2,7 +2,7 @@ from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTreeWidgetItem, QLineEdit
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui import (
@@ -106,25 +106,30 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
             if len(selected_nodes) == 1:
                 for (property, *args), data in self.properties.nodal_properties.items():
-                    if property == "nodal_loads" and selected_nodes == args:
-                        values = data["values"]
+                    if property != "nodal_loads":
+                        continue
 
-                        if "table_paths" in data.keys():
-                            table_paths = data["table_paths"]
-                            for index, lineEdit_table in enumerate(
-                                self.list_lineEdit_table_values
-                            ):
-                                table_path = table_paths[index]
-                                if table_path is not None:
-                                    lineEdit_table.setText(table_path)
+                    if selected_nodes != args:
+                        continue
 
-                        else:
-                            for index, [lineEdit_real, lineEdit_imag] in enumerate(
-                                self.list_lineEdit_constant_values
-                            ):
-                                if values[index] is not None:
-                                    lineEdit_real.setText(str(np.real(values[index])))
-                                    lineEdit_imag.setText(str(np.imag(values[index])))
+                    values = data["values"]
+
+                    if "table_paths" in data.keys():
+                        table_paths = data["table_paths"]
+                        for index, lineEdit_table in enumerate(
+                            self.list_lineEdit_table_values
+                        ):
+                            table_path = table_paths[index]
+                            if table_path is not None:
+                                lineEdit_table.setText(table_path)
+
+                    else:
+                        for index, [lineEdit_real, lineEdit_imag] in enumerate(
+                            self.list_lineEdit_constant_values
+                        ):
+                            if values[index] is not None:
+                                lineEdit_real.setText(str(np.real(values[index])))
+                                lineEdit_imag.setText(str(np.imag(values[index])))
 
     def _config_widgets(self):
         #
