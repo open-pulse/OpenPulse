@@ -1,3 +1,6 @@
+import re
+
+import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
@@ -11,7 +14,10 @@ from pulse import app
 from pulse.editor.dual_volume_psd import DualVolumePSD
 from pulse.editor.single_volume_psd import SingleVolumePSD
 from pulse.interface.handler.geometry_handler import GeometryHandler
-
+from pulse.interface.ui_generated.model.editor.pulsation_suppression_device_input_ui import (
+    PulsationSuppressionDeviceInput_UI,
+)
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -19,14 +25,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.viewer_3d.render_widgets.psd_preview_render_widget import (
     PSDPreviewRenderWidget,
 )
-from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
-from pulse.interface.ui_generated.model.editor.pulsation_suppression_device_input_ui import (
-    PulsationSuppressionDeviceInput_UI,
-)
-
-import numpy as np
-import re
-
 
 error_title = "Error"
 waning_title = "Warning"

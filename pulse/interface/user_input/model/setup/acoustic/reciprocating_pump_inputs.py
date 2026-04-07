@@ -22,7 +22,7 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     pressure_units_labels,
     temperature_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -407,7 +407,7 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
             self.doubleSpinBox_rotational_speed.setValue(parameters["rotational_speed"])
 
         if "bulk_modulus" in parameters.keys():
-            self.lineEdit_bulk_modulus.setText(f"{parameters["bulk_modulus"] : .8e}")
+            self.lineEdit_bulk_modulus.setText(f"{parameters['bulk_modulus'] : .8e}")
 
         if "suction_pressure" in parameters.keys():
             self.lineEdit_suction_pressure.setText(str(parameters["suction_pressure"]))

@@ -1,15 +1,14 @@
 # fmt: off
 
-from pulse.model.model import Model
-from pulse.processing.assembly_structural import AssemblyStructural
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-
 import logging
-import numpy as np
 
+import numpy as np
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import eigs, spsolve
 
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.model import Model
+from pulse.processing.assembly_structural import AssemblyStructural
 
 error_title = "Error"
 

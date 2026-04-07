@@ -14,15 +14,9 @@ from pulse.interface.ui_generated.model.setup.fluid.set_fluid_composition_input_
 from pulse.interface.user_input.model.setup.fluid.load_fluid_composition_input import (
     LoadFluidCompositionInput,
 )
-from pulse.interface.user_input.project.get_user_confirmation_input import (
-    GetUserConfirmationInput,
+from pulse.interface.user_input.model.setup.fluid.refprop_interface import (
+    RefpropInterface,
 )
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
-
-from pulse.interface.user_input.model.setup.fluid.refprop_interface import RefpropInterface
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
     PressureUnits,
     TemperatureUnits,
@@ -31,7 +25,11 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     pressure_units_labels,
     temperature_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
 
 error_title = "Error"

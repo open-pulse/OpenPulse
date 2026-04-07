@@ -22,13 +22,16 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     pressure_units_labels,
     temperature_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
-from pulse.model.reciprocating_compressor_model import CylindersActingMode, ReciprocatingCompressorModel
+from pulse.model.reciprocating_compressor_model import (
+    CylindersActingMode,
+    ReciprocatingCompressorModel,
+)
 
 
 class TabIndex(IntEnum):
