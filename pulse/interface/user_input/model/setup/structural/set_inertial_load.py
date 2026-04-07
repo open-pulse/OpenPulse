@@ -4,11 +4,13 @@ from PySide6.QtWidgets import QLineEdit
 from PySide6.QtGui import QCloseEvent
 
 from pulse import app
-from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.ui_generated.model.setup.structural.inertial_load_input_ui import (
     InertialLoadInput_UI,
 )
 from pulse.interface.user_input.model.setup.user_input import UserInput
+from pulse.model.structural_element import DOF_PER_NODE_STRUCTURAL
+
 
 error_title = "Error"
 warning_title = "Warning"
@@ -24,18 +26,14 @@ class SetInertialLoad(UserInput, InertialLoadInput_UI):
         self._initialize()
         self._configure_validators()
         self._create_connections()
-        self._config_widgets()
         self._load_inertia_load_setup()
         self.exec()
 
     def _initialize(self):
         self.complete = False
-        self.global_damping = [0., 0., 0.]
-        # self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
-        self.gravity_vector = self.model.gravity_vector
 
     def _configure_validators(self):
-        validator = StrictDoubleValidator(1e-8, 1e8, 6)
+        validator = StrictDoubleValidator(-1e8, 1e8, 6)
         self.lineEdit_acceleration_x_axis.setValidator(validator)
         self.lineEdit_acceleration_y_axis.setValidator(validator)
         self.lineEdit_acceleration_z_axis.setValidator(validator)
@@ -44,12 +42,9 @@ class SetInertialLoad(UserInput, InertialLoadInput_UI):
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_exit.clicked.connect(self.close)
 
-    def _config_widgets(self):
-        pass
-
     def check_gravity_values(self):
 
-        self.gravity = np.zeros(6, dtype=float)
+        self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
 
         line_edits = [
             self.lineEdit_acceleration_x_axis,
@@ -98,10 +93,10 @@ class SetInertialLoad(UserInput, InertialLoadInput_UI):
         key_stiffening = self.project.model.preprocessor.stress_stiffening_enabled
         self.checkBox_stiffening_effect.setChecked(key_stiffening)
 
-        if self.gravity_vector.any() == 0:
+        gravity = self.model.gravity_vector
+        if gravity.any() == 0:
             return
 
-        gravity = self.gravity_vector
         self.lineEdit_acceleration_x_axis.setText(str(gravity[0]))
         self.lineEdit_acceleration_y_axis.setText(str(gravity[1]))
         self.lineEdit_acceleration_z_axis.setText(str(gravity[2]))
