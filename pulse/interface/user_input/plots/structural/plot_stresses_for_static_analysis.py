@@ -31,19 +31,12 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
 
     def _load_structural_solver(self):
 
-        if app().project.structural_solver is None:
+        if app().project.structural_assembler is None:
 
             def callback():
                 logging.info("Processing the cross-sections [75%]")
                 app().project.model.preprocessor.process_cross_sections_mapping()
             LoadingWindow(callback).run()
-
-            self.structural_solver = app().project.get_structural_solver()
-            if self.structural_solver.solution is None:
-                self.structural_solver.solution = app().project.structural_solution
-
-        else:
-            self.structural_solver = app().project.structural_solver
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -81,7 +74,7 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
 
     def _update_lineEdit(self, selected_element : int):
 
-        self.stress_data = self.structural_solver.stress_calculate(static_analysis=True)
+        self.stress_data = app().project.stress_calculate(static_analysis=True)
         stresses = np.real(np.array(self.stress_data[selected_element][:,0]))
 
         self.lineEdit_axial_stress.setText("{:.6e}".format(stresses[0]))

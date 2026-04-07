@@ -133,21 +133,11 @@ class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
 
     def _load_structural_solver_and_reactions(self):
 
-        if app().project.structural_solver is None:
+        if app().project.structural_assembler is None:
 
             def solver_callback():
-
                 logging.info("Processing the cross-sections [5%]")
                 app().project.model.preprocessor.process_cross_sections_mapping()
-
-                logging.info("Processing global matrices [50%]")
-                app().project.structural_solver = app().project.get_structural_solver()
-
-                logging.info("Processing global matrices [100%]")
-
-                if app().project.structural_solver.solution is None:
-                    app().project.structural_solver.solution = app().project.structural_solution
-
                 logging.info("Evaluating the structural reactions [20%]")
                 app().project.calculate_structural_reactions()
 

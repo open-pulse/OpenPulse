@@ -445,46 +445,36 @@ class ProjectFile:
         with self._open_file(self.results_data_filename, "w") as internal_file:
             with h5py.File(internal_file, "w") as f:
 
-                analysis_id = self.project.analysis_id
-                acoustic_solver = self.project.acoustic_solver
-                structural_solver = self.project.structural_solver
+                project = self.project
+                analysis_id = project.analysis_id
 
                 if analysis_id == AnalysisID.STRUCTURAL_MODAL:
-                    if structural_solver.modal_shapes is not None:
-                        natural_frequencies = structural_solver.natural_frequencies
-                        modal_shape = structural_solver.modal_shapes
-                        f.create_dataset("modal_structural/natural_frequencies", data=natural_frequencies, dtype=float)
-                        f.create_dataset("modal_structural/modal_shape", data=modal_shape, dtype=float)
+                    if project.structural_modal_shapes is not None:
+                        f.create_dataset("modal_structural/natural_frequencies", data=project.natural_frequencies_structural, dtype=float)
+                        f.create_dataset("modal_structural/modal_shape", data=project.structural_modal_shapes, dtype=complex)
 
                 if analysis_id == AnalysisID.ACOUSTIC_MODAL:
-                    if acoustic_solver.modal_shapes is not None:
-                        natural_frequencies = acoustic_solver.natural_frequencies
-                        modal_shape = acoustic_solver.modal_shapes
-                        complex_natural_frequencies = acoustic_solver.complex_natural_frequencies
-                        if isinstance(complex_natural_frequencies, np.ndarray):
-                            f.create_dataset("modal_acoustic/natural_frequencies", data=complex_natural_frequencies, dtype=complex)
+                    if project.acoustic_modal_shapes is not None:
+                        complex_nf = project.complex_natural_frequencies_acoustic
+                        if isinstance(complex_nf, np.ndarray):
+                            f.create_dataset("modal_acoustic/natural_frequencies", data=complex_nf, dtype=complex)
                         else:
-                            f.create_dataset("modal_acoustic/natural_frequencies", data=natural_frequencies, dtype=float)
-                        f.create_dataset("modal_acoustic/modal_shape", data=modal_shape, dtype=complex)
+                            f.create_dataset("modal_acoustic/natural_frequencies", data=project.natural_frequencies_acoustic, dtype=float)
+                        f.create_dataset("modal_acoustic/modal_shape", data=project.acoustic_modal_shapes, dtype=complex)
 
                 if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
-                    if acoustic_solver.solution is not None:
-                        frequencies = acoustic_solver.frequencies
-                        solution = acoustic_solver.solution
-                        f.create_dataset("harmonic_acoustic/frequencies", data=frequencies, dtype=float)
-                        f.create_dataset("harmonic_acoustic/solution", data=solution, dtype=complex)
+                    if project.acoustic_solution is not None:
+                        f.create_dataset("harmonic_acoustic/frequencies", data=project.model.frequencies, dtype=float)
+                        f.create_dataset("harmonic_acoustic/solution", data=project.acoustic_solution, dtype=complex)
 
                 if analysis_id in [AnalysisID.STRUCTURAL_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
-                    if structural_solver.solution is not None:
-                        frequencies = structural_solver.frequencies
-                        solution = structural_solver.solution
-                        f.create_dataset("harmonic_structural/frequencies", data=frequencies, dtype=float)
-                        f.create_dataset("harmonic_structural/solution", data=solution, dtype=complex)
+                    if project.structural_solution is not None:
+                        f.create_dataset("harmonic_structural/frequencies", data=project.model.frequencies, dtype=float)
+                        f.create_dataset("harmonic_structural/solution", data=project.structural_solution, dtype=complex)
 
                 if analysis_id == AnalysisID.STRUCTURAL_STATIC:
-                    if structural_solver.solution is not None:
-                        solution = structural_solver.solution
-                        f.create_dataset("static_structural/solution", data=solution, dtype=complex)
+                    if project.structural_solution is not None:
+                        f.create_dataset("static_structural/solution", data=project.structural_solution, dtype=complex)
 
                 self.project_data_modified_callback()
 

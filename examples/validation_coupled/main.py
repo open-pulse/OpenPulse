@@ -7,9 +7,11 @@ from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
 from pulse.model.preprocessor import  Preprocessor
-from pulse.processing.assembly_structural import AssemblyStructural 
-from pulse.processing.structural_solver import StructuralSolver
-from pulse.processing.acoustic_solver import AcousticSolver
+from pulse.processing.assembly_structural import AssemblyStructural
+from pulse.processing.assemblers.acoustic_assembler import AcousticAssembler
+from pulse.processing.assemblers.structural_assembler import StructuralAssembler
+from pulse.processing.solvers.harmonic_solver import HarmonicSolver
+from pulse.processing.solvers.modal_solver import ModalSolver
 from pulse.postprocessing.plot_structural_data import get_structural_frf, get_structural_response
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf, get_acoustic_response
 from examples.animation.plot_function import plot_results
@@ -54,9 +56,8 @@ f_max = 250
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 
-solution_acoustic = AcousticSolver(preprocessor, frequencies)
-
-direct = solution_acoustic.direct_method()
+acoustic_assembler = AcousticAssembler(preprocessor)
+direct = HarmonicSolver().direct_method(acoustic_assembler, frequencies)
 #%% Acoustic validation
 
 if run==1:
@@ -162,12 +163,12 @@ preprocessor.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
 preprocessor.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))
 preprocessor.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
 
-solution_structural = StructuralSolver(mesh, acoustic_solution = direct)
+struct_assembler = StructuralAssembler(mesh, acoustic_solution=direct)
 modes = 200
-natural_frequencies, mode_shapes = solution_structural.modal_analysis(number_of_modes=modes, harmonic_analysis=True)
+natural_frequencies, mode_shapes = ModalSolver().solve(struct_assembler, n_modes=modes)
 
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS
-direct = solution_structural.direct_method(frequencies, is_viscous_lumped=True)
+direct = HarmonicSolver().direct_method(struct_assembler, frequencies)
 modal = solution_structural.mode_superposition(frequencies, modes, fastest=True)
 
 column = 3

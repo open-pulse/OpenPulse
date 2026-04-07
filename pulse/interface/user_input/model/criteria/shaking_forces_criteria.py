@@ -40,17 +40,13 @@ class ShakingForcesCriteriaInput(PlotShakingForces_UI):
 
     def _load_structural_solver(self):
 
-        if app().project.structural_solver is None:
+        if app().project.structural_assembler is None:
 
             def callback():
                 logging.info("Processing the cross-sections [75%]")
                 app().project.model.preprocessor.process_cross_sections_mapping()
 
             LoadingWindow(callback).run()
-
-            # self.structural_solver = app().project.get_structural_solver()
-            # if self.structural_solver.solution is None:
-            #     self.structural_solver.solution = app().project.structural_solution
 
     def _create_connections(self):
         self.pushButton_confirm.clicked.connect(self.plot_force_spectrum)

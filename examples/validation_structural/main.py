@@ -6,8 +6,10 @@ import matplotlib.pyplot as plt
 from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
 from pulse.model.preprocessor import Preprocessor
-from pulse.processing.assembly_structural import AssemblyStructural 
-from pulse.processing.structural_solver import StructuralSolver
+from pulse.processing.assembly_structural import AssemblyStructural
+from pulse.processing.assemblers.structural_assembler import StructuralAssembler
+from pulse.processing.solvers.harmonic_solver import HarmonicSolver
+from pulse.processing.solvers.modal_solver import ModalSolver
 from pulse.postprocessing.plot_structural_data import get_structural_frf, get_structural_response
 from pulse.animation.plot_function import plot_results
 
@@ -60,13 +62,11 @@ f_max = 200
 df = 2
 frequencies = np.arange(0, f_max+df, df)
 
-solution = StructuralSolver(preprocessor, frequencies)
-
+assembler = StructuralAssembler(preprocessor)
 modes = 200
-global_damping = [0, 0, 0, 0]
-direct = solution.direct_method(global_damping)
-modal = solution.mode_superposition(modes, global_damping, fastest=True)
-# natural_frequencies, modal_shape = solution.modal_analysis(number_of_modes=20)
+direct = HarmonicSolver().direct_method(assembler, frequencies)
+modal = HarmonicSolver().mode_superposition(assembler, frequencies, modal_solver=ModalSolver(), n_modes=modes)
+# natural_frequencies, modal_shape = ModalSolver().solve(assembler, n_modes=20)
 dt = time()-t0
 print('Total elapsed time:', dt,'[s]')
 

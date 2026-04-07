@@ -9,7 +9,8 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.preprocessor import Preprocessor
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
-from pulse.processing.acoustic_solver import AcousticSolver
+from pulse.processing.assemblers.acoustic_assembler import AcousticAssembler
+from pulse.processing.solvers.harmonic_solver import HarmonicSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 # Fluid setup
@@ -64,9 +65,8 @@ preprocessor.set_mean_velocity_by_element('all', mean_velocity)
 f_max = 1000
 df = 1
 frequencies = np.arange(df, f_max+df, df)
-solution = AcousticSolver(preprocessor, frequencies)
-
-direct = solution.direct_method()
+assembler = AcousticAssembler(preprocessor)
+direct = HarmonicSolver().direct_method(assembler, frequencies)
 
 f_fem=np.loadtxt("examples/validation_mean_flow/dataM0p1_peters.txt", delimiter=',')[:,0] 
 p_fem=np.loadtxt("examples/validation_mean_flow/dataM0p1_peters.txt", delimiter=',')[:,1:3] 

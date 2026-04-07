@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 from pulse.model.cross_section import CrossSection
 from pulse.model.properties.material import Material
 from pulse.model.preprocessor import  Preprocessor
-from pulse.processing.structural_solver import StructuralSolver
+from pulse.processing.assemblers.structural_assembler import StructuralAssembler
+from pulse.processing.solvers.harmonic_solver import HarmonicSolver
+from pulse.processing.solvers.modal_solver import ModalSolver
 from pulse.postprocessing.plot_structural_data import get_structural_frf
 
 
@@ -23,9 +25,9 @@ preprocessor.set_structural_loads([361], np.array([1,0,0,0,0,0]))
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS
 frequencies = np.arange(0, 202, 2)
 modes = 200
-solution = StructuralSolver(preprocessor)
-direct = solution.direct_method(frequencies)
-modal = solution.mode_superposition(frequencies, modes)
+assembler = StructuralAssembler(preprocessor)
+direct = HarmonicSolver().direct_method(assembler, frequencies)
+modal = HarmonicSolver().mode_superposition(assembler, frequencies, modal_solver=ModalSolver(), n_modes=modes)
 
 # GETTING FRF
 node = 711

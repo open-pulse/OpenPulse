@@ -42,19 +42,12 @@ class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
 
     def _load_structural_solver(self):
 
-        if app().project.structural_solver is None:
+        if app().project.structural_assembler is None:
 
             def callback():
                 logging.info("Processing the cross-sections [75%]")
                 app().project.model.preprocessor.process_cross_sections_mapping()
             LoadingWindow(callback).run()
-
-            self.structural_solver = app().project.get_structural_solver()
-            if self.structural_solver.solution is None:
-                self.structural_solver.solution = app().project.structural_solution
-
-        else:
-            self.structural_solver = app().project.structural_solver
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -96,7 +89,7 @@ class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
         if len(self.stress_data) == 0 or self.update_damping:
             damping_effect = self.checkBox_damping_effect.isChecked()
 
-            self.stress_data = self.structural_solver.stress_calculate(damping=damping_effect)
+            self.stress_data = app().project.stress_calculate(damping=damping_effect)
             self.update_damping = False
 
         response = get_stress_spectrum_data(

@@ -7,7 +7,8 @@ from pulse.model.properties.material import Material
 from pulse.model.properties.fluid import Fluid
 from pulse.model.preprocessor import Preprocessor
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
-from pulse.processing.acoustic_solver import AcousticSolver
+from pulse.processing.assemblers.acoustic_assembler import AcousticAssembler
+from pulse.processing.solvers.harmonic_solver import HarmonicSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 # Fluid setup
@@ -43,9 +44,8 @@ f_max = 2500
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 
-solution = AcousticSolver(preprocessor, frequencies)
-
-direct = solution.direct_method()
+assembler = AcousticAssembler(preprocessor)
+direct = HarmonicSolver().direct_method(assembler, frequencies)
 
 pressure = get_acoustic_frf(preprocessor, direct, 1086, dB=True)
 p_ref = 20e-6

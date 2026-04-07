@@ -49,19 +49,12 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
 
     def _load_structural_solver(self):
 
-        if app().project.structural_solver is None:
+        if app().project.structural_assembler is None:
 
             def callback():
                 logging.info("Processing the cross-sections [75%]")
                 app().project.model.preprocessor.process_cross_sections_mapping()
             LoadingWindow(callback).run()
-
-            self.structural_solver = app().project.get_structural_solver()
-            if self.structural_solver.solution is None:
-                self.structural_solver.solution = app().project.structural_solution
-
-        else:
-            self.structural_solver = app().project.structural_solver
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -119,7 +112,7 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         app().project.model.frequencies = np.array([0.], dtype=float)
 
         if len(self.stress_data) == 0:
-            self.stress_data = self.structural_solver.stress_calculate(static_analysis=True)
+            self.stress_data = app().project.stress_calculate(static_analysis=True)
 
         stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }
 

@@ -9,7 +9,8 @@ from pulse.model.properties.fluid import Fluid
 from pulse.model.preprocessor import Preprocessor
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
-from pulse.processing.acoustic_solver import AcousticSolver
+from pulse.processing.assemblers.acoustic_assembler import AcousticAssembler
+from pulse.processing.solvers.harmonic_solver import HarmonicSolver
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 
 # Fluid setup
@@ -46,9 +47,8 @@ preprocessor.set_cross_section_by_lines([1, 2, 3, 4], cross_section_expansion)
 f_max = 400
 df = 1
 frequencies = np.arange(df, f_max+df, df)
-solution = AcousticSolver(preprocessor, frequencies)
-
-direct = solution.direct_method()
+assembler = AcousticAssembler(preprocessor)
+direct = HarmonicSolver().direct_method(assembler, frequencies)
 
 # Perforated plate setup
 hole_diameter = 1e-3
@@ -57,8 +57,12 @@ porosity = 0.01
 pp = PerforatedPlate(hole_diameter, thickness, porosity)
 preprocessor.set_perforated_plate(86, pp)
 
-solution = AcousticSolver(preprocessor, frequencies)
-direct_pp = solution.direct_method()
+assembler_pp = AcousticAssembler(preprocessor)
+if assembler_pp.nl_elements:
+    assembler_pp.reset_nl_elements()
+    direct_pp, _ = HarmonicSolver().nonlinear_direct_method(assembler_pp, frequencies)
+else:
+    direct_pp = HarmonicSolver().direct_method(assembler_pp, frequencies)
 
 f_fem=np.loadtxt("examples/validation_perforated_plate/FEM.txt", delimiter=',')[:,0] 
 p_fem=np.loadtxt("examples/validation_perforated_plate/FEM.txt", delimiter=',')[:,1:4] 
