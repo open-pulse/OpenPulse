@@ -1,7 +1,9 @@
 import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLineEdit
 
 from pulse import app
+from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
 from pulse.interface.ui_generated.model.setup.structural.inertial_load_input_ui import (
     InertialLoadInput_UI,
 )
@@ -20,6 +22,7 @@ class SetInertialLoad(UserInput, InertialLoadInput_UI):
         self.preprocessor = app().project.model.preprocessor
         
         self._initialize()
+        self._configure_validators()
         self._create_connections()
         self._config_widgets()
         self._load_inertia_load_setup()
@@ -31,6 +34,12 @@ class SetInertialLoad(UserInput, InertialLoadInput_UI):
         # self.gravity = np.zeros(DOF_PER_NODE_STRUCTURAL, dtype=float)
         self.gravity_vector = self.model.gravity_vector
 
+    def _configure_validators(self):
+        validator = StrictDoubleValidator(1e-8, 1e8, 6)
+        self.lineEdit_acceleration_x_axis.setValidator(validator)
+        self.lineEdit_acceleration_y_axis.setValidator(validator)
+        self.lineEdit_acceleration_z_axis.setValidator(validator)
+
     def _create_connections(self):
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_exit.clicked.connect(self.close)
@@ -40,85 +49,30 @@ class SetInertialLoad(UserInput, InertialLoadInput_UI):
 
     def check_gravity_values(self):
 
-        self.acceleration_x = 0
-        self.acceleration_y = 0
-        self.acceleration_z = 0
+        self.gravity = np.zeros(6, dtype=float)
 
-        lineEdit = self.lineEdit_acceleration_x_axis
-        self.acceleration_x = self.check_inputs(lineEdit, "x-axis acceleration")
-        if self.stop:
-            lineEdit.setFocus()
-            return True
+        line_edits = [
+            self.lineEdit_acceleration_x_axis,
+            self.lineEdit_acceleration_y_axis,
+            self.lineEdit_acceleration_z_axis,
+        ]
 
-        lineEdit = self.lineEdit_acceleration_y_axis
-        self.acceleration_y = self.check_inputs(lineEdit, "y-axis acceleration")
-        if self.stop:
-            lineEdit.setFocus()
-            return True
+        line_edits: list[QLineEdit]
+        for i, line_edit in enumerate(line_edits):
+            if line_edit.text() == "":
+                continue
 
-        lineEdit = self.lineEdit_acceleration_z_axis
-        self.acceleration_z = self.check_inputs(lineEdit, "z-axis acceleration")
-        if self.stop:
-            lineEdit.setFocus()
-            return True
+            self.gravity[i] = float(line_edit.text())
 
-        self.gravity = np.array([self.acceleration_x, self.acceleration_y, self.acceleration_z, 0, 0, 0], dtype=float)
-
-        # if np.sum(np.abs(self.gravity)) == 0:
-        #     #
-        #     title = "Invalid input fields"
-        #     message = "Dear user, you should to enter a valid gravity setup to proceed. The null "
-        #     message += "gravity vector does not provide an effective static loading."
-        #     #
-        #     text_info = [title, message, warning_title]
-        #     PrintMessageInput(text_info)
-        #     #
+        # if self.gravity.any() == 0:
+        #     self.hide()
+        #     title = "Invalid input detected"
+        #     message = "Enter a non-null gravity vector to proceed. The null gravity "
+        #     message += "vector does not provide an effective static loading."
+        #     PrintMessageInput([warning_title, title, message])
         #     return True
 
         return False
-        
-    def check_inputs(self, lineEdit, label, only_positive = False, zero_included = True, _float = True):
-
-        message = ""
-        self.stop = False
-        
-        if lineEdit.text() != "":
-            try:
-
-                if _float:
-                    value = float(lineEdit.text())
-                else:
-                    value = int(lineEdit.text())
-
-                if only_positive:
-                    if zero_included:
-                        if value < 0:
-                            message = f"Insert a positive value to the {label}."
-                            message += "\n\nNote: zero value is allowed."
-                    else:
-                        if value <= 0:
-                            message = f"Insert a positive value to the {label}."
-                            message += "\n\nNote: zero value is not allowed."
-
-            except Exception as error_log:
-                message = "Dear user, you have typed and invalid value at the \n"
-                message += f"{label} input field.\n\n"
-                message += str(error_log)
-
-        else:
-
-            if zero_included:
-                return float(0)
-            else: 
-                message = f"Insert some value at the {label} input field."
-
-        title = "Invalid input to the analysis setup"
-        if message != "":
-            PrintMessageInput([error_title, title, message])                   
-            self.stop = True
-            return None
-
-        return value
 
     def attribute_callback(self):
 
@@ -128,9 +82,9 @@ class SetInertialLoad(UserInput, InertialLoadInput_UI):
         stiffening_effect = self.checkBox_stiffening_effect.isChecked()
 
         inertia_load = {
-                        "gravity" : list(self.gravity),
-                        "stiffening_effect" : stiffening_effect
-                        }
+            "gravity" : list(self.gravity),
+            "stiffening_effect" : stiffening_effect
+            }
 
         self.model.set_gravity_vector(self.gravity)
         self.preprocessor.modify_stress_stiffening_effect(stiffening_effect)
@@ -144,14 +98,16 @@ class SetInertialLoad(UserInput, InertialLoadInput_UI):
         key_stiffening = self.project.model.preprocessor.stress_stiffening_enabled
         self.checkBox_stiffening_effect.setChecked(key_stiffening)
 
-        if np.sum(self.gravity_vector) != 0:
-            gravity = self.gravity_vector
-            self.lineEdit_acceleration_x_axis.setText(str(gravity[0]))
-            self.lineEdit_acceleration_y_axis.setText(str(gravity[1]))
-            self.lineEdit_acceleration_z_axis.setText(str(gravity[2]))
+        if self.gravity_vector.any() == 0:
+            return
+
+        gravity = self.gravity_vector
+        self.lineEdit_acceleration_x_axis.setText(str(gravity[0]))
+        self.lineEdit_acceleration_y_axis.setText(str(gravity[1]))
+        self.lineEdit_acceleration_z_axis.setText(str(gravity[2]))
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.confirm()
+            self.attribute_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
