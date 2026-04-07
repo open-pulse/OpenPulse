@@ -49,7 +49,7 @@ class BeforeRun():
 
             try:
                 tokens.remove('')
-            except:
+            except Exception:
                 pass
 
             if selection_type == "lines":
@@ -88,7 +88,7 @@ class BeforeRun():
                             else:
                                 continue
 
-                    except:
+                    except Exception:
                         message = f"Dear user, you have typed an invalid entry at the {label.capitalize()} ID input field. " 
                         message += f"The input value(s) must be integer(s) number(s) greater than 1 and less than {_size}."
 
@@ -359,8 +359,8 @@ class BeforeRun():
             flag_lrf_full = True
             self.dict_criterias['LRF full'] = list_lrf_full
         
-        self.max_valid_freq = np.array(list_max_valid_freq)[np.array(list_max_valid_freq)!=None]
-        self.min_valid_freq = np.array(list_min_valid_freq)[np.array(list_min_valid_freq)!=None]
+        self.max_valid_freq = np.array(list_max_valid_freq)[np.array(list_max_valid_freq) is not None]
+        self.min_valid_freq = np.array(list_min_valid_freq)[np.array(list_min_valid_freq) is not None]
 
         self.max_valid_freq = np.min(self.max_valid_freq)
         self.min_valid_freq = np.max(self.min_valid_freq)

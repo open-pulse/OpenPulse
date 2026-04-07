@@ -606,7 +606,7 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
             self.tableWidget_new_fluid.setItem(row, 1, QTableWidgetItem(molar_fraction))
             self.tableWidget_new_fluid.item(row, 1).setTextAlignment(Qt.AlignCenter)
 
-        except:
+        except Exception:
             return True
 
     def check_remaining_molar_fraction(self):
