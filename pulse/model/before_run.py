@@ -398,7 +398,7 @@ class BeforeRun():
         acoustic_message += "\n\nAvailable acoustic excitations: acoustic pressure, volume velocity, "
         acoustic_message += "reciprocating compressor excitation, and reciprocating pump excitation."
 
-        if analysis_id == AnalysisID.STRUCTURAL_MODAL:
+        if analysis_id in [AnalysisID.STRUCTURAL_MODAL, AnalysisID.STRUCTURAL_STATIC]:
 
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             if self.check_set_material:
