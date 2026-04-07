@@ -101,7 +101,7 @@
          </font>
         </property>
         <property name="currentIndex">
-         <number>1</number>
+         <number>0</number>
         </property>
         <widget class="QWidget" name="tab_constant_values">
          <attribute name="title">
@@ -197,6 +197,9 @@
                <property name="text">
                 <string>Imaginary</string>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
               </widget>
              </item>
              <item row="6" column="2">
@@ -246,6 +249,9 @@
                </property>
                <property name="text">
                 <string>Real</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -378,6 +384,9 @@
                <property name="text">
                 <string>Uz:</string>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
               </widget>
              </item>
              <item row="2" column="4">
@@ -434,6 +443,9 @@
                <property name="text">
                 <string>Ry:</string>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
               </widget>
              </item>
              <item row="1" column="1">
@@ -460,6 +472,9 @@
                </property>
                <property name="text">
                 <string>Ux:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
@@ -646,6 +661,9 @@
                <property name="text">
                 <string>Uy:</string>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
               </widget>
              </item>
              <item row="1" column="4">
@@ -701,6 +719,9 @@
                </property>
                <property name="text">
                 <string>Rz:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
@@ -764,6 +785,9 @@
              </item>
              <item row="1" column="5">
               <spacer name="horizontalSpacer_6">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -819,6 +843,9 @@
                </property>
                <property name="text">
                 <string>Rx:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
@@ -882,6 +909,9 @@
              </item>
              <item row="1" column="0">
               <spacer name="horizontalSpacer_5">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -1606,6 +1636,9 @@
              </item>
              <item row="0" column="0">
               <spacer name="horizontalSpacer_7">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -1616,6 +1649,9 @@
              </item>
              <item row="0" column="3">
               <spacer name="horizontalSpacer_11">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -1674,6 +1710,9 @@
              </item>
              <item row="0" column="6">
               <spacer name="horizontalSpacer_8">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
@@ -1927,6 +1966,9 @@
          </property>
          <item row="0" column="0">
           <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
@@ -1988,6 +2030,9 @@
          </item>
          <item row="0" column="3">
           <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
            <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>

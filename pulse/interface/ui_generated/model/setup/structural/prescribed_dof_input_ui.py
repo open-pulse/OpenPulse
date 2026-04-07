@@ -86,6 +86,7 @@ class Ui_Dialog(object):
         self.label_imaginary.setMinimumSize(QSize(80, 22))
         self.label_imaginary.setMaximumSize(QSize(80, 22))
         self.label_imaginary.setFont(font)
+        self.label_imaginary.setAlignment(Qt.AlignCenter)
 
         self.gridLayout_8.addWidget(self.label_imaginary, 0, 3, 1, 1)
 
@@ -103,6 +104,7 @@ class Ui_Dialog(object):
         self.label_real.setMinimumSize(QSize(80, 22))
         self.label_real.setMaximumSize(QSize(80, 22))
         self.label_real.setFont(font)
+        self.label_real.setAlignment(Qt.AlignCenter)
 
         self.gridLayout_8.addWidget(self.label_real, 0, 2, 1, 1)
 
@@ -147,6 +149,7 @@ class Ui_Dialog(object):
         self.label_Uz_constant.setMinimumSize(QSize(70, 26))
         self.label_Uz_constant.setMaximumSize(QSize(70, 26))
         self.label_Uz_constant.setFont(font)
+        self.label_Uz_constant.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.gridLayout_8.addWidget(self.label_Uz_constant, 3, 1, 1, 1)
 
@@ -168,6 +171,7 @@ class Ui_Dialog(object):
         self.label_Ry_constant.setMinimumSize(QSize(70, 26))
         self.label_Ry_constant.setMaximumSize(QSize(70, 26))
         self.label_Ry_constant.setFont(font)
+        self.label_Ry_constant.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.gridLayout_8.addWidget(self.label_Ry_constant, 5, 1, 1, 1)
 
@@ -177,6 +181,7 @@ class Ui_Dialog(object):
         self.label_Ux_constant.setMaximumSize(QSize(70, 26))
         self.label_Ux_constant.setFont(font)
         self.label_Ux_constant.setStyleSheet(u"")
+        self.label_Ux_constant.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.gridLayout_8.addWidget(self.label_Ux_constant, 1, 1, 1, 1)
 
@@ -236,6 +241,7 @@ class Ui_Dialog(object):
         self.label_Uy_constant.setMinimumSize(QSize(70, 26))
         self.label_Uy_constant.setMaximumSize(QSize(70, 26))
         self.label_Uy_constant.setFont(font)
+        self.label_Uy_constant.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.gridLayout_8.addWidget(self.label_Uy_constant, 2, 1, 1, 1)
 
@@ -254,6 +260,7 @@ class Ui_Dialog(object):
         self.label_Rz_constant.setMinimumSize(QSize(70, 26))
         self.label_Rz_constant.setMaximumSize(QSize(70, 26))
         self.label_Rz_constant.setFont(font)
+        self.label_Rz_constant.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.gridLayout_8.addWidget(self.label_Rz_constant, 6, 1, 1, 1)
 
@@ -276,7 +283,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_8.addWidget(self.lineEdit_real_Rx, 4, 2, 1, 1)
 
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.gridLayout_8.addItem(self.horizontalSpacer_6, 1, 5, 1, 1)
 
@@ -294,6 +301,7 @@ class Ui_Dialog(object):
         self.label_Rx_constant.setMinimumSize(QSize(70, 26))
         self.label_Rx_constant.setMaximumSize(QSize(70, 26))
         self.label_Rx_constant.setFont(font)
+        self.label_Rx_constant.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
 
         self.gridLayout_8.addWidget(self.label_Rx_constant, 4, 1, 1, 1)
 
@@ -316,7 +324,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_8.addWidget(self.comboBox_rotation_ry, 5, 4, 1, 1)
 
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.gridLayout_8.addItem(self.horizontalSpacer_5, 1, 0, 1, 1)
 
@@ -573,11 +581,11 @@ class Ui_Dialog(object):
 
         self.gridLayout_2.addWidget(self.comboBox_linear_data_type, 0, 2, 1, 1)
 
-        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.gridLayout_2.addItem(self.horizontalSpacer_7, 0, 0, 1, 1)
 
-        self.horizontalSpacer_11 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_11 = QSpacerItem(40, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.gridLayout_2.addItem(self.horizontalSpacer_11, 0, 3, 1, 1)
 
@@ -602,7 +610,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_2.addWidget(self.label_5, 0, 4, 1, 1)
 
-        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.gridLayout_2.addItem(self.horizontalSpacer_8, 0, 6, 1, 1)
 
@@ -697,7 +705,7 @@ class Ui_Dialog(object):
         self.gridLayout_7.setHorizontalSpacing(8)
         self.gridLayout_7.setVerticalSpacing(0)
         self.gridLayout_7.setContentsMargins(0, 0, 0, 0)
-        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.gridLayout_7.addItem(self.horizontalSpacer, 0, 0, 1, 1)
 
@@ -719,7 +727,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_7.addWidget(self.label_2, 0, 1, 1, 1)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.gridLayout_7.addItem(self.horizontalSpacer_2, 0, 3, 1, 1)
 
@@ -818,7 +826,7 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
 
-        self.tabWidget_prescribed_dof.setCurrentIndex(1)
+        self.tabWidget_prescribed_dof.setCurrentIndex(0)
         self.pushButton_remove.setDefault(True)
         self.pushButton_attribute.setDefault(False)
 
