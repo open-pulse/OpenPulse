@@ -79,7 +79,7 @@ class StructuralNodesInput(NodesInput):
                 setattr(self, table_path_name, _table_path)
 
             _table_path_attr = getattr(self, table_path_name)
-            table_paths.append(str(_table_path_attr))
+            table_paths.append(_table_path_attr)
 
         for node_id in node_ids:
             table_names = list()
