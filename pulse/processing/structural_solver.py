@@ -58,9 +58,9 @@ class StructuralSolver:
         self.warning_modal_prescribed_dofs = ""
         self.warning_mode_sup_prescribed_dofs = ""
 
-        self.reactions_at_constrained_dofs = None
-        self.reactions_at_springs = None
-        self.reactions_at_dampers = None
+        self.reactions_at_constrained_dofs = dict()
+        self.reactions_at_springs = dict()
+        self.reactions_at_dampers = dict()
 
     def update_global_matrices(self):
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
@@ -509,6 +509,8 @@ class StructuralSolver:
         Ut_Mr = Ut @ Mr
 
         n_freq = len(_frequencies)
+        self.reactions_at_constrained_dofs.clear()
+
         for j, freq in enumerate(_frequencies):
 
             logging.info(f"Evaluating the structural reactions for constrained dofs [{j+1}/{n_freq}]")
@@ -522,11 +524,8 @@ class StructuralSolver:
 
             _reactions[j, :] = F_K + F_M + F_C
 
-        load_reactions = dict()
         for i, prescribed_index in enumerate(self.prescribed_indexes):
-            load_reactions[prescribed_index] =  _reactions[:,i]
-
-        self.reactions_at_constrained_dofs = load_reactions
+            self.reactions_at_constrained_dofs[prescribed_index] =  _reactions[:,i]
 
 
     def get_reactions_at_springs_and_dampers(self, static_analysis=False):
@@ -556,10 +555,13 @@ class StructuralSolver:
 
         omega = 2*np.pi*_frequencies
 
-        springs_stiffness = list()
-        dampers_dampings = list()
-        global_dofs_of_springs = list()
-        global_dofs_of_dampers = list()
+        _springs_stiffness = list()
+        _dampers_dampings = list()
+        _global_dofs_springs = list()
+        _global_dofs_dampers = list()
+
+        self.reactions_at_springs.clear()
+        self.reactions_at_dampers.clear()
         
         for (property, *args), data in self.model.properties.nodal_properties.items():
             if property == "lumped_stiffness":
@@ -567,45 +569,41 @@ class StructuralSolver:
                 data: dict
                 node_id = args[0]
                 node = self.model.preprocessor.nodes[node_id]
-                global_dofs_of_springs.append(node.global_dof)
+                _global_dofs_springs.append(node.global_dof)
                 values = data["values"]
 
                 if "table_names" in data.keys():
-                    springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else value for value in values])
+                    _springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else value for value in values])
                 else:
-                    springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in values])
+                    _springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in values])
 
             elif property == "lumped_dampings":
 
                 node_id = args[0]
                 node = self.model.preprocessor.nodes[node_id]
-                global_dofs_of_dampers.append(node.global_dof)
+                _global_dofs_dampers.append(node.global_dof)
                 values = data["values"]
 
                 if "table_names" in data.keys():
-                    dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else value for value in values])
+                    _dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else value for value in values])
                 else:
-                    dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in values])
+                    _dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in values])
 
-        if springs_stiffness:
-            global_dofs_of_springs = np.array(global_dofs_of_springs).flatten()
-            springs_stiffness = np.array(springs_stiffness).reshape(-1,cols)
-            reactions_at_springs = springs_stiffness*U[global_dofs_of_springs,:]
+        if _springs_stiffness:
+            global_dofs_springs = np.array(_global_dofs_springs).flatten()
+            springs_stiffness = np.array(_springs_stiffness).reshape(-1, cols)
+            reactions_at_springs = springs_stiffness*U[global_dofs_springs,:]
 
-            for i, gdof in enumerate(global_dofs_of_springs):
-                reactions_at_springs[gdof] = reactions_at_springs[i,:]
+            for i, gdof in enumerate(global_dofs_springs):
+                self.reactions_at_springs[gdof] = reactions_at_springs[i, :]
 
-            self.reactions_at_springs = reactions_at_springs
+        if _dampers_dampings:
+            global_dofs_dampers = np.array(_global_dofs_dampers).flatten()
+            dampers_dampings = np.array(_dampers_dampings).reshape(-1, cols)
+            reactions_at_dampers = (1j*omega) * dampers_dampings * U[global_dofs_dampers,:]
 
-        if dampers_dampings:
-            global_dofs_of_dampers = np.array(global_dofs_of_dampers).flatten()
-            dampers_dampings = np.array(dampers_dampings).reshape(-1,cols)
-            reactions_at_dampers = (1j*omega)*dampers_dampings*U[global_dofs_of_dampers,:]
-        
-            for i, gdof in enumerate(global_dofs_of_dampers):
-                reactions_at_dampers[gdof] = reactions_at_dampers[i,:]
-
-            self.reactions_at_dampers = reactions_at_dampers
+            for i, gdof in enumerate(global_dofs_dampers):
+                self.reactions_at_dampers[gdof] = reactions_at_dampers[i,:]
 
     def stress_calculate(self, 
             external_pressure: float = 0., 
