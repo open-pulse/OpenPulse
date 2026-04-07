@@ -1,6 +1,7 @@
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLineEdit
+from PySide6.QtGui import QCloseEvent
 
 from pulse import app
 from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
@@ -8,7 +9,6 @@ from pulse.interface.ui_generated.model.setup.structural.inertial_load_input_ui 
     InertialLoadInput_UI,
 )
 from pulse.interface.user_input.model.setup.user_input import UserInput
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 error_title = "Error"
 warning_title = "Warning"
@@ -111,3 +111,6 @@ class SetInertialLoad(UserInput, InertialLoadInput_UI):
             self.attribute_callback()
         elif event.key() == Qt.Key_Escape:
             self.close()
+    
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False        
