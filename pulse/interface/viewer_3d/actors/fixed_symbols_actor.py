@@ -9,7 +9,7 @@ from molde.utils import set_polydata_colors, read_obj_file, transform_polydata
 from vtkmodules.vtkCommonDataModel import vtkPolyData
 from vtkmodules.vtkFiltersCore import vtkAppendPolyData
 from vtkmodules.vtkFiltersSources import vtkLineSource
-from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper
+from vtkmodules.vtkRenderingCore import vtkPolyDataMapper
 
 from pulse import app, SYMBOLS_DIR
 from pulse.utils.cross_section_sources import valve_data
