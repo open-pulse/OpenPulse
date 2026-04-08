@@ -97,11 +97,11 @@ class Plot2DSimplified(Plot2dDialog_UI):
         self, 
         x_data: np.ndarray, 
         y_data: np.ndarray,
-        legend: str = "",
+        label: str = None,
         line_style: str = "-",
         line_width: int = 1.5,
         color: tuple = (1, 0, 0),
-        marker: str = "",
+        marker: str = None,
         marker_size: int = 5,
         axes_limits: (list | tuple | str) = "auto",
     ):
@@ -109,6 +109,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
         self.results_plot.axes.plot(
             x_data,
             y_data,
+            label=label,
             linestyle=line_style,
             linewidth=line_width,
             color=color,
@@ -117,20 +118,9 @@ class Plot2DSimplified(Plot2dDialog_UI):
             markerfacecolor=color
         )
 
-        # TODO: try to find a solution to better adjust the axes limits
-        if isinstance(axes_limits, (list | tuple)):
-            xlim, ylim = axes_limits
-
-        else:
-            xlim = (0.9 * min(x_data), 1.1 * max(x_data))
-            ylim = (0.9 * min(y_data), 1.1 * max(y_data))
-
-        if xlim[0] != xlim[1]:
-            self.results_plot.ax_left.set_xlim(*xlim)
-    
-        if ylim[0] != ylim[1]:
-            self.results_plot.ax_left.set_ylim(*ylim)
-
+        if label is not None:
+            self.results_plot.axes.legend(loc="upper right")
+        
         self.results_plot.draw()
     
     def closeEvent(self, a0):

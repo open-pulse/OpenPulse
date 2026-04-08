@@ -369,7 +369,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.doubleSpinBox_rotational_speed.setValue(parameters["rotational_speed"])
 
         if "bulk_modulus" in parameters.keys():
-            self.lineEdit_bulk_modulus.setText(f"{parameters["bulk_modulus"] : .8e}")
+            self.lineEdit_bulk_modulus.setText(f'{parameters["bulk_modulus"] : .8e}')
 
         if "suction_pressure" in parameters.keys():
             self.lineEdit_suction_pressure.setText(str(parameters["suction_pressure"]))
@@ -794,7 +794,6 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.process_aquisition_parameters()
 
     def plot_PV_diagram_head_end(self):
-
         if self.check_all_parameters():
             return
 
@@ -810,26 +809,39 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         pressure_unit = self.comboBox_pressure_units.currentText()
         pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", pressure_unit)
 
-        # define the plot settings
-        plot_settings = PlotSettings(
-            legends=["Head end"],
+        # call the 2D plotter
+        self.plot_2d = Plot2DSimplified(
             title="P-V diagram (head end)",
             x_label="Volume [m³]",
-            y_label=f"Pressure [{pressure_unit}]",
-            line_widths=[1.5],
+            y_label=f"Pressure [{pressure_unit}]"
         )
 
-        # call the 2D plotter
-        self.plot_2d = Plot2DSimplified(plot_settings)
-        self.plot_2d.set_plot_data(volume_HE_m3, pressure_HE)
+        self.plot_2d.set_plot_data(volume_HE_m3, pressure_HE, label="Head end")
         self.plot_2d.show()
 
     def plot_PV_diagram_crank_end(self):
         if self.check_all_parameters():
             return
+        
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_PV_diagram_crank_end()
+
+        volume_CE, pressure_CE_Pa, _ = self.pump_model.process_crank_end_volumes_and_pressures()
+        if volume_CE is None:
+            return
+
+        # convert pressure units
+        pressure_unit = self.comboBox_pressure_units.currentText()
+        pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", pressure_unit)
+
+        self.plot_2d = Plot2DSimplified(
+            title = "P-V diagram (crank end)",
+            x_label = "Volume [m³]",
+            y_label = f"Pressure [{pressure_unit}]"
+        )
+
+        self.plot_2d.set_plot_data(volume_CE, pressure_CE, label="Crank end")
+        self.plot_2d.show()
 
     def plot_PV_diagram_both_ends(self):
         if self.check_all_parameters():
@@ -848,22 +860,16 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", pressure_unit)
         pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", pressure_unit)
 
-        # define the plot settings
-        plot_settings = PlotSettings(
-            number_of_plots=2,
-            legends= ["Head End", "Crank End"],
+        # call the 2D plotter
+        self.plot_2d = Plot2DSimplified(
             title="Reciprocating Pump P-V Diagram",
             x_label="Volume [m³]",
             y_label=f"Pressure [{pressure_unit}]",
-            line_styles=["-", "--"],
-            line_widths=[1.5, 1.5],
-            colors=[(1,0,0), (0,0,1)]
         )
 
-        # call the 2D plotter
-        self.plot_2d = Plot2DSimplified(plot_settings)
-        self.plot_2d.set_plot_data(volume_HE, pressure_HE)
-        self.plot_2d.set_plot_data(volume_CE, pressure_CE)
+        self.plot_2d.set_plot_data(volume_HE, pressure_HE, label="Head End",)
+        self.plot_2d.set_plot_data(volume_CE, pressure_CE, label="Crank End", 
+                                   line_style="--", color=(0, 0, 1))
         self.plot_2d.show()
 
     def plot_pressure_time(self):
@@ -885,10 +891,27 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
     def plot_volumetric_flow_rate_at_suction_time(self):
         if self.check_all_parameters():
             return
+        
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
+
+        flow_rate = self.pump_model.process_sum_of_volumetric_flow_rate('in_flow')
+        if flow_rate is None:
+            return
+
+        Trev = 60 / self.pump_model.rpm
+        N = len(flow_rate)
+        time = np.linspace(0, Trev, N)
+
+        self.plot_2d = Plot2DSimplified(
+            title = "Volumetric flow rate at suction",
+            x_label = "Time [s]",
+            y_label = "Volume [m³/s]"
+        )
+        
+        self.plot_2d.set_plot_data(time, flow_rate)
+        self.plot_2d.show()
         self.pump_model.plot_volumetric_flow_rate_at_suction_time()
-        return
 
     def plot_volumetric_flow_rate_at_discharge_time(self):
         if self.check_all_parameters():
