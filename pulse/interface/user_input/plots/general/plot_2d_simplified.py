@@ -21,45 +21,30 @@ plt.rcParams.update({'font.size': 10})
 
 @dataclass
 class PlotSettings:
-    number_of_plots: int = 1
-    legends : list = field(default_factory=list)
     title : str = ""
     x_label : str = ""
     y_label : str = ""
-    line_styles : list = field(default_factory=list)
-    line_widths : list = field(default_factory=list)
-    colors : list = field(default_factory=list)
-    markers : list = field(default_factory=list)
-    marker_sizes : list = field(default_factory=list)
-
-    def __post_init__(self):
-        _defaults = {
-            "legends": "",
-            "line_styles": "-",
-            "line_widths": 2,
-            "colors": (0, 0, 1),
-            "markers": None,
-            "marker_sizes": 5,
-        }
-        for attr, default in _defaults.items():
-            if not getattr(self, attr):
-                setattr(self, attr, [default] * self.number_of_plots)
-
 
 class Plot2DSimplified(Plot2dDialog_UI):
 
-    def __init__(self, plot_config: PlotSettings, **kwargs):
+    def __init__(
+        self, 
+        title: str = "", 
+        x_label: str = "", 
+        y_label: str = "",
+        **kwargs
+    ):
+        
         super().__init__()
         app().main_window.set_input_widget(self)
 
-        self.plot_config = plot_config
+        self.plot_settings = PlotSettings(title, x_label, y_label)
         self._toolbar: CustomNavigationToolbar = None
         self._plot_index = 0
 
         self._config_window()
         self._create_connections()
         self._add_plots_to_widget()
-        self._create_plots()
         self._configure_plots()
 
     def _config_window(self):
@@ -72,8 +57,6 @@ class Plot2DSimplified(Plot2dDialog_UI):
         self.pushButton_exit.clicked.connect(self.close)
 
     def _add_plots_to_widget(self):
-
-        self.plots = list()
         self.results_plot = MplCanvas(self, width=8, height=6, dpi=110)
 
         if self.plot_2d_widget.layout() is None:
@@ -84,32 +67,14 @@ class Plot2DSimplified(Plot2dDialog_UI):
             layout.addWidget(self.results_plot)
             self.plot_2d_widget.setLayout(layout)
 
-    def _create_plots(self):
-
-        self.plots: list[Line2D]
-
-        for i in range(self.plot_config.number_of_plots):
-            plot_i, = self.results_plot.axes.plot(
-                [],
-                [],
-                color = self.plot_config.colors[i],
-                linewidth = self.plot_config.line_widths[i],
-                linestyle = self.plot_config.line_styles[i],
-                marker = self.plot_config.markers[i],
-                markersize = self.plot_config.marker_sizes[i], 
-                markerfacecolor = self.plot_config.colors[i],
-                )
-
-            self.plots.append(plot_i)
-
         self.results_plot.ax_left.grid()
         self.results_plot.draw()
 
     def _configure_plots(self):
-        self.results_plot.ax_left.set_xlabel(self.plot_config.x_label)
-        self.results_plot.ax_left.set_ylabel(self.plot_config.y_label)
-        self.results_plot.ax_left.set_title(self.plot_config.title)
-        self.results_plot.ax_left.legend(self.plots, self.plot_config.legends, loc="upper right")
+        self.results_plot.ax_left.set_xlabel(self.plot_settings.x_label)
+        self.results_plot.ax_left.set_ylabel(self.plot_settings.y_label)
+        self.results_plot.ax_left.set_title(self.plot_settings.title)
+        # self.results_plot.ax_left.legend(self.plots, self.plot_settings.legends, loc="upper right")
         self.results_plot.ax_left.xaxis.set_major_formatter(
             ticker.FuncFormatter(self._format_axes_tick)
         )
@@ -129,14 +94,28 @@ class Plot2DSimplified(Plot2dDialog_UI):
         return f"{mantissa[:3]}e{sign}{int(exp[1:])}"
 
     def set_plot_data(
-            self, 
-            x_data: np.ndarray, 
-            y_data: np.ndarray, 
-            axes_limits: (list | tuple | str) = "auto",
-            ):
+        self, 
+        x_data: np.ndarray, 
+        y_data: np.ndarray,
+        legend: str = "",
+        line_style: str = "-",
+        line_width: int = 1.5,
+        color: tuple = (1, 0, 0),
+        marker: str = "",
+        marker_size: int = 5,
+        axes_limits: (list | tuple | str) = "auto",
+    ):
     
-        self.plots[self._plot_index].set_data(x_data, y_data)
-        self._plot_index += 1
+        self.results_plot.axes.plot(
+            x_data,
+            y_data,
+            linestyle=line_style,
+            linewidth=line_width,
+            color=color,
+            marker=marker,
+            markersize=marker_size,
+            markerfacecolor=color
+        )
 
         # TODO: try to find a solution to better adjust the axes limits
         if isinstance(axes_limits, (list | tuple)):
@@ -145,9 +124,6 @@ class Plot2DSimplified(Plot2dDialog_UI):
         else:
             xlim = (0.9 * min(x_data), 1.1 * max(x_data))
             ylim = (0.9 * min(y_data), 1.1 * max(y_data))
-
-            # self.results_plot.ax_left.autoscale()
-            # self.results_plot.ax_left.autoscale_view()
 
         if xlim[0] != xlim[1]:
             self.results_plot.ax_left.set_xlim(*xlim)
