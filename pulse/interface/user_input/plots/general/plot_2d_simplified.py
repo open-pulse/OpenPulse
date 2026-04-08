@@ -1,11 +1,10 @@
-from PySide6.QtWidgets import QDialog, QToolButton, QVBoxLayout, QWidget
-from PySide6.QtGui import QColor
+from PySide6.QtWidgets import QVBoxLayout
 from PySide6.QtCore import Qt
 
 from pulse import app
 # from pulse.interface.ui_generated.plots.graphs.plot_2d_widget_ui import PlotXyWidget_UI
 from pulse.interface.ui_generated.plots.graphs.plot_2d_dialog_ui import Plot2dDialog_UI
-from pulse.interface.formatters import icons
+from pulse.interface.user_input.plots.general.custom_navigation_toolbar import CustomNavigationToolbar
 
 # import matplotlib
 # matplotlib.use('Qt5Agg')
@@ -13,7 +12,6 @@ from pulse.interface.formatters import icons
 import matplotlib.pyplot as plt
 import numpy as np
 from dataclasses import dataclass, field
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
@@ -50,9 +48,9 @@ class Plot2DSimplified(Plot2dDialog_UI):
     def __init__(self, plot_config: PlotSettings, **kwargs):
         super().__init__()
         app().main_window.set_input_widget(self)
-        app().main_window.theme_changed.connect(self.paint_toolbar_icons)
 
         self.plot_config = plot_config
+        self._toolbar: CustomNavigationToolbar = None
 
         self._config_window()
         self._create_connections()
@@ -75,11 +73,10 @@ class Plot2DSimplified(Plot2dDialog_UI):
         self.results_plot = MplCanvas(self, width=8, height=6, dpi=110, secondary_axis=False)
 
         if self.plot_2d_widget.layout() is None:
-            toolbar = NavigationToolbar2QT(self.results_plot, self)
-            self.paint_toolbar_for_current_mpl(toolbar, self.results_plot)
+            self._toolbar = CustomNavigationToolbar(self.results_plot, self)
             #
             layout = QVBoxLayout()
-            layout.addWidget(toolbar)
+            layout.addWidget(self._toolbar)
             layout.addWidget(self.results_plot)
             self.plot_2d_widget.setLayout(layout)
 
@@ -138,23 +135,6 @@ class Plot2DSimplified(Plot2dDialog_UI):
             self.results_plot.ax_left.set_ylim(*ylim)
 
         self.results_plot.draw()
-
-    def paint_toolbar_for_current_mpl(self, toolbar, mpl_plot):
-        self.paint_toolbar_icons()
-        for button in toolbar.findChildren(QToolButton):
-            button.clicked.connect(self.paint_toolbar_icons)                    
-        mpl_plot.mpl_connect("draw_event", self.paint_toolbar_icons)
-
-    def paint_toolbar_icons(self, *args, **kwargs):
-
-        if app().main_window.interface_theme == "dark":
-            color = QColor("#5f9af4")
-        else:
-            color = QColor("#1a73e8")
-
-        for toolbar in self.findChildren(NavigationToolbar2QT):
-            buttons = toolbar.findChildren(QToolButton)
-            icons.change_icon_color_for_widgets(buttons, color)
 
     def closeEvent(self, a0):
         return super().closeEvent(a0)

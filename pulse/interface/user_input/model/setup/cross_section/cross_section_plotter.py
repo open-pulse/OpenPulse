@@ -33,22 +33,6 @@ class CrossSectionPlotter(CrossSectionPlotter_UI):
     def _create_connections(self):
         self.close_button.clicked.connect(self.close)
 
-    def paint_toolbar_icons(self, *args, **kwargs):
-        from pulse.interface.user_input.plots.general.custom_navigation_toolbar import (
-            CustomNavigationToolbar,
-        )
-
-        toolbar = self.findChild(CustomNavigationToolbar)
-        if toolbar is None:
-            return
-
-        if app().main_window.interface_theme == "dark":
-            color = QColor("#5f9af4")
-        else:
-            color = QColor("#1a73e8")
-
-        icons.change_icon_color_for_widgets(toolbar.findChildren(QToolButton), color)
-
     def plot_cross_section(self, points, section_type_label, section_type):
         if len(points) == 6:
             Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = points
