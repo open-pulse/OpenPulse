@@ -463,9 +463,8 @@ class MainWindow(MainWindow_UI):
                 # dt = time() - t0
                 # print(f"initial_project_action: {round(dt, 6)} s")
                 return True
-            else:
-                # self.model_and_analysis_items.modify_geometry_item_access(False)
-                return True
+
+            return True
 
         self.project.none_project_action = True
         return False
