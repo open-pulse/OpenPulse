@@ -206,30 +206,6 @@ class StructuralAssembler(Assembler):
         self._F_harmonic = None
         self._F_static = None
 
-    # ── Mode superposition helper (for HarmonicSolver) ────────────────────
-
-    def modal_analysis_reduced(
-        self, n_modes: int, sigma: float = 1e-2
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """
-        Returns (natural_frequencies, modal_shapes) in the reduced space
-        (without prescribed DOF reinsertion), for use in mode_superposition.
-        """
-        K = self.get_stiffness_matrix()
-        M = self.get_mass_matrix()
-
-        eigen_values, eigen_vectors = eigs(
-            K, M=M, k=n_modes, which="LM", sigma=sigma
-        )
-        Wn_2 = np.absolute(np.real(eigen_values))
-        natural_frequencies = np.sqrt(Wn_2) / (2 * np.pi)
-
-        index_order = np.argsort(natural_frequencies)
-        natural_frequencies = natural_frequencies[index_order]
-        modal_shapes = np.real(eigen_vectors[:, index_order])
-
-        return natural_frequencies, modal_shapes
-
     def get_loads_matrix(self, loads_matrix3D: bool = True) -> np.ndarray:
         """Load matrix for mode superposition (without prescribed correction)."""
         return self._assembly.get_global_loads(loads_matrix3D=loads_matrix3D)

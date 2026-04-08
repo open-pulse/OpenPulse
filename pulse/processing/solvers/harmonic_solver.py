@@ -313,17 +313,11 @@ class HarmonicSolver:
         np.ndarray  shape (n_dofs_total, n_freqs)
         """
 
-        from pulse.processing.solvers.modal_solver import ModalSolver
-
         alpha, beta, eta = assembler.global_damping
 
         natural_frequencies, modal_shape = modal_solver.solve(
-            assembler, n_modes=n_modes
+            assembler, n_modes=n_modes, reduced=True
         )
-        # modal_shape here is already full (with prescribed DOFs reinserted) from
-        # ModalSolver.solve(); mode_superposition needs the reduced space version,
-        # so we use the internal method without reinsertion.
-        natural_frequencies, modal_shape = assembler.modal_analysis_reduced(n_modes)
 
         n_freqs = len(frequencies)
         rows = modal_shape.shape[0]

@@ -23,6 +23,7 @@ class ModalSolver:
         n_modes: int = 40,
         which: str = "LM",
         sigma: float = 1e-4,
+        reduced: bool = False,
     ) -> tuple[np.ndarray, np.ndarray]:
         """
         Solve the modal analysis.
@@ -60,6 +61,10 @@ class ModalSolver:
                 K, M, n_modes, which, sigma
             )
 
+        if reduced:
+            return natural_frequencies, modal_shapes
+
+        # Reinsert prescribed DOFs
         modal_shapes = assembler.reinsert_prescribed_dofs(modal_shapes, modal=True)
         return natural_frequencies, modal_shapes
 
