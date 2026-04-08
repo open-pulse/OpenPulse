@@ -16,9 +16,9 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
-    QGridLayout, QHBoxLayout, QHeaderView, QLabel,
-    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
-    QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget)
+    QGridLayout, QHeaderView, QLabel, QLineEdit,
+    QPushButton, QSizePolicy, QSpacerItem, QTabWidget,
+    QTreeWidget, QTreeWidgetItem, QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -782,8 +782,10 @@ class Ui_Dialog(object):
         self.frame_7.setMinimumSize(QSize(0, 40))
         self.frame_7.setMaximumSize(QSize(16777215, 40))
         self.frame_7.setFrameShape(QFrame.Shape.NoFrame)
-        self.horizontalLayout_2 = QHBoxLayout(self.frame_7)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.gridLayout = QGridLayout(self.frame_7)
+        self.gridLayout.setSpacing(2)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.gridLayout.setContentsMargins(2, 2, 2, 2)
         self.pushButton_exit_tab0 = QPushButton(self.frame_7)
         self.pushButton_exit_tab0.setObjectName(u"pushButton_exit_tab0")
         self.pushButton_exit_tab0.setMinimumSize(QSize(100, 28))
@@ -792,7 +794,7 @@ class Ui_Dialog(object):
         self.pushButton_exit_tab0.setStyleSheet(u"")
         self.pushButton_exit_tab0.setAutoDefault(False)
 
-        self.horizontalLayout_2.addWidget(self.pushButton_exit_tab0)
+        self.gridLayout.addWidget(self.pushButton_exit_tab0, 0, 0, 1, 1)
 
         self.pushButton_attribute = QPushButton(self.frame_7)
         self.pushButton_attribute.setObjectName(u"pushButton_attribute")
@@ -802,7 +804,7 @@ class Ui_Dialog(object):
         self.pushButton_attribute.setStyleSheet(u"")
         self.pushButton_attribute.setAutoDefault(False)
 
-        self.horizontalLayout_2.addWidget(self.pushButton_attribute)
+        self.gridLayout.addWidget(self.pushButton_attribute, 0, 1, 1, 1)
 
 
         self.gridLayout_4.addWidget(self.frame_7, 2, 0, 1, 1)
@@ -1012,7 +1014,7 @@ class PrescribedDofInput_UI(QDialog, Ui_Dialog):
                     - (Layout): QGridLayout
                             - label: QLabel
                 - frame_7: QFrame
-                    - (Layout): QHBoxLayout
+                    - (Layout): QGridLayout
                             - pushButton_exit_tab0: QPushButton
                             - pushButton_attribute: QPushButton
     """
