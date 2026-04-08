@@ -3,7 +3,7 @@
 from pulse import app
 from pulse.model import AnalysisID
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.unit_conversion import mm_to_m
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
 
 import numpy as np
 from collections import defaultdict
@@ -702,19 +702,19 @@ class BeforeRun():
                         lengths = list()
                         for _line_id in neigh_lines:
                             length_mm = self.preprocessor.mesh.curve_length[_line_id]
-                            length_m = mm_to_m(length_mm)
-                            lengths.append(length_m)
+                            length = convert_length_unit(length_mm, "mm", "m")
+                            lengths.append(length)
 
                         total_length = np.sum(lengths)
                         ratio = total_length / parameter
 
                         aux[ind] = {
-                                    "section parameter" : parameter,
-                                    "lines" : neigh_lines,
-                                    "lengths" : lengths,
-                                    "total length" : total_length,
-                                    "ratio" : ratio
-                                    }
+                            "section parameter" : parameter,
+                            "lines" : neigh_lines,
+                            "lengths" : lengths,
+                            "total length" : total_length,
+                            "ratio" : ratio
+                            }
 
                 self.one_section_multiple_lines[section_id] = aux
 

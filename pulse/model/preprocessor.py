@@ -1,27 +1,36 @@
-from pulse.model.cross_section import *
-
-# from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
-from pulse.model.acoustic_element import AcousticElement, NODES_PER_ELEMENT
-from pulse.model.structural_element import StructuralElement, NODES_PER_ELEMENT
-from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
-from pulse.model.perforated_plate import PerforatedPlate
-
-from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
-from pulse.interface.user_input.model.setup.structural.valves_input import get_V_linear_distribution
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.common_utils import *
-from pulse.utils.unit_conversion import *
-
 from typing import TYPE_CHECKING
+
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import (
+    get_cross_sections_to_plot_expansion_joint,
+)
+from pulse.interface.user_input.model.setup.structural.valves_input import (
+    get_V_linear_distribution,
+)
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.acoustic_element import NODES_PER_ELEMENT, AcousticElement
+from pulse.model.cross_section import CrossSection
+from pulse.model.node import DOF_PER_NODE_ACOUSTIC, DOF_PER_NODE_STRUCTURAL, Node
+from pulse.model.perforated_plate import PerforatedPlate
+from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
+from pulse.model.structural_element import StructuralElement  #, NODES_PER_ELEMENT
+from pulse.utils.common_utils import (
+    get_linear_distribution_for_variable_section,
+    slicer,
+    split_sequence,
+    transformation_matrix_3x3xN,
+    transformation_matrix_Nx3x3_by_angles,
+)
+
 if TYPE_CHECKING:
     from pulse.model.mesh import Mesh
 
 import logging
-import numpy as np
 
 # from time import time
 from collections import defaultdict, deque
+
+import numpy as np
 from scipy.spatial.transform import Rotation
 
 
@@ -124,9 +133,9 @@ class Preprocessor:
         self.map_nodes = map_nodes
         self.nodes.clear()
         for i, coord in zip(indexes, split_sequence(coords, 3)):
-            x = mm_to_m(coord[0])
-            y = mm_to_m(coord[1])
-            z = mm_to_m(coord[2])
+            x = convert_length_unit(coord[0], "mm", "m")
+            y = convert_length_unit(coord[1], "mm", "m")
+            z = convert_length_unit(coord[2], "mm", "m")
             self.nodes[map_nodes[i]] = Node(x, y, z, external_index=int(map_nodes[i]))
         self.number_nodes = len(self.nodes)
 
@@ -520,8 +529,8 @@ class Preprocessor:
             for index, element in enumerate(self.structural_elements.values()):
                 first = element.first_node.global_index
                 last  = element.last_node.global_index
-                first_external = element.first_node.external_index
-                last_external  = element.last_node.external_index
+                # first_external = element.first_node.external_index
+                # last_external  = element.last_node.external_index
                 connectivity[index,:] = index+1, first, last
         else:
             for index, element in enumerate(self.structural_elements.values()):
@@ -617,15 +626,17 @@ class Preprocessor:
         column : array.
             Integers that place the columns.
         """
-        # Process the I and J indexes vector for assembly process
-        rows, cols = self.number_structural_elements, DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
-        cols_nodes = self.connectivity_matrix[:,1:].astype(int)
+
+        rows, cols = self.number_structural_elements, DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
+        cols_nodes = self.connectivity_matrix[:, 1:].astype(int)
         cols_dofs = cols_nodes.reshape(-1,1)*DOF_PER_NODE_STRUCTURAL + np.arange(6, dtype=int)
         cols_dofs = cols_dofs.reshape(rows, cols)
-        J = np.tile(cols_dofs, cols)
-        I = cols_dofs.reshape(-1,1)@np.ones((1,cols), dtype=int) 
-        return I.flatten(), J.flatten()
-    
+
+        ind_j = np.tile(cols_dofs, cols)
+        ind_i = cols_dofs.reshape(-1,1) @ np.ones((1,cols), dtype=int) 
+
+        return ind_i.flatten(), ind_j.flatten()
+
     def get_global_acoustic_indexes(self):
         """
         This method returns the placement of the rows and columns of the acoustic global degrees of freedom in the global matrices.
@@ -638,13 +649,16 @@ class Preprocessor:
         column : array.
             Integers that place the columns.
         """
-        rows, cols = len(self.acoustic_elements), DOF_PER_NODE_ACOUSTIC*NODES_PER_ELEMENT
-        cols_nodes = self.connectivity_matrix[:,1:].astype(int)
+
+        rows, cols = len(self.acoustic_elements), DOF_PER_NODE_ACOUSTIC * NODES_PER_ELEMENT
+        cols_nodes = self.connectivity_matrix[:, 1:].astype(int)
         cols_dofs = cols_nodes.reshape(-1,1)
         cols_dofs = cols_dofs.reshape(rows, cols)
-        J = np.tile(cols_dofs, cols)
-        I = cols_dofs.reshape(-1,1)@np.ones((1,cols), dtype=int) 
-        return I.flatten(), J.flatten()
+
+        ind_j = np.tile(cols_dofs, cols)
+        ind_i = cols_dofs.reshape(-1,1) @ np.ones((1,cols), dtype=int) 
+
+        return ind_i.flatten(), ind_j.flatten()
 
     def map_structural_to_acoustic_elements(self):
         """
@@ -947,7 +961,8 @@ class Preprocessor:
                     offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
                 
                 cross_sections_first = list()
-                cross_sections_last = list()
+                # cross_sections_last = list()
+
                 for index, element_id in enumerate(elements_from_line):
                     
                     element = self.structural_elements[element_id]

@@ -1,13 +1,13 @@
 #fmt: off
 
-from pulse import app
-from pulse.model import AnalysisID, RadiationImpedanceType
-from pulse.utils.unit_conversion import mm_to_m
-
-from molde.utils import TreeInfo, format_long_sequence
+from numbers import Number
 
 import numpy as np
-from numbers import Number
+from molde.utils import TreeInfo, format_long_sequence
+
+from pulse import app
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
+from pulse.model import AnalysisID, RadiationImpedanceType
 
 
 def nodes_info_text() -> str:
@@ -178,8 +178,9 @@ def lines_info_text() -> str:
         )
 
         total_length = 0
-        for line in lines:
-            line_length = mm_to_m(project.model.mesh.curve_length[line])
+        for line_id in lines:
+            line_length_mm = project.model.mesh.curve_length[line_id]
+            line_length = convert_length_unit(line_length_mm, "mm", "m")
             total_length += line_length
         
         info_text += f"TOTAL LENGTH: {total_length : .6f} [m]\n\n"
@@ -189,10 +190,12 @@ def lines_info_text() -> str:
         line_id, *_ = lines
 
         properties = project.model.properties
-        length = mm_to_m(project.model.mesh.curve_length[line_id])
+        line_length_mm = project.model.mesh.curve_length[line_id]
+        line_length = convert_length_unit(line_length_mm, "mm", "m")
+
         radius_of_curvature = properties._get_property("curvature_radius", line_id=line_id)
 
-        info_text += line_info_text(line_id, length, radius_of_curvature)
+        info_text += line_info_text(line_id, line_length, radius_of_curvature)
 
         material = properties._get_property("material", line_id=line_id)
         if material is not None:
@@ -212,12 +215,12 @@ def lines_info_text() -> str:
             valve_name = valve_info.get("valve_name", "")
 
         info_text += cross_section_info_text(
-                                             cross_section, 
-                                             structural_element_type, 
-                                             beam_xaxis_rotation, 
-                                             valve_name
-                                             )
-        
+            cross_section, 
+            structural_element_type, 
+            beam_xaxis_rotation, 
+            valve_name
+            )
+
         info_text += structural_element_info_text()
 
     return info_text
