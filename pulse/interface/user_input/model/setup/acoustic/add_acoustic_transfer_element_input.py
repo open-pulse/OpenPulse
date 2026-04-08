@@ -1,6 +1,7 @@
 # fmt: off
 
 import os
+from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import QEvent, QObject, Qt, Signal
@@ -22,6 +23,12 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
+
+class TabIndex(IntEnum):
+    SETUP = 0
+    LIST = 1
+
+
 error_title = "Error"
 warning_title = "Warning"
 
@@ -36,7 +43,6 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
         self._initialize()
         self._define_qt_variables()
         self._create_connections()
-        # self._config_widgets()
         self.load_nodal_info()
         self.selection_callback()
 
@@ -51,7 +57,7 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
         self.before_run = app().project.get_pre_solution_model_checks()
     
     def _define_qt_variables(self):
-        self.current_lineEdit = self.lineEdit_output_node_id
+        self.current_line_edit = self.lineEdit_output_node_id
 
     def _create_connections(self):
         #
@@ -67,17 +73,19 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
         self.treeWidget_nodal_info.itemClicked.connect(self.on_click_item)
         self.treeWidget_nodal_info.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
-        self.clickable(self.lineEdit_input_node_id).connect(self.lineEdit_1_clicked)
-        self.clickable(self.lineEdit_output_node_id).connect(self.lineEdit_2_clicked)
+        self.clickable(self.lineEdit_input_node_id).connect(self.input_line_edit_clicked)
+        self.clickable(self.lineEdit_output_node_id).connect(self.output_line_edit_clicked)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
         selected_nodes = selected_nodes = app().main_window.list_selected_nodes()
         if selected_nodes:
-            if len(selected_nodes) == 1:
-                node_id = selected_nodes[0]
-                self.current_lineEdit.setText(str(node_id))                
+            if len(selected_nodes) != 1:
+                return
+
+            node_id = selected_nodes[0]
+            self.current_line_edit.setText(str(node_id))                
 
     def clickable(self, widget):
         class Filter(QObject):
@@ -95,11 +103,20 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
 
         return filter.clicked
 
-    def lineEdit_1_clicked(self):
-        self.current_lineEdit = self.lineEdit_input_node_id
+    def input_line_edit_clicked(self):
+        self.current_line_edit = self.lineEdit_input_node_id
+        self.highlight_line_edit()
 
-    def lineEdit_2_clicked(self):
-        self.current_lineEdit = self.lineEdit_output_node_id
+    def output_line_edit_clicked(self):
+        self.current_line_edit = self.lineEdit_output_node_id
+        self.highlight_line_edit()
+
+    def highlight_line_edit(self):
+        self.current_line_edit.setStyleSheet("""border-color: rgb(32, 207, 255); border-width: 2px;""")
+        if self.current_line_edit == self.lineEdit_input_node_id:
+            self.lineEdit_output_node_id.setStyleSheet("")
+        elif self.current_line_edit == self.lineEdit_output_node_id:
+            self.lineEdit_input_node_id.setStyleSheet("")
 
     def invert_selection_callback(self):
         temp_text_input = self.lineEdit_input_node_id.text()
@@ -338,10 +355,8 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
     def tab_event_callback(self):
         self.lineEdit_selected_id.clear()
         self.pushButton_remove.setDisabled(True)
-        # if self.tabWidget_main.currentIndex() == 1:
-        #     self.lineEdit_selected_id.clear()
-        # else:
-        #     self.selection_callback()
+        setup_tab = self.tabWidget_main.currentIndex() == TabIndex.SETUP
+        self.pushButton_attribute.setEnabled(setup_tab)
 
     def load_nodal_info(self):
 
@@ -357,11 +372,11 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
                         new.setTextAlignment(i, Qt.AlignCenter)
                     self.treeWidget_nodal_info.addTopLevelItem(new)
 
-        self.tabWidget_main.setTabVisible(1, False)
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         for (_property, *_) in self.properties.nodal_properties.keys():
             if _property == "acoustic_transfer_element":
-                self.tabWidget_main.setCurrentIndex(0)
-                self.tabWidget_main.setTabVisible(1, True)
+                self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+                self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
 
     def keyPressEvent(self, event):
