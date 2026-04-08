@@ -2,8 +2,7 @@
 from pulse import app
 from pulse.editor import Pipeline
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.common_utils import *
-from pulse.utils.unit_conversion import *
+from pulse.utils.unit_conversion import m_to_mm, in_to_mm, mm_to_m, in_to_m, um_to_m
 
 from pulse.editor.structures import (
     Pipe,
@@ -31,8 +30,8 @@ import numpy as np
 from collections import defaultdict
 
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
+warning_title = "Warning"
 
 
 def get_data(data):
@@ -124,17 +123,17 @@ class GeometryHandler:
         """
 
         sections_list = [
-                         "Pipe", 
-                         "Rectangular section", 
-                         "Circular section", 
-                         "C-section", 
-                         "I-section", 
-                         "T-section", 
-                         "Generic section",
-                         "Valve",
-                         "Expansion joint",
-                         "Reducer"
-                         ]
+            "Pipe", 
+            "Rectangular section", 
+            "Circular section", 
+            "C-section", 
+            "I-section", 
+            "T-section", 
+            "Generic section",
+            "Valve",
+            "Expansion joint",
+            "Reducer"
+            ]
 
         if data.get("section_type_label") in sections_list:
             type_label: str = data["section_type_label"]
@@ -345,7 +344,7 @@ class GeometryHandler:
                 title = "Error while processing curved structures"
                 message = str(error_log)
                 message += f"\n\nLine: {line}"
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 
                 continue
         
@@ -384,7 +383,7 @@ class GeometryHandler:
                 title = "Error while processing straight structures"
                 message = str(error_log)
                 message += f"\n\nLine: {line}"
-                PrintMessageInput([window_title_1, title, message])
+                PrintMessageInput([error_title, title, message])
                 
                 continue
 
@@ -427,7 +426,7 @@ class GeometryHandler:
         try:
             points = self.points_map[key]
             return points
-        except:
+        except Exception:
             return None
 
     def get_connecting_line_data(self, coords, point_i):
@@ -544,7 +543,7 @@ class GeometryHandler:
         message += "to avoid physical inconsistency in model results."
         message += f"\n\nLine length: {round(line_length, 6)} [m]"
         
-        PrintMessageInput([window_title_2, title, message])
+        PrintMessageInput([warning_title, title, message])
 
     def merge_near_points(self, point_coords, tolerance=5e-3):
 
@@ -571,7 +570,7 @@ class GeometryHandler:
         for point in self.merged_points:
             message += f"{point} : {self.points_coords_cache[point]}\n"
 
-        PrintMessageInput([window_title_2, title, message])
+        PrintMessageInput([warning_title, title, message])
 
     def get_structures_tags(self):
         tags = list()
