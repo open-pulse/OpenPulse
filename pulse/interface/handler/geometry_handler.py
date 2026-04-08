@@ -2,7 +2,6 @@
 from pulse import app
 from pulse.editor import Pipeline
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.unit_conversion import m_to_mm, in_to_mm, mm_to_m, in_to_m, um_to_m
 from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
 
 
@@ -215,12 +214,8 @@ class GeometryHandler:
         gmsh.option.setNumber('Geometry.Tolerance', 1e-6)
         gmsh.open(str(path))
 
-        if self.length_unit == "meter":
-            self.conv_unit = mm_to_m
-        elif self.length_unit == "millimeter":
-            self.conv_unit = um_to_m
-        else:
-            self.conv_unit = in_to_mm
+        # TODO: validate this unit conversion using some cad files
+        self.conv_unit = self.get_unit_conversion_function()
 
         points = gmsh.model.get_entities(0)
         lines = gmsh.model.get_entities(1)
@@ -256,13 +251,8 @@ class GeometryHandler:
         self.pipeline.merge_coincident_points()
         self.export_model_data_file()
 
-        element_size = self.project.model.preprocessor.mesh.element_size
-
-        if self.length_unit == "millimeter":
-            element_size = mm_to_m(element_size)
-
-        if self.length_unit == "inch":
-            element_size = in_to_m(element_size)
+        _element_size = self.project.model.preprocessor.mesh.element_size
+        element_size = convert_length_unit(_element_size, self.length_unit, "")
 
         if self.length_unit !=  "meter":
             self.project.file.modify_project_attributes(length_unit = "meter", element_size = element_size)

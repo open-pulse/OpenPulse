@@ -1,23 +1,23 @@
 
-from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.utils.common_utils import *
-from pulse.utils.unit_conversion import *
-
 from typing import TYPE_CHECKING
+
+from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
+
 if TYPE_CHECKING:
     from pulse.project.project import Project
 
 import os
-import gmsh 
-import numpy as np
-
 from collections import defaultdict
 from enum import IntEnum
+
+import gmsh
+import numpy as np
+
 
 class ImportType(IntEnum):
     CAD_FILE = 0
     BUILT_IN = 1
-
 
 
 class Mesh:
@@ -114,15 +114,17 @@ class Mesh:
         """
         try:
             gmsh.option.setNumber("General.NumThreads", 4)
-        except:
+        except Exception:
             pass
 
-        if self.length_unit == 'meter':
-            length = m_to_mm(self.element_size)
-        elif self.length_unit == 'inch':
-            length = in_to_mm(self.element_size)
-        else:
-            length = self.element_size
+        length = convert_length_unit(self.element_size, self.length_unit, "mm")
+
+        # if self.length_unit == 'meter':
+        #     length = m_to_mm(self.element_size)
+        # elif self.length_unit == 'inch':
+        #     length = in_to_mm(self.element_size)
+        # else:
+        #     length = self.element_size
 
         gmsh.option.setNumber('Geometry.Tolerance', self.tolerance)
         gmsh.option.setNumber('Mesh.CharacteristicLengthMin', 0.5*length)
@@ -207,7 +209,7 @@ class Mesh:
         n_nodes = len(node_indexes)
         n_indexes = np.arange(n_nodes, dtype=int)
         self.section_nodal_coordinates = np.zeros((n_nodes, 4))
-        self.section_nodal_coordinates[n_indexes, 1:] = mm_to_m(coords.reshape(-1, 3))
+        self.section_nodal_coordinates[n_indexes, 1:] = convert_length_unit(coords.reshape(-1, 3), "mm", "m")
         self.section_nodal_coordinates[n_indexes, :1] = node_indexes.reshape(-1, 1) - 1
 
     def process_section_connectivity(self, element_indexes: np.ndarray, element_nodes: np.ndarray, element_name: str, nodes_per_element: int):
