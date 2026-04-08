@@ -190,12 +190,6 @@ class AcousticElementLengthCorrectionInput(
                 "element_length_correction", data, element_ids
             )
 
-            print(
-                "The acoustic element length correction {} was attributed to elements: {}".format(
-                    self.type_label, element_ids
-                )
-            )
-
         self.actions_to_finalize()
 
     def remove_callback(self):

@@ -708,16 +708,19 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
         if item.text(0) == "":
             return
 
-        self.pushButton_remove.setEnabled(True)
-        self.lineEdit_element_id.setText(item.text(0))
+        if not item.text(0).isnumeric():
+            return
 
-        element_id = int(self.lineEdit_element_id.text())
+        element_id = int(item.text(0))
         data = self.properties._get_property("perforated_plate", element_id=element_id)
 
         if isinstance(data, dict):
             common_pipe = data["type"] == PerforatedPlateFormulation.COMMON_PIPE
             self.pushButton_plot_impedance.setDisabled(common_pipe)
             self.pushButton_plot_absorption_coefficient.setDisabled(common_pipe)
+
+        self.pushButton_remove.setEnabled(True)
+        app().main_window.set_selection(elements=[element_id])
 
     def on_doubleclick_item(self, item: QTreeWidgetItem):
         self.on_click_item(item)
