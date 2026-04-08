@@ -1,3 +1,4 @@
+from functools import partial
 from itertools import chain
 from typing import Iterator
 
@@ -34,13 +35,13 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
 
         self.create_compressor_symbol()
         self.create_reciprocating_pump_excitation()
+        self.create_structural_links()
+        self.create_psd_structural_links()
+        self.create_acoustic_transfer_element()
 
         for symbol in chain(
-            self.create_structural_links(),
-            self.create_psd_structural_links(),
             self.create_perforated_plates(),
             self.create_valves(),
-            self.create_acoustic_transfer_element(),
         ):
             source.AddInputData(symbol)
 
@@ -90,6 +91,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
                         color=color_names.BLUE_2,
                         scale=scale
                     )
+
     def create_reciprocating_pump_excitation(self):
         nodal_properties = app().project.model.properties.nodal_properties
 
@@ -130,11 +132,8 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             if property_name not in ["stiffness_nodal_links", "damping_nodal_links"]:
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.GREEN,
-            )
+            func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(func, (0, 0, 0), (0, 0, 0), color_names.GREEN)
 
     def create_psd_structural_links(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
@@ -143,11 +142,8 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             if property_name != "psd_structural_links":
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.GREEN,
-            )
+            creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.GREEN)
 
     def create_psd_acoustic_links(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
@@ -156,11 +152,8 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             if property_name != "psd_acoustic_link":
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.BLUE,
-            )
+            creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
     def create_acoustic_transfer_element(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
@@ -169,11 +162,8 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             if property_name != "acoustic_transfer_element":
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.BLUE,
-            )
+            creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
     def create_perforated_plates(self) -> Iterator[vtkPolyData]:
         element_properties = app().project.model.properties.element_properties
@@ -250,9 +240,10 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
             yield data
 
     def configure_appearance(self):
-        self.set_zbuffer_offsets(0, -6600)
+        self.set_zbuffer_offsets(1, -6600)
 
         self.GetProperty().SetLineWidth(4)
+        self.GetProperty().RenderLinesAsTubesOn()
         self.GetProperty().SetOpacity(0.7)
         self.GetProperty().SetAmbient(0.5)
         self.PickableOff()
@@ -270,7 +261,7 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
         mapper.SetRelativeCoincidentTopologyPointOffsetParameter(units)
         mapper.Update()
 
-    def _create_line(self, coords_a, coords_b, color: Color):
+    def _create_line(self, coords_a, coords_b):
         coords_a = np.array(coords_a)
         coords_b = np.array(coords_b)
 
@@ -279,6 +270,4 @@ class FixedSymbolsActor(CommonSymbolsActorFixedSize):
         source.SetPoint2(coords_b)
         source.Update()
 
-        output = source.GetOutput()
-        set_polydata_colors(output, color.to_rgb())
-        return output
+        return source.GetOutput()
