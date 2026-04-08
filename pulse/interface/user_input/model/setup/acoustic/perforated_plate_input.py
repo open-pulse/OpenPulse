@@ -251,7 +251,7 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
                     try:
                         hole_diameter = float(str_hole_diameter)
                         area_porosity = (hole_diameter / d_in) ** 2
-                    except:
+                    except Exception:
                         return None
 
                     return area_porosity

@@ -268,7 +268,7 @@ class StructuralElementTypeInput(StructuralElementTypeInput_UI):
 
         self.hide()
 
-        title = f"Resetting of structural element types"
+        title = "Resetting of structural element types"
         message = "Would you like to reset the structural element types from the model?"
 
         buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}

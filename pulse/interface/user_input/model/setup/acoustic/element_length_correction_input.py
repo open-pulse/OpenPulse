@@ -215,7 +215,7 @@ class AcousticElementLengthCorrectionInput(
 
         self.hide()
 
-        title = f"Resetting of element length corrections"
+        title = "Resetting of element length corrections"
         message = "Would you like to remove all element length corrections from the acoustic model?"
 
         buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
