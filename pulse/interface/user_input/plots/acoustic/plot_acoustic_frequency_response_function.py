@@ -39,16 +39,15 @@ class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction
         self.setWindowIcon(app().main_window.pulse_icon)
 
     def _define_qt_variables(self):
-        self.current_lineEdit = self.lineEdit_output_node_id
+        self.current_line_edit = self.lineEdit_output_node_id
 
     def _create_connections(self):
         #
-        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
         self.pushButton_flip_nodes.clicked.connect(self.flip_nodes)
         #
-        self.clickable(self.lineEdit_input_node_id).connect(self.lineEdit_1_clicked)
-        self.clickable(self.lineEdit_output_node_id).connect(self.lineEdit_2_clicked)
+        self.clickable(self.lineEdit_input_node_id).connect(self.input_line_edit_clicked)
+        self.clickable(self.lineEdit_output_node_id).connect(self.output_line_edit_clicked)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
@@ -58,7 +57,7 @@ class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction
 
         if selected_nodes:
             node_id = selected_nodes[0]
-            self.current_lineEdit.setText(str(node_id))
+            self.current_line_edit.setText(str(node_id))
 
     def clickable(self, widget):
         class Filter(QObject):
@@ -75,12 +74,28 @@ class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction
         widget.installEventFilter(filter)
         return filter.clicked
 
-    def lineEdit_1_clicked(self):
-        self.current_lineEdit = self.lineEdit_input_node_id
+    def input_line_edit_clicked(self):
+        self.current_line_edit = self.lineEdit_input_node_id
+        self.highlight_line_edit()
 
-    def lineEdit_2_clicked(self):
-        self.current_lineEdit = self.lineEdit_output_node_id
+    def output_line_edit_clicked(self):
+        self.current_line_edit = self.lineEdit_output_node_id
+        self.highlight_line_edit()
 
+    def highlight_line_edit(self):
+        self.current_line_edit.setStyleSheet("""border-color: rgb(32, 207, 255); border-width: 2px;""")
+        if self.current_line_edit == self.lineEdit_input_node_id:
+            self.lineEdit_output_node_id.setStyleSheet("")
+        elif self.current_line_edit == self.lineEdit_output_node_id:
+            self.lineEdit_input_node_id.setStyleSheet("")
+
+    def alternate_node_id_input_fields(self):
+        if self.current_line_edit == self.lineEdit_input_node_id:
+            self.output_line_edit_clicked()
+        else:
+            self.input_line_edit_clicked()
+
+        self.current_line_edit.setFocus()
     def flip_nodes(self):
         temp_text_input = self.lineEdit_input_node_id.text()
         temp_text_output = self.lineEdit_output_node_id.text()
@@ -154,21 +169,11 @@ class PlotAcousticFrequencyResponseFunction(GetAcousticFrequencyResponseFunction
                                     "linestyle" : "-"  
                                     }
 
-    def alternate_node_id_input_fields(self):
-
-        if self.current_lineEdit == self.lineEdit_input_node_id:
-            self.current_lineEdit = self.lineEdit_output_node_id
-        else:
-            self.current_lineEdit = self.lineEdit_input_node_id
-
-        self.current_lineEdit.setFocus()
-
     def keyPressEvent(self, event):
-
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.call_plotter()
 
-        elif event.key() in [Qt.Key_Up, Qt.Key_Down]:
+        if event.key() in [Qt.Key_Up, Qt.Key_Down]:
             self.alternate_node_id_input_fields()
 
 # fmt: on

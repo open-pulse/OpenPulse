@@ -41,7 +41,6 @@ class PlotAcousticDeltaPressure(GetAcousticDeltaPressures_UI):
 
     def _create_connections(self):
         #
-        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
         self.pushButton_flip_nodes.clicked.connect(self.flip_nodes)
         #

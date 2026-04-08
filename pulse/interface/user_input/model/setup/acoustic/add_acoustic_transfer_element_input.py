@@ -118,6 +118,14 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
         elif self.current_line_edit == self.lineEdit_output_node_id:
             self.lineEdit_input_node_id.setStyleSheet("")
 
+    def alternate_node_id_input_fields(self):
+        if self.current_line_edit == self.lineEdit_input_node_id:
+            self.output_line_edit_clicked()
+        else:
+            self.input_line_edit_clicked()
+
+        self.current_line_edit.setFocus()
+
     def invert_selection_callback(self):
         temp_text_input = self.lineEdit_input_node_id.text()
         temp_text_output = self.lineEdit_output_node_id.text()
@@ -380,10 +388,16 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
                 return
 
     def keyPressEvent(self, event):
+        if event.key() in [Qt.Key_Up, Qt.Key_Down]:
+            self.alternate_node_id_input_fields()
+        
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
+        
+        if event.key() == Qt.Key_Delete:
             self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
+        
+        if event.key() == Qt.Key_Escape:
             self.close()
+
 # fmt: on

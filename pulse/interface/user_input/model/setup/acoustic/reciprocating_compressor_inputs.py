@@ -721,7 +721,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
             # update the discharge pressure text
             self.lineEdit_discharge_pressure.setText(f"{discharge_pressure : .8e}")
 
-        except:
+        except Exception:
             return
 
         try:
@@ -741,7 +741,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
             # update the discharge temperature text
             self.lineEdit_discharge_temperature.setText(f"{T_discharge : .6f}")
 
-        except:
+        except Exception:
             return
 
     def attribute_callback(self):
