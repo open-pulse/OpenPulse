@@ -84,10 +84,6 @@ class InputUi:
         read = working_class(*args, **kwargs)
         return read
 
-    def call_geometry_editor(self):
-        main_window = self.main_window
-        main_window.use_geometry_workspace()
-
     def set_material(self):
         self.process_input(SetMaterialInput)   
 
