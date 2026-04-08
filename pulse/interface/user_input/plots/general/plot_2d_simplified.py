@@ -11,6 +11,7 @@ from pulse.interface.user_input.plots.general.mpl_canvas import MplCanvas
 # matplotlib.use('Qt5Agg')
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 from dataclasses import dataclass, field
 from matplotlib.lines import Line2D
@@ -21,15 +22,28 @@ plt.rcParams.update({'font.size': 10})
 @dataclass
 class PlotSettings:
     number_of_plots: int = 1
-    legends : list = field(default_factory=[""])
+    legends : list = field(default_factory=list)
     title : str = ""
     x_label : str = ""
     y_label : str = ""
-    line_styles : list = field(default_factory=["-"])
-    line_widths : list = field(default_factory=[2])
-    colors : tuple = field(default_factory=(0,0,1))
-    markers : list = field(default_factory=[None])
-    marker_sizes : list = field(default_factory=[5])
+    line_styles : list = field(default_factory=list)
+    line_widths : list = field(default_factory=list)
+    colors : list = field(default_factory=list)
+    markers : list = field(default_factory=list)
+    marker_sizes : list = field(default_factory=list)
+
+    def __post_init__(self):
+        _defaults = {
+            "legends": "",
+            "line_styles": "-",
+            "line_widths": 2,
+            "colors": (0, 0, 1),
+            "markers": None,
+            "marker_sizes": 5,
+        }
+        for attr, default in _defaults.items():
+            if not getattr(self, attr):
+                setattr(self, attr, [default] * self.number_of_plots)
 
 
 class Plot2DSimplified(Plot2dDialog_UI):
@@ -40,6 +54,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
 
         self.plot_config = plot_config
         self._toolbar: CustomNavigationToolbar = None
+        self._plot_index = 0
 
         self._config_window()
         self._create_connections()
@@ -59,7 +74,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
     def _add_plots_to_widget(self):
 
         self.plots = list()
-        self.results_plot = MplCanvas(self, width=8, height=6, dpi=110, secondary_axis=False)
+        self.results_plot = MplCanvas(self, width=8, height=6, dpi=110)
 
         if self.plot_2d_widget.layout() is None:
             self._toolbar = CustomNavigationToolbar(self.results_plot, self)
@@ -95,16 +110,33 @@ class Plot2DSimplified(Plot2dDialog_UI):
         self.results_plot.ax_left.set_ylabel(self.plot_config.y_label)
         self.results_plot.ax_left.set_title(self.plot_config.title)
         self.results_plot.ax_left.legend(self.plots, self.plot_config.legends, loc="upper right")
+        self.results_plot.ax_left.xaxis.set_major_formatter(
+            ticker.FuncFormatter(self._format_axes_tick)
+        )
+        self.results_plot.ax_left.yaxis.set_major_formatter(
+            ticker.FuncFormatter(self._format_axes_tick)
+        )
+        # self.results_plot.ax_left.ticklabel_format(style="sci", axis="x", scilimits=(-2, 2))
+
+    @staticmethod
+    def _format_axes_tick(x, _):
+        mantissa, exp = f"{x:.2e}".split("e")
+        sign = "-" if exp[0] == "-" else ""
+ 
+        if int(exp[1:]) <= 2:
+            return f"{x:g}"
+
+        return f"{mantissa[:3]}e{sign}{int(exp[1:])}"
 
     def set_plot_data(
             self, 
             x_data: np.ndarray, 
             y_data: np.ndarray, 
-            plot_index: int, 
-            axes_limits: (list | tuple | str),
+            axes_limits: (list | tuple | str) = "auto",
             ):
-
-        self.plots[plot_index].set_data(x_data, y_data)
+    
+        self.plots[self._plot_index].set_data(x_data, y_data)
+        self._plot_index += 1
 
         # TODO: try to find a solution to better adjust the axes limits
         if isinstance(axes_limits, (list | tuple)):
@@ -124,7 +156,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
             self.results_plot.ax_left.set_ylim(*ylim)
 
         self.results_plot.draw()
-
+    
     def closeEvent(self, a0):
         return super().closeEvent(a0)
 

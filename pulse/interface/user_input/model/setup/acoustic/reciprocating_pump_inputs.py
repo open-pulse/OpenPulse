@@ -801,8 +801,6 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
 
-        # self.pump_model.plot_PV_diagram_head_end()
-
         #TODO: check axes limits
         volume_HE_m3, pressure_HE_Pa, _ = self.pump_model.process_head_end_volumes_and_pressures()
         if pressure_HE_Pa is None:
@@ -813,25 +811,18 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", pressure_unit)
 
         # define the plot settings
-        _plot_settings = {
-            "number_of_plots" : 1,
-            "legends" : ["head end"],
-            "title" : "P-V diagram (head end)",
-            "x_label" : "Volume [m³]",
-            "y_label" : f"Pressure [{pressure_unit}]",
-            "line_styles" : ["-"],
-            "line_widths" : [1.5],
-            "colors" : [(0,0,1)],
-            "markers" : [None],
-            "marker_sizes" : [5],
-            }
-
-        plot_settings = PlotSettings(**_plot_settings)
+        plot_settings = PlotSettings(
+            legends=["Head end"],
+            title="P-V diagram (head end)",
+            x_label="Volume [m³]",
+            y_label=f"Pressure [{pressure_unit}]",
+            line_widths=[1.5],
+        )
 
         # call the 2D plotter
         self.plot_2d = Plot2DSimplified(plot_settings)
-        self.plot_2d.set_plot_data(volume_HE_m3, pressure_HE, 0, "auto")
-        self.plot_2d.exec()
+        self.plot_2d.set_plot_data(volume_HE_m3, pressure_HE)
+        self.plot_2d.show()
 
     def plot_PV_diagram_crank_end(self):
         if self.check_all_parameters():
@@ -843,9 +834,37 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
     def plot_PV_diagram_both_ends(self):
         if self.check_all_parameters():
             return
+        
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_PV_diagram_both_ends()
+
+        volume_HE, pressure_HE_Pa, _ = self.pump_model.process_head_end_volumes_and_pressures()
+        volume_CE, pressure_CE_Pa, _ = self.pump_model.process_crank_end_volumes_and_pressures()
+
+        if volume_HE is None:
+            return
+        
+        pressure_unit = self.comboBox_pressure_units.currentText()
+        pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", pressure_unit)
+        pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", pressure_unit)
+
+        # define the plot settings
+        plot_settings = PlotSettings(
+            number_of_plots=2,
+            legends= ["Head End", "Crank End"],
+            title="Reciprocating Pump P-V Diagram",
+            x_label="Volume [m³]",
+            y_label=f"Pressure [{pressure_unit}]",
+            line_styles=["-", "--"],
+            line_widths=[1.5, 1.5],
+            colors=[(1,0,0), (0,0,1)]
+        )
+
+        # call the 2D plotter
+        self.plot_2d = Plot2DSimplified(plot_settings)
+        self.plot_2d.set_plot_data(volume_HE, pressure_HE)
+        self.plot_2d.set_plot_data(volume_CE, pressure_CE)
+        self.plot_2d.show()
 
     def plot_pressure_time(self):
         if self.check_all_parameters():
