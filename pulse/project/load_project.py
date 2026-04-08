@@ -146,18 +146,18 @@ class LoadProject:
     def fix_data_for_backwards_compatibility(self, data: dict):
 
         sections_types = [
-                          "Pipe", 
-                          "Rectangular section", 
-                          "Circular section", 
-                          "C-section", 
-                          "I-section", 
-                          "T-section", 
-                          "Generic section",
-                          "Valve",
-                          "Expansion joint",
-                          "Reducer",
-                          "Flange"
-                          ]
+            "Pipe", 
+            "Rectangular section", 
+            "Circular section", 
+            "C-section", 
+            "I-section", 
+            "T-section", 
+            "Generic section",
+            "Valve",
+            "Expansion joint",
+            "Reducer",
+            "Flange"
+            ]
 
         if data.get("section_type_label") in sections_types:
             type_label: str = data.get("section_type_label")
@@ -581,7 +581,7 @@ class LoadProject:
                 title = "Nodal-related model attributions failed"
                 message = "Some nodal-related model attributions could not be mapped "
                 message += "after the meshing processing. The non-mapped nodes will be "
-                message += f"removed from nodal properties file. \n\nDetails:"
+                message += "removed from nodal properties file. \n\nDetails:"
 
                 for (node_id, coords) in non_mapped_nodes:
                     x, y, z = coords
@@ -687,7 +687,7 @@ class LoadProject:
 
                 title = "Element-related model attributions failed"
                 message = "Some element-related model attributions could not be mapped "
-                message += f"after the meshing processing. \n\nDetails:"
+                message += "after the meshing processing. \n\nDetails:"
 
                 for (node_id, coords) in non_mapped_elements:
                     message += f"\n{node_id} - {coords}"
@@ -707,7 +707,7 @@ class LoadProject:
         str_modal_analysis = False
         act_harmonic_analysis = False
         str_harmonic_analysis = False
-        str_static_analysis = False
+        # str_static_analysis = False
 
         results_data = self.project.file.read_results_data_from_file()
 
@@ -739,7 +739,7 @@ class LoadProject:
                     self.project.structural_solution = data["solution"]
 
                 if key == "static_structural":
-                    str_static_analysis = True
+                    # str_static_analysis = True
                     self.project.structural_solution = data["solution"]
 
             logging.info("Updating analysis render [75%]")

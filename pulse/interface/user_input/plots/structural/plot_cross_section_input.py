@@ -127,7 +127,7 @@ class PlotCrossSectionInput(PlotSection_UI):
 
         self.section_type_label = cross_section.section_type_label
 
-        if self.section_type_label != 'Expansion joint':
+        if self.section_type_label != 'expansion_joint':
             self.section_parameters = cross_section.section_parameters
             # if self.section_type_label != "pipe":
             #     self.section_properties = cross_section.section_properties    
