@@ -141,7 +141,7 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
 
             self.properties._set_nodal_property("radiation_impedance", data, node_id)
 
-        self.actions_to_finalize(reset_camera=False)
+        self.actions_to_finalize()
 
     def get_radiation_type_text(self, index: int):
         if index == RadiationImpedanceType.ANECHOIC:
