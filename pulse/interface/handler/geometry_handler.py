@@ -3,6 +3,8 @@ from pulse import app
 from pulse.editor import Pipeline
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.utils.unit_conversion import m_to_mm, in_to_mm, mm_to_m, in_to_m, um_to_m
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
+
 
 from pulse.editor.structures import (
     Pipe,
@@ -66,12 +68,7 @@ class GeometryHandler:
             self.length_unit = unit
 
     def get_unit_conversion_function(self):
-        if self.length_unit == "meter":
-            return m_to_mm
-        elif self.length_unit == "inch":
-            return in_to_mm
-        else:
-            return lambda x: x  # A function that returns the input        
+        return lambda x : convert_length_unit(x, self.length_unit, "mm")
 
     def save_valve_internal_lines_if_exists(self, structure: Valve, line_tags: list):
         valve_info: dict = structure.extra_info["valve_info"]
