@@ -188,3 +188,58 @@ def convert_volume_unit(value: float, input_unit: str, output_unit: str | None=N
         return temperature.magnitude
 
     return temperature.to(unit_map.get(output_unit)).magnitude
+
+
+def convert_length_unit(value: float, input_unit: str, output_unit: str | None=None) -> float:
+    """
+    This function converts the length, scaled in 'input_unit',
+    to a length scaled in 'output_unit'.
+
+    Parameters
+    ----------
+    value: float
+    The length value.
+
+    input_unit: str 
+    The input length unit. Allowable units: m, meter, in, inch, cm, centimeter.
+
+    output_unit: str or None, optional
+    The output length unit. Allowable units: same as input.
+    """
+
+    unit_map = {
+        "m" : "m",
+        "meter" : "m",
+        "cm" : "cm",
+        "centimeter" : "cm",
+        "mm" : "mm",
+        "milimeter" : "mm",
+        "um" : "um",
+        "micrometer" : "um",
+        "in" : "in",
+        "inch" : "in",
+        "ft" : "ft",
+        "feet" : "ft",
+        "yd" : "yd",
+        "yard" : "yd",
+        }
+
+    if input_unit == output_unit:
+        return value
+
+    temperature = u_reg.Quantity(value, unit_map.get(input_unit))
+    if output_unit is None:
+        return temperature.magnitude
+
+    return temperature.to(unit_map.get(output_unit)).magnitude
+
+
+if __name__ == "__main__":
+
+    input_value = 1
+    input_unit = "ft"
+    output_unit = "m"
+
+    output_value = convert_length_unit(input_value, input_unit, output_unit)
+
+    print(f"UNIT CONVERSION: {input_value} [{input_unit}]  >  {output_value} [{output_unit}]")
