@@ -5,6 +5,7 @@ from pulse import app
 # from pulse.interface.ui_generated.plots.graphs.plot_2d_widget_ui import PlotXyWidget_UI
 from pulse.interface.ui_generated.plots.graphs.plot_2d_dialog_ui import Plot2dDialog_UI
 from pulse.interface.user_input.plots.general.custom_navigation_toolbar import CustomNavigationToolbar
+from pulse.interface.user_input.plots.general.mpl_canvas import MplCanvas
 
 # import matplotlib
 # matplotlib.use('Qt5Agg')
@@ -12,8 +13,6 @@ from pulse.interface.user_input.plots.general.custom_navigation_toolbar import C
 import matplotlib.pyplot as plt
 import numpy as np
 from dataclasses import dataclass, field
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
 
 plt.rcParams.update({'font.size': 10})
@@ -31,16 +30,6 @@ class PlotSettings:
     colors : tuple = field(default_factory=(0,0,1))
     markers : list = field(default_factory=[None])
     marker_sizes : list = field(default_factory=[5])
-
-
-class MplCanvas(FigureCanvasQTAgg):
-    def __init__(self, parent=None, width=5, height=4, dpi=None, secondary_axis=False):
-        fig = Figure()#(figsize=(width+5, height+5), dpi=dpi)
-        self.ax_left = fig.add_subplot(111)
-        if secondary_axis:
-            self.ax_right = self.ax_left.twinx()
-        fig.set_tight_layout(True)
-        super(MplCanvas, self).__init__(fig)
 
 
 class Plot2DSimplified(Plot2dDialog_UI):
@@ -85,7 +74,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
         self.plots: list[Line2D]
 
         for i in range(self.plot_config.number_of_plots):
-            plot_i, = self.results_plot.ax_left.plot(
+            plot_i, = self.results_plot.axes.plot(
                 [],
                 [],
                 color = self.plot_config.colors[i],
