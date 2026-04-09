@@ -72,7 +72,7 @@ class AcousticNodesInput(NodesInput):
 
     def constant_values_attribution_callback(
         self,
-        lineEdit_nodes: QLineEdit,
+        lineEdit_node_ids: QLineEdit,
         lineEdit_real: QLineEdit,
         lineEdit_imag: QLineEdit,
         input_name: str,
@@ -80,10 +80,10 @@ class AcousticNodesInput(NodesInput):
         reset_camera=True,
     ):
 
-        lineEdit = lineEdit_nodes.text()
+        lineEdit = lineEdit_node_ids.text()
         stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
         if stop:
-            lineEdit_nodes.setFocus()
+            lineEdit_node_ids.setFocus()
             return
 
         stop, value = self.check_complex_entries(
@@ -92,8 +92,8 @@ class AcousticNodesInput(NodesInput):
 
         if stop:
             return
-
-        self.remove_conflicting_data(properties, node_ids)
+        
+        self.remove_properties_from_node(node_ids, properties)
 
         real_values = [np.real(value)]
         imag_values = [np.imag(value)]
@@ -111,77 +111,100 @@ class AcousticNodesInput(NodesInput):
             self.properties._set_nodal_property(input_name, data, node_id)
 
         self.actions_to_finalize(reset_camera)
-        print(f"[Set {input_name.title().replace('_', ' ')}] - defined at node(s) {node_ids}")
 
     def table_values_attribution_callback(
         self,
-        lineEdit_nodes: QLineEdit,
+        lineEdit_node_ids: QLineEdit,
         lineEdit_table_path: QLineEdit,
         input_name: str,
         properties: str | list[str],
         reset_camera=True,
     ):
 
-        str_nodes = lineEdit_nodes.text()
+        str_nodes = lineEdit_node_ids.text()
         stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
         if stop:
-            lineEdit_nodes.setFocus()
+            lineEdit_node_ids.setFocus()
             return
 
-        self.remove_conflicting_data(properties, node_ids)
+        self.remove_properties_from_node(node_ids, properties)
 
-        if lineEdit_table_path:
-            if self.table_path is None:
-                self.table_values, self.table_path = self.load_table(
-                    lineEdit_table_path, direct_load=True
-                )
-
-                if self.table_values is None:
-                    return
-
-            for node_id in node_ids:
-                self.table_name, self.array = self.save_table_file(
-                    node_id, self.table_values, input_name
-                )
-
-                basenames = [self.table_name]
-                table_paths = [self.table_path]
-
-                node = app().project.model.preprocessor.nodes[node_id]
-                coords = np.round(node.coordinates, 5)
-
-                data = {
-                    "coords": list(coords),
-                    "table_names": basenames,
-                    "table_paths": table_paths,
-                }
-
-                self.properties._set_nodal_property(input_name, data, node_id)
-
-            self.actions_to_finalize(reset_camera)
-
-            print(f"[Set {input_name.title()}] - defined at node(s) {node_ids}")
-
-        else:
+        if lineEdit_table_path == "":
+            self.hide()
             title = "Additional inputs required"
-            message = f"You must inform at least one {input_name} "
+            message = f"You must inform at least one {input_name.replace('_', '')} " 
             message += "table path before confirming the input!"
             PrintMessageInput(["Error", title, message])
             lineEdit_table_path.setFocus()
+            return
+    
+        if self.table_path is None:
+            self.table_values, self.table_path = self.load_table(
+                                                                    lineEdit_table_path,
+                                                                    direct_load=True,
+                                                                    )
 
-    def save_table_file(self, node_id: int, values: np.ndarray, input_name: str):
+            if self.table_values is None:
+                return
 
-        table_name = f"{input_name}_node_{node_id}"
+        for node_id in node_ids:
 
-        real_values = np.real(values)
-        imag_values = np.imag(values)
-        data = np.array([self.frequencies, real_values, imag_values], dtype=float).T
+            _table_name = None
+            if isinstance(self.imported_values, np.ndarray):
+                _table_name = self.get_table_name(input_name, node_id=node_id)
+                if self.save_table_values(_table_name, self.imported_values):
+                    return
+
+            node = app().project.model.preprocessor.nodes[node_id]
+            coords = np.round(node.coordinates, 5)
+
+            data = {
+                "coords" : list(coords),
+                "table_names" : [_table_name],
+                "table_paths" : [self.table_path],
+                }
+
+            self.properties._set_nodal_property(input_name, data, node_id)
+
+        self.actions_to_finalize(reset_camera)
+
+    def save_table_values(self, table_name: str, imported_values: np.ndarray, filter_zero: bool = True):
+
+        if filter_zero:
+            mask_filter = imported_values[:, 0] > 0
+            _imported_values = imported_values[mask_filter, :]
+        else:
+            _imported_values = imported_values
+
+        # define the frequencies vector
+        frequencies = _imported_values[:, 0]
+
+        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
+            self.hide()
+            title = "Project frequency setup cannot be modified"
+            message = "The following imported table of values has a frequency setup "
+            message += "different from the others already imported ones. The current "
+            message += "project frequency setup will not be modified."
+            message += f"\n\n{table_name}"
+            PrintMessageInput(["Error", title, message])
+            return True
+
+        self.update_analysis_setup_in_file(frequencies)
+
+        # real values vector
+        real_values = _imported_values[:, 1]
+        
+        # imaginary values vector
+        imag_values = _imported_values[:, 2]
+
+        # data to be stored
+        data = np.array([frequencies, real_values, imag_values], dtype=float).T
 
         self.properties.add_imported_tables("acoustic", table_name, data)
 
-        return table_name, data
+        return False
 
-    def lineEdit_reset(self, lineEdit: QLineEdit):
+    def line_edit_reset(self, lineEdit: QLineEdit):
         lineEdit.clear()
         lineEdit.setFocus()
     
