@@ -400,8 +400,8 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
             self.hide()
             title = "Project frequency setup cannot be modified"
             message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported ones. The current "
-            message += "project frequency setup is not going to be modified."
+            message += "different from the others already imported. The current "
+            message += "project frequency setup will not be modified."
             message += f"\n\n{table_name}"
             PrintMessageInput([error_title, title, message])
             return True

@@ -21,7 +21,7 @@ from pulse.interface.user_input.model.setup.structural.structural_nodes_input im
 )
 
 
-class TabType(IntEnum):
+class TabIndex(IntEnum):
     CONSTANT = 0
     TABULAR = 1
     LIST = 2
@@ -171,10 +171,10 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
     def attribution_callback(self):
         tab_index = self.tabWidget_nodal_loads.currentIndex()
-        if tab_index == TabType.CONSTANT:
+        if tab_index == TabIndex.CONSTANT:
             self.constant_values_attribution_callback()
 
-        elif tab_index == TabType.TABULAR:
+        elif tab_index == TabIndex.TABULAR:
             self.table_values_attribution_callback(
                 self.lineEdit_node_ids,
                 properties_to_remove=["prescribed_dofs"],
@@ -266,8 +266,8 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             self.hide()
             title = "Project frequency setup cannot be modified"
             message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported ones. The current "
-            message += "project frequency setup is not going to be modified."
+            message += "different from the others already imported. The current "
+            message += "project frequency setup will not be modified."
             message += f"\n\n{table_name}"
             PrintMessageInput([error_title, title, message])
             return True

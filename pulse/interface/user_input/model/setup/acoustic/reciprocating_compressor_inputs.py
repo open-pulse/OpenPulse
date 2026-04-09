@@ -678,19 +678,19 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
             _imported_values = imported_values
 
         # define the frequencies vector
-        frequencies = _imported_values[:, 0]
+        _frequencies = _imported_values[:, 0]
 
-        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
+        if app().project.model.change_analysis_frequency_setup(list(_frequencies)):
             self.hide()
             title = "Project frequency setup cannot be modified"
             message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported ones. The current "
-            message += "project frequency setup is not going to be modified."
+            message += "different from the others already imported. The current "
+            message += "project frequency setup will not be modified."
             message += f"\n\n{table_name}"
             PrintMessageInput([error_title, title, message])
             return True
 
-        self.update_analysis_setup_in_file(frequencies)
+        self.update_analysis_setup_in_file(_frequencies)
 
         # real values vector
         real_values = _imported_values[:, 1]
@@ -699,7 +699,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         imag_values = _imported_values[:, 2]
 
         # data to be stored
-        data = np.array([frequencies, real_values, imag_values], dtype=float).T
+        data = np.array([_frequencies, real_values, imag_values], dtype=float).T
 
         self.properties.add_imported_tables("acoustic", table_name, data)
 

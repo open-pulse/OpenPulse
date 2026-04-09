@@ -17,7 +17,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
-class TabType(IntEnum):
+class TabIndex(IntEnum):
     CONSTANT = 0
     TABULAR = 1
     LIST = 2
@@ -103,7 +103,7 @@ class VolumeVelocityInput(AcousticNodesInput, AcousticPropertyInput_UI):
     def tab_event_callback(self):
         self.lineEdit_node_ids.clear()
         self.pushButton_remove.setDisabled(True)
-        tab_list = self.tabWidget_main.currentIndex() == TabType.LIST
+        tab_list = self.tabWidget_main.currentIndex() == TabIndex.LIST
         if not tab_list:
             self.selection_callback()
 
@@ -111,11 +111,11 @@ class VolumeVelocityInput(AcousticNodesInput, AcousticPropertyInput_UI):
         self.pushButton_attribute.setDisabled(tab_list)
 
     def update_tabs_visibility(self):
-        self.tabWidget_main.setTabVisible(TabType.LIST, False)
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         for property, *_ in self.properties.nodal_properties.keys():
             if property == "volume_velocity":
-                self.tabWidget_main.setCurrentIndex(TabType.CONSTANT)
-                self.tabWidget_main.setTabVisible(TabType.LIST, True)
+                self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
+                self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
 
     def load_nodes_info(self):
@@ -144,7 +144,7 @@ class VolumeVelocityInput(AcousticNodesInput, AcousticPropertyInput_UI):
         _reset_camera = False
 
         tab_index = self.tabWidget_main.currentIndex()
-        if tab_index == TabType.CONSTANT:
+        if tab_index == TabIndex.CONSTANT:
             self.constant_values_attribution_callback(
                 lineEdit_node_ids=self.lineEdit_node_ids,
                 lineEdit_real=self.lineEdit_real_value,
@@ -153,7 +153,7 @@ class VolumeVelocityInput(AcousticNodesInput, AcousticPropertyInput_UI):
                 properties=_properties,
                 reset_camera=_reset_camera,
             )
-        elif tab_index == TabType.TABULAR:
+        elif tab_index == TabIndex.TABULAR:
             self.table_values_attribution_callback(
                 lineEdit_node_ids=self.lineEdit_node_ids,
                 lineEdit_table_path=self.lineEdit_table_path,

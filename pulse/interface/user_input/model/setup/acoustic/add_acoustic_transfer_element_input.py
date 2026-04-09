@@ -1,5 +1,3 @@
-# fmt: off
-
 import os
 from enum import IntEnum
 
@@ -244,17 +242,14 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
             self.lineEdit_spreadsheet_path.clear()
 
             title = "Project frequency setup cannot be modified"
-            message = "The following imported table of values has a frequency setup\n"
-            message += "different from the others already imported ones. The current\n"
-            message += "project frequency setup is not going to be modified."
+            message = "The following imported table of values has a frequency setup "
+            message += "different from the others already imported. The current "
+            message += "project frequency setup will not be modified."
             message += f"\n\n{os.path.basename(path)}"
             PrintMessageInput([error_title, title, message])
             return None, None
 
-        else:
-
-            analysis_setup = app().project.model.analysis_setup
-            app().project.file.write_analysis_setup_in_file(analysis_setup)
+        self.update_analysis_setup_in_file(frequencies)
 
     def process_acoustic_element_transfer_data(self, path: str):
 
@@ -380,10 +375,13 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
                         new.setTextAlignment(i, Qt.AlignCenter)
                     self.treeWidget_nodal_info.addTopLevelItem(new)
 
+        self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
         self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
-        for (_property, *_) in self.properties.nodal_properties.keys():
-            if _property == "acoustic_transfer_element":
-                self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+        for property, *_ in self.properties.nodal_properties.keys():
+            if property == "acoustic_transfer_element":
+                self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
                 self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
 
@@ -399,5 +397,3 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
         
         if event.key() == Qt.Key_Escape:
             self.close()
-
-# fmt: on
