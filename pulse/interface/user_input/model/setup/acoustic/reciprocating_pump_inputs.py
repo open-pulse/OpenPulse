@@ -840,14 +840,6 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
         if self.aquisition_parameters_processed:
             self.process_aquisition_parameters()
 
-    def initialize_xy_plotter(self):
-
-
-        legends = [f'Target: {self.target*100}%', "Pressure residues", "Delta pressure residues"]
-
-
-        # self.xy_plot.show()
-
     def plot_PV_diagram_head_end(self):
 
         if self.check_all_parameters():

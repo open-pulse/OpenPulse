@@ -16,7 +16,6 @@ from pulse.interface.formatters.icons import change_icon_color_for_widgets
 
 from copy import deepcopy
 from itertools import count
-from numbers import Number
 
 import re
 
@@ -457,7 +456,7 @@ class FluidWidget(FluidInputWidget_UI):
             if int(item.text()) in already_used_ids:
                 item.setText("")
                 return True
-        except:
+        except Exception:
             item.setText("")
             return True
 
@@ -631,7 +630,7 @@ class FluidWidget(FluidInputWidget_UI):
         fluid_library_data = app().project.file.read_fluid_library_from_file()
 
         str_fluid_id = str(fluid.identifier)
-        if not str_fluid_id in fluid_library_data.keys():
+        if len(str_fluid_id in fluid_library_data.keys()) == 0:
             return
 
         # remove the selected fluid
@@ -651,7 +650,7 @@ class FluidWidget(FluidInputWidget_UI):
 
         try:
             identifier = int(self.tableWidget_fluid_data.item(1, col).text())
-        except:
+        except Exception:
             return
 
         selected_fluid = self.fluids_from_library.get(identifier)
