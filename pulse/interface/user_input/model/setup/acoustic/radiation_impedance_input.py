@@ -122,11 +122,29 @@ class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
                 self.tabWidget_main.setTabVisible(1, True)
                 return
 
+    def are_there_internal_nodes(self, node_ids: list[int]):
+        for node_id in node_ids:
+            neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node.get(node_id)
+            if isinstance(neigh_elements, list):
+                if len(neigh_elements) != 1:
+                    self.hide()
+                    title = "Internal nodes detected"
+                    message = "At least one internal node was detected in the list of "
+                    message += "nodes entered. The radiation impedances are only allowed "
+                    message += "for termination nodes."
+                    PrintMessageInput([warning_title, title, message])
+                    return True
+
+        return False
+
     def attribute_callback(self):
 
         lineEdit = self.lineEdit_node_ids.text()
         stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
         if stop:
+            return
+        
+        if self.are_there_internal_nodes(node_ids):
             return
         
         self.remove_properties_from_node(node_ids)

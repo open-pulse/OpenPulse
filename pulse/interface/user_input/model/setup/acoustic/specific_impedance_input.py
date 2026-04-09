@@ -147,6 +147,19 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         elif tab_index == TabType.TABULAR:
             self.table_values_attribution_callback()
 
+    def are_there_internal_nodes(self, node_ids: list[int]):
+        for node_id in node_ids:
+            neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node.get(node_id)
+            if isinstance(neigh_elements, list):
+                if len(neigh_elements) != 1:
+                    self.hide()
+                    title = "Internal nodes detected"
+                    message = "At least one internal node was detected in the list of "
+                    message += "nodes entered. The specific impedances are only allowed "
+                    message += "for termination nodes."
+                    PrintMessageInput([warning_title, title, message])
+                    return True
+
     def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):
 
         title = "Invalid entry to the specific impedace"
@@ -205,8 +218,10 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
             self.lineEdit_node_ids.setFocus()
             return
 
-        stop, specific_impedance = self.check_complex_entries(self.lineEdit_real_value, self.lineEdit_imag_value)
+        if self.are_there_internal_nodes(node_ids):
+            return
 
+        stop, specific_impedance = self.check_complex_entries(self.lineEdit_real_value, self.lineEdit_imag_value)
         if stop:
             return
 
@@ -285,6 +300,9 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
         if stop:
             self.lineEdit_node_ids.setFocus()
+            return
+
+        if self.are_there_internal_nodes(node_ids):
             return
 
         self.remove_properties_from_node(node_ids)
