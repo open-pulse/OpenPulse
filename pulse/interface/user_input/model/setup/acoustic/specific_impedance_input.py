@@ -18,7 +18,7 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 
-class TabType(IntEnum):
+class TabIndex(IntEnum):
     CONSTANT = 0
     TABULAR = 1
     LIST = 2
@@ -99,7 +99,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
     def tab_event_callback(self):
         self.lineEdit_node_ids.clear()
         self.pushButton_remove.setDisabled(True)
-        tab_list = self.tabWidget_main.currentIndex() == TabType.LIST
+        tab_list = self.tabWidget_main.currentIndex() == TabIndex.LIST
         if not tab_list:
             self.selection_callback()
 
@@ -107,11 +107,11 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         self.pushButton_attribute.setDisabled(tab_list)
 
     def update_tabs_visibility(self):
-        self.tabWidget_main.setTabVisible(TabType.LIST, False)
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         for property, *_ in self.properties.nodal_properties.keys():
             if property == "specific_impedance":
-                self.tabWidget_main.setCurrentIndex(TabType.CONSTANT)
-                self.tabWidget_main.setTabVisible(TabType.LIST, True)
+                self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
+                self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
 
     def load_nodes_info(self):
@@ -135,7 +135,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         reset_camera = False
 
         tab_index = self.tabWidget_main.currentIndex()
-        if tab_index == TabType.CONSTANT:
+        if tab_index == TabIndex.CONSTANT:
             self.constant_values_attribution_callback(
                 self.lineEdit_node_ids,
                 self.lineEdit_real_value,
@@ -144,7 +144,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
                 properties,
                 reset_camera,
             )
-        elif tab_index == TabType.TABULAR:
+        elif tab_index == TabIndex.TABULAR:
             self.table_values_attribution_callback()
 
     def are_there_internal_nodes(self, node_ids: list[int]):
@@ -258,19 +258,19 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
             _imported_values = imported_values
 
         # define the frequencies vector
-        frequencies = _imported_values[:, 0]
+        _frequencies = _imported_values[:, 0]
 
-        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
+        if app().project.model.change_analysis_frequency_setup(list(_frequencies)):
             self.hide()
             title = "Project frequency setup cannot be modified"
             message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported ones. The current "
-            message += "project frequency setup is not going to be modified."
+            message += "different from the others already imported. The current "
+            message += "project frequency setup will not be modified."
             message += f"\n\n{table_name}"
             PrintMessageInput([error_title, title, message])
             return True
 
-        self.update_analysis_setup_in_file(frequencies)
+        self.update_analysis_setup_in_file(_frequencies)
 
         # real values vector
         real_values = _imported_values[:, 1]
@@ -279,7 +279,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         imag_values = _imported_values[:, 2]
 
         # data to be stored
-        data = np.array([frequencies, real_values, imag_values], dtype=float).T
+        data = np.array([_frequencies, real_values, imag_values], dtype=float).T
 
         self.properties.add_imported_tables("acoustic", table_name, data)
 
@@ -355,16 +355,15 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         text = "{}".format(value_label)
         return text
 
-    def on_click_item(self, item):
+    def on_click_item(self, item: QTreeWidgetItem):
         self.pushButton_remove.setDisabled(False)
         if item.text(0) != "":
             self.lineEdit_node_ids.setText(item.text(0))
             node_id = int(item.text(0))
             app().main_window.set_selection(nodes=[node_id])
 
-    def on_doubleclick_item(self, item):
+    def on_doubleclick_item(self, item: QTreeWidgetItem):
         self.lineEdit_node_ids.setText(item.text(0))
-        # self.remove_callback()
 
     def remove_properties_from_node(self, node_ids: int | list):
 

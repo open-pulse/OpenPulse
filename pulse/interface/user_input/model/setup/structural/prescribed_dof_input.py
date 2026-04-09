@@ -29,7 +29,7 @@ class DOFSetup(IntEnum):
     FIXED = 2
 
 
-class TabType(IntEnum):
+class TabIndex(IntEnum):
     CONSTANT = 0
     TABULAR = 1
     LIST = 2
@@ -385,8 +385,8 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
             self.hide()
             title = "Project frequency setup cannot be modified"
             message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported ones. The current "
-            message += "project frequency setup is not going to be modified."
+            message += "different from the others already imported. The current "
+            message += "project frequency setup will not be modified."
             message += f"\n\n{table_name}"
             PrintMessageInput([error_title, title, message])
             return True
@@ -416,10 +416,10 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
 
     def attribution_callback(self):
         tab_index = self.tabWidget_prescribed_dof.currentIndex()
-        if tab_index == TabType.CONSTANT:
+        if tab_index == TabIndex.CONSTANT:
             self.constant_values_attribution_callback()
 
-        elif tab_index == TabType.TABULAR:
+        elif tab_index == TabIndex.TABULAR:
             self.table_values_attribution_callback(
                 line_edit_node_ids=self.lineEdit_node_ids,
                 properties_to_remove=["nodal_loads", "prescribed_dofs"],
@@ -508,16 +508,16 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_nodal_info.addTopLevelItem(new)
 
-        self.tabWidget_prescribed_dof.setTabVisible(TabType.LIST, False)
+        self.tabWidget_prescribed_dof.setTabVisible(TabIndex.LIST, False)
         for property, *_ in self.properties.nodal_properties.keys():
             if property == "prescribed_dofs":
-                self.tabWidget_prescribed_dof.setCurrentIndex(TabType.CONSTANT)
-                self.tabWidget_prescribed_dof.setTabVisible(TabType.LIST, True)
+                self.tabWidget_prescribed_dof.setCurrentIndex(TabIndex.CONSTANT)
+                self.tabWidget_prescribed_dof.setTabVisible(TabIndex.LIST, True)
                 return
 
     def tab_event_callback(self):
 
-        tab_list = self.tabWidget_prescribed_dof.currentIndex() == TabType.LIST
+        tab_list = self.tabWidget_prescribed_dof.currentIndex() == TabIndex.LIST
         self.lineEdit_node_ids.setDisabled(tab_list)
         self.pushButton_attribute.setDisabled(tab_list)
         self.pushButton_remove.setDisabled(True)
@@ -650,7 +650,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_prescribed_dof.currentIndex() == TabType.LIST:
+            if self.tabWidget_prescribed_dof.currentIndex() == TabIndex.LIST:
                 return
 
             self.attribution_callback()
