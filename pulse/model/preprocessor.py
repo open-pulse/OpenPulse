@@ -2229,26 +2229,14 @@ class Preprocessor:
         for element in self.structural_elements.values():
             element.static_analysis_evaluated = True
 
-    # def get_radius(self):
-    #     """
-    #     This method updates and returns the ????.
+    def get_cross_sections_from_node(self, node_id: int) -> list[CrossSection]:
 
-    #     Returns
-    #     ----------
-    #     dictionary
-    #         Radius at certain node.
-    #     """
-    #     self.radius = {}
-    #     for element in self.structural_elements.values():
-    #         first = element.first_node.global_index
-    #         last  = element.last_node.global_index
-    #         radius = element.cross_section.external_radius
-    #         if self.radius.get(first, -1) == -1:
-    #             self.radius[first] = radius
-    #         elif self.radius[first] < radius:
-    #             self.radius[first] = radius
-    #         if self.radius.get(last, -1) == -1:
-    #             self.radius[last] = radius
-    #         elif self.radius[last] < radius:
-    #             self.radius[last] = radius
-    #     return self.radius
+        cross_sections_from_node = list()
+        neigh_elements = self.structural_elements_connected_to_node.get(node_id)
+        if isinstance(neigh_elements, list):
+            for element in neigh_elements:
+                cross_section = element.cross_section
+                if cross_section not in cross_sections_from_node:
+                    cross_sections_from_node.append(cross_section)
+
+        return cross_sections_from_node
