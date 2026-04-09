@@ -361,10 +361,10 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
         if isinstance(molar_fraction, float):
             self.fluid_to_composition[fluid_name] = [  
-                                                    str(molar_fraction), 
-                                                    molar_fraction / 100, 
-                                                    fluid_file_name
-                                                    ]
+                str(molar_fraction), 
+                molar_fraction / 100, 
+                fluid_file_name
+                ]
 
             if molar_fraction == 0:
                 if fluid_name in self.fluid_to_composition.keys():
@@ -946,7 +946,12 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
                 return True
 
     def get_temperature_and_pressure_SI_units(self, thermostate_side: str="left"):
-        
+
+        # overwrite the thermostate_side if there's a reciprocating pump connected at the discharge
+        if self.state_properties.get("source") == "reciprocating_pump":
+            if self.state_properties.get("connection_type") == "discharge":
+                thermostate_side = "right"
+
         if thermostate_side == "left":
             str_temperature = self.lineEdit_temperature_left.text()
             str_pressure = self.lineEdit_pressure_left.text()
@@ -954,14 +959,15 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
             str_temperature = self.lineEdit_temperature_right.text()
             str_pressure = self.lineEdit_pressure_right.text()
 
-        input_temperature = self.check_input_value(str_temperature, "Temperature")
-        if input_temperature is None:
+        if not str_temperature.isnumeric():
+            return None
+
+        if not str_pressure.isnumeric():
             return None
         
-        input_pressure = self.check_input_value(str_pressure, "Pressure")
-        if input_pressure is None:
-            return None
-        
+        input_temperature = float(str_temperature)
+        input_pressure = float(str_pressure)
+       
         temp_unit = self.comboBox_temperature_units.currentText()
         temperature_K = convert_temperature_unit(input_temperature, temp_unit,  "K")
 
@@ -1029,29 +1035,6 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
             message += f"\nPressure (discharge) = {round(self.state_properties['pressure (discharge)'], 4)} [Pa]"
             message += f"\nMolar mass = {round(self.fluid_data['molar_mass'],6)} [kg/mol]"   
             PrintMessageInput([warning_title, title, message])
-
-    def check_input_value(self, str_value: str, label: str):
-        value = None
-        if str_value != "":
-            try:
-                str_value = str_value.replace(",", ".")
-                value = float(str_value)
-
-            except Exception as error_log:
-                title = f"Invalid entry to the {label}"
-                message = f"Dear user, you have typed an invalid value at the {label} input field."
-                message += "You should inform a valid float number to proceed.\n\n"
-                message += f"Details: {str(error_log)}"
-                PrintMessageInput([error_title, title, message])
-                return None
-
-        else:
-            title = "Empty field detected"
-            message = f"The {label} input field is empty. Please, inform a valid float number to proceed."
-            PrintMessageInput([error_title, title, message])
-            return None       
-
-        return value
 
     def cell_clicked_on_composition_table(self, row, col):
         self.selected_row = row
