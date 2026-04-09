@@ -85,6 +85,12 @@ class Project:
         self._warning_modal_prescribed_pressures = ""
         self._warning_clump = ""
         self._flag_clump = False
+    
+    def reset_solutions(self):
+        if self.structural_solver is not None:
+            self.structural_solver.reset()
+        if self.acoustic_solver is not None:
+            self.acoustic_solver.reset()
 
     def reset_analysis_setup(self):
         self.model.reset_analysis_setup()
@@ -505,10 +511,16 @@ class Project:
         return StructuralAssembler(self.model, acoustic_solution=acoustic_solution)
 
     def get_structural_solution(self):
-        return self.structural_solution
+        if self.structural_solver is None:
+            return None
+
+        return self.structural_solver.solution
 
     def get_acoustic_solution(self):
-        return self.acoustic_solution
+        if self.acoustic_solver is None:
+            return None
+
+        return self.acoustic_solver.solution
 
     def get_structural_reactions(self):
         return self.structural_reactions

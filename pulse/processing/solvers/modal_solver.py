@@ -29,6 +29,10 @@ class ModalSolver:
         self.natural_frequencies: np.ndarray | None = None
         self.modal_shapes: np.ndarray | None = None
 
+    def reset(self):
+        self.natural_frequencies = None
+        self.modal_shapes = None
+
     # ── Common solver interface ───────────────────────────────────────────
 
     @property

@@ -23,6 +23,9 @@ class StaticSolver:
         self.assembler = assembler
         self.solution: np.ndarray | None = None
         self.frequencies: np.ndarray = np.array([0.0])
+    
+    def reset(self):
+        self.solution = None
 
     def solve(self) -> np.ndarray:
         """

@@ -87,6 +87,11 @@ class HarmonicSolver:
         self.solution: np.ndarray | None = None
         self.convergence_plot = None
 
+    def reset(self):
+        self.frequencies = None
+        self.solution = None
+        self.convergence_plot = None
+
     # ── Linear direct method ──────────────────────────────────────────────
 
     def direct_method(
