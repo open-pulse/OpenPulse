@@ -1,13 +1,13 @@
 
+from enum import IntEnum
+
+import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QLineEdit,
-    QTreeWidgetItem,
-)
+from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.specific_impedance_input_ui import (
-    SpecificImpedanceInput_UI,
+from pulse.interface.ui_generated.model.setup.acoustic.acoustic_property_input_ui import (
+    AcousticPropertyInput_UI,
 )
 from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
     AcousticNodesInput,
@@ -16,14 +16,19 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-import numpy as np
+
+
+class TabType(IntEnum):
+    CONSTANT = 0
+    TABULAR = 1
+    LIST = 2
 
 
 error_title = "Error"
 warning_title = "Warning"
 
 
-class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
+class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -42,7 +47,12 @@ class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
         self.keep_window_open = True
 
     def _config_widgets(self):
-        self.treeWidget_nodal_info.setColumnWidth(0, 120)
+        #
+        self.label_bondary_condition.setText("Specific impedance:")
+        self.label_unit.setText("[kg/m².s]")
+        self.label_title.setText("Specific impedance setup")
+        #
+        self.treeWidget_nodal_info.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
     def _create_connections(self):
         #
@@ -66,52 +76,66 @@ class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_node_ids.setText(text)
 
-            if len(selected_nodes) == 1:
-                for (property, *args), data in self.properties.nodal_properties.items():
-                    if property == "specific_impedance" and selected_nodes == args:
-                        if "table_paths" in data.keys():
-                            table_paths = data["table_paths"]
-                            self.lineEdit_table_path.setText(table_paths[0])
-                        else:
-                            real_value = float(data["real_values"][0])
-                            imag_value = float(data["imag_values"][0])
-                            self.lineEdit_real_value.setText(str(real_value))
-                            self.lineEdit_imag_value.setText(str(imag_value))
+            if len(selected_nodes) != 1:
+                return
+
+            for (property, *args), data in self.properties.nodal_properties.items():
+                if property != "specific_impedance":
+                    continue
+
+                if selected_nodes != args:
+                    continue
+
+                if "table_paths" in data.keys():
+                    table_paths = data["table_paths"]
+                    self.lineEdit_table_path.setText(table_paths[0])
+
+                else:
+                    real_value = float(data["real_values"][0])
+                    imag_value = float(data["imag_values"][0])
+                    self.lineEdit_real_value.setText(str(real_value))
+                    self.lineEdit_imag_value.setText(str(imag_value))
 
     def tab_event_callback(self):
         self.lineEdit_node_ids.clear()
         self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_main.currentIndex() == 1:
-            self.lineEdit_node_ids.clear()
-            self.lineEdit_node_ids.setDisabled(True)
-        else:
+        tab_list = self.tabWidget_main.currentIndex() == TabType.LIST
+        if not tab_list:
             self.selection_callback()
-            self.lineEdit_node_ids.setDisabled(False)
+
+        self.lineEdit_node_ids.setDisabled(tab_list)
+        self.pushButton_attribute.setDisabled(tab_list)
+
+    def update_tabs_visibility(self):
+        self.tabWidget_main.setTabVisible(TabType.LIST, False)
+        for property, *_ in self.properties.nodal_properties.keys():
+            if property == "specific_impedance":
+                self.tabWidget_main.setCurrentIndex(TabType.CONSTANT)
+                self.tabWidget_main.setTabVisible(TabType.LIST, True)
+                return
 
     def load_nodes_info(self):
 
         self.treeWidget_nodal_info.clear()
         for (property, *args), data in self.properties.nodal_properties.items():
-            if property == "specific_impedance":
-                values = data["values"]
-                new = QTreeWidgetItem([str(args[0]), str(self.text_label(values[0]))])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_nodal_info.addTopLevelItem(new)
+            if property != "specific_impedance":
+                continue
 
-        self.tabWidget_main.setTabVisible(1, False)
-        for _property, *_ in self.properties.nodal_properties.keys():
-            if _property == "specific_impedance":
-                self.tabWidget_main.setCurrentIndex(0)
-                self.tabWidget_main.setTabVisible(1, True)
-                return
+            values = data["values"]
+            new = QTreeWidgetItem([str(args[0]), str(self.text_label(values[0]))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
+            self.treeWidget_nodal_info.addTopLevelItem(new)
+
+        self.update_tabs_visibility()
 
     def attribute_callback(self):
         properties = ["specific_impedance", "radiation_impedance"]
         input_name = "specific_impedance"
         reset_camera = False
 
-        if self.tabWidget_inputs.currentIndex() == 0:
+        tab_index = self.tabWidget_main.currentIndex()
+        if tab_index == TabType.CONSTANT:
             self.constant_values_attribution_callback(
                 self.lineEdit_node_ids,
                 self.lineEdit_real_value,
@@ -120,7 +144,7 @@ class SpecificImpedanceInput(AcousticNodesInput, SpecificImpedanceInput_UI):
                 properties,
                 reset_camera,
             )
-        else:
+        elif tab_index == TabType.TABULAR:
             self.table_values_attribution_callback()
 
     def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):

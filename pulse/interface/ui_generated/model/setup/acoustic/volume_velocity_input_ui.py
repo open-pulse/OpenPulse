@@ -418,7 +418,7 @@ class Ui_Dialog(object):
 #if QT_CONFIG(tooltip)
         self.treeWidget_nodal_info.setToolTip(QCoreApplication.translate("Dialog", u"Select a face to remove the previously attributed boundary condition.", None))
 #endif // QT_CONFIG(tooltip)
-        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"List", None))
     # retranslateUi
 
 

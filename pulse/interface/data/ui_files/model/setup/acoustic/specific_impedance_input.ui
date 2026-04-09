@@ -799,7 +799,7 @@
         </widget>
         <widget class="QWidget" name="tab_remove">
          <attribute name="title">
-          <string>Remove</string>
+          <string>List</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_9">
           <property name="leftMargin">
