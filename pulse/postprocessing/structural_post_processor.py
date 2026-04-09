@@ -82,7 +82,7 @@ class StructuralPostProcessor:
         Kr_exp_joint = self.assembler.Kr_exp_joint
         prescribed_indexes = self.assembler.prescribed_indexes
 
-        if Kr == [] or Mr == []:
+        if Kr.shape[1] == 0 or Mr.shape[1] == 0:
             return None
 
         alpha, beta, eta = self.assembler.global_damping

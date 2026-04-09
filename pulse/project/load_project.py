@@ -6,9 +6,6 @@ from pulse.model.cross_section import CrossSection
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.model.perforated_plate import PerforatedPlate
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.common_utils import get_color_rgb
 from pulse.processing.solvers.harmonic_solver import HarmonicSolver
 from pulse.processing.solvers.modal_solver import ModalSolver
 from pulse.processing.solvers.static_solver import StaticSolver
