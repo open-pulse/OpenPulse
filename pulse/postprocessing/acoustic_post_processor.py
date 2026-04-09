@@ -1,8 +1,5 @@
 import numpy as np
 
-from pulse.model.model import Model
-from pulse.processing.assemblers.acoustic_assembler import AcousticAssembler
-
 
 class AcousticPostProcessor:
     """
@@ -13,25 +10,40 @@ class AcousticPostProcessor:
 
     Parameters
     ----------
-    model : Model
-    assembler : AcousticAssembler
-    solution : np.ndarray
-        Acoustic solution of shape (n_dofs_total, n_freqs).
-    frequencies : np.ndarray
-        Frequency vector in Hz.
+    source : solver instance or Project
+        Either a HarmonicSolver / ModalSolver instance whose ``assembler``
+        and ``solution`` attributes hold the relevant data, or a Project
+        instance from which ``acoustic_solver`` is retrieved live.
     """
 
-    def __init__(
-        self,
-        model: Model,
-        assembler: AcousticAssembler,
-        solution: np.ndarray,
-        frequencies: np.ndarray,
-    ):
-        self.model = model
-        self.assembler = assembler
-        self.solution = solution
-        self.frequencies = frequencies
+    def __init__(self, source):
+        self._source = source
+
+    # ── Solver / delegation properties ───────────────────────────────────
+
+    @property
+    def solver(self):
+        """Return the solver, deriving it from a Project if that was passed."""
+        src = self._source
+        if hasattr(src, "acoustic_solver"):
+            return src.acoustic_solver
+        return src
+
+    @property
+    def model(self):
+        return self.solver.assembler.model
+
+    @property
+    def assembler(self):
+        return self.solver.assembler
+
+    @property
+    def solution(self):
+        return self.solver.solution
+
+    @property
+    def frequencies(self):
+        return self.solver.frequencies
 
     # ── Perforated plate convergence data ────────────────────────────────
 

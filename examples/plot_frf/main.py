@@ -26,8 +26,12 @@ preprocessor.set_structural_loads([361], np.array([1,0,0,0,0,0]))
 frequencies = np.arange(0, 202, 2)
 modes = 200
 assembler = StructuralAssembler(preprocessor)
-direct = HarmonicSolver().direct_method(assembler, frequencies)
-modal = HarmonicSolver().mode_superposition(assembler, frequencies, modal_solver=ModalSolver(), n_modes=modes)
+direct_solver = HarmonicSolver(assembler)
+direct_solver.direct_method(frequencies)
+direct = direct_solver.solution
+modal_solver = HarmonicSolver(assembler)
+modal_solver.mode_superposition(frequencies, n_modes=modes)
+modal = modal_solver.solution
 
 # GETTING FRF
 node = 711

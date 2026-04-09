@@ -53,7 +53,9 @@ df = 1
 frequencies = np.arange(df, f_max+df, df)
 
 acoustic_assembler = AcousticAssembler(preprocessor)
-direct = HarmonicSolver().direct_method(acoustic_assembler, frequencies)
+solver = HarmonicSolver(acoustic_assembler)
+solver.direct_method(frequencies)
+direct = solver.solution
 #%% Acoustic validation
 
 if run==1:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 from scipy.sparse import csr_matrix, bmat, eye
 from scipy.sparse.linalg import eigs, inv
@@ -15,11 +17,34 @@ class ModalSolver:
     When the assembler returns a damping matrix C ≠ None
     (nonproportional damping, e.g. acoustic), uses the state-space
     formulation to obtain complex eigenvalues.
+
+    Parameters
+    ----------
+    assembler : Assembler
+        Assembler providing K, M (and optionally C).
     """
+
+    def __init__(self, assembler: Assembler):
+        self.assembler = assembler
+        self.natural_frequencies: np.ndarray | None = None
+        self.modal_shapes: np.ndarray | None = None
+
+    # ── Common solver interface ───────────────────────────────────────────
+
+    @property
+    def solution(self) -> np.ndarray | None:
+        """Alias for modal_shapes under the common `.solution` name."""
+        return self.modal_shapes
+
+    @property
+    def frequencies(self) -> np.ndarray | None:
+        """Alias for natural_frequencies under the common `.frequencies` name."""
+        return self.natural_frequencies
+
+    # ── Solve ─────────────────────────────────────────────────────────────
 
     def solve(
         self,
-        assembler: Assembler,
         n_modes: int = 40,
         which: str = "LM",
         sigma: float = 1e-4,
@@ -30,14 +55,14 @@ class ModalSolver:
 
         Parameters
         ----------
-        assembler : Assembler
-            Assembler providing K, M (and optionally C).
         n_modes : int
             Number of modes to compute.
         which : str
             Eigenvalue selection criterion for scipy.sparse.linalg.eigs.
         sigma : float
             Shift-invert point in (rad/s)² or rad/s.
+        reduced : bool
+            If True, returns mode shapes without reinserting prescribed DOFs.
 
         Returns
         -------
@@ -45,9 +70,10 @@ class ModalSolver:
             Natural frequencies in Hz, sorted in ascending order.
         modal_shapes : np.ndarray
             Corresponding mode shapes (columns), with prescribed DOFs
-            reinserted (zero value).
+            reinserted (zero value) unless reduced=True.
         """
 
+        assembler = self.assembler
         K = assembler.get_stiffness_matrix()
         M = assembler.get_mass_matrix()
         C = assembler.get_damping_matrix()
@@ -61,11 +87,11 @@ class ModalSolver:
                 K, M, n_modes, which, sigma
             )
 
-        if reduced:
-            return natural_frequencies, modal_shapes
+        if not reduced:
+            modal_shapes = assembler.reinsert_prescribed_dofs(modal_shapes, modal=True)
 
-        # Reinsert prescribed DOFs
-        modal_shapes = assembler.reinsert_prescribed_dofs(modal_shapes, modal=True)
+        self.natural_frequencies = natural_frequencies
+        self.modal_shapes = modal_shapes
         return natural_frequencies, modal_shapes
 
     # ── Internal solvers ──────────────────────────────────────────────────

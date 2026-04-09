@@ -66,7 +66,9 @@ f_max = 1000
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 assembler = AcousticAssembler(preprocessor)
-direct = HarmonicSolver().direct_method(assembler, frequencies)
+solver = HarmonicSolver(assembler)
+solver.direct_method(frequencies)
+direct = solver.solution
 
 f_fem=np.loadtxt("examples/validation_mean_flow/dataM0p1_peters.txt", delimiter=',')[:,0] 
 p_fem=np.loadtxt("examples/validation_mean_flow/dataM0p1_peters.txt", delimiter=',')[:,1:3] 

@@ -132,7 +132,8 @@ class PlotStructuralModeShape(PlotStructuralModeShape_UI):
 
     def load_natural_frequencies(self):
         
-        self.natural_frequencies = list(app().project.natural_frequencies_structural)
+        s = app().project.structural_solver
+        self.natural_frequencies = list(s.natural_frequencies) if s is not None else []
         modes = np.arange(1, len(self.natural_frequencies) + 1, 1)
         self.modes_to_frequencies = dict(zip(modes, self.natural_frequencies))
 

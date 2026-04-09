@@ -113,15 +113,15 @@ def test_modal_analysis(current_model, num_regression):
     project.build_model_and_solve(running_by_script=True)
     
     # Get the results
-    natural_frequencies = project.natural_frequencies_structural
-    eigen_vectors = project.structural_solution
-    
+    natural_frequencies = project.structural_solver.natural_frequencies
+    eigen_vectors = project.structural_solver.modal_shapes
+
     # Verify results exist and have correct shape
     assert natural_frequencies is not None
     assert eigen_vectors is not None
     assert len(natural_frequencies) == 40
     assert eigen_vectors.shape[1] == 40
-    
+
     # Regression tests - compare against stored baseline
     # Store natural frequencies as array
     num_regression.check(
@@ -153,8 +153,8 @@ def test_direct_method(current_model, num_regression):
     project.build_model_and_solve(running_by_script=True)
     
     # Get the results
-    solution = project.structural_solution
-    
+    solution = project.structural_solver.solution
+
     # Verify results exist and have correct shape
     assert solution is not None
     assert len(solution.shape) == 2  # Should be 2D array
@@ -170,7 +170,6 @@ def test_direct_method(current_model, num_regression):
         },
         default_tolerance=dict(atol=1e-6, rtol=1e-6)
     )
-
 
 
 def test_mode_superposition(current_model, num_regression):
@@ -195,8 +194,8 @@ def test_mode_superposition(current_model, num_regression):
     project.build_model_and_solve(running_by_script=True)
     
     # Get the results
-    solution = project.structural_solution
-    
+    solution = project.structural_solver.solution
+
     # Verify results exist and have correct shape
     assert solution is not None
     assert len(solution.shape) == 2  # Should be 2D array

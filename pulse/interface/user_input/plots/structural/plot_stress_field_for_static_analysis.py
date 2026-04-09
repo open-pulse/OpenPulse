@@ -112,7 +112,7 @@ class PlotStressesFieldForStaticAnalysis(PlotStressesFieldForStaticAnalysis_UI):
         app().project.model.frequencies = np.array([0.], dtype=float)
 
         if len(self.stress_data) == 0:
-            self.stress_data = app().project.stress_calculate(static_analysis=True)
+            self.stress_data = app().project.structural_post_processor.stress_calculate(static_analysis=True)
 
         stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }
 

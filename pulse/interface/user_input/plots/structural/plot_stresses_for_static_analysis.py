@@ -74,7 +74,7 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
 
     def _update_lineEdit(self, selected_element : int):
 
-        self.stress_data = app().project.stress_calculate(static_analysis=True)
+        self.stress_data = app().project.structural_post_processor.stress_calculate(static_analysis=True)
         stresses = np.real(np.array(self.stress_data[selected_element][:,0]))
 
         self.lineEdit_axial_stress.setText("{:.6e}".format(stresses[0]))

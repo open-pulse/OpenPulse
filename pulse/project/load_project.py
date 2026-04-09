@@ -6,6 +6,12 @@ from pulse.model.cross_section import CrossSection
 from pulse.model.perforated_plate import PerforatedPlate
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
+from pulse.model.perforated_plate import PerforatedPlate
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.utils.common_utils import get_color_rgb
+from pulse.processing.solvers.harmonic_solver import HarmonicSolver
+from pulse.processing.solvers.modal_solver import ModalSolver
+from pulse.processing.solvers.static_solver import StaticSolver
 
 if TYPE_CHECKING:
     from pulse.project.project import Project
@@ -749,30 +755,46 @@ class LoadProject:
 
                 if key == "modal_acoustic":
                     act_modal_analysis = True
-                    if np.iscomplexobj(data["natural_frequencies"]):
-                        self.project.complex_natural_frequencies_acoustic = data["natural_frequencies"]
-                    else:
-                        self.project.natural_frequencies_acoustic = data["natural_frequencies"]
-                    self.project.acoustic_solution = data["modal_shape"]
+                    solver = ModalSolver.__new__(ModalSolver)
+                    solver.assembler = None
+                    solver.natural_frequencies = data["natural_frequencies"]
+                    solver.modal_shapes = data["modal_shape"]
+                    self.project.acoustic_solver = solver
 
                 if key == "modal_structural":
                     str_modal_analysis = True
-                    self.project.natural_frequencies_structural = data["natural_frequencies"]
-                    self.project.structural_solution = data["modal_shape"]
+                    solver = ModalSolver.__new__(ModalSolver)
+                    solver.assembler = None
+                    solver.natural_frequencies = data["natural_frequencies"]
+                    solver.modal_shapes = data["modal_shape"]
+                    self.project.structural_solver = solver
 
                 if key == "harmonic_acoustic":
                     act_harmonic_analysis = True
                     self.project.model.frequencies = data["frequencies"]
-                    self.project.acoustic_solution = data["solution"]
+                    solver = HarmonicSolver.__new__(HarmonicSolver)
+                    solver.assembler = None
+                    solver.frequencies = data["frequencies"]
+                    solver.solution = data["solution"]
+                    solver.convergence_plot = None
+                    self.project.acoustic_solver = solver
 
                 if key == "harmonic_structural":
                     str_harmonic_analysis = True
                     self.project.model.frequencies = data["frequencies"]
-                    self.project.structural_solution = data["solution"]
+                    solver = HarmonicSolver.__new__(HarmonicSolver)
+                    solver.assembler = None
+                    solver.frequencies = data["frequencies"]
+                    solver.solution = data["solution"]
+                    solver.convergence_plot = None
+                    self.project.structural_solver = solver
 
                 if key == "static_structural":
-                    # str_static_analysis = True
-                    self.project.structural_solution = data["solution"]
+                    solver = StaticSolver.__new__(StaticSolver)
+                    solver.assembler = None
+                    solver.frequencies = np.array([0.0])
+                    solver.solution = data["solution"]
+                    self.project.structural_solver = solver
 
             logging.info("Updating analysis render [75%]")
             if act_modal_analysis:

@@ -17,7 +17,8 @@ class AfterRun:
         self.load_model_and_analysis_data()
 
     def load_model_and_analysis_data(self):
-        self.solution_acoustic = app().project.acoustic_solution
+        acoustic_solver = app().project.acoustic_solver
+        self.solution_acoustic = acoustic_solver.solution if acoustic_solver is not None else None
         self.frequencies = self.model.frequencies
         self.map_nodes = self.preprocessor.map_global_to_external_index
         self.nodes = self.preprocessor.nodes

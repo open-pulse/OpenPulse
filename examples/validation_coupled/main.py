@@ -57,7 +57,9 @@ df = 1
 frequencies = np.arange(df, f_max+df, df)
 
 acoustic_assembler = AcousticAssembler(preprocessor)
-direct = HarmonicSolver().direct_method(acoustic_assembler, frequencies)
+acoustic_solver = HarmonicSolver(acoustic_assembler)
+acoustic_solver.direct_method(frequencies)
+direct = acoustic_solver.solution
 #%% Acoustic validation
 
 if run==1:
@@ -165,10 +167,13 @@ preprocessor.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
 
 struct_assembler = StructuralAssembler(mesh, acoustic_solution=direct)
 modes = 200
-natural_frequencies, mode_shapes = ModalSolver().solve(struct_assembler, n_modes=modes)
+modal_s = ModalSolver(struct_assembler)
+natural_frequencies, mode_shapes = modal_s.solve(n_modes=modes)
 
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS
-direct = HarmonicSolver().direct_method(struct_assembler, frequencies)
+struct_solver = HarmonicSolver(struct_assembler)
+struct_solver.direct_method(frequencies)
+direct = struct_solver.solution
 modal = solution_structural.mode_superposition(frequencies, modes, fastest=True)
 
 column = 3

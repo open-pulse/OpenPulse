@@ -3,9 +3,6 @@ import logging
 import numpy as np
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 
-from pulse.model.model import Model
-from pulse.processing.assemblers.structural_assembler import StructuralAssembler
-
 
 _ERROR_TITLE = "Error"
 
@@ -19,32 +16,44 @@ class StructuralPostProcessor:
 
     Parameters
     ----------
-    model : Model
-    assembler : StructuralAssembler
-        Assembler whose matrices were used to obtain the solution.
-    solution : np.ndarray
-        Solution matrix of shape (n_dofs_total, n_freqs) or
-        (n_dofs_total, 1) for static analysis.
-    frequencies : np.ndarray
-        Frequency vector corresponding to the solution columns.
+    source : solver instance or Project
+        Either a HarmonicSolver / StaticSolver / ModalSolver instance whose
+        ``assembler`` and ``solution`` attributes hold the relevant data, or a
+        Project instance from which ``structural_solver`` is retrieved live.
     """
 
-    def __init__(
-        self,
-        model: Model,
-        assembler: StructuralAssembler,
-        solution: np.ndarray,
-        frequencies: np.ndarray,
-    ):
-        self.model = model
-        self.assembler = assembler
-        self.solution = solution
-        self.frequencies = frequencies
-
+    def __init__(self, source):
+        self._source = source
         self.reactions_at_constrained_dofs: dict | None = None
         self.dict_reactions_at_springs: dict | None = None
         self.dict_reactions_at_dampers: dict | None = None
         self.stress_field_dict: dict = {}
+
+    # ── Solver / delegation properties ───────────────────────────────────
+
+    @property
+    def solver(self):
+        """Return the solver, deriving it from a Project if that was passed."""
+        src = self._source
+        if hasattr(src, "structural_solver"):
+            return src.structural_solver
+        return src
+
+    @property
+    def model(self):
+        return self.solver.assembler.model
+
+    @property
+    def assembler(self):
+        return self.solver.assembler
+
+    @property
+    def solution(self):
+        return self.solver.solution
+
+    @property
+    def frequencies(self):
+        return self.solver.frequencies
 
     # ── Reactions at constrained DOFs ────────────────────────────────────
 

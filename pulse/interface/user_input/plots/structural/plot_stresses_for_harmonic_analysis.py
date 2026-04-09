@@ -89,7 +89,7 @@ class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
         if len(self.stress_data) == 0 or self.update_damping:
             damping_effect = self.checkBox_damping_effect.isChecked()
 
-            self.stress_data = app().project.stress_calculate(damping=damping_effect)
+            self.stress_data = app().project.structural_post_processor.stress_calculate(damping=damping_effect)
             self.update_damping = False
 
         response = get_stress_spectrum_data(

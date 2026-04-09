@@ -48,7 +48,9 @@ f_max = 400
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 assembler = AcousticAssembler(preprocessor)
-direct = HarmonicSolver().direct_method(assembler, frequencies)
+solver = HarmonicSolver(assembler)
+solver.direct_method(frequencies)
+direct = solver.solution
 
 # Perforated plate setup
 hole_diameter = 1e-3
@@ -58,11 +60,13 @@ pp = PerforatedPlate(hole_diameter, thickness, porosity)
 preprocessor.set_perforated_plate(86, pp)
 
 assembler_pp = AcousticAssembler(preprocessor)
+solver_pp = HarmonicSolver(assembler_pp)
 if assembler_pp.nl_elements:
     assembler_pp.reset_nl_elements()
-    direct_pp, _ = HarmonicSolver().nonlinear_direct_method(assembler_pp, frequencies)
+    solver_pp.nonlinear_direct_method(frequencies)
 else:
-    direct_pp = HarmonicSolver().direct_method(assembler_pp, frequencies)
+    solver_pp.direct_method(frequencies)
+direct_pp = solver_pp.solution
 
 f_fem=np.loadtxt("examples/validation_perforated_plate/FEM.txt", delimiter=',')[:,0] 
 p_fem=np.loadtxt("examples/validation_perforated_plate/FEM.txt", delimiter=',')[:,1:4] 

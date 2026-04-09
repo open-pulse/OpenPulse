@@ -64,9 +64,13 @@ frequencies = np.arange(0, f_max+df, df)
 
 assembler = StructuralAssembler(preprocessor)
 modes = 200
-direct = HarmonicSolver().direct_method(assembler, frequencies)
-modal = HarmonicSolver().mode_superposition(assembler, frequencies, modal_solver=ModalSolver(), n_modes=modes)
-# natural_frequencies, modal_shape = ModalSolver().solve(assembler, n_modes=20)
+direct_solver = HarmonicSolver(assembler)
+direct_solver.direct_method(frequencies)
+direct = direct_solver.solution
+modal_solver = HarmonicSolver(assembler)
+modal_solver.mode_superposition(frequencies, n_modes=modes)
+modal = modal_solver.solution
+# modal_solver2 = ModalSolver(assembler); modal_solver2.solve(n_modes=20)
 dt = time()-t0
 print('Total elapsed time:', dt,'[s]')
 

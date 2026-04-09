@@ -45,7 +45,9 @@ df = 1
 frequencies = np.arange(df, f_max+df, df)
 
 assembler = AcousticAssembler(preprocessor)
-direct = HarmonicSolver().direct_method(assembler, frequencies)
+solver = HarmonicSolver(assembler)
+solver.direct_method(frequencies)
+direct = solver.solution
 
 pressure = get_acoustic_frf(preprocessor, direct, 1086, dB=True)
 p_ref = 20e-6

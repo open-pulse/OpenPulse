@@ -68,6 +68,11 @@ class HarmonicSolver:
     Solves  A(ω)·x = f(ω)  for each frequency using any assembler
     that implements the Assembler interface.
 
+    Parameters
+    ----------
+    assembler : Assembler
+        Assembler providing A(ω) and f(ω).
+
     Available methods
     -----------------
     direct_method          : direct solution frequency by frequency.
@@ -76,11 +81,16 @@ class HarmonicSolver:
     mode_superposition     : modal superposition using ModalSolver.
     """
 
+    def __init__(self, assembler: Assembler):
+        self.assembler = assembler
+        self.frequencies: np.ndarray | None = None
+        self.solution: np.ndarray | None = None
+        self.convergence_plot = None
+
     # ── Linear direct method ──────────────────────────────────────────────
 
     def direct_method(
         self,
-        assembler: Assembler,
         frequencies: np.ndarray,
     ) -> np.ndarray:
         """
@@ -88,8 +98,6 @@ class HarmonicSolver:
 
         Parameters
         ----------
-        assembler : Assembler
-            Assembler providing A(ω) and f(ω).
         frequencies : np.ndarray
             Frequency vector in Hz.
 
@@ -99,6 +107,7 @@ class HarmonicSolver:
             Full solution, shape (n_dofs_total, n_freqs).
         """
 
+        assembler = self.assembler
         n_dofs = assembler.get_system_matrix(0, 0.0).shape[0]
         n_freqs = len(frequencies)
         solution = np.zeros((n_dofs, n_freqs), dtype=complex)
@@ -118,13 +127,15 @@ class HarmonicSolver:
             if assembler.stop_processing():
                 return None
 
-        return assembler.reinsert_prescribed_dofs(solution)
+        result = assembler.reinsert_prescribed_dofs(solution)
+        self.frequencies = frequencies
+        self.solution = result
+        return result
 
     # ── Nonlinear direct method ───────────────────────────────────────────
 
     def nonlinear_direct_method(
         self,
-        assembler: Assembler,
         frequencies: np.ndarray,
     ) -> tuple[np.ndarray, list | None]:
         """
@@ -134,12 +145,9 @@ class HarmonicSolver:
         - assembler.update_after_iteration()        → rebuilds matrices after element state update
         - assembler.check_convergence(pressure_residues, delta_residues) → bool
         - assembler.convergence_data_log            → filled upon convergence
-        - assembler.convergence_plot                → set to the XY plot after the run
 
         Parameters
         ----------
-        assembler : Assembler
-            Assembler with nonlinearity support.
         frequencies : np.ndarray
             Frequency vector in Hz.
 
@@ -149,6 +157,7 @@ class HarmonicSolver:
         convergence_data_log : list | None
         """
 
+        assembler = self.assembler
         n_dofs = assembler.get_system_matrix(0, 0.0).shape[0]
         n_freqs = len(frequencies)
 
@@ -276,19 +285,21 @@ class HarmonicSolver:
             if converged:
                 if xy_plot is not None:
                     xy_plot.show()
-                assembler.convergence_plot = xy_plot
+                self.frequencies = frequencies
+                self.solution = previous_solution
+                self.convergence_plot = xy_plot
                 return previous_solution, assembler.convergence_data_log
 
-        assembler.convergence_plot = xy_plot
+        self.frequencies = frequencies
+        self.solution = previous_solution
+        self.convergence_plot = xy_plot
         return previous_solution, None
 
     # ── Mode superposition ────────────────────────────────────────────────
 
     def mode_superposition(
         self,
-        assembler: Assembler,
         frequencies: np.ndarray,
-        modal_solver,
         n_modes: int,
         fastest: bool = True,
     ) -> np.ndarray:
@@ -297,12 +308,8 @@ class HarmonicSolver:
 
         Parameters
         ----------
-        assembler : Assembler
-            Assembler providing K, M and F for superposition.
         frequencies : np.ndarray
             Frequency vector in Hz.
-        modal_solver : ModalSolver
-            ModalSolver instance to obtain mode shapes.
         n_modes : int
             Number of modes to use.
         fastest : bool
@@ -312,12 +319,15 @@ class HarmonicSolver:
         -------
         np.ndarray  shape (n_dofs_total, n_freqs)
         """
+        from pulse.processing.solvers.modal_solver import ModalSolver
 
+        assembler = self.assembler
         alpha, beta, eta = assembler.global_damping
 
-        natural_frequencies, modal_shape = modal_solver.solve(
-            assembler, n_modes=n_modes, reduced=True
-        )
+        modal_solver = ModalSolver(assembler)
+        modal_solver.solve(n_modes=n_modes, reduced=True)
+        natural_frequencies = modal_solver.natural_frequencies
+        modal_shape = modal_solver.modal_shapes
 
         n_freqs = len(frequencies)
         rows = modal_shape.shape[0]
@@ -358,4 +368,7 @@ class HarmonicSolver:
                 if assembler.stop_processing():
                     return None
 
-        return assembler.reinsert_prescribed_dofs(solution)
+        result = assembler.reinsert_prescribed_dofs(solution)
+        self.frequencies = frequencies
+        self.solution = result
+        return result

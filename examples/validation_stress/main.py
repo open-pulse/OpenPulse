@@ -53,17 +53,20 @@ frequencies = np.arange(0.001, f_max+df, df)
 modes = 200
 
 # acoustic_assembler = AcousticAssembler(mesh)
-# direct_acoustic = HarmonicSolver().direct_method(acoustic_assembler, frequencies)
+# acoustic_solver = HarmonicSolver(acoustic_assembler)
+# acoustic_solver.direct_method(frequencies)
 
-struct_assembler = StructuralAssembler(preprocessor)  # acoustic_solution=direct_acoustic
-direct_structural = HarmonicSolver().direct_method(struct_assembler, frequencies)
+struct_assembler = StructuralAssembler(preprocessor)  # acoustic_solution=acoustic_solver.solution
+solver = HarmonicSolver(struct_assembler)
+solver.direct_method(frequencies)
+direct_structural = solver.solution
 tf = time()
 print('Structural direct solution time:', (tf-t0),'[s]')
 column = 50
 
 _, coord_def, _, _ = get_structural_response(preprocessor, direct_structural, column, Normalize=False)
 
-post = StructuralPostProcessor(preprocessor, struct_assembler, direct_structural, frequencies)
+post = StructuralPostProcessor(solver)
 post.stress_calculate(external_pressure=0, damping=False)
 stress_data = get_stress_data(preprocessor, column, real=True)
 stress_plot = stress_data[:,[0,2]]

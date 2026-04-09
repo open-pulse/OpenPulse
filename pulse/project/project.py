@@ -46,9 +46,6 @@ class Project:
 
     def _initialize(self):
         self.structural_reactions = dict()
-        self.natural_frequencies_acoustic = np.ndarray([])
-        self.natural_frequencies_structural = np.ndarray([])
-        self.complex_natural_frequencies_acoustic = np.ndarray([])
 
         self.preferences = dict()
         self.color_scale_setup = dict()
@@ -73,67 +70,21 @@ class Project:
         self.stresses_values_for_color_table = None
 
         self.reset_solvers()
-        self.reset_solutions()
 
     def reset_solvers(self):
         self.acoustic_assembler: AcousticAssembler | None = None
         self.structural_assembler: StructuralAssembler | None = None
-        self.structural_post_processor: StructuralPostProcessor | None = None
-        self.acoustic_post_processor: AcousticPostProcessor | None = None
+        self.structural_solver = None
+        self.acoustic_solver = None
+        self.structural_post_processor = StructuralPostProcessor(self)
+        self.acoustic_post_processor = AcousticPostProcessor(self)
+        self.structural_reactions.clear()
         # Warnings generated during the solution
         self._warning_mode_sup_prescribed_dofs = ""
         self._warning_modal_prescribed_dofs = ""
         self._warning_modal_prescribed_pressures = ""
         self._warning_clump = ""
         self._flag_clump = False
-
-    # ── Solution result properties ────────────────────────────────────────
-
-    @property
-    def structural_modal_shapes(self):
-        """Modal shapes from a structural modal analysis, None otherwise."""
-        if self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
-            return self.structural_solution
-        return None
-
-    @property
-    def acoustic_modal_shapes(self):
-        """Modal shapes from an acoustic modal analysis, None otherwise."""
-        if self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
-            return self.acoustic_solution
-        return None
-
-    @property
-    def convergence_plot(self):
-        """XY convergence plot from the last nonlinear PP run, or None."""
-        if self.acoustic_assembler is None:
-            return None
-        return self.acoustic_assembler.convergence_plot
-
-    def stress_calculate(self, **kwargs):
-        """Compute stresses using the current structural solution."""
-        from pulse.postprocessing.structural_post_processor import StructuralPostProcessor
-        pp = StructuralPostProcessor(
-            self.model,
-            self.structural_assembler,
-            self.structural_solution,
-            self.model.frequencies,
-        )
-        return pp.stress_calculate(**kwargs)
-
-    def reset_solutions(self):
-        self.structural_solution = None
-        self.acoustic_solution = None
-
-        self.natural_frequencies_acoustic = np.ndarray([])
-        self.natural_frequencies_structural = np.ndarray([])
-        self.complex_natural_frequencies_acoustic = np.ndarray([])
-        self.structural_reactions.clear()
-
-        if not self.model.analysis_setup:
-            return
-
-        # self.create_solver()
 
     def reset_analysis_setup(self):
         self.model.reset_analysis_setup()
@@ -571,14 +522,7 @@ class Project:
         self.stress_label = stress_label
 
     def is_the_solution_finished(self):
-
-        if self.acoustic_solution is not None:
-            return True
-
-        elif self.structural_solution is not None:
-            return True
-
-        return False
+        return self.acoustic_solver is not None or self.structural_solver is not None
 
     def initialize_solver(self):
 
@@ -639,71 +583,58 @@ class Project:
         if self.analysis_id == AnalysisID.STRUCTURAL_HARMONIC:
             assembler = self.structural_assembler
             self._apply_stress_stiffening_if_needed(assembler)
-
+            solver = HarmonicSolver(assembler)
             if self.analysis_method == "direct":
-                solution = HarmonicSolver().direct_method(assembler, freqs)
+                solver.direct_method(freqs)
             else:
-                solution = self._mode_superposition(assembler, freqs)
-
-            self.structural_solution = solution
+                self._run_mode_superposition(solver, freqs)
+            self.structural_solver = solver
 
         elif self.analysis_id == AnalysisID.ACOUSTIC_HARMONIC:
-            assembler = self.acoustic_assembler
-            solution, log = self._run_acoustic_harmonic(assembler, freqs)
-            self.acoustic_solution = solution
-            self.perforated_plate_data_log = log
+            solver = HarmonicSolver(self.acoustic_assembler)
+            self._run_acoustic_harmonic(solver, freqs)
+            self.perforated_plate_data_log = solver.assembler.convergence_data_log
+            self.acoustic_solver = solver
 
         elif self.analysis_id == AnalysisID.COUPLED_HARMONIC:
             # 1. Solve acoustic
-            acoustic_assembler = self.acoustic_assembler
-            acoustic_solution, log = self._run_acoustic_harmonic(acoustic_assembler, freqs)
-            self.acoustic_solution = acoustic_solution
-            self.perforated_plate_data_log = log
+            acoustic_solver = HarmonicSolver(self.acoustic_assembler)
+            self._run_acoustic_harmonic(acoustic_solver, freqs)
+            self.perforated_plate_data_log = acoustic_solver.assembler.convergence_data_log
+            self.acoustic_solver = acoustic_solver
 
             # 2. Solve structural with coupled acoustic solution
             struct_assembler = self._get_structural_assembler(
-                acoustic_solution=acoustic_solution
+                acoustic_solution=acoustic_solver.solution
             )
             self.structural_assembler = struct_assembler
             self._apply_stress_stiffening_if_needed(struct_assembler)
-
+            struct_solver = HarmonicSolver(struct_assembler)
             if self.analysis_method == "direct":
-                solution = HarmonicSolver().direct_method(struct_assembler, freqs)
+                struct_solver.direct_method(freqs)
             else:
-                solution = self._mode_superposition(struct_assembler, freqs)
-
-            self.structural_solution = solution
+                self._run_mode_superposition(struct_solver, freqs)
+            self.structural_solver = struct_solver
 
         elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
             assembler = self.structural_assembler
             self._apply_stress_stiffening_if_needed(assembler)
-
-            natural_frequencies, modal_shapes = ModalSolver().solve(
-                assembler,
-                n_modes=self.number_of_modes,
-                sigma=self.sigma_factor,
-            )
+            solver = ModalSolver(assembler)
+            solver.solve(n_modes=self.number_of_modes, sigma=self.sigma_factor)
             self._check_modal_prescribed_dofs_warning(assembler)
-            self.natural_frequencies_structural = natural_frequencies
-            self.structural_solution = modal_shapes
+            self.structural_solver = solver
 
         elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
             assembler = self.acoustic_assembler
-
-            natural_frequencies, modal_shapes = ModalSolver().solve(
-                assembler,
-                n_modes=self.number_of_modes,
-                sigma=self.sigma_factor,
-            )
+            solver = ModalSolver(assembler)
+            solver.solve(n_modes=self.number_of_modes, sigma=self.sigma_factor)
             self._check_acoustic_modal_prescribed_warning(assembler)
-            self.natural_frequencies_acoustic = natural_frequencies
-            # Complex natural frequencies (damped case only) are stored in the assembler
-            self.acoustic_solution = modal_shapes
+            self.acoustic_solver = solver
 
         elif self.analysis_id == AnalysisID.STRUCTURAL_STATIC:
-            assembler = self.structural_assembler
-            solution = StaticSolver().solve(assembler)
-            self.structural_solution = solution
+            solver = StaticSolver(self.structural_assembler)
+            solver.solve()
+            self.structural_solver = solver
 
         else:
             raise NotImplementedError("Not implemented analysis")
@@ -721,40 +652,41 @@ class Project:
     # ── Auxiliares de process_analysis ───────────────────────────────────
 
     def _run_acoustic_harmonic(
-        self, assembler: AcousticAssembler, freqs
-    ) -> tuple:
-        """Run the acoustic harmonic analysis (linear or nonlinear)."""
-        solver = HarmonicSolver()
+        self, solver: HarmonicSolver, freqs
+    ) -> None:
+        """Run the acoustic harmonic analysis (linear or nonlinear) on solver."""
+        assembler = solver.assembler
         if assembler.nl_elements:
             assembler.reset_nl_elements()
-            solution, log = solver.nonlinear_direct_method(assembler, freqs)
+            solver.nonlinear_direct_method(freqs)
         else:
-            solution = solver.direct_method(assembler, freqs)
-            log = None
-        return solution, log
+            solver.direct_method(freqs)
 
     def _apply_stress_stiffening_if_needed(
         self, assembler: StructuralAssembler
     ) -> None:
         """Apply stress stiffening to the assembler if enabled in the model."""
         if self.model.preprocessor.stress_stiffening_enabled:
-            static_solution = StaticSolver().solve(assembler)
-            assembler.apply_stress_stiffening(static_solution)
+            static_solver = StaticSolver(assembler)
+            static_solver.solve()
+            assembler.apply_stress_stiffening(static_solver.solution)
 
-    def _mode_superposition(
-        self, assembler: StructuralAssembler, freqs
-    ) -> np.ndarray | None:
-        """Run the structural mode superposition harmonic analysis."""
+    def _run_mode_superposition(
+        self, solver: HarmonicSolver, freqs
+    ) -> None:
+        """Run mode superposition or fall back to direct if conditions are not met."""
+        assembler = solver.assembler
         if not assembler.has_no_table():
-            return None
+            solver.direct_method(freqs)
+            return
 
         if np.sum(assembler._prescribed_values) > 0:
-            # Fallback to direct method when prescribed DOFs are present
             self._warning_mode_sup_prescribed_dofs = (
                 "The Harmonic Analysis of prescribed DOF problems "
                 "had been solved through the Direct Method."
             )
-            return HarmonicSolver().direct_method(assembler, freqs)
+            solver.direct_method(freqs)
+            return
 
         self._flag_clump = assembler.flag_Clump
         if assembler.flag_Clump:
@@ -765,12 +697,7 @@ class Project:
                 "analysis through direct method if you want to get more accurate results!"
             )
 
-        return HarmonicSolver().mode_superposition(
-            assembler,
-            freqs,
-            modal_solver=ModalSolver(),
-            n_modes=self.number_of_modes,
-        )
+        solver.mode_superposition(freqs, n_modes=self.number_of_modes)
 
     def _check_modal_prescribed_dofs_warning(
         self, assembler: StructuralAssembler
@@ -872,18 +799,12 @@ class Project:
 
     def calculate_structural_reactions(self):
 
-        if self.structural_solution is None:
+        if self.structural_solver is None:
             return
 
         static_analysis = self.analysis_id == AnalysisID.STRUCTURAL_STATIC
 
-        post = StructuralPostProcessor(
-            self.model,
-            self.structural_assembler,
-            self.structural_solution,
-            self.model.frequencies,
-        )
-        self.structural_post_processor = post
+        post = self.structural_post_processor
 
         logging.info("Evaluating the structural reactions for constrained dofs [60%]")
         post.get_reactions_at_constrained_dofs(static_analysis=static_analysis)

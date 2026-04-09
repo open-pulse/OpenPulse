@@ -56,7 +56,9 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
         self.frame_button.setVisible(False)
         self.lineEdit_natural_frequency.setDisabled(True)
 
-        if isinstance(app().project.complex_natural_frequencies_acoustic, np.ndarray):
+        s = app().project.acoustic_solver
+        _nf = s.natural_frequencies if s is not None else None
+        if _nf is not None and np.iscomplexobj(_nf):
             widths = [60, 170]
             headers = ["Mode", "Damped frequency [Hz]", "Damping ratio [--]"]
 
@@ -128,11 +130,8 @@ class PlotAcousticModeShape(AcousticModeShape_UI):
 
     def load_natural_frequencies(self):
 
-        if isinstance(app().project.complex_natural_frequencies_acoustic, np.ndarray):
-            self.natural_frequencies = list(app().project.complex_natural_frequencies_acoustic)
-
-        else:
-            self.natural_frequencies = list(app().project.natural_frequencies_acoustic)
+        s = app().project.acoustic_solver
+        self.natural_frequencies = list(s.natural_frequencies) if s is not None else []
 
         modes = np.arange(1, len(self.natural_frequencies) + 1, 1)
         self.modes_to_frequencies = dict(zip(modes, self.natural_frequencies))
