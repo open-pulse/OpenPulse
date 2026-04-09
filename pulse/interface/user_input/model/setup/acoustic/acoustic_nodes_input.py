@@ -20,11 +20,11 @@ class AcousticNodesInput(NodesInput):
         return text
 
     def check_complex_entries(
-        self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit, input_name: str
+        self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit, property_label: str
     ):
         error_title = "Error"
 
-        title = f"Invalid entry to the {input_name}"
+        title = f"Invalid entry to the {property_label}"
 
         if lineEdit_real.text() != "":
             _str_real = lineEdit_real.text()
@@ -34,7 +34,7 @@ class AcousticNodesInput(NodesInput):
                 real_F = float(str_real)
             except Exception:
                 self.hide()
-                message = f"Wrong input for real part of {input_name}."
+                message = f"Wrong input for real part of {property_label}."
                 PrintMessageInput([error_title, title, message])
                 lineEdit_real.setFocus()
                 app().main_window.set_input_widget(self)
@@ -50,7 +50,7 @@ class AcousticNodesInput(NodesInput):
                 imag_F = float(str_imag)
             except Exception:
                 self.hide()
-                message = f"Wrong input for imaginary part of {input_name}."
+                message = f"Wrong input for imaginary part of {property_label}."
                 PrintMessageInput([error_title, title, message])
                 lineEdit_imag.setFocus()
                 app().main_window.set_input_widget(self)
@@ -60,7 +60,7 @@ class AcousticNodesInput(NodesInput):
 
         if real_F == 0 and imag_F == 0:
             self.hide()
-            message = f"You must inform at least one {input_name} "
+            message = f"You must inform at least one {property_label} "
             message += "before confirming the input!"
             PrintMessageInput([error_title, title, message])
             lineEdit_real.setFocus()
@@ -70,54 +70,12 @@ class AcousticNodesInput(NodesInput):
         else:
             return False, real_F + 1j * imag_F
 
-    def constant_values_attribution_callback(
-        self,
-        lineEdit_node_ids: QLineEdit,
-        lineEdit_real: QLineEdit,
-        lineEdit_imag: QLineEdit,
-        input_name: str,
-        properties: str | list[str],
-        reset_camera=True,
-    ):
-
-        lineEdit = lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
-        if stop:
-            lineEdit_node_ids.setFocus()
-            return
-
-        stop, value = self.check_complex_entries(
-            lineEdit_real, lineEdit_imag, input_name
-        )
-
-        if stop:
-            return
-        
-        self.remove_properties_from_node(node_ids, properties)
-
-        real_values = [np.real(value)]
-        imag_values = [np.imag(value)]
-
-        for node_id in node_ids:
-            node = app().project.model.preprocessor.nodes[node_id]
-            coords = list(np.round(node.coordinates, 5))
-
-            data = {
-                "coords": coords,
-                "real_values": real_values,
-                "imag_values": imag_values,
-            }
-
-            self.properties._set_nodal_property(input_name, data, node_id)
-
-        self.actions_to_finalize(reset_camera)
-
     def table_values_attribution_callback(
         self,
         lineEdit_node_ids: QLineEdit,
         lineEdit_table_path: QLineEdit,
-        input_name: str,
-        properties: str | list[str],
+        property_label: str,
+        properties_to_remove: str | list[str],
         reset_camera=True,
     ):
 
@@ -127,12 +85,12 @@ class AcousticNodesInput(NodesInput):
             lineEdit_node_ids.setFocus()
             return
 
-        self.remove_properties_from_node(node_ids, properties)
+        self.remove_properties_from_node(node_ids, properties_to_remove)
 
         if lineEdit_table_path == "":
             self.hide()
             title = "Additional inputs required"
-            message = f"You must inform at least one {input_name.replace('_', '')} " 
+            message = f"You must inform at least one {property_label.replace('_', '')} " 
             message += "table path before confirming the input!"
             PrintMessageInput(["Error", title, message])
             lineEdit_table_path.setFocus()
@@ -140,9 +98,9 @@ class AcousticNodesInput(NodesInput):
     
         if self.table_path is None:
             self.table_values, self.table_path = self.load_table(
-                                                                    lineEdit_table_path,
-                                                                    direct_load=True,
-                                                                    )
+                lineEdit_table_path,
+                direct_load=True,
+                )
 
             if self.table_values is None:
                 return
@@ -151,7 +109,7 @@ class AcousticNodesInput(NodesInput):
 
             _table_name = None
             if isinstance(self.imported_values, np.ndarray):
-                _table_name = self.get_table_name(input_name, node_id=node_id)
+                _table_name = self.get_table_name(property_label, node_id=node_id)
                 if self.save_table_values(_table_name, self.imported_values):
                     return
 
@@ -164,7 +122,7 @@ class AcousticNodesInput(NodesInput):
                 "table_paths" : [self.table_path],
                 }
 
-            self.properties._set_nodal_property(input_name, data, node_id)
+            self.properties._set_nodal_property(property_label, data, node_id)
 
         self.actions_to_finalize(reset_camera)
 

@@ -1,3 +1,4 @@
+import numpy as np
 from enum import IntEnum
 
 from PySide6.QtCore import Qt
@@ -10,6 +11,7 @@ from pulse.interface.ui_generated.model.setup.acoustic.acoustic_property_input_u
 from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
     AcousticNodesInput,
 )
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -31,6 +33,7 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
         super().__init__(*args, **kwargs)
 
         self._initialize()
+        self._configure_validators()
         self._config_widgets()
         self._create_connections()
 
@@ -46,9 +49,16 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
         self.keep_window_open = True
 
+    def _configure_validators(self):
+        validator = StrictDoubleValidator(-1e10, 1e10, 6)
+        self.lineEdit_real_value.setValidator(validator)
+        self.lineEdit_imag_value.setValidator(validator)
+
     def _config_widgets(self):
         #
-        self.label_bondary_condition.setText("Acoustic pressure:")
+        self.frame_advanced_controls.setVisible(False)
+        #
+        self.label_property.setText("Acoustic pressure:")
         self.label_unit.setText("[Pa]")
         self.label_title.setText("Acoustic pressure prescription setup")
         #
@@ -114,6 +124,9 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
                 self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
 
+        self.lineEdit_real_value.setFocus()
+        self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
+
     def load_nodes_info(self):
 
         self.treeWidget_nodal_info.clear()
@@ -129,36 +142,6 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
         self.update_tabs_visibility()
 
-    def attribute_callback(self):
-        _input_name = "acoustic_pressure"
-        _properties = [
-            "acoustic_pressure", 
-            "volume_velocity", 
-            "reciprocating_compressor_excitation", 
-            "reciprocating_pump_excitation"
-        ]
-        _reset_camera = False
-
-        tab_index = self.tabWidget_main.currentIndex()      
-        if tab_index == TabIndex.CONSTANT:
-            self.constant_values_attribution_callback(
-                lineEdit_node_ids=self.lineEdit_node_ids,
-                lineEdit_real=self.lineEdit_real_value,
-                lineEdit_imag=self.lineEdit_imag_value,
-                input_name=_input_name,
-                properties=_properties,
-                reset_camera=_reset_camera
-            )
-
-        elif tab_index == TabIndex.TABULAR:
-            self.table_values_attribution_callback(
-                lineEdit_node_ids=self.lineEdit_node_ids,
-                lineEdit_table_path=self.lineEdit_table_path,
-                input_name=_input_name,
-                properties=_properties,
-                reset_camera=_reset_camera
-            )
-        
     def load_acoustic_pressure_table(self):
         self.imported_values, self.table_path = self.load_table(
             self.lineEdit_table_path, 
@@ -177,6 +160,64 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
     def on_doubleclick_item(self, item):
         self.lineEdit_node_ids.setText(item.text(0))
+
+    def constant_values_attribution_callback(self, properties_to_remove: list[str]):
+
+        lineEdit = self.lineEdit_node_ids.text()
+        stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
+        if stop:
+            self.lineEdit_node_ids.setFocus()
+            return
+
+        stop, specific_impedance = self.check_complex_entries(
+            self.lineEdit_real_value, 
+            self.lineEdit_imag_value, 
+            "acoustic_pressure",
+            )
+
+        if stop:
+            return
+
+        self.remove_properties_from_node(node_ids, properties_to_remove)
+
+        real_values = [np.real(specific_impedance)]
+        imag_values = [np.imag(specific_impedance)]
+
+        for node_id in node_ids:
+
+            node = app().project.model.preprocessor.nodes[node_id]
+            coords = list(np.round(node.coordinates, 5))
+
+            data = {   
+                "coords" : coords,
+                "real_values": real_values,
+                "imag_values": imag_values,
+                }
+
+            self.properties._set_nodal_property("specific_impedance", data, node_id)
+
+        self.actions_to_finalize(reset_camera=False)
+
+    def attribute_callback(self):
+        properties_to_remove = [
+            "acoustic_pressure", 
+            "volume_velocity", 
+            "reciprocating_compressor_excitation", 
+            "reciprocating_pump_excitation"
+        ]
+
+        tab_index = self.tabWidget_main.currentIndex()      
+        if tab_index == TabIndex.CONSTANT:
+            self.constant_values_attribution_callback(properties_to_remove)
+
+        elif tab_index == TabIndex.TABULAR:
+            self.table_values_attribution_callback(
+                lineEdit_node_ids = self.lineEdit_node_ids,
+                lineEdit_table_path = self.lineEdit_table_path,
+                property_label = "acoustic_pressure",
+                properties_to_remove = properties_to_remove,
+                reset_camera = False,
+            )
 
     def remove_callback(self):
 
@@ -214,6 +255,7 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
         self.properties._reset_nodal_property("acoustic_pressure")
         self.actions_to_finalize(reset_camera=False)
+        self.reset_input_fields()
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.clear()
