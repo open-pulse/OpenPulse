@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'getInformationRotationDecouplingInput.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -158,8 +158,8 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Information of selected group", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"Information of selected group", None))
         ___qtreewidgetitem = self.treeWidget_group_info.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Node ID", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Element ID", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Node ID", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Element ID", None))
         self.pushButton_close.setText(QCoreApplication.translate("Dialog", u"Close", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.lineEdit_id_labels_decoupled_DOFs.setText(QCoreApplication.translate("Dialog", u"Decoupled DOFs:", None))

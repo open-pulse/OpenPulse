@@ -162,7 +162,7 @@ class PlotStressesFieldForHarmonicAnalysis(PlotStressesFieldForHarmonicAnalysis_
 
         if len(self.stress_data) == 0 or self.update_damping:
 
-            self.stress_data = self.structural_solver.stress_calculate(damping = damping_effect)
+            self.stress_data = self.structural_solver.stress_calculate(damping=damping_effect)
             self.update_damping = False
 
         stress_field = { key:array[stress_key, self.selected_index] for key, array in self.stress_data.items() }

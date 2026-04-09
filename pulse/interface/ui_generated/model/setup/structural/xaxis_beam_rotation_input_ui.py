@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'xaxis_beam_rotation_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -236,10 +236,10 @@ class Ui_Dialog(object):
         font5.setBold(False)
         font5.setItalic(False)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font5);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font5);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font5)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font5)
         self.treeWidget_xaxis_rotation_angle.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_xaxis_rotation_angle.setObjectName(u"treeWidget_xaxis_rotation_angle")
         self.treeWidget_xaxis_rotation_angle.setMinimumSize(QSize(0, 0))
@@ -392,8 +392,8 @@ class Ui_Dialog(object):
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
         self.tabWidget_xaxis_rotation_angle.setTabText(self.tabWidget_xaxis_rotation_angle.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         ___qtreewidgetitem = self.treeWidget_xaxis_rotation_angle.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Angle [deg]", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Lines", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Angle [deg]", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Lines", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.tabWidget_xaxis_rotation_angle.setTabText(self.tabWidget_xaxis_rotation_angle.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))

@@ -140,7 +140,7 @@ class GetStartedInput(GetStartedInput_UI):
 
         self.hide()
 
-        title = "Resetting of the recent projects list"
+        title = "Reseting of the recent projects list"
         message = "Dear user, do you want to proceed with the 'Recent Projects' list clean-up and resetting?"
 
         buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}

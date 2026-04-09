@@ -88,45 +88,6 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
                     position=data["coords"],
                 )
 
-            elif property_name == "reciprocating_compressor_excitation":
-
-                node_id = args[0]
-                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
-                if len(elements) != 1:
-                    continue
-
-                node = app().project.model.preprocessor.nodes[node_id]
-                element = elements[0]
-                orientation = element.last_node.coordinates - element.first_node.coordinates
-
-                if node != element.first_node:
-                    orientation = -orientation
-
-                self.add_compressor_symbol(
-                    position=data["coords"],
-                    orientation=orientation,
-                    connection_type=data["connection_type"],
-                )
-
-            elif property_name == "reciprocating_pump_excitation":
-                node_id = args[0]
-                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
-                if len(elements) != 1:
-                    continue
-
-                node = app().project.model.preprocessor.nodes[node_id]
-                element = elements[0]
-                orientation = element.last_node.coordinates - element.first_node.coordinates
-
-                if node != element.first_node:
-                    orientation = -orientation
-
-                self.add_pump_symbol(
-                    position=data["coords"],
-                    orientation=orientation,
-                    connection_type=data["connection_type"],
-                )
-
         return super().build()
 
     def add_prescribed_dof_symbol(
@@ -153,20 +114,20 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     def add_nodal_load_symbol(
         self,
         position: tuple[float, float, float],
-        displacements: tuple[bool, bool, bool],
-        rotations: tuple[bool, bool, bool],
+        displacements: tuple[int, int, int],
+        rotations: tuple[int, int, int],
     ):
         self.add_symbol_by_axes(
             create_arrow_source,
             position,
-            axes_mask=[(i is not None) for i in displacements],
+            axes_mask=displacements,
             color=color_names.RED,
         )
 
         self.add_symbol_by_axes(
             create_double_arrow_source,
             position,
-            axes_mask=[(i is not None) for i in rotations],
+            axes_mask=rotations,
             color=color_names.TEAL,
         )
 
@@ -215,7 +176,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
         self,
         shape_name: Callable,
         position,
-        axes_mask: tuple[bool, bool, bool],
+        axes_mask: tuple[int | bool, int | bool, int | bool],
         color: Color,
         size: float = 1,
     ):
@@ -227,7 +188,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
         for axis, mask in zip(axes, axes_mask):
             if mask:
-                self.add_symbol(shape_name, position, axis, color, size)
+                self.add_symbol(shape_name, position, np.real(mask) * axis, color, size)
 
     def add_acoustic_pressure_symbol(self, position):
         self.add_symbol(

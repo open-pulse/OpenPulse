@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'turn_off_acoustic_elements_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -210,8 +210,8 @@ class Ui_Dialog(object):
         self.gridLayout_8.setContentsMargins(6, 6, 6, 6)
         self.treeWidget_elements_info = QTreeWidget(self.tab_remove)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_elements_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_elements_info.setObjectName(u"treeWidget_elements_info")
         self.treeWidget_elements_info.setMinimumSize(QSize(280, 0))
@@ -289,8 +289,8 @@ class Ui_Dialog(object):
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         ___qtreewidgetitem = self.treeWidget_elements_info.headerItem()
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Configuration", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Elements", None));
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Configuration", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Elements", None))
 #if QT_CONFIG(tooltip)
         self.treeWidget_elements_info.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p><span style=\" font-weight:400; font-style:normal;\">Select a group to remove the length correction</span></p></body></html>", None))
 #endif // QT_CONFIG(tooltip)

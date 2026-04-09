@@ -45,7 +45,7 @@ from ._model_info_text import (
 class AnalysisMode(Enum):
     EMPTY = auto()
     STRESS = auto()
-    PRESURE = auto()
+    PRESSURE = auto()
     DISPLACEMENT = auto()
 
 
@@ -147,7 +147,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
                 self.current_phase_step,
             )
 
-        elif self.analysis_mode == AnalysisMode.PRESURE:
+        elif self.analysis_mode == AnalysisMode.PRESSURE:
 
             if analysis_id in [AnalysisID.ACOUSTIC_HARMONIC, AnalysisID.COUPLED_HARMONIC]:
                 unit_label = "Unit: [Pa]"
@@ -165,7 +165,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
             color_table = ColorTable([], [0, 0], self.colormap)
             self.colorbar_actor.VisibilityOff()
 
-        acoustic_plot = (self.analysis_mode == AnalysisMode.PRESURE)
+        acoustic_plot = (self.analysis_mode == AnalysisMode.PRESSURE)
 
         self.lines_actor = ElementLinesActor(show_deformed=deformed)
         self.nodes_actor = NodesActor(show_deformed=deformed)
@@ -332,7 +332,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
 
         self.current_frequency_index = frequency_index
         self.current_phase_step = 0
-        self.analysis_mode = AnalysisMode.PRESURE
+        self.analysis_mode = AnalysisMode.PRESSURE
 
         self._reset_min_max_values()
         tmp = get_max_min_values_of_pressures(solution, frequency_index)
@@ -574,7 +574,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         # effects. It interprets the structural analysis and puts the meaningfull
         # data inside the correspondent nodes.
         # The return values are just extra information.
-        _, _, u_def, self._magnification_factor = get_structural_response(
+        _, _, u_def, self._magnification_factor, _ = get_structural_response(
             preprocessor,
             solution,
             frequency_index,
@@ -598,7 +598,7 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         preprocessor = project.model.preprocessor
         solution = project.get_structural_solution()
 
-        *_, self._magnification_factor = get_structural_response(
+        *_, self._magnification_factor, _delta = get_structural_response(
             preprocessor,
             solution,
             frequency_index,
@@ -607,7 +607,8 @@ class ResultsRenderWidget(AnimatedRenderWidget):
         )
 
         stresses_data, self.min_max_stresses_values_current = get_stresses_to_plot(
-            phase_step=phase_step
+            phase_step=phase_step,
+            shift_phase = _delta,
         )
 
         min_max_values = (self.stress_min, self.stress_max)

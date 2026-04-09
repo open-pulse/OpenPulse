@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'import_data_to_compare.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -170,12 +170,12 @@ class Ui_Dialog(object):
         font3.setBold(False)
         font3.setItalic(False)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(2, font3);
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(1, font3);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem.setFont(0, font3);
+        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(2, font3)
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(1, font3)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem.setFont(0, font3)
         self.treeWidget_import_sheet_files.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_import_sheet_files.setObjectName(u"treeWidget_import_sheet_files")
         self.treeWidget_import_sheet_files.setMinimumSize(QSize(410, 40))
@@ -203,10 +203,10 @@ class Ui_Dialog(object):
         self.gridLayout.setContentsMargins(2, 2, 2, 2)
         self.treeWidget_import_text_files = QTreeWidget(self.frame_text_files)
         __qtreewidgetitem1 = QTreeWidgetItem()
-        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem1.setFont(1, font3);
-        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter);
-        __qtreewidgetitem1.setFont(0, font3);
+        __qtreewidgetitem1.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem1.setFont(1, font3)
+        __qtreewidgetitem1.setTextAlignment(0, Qt.AlignCenter)
+        __qtreewidgetitem1.setFont(0, font3)
         self.treeWidget_import_text_files.setHeaderItem(__qtreewidgetitem1)
         self.treeWidget_import_text_files.setObjectName(u"treeWidget_import_text_files")
         self.treeWidget_import_text_files.setMinimumSize(QSize(410, 40))
@@ -349,12 +349,12 @@ class Ui_Dialog(object):
         self.checkBox_skiprows.setText("")
         self.label_14.setText(QCoreApplication.translate("Dialog", u"Header rows to skip:", None))
         ___qtreewidgetitem = self.treeWidget_import_sheet_files.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Add to plot", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Sheetname", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Filename", None));
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Add to plot", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Sheetname", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Filename", None))
         ___qtreewidgetitem1 = self.treeWidget_import_text_files.headerItem()
-        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Dialog", u"Add to plot", None));
-        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Dialog", u"Filename", None));
+        ___qtreewidgetitem1.setText(1, QCoreApplication.translate("Dialog", u"Add to plot", None))
+        ___qtreewidgetitem1.setText(0, QCoreApplication.translate("Dialog", u"Filename", None))
         self.label_11.setText(QCoreApplication.translate("Dialog", u"Path:", None))
         self.pushButton_search_file_to_import.setText("")
         self.pushButton_add_imported_data_to_plot.setText(QCoreApplication.translate("Dialog", u"Add imported data", None))

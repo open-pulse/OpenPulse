@@ -1,6 +1,8 @@
+from functools import partial
 from itertools import chain
 from typing import Iterator
 
+from molde.actors import CommonSymbolsActorFixedSize
 import numpy as np
 from molde.colors import Color, color_names
 from molde.utils import set_polydata_colors, read_obj_file, transform_polydata
@@ -14,8 +16,14 @@ from pulse import app, SYMBOLS_DIR
 from pulse.utils.cross_section_sources import valve_data
 from pulse.utils.rotations import align_vtk_geometry
 
+from ..polydata import (
+    create_compressor_discharge,
+    create_compressor_suction,
+    create_pump_discharge,
+    create_pump_suction,
+)
 
-class FixedSymbolsActor(vtkActor):
+class FixedSymbolsActor(CommonSymbolsActorFixedSize):
     def __init__(self):
         super().__init__()
         self.build()
@@ -25,18 +33,97 @@ class FixedSymbolsActor(vtkActor):
         mapper = vtkPolyDataMapper()
         source = vtkAppendPolyData()
 
+        self.create_compressor_symbol()
+        self.create_reciprocating_pump_excitation()
+        self.create_structural_links()
+        self.create_psd_structural_links()
+        self.create_acoustic_transfer_element()
+
         for symbol in chain(
-            self.create_structural_links(),
-            self.create_psd_structural_links(),
             self.create_perforated_plates(),
             self.create_valves(),
-            self.create_acoustic_transfer_element(),
         ):
             source.AddInputData(symbol)
 
         source.Update()
         mapper.SetInputData(source.GetOutput())
         self.SetMapper(mapper)
+
+        return super().build()
+
+    def create_compressor_symbol(self):
+        nodal_properties = app().project.model.properties.nodal_properties
+
+        for (property_name, *args), data in nodal_properties.items():
+            if property_name == "reciprocating_compressor_excitation":
+                node_id = args[0]
+                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
+
+                if len(elements) != 1:
+                    continue
+
+                node = app().project.model.preprocessor.nodes[node_id]
+                element = elements[0]
+                orientation = element.last_node.coordinates - element.first_node.coordinates
+
+                if node != element.first_node:
+                    orientation = -orientation
+
+                node_id = int(*args)
+                line_ids = app().project.model.mesh.lines_from_node[node_id]
+                outer_diameter = app().project.model.properties._get_property("cross_section", line_id=line_ids[0])
+                scale = outer_diameter.outer_diameter
+
+                if data["connection_type"] == "discharge":
+                    self.add_symbol(
+                        create_compressor_discharge,
+                        data["coords"],
+                        orientation,
+                        color=color_names.RED_2,
+                        scale=scale
+                    )
+
+                elif data["connection_type"] == "suction":
+                    self.add_symbol(
+                        create_compressor_suction,
+                        data["coords"],
+                        orientation,
+                        color=color_names.BLUE_2,
+                        scale=scale
+                    )
+
+    def create_reciprocating_pump_excitation(self):
+        nodal_properties = app().project.model.properties.nodal_properties
+
+        for (property_name, *args), data in nodal_properties.items():
+            if property_name == "reciprocating_pump_excitation":
+                node_id = args[0]
+                elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
+                if len(elements) != 1:
+                    continue
+
+                node = app().project.model.preprocessor.nodes[node_id]
+                element = elements[0]
+                orientation = element.last_node.coordinates - element.first_node.coordinates
+
+                if node != element.first_node:
+                    orientation = -orientation
+
+                if data["connection_type"] == "discharge":
+                    self.add_symbol(
+                        create_pump_discharge,
+                        data["coords"],
+                        orientation,
+                        color=color_names.RED,
+                    )
+
+                elif data["connection_type"] == "suction":
+                    self.add_symbol(
+                        create_pump_suction,
+                        data["coords"],
+                        orientation,
+                        color=color_names.BLUE,
+                    )
 
     def create_structural_links(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
@@ -45,11 +132,8 @@ class FixedSymbolsActor(vtkActor):
             if property_name not in ["stiffness_nodal_links", "damping_nodal_links"]:
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.GREEN,
-            )
+            func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(func, (0, 0, 0), (0, 0, 0), color_names.GREEN)
 
     def create_psd_structural_links(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
@@ -58,11 +142,8 @@ class FixedSymbolsActor(vtkActor):
             if property_name != "psd_structural_links":
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.GREEN,
-            )
+            creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.GREEN)
 
     def create_psd_acoustic_links(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
@@ -71,11 +152,8 @@ class FixedSymbolsActor(vtkActor):
             if property_name != "psd_acoustic_link":
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.BLUE,
-            )
+            creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
     def create_acoustic_transfer_element(self) -> Iterator[vtkPolyData]:
         nodal_properties = app().project.model.properties.nodal_properties
@@ -84,11 +162,8 @@ class FixedSymbolsActor(vtkActor):
             if property_name != "acoustic_transfer_element":
                 continue
 
-            yield self._create_line(
-                data["coords"][:3],
-                data["coords"][3:],
-                color_names.BLUE,
-            )
+            creation_line_func = partial(self._create_line, data["coords"][:3], data["coords"][3:])
+            self.add_symbol(creation_line_func, (0, 0, 0), (0, 0, 0), color_names.BLUE)
 
     def create_perforated_plates(self) -> Iterator[vtkPolyData]:
         element_properties = app().project.model.properties.element_properties
@@ -165,9 +240,10 @@ class FixedSymbolsActor(vtkActor):
             yield data
 
     def configure_appearance(self):
-        self.set_zbuffer_offsets(0, -6600)
+        self.set_zbuffer_offsets(1, -6600)
 
         self.GetProperty().SetLineWidth(4)
+        self.GetProperty().RenderLinesAsTubesOn()
         self.GetProperty().SetOpacity(0.7)
         self.GetProperty().SetAmbient(0.5)
         self.PickableOff()
@@ -185,7 +261,7 @@ class FixedSymbolsActor(vtkActor):
         mapper.SetRelativeCoincidentTopologyPointOffsetParameter(units)
         mapper.Update()
 
-    def _create_line(self, coords_a, coords_b, color: Color):
+    def _create_line(self, coords_a, coords_b):
         coords_a = np.array(coords_a)
         coords_b = np.array(coords_b)
 
@@ -194,6 +270,4 @@ class FixedSymbolsActor(vtkActor):
         source.SetPoint2(coords_b)
         source.Update()
 
-        output = source.GetOutput()
-        set_polydata_colors(output, color.to_rgb())
-        return output
+        return source.GetOutput()

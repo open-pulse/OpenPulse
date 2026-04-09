@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWi
 from pulse import app, EXAMPLES_DIR, ICON_DIR
 
 import io
+import logging
 import zipfile
 from PIL import Image, ImageDraw, ImageFont
 
@@ -90,9 +91,7 @@ class WelcomeWidget(QWidget):
                         with zf.open("thumbnail.png") as f:
                             thumbnail = Image.open(f).copy()
             except (zipfile.BadZipFile, IOError, OSError) as e:
-                # Log the error for debugging purposes
-                # logging.warning(f"Could not read thumbnail from {path}: {e}")
-                pass
+                logging.warning(f"Could not read thumbnail from {path}: {e}")
 
             if thumbnail is not None:
                 bytes = io.BytesIO()
@@ -147,9 +146,7 @@ class WelcomeWidget(QWidget):
                         with zf.open("thumbnail.png") as f:
                             thumbnail = Image.open(f).copy()
             except (zipfile.BadZipFile, IOError, OSError) as e:
-                # Log the error for debugging purposes
-                # logging.warning(f"Could not read thumbnail from {path}: {e}")
-                pass
+                logging.warning(f"Could not read thumbnail from {path}: {e}")
 
             if thumbnail is not None:
                 bytes = io.BytesIO()

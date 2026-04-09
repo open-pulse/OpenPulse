@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'acoustic_transfer_element_input.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.11.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -342,9 +342,9 @@ class Ui_Dialog(object):
 
         self.treeWidget_nodal_info = QTreeWidget(self.tab_remove)
         __qtreewidgetitem = QTreeWidgetItem()
-        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter);
-        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter);
+        __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
+        __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_nodal_info.setHeaderItem(__qtreewidgetitem)
         self.treeWidget_nodal_info.setObjectName(u"treeWidget_nodal_info")
         self.treeWidget_nodal_info.setMinimumSize(QSize(320, 0))
@@ -442,9 +442,9 @@ class Ui_Dialog(object):
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Selected ID:", None))
         ___qtreewidgetitem = self.treeWidget_nodal_info.headerItem()
-        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Output Node ID", None));
-        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Input Node ID", None));
-        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"ID", None));
+        ___qtreewidgetitem.setText(2, QCoreApplication.translate("Dialog", u"Output Node ID", None))
+        ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Input Node ID", None))
+        ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"ID", None))
 #if QT_CONFIG(tooltip)
         self.treeWidget_nodal_info.setToolTip(QCoreApplication.translate("Dialog", u"Select a face to remove the previously attributed boundary condition.", None))
 #endif // QT_CONFIG(tooltip)

@@ -1,6 +1,6 @@
 from pulse import app, version, TEMP_PROJECT_DIR
 from pulse.model import AnalysisID
-from pulse.utils.common_utils import *
+from pulse.utils.common_utils import get_color_rgb, get_list_of_values_from_string
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -15,6 +15,7 @@ import zipfile
 
 from configparser import ConfigParser
 from contextlib import contextmanager
+from copy import deepcopy
 from pathlib import Path
 from PIL import Image
 
@@ -36,8 +37,8 @@ class ProjectFile:
     def _default_filenames(self):
 
         self.project_setup_filename = "project_setup.json"
-        self.fluid_library_filename = "fluid_library.config"
-        self.material_library_filename = "material_library.config"
+        self.fluid_library_filename = "fluid_library.json"
+        self.material_library_filename = "material_library.json"
 
         self.nodal_properties_filename = "nodal_properties.json"
         self.element_properties_filename = "element_properties.json"
@@ -83,7 +84,7 @@ class ProjectFile:
         suffix = path.suffix.lower()
         if suffix == ".json":
             with open(path, "w", encoding="utf-8") as f:
-                json.dump(data, f)
+                json.dump(data, f, indent=2)
         elif suffix == ".config":
             with open(path, "w", encoding="utf-8") as f:
                 data.write(f)
@@ -214,14 +215,16 @@ class ProjectFile:
         self._write_file(self.material_library_filename, config)
         self.project_data_modified_callback()
 
-    def read_material_library_from_file(self):
+    def read_material_library_from_file(self) -> dict:
+        self.backward_compatibility_for_materials_data_file()
         return self._read_file(self.material_library_filename)
 
     def write_fluid_library_in_file(self, config):
         self._write_file(self.fluid_library_filename, config)
         self.project_data_modified_callback()
 
-    def read_fluid_library_from_file(self):
+    def read_fluid_library_from_file(self) -> dict:
+        self.backward_compatibility_for_fluids_data_file()
         return self._read_file(self.fluid_library_filename)
 
     # ── PSD / damper / valve ──────────────────────────────────────────────────
@@ -637,6 +640,109 @@ class ProjectFile:
 
         if aux:
             app().project.file.write_line_properties_in_file()
+
+    def backward_compatibility_for_fluids_data_file(self):
+        filename = deepcopy(str(self.fluid_library_filename))
+        cpath = Path(self.path) / filename.replace(".json", ".config")
+        if not cpath.exists():
+            return
+
+        fluid_data = self.convert_fluid_data_from_configparser_to_dictionary(cpath, remove_after_convert=True)
+        if fluid_data:
+            self.write_fluid_library_in_file(fluid_data)
+
+    def backward_compatibility_for_materials_data_file(self):
+        filename = deepcopy(str(self.material_library_filename))
+        cpath = Path(self.path) / filename.replace(".json", ".config")
+        if not cpath.exists():
+            return
+
+        material_data = self.convert_material_data_from_configparser_to_dictionary(cpath, remove_after_convert=True)
+        if material_data:
+            self.write_material_library_in_file(material_data)
+
+    def convert_fluid_data_from_configparser_to_dictionary(self, path: Path, remove_after_convert: bool=False) -> dict:
+
+        if not path.exists():
+            return dict()
+
+        with open(path) as file:
+            config_string = file.read()
+            config = ConfigParser()
+            config.read_string(config_string)
+
+        fluid_data = dict()
+
+        for tag in config.sections():
+
+            section = config[tag]
+            keys = section.keys()
+
+            identifier = int(section.get('identifier', -1))
+
+            fluid_parameters = {
+                "name" : section.get("name", ""),
+                "identifier" : identifier,
+                "density" : float(section.get('density', -1)),
+                "speed_of_sound" : float(section.get('speed_of_sound', -1)),
+                "isentropic_exponent" : float(section.get('isentropic_exponent', -1)),
+                "thermal_conductivity" : float(section.get('thermal_conductivity', -1)),
+                "specific_heat_Cp" : float(section.get('specific_heat_Cp', -1)),
+                "dynamic_viscosity" : float(section.get('dynamic_viscosity', -1)),
+                "temperature" : float(section.get('temperature', -1)),
+                "pressure" : float(section.get('pressure', -1)),
+                "molar_mass" : float(section.get('molar_mass', -1)),
+                "color" : get_color_rgb(section.get('color')),
+                }
+
+            if 'key_mixture' in keys:
+                fluid_parameters["key_mixture"] = section.get('key_mixture')
+
+            if 'molar_fractions' in keys:
+                str_molar_fractions = section.get('molar_fractions')
+                molar_fractions = get_list_of_values_from_string(str_molar_fractions, int_values=False)
+                fluid_parameters["molar_fractions"] = molar_fractions
+
+            fluid_data[identifier] = fluid_parameters
+
+        if remove_after_convert:
+            path.unlink()
+
+        return fluid_data
+
+    def convert_material_data_from_configparser_to_dictionary(self, path: Path, remove_after_convert: bool=False) -> dict:
+
+        if not path.exists():
+            return dict()
+
+        with open(path) as file:
+            config_string = file.read()
+            config = ConfigParser()
+            config.read_string(config_string)
+
+        material_library_data = dict()
+
+        for tag in config.sections():
+
+            section = config[tag]
+            identifier = int(section.get('identifier', -1))
+
+            material_parameters = {
+                "name" : section.get("name", ""),
+                "identifier" : identifier,
+                "density" : float(section.get('density', -1)),
+                "poisson_ratio" : float(section.get('poisson_ratio', -1)),
+                "elasticity_modulus" : 1e9 * float(section.get('elasticity_modulus', -1)),
+                "thermal_expansion_coefficient" : float(section.get('thermal_expansion_coefficient', -1)),
+                "color" : get_color_rgb(section.get('color')),
+                }
+
+            material_library_data[identifier] = material_parameters
+
+        if remove_after_convert:
+            path.unlink()
+
+        return material_library_data
 
 def denormalize_mesh(prop: dict):
 

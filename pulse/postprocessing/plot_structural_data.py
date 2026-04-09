@@ -189,13 +189,19 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
     
     if r_max is None:
         _, r_max = get_min_max_resultant_displacements(solution, column)
-    
+
     # min_max_values_all = [r_min, r_max]
 
     phases = np.angle(solution)
-    _phases = np.array([phases[ind+0, column], phases[ind+1, column], phases[ind+2, column], 
-                        phases[ind+3, column], phases[ind+4, column], phases[ind+5, column]]).T
-    
+    _phases = np.array([
+        phases[ind+0, column], 
+        phases[ind+1, column], 
+        phases[ind+2, column], 
+        phases[ind+3, column], 
+        phases[ind+4, column], 
+        phases[ind+5, column]
+        ]).T
+
     _idx_max = np.argmax(np.abs(solution[:, column]))
     _delta = -np.angle(solution[_idx_max, column])
 
@@ -218,38 +224,57 @@ def get_structural_response(preprocessor: "Preprocessor", solution: np.ndarray, 
     else:
         factor = magnif_factor*np.cos(phase_step + _phases + _delta)
     
+    # deformed coordinates
     coord_def[:,0] = coord[:,0]
-    coord_def[:,1] = coord[:,1] + np.abs(u_x)*factor[:, 0]
-    coord_def[:,2] = coord[:,2] + np.abs(u_y)*factor[:, 1]
-    coord_def[:,3] = coord[:,3] + np.abs(u_z)*factor[:, 2]
-    
+    coord_def[:,1] = coord[:,1] + np.abs(u_x) * factor[:, 0]
+    coord_def[:,2] = coord[:,2] + np.abs(u_y) * factor[:, 1]
+    coord_def[:,3] = coord[:,3] + np.abs(u_z) * factor[:, 2]
+
     if absolute_animation:
         # absolute r_xyz_plot = |[Ux, Uy, Uz]|
-        r_xyz_plot = ((np.abs(u_x)*factor[:, 0])**2 + (np.abs(u_y)*factor[:, 1])**2 + (np.abs(u_z)*factor[:, 2])**2)**(1/2)/magnif_factor
+        r_xyz_plot = ((
+            (np.abs(u_x) * factor[:, 0])**2 + 
+            (np.abs(u_y) * factor[:, 1])**2 + 
+            (np.abs(u_z) * factor[:, 2])**2
+            )**(1/2)) / magnif_factor
+
     elif ux_animation:
-        r_xyz_plot = np.abs(u_x)*factor[:, 0]/magnif_factor
+        r_xyz_plot = np.abs(u_x) * factor[:, 0] / magnif_factor
+
     elif uy_animation:
-        r_xyz_plot = np.abs(u_y)*factor[:, 1]/magnif_factor
+        r_xyz_plot = np.abs(u_y) * factor[:, 1] / magnif_factor
+
     elif uz_animation:
-        r_xyz_plot = np.abs(u_z)*factor[:, 2]/magnif_factor
+        r_xyz_plot = np.abs(u_z) * factor[:, 2] / magnif_factor
+
     else:
         r_xyz_plot, *args = get_min_max_resultant_displacements(solution, column)
-    
+
     data = np.abs(solution)
-    nodal_solution_gcs = np.array([ data[ind+0, column], data[ind+1, column], data[ind+2, column],
-                                    data[ind+3, column], data[ind+4, column], data[ind+5, column] ]).T*factor
- 
+    nodal_solution_gcs = np.array([ 
+        data[ind+0, column], 
+        data[ind+1, column], 
+        data[ind+2, column],
+        data[ind+3, column], 
+        data[ind+4, column], 
+        data[ind+5, column] 
+        ]).T*factor
+
     nodes = preprocessor.nodes
+
+    disp_indexes = [0, 1, 2]
+    rot_indexes = [3, 4, 5]
+
     for node in nodes.values():
         global_index = node.global_index
         node.deformed_coordinates = coord_def[global_index, 1:]       
         node.nodal_solution_gcs = nodal_solution_gcs[global_index, :]
-        node.deformed_displacements_xyz_gcs =  nodal_solution_gcs[global_index, [0,1,2]]
-        node.deformed_rotations_xyz_gcs =  nodal_solution_gcs[global_index, [3,4,5]]
+        node.deformed_displacements_xyz_gcs = nodal_solution_gcs[global_index, disp_indexes]
+        node.deformed_rotations_xyz_gcs = nodal_solution_gcs[global_index, rot_indexes]
 
     preprocessor.process_element_cross_sections_orientation_to_plot()
 
-    return connect, coord_def, r_xyz_plot, magnif_factor
+    return connect, coord_def, r_xyz_plot, magnif_factor, _delta
 
 
 def get_reactions(reactions: dict, node_id: int, dof_index: int, **kwargs):
@@ -350,14 +375,23 @@ def get_min_max_stresses_values(**kwargs):
     return stress_min, stress_max 
 
 
-def get_stresses_to_plot(**kwargs):
+def get_stresses_to_plot(
+        phase_step: float = 0.,
+        shift_phase: float = 0.,
+        stresses_data: dict | np.ndarray | None = None,
+        **kwargs):
 
-    phase_step = kwargs.get("phase_step", False)
-    absolute = kwargs.get("absolute", False)
-    real_values = kwargs.get("real_values", False)
-    imag_values = kwargs.get("imag_values", False)
-    absolute_animation = kwargs.get("absolute_animation", False)
-    stresses_data = kwargs.get("stresses_data", None)
+    absolute = False
+    real_values = False
+    imag_values = False
+    absolute_animation = False
+
+    color_scale_setup = get_color_scale_setup()
+    if color_scale_setup:
+        absolute = color_scale_setup.get("absolute")
+        real_values = color_scale_setup.get("real_values")
+        imag_values = color_scale_setup.get("imag_values")
+        absolute_animation = color_scale_setup.get("absolute_animation")
 
     if stresses_data is None:
         project = app().main_window.project
@@ -366,13 +400,6 @@ def get_stresses_to_plot(**kwargs):
     if isinstance(stresses_data, dict):
         keys = stresses_data.keys()
         values = np.array(list(stresses_data.values()))
-
-    color_scale_setup = get_color_scale_setup()
-    if color_scale_setup:
-        absolute = color_scale_setup["absolute"]
-        real_values = color_scale_setup["real_values"]
-        imag_values = color_scale_setup["imag_values"]
-        absolute_animation = color_scale_setup["absolute_animation"]
 
     if absolute:
         stresses = np.abs(values)
@@ -386,11 +413,15 @@ def get_stresses_to_plot(**kwargs):
     else:
         _stresses = np.abs(values)
         _phase = np.angle(values)
-        stresses = _stresses*np.cos(phase_step + _phase)
+
+        # NOTE: the shift_phase variable is used to synchronize both 
+        # the displacement and stress fields while computing
+        # the animation-related data
+        stresses = _stresses*np.cos(phase_step + _phase + shift_phase)
 
         if absolute_animation:
             stresses = np.absolute(stresses)
-    
+
     stresses_data = dict(zip(keys, stresses))
     min_max_values = [min(stresses), max(stresses)]
 
