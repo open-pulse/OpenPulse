@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGridLayout,
-    QHeaderView, QLabel, QLineEdit, QPushButton,
-    QSizePolicy, QSpacerItem, QTabWidget, QTreeWidget,
-    QTreeWidgetItem, QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
+    QGridLayout, QHeaderView, QLabel, QLineEdit,
+    QPushButton, QSizePolicy, QSpacerItem, QTabWidget,
+    QTreeWidget, QTreeWidgetItem, QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -135,81 +135,126 @@ class Ui_Dialog(object):
         self.tab_constant = QWidget()
         self.tab_constant.setObjectName(u"tab_constant")
         self.gridLayout_12 = QGridLayout(self.tab_constant)
+        self.gridLayout_12.setSpacing(2)
         self.gridLayout_12.setObjectName(u"gridLayout_12")
-        self.gridLayout_12.setHorizontalSpacing(8)
-        self.gridLayout_12.setVerticalSpacing(2)
-        self.gridLayout_12.setContentsMargins(4, 4, 4, 4)
-        self.label_unit = QLabel(self.tab_constant)
-        self.label_unit.setObjectName(u"label_unit")
-        self.label_unit.setMinimumSize(QSize(0, 30))
-        self.label_unit.setMaximumSize(QSize(60, 30))
-        self.label_unit.setFont(font2)
-        self.label_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_12.addWidget(self.label_unit, 3, 4, 1, 1)
-
-        self.label_4 = QLabel(self.tab_constant)
-        self.label_4.setObjectName(u"label_4")
-        self.label_4.setMinimumSize(QSize(80, 26))
-        self.label_4.setMaximumSize(QSize(80, 26))
-        self.label_4.setFont(font2)
-        self.label_4.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_12.addWidget(self.label_4, 2, 2, 1, 1)
-
-        self.label_bondary_condition = QLabel(self.tab_constant)
-        self.label_bondary_condition.setObjectName(u"label_bondary_condition")
-        self.label_bondary_condition.setMinimumSize(QSize(120, 30))
-        self.label_bondary_condition.setMaximumSize(QSize(140, 30))
-        self.label_bondary_condition.setFont(font2)
-        self.label_bondary_condition.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
-
-        self.gridLayout_12.addWidget(self.label_bondary_condition, 3, 1, 1, 1)
-
-        self.lineEdit_real_value = QLineEdit(self.tab_constant)
-        self.lineEdit_real_value.setObjectName(u"lineEdit_real_value")
-        self.lineEdit_real_value.setMinimumSize(QSize(80, 30))
-        self.lineEdit_real_value.setMaximumSize(QSize(80, 30))
-        self.lineEdit_real_value.setFont(font2)
-        self.lineEdit_real_value.setStyleSheet(u"")
-        self.lineEdit_real_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.gridLayout_12.addWidget(self.lineEdit_real_value, 3, 2, 1, 1)
-
-        self.label_20 = QLabel(self.tab_constant)
+        self.gridLayout_12.setContentsMargins(2, 2, 2, 2)
+        self.frame_2 = QFrame(self.tab_constant)
+        self.frame_2.setObjectName(u"frame_2")
+        self.frame_2.setMinimumSize(QSize(0, 60))
+        self.frame_2.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
+        self.gridLayout_2 = QGridLayout(self.frame_2)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.label_20 = QLabel(self.frame_2)
         self.label_20.setObjectName(u"label_20")
         self.label_20.setMinimumSize(QSize(80, 26))
         self.label_20.setMaximumSize(QSize(80, 26))
         self.label_20.setFont(font2)
         self.label_20.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_12.addWidget(self.label_20, 2, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.label_20, 0, 3, 1, 1)
 
-        self.lineEdit_imag_value = QLineEdit(self.tab_constant)
+        self.lineEdit_imag_value = QLineEdit(self.frame_2)
         self.lineEdit_imag_value.setObjectName(u"lineEdit_imag_value")
-        self.lineEdit_imag_value.setMinimumSize(QSize(80, 30))
-        self.lineEdit_imag_value.setMaximumSize(QSize(80, 30))
+        self.lineEdit_imag_value.setMinimumSize(QSize(100, 30))
+        self.lineEdit_imag_value.setMaximumSize(QSize(120, 30))
         self.lineEdit_imag_value.setFont(font2)
         self.lineEdit_imag_value.setStyleSheet(u"")
         self.lineEdit_imag_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_12.addWidget(self.lineEdit_imag_value, 3, 3, 1, 1)
+        self.gridLayout_2.addWidget(self.lineEdit_imag_value, 1, 3, 1, 1)
 
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.label_property = QLabel(self.frame_2)
+        self.label_property.setObjectName(u"label_property")
+        self.label_property.setMinimumSize(QSize(130, 30))
+        self.label_property.setMaximumSize(QSize(140, 30))
+        self.label_property.setFont(font2)
+        self.label_property.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_12.addItem(self.horizontalSpacer_5, 3, 5, 1, 1)
+        self.gridLayout_2.addWidget(self.label_property, 1, 1, 1, 1)
 
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.label_4 = QLabel(self.frame_2)
+        self.label_4.setObjectName(u"label_4")
+        self.label_4.setMinimumSize(QSize(80, 26))
+        self.label_4.setMaximumSize(QSize(80, 26))
+        self.label_4.setFont(font2)
+        self.label_4.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_12.addItem(self.horizontalSpacer_6, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_4, 0, 2, 1, 1)
+
+        self.lineEdit_real_value = QLineEdit(self.frame_2)
+        self.lineEdit_real_value.setObjectName(u"lineEdit_real_value")
+        self.lineEdit_real_value.setMinimumSize(QSize(100, 30))
+        self.lineEdit_real_value.setMaximumSize(QSize(120, 30))
+        self.lineEdit_real_value.setFont(font2)
+        self.lineEdit_real_value.setStyleSheet(u"")
+        self.lineEdit_real_value.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.gridLayout_2.addWidget(self.lineEdit_real_value, 1, 2, 1, 1)
+
+        self.horizontalSpacer_7 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_7, 1, 5, 1, 1)
+
+        self.label_unit = QLabel(self.frame_2)
+        self.label_unit.setObjectName(u"label_unit")
+        self.label_unit.setMinimumSize(QSize(40, 30))
+        self.label_unit.setMaximumSize(QSize(60, 30))
+        self.label_unit.setFont(font2)
+        self.label_unit.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_2.addWidget(self.label_unit, 1, 4, 1, 1)
+
+        self.horizontalSpacer_8 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_2.addItem(self.horizontalSpacer_8, 1, 0, 1, 1)
+
+
+        self.gridLayout_12.addWidget(self.frame_2, 2, 0, 1, 2)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.gridLayout_12.addItem(self.verticalSpacer, 4, 2, 1, 1)
+        self.gridLayout_12.addItem(self.verticalSpacer, 3, 0, 1, 2)
+
+        self.frame_advanced_controls = QFrame(self.tab_constant)
+        self.frame_advanced_controls.setObjectName(u"frame_advanced_controls")
+        self.frame_advanced_controls.setMinimumSize(QSize(0, 48))
+        self.frame_advanced_controls.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_advanced_controls.setFrameShadow(QFrame.Shadow.Raised)
+        self.gridLayout_3 = QGridLayout(self.frame_advanced_controls)
+        self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.label_input_type = QLabel(self.frame_advanced_controls)
+        self.label_input_type.setObjectName(u"label_input_type")
+        self.label_input_type.setMinimumSize(QSize(80, 30))
+        self.label_input_type.setMaximumSize(QSize(140, 30))
+        self.label_input_type.setFont(font2)
+        self.label_input_type.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_3.addWidget(self.label_input_type, 0, 1, 1, 1)
+
+        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_3.addItem(self.horizontalSpacer_5, 0, 0, 1, 1)
+
+        self.comboBox_input_type = QComboBox(self.frame_advanced_controls)
+        self.comboBox_input_type.addItem("")
+        self.comboBox_input_type.addItem("")
+        self.comboBox_input_type.setObjectName(u"comboBox_input_type")
+        self.comboBox_input_type.setMinimumSize(QSize(140, 30))
+        self.comboBox_input_type.setMaximumSize(QSize(16777215, 30))
+
+        self.gridLayout_3.addWidget(self.comboBox_input_type, 0, 2, 1, 1)
+
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_3.addItem(self.horizontalSpacer_6, 0, 3, 1, 1)
+
+
+        self.gridLayout_12.addWidget(self.frame_advanced_controls, 1, 0, 1, 2)
 
         self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.gridLayout_12.addItem(self.verticalSpacer_2, 0, 2, 1, 1)
+        self.gridLayout_12.addItem(self.verticalSpacer_2, 0, 0, 1, 2)
 
         self.tabWidget_main.addTab(self.tab_constant, "")
         self.tab_tabular = QWidget()
@@ -386,10 +431,14 @@ class Ui_Dialog(object):
 #endif // QT_CONFIG(whatsthis)
         self.label_title.setText(QCoreApplication.translate("Dialog", u"Acoustic property setup", None))
         self.label_2.setText(QCoreApplication.translate("Dialog", u"Selected nodes:", None))
-        self.label_unit.setText(QCoreApplication.translate("Dialog", u"[xyz]", None))
-        self.label_4.setText(QCoreApplication.translate("Dialog", u"Real", None))
-        self.label_bondary_condition.setText(QCoreApplication.translate("Dialog", u"Acoustic property:", None))
         self.label_20.setText(QCoreApplication.translate("Dialog", u"Imaginary", None))
+        self.label_property.setText(QCoreApplication.translate("Dialog", u"Acoustic property:", None))
+        self.label_4.setText(QCoreApplication.translate("Dialog", u"Real", None))
+        self.label_unit.setText(QCoreApplication.translate("Dialog", u"[xyz]", None))
+        self.label_input_type.setText(QCoreApplication.translate("Dialog", u"Input type:", None))
+        self.comboBox_input_type.setItemText(0, QCoreApplication.translate("Dialog", u"Volume velocity", None))
+        self.comboBox_input_type.setItemText(1, QCoreApplication.translate("Dialog", u"Surface velocity", None))
+
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_constant), QCoreApplication.translate("Dialog", u"Constant", None))
         self.pushButton_search.setText(QCoreApplication.translate("Dialog", u"Search", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_tabular), QCoreApplication.translate("Dialog", u"Tabular", None))
@@ -426,12 +475,18 @@ class AcousticPropertyInput_UI(QDialog, Ui_Dialog):
                             - tabWidget_main: QTabWidget
                                 - tab_constant: QWidget
                                     - (Layout): QGridLayout
-                                            - label_unit: QLabel
-                                            - label_4: QLabel
-                                            - label_bondary_condition: QLabel
-                                            - lineEdit_real_value: QLineEdit
-                                            - label_20: QLabel
-                                            - lineEdit_imag_value: QLineEdit
+                                            - frame_2: QFrame
+                                                - (Layout): QGridLayout
+                                                        - label_20: QLabel
+                                                        - lineEdit_imag_value: QLineEdit
+                                                        - label_property: QLabel
+                                                        - label_4: QLabel
+                                                        - lineEdit_real_value: QLineEdit
+                                                        - label_unit: QLabel
+                                            - frame_advanced_controls: QFrame
+                                                - (Layout): QGridLayout
+                                                        - label_input_type: QLabel
+                                                        - comboBox_input_type: QComboBox
                                 - tab_tabular: QWidget
                                     - (Layout): QGridLayout
                                             - frame: QFrame
