@@ -25,7 +25,7 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     pressure_units_labels,
     temperature_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.validators import is_numeric, StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -314,8 +314,8 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
 
             else:
 
-                tool_tip = "The temperature at discharge will be "
-                tool_tip += "calculated after the fluid definition."
+                tool_tip = "The temperature at discharge will be estimated after "
+                tool_tip += "the fluid mixture definition being complete."
 
                 self.lineEdit_temperature_right.setText("---")
                 self.lineEdit_temperature_right.setToolTip(tool_tip)
@@ -959,10 +959,10 @@ class SetFluidCompositionInput(SetFluidCompositionInput_UI):
             str_temperature = self.lineEdit_temperature_right.text()
             str_pressure = self.lineEdit_pressure_right.text()
 
-        if not str_temperature.isnumeric():
+        if not is_numeric(str_temperature):
             return None
 
-        if not str_pressure.isnumeric():
+        if not is_numeric(str_pressure):
             return None
         
         input_temperature = float(str_temperature)
