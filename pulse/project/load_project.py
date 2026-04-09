@@ -1,5 +1,3 @@
-# fmt: off
-
 from typing import TYPE_CHECKING
 
 from pulse import version
@@ -18,8 +16,9 @@ from collections import defaultdict
 import numpy as np
 from packaging.version import Version
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+error_title = "Error"
+warning_title = "Warning"
+
 
 class LoadProject:
     def __init__(self, project: "Project"):
@@ -384,7 +383,7 @@ class LoadProject:
             title = "There is something wrong with your project"
             message = "The project file is incompatible with the .pulse file structure. "
             message += "As a result, the project data loading will be canceled."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
 
         if "version" in project_setup.keys():
@@ -398,7 +397,7 @@ class LoadProject:
             title = "Incorrect file version"
             message = "The project file version is incompatible with the current OpenPulse version. "
             message += "As a result, the project data loading will be canceled."
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
             return True
 
 
@@ -513,7 +512,7 @@ class LoadProject:
             message = "Error detected while processing the 'get_cross_sections_from_file' method.\n\n"
             message += f"Last line id: {line_id}\n\n"
             message += f"Details: \n\n {str(error_log)}"
-            PrintMessageInput([window_title_1, title, message])
+            PrintMessageInput([error_title, title, message])
 
             return dict()
 
@@ -523,71 +522,104 @@ class LoadProject:
 
         aux_nodal = dict()
         non_mapped_nodes = list()
+        internal_impedances = list()
+        property_to_remove = dict()
 
         for key, data in self.properties.nodal_properties.items():
 
             (property, *args) = key
 
-            if "coords" in data.keys():
-                coords = np.array(data["coords"], dtype=float)
-                if len(coords) == 6:
-
-                    node_id1, node_id2 = args
-
-                    coords_1 = coords[:3]
-                    coords_2 = coords[3:]
-                    new_node_id1 = self.preprocessor.get_node_id_by_coordinates(coords_1)
-                    new_node_id2 = self.preprocessor.get_node_id_by_coordinates(coords_2)
-                    sorted_indexes = np.sort([new_node_id1, new_node_id2])
-
-                    new_key = (property, sorted_indexes[0], sorted_indexes[1])
-
-                    if new_node_id1 is None:
-                        if new_node_id1 not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id1, coords))
-                        continue
-
-                    if new_node_id2 is None:
-                        if new_node_id2 not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id2, coords))
-                        continue
-
-                elif len(coords) == 3:
-
-                    node_id = args
-                    new_node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-                    new_key = (property, new_node_id)
-
-                    if new_node_id is None:
-                        if new_node_id not in non_mapped_nodes:
-                            non_mapped_nodes.append((node_id, coords))
-                        continue
-
-                aux_nodal[new_key] = data
+            if "coords" not in data.keys():
+                continue
         
-        if aux_nodal != self.properties.nodal_properties:
+            coords = np.array(data["coords"], dtype=float)
+            if len(coords) == 6:
 
-            self.properties.nodal_properties.clear()
+                node_id1, node_id2 = args
 
-            for new_key, data in aux_nodal.items():
-                (property, *args) = new_key
-                self.properties._set_nodal_property(property, data, args)
+                coords_1 = coords[:3]
+                coords_2 = coords[3:]
+                new_node_id1 = self.preprocessor.get_node_id_by_coordinates(coords_1)
+                new_node_id2 = self.preprocessor.get_node_id_by_coordinates(coords_2)
 
-            if aux_nodal:
-                self.project.file.write_nodal_properties_in_file()
+                if (new_node_id1, new_node_id2).count(None):
+                    property_to_remove[property] = args
 
-            if non_mapped_nodes:
+                if new_node_id1 is None:
+                    non_mapped_nodes.append((node_id1, coords))
+                    continue
 
-                title = "Nodal-related model attributions failed"
-                message = "Some nodal-related model attributions could not be mapped "
-                message += "after the meshing processing. The non-mapped nodes will be "
-                message += "removed from nodal properties file. \n\nDetails:"
+                if new_node_id2 is None:
+                    non_mapped_nodes.append((node_id2, coords))
+                    continue
 
-                for (node_id, coords) in non_mapped_nodes:
-                    x, y, z = coords
-                    message += f"\nNode #{node_id} -> coordinates: ({x}, {y}, {z}) [m]"
+                sorted_indexes = np.sort([new_node_id1, new_node_id2])
+                new_key = (property, sorted_indexes[0], sorted_indexes[1])
 
-                PrintMessageInput([window_title_2, title, message])
+            elif len(coords) == 3:
+
+                node_id = args
+                new_node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+                new_key = (property, new_node_id)
+
+                if new_node_id is None:
+                    non_mapped_nodes.append((node_id, coords))
+                    continue
+
+                if property in ["radiation_impedance", "specific_impedance"]:        
+                    neigh_elements = self.preprocessor.structural_elements_connected_to_node.get(new_node_id)
+                    if isinstance(neigh_elements, list):
+                        if len(neigh_elements) != 1:
+                            internal_impedances.append((new_node_id, coords))
+                            property_to_remove[property] = args                 
+                            continue
+
+            aux_nodal[new_key] = data
+    
+        if aux_nodal == self.properties.nodal_properties:
+            return
+        
+        if property_to_remove:
+            for property, node_ids in property_to_remove.items():
+                self.properties._remove_nodal_property(property, node_ids)
+
+            self.project.file.write_imported_table_data_in_file()
+
+        # replace all nodal properties if anything has changed
+        self.properties.nodal_properties.clear()
+
+        for new_key, data in aux_nodal.items():
+            (property, *args) = new_key
+            self.properties._set_nodal_property(property, data, args)
+
+        if aux_nodal:
+            self.project.file.write_nodal_properties_in_file()
+
+        if non_mapped_nodes:
+            title = "Nodal-related model attributions failed"
+            message = "Some nodal-related model attributions could not be mapped "
+            message += "after the meshing processing. The non-mapped nodes will be "
+            message += "removed from nodal properties file."
+            message += "\n\nDetails:"
+
+            for (node_id, coords) in non_mapped_nodes:
+                x, y, z = coords
+                message += f"\nNode #{node_id} -> coordinates: ({x}, {y}, {z}) [m]"
+
+            PrintMessageInput([warning_title, title, message])
+
+        if internal_impedances:
+            title = "Internal impedances detected"
+            message = "Some acoustic impedances, whether radiation or specific, were detected in "
+            message += "internal nodes (outside of termination) after the geometry had been edited. "
+            message += "These impedances will be removed from nodal properties."
+            message += "\n\nDetails:"
+
+            for (node_id, coords) in internal_impedances:
+                x, y, z = coords
+                message += f"\nNode #{node_id} -> coordinates: ({x}, {y}, {z}) [m]"
+
+            PrintMessageInput([warning_title, title, message])
 
     def update_element_ids_after_mesh_changed(self):
 
@@ -692,14 +724,14 @@ class LoadProject:
                 for (node_id, coords) in non_mapped_elements:
                     message += f"\n{node_id} - {coords}"
 
-                PrintMessageInput([window_title_2, title, message])
+                PrintMessageInput([warning_title, title, message])
 
         if pp_removed:
             title = "Perforated plates removed"
             message = "Some perforated plates could not be mapped after the "
             message += "meshing processing, therefore, they were removed "
             message += "from both the project files and model setup."
-            PrintMessageInput([window_title_2, title, message])
+            PrintMessageInput([warning_title, title, message])
 
     def load_analysis_results(self):
     
@@ -757,5 +789,3 @@ class LoadProject:
 
             else:
                 return
-
-# fmt: on
