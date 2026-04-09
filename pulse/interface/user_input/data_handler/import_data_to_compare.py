@@ -86,13 +86,13 @@ class ImportDataToCompare(ImportDataToCompare_UI):
         if not imported_path:
             return
         
-        self.lineEdit_import_results_path.setText(imported_path.stem)
+        self.lineEdit_import_results_path.setText(str(imported_path))
 
         key = self.get_data_index()
         self.imported_results[key] = FileHandler().read(imported_path)
 
         self.update_treeWidget_info()
-        app().config.write_last_folder_path_in_file(last_folder, str(imported_path))
+        app().config.write_last_folder_path_in_file("imported_data_folder", str(imported_path))
 
     def update_treeWidget_info(self):
         self.cache_checkButtons_state()
@@ -114,7 +114,7 @@ class ImportDataToCompare(ImportDataToCompare_UI):
                         self.treeWidget_import_sheet_files.addTopLevelItem(_item)
                         self.treeWidget_import_sheet_files.setItemWidget(_item, 2, self.ids_to_checkBox[id])
                 else:
-                    _item = QTreeWidgetItem(file.filename)
+                    _item = QTreeWidgetItem([file.filename])
                     self.treeWidget_import_text_files.addTopLevelItem(_item)
                     self.treeWidget_import_text_files.setItemWidget(_item, 1, self.ids_to_checkBox[id])                  
 
