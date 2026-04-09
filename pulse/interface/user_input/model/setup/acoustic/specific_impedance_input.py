@@ -3,7 +3,7 @@ from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
+from PySide6.QtWidgets import QHeaderView, QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.acoustic.acoustic_property_input_ui import (
@@ -130,20 +130,9 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         self.update_tabs_visibility()
 
     def attribute_callback(self):
-        properties = ["specific_impedance", "radiation_impedance"]
-        input_name = "specific_impedance"
-        reset_camera = False
-
         tab_index = self.tabWidget_main.currentIndex()
         if tab_index == TabType.CONSTANT:
-            self.constant_values_attribution_callback(
-                self.lineEdit_node_ids,
-                self.lineEdit_real_value,
-                self.lineEdit_imag_value,
-                input_name,
-                properties,
-                reset_camera,
-            )
+            self.constant_values_attribution_callback()
         elif tab_index == TabType.TABULAR:
             self.table_values_attribution_callback()
 
@@ -160,56 +149,6 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
                     PrintMessageInput([warning_title, title, message])
                     return True
 
-    def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):
-
-        title = "Invalid entry to the specific impedace"
-
-        if lineEdit_real.text() != "":
-
-            _str_real = lineEdit_real.text()
-            str_real = _str_real.replace(",", ".")
-
-            try:
-                real_F = float(str_real)
-            except Exception:
-                self.hide()
-                message = "Wrong input for real part of specific impedace."
-                PrintMessageInput([error_title, title, message])
-                lineEdit_real.setFocus()
-                app().main_window.set_input_widget(self)
-                return True, None
-        else:
-            real_F = 0
-
-        if lineEdit_imag.text() != "":
-
-            _str_imag = lineEdit_imag.text()
-            str_imag = _str_imag.replace(",", ".")
-
-            try:
-                imag_F = float(str_imag)
-            except Exception:
-                self.hide()
-                message = "Wrong input for imaginary part of specific impedace."
-                PrintMessageInput([error_title, title, message])
-                lineEdit_imag.setFocus()
-                app().main_window.set_input_widget(self)
-                return True, None
-        else:
-            imag_F = 0
-
-        if real_F == 0 and imag_F == 0:
-            self.hide()
-            message = "You must inform at least one specific impedace " 
-            message += "before confirming the input!"
-            PrintMessageInput([error_title, title, message])
-            self.lineEdit_real_value.setFocus()
-            app().main_window.set_input_widget(self)
-            return True, None
-
-        else:
-            return False, real_F + 1j*imag_F
-
     def constant_values_attribution_callback(self):
 
         lineEdit = self.lineEdit_node_ids.text()
@@ -221,11 +160,11 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         if self.are_there_internal_nodes(node_ids):
             return
 
-        stop, specific_impedance = self.check_complex_entries(self.lineEdit_real_value, self.lineEdit_imag_value)
+        stop, specific_impedance = self.check_complex_entries(self.lineEdit_real_value, self.lineEdit_imag_value, "specific impedance")
         if stop:
             return
 
-        self.remove_properties_from_node(node_ids)
+        self.remove_properties_from_node(node_ids, ["specific_impedance", "radiation_impedance"])
 
         real_values = [np.real(specific_impedance)]
         imag_values = [np.imag(specific_impedance)]
@@ -243,47 +182,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
             self.properties._set_nodal_property("specific_impedance", data, node_id)
 
-        self.actions_to_finalize()
-
-    def line_edit_reset(self, line_edit: QLineEdit):
-        line_edit.clear()
-        line_edit.setFocus()
-
-    def save_table_values(self, table_name: str, imported_values: np.ndarray, filter_zero: bool = True):
-
-        if filter_zero:
-            mask_filter = imported_values[:, 0] > 0
-            _imported_values = imported_values[mask_filter, :]
-        else:
-            _imported_values = imported_values
-
-        # define the frequencies vector
-        frequencies = _imported_values[:, 0]
-
-        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
-            self.hide()
-            title = "Project frequency setup cannot be modified"
-            message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported ones. The current "
-            message += "project frequency setup is not going to be modified."
-            message += f"\n\n{table_name}"
-            PrintMessageInput([error_title, title, message])
-            return True
-
-        self.update_analysis_setup_in_file(frequencies)
-
-        # real values vector
-        real_values = _imported_values[:, 1]
-        
-        # imaginary values vector
-        imag_values = _imported_values[:, 2]
-
-        # data to be stored
-        data = np.array([frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("acoustic", table_name, data)
-
-        return False
+        self.actions_to_finalize(reset_camera=False)
 
     def load_specific_impedance_table(self):
         self.imported_values, self.table_path = self.load_table(
@@ -305,7 +204,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         if self.are_there_internal_nodes(node_ids):
             return
 
-        self.remove_properties_from_node(node_ids)
+        self.remove_properties_from_node(node_ids, ["specific_impedance", "radiation_impedance"])
 
         if self.lineEdit_table_path == "":
             title = "Additional inputs required"
@@ -344,17 +243,8 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
             self.properties._set_nodal_property("specific_impedance", data, node_id)
 
-        self.actions_to_finalize()
-
-    def text_label(self, value):
-        text = ""
-        if isinstance(value, complex):
-            value_label = str(value)
-        elif isinstance(value, np.ndarray):
-            value_label = 'Table'
-        text = "{}".format(value_label)
-        return text
-
+        self.actions_to_finalize(reset_camera=False)
+        
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
         if item.text(0) != "":
@@ -365,17 +255,6 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
     def on_doubleclick_item(self, item):
         self.lineEdit_node_ids.setText(item.text(0))
         # self.remove_callback()
-
-    def remove_properties_from_node(self, node_ids: int | list):
-
-        if isinstance(node_ids, int):
-            node_ids = [node_ids]
-
-        for node_id in node_ids:
-            for label in ["specific_impedance", "radiation_impedance"]:
-                self.properties._remove_nodal_property(label, node_id)
-
-        app().project.file.write_nodal_properties_in_file()
 
     def remove_callback(self):
 
@@ -393,7 +272,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
             return
 
         self.properties._remove_nodal_property("specific_impedance", node_ids)
-        self.actions_to_finalize()
+        self.actions_to_finalize(reset_camera=False)
 
     def reset_callback(self):
 
@@ -414,13 +293,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
             return
 
         self.properties._reset_nodal_property("specific_impedance")
-        self.actions_to_finalize()
-
-    def actions_to_finalize(self):
-        app().project.file.write_nodal_properties_in_file()
-        app().project.file.write_imported_table_data_in_file()
-        app().main_window.update_plots(reset_camera=False)
-        self.load_nodes_info()
+        self.actions_to_finalize(reset_camera=False)
 
     def reset_input_fields(self):
         self.lineEdit_node_ids.clear()
