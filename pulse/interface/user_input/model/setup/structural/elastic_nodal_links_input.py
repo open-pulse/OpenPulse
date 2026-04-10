@@ -1,7 +1,8 @@
-import numpy as np
+from enum import IntEnum
 
+import numpy as np
 from PySide6.QtCore import QEvent, QObject, Qt, Signal
-from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.elastic_nodal_links_input_ui import (
@@ -10,10 +11,29 @@ from pulse.interface.ui_generated.model.setup.structural.elastic_nodal_links_inp
 from pulse.interface.user_input.model.setup.structural.structural_nodes_input import (
     StructuralNodesInput,
 )
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+
+
+class TabIndex(IntEnum):
+    CONSTANT = 0
+    TABULAR = 1
+    LIST = 2
+
+
+class TabList(IntEnum):
+    MULTIPLE = 0
+    STIFFNESS_LINK = 1
+    DAMPINGS_LINK = 2
+
+
+class NodalLinkType(IntEnum):
+    STIFFNESS = 0
+    DAMPING = 1
+
 
 error_title = "Error"
 warning_title = "Warning"
@@ -23,8 +43,9 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._config_widgets()
         self._initialize()
+        self._config_widgets()
+        self._configure_validators()
         self._create_connections()
 
         self.load_nodes_info()
@@ -42,6 +63,32 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         self.complete = False
         self.keep_window_open = True
         self.link_applied = False
+
+    def _config_widgets(self):
+        #
+        self.cache_tab = self.tabWidget_main.currentIndex()
+        #
+        self.treeWidget_stiffness_nodal_links.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.treeWidget_damping_nodal_links.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        #
+        for i in range(2):
+            self.treeWidget_stiffness_nodal_links.headerItem().setTextAlignment(i, Qt.AlignCenter)
+            self.treeWidget_damping_nodal_links.headerItem().setTextAlignment(i, Qt.AlignCenter)
+
+    def _configure_validators(self):
+
+        validator = StrictDoubleValidator(-1e10, 1e10, 6)
+
+        for line_edit in self.findChildren(QLineEdit):
+            obj_name = line_edit.objectName()
+
+            if "table_path" in obj_name:
+                continue
+
+            if obj_name in ["lineEdit_first_node_id", "lineEdit_last_node_id"]:
+                continue
+
+            line_edit.setValidator(validator)
 
     def reset_table_variables(self):
         for label in self.damping_labels + self.stiffness_labels:
@@ -85,20 +132,6 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
             self.lineEdit_Cry_table_path,
             self.lineEdit_Crz_table_path,
         ]
-
-    def _config_widgets(self):
-        #
-        self.cache_tab = self.tabWidget_main.currentIndex()
-        #
-        for i, width in enumerate([120, 200]):
-            self.treeWidget_stiffness_nodal_links.setColumnWidth(i, width)
-            self.treeWidget_damping_nodal_links.setColumnWidth(i, width)
-            self.treeWidget_stiffness_nodal_links.headerItem().setTextAlignment(
-                i, Qt.AlignCenter
-            )
-            self.treeWidget_damping_nodal_links.headerItem().setTextAlignment(
-                i, Qt.AlignCenter
-            )
 
     def clickable(self, widget):
         class Filter(QObject):
@@ -184,51 +217,45 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
                     self.reset_dampings_input_fields()
 
                     if "table_paths" in ss_link_data.keys():
-                        self.tabWidget_inputs.setCurrentIndex(1)
-                        self.tabWidget_table_values.setCurrentIndex(0)
+                        self.tabWidget_main.setCurrentIndex(TabIndex.TABULAR)
+                        self.tabWidget_table_values.setCurrentIndex(NodalLinkType.STIFFNESS)
                         for i, table_path in enumerate(ss_link_data["table_paths"]):
                             if table_path is not None:
                                 lineEdit = self.lineEdits_table_values_stiffness[i]
                                 lineEdit.setText(table_path)
 
                     else:
-                        self.tabWidget_inputs.setCurrentIndex(0)
-                        self.tabWidget_constant_values.setCurrentIndex(0)
-                        for i, value in enumerate(ss_link_data["real_values"]):
-                            if value is not None:
+                        self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
+                        self.tabWidget_constant_values.setCurrentIndex(NodalLinkType.STIFFNESS)
+                        for i, value in enumerate(ss_link_data["values"]):
+                            if isinstance(value, complex):
+                                _value = np.real(value)
                                 lineEdit = self.lineEdits_constant_values_stiffness[i]
-                                lineEdit.setText(f"{value: .3e}")
+                                lineEdit.setText(f"{_value: .3e}")
 
                 sd_link_data = self.properties._get_property(
                     "damping_nodal_links", node_ids=sorted_nodes
                 )
                 if isinstance(sd_link_data, dict):
                     if "table_paths" in sd_link_data.keys():
-                        self.tabWidget_inputs.setCurrentIndex(1)
-                        self.tabWidget_table_values.setCurrentIndex(1)
+                        self.tabWidget_main.setCurrentIndex(TabIndex.TABULAR)
+                        self.tabWidget_table_values.setCurrentIndex(NodalLinkType.DAMPING)
                         for i, table_path in enumerate(sd_link_data["table_paths"]):
                             if table_path is not None:
                                 lineEdit = self.lineEdits_table_values_dampings[i]
                                 lineEdit.setText(table_path)
 
                     else:
-                        self.tabWidget_inputs.setCurrentIndex(0)
-                        self.tabWidget_constant_values.setCurrentIndex(1)
-                        for i, value in sd_link_data["real_values"]:
-                            if value is not None:
+                        self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
+                        self.tabWidget_constant_values.setCurrentIndex(NodalLinkType.DAMPING)
+                        for i, value in sd_link_data["values"]:
+                            if isinstance(value, complex):
+                                _value = np.real(value)
                                 lineEdit = self.lineEdits_constant_values_dampings[i]
-                                lineEdit.setText(f"{value: .3e}")
+                                lineEdit.setText(f"{_value: .3e}")
 
-    def tab_event_callback(self):
-
-        self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_main.currentIndex() == 1:
-            self.selection_frame.setDisabled(True)
-
-        else:
-            self.selection_frame.setDisabled(False)
-
-        self.cache_tab = self.tabWidget_main.currentIndex()
+    def load_table_for_line_edit(self, line_edit, dof_label):
+        return super().load_table_for_line_edit(line_edit, dof_label, "nodal link")
 
     def check_linked_nodes(self):
 
@@ -261,31 +288,14 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
         return False, sorted([node_id1, node_id2])
 
-    def check_constant_stiffness_links(self, node_ids: list):
+    def check_constant_stiffness_links(self, node_ids: list[int, int]):
 
-        stop, Kx = self.check_entries(self.lineEdit_Kx, "Kx")
-        if stop:
-            return True
-
-        stop, Ky = self.check_entries(self.lineEdit_Ky, "Ky")
-        if stop:
-            return True
-
-        stop, Kz = self.check_entries(self.lineEdit_Kz, "Kz")
-        if stop:
-            return True
-
-        stop, Krx = self.check_entries(self.lineEdit_Krx, "Krx")
-        if stop:
-            return True
-
-        stop, Kry = self.check_entries(self.lineEdit_Kry, "Kry")
-        if stop:
-            return True
-
-        stop, Krz = self.check_entries(self.lineEdit_Krz, "Krz")
-        if stop:
-            return True
+        Kx = self.check_entries(self.lineEdit_Kx)
+        Ky = self.check_entries(self.lineEdit_Ky)
+        Kz = self.check_entries(self.lineEdit_Kz)
+        Krx = self.check_entries(self.lineEdit_Krx)
+        Kry = self.check_entries(self.lineEdit_Kry)
+        Krz = self.check_entries(self.lineEdit_Krz)
 
         values = [Kx, Ky, Kz, Krx, Kry, Krz]
 
@@ -313,26 +323,14 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
             self.properties._set_nodal_property("stiffness_nodal_links", data, node_ids)
 
-    def check_constant_dampings_links(self, node_ids: list):
+    def check_constant_dampings_links(self, node_ids: list[int, int]):
 
-        stop, Cx = self.check_entries(self.lineEdit_Cx, "Cx")
-        if stop:
-            return True
-        stop, Cy = self.check_entries(self.lineEdit_Cy, "Cy")
-        if stop:
-            return True
-        stop, Cz = self.check_entries(self.lineEdit_Cz, "Cz")
-        if stop:
-            return True
-        stop, Crx = self.check_entries(self.lineEdit_Crx, "Crx")
-        if stop:
-            return True
-        stop, Cry = self.check_entries(self.lineEdit_Cry, "Cry")
-        if stop:
-            return True
-        stop, Crz = self.check_entries(self.lineEdit_Crz, "Crz")
-        if stop:
-            return True
+        Cx = self.check_entries(self.lineEdit_Cx)
+        Cy = self.check_entries(self.lineEdit_Cy)
+        Cz = self.check_entries(self.lineEdit_Cz)
+        Crx = self.check_entries(self.lineEdit_Crx,)
+        Cry = self.check_entries(self.lineEdit_Cry,)
+        Crz = self.check_entries(self.lineEdit_Crz,)
 
         values = [Cx, Cy, Cz, Crx, Cry, Crz]
 
@@ -360,68 +358,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
             self.properties._set_nodal_property("damping_nodal_links", data, node_ids)
 
-    def attribute_callback(self):
-
-        stop, node_ids = self.check_linked_nodes()
-        if stop:
-            return True
-
-        self.remove_properties_from_node(node_ids)
-
-        if self.tabWidget_inputs.currentIndex() == 0:
-            self.check_constant_stiffness_links(node_ids)
-            self.check_constant_dampings_links(node_ids)
-
-        elif self.tabWidget_inputs.currentIndex() == 1:
-            self.check_tables_for_stiffness_links(node_ids)
-            self.check_tables_for_dampings_links(node_ids)
-
-        if not self.link_applied:
-            title = "No inputs entered for the structural stiffness or damping links"
-            message = "Define at least one value or table of values to the stiffness "
-            message += (
-                "or damping links to proceed with the structural link attribution."
-            )
-            PrintMessageInput([error_title, title, message])
-            return
-
-        self.reset_nodes_input_fields()
-        self.actions_to_finalize()
-    
-    def load_table_for_line_edit(self, line_edit, dof_label):
-        return super().load_table_for_line_edit(line_edit, dof_label, "nodal link")
-
-    def save_table_values(self, table_name: str, imported_values: np.ndarray):
-
-        # define the frequencies vector
-        _frequencies = imported_values[:, 0]
-
-        if app().project.model.change_analysis_frequency_setup(list(_frequencies)):
-            self.hide()
-            title = "Project frequency setup cannot be modified"
-            message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported. The current "
-            message += "project frequency setup will not be modified."
-            message += f"\n\n{table_name}"
-            PrintMessageInput([error_title, title, message])
-            return True
-
-        self.update_analysis_setup_in_file(_frequencies)
-
-        # real values vector
-        real_values = imported_values[:, 1]
-
-        # imaginary values vector
-        imag_values = imported_values[:, 2]
-
-        # array to be saved
-        data = np.array([_frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("structural", table_name, data)
-
-        return False
-
-    def check_tables_for_stiffness_links(self, node_ids_pair: list):
+    def check_tables_for_stiffness_links(self, node_ids_pair: list[int, int]):
 
         table_paths = list()
 
@@ -476,7 +413,7 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
                 "stiffness_nodal_links", data, node_ids_pair
             )
 
-    def check_tables_for_dampings_links(self, node_ids_pair: list):
+    def check_tables_for_dampings_links(self, node_ids_pair: list[int, int]):
 
         table_paths = list()
 
@@ -533,6 +470,100 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
                 "damping_nodal_links", data, node_ids_pair
             )
 
+    def attribute_callback(self):
+
+        stop, node_ids = self.check_linked_nodes()
+        if stop:
+            return True
+        
+        self.remove_properties_from_node(node_ids)
+
+        tab_index = self.tabWidget_main.currentIndex()
+        if tab_index == TabIndex.CONSTANT:
+            self.check_constant_values_inputs(node_ids)
+
+        elif tab_index == TabIndex.TABULAR:
+            self.check_table_values_inputs(node_ids)
+
+        if not self.link_applied:
+            title = "No inputs entered for the structural stiffness or damping links"
+            message = "Define at least one value or table of values to the stiffness "
+            message += "or damping links to proceed with the structural link attribution."
+            PrintMessageInput([error_title, title, message])
+            return
+
+        self.reset_nodes_input_fields()
+        self.actions_to_finalize()
+
+    def check_constant_values_inputs(self, node_ids: list[int, int]):
+        self.check_constant_stiffness_links(node_ids)
+        self.check_constant_dampings_links(node_ids)
+
+    def check_table_values_inputs(self, node_ids: list[int, int]):
+        self.check_tables_for_stiffness_links(node_ids)
+        self.check_tables_for_dampings_links(node_ids)
+
+    def remove_properties_from_node(self, node_ids_pair: list | tuple):
+        _properties = ["stiffness_nodal_links", "damping_nodal_links"]
+        for _property in _properties:
+            self.properties._remove_nodal_property(_property, node_ids_pair)
+
+    def remove_callback(self):
+
+        _first_node = self.lineEdit_first_node_id.text()
+        _last_node = self.lineEdit_last_node_id.text()
+
+        if _first_node == "" and _last_node == "":
+            self.hide()
+            title = "Invalid selection"
+            message = "You should to select an item from the list "
+            message += "to proceed with the removal."
+            PrintMessageInput([warning_title, title, message])
+            return
+
+        node_ids = sorted([int(_first_node), int(_last_node)])
+
+        if self.checkBox_remove_link_stiffness.isChecked():
+            self.properties._remove_nodal_property("stiffness_nodal_links", node_ids)
+
+        if self.checkBox_remove_link_damping.isChecked():
+            self.properties._remove_nodal_property("damping_nodal_links", node_ids)
+
+        self.reset_nodes_input_fields()
+        self.reset_stiffness_input_fields()
+        self.reset_dampings_input_fields()
+        self.actions_to_finalize()
+
+    def reset_callback(self):
+
+        self.hide()
+
+        title = "Reseting of structural links"
+        message = "Would you like to remove all structural links from the structural model?"
+
+        buttons_config = {
+            "left_button_label": "Cancel",
+            "right_button_label": "Continue",
+        }
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+
+        if read._cancel:
+            return
+
+        if not read._continue:
+            return
+
+        if self.checkBox_remove_link_stiffness.isChecked():
+            self.properties._reset_nodal_property("stiffness_nodal_links")
+
+        if self.checkBox_remove_link_damping.isChecked():
+            self.properties._reset_nodal_property("damping_nodal_links")
+
+        self.reset_nodes_input_fields()
+        self.reset_stiffness_input_fields()
+        self.reset_dampings_input_fields()
+        self.actions_to_finalize()
+
     def actions_to_finalize(self):
         self.reset_table_variables()
         super().actions_to_finalize()
@@ -574,31 +605,59 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
                 self.treeWidget_damping_nodal_links.addTopLevelItem(item)
 
     def load_nodes_info(self):
-
         self.load_elastic_links_stiffness_info()
         self.load_elastic_links_damping_info()
+        self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
+
+        properties = [
+            "stiffness_nodal_links", 
+            "damping_nodal_links",
+            ]
+
+        check_boxes = [
+            self.checkBox_remove_link_stiffness,
+            self.checkBox_remove_link_damping,
+        ]
 
         self.pushButton_remove.setDisabled(True)
-        self.tabWidget_main.setTabVisible(1, False)
+        self.checkBox_remove_link_stiffness.setChecked(False)
+        self.checkBox_remove_link_damping.setChecked(False)
 
-        self.checkBox_link_stiffness.setChecked(True)
-        self.checkBox_link_dampings.setChecked(True)
-
-        for _property, *args in self.properties.nodal_properties.keys():
-            if _property == "stiffness_nodal_links":
-                self.tabWidget_main.setTabVisible(1, True)
-                self.tabWidget_remove.setTabVisible(0, True)
-                self.checkBox_link_stiffness.setChecked(True)
-                break
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
+        self.tabWidget_remove.setTabVisible(TabList.STIFFNESS_LINK, False)
+        self.tabWidget_remove.setTabVisible(TabList.DAMPINGS_LINK, False)
 
         for _property, *args in self.properties.nodal_properties.keys():
-            if _property == "damping_nodal_links":
-                self.tabWidget_main.setTabVisible(1, True)
-                self.tabWidget_remove.setTabVisible(1, True)
-                self.checkBox_link_dampings.setChecked(True)
-                break
+            if _property in properties:
+                index = properties.index(_property)
+                self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
+                self.tabWidget_remove.setTabVisible(index + 1, True)
+                self.checkBox_remove_link_stiffness.setChecked(True)
+                check_boxes[index].setChecked(True)
 
-    def on_click_item_stiffness(self, item):
+        if not self.tabWidget_main.isVisible():
+            self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
+            self.tabWidget_constant_values.setCurrentIndex(NodalLinkType.STIFFNESS)
+            self.lineEdit_Kx.setFocus()
+
+        for check_box in check_boxes:
+            is_checked = check_box.isChecked()
+            check_box.setEnabled(is_checked)
+
+    def tab_event_callback(self):
+
+        self.pushButton_remove.setDisabled(True)
+        if self.tabWidget_main.currentIndex() == TabIndex.LIST:
+            self.selection_frame.setDisabled(True)
+
+        else:
+            self.selection_frame.setDisabled(False)
+
+        self.cache_tab = self.tabWidget_main.currentIndex()
+
+    def on_click_item_stiffness(self, item: QTreeWidgetItem):
         key = item.text(0)
         node_ids = [int(value) for value in key.split("-")]
         link_data = self.properties._get_property(
@@ -606,11 +665,9 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         )
         if isinstance(link_data, dict):
             app().main_window.set_selection(nodes=node_ids)
-            # self.lineEdit_first_node_id.setText(str(node_ids[0]))
-            # self.lineEdit_last_node_id.setText(str(node_ids[1]))
             self.pushButton_remove.setDisabled(False)
 
-    def on_click_item_damping(self, item):
+    def on_click_item_damping(self, item: QTreeWidgetItem):
         key = item.text(0)
         node_ids = [int(value) for value in key.split("-")]
         link_data = self.properties._get_property(
@@ -618,8 +675,6 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
         )
         if isinstance(link_data, dict):
             app().main_window.set_selection(nodes=node_ids)
-            # self.lineEdit_first_node_id.setText(str(node_ids[0]))
-            # self.lineEdit_last_node_id.setText(str(node_ids[1]))
             self.pushButton_remove.setDisabled(False)
 
     def on_double_click_item_stiffness(self, item):
@@ -627,67 +682,6 @@ class ElasticNodalLinksInput(StructuralNodesInput, ElasticNodalLinksInput_UI):
 
     def on_double_click_item_damping(self, item):
         self.on_click_item_damping(item)
-
-    def remove_properties_from_node(self, node_ids_pair: list | tuple):
-        _properties = ["stiffness_nodal_links", "damping_nodal_links"]
-        for _property in _properties:
-            self.properties._remove_nodal_property(_property, node_ids_pair)
-
-    def remove_callback(self):
-
-        _first_node = self.lineEdit_first_node_id.text()
-        _last_node = self.lineEdit_last_node_id.text()
-
-        if _first_node == "" and _last_node == "":
-            self.hide()
-            title = "Invalid selection"
-            message = "You should to select an item from the list "
-            message += "to proceed with the removal."
-            PrintMessageInput([warning_title, title, message])
-            return
-
-        node_ids = sorted([int(_first_node), int(_last_node)])
-
-        if self.checkBox_link_stiffness.isChecked():
-            self.properties._remove_nodal_property("stiffness_nodal_links", node_ids)
-
-        if self.checkBox_link_dampings.isChecked():
-            self.properties._remove_nodal_property("damping_nodal_links", node_ids)
-
-        self.reset_nodes_input_fields()
-        self.reset_stiffness_input_fields()
-        self.reset_dampings_input_fields()
-        self.actions_to_finalize()
-
-    def reset_callback(self):
-
-        self.hide()
-
-        title = "Reseting of structural links"
-        message = "Would you like to remove all structural links from the structural model?"
-
-        buttons_config = {
-            "left_button_label": "Cancel",
-            "right_button_label": "Continue",
-        }
-        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
-
-        if read._cancel:
-            return
-
-        if not read._continue:
-            return
-
-        if self.checkBox_link_stiffness.isChecked():
-            self.properties._reset_nodal_property("stiffness_nodal_links")
-
-        if self.checkBox_link_dampings.isChecked():
-            self.properties._reset_nodal_property("damping_nodal_links")
-
-        self.reset_nodes_input_fields()
-        self.reset_stiffness_input_fields()
-        self.reset_dampings_input_fields()
-        self.actions_to_finalize()
 
     def reset_nodes_input_fields(self):
         self.lineEdit_first_node_id.clear()
