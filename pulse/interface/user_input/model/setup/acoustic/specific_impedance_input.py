@@ -12,6 +12,7 @@ from pulse.interface.ui_generated.model.setup.acoustic.acoustic_property_input_u
 from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
     AcousticNodesInput,
 )
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -33,6 +34,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         super().__init__(*args, **kwargs)
 
         self._initialize()
+        self._configure_validators()
         self._config_widgets()
         self._create_connections()
 
@@ -46,9 +48,16 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         self.table_path = None             
         self.keep_window_open = True
 
+    def _configure_validators(self):
+        validator = StrictDoubleValidator(-1e10, 1e10, 6)
+        self.lineEdit_real_value.setValidator(validator)
+        self.lineEdit_imag_value.setValidator(validator)
+
     def _config_widgets(self):
         #
-        self.label_bondary_condition.setText("Specific impedance:")
+        self.frame_advanced_controls.setVisible(False)
+        #
+        self.label_property.setText("Specific impedance:")
         self.label_unit.setText("[kg/m².s]")
         self.label_title.setText("Specific impedance setup")
         #
@@ -114,6 +123,9 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
                 self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
 
+        self.lineEdit_real_value.setFocus()
+        self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
+
     def load_nodes_info(self):
 
         self.treeWidget_nodal_info.clear()
@@ -130,9 +142,11 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         self.update_tabs_visibility()
 
     def attribute_callback(self):
+
         tab_index = self.tabWidget_main.currentIndex()
         if tab_index == TabIndex.CONSTANT:
             self.constant_values_attribution_callback()
+
         elif tab_index == TabIndex.TABULAR:
             self.table_values_attribution_callback()
 
