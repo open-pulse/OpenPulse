@@ -208,7 +208,7 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             PrintMessageInput([error_title, title, message])
             return
 
-        self.remove_properties_from_node(node_ids, ["prescribed_dofs"])
+        self.remove_properties_from_node(node_ids, ["prescribed_dofs", "nodal_loads"])
 
         real_values = [value if value is None else np.real(value) for value in nodal_loads]
         imag_values = [value if value is None else np.imag(value) for value in nodal_loads]
@@ -254,11 +254,11 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
     def update_tabs_visibility(self):
 
-        self.tabWidget_prescribed_dof.setTabVisible(TabIndex.LIST, False)
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         for property, *_ in self.properties.nodal_properties.keys():
             if property == "prescribed_dofs":
-                self.tabWidget_prescribed_dof.setCurrentIndex(TabIndex.CONSTANT)
-                self.tabWidget_prescribed_dof.setTabVisible(TabIndex.LIST, True)
+                self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
+                self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
 
     def tab_event_callback(self):
