@@ -1,24 +1,42 @@
 from collections import defaultdict
+from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtWidgets import QLineEdit, QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.valve_input_ui import (
     ValveInput_UI,
 )
-
 from pulse.interface.user_input.model.setup.acoustic.perforated_plate_input import (
     PerforatedPlateInput,
 )
 from pulse.interface.user_input.model.setup.structural.structural_lines_input import (
     StructuralLinesInput,
 )
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.model.cross_section import CrossSection
+
+
+class TabIndex(IntEnum):
+    SETUP = 0
+    LIST = 1
+
+
+class FlangeSetup(IntEnum):
+    UNFLANGED = 0
+    FLANGED = 1
+
+
+class AcousticBehavior(IntEnum):
+    OPEN = 0
+    PARTIALLY_CLOSED = 1
+    CLOSED = 2
+
 
 error_title = "Error"
 
@@ -29,6 +47,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         self.render_type = kwargs.get("render_type", "model")
 
         self._initialize()
+        self._configure_validators()
         self._create_connections()
         self._configure_appearance()
 
@@ -46,15 +65,24 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         self.complete = False
         self.keep_window_open = True
 
+    def _configure_validators(self):
+
+        validator = StrictDoubleValidator(0, 1e10, 6)
+
+        for line_edit in self.findChildren(QLineEdit):
+            obj_name = line_edit.objectName()
+
+            if obj_name in ["lineEdit_selected_id", "lineEdit_valve_name"]:
+                continue
+
+            line_edit.setValidator(validator)
+
     def _create_connections(self):
         #
-        self.comboBox_acoustic_behavior.currentIndexChanged.connect(
-            self.valve_setup_callback
-        )
-        self.comboBox_flange_setup.currentIndexChanged.connect(
-            self.valve_setup_callback
-        )
+        self.comboBox_acoustic_behavior.currentIndexChanged.connect(self.valve_setup_callback)
+        self.comboBox_flange_setup.currentIndexChanged.connect(self.valve_setup_callback)
         #
+        self.pushButton_reset_entries.clicked.connect(self.reset_entries_callback)
         self.pushButton_attribute.clicked.connect(self.attribute_callback)
         self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_remove.clicked.connect(self.remove_callback)
@@ -80,37 +108,39 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
             if self.check_selection_type(line_ids):
                 return
 
-            if len(line_ids) == 1:
-                line_id = line_ids[0]
-                valve_info = self.properties._get_property(
-                    "valve_info", line_id=line_id
-                )
-                if valve_info is None:
-                    return
+            if len(line_ids) != 1:
+                return
+        
+            line_id = line_ids[0]
+            valve_info = self.properties._get_property(
+                "valve_info", line_id=line_id
+            )
+            if valve_info is None:
+                return
+            
+            self.load_valve_info(valve_info)
 
-                valve_name = valve_info["valve_name"]
-                valve_mass = valve_info["valve_mass"]
-                stiffening_factor = valve_info["stiffening_factor"]
+    def load_valve_info(self, valve_info: dict):
 
-                self.lineEdit_valve_name.setText(valve_name)
-                self.lineEdit_valve_mass.setText(str(valve_mass))
-                self.lineEdit_stiffening_factor.setText(str(stiffening_factor))
+        for key, value in valve_info.items():
+            if isinstance(value, float):
+                value = str(value)
 
-                if "flange_diameter" in valve_info.keys():
-                    flange_diameter = valve_info["flange_diameter"]
-                    flange_length = valve_info["flange_length"]
-                    self.lineEdit_flange_diameter.setText(str(flange_diameter))
-                    self.lineEdit_flange_length.setText(str(flange_length))
-                    self.comboBox_flange_setup.setCurrentIndex(1)
-                else:
-                    self.comboBox_flange_setup.setCurrentIndex(0)
+            try:
+                widget = getattr(self, f"lineEdit_{key}")
+            except Exception:
+                continue
 
-                if "acoustic_behavior" in valve_info.keys():
-                    acoustic_effects = valve_info["acoustic_behavior"]
-                    if acoustic_effects:
-                        self.comboBox_acoustic_behavior.setCurrentIndex(1)
-                    else:
-                        self.comboBox_acoustic_behavior.setCurrentIndex(0)
+            if isinstance(widget, QLineEdit):
+                widget.setText(value)
+
+        if "flange_diameter" in valve_info.keys():
+            self.comboBox_flange_setup.setCurrentIndex(FlangeSetup.FLANGED)
+        else:
+            self.comboBox_flange_setup.setCurrentIndex(FlangeSetup.UNFLANGED)
+
+        if "acoustic_behavior" in valve_info.keys():
+            self.comboBox_acoustic_behavior.setCurrentIndex(valve_info.get("acoustic_behavior"))
 
     def _configure_appearance(self):
         if self.render_type == "model":
@@ -139,44 +169,57 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         ]
 
     def tab_event_callback(self):
-        self.lineEdit_selected_id.clear()
+
+        tab_list = self.tabWidget_main.currentIndex() == TabIndex.LIST
+        self.lineEdit_selected_id.setDisabled(tab_list)
+        self.pushButton_attribute.setDisabled(tab_list)
         self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_main.currentIndex() == 1:
-            self.selection_frame.setDisabled(True)
+
+        if not tab_list:
+            self.lineEdit_selected_id.setEnabled(True)
+            # self.selection_callback()
+            return
+
+        selected_items = self.treeWidget_valves_info.selectedItems()
+        if selected_items == list():
+            self.lineEdit_selected_id.clear()
         else:
-            self.selection_frame.setDisabled(False)
+            self.on_click_item(selected_items[0])
 
     def valve_setup_callback(self):
+        self.acoustic_effects_callback()
+        self.flanged_valves_callback()
 
-        index_A = self.comboBox_acoustic_behavior.currentIndex()
-        index_B = self.comboBox_flange_setup.currentIndex()
+    def acoustic_effects_callback(self):
 
-        self.acoustic_effects_callback(index_A)
-        self.flanged_valves_callback(bool(index_B))
+        index = self.comboBox_acoustic_behavior.currentIndex()
+        open_valve = index == AcousticBehavior.OPEN
 
-    def acoustic_effects_callback(self, index: int):
-
-        if index == 1:
+        if index == AcousticBehavior.PARTIALLY_CLOSED:
             self.label_valve_internal_length.setText("Orifice plate thickness:")
-        elif index == 2:
+
+        elif index == AcousticBehavior.CLOSED:
             self.label_valve_internal_length.setText("Valve blocking length:")
 
-        self.label_valve_internal_length.setEnabled(bool(index))
-        self.label_valve_internal_length_unit.setEnabled(bool(index))
-        self.lineEdit_internal_valve_length.setEnabled(bool(index))
+        self.label_valve_internal_length.setDisabled(open_valve)
+        self.label_valve_internal_length_unit.setDisabled(open_valve)
+        self.lineEdit_internal_valve_length.setDisabled(open_valve)
 
-        if not bool(index):
+        if open_valve:
             self.lineEdit_internal_valve_length.clear()
 
-    def flanged_valves_callback(self, enabled: bool):
-        self.label_flange_diameter.setEnabled(enabled)
-        self.label_flange_diameter_unit.setEnabled(enabled)
-        self.label_flange_length.setEnabled(enabled)
-        self.label_flange_length_unit.setEnabled(enabled)
-        self.lineEdit_flange_diameter.setEnabled(enabled)
-        self.lineEdit_flange_length.setEnabled(enabled)
+    def flanged_valves_callback(self):
 
-        if not enabled:
+        flanged = self.comboBox_flange_setup.currentIndex() == FlangeSetup.FLANGED
+
+        self.label_flange_diameter.setEnabled(flanged)
+        self.label_flange_diameter_unit.setEnabled(flanged)
+        self.label_flange_length.setEnabled(flanged)
+        self.label_flange_length_unit.setEnabled(flanged)
+        self.lineEdit_flange_diameter.setEnabled(flanged)
+        self.lineEdit_flange_length.setEnabled(flanged)
+
+        if not flanged:
             self.lineEdit_flange_diameter.clear()
             self.lineEdit_flange_length.clear()
 
@@ -243,77 +286,54 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         self.valve_name = self.lineEdit_valve_name.text()
         self.valve_info["valve_name"] = self.valve_name
 
-        stop, value = self.check_input_parameters(
-            self.lineEdit_valve_mass, "Valve mass"
-        )
-        if stop:
-            self.lineEdit_valve_mass.setFocus()
-            return True
+        line_edits = [
+            self.lineEdit_valve_mass,
+            self.lineEdit_stiffening_factor,
+            self.lineEdit_valve_effective_diameter,
+            self.lineEdit_valve_wall_thickness,
+            ]
 
-        self.valve_info["valve_mass"] = value
+        for line_edit in line_edits:
+            if line_edit.text() == "":
+                line_edit.setFocus()
+                return True
 
-        stop, value = self.check_input_parameters(
-            self.lineEdit_stiffening_factor, "Stiffening factor"
-        )
-        if stop:
-            self.lineEdit_stiffening_factor.setFocus()
-            return True
+            obj_name = line_edit.objectName()
+            var_name = obj_name.split("lineEdit_")[1]
 
-        self.valve_info["stiffening_factor"] = value
-
-        stop, value = self.check_input_parameters(
-            self.lineEdit_effective_diameter, "Effective diameter"
-        )
-        if stop:
-            self.lineEdit_stiffening_factor.setFocus()
-            return True
-
-        self.valve_info["valve_effective_diameter"] = value
-
-        stop, value = self.check_input_parameters(
-            self.lineEdit_wall_thickness, "Valve wall thickness"
-        )
-        if stop:
-            self.lineEdit_wall_thickness.setFocus()
-            return True
-
-        self.valve_info["valve_wall_thickness"] = value
+            self.valve_info[var_name] = float(line_edit.text())
 
     def check_flange_parameters(self):
 
-        stop, value = self.check_input_parameters(
-            self.lineEdit_flange_diameter, "Flange diameter"
-        )
-        if stop:
-            self.lineEdit_flange_diameter.setFocus()
-            return True
+        line_edits = [
+            self.lineEdit_flange_diameter,
+            self.lineEdit_flange_length,
+        ]
 
-        self.valve_info["flange_diameter"] = value
+        for line_edit in line_edits:
+            if line_edit.text() == "":
+                line_edit.setFocus()
+                return True
 
-        stop, value = self.check_input_parameters(
-            self.lineEdit_flange_length, "Flange length"
-        )
-        if stop:
-            self.lineEdit_flange_length.setFocus()
-            return True
+            obj_name = line_edit.objectName()
+            var_name = obj_name.split("lineEdit_")[1]
 
-        self.valve_info["flange_length"] = value
+            self.valve_info[var_name] = float(line_edit.text())
 
         return False
 
     def check_internal_valve_parameters(self):
 
-        stop, value = self.check_input_parameters(
-            self.lineEdit_internal_valve_length, "Internal valve length"
-        )
-        if stop:
+        if self.lineEdit_internal_valve_length.text() == "":
             self.lineEdit_internal_valve_length.setFocus()
             return True
 
-        if self.comboBox_acoustic_behavior.currentIndex() == 1:
+        value = float(self.lineEdit_internal_valve_length.text())
+
+        if self.comboBox_acoustic_behavior.currentIndex() == AcousticBehavior.PARTIALLY_CLOSED:
             self.valve_info["orifice_plate_thickness"] = value
 
-        elif self.comboBox_acoustic_behavior.currentIndex() == 2:
+        elif self.comboBox_acoustic_behavior.currentIndex() == AcousticBehavior.CLOSED:
             self.valve_info["blocking_length"] = value
 
     def attribute_callback(self):
@@ -335,13 +355,13 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
             return
 
         acoustic_behavior = self.comboBox_acoustic_behavior.currentIndex()
-        if acoustic_behavior in [1, 2]:
+        if acoustic_behavior != AcousticBehavior.OPEN:
             if self.check_internal_valve_parameters():
                 return
 
         self.valve_info["acoustic_behavior"] = acoustic_behavior
 
-        if self.comboBox_flange_setup.currentIndex() == 1:
+        if self.comboBox_flange_setup.currentIndex() == FlangeSetup.FLANGED:
             if self.check_flange_parameters():
                 return
 
@@ -350,25 +370,16 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         if self.render_type == "model":
             if self.valve_info:
                 for line_id in line_ids:
-                    self.properties._set_line_property(
-                        "section_type_label", "valve", line_id
-                    )
-                    self.properties._set_line_property(
-                        "structural_element_type", "valve", line_ids=line_id
-                    )
-                    self.properties._set_line_property(
-                        "valve_info", self.valve_info, line_ids=line_id
-                    )
+                    self.properties._set_line_property("structure_name", "valve", line_id)
+                    self.properties._set_line_property("section_type_label", "valve", line_id)
+                    self.properties._set_line_property("structural_element_type", "valve", line_ids=line_id)
+                    self.properties._set_line_property("valve_info", self.valve_info, line_ids=line_id)
 
                     line_data = self.properties.line_properties[line_id]
-                    self.preprocessor.set_cross_sections_to_valve_elements(
-                        line_id, line_data
-                    )
+                    self.preprocessor.set_cross_sections_to_valve_elements(line_id, line_data)
 
                     self.properties._remove_line_property("section_parameters", line_id)
-                    self.properties._remove_line_property(
-                        "expansion_joint_info", line_id
-                    )
+                    self.properties._remove_line_property("expansion_joint_info", line_id)
 
                 self.actions_to_finalize()
 
@@ -495,14 +506,14 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
         return valve_section_parameters
 
-    def on_click_item(self, item):
+    def on_click_item(self, item: QTreeWidgetItem):
         self.lineEdit_selected_id.setText(item.text(0))
         self.pushButton_remove.setEnabled(True)
         if item.text(0) != "":
             line_ids = [int(item.text(1))]
             app().main_window.set_selection(lines=line_ids)
 
-    def on_doubleclick_item(self, item):
+    def on_doubleclick_item(self, item: QTreeWidgetItem):
         self.on_click_item(item)
 
     def restore_the_cross_section(self, line_ids: list):
@@ -521,6 +532,7 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
             element_type = None
 
             for element_id in element_ids:
+                # get the cross-section of the first out-of-line valid element
                 if element_id not in line_elements:
                     element = self.preprocessor.structural_elements[element_id]
                     cross = element.cross_section
@@ -529,13 +541,12 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
             if element_type == "pipe_1" and isinstance(cross, CrossSection):
                 pipe_info = {
-                    "section_type_label": "pipe",
-                    "section_parameters": cross.section_parameters,
-                }
+                    "structure_name" : "pipe",
+                    "section_type_label" : "pipe",
+                    "section_parameters" : cross.section_parameters,
+                    }
 
-                self.properties._set_line_property(
-                    "structural_element_type", element_type, line_id
-                )
+                self.properties._set_line_property("structural_element_type", element_type, line_id)
                 self.properties._set_multiple_line_properties(pipe_info, line_id)
 
     def remove_callback(self):
@@ -600,45 +611,20 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
             self.properties._remove_element_property("perforated_plate", element_ids)
             # TODO: remove existing imported tables
 
+    def reset_entries_callback(self):
+        for line_edit in self.findChildren(QLineEdit):
+            line_edit.clear()
+
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
+
+        if event.key() == Qt.Key_Delete:
             if self.render_type == "model":
                 self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
+
+        if event.key() == Qt.Key_Escape:
             self.close()
-
-    def get_valve_diameters(
-        self,
-        valve_elements: list,
-        valve_diameter: float,
-        flange_elements=list(),
-        flange_thickness=0,
-    ) -> dict:
-
-        number_valve_elements = len(valve_elements)
-        number_flange_elements = len(flange_elements)
-        N = number_valve_elements - number_flange_elements
-
-        if number_flange_elements == 0:
-            outer_diameters = get_V_linear_distribution(valve_diameter, N)
-            inner_diameters = outer_diameters - 2 * self.valve_thickness
-
-        else:
-            nf = int(number_flange_elements / 2)
-            outer_diameters = (
-                np.ones(number_valve_elements) * self.flange_outer_diameter
-            )
-            inner_diameters = outer_diameters - 2 * flange_thickness
-            outer_diameters[nf:-nf] = get_V_linear_distribution(valve_diameter, N)
-            inner_diameters[nf:-nf] = outer_diameters[nf:-nf] - 2 * self.valve_thickness
-
-        diameters_data = dict()
-        for i, element_id in enumerate(valve_elements):
-            diameters_data[element_id] = [outer_diameters[i], inner_diameters[i]]
-
-        return diameters_data
 
 
 def get_V_linear_distribution(x, N, reduction_start=0.0, reduction_half=0.5):

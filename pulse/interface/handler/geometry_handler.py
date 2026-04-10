@@ -150,6 +150,7 @@ class GeometryHandler:
         for structure_type in ALL_STRUCTURE_TYPES:
             if structure_type.name() == data.get("structure_name"):
                 return structure_type.load_from_data(data)
+
         return None
 
     def process_pipeline(self):
