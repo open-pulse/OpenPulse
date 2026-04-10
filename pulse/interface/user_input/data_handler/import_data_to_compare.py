@@ -5,7 +5,7 @@ from PySide6.QtCore import Qt
 from pulse import app
 from pulse.interface.ui_generated.data_handler.import_data_to_compare_ui import ImportDataToCompare_UI
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-from pulse.interface.user_input.data_handler.imported_data import ImportedData
+from pulse.interface.user_input.data_handler.imported_data import ImportedData, SpreadsheetData, SpreadsheetSheet
 from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
 
 import numpy as np
@@ -88,8 +88,16 @@ class ImportDataToCompare(ImportDataToCompare_UI):
         
         self.lineEdit_import_results_path.setText(str(imported_path))
 
-        key = self.get_data_index()
-        self.imported_results[key] = FileHandler().read(imported_path)
+        file = FileHandler().read(imported_path)
+
+        if isinstance(file, SpreadsheetData):
+            for sheet in file.sheets:
+                sheet.source_file = file.filename
+                key = self.get_data_index()
+                self.imported_results[key] = sheet
+        else:
+            key = self.get_data_index()
+            self.imported_results[key] = file
 
         self.update_treeWidget_info()
         app().config.write_last_folder_path_in_file("imported_data_folder", str(imported_path))
@@ -108,11 +116,10 @@ class ImportDataToCompare(ImportDataToCompare_UI):
                 if id in self.checkButtons_state.keys():
                     self.ids_to_checkBox[id].setChecked(self.checkButtons_state[id])
 
-                if hasattr(file, "sheets"):
-                    for sheet in file.sheets:
-                        _item = QTreeWidgetItem([file.filename, sheet.name])
-                        self.treeWidget_import_sheet_files.addTopLevelItem(_item)
-                        self.treeWidget_import_sheet_files.setItemWidget(_item, 2, self.ids_to_checkBox[id])
+                if isinstance(file, SpreadsheetSheet):
+                    _item = QTreeWidgetItem([file.source_file, file.name])
+                    self.treeWidget_import_sheet_files.addTopLevelItem(_item)
+                    self.treeWidget_import_sheet_files.setItemWidget(_item, 2, self.ids_to_checkBox[id])
                 else:
                     _item = QTreeWidgetItem([file.filename])
                     self.treeWidget_import_text_files.addTopLevelItem(_item)
@@ -140,9 +147,8 @@ class ImportDataToCompare(ImportDataToCompare_UI):
                 file = self.imported_results[id]
                 key = (id)
 
-                if hasattr(file, "sheets"):
-                    sheet = file.sheets[0]
-                    temp_dict = self.generate_temp_dict(sheet.name, sheet.data, color)
+                if isinstance(file, SpreadsheetSheet):
+                    temp_dict = self.generate_temp_dict(file.name, file.data, color)
                 else:
                     temp_dict = self.generate_temp_dict(file.filename, file.data, color)
 
