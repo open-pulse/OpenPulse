@@ -2,7 +2,7 @@ from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTreeWidgetItem
+from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui import (
@@ -11,14 +11,14 @@ from pulse.interface.ui_generated.model.setup.structural.nodal_loads_input_ui im
 from pulse.interface.user_input.model.setup.general.get_information_of_group import (
     GetInformationOfGroup,
 )
+from pulse.interface.user_input.model.setup.structural.structural_nodes_input import (
+    StructuralNodesInput,
+)
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-from pulse.interface.user_input.model.setup.structural.structural_nodes_input import (
-    StructuralNodesInput,
-)
 
 
 class TabIndex(IntEnum):
@@ -35,8 +35,9 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._config_widgets()
         self._initialize()
+        self._config_widgets()
+        self._configure_validators()
         self._create_connections()
 
         self.load_nodes_info()
@@ -53,6 +54,19 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
         self.keep_window_open = True
 
         self.list_Nones = [None, None, None, None, None, None]
+
+    def _configure_validators(self):
+
+        validator = StrictDoubleValidator(-1e10, 1e10, 6)
+
+        for line_edit in self.findChildren(QLineEdit):
+            obj_name = line_edit.objectName()
+
+            if "real" in obj_name:
+                line_edit.setValidator(validator)
+
+            elif "imag" in obj_name:
+                line_edit.setValidator(validator)
 
     def create_widgets_lists(self):
 
@@ -82,14 +96,14 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
     def _create_connections(self):
         #
         self.pushButton_exit.clicked.connect(self.close)
-        self.pushButton_attribute.clicked.connect(self.attribution_callback)
+        self.pushButton_attribute.clicked.connect(self.attribute_callback)
         #
         self.connect_load_table_push_buttons(self.list_lineEdit_table_values, self.load_labels)
         #
         self.pushButton_remove.clicked.connect(self.remove_callback)
         self.pushButton_reset.clicked.connect(self.reset_callback)
         #
-        self.tabWidget_nodal_loads.currentChanged.connect(self.tab_event_callback)
+        self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
         self.treeWidget_nodal_info.itemClicked.connect(self.on_click_item)
         self.treeWidget_nodal_info.itemDoubleClicked.connect(self.on_double_click_item)
@@ -104,86 +118,58 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             text = ", ".join([str(i) for i in selected_nodes])
             self.lineEdit_node_ids.setText(text)
 
-            if len(selected_nodes) == 1:
-                for (property, *args), data in self.properties.nodal_properties.items():
-                    if property != "nodal_loads":
-                        continue
+            if len(selected_nodes) != 1:
+                return
+        
+            for (property, *args), data in self.properties.nodal_properties.items():
+                if property != "nodal_loads":
+                    continue
 
-                    if selected_nodes != args:
-                        continue
+                if selected_nodes != args:
+                    continue
 
-                    values = data["values"]
+                values = data["values"]
 
-                    if "table_paths" in data.keys():
-                        table_paths = data["table_paths"]
-                        for index, lineEdit_table in enumerate(
-                            self.list_lineEdit_table_values
-                        ):
-                            table_path = table_paths[index]
-                            if table_path is not None:
-                                lineEdit_table.setText(table_path)
+                if "table_paths" in data.keys():
+                    table_paths = data["table_paths"]
+                    for index, lineEdit_table in enumerate(
+                        self.list_lineEdit_table_values
+                    ):
+                        table_path = table_paths[index]
+                        if table_path is not None:
+                            lineEdit_table.setText(table_path)
 
-                    else:
-                        for index, [lineEdit_real, lineEdit_imag] in enumerate(
-                            self.list_lineEdit_constant_values
-                        ):
-                            if values[index] is not None:
-                                lineEdit_real.setText(str(np.real(values[index])))
-                                lineEdit_imag.setText(str(np.imag(values[index])))
+                else:
+                    for index, [lineEdit_real, lineEdit_imag] in enumerate(
+                        self.list_lineEdit_constant_values
+                    ):
+                        if values[index] is not None:
+                            lineEdit_real.setText(str(np.real(values[index])))
+                            lineEdit_imag.setText(str(np.imag(values[index])))
 
     def _config_widgets(self):
         #
-        for i, width in enumerate([80, 60]):
-            self.treeWidget_nodal_info.setColumnWidth(i, width)
+        self.treeWidget_nodal_info.header().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        #
+        for i in range(2):
             self.treeWidget_nodal_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
 
-    def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
+    def check_complex_entries(self, lineEdit_real: QLineEdit, lineEdit_imag: QLineEdit):
 
-        stop = False
+        _real = 0
         if lineEdit_real.text() != "":
-            try:
-                _real = float(lineEdit_real.text())
-            except Exception:
-                title = f"Invalid entry to the {label}"
-                message = f"Wrong input for real part of {label}."
-                PrintMessageInput([error_title, title, message])
-                stop = True
-                return stop, None
-        else:
-            _real = 0
+            _real = float(lineEdit_real.text())
 
+        _imag = 0
         if lineEdit_imag.text() != "":
-            try:
-                _imag = float(lineEdit_imag.text())
-            except Exception:
-                title = f"Invalid entry to the {label}"
-                message = f"Wrong input for imaginary part of {label}."
-                PrintMessageInput([error_title, title, message])
-                stop = True
-                return stop, None
-        else:
-            _imag = 0
+            _imag = float(lineEdit_imag.text())
 
         if _real == 0 and _imag == 0:
-            return stop, None
-        else:
-            return stop, _real + 1j * _imag
+            return None
 
-    def attribution_callback(self):
-        tab_index = self.tabWidget_nodal_loads.currentIndex()
-        if tab_index == TabIndex.CONSTANT:
-            self.constant_values_attribution_callback()
+        return _real + 1j * _imag
 
-        elif tab_index == TabIndex.TABULAR:
-            self.table_values_attribution_callback(
-                self.lineEdit_node_ids,
-                properties_to_remove=["prescribed_dofs"],
-                load_labels=self.load_labels,
-                input_name="nodal_loads",
-                save_table_function=self.save_table_values,
-            )
-
-    def constant_values_attribution_callback(self):
+    def attribute_callback(self):
 
         str_nodes = self.lineEdit_node_ids.text()
         stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
@@ -191,41 +177,26 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
             self.lineEdit_node_ids.setFocus()
             return
 
-        stop, Fx = self.check_complex_entries(
-            self.lineEdit_real_fx, self.lineEdit_imag_fx, "Fx"
-        )
-        if stop:
-            return
+        tab_index = self.tabWidget_main.currentIndex()
+        if tab_index == TabIndex.CONSTANT:
+            self.constant_values_attribution_callback(node_ids)
 
-        stop, Fy = self.check_complex_entries(
-            self.lineEdit_real_fy, self.lineEdit_imag_fy, "Fy"
-        )
-        if stop:
-            return
+        elif tab_index == TabIndex.TABULAR:
+            self.table_values_attribution_callback(
+                node_ids = node_ids,
+                property_label = "nodal_loads",
+                dof_labels = self.load_labels,
+                properties_to_remove = ["prescribed_dofs", "nodal_loads"],
+                )
 
-        stop, Fz = self.check_complex_entries(
-            self.lineEdit_real_fz, self.lineEdit_imag_fz, "Fz"
-        )
-        if stop:
-            return
+    def constant_values_attribution_callback(self, node_ids: list[int]):
 
-        stop, Mx = self.check_complex_entries(
-            self.lineEdit_real_mx, self.lineEdit_imag_mx, "Mx"
-        )
-        if stop:
-            return
-
-        stop, My = self.check_complex_entries(
-            self.lineEdit_real_my, self.lineEdit_imag_my, "My"
-        )
-        if stop:
-            return
-
-        stop, Mz = self.check_complex_entries(
-            self.lineEdit_real_mz, self.lineEdit_imag_mz, "Mz"
-        )
-        if stop:
-            return
+        Fx = self.check_complex_entries(self.lineEdit_real_Fx, self.lineEdit_imag_Fx)
+        Fy = self.check_complex_entries(self.lineEdit_real_Fy, self.lineEdit_imag_Fy)
+        Fz = self.check_complex_entries(self.lineEdit_real_Fz, self.lineEdit_imag_Fz)
+        Mx = self.check_complex_entries(self.lineEdit_real_Mx, self.lineEdit_imag_Mx)
+        My = self.check_complex_entries(self.lineEdit_real_My, self.lineEdit_imag_My)
+        Mz = self.check_complex_entries(self.lineEdit_real_Mz, self.lineEdit_imag_Mz)
 
         nodal_loads = [Fx, Fy, Fz, Mx, My, Mz]
 
@@ -257,36 +228,6 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
         self.actions_to_finalize()
 
-    def save_table_values(self, table_name: str, imported_values: np.ndarray):
-
-        # define the frequencies vector
-        _frequencies = imported_values[:, 0]
-
-        if app().project.model.change_analysis_frequency_setup(list(_frequencies)):
-            self.hide()
-            title = "Project frequency setup cannot be modified"
-            message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported. The current "
-            message += "project frequency setup will not be modified."
-            message += f"\n\n{table_name}"
-            PrintMessageInput([error_title, title, message])
-            return True
-
-        self.update_analysis_setup_in_file(_frequencies)
-
-        # real values vector
-        real_values = imported_values[:, 1]
-
-        # imaginary values vector
-        imag_values = imported_values[:, 2]
-
-        # array to be saved
-        data = np.array([_frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("structural", table_name, data)
-
-        return False
-
     def load_table_for_line_edit(self, line_edit, dof_label):
         return super().load_table_for_line_edit(line_edit, dof_label, "nodal loads")
 
@@ -309,43 +250,47 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
                 new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_nodal_info.addTopLevelItem(new)
 
-        self.tabWidget_nodal_loads.setTabVisible(2, False)
+        self.update_tabs_visibility()
+
+    def update_tabs_visibility(self):
+
+        self.tabWidget_prescribed_dof.setTabVisible(TabIndex.LIST, False)
         for property, *_ in self.properties.nodal_properties.keys():
-            if property == "nodal_loads":
-                self.tabWidget_nodal_loads.setCurrentIndex(0)
-                self.tabWidget_nodal_loads.setTabVisible(2, True)
+            if property == "prescribed_dofs":
+                self.tabWidget_prescribed_dof.setCurrentIndex(TabIndex.CONSTANT)
+                self.tabWidget_prescribed_dof.setTabVisible(TabIndex.LIST, True)
                 return
 
     def tab_event_callback(self):
 
-        self.lineEdit_node_ids.clear()
+        tab_list = self.tabWidget_main.currentIndex() == TabIndex.LIST
+        self.lineEdit_node_ids.setDisabled(tab_list)
+        self.pushButton_attribute.setDisabled(tab_list)
         self.pushButton_remove.setDisabled(True)
 
-        if self.tabWidget_nodal_loads.currentIndex() == 2:
-            self.lineEdit_node_ids.setDisabled(True)
-            items = self.treeWidget_nodal_info.selectedItems()
-            if items == list():
-                self.lineEdit_node_ids.clear()
-            else:
-                self.on_click_item(items[0])
-
-        else:
+        if not tab_list:
             self.lineEdit_node_ids.setEnabled(True)
-            self.selection_callback()
+            # self.selection_callback()
+            return
 
-    def on_click_item(self, item):
+        selected_items = self.treeWidget_nodal_info.selectedItems()
+        if selected_items == list():
+            self.lineEdit_node_ids.clear()
+        else:
+            self.on_click_item(selected_items[0])
+
+    def on_click_item(self, item: QTreeWidgetItem):
         self.pushButton_remove.setDisabled(False)
         if item.text(0) != "":
             self.lineEdit_node_ids.setText(item.text(0))
             node_id = int(item.text(0))
             app().main_window.set_selection(nodes=[node_id])
 
-    def on_double_click_item(self, item):
-        # self.on_click_item(item)
-        self.lineEdit_node_ids.setText(item.text(0))
+    def on_double_click_item(self, item: QTreeWidgetItem):
+        self.on_click_item(item)
         self.get_nodal_info(item)
 
-    def get_nodal_info(self, item):
+    def get_nodal_info(self, item: QTreeWidgetItem):
         try:
             loads_info = dict()
             selected_node = int(item.text(0))
@@ -433,16 +378,7 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_nodal_loads.currentIndex() == 0:
-                self.constant_values_attribution_callback()
-            elif self.tabWidget_nodal_loads.currentIndex() == 1:
-                self.self.table_values_attribution_callback(
-                    self.lineEdit_node_ids,
-                    properties_to_remove=["prescribed_dofs"],
-                    load_labels=self.load_labels,
-                    input_name="nodal_loads",
-                    save_table_function=self.save_table_values,
-                )
+            self.attribution_callback()
 
         elif event.key() == Qt.Key_Escape:
             self.close()
