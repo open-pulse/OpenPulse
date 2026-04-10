@@ -72,18 +72,12 @@ class AcousticNodesInput(NodesInput):
 
     def table_values_attribution_callback(
         self,
-        lineEdit_node_ids: QLineEdit,
+        node_ids: list[int],
         lineEdit_table_path: QLineEdit,
         property_label: str,
         properties_to_remove: str | list[str],
         reset_camera=True,
     ):
-
-        str_nodes = lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
-        if stop:
-            lineEdit_node_ids.setFocus()
-            return
 
         self.remove_properties_from_node(node_ids, properties_to_remove)
 
