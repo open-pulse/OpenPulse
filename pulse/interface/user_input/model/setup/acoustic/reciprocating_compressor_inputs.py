@@ -669,42 +669,6 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         self.lineEdit_number_of_revolutions.setText(str(self.N_rev))
         self.aquisition_parameters_processed = True
 
-    def save_table_values(self, table_name: str, imported_values: np.ndarray, filter_zero: bool = True):
-
-        if filter_zero:
-            mask_filter = imported_values[:, 0] > 0
-            _imported_values = imported_values[mask_filter, :]
-        else:
-            _imported_values = imported_values
-
-        # define the frequencies vector
-        _frequencies = _imported_values[:, 0]
-
-        if app().project.model.change_analysis_frequency_setup(list(_frequencies)):
-            self.hide()
-            title = "Project frequency setup cannot be modified"
-            message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported. The current "
-            message += "project frequency setup will not be modified."
-            message += f"\n\n{table_name}"
-            PrintMessageInput([error_title, title, message])
-            return True
-
-        self.update_analysis_setup_in_file(_frequencies)
-
-        # real values vector
-        real_values = _imported_values[:, 1]
-        
-        # imaginary values vector
-        imag_values = _imported_values[:, 2]
-
-        # data to be stored
-        data = np.array([_frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("acoustic", table_name, data)
-
-        return False
-
     def update_state_properties_at_discharge(self):
 
         try:

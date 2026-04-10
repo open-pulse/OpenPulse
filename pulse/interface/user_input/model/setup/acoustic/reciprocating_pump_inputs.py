@@ -5,7 +5,9 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs_ui import ReciprocatingPumpInputs_UI
+from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs_ui import (
+    ReciprocatingPumpInputs_UI,
+)
 from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
     AcousticNodesInput,
 )
@@ -28,7 +30,10 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
-from pulse.model.reciprocating_pump_model import CylindersActingMode, ReciprocatingPumpModel
+from pulse.model.reciprocating_pump_model import (
+    CylindersActingMode,
+    ReciprocatingPumpModel,
+)
 
 
 class TabIndex(IntEnum):
@@ -601,42 +606,6 @@ class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
         self.lineEdit_frequency_resolution.setText(final_df_label)
         self.lineEdit_number_of_revolutions.setText(str(self.N_rev))
         self.aquisition_parameters_processed = True
-
-    def save_table_values(self, table_name: str, imported_values: np.ndarray, filter_zero: bool = True):
-
-        if filter_zero:
-            mask_filter = imported_values[:, 0] > 0
-            _imported_values = imported_values[mask_filter, :]
-        else:
-            _imported_values = imported_values
-
-        # define the frequencies vector
-        _frequencies = _imported_values[:, 0]
-
-        if app().project.model.change_analysis_frequency_setup(list(_frequencies)):
-            self.hide()
-            title = "Project frequency setup cannot be modified"
-            message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported. The current "
-            message += "project frequency setup will not be modified."
-            message += f"\n\n{table_name}"
-            PrintMessageInput([error_title, title, message])
-            return True
-
-        self.update_analysis_setup_in_file(_frequencies)
-
-        # real values vector
-        real_values = _imported_values[:, 1]
-        
-        # imaginary values vector
-        imag_values = _imported_values[:, 2]
-
-        # data to be stored
-        data = np.array([_frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("acoustic", table_name, data)
-
-        return False
 
     def attribute_callback(self):
 
