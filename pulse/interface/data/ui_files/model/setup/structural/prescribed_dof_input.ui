@@ -97,7 +97,7 @@
        <number>4</number>
       </property>
       <item row="1" column="0" colspan="2">
-       <widget class="QTabWidget" name="tabWidget_prescribed_dof">
+       <widget class="QTabWidget" name="tabWidget_main">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -1825,7 +1825,7 @@
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>280</width>
+                 <width>320</width>
                  <height>240</height>
                 </size>
                </property>
@@ -2296,7 +2296,7 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>tabWidget_prescribed_dof</tabstop>
+  <tabstop>tabWidget_main</tabstop>
   <tabstop>lineEdit_real_Ux</tabstop>
   <tabstop>lineEdit_imag_Ux</tabstop>
   <tabstop>lineEdit_real_Uy</tabstop>

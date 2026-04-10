@@ -89,11 +89,12 @@
         <file>logos/mopt_logo_black.png</file>
         <file>logos/mopt_logo_white.png</file>
         <file>logos/openpulse_logo.png</file>
-        <file>logos/OpenPulse_logo2.png</file>
         <file>logos/OpenPulse_logo3.png</file>
         <file>logos/OpenPulse_logo_black.png</file>
         <file>logos/OpenPulse_logo_gray.png</file>
         <file>logos/OpenPulse_logo_white.png</file>
+        <file>logos/op_dark_theme.png</file>
+        <file>logos/op_light_theme.png</file>
         <file>mpltoolbar/copy_icon.png</file>
         <file>oldones/003-hard disc.png</file>
         <file>oldones/004-bin.png</file>
