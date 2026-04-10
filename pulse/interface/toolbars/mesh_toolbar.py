@@ -130,7 +130,7 @@ class MeshToolbar(QToolBar):
         try:
             _element_size = float(self.lineEdit_element_size.text())
             _geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
-        except:
+        except Exception:
             return
         
         if bool(_element_size) and bool(_geometry_tolerance):

@@ -157,7 +157,6 @@ class UserInput(QDialog):
 
         return complex_values
 
-
     def update_analysis_setup_in_file(self, frequencies: np.ndarray):
 
         analysis_setup = app().project.file.read_analysis_setup_from_file()
@@ -174,7 +173,6 @@ class UserInput(QDialog):
 
         app().project.model.set_analysis_setup(analysis_setup)
         app().project.file.write_analysis_setup_in_file(analysis_setup)
-
 
     def get_table_name(self, _label: str, node_id: int | None = None, element_id: int | None = None, line_id: int | None = None):
 
