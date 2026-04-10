@@ -11,15 +11,18 @@ class NodesInput(UserInput):
         self.properties = app().project.model.properties
         self.before_run = app().project.get_pre_solution_model_checks()
 
-    def remove_properties_from_node(self, node_ids: int | list | tuple, properties: str | list):
+    def remove_properties_from_node(self, node_ids: int | list | tuple, properties_to_remove: str | list):
+
+        if not properties_to_remove:
+            return
 
         if isinstance(node_ids, int):
             node_ids = [node_ids]
 
-        if isinstance(properties, str):
-            properties = [properties]
+        if isinstance(properties_to_remove, str):
+            properties_to_remove = [properties_to_remove]
 
-        for _property in properties:
+        for _property in properties_to_remove:
             self.properties._remove_nodal_property(_property, node_ids)
 
         app().project.file.write_nodal_properties_in_file()
