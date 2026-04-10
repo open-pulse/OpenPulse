@@ -194,7 +194,7 @@
         </property>
         <widget class="QWidget" name="tab_constant_values">
          <attribute name="title">
-          <string>Constant values</string>
+          <string>Constant</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_9">
           <property name="leftMargin">
@@ -367,6 +367,9 @@
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
               </widget>
              </item>
              <item row="1" column="4">
@@ -417,6 +420,9 @@
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -523,6 +529,9 @@
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
               </widget>
              </item>
              <item row="3" column="3">
@@ -548,6 +557,9 @@
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
               </widget>
              </item>
              <item row="6" column="3">
@@ -572,6 +584,9 @@
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -625,6 +640,9 @@
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
               </widget>
              </item>
              <item row="3" column="2">
@@ -649,6 +667,9 @@
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -718,6 +739,9 @@
                <property name="text">
                 <string/>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
               </widget>
              </item>
              <item row="6" column="4">
@@ -768,6 +792,9 @@
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -824,6 +851,9 @@
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
               </widget>
              </item>
              <item row="2" column="4">
@@ -875,6 +905,9 @@
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
               </widget>
              </item>
              <item row="5" column="2">
@@ -899,6 +932,9 @@
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </item>
@@ -949,7 +985,7 @@
         </widget>
         <widget class="QWidget" name="tab_table_values">
          <attribute name="title">
-          <string>Load tables</string>
+          <string>Tabular</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_15">
           <property name="leftMargin">
@@ -1044,6 +1080,9 @@
                  <height>26</height>
                 </size>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
                </property>
@@ -1129,6 +1168,9 @@
                  <height>26</height>
                 </size>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
                </property>
@@ -1194,6 +1236,9 @@
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
                </property>
@@ -1242,6 +1287,9 @@
                  <width>240</width>
                  <height>26</height>
                 </size>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
@@ -1304,6 +1352,9 @@
                <property name="styleSheet">
                 <string notr="true"/>
                </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
+               </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
                </property>
@@ -1355,6 +1406,9 @@
                </property>
                <property name="styleSheet">
                 <string notr="true"/>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
                <property name="clearButtonEnabled">
                 <bool>true</bool>
@@ -1543,7 +1597,7 @@
         </widget>
         <widget class="QWidget" name="tab_remove">
          <attribute name="title">
-          <string>Remove</string>
+          <string>List</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_12">
           <property name="leftMargin">
@@ -1805,6 +1859,9 @@
            <property name="styleSheet">
             <string notr="true"/>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignmentFlag::AlignCenter</set>
+           </property>
           </widget>
          </item>
          <item row="0" column="1">
@@ -1827,7 +1884,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Node IDs:</string>
+            <string>Selected nodes:</string>
            </property>
           </widget>
          </item>
