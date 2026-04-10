@@ -1,6 +1,6 @@
-import numpy as np
 from enum import IntEnum
 
+import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
@@ -174,18 +174,27 @@ class VolumeVelocityInput(AcousticNodesInput, AcousticPropertyInput_UI):
             "reciprocating_pump_excitation"
         ]
 
+        lineEdit = self.lineEdit_node_ids.text()
+        stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
+        if stop:
+            self.lineEdit_node_ids.setFocus()
+            return
+
         tab_index = self.tabWidget_main.currentIndex()      
         if tab_index == TabIndex.CONSTANT:
-            self.constant_values_attribution_callback(properties_to_remove)
+            self.constant_values_attribution_callback(
+                node_ids, 
+                properties_to_remove,
+                )
 
         elif tab_index == TabIndex.TABULAR:
             self.table_values_attribution_callback(
-                lineEdit_node_ids = self.lineEdit_node_ids,
+                node_ids = node_ids,
                 lineEdit_table_path = self.lineEdit_table_path,
                 property_label = "volume_velocity",
                 properties_to_remove = properties_to_remove,
                 reset_camera = False,
-            )
+                )
 
     def are_there_multiple_cross_sections(self, node_ids: list[int]):
         for node_id in node_ids:
@@ -216,13 +225,7 @@ class VolumeVelocityInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
         return volume_velocity
 
-    def constant_values_attribution_callback(self, properties_to_remove: list[str]):
-
-        lineEdit = self.lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
-        if stop:
-            self.lineEdit_node_ids.setFocus()
-            return
+    def constant_values_attribution_callback(self, node_ids: list[int], properties_to_remove: list[str]):
         
         if self.comboBox_input_type.currentIndex() == InputType.SURFACE_VELOCITY:
             if self.are_there_multiple_cross_sections(node_ids):

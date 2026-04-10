@@ -1,6 +1,6 @@
-import numpy as np
 from enum import IntEnum
 
+import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QHeaderView, QTreeWidgetItem
 
@@ -161,13 +161,7 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
     def on_doubleclick_item(self, item):
         self.lineEdit_node_ids.setText(item.text(0))
 
-    def constant_values_attribution_callback(self, properties_to_remove: list[str]):
-
-        lineEdit = self.lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
-        if stop:
-            self.lineEdit_node_ids.setFocus()
-            return
+    def constant_values_attribution_callback(self, node_ids: list[int], properties_to_remove: list[str]):
 
         stop, specific_impedance = self.check_complex_entries(
             self.lineEdit_real_value, 
@@ -206,18 +200,27 @@ class AcousticPressureInput(AcousticNodesInput, AcousticPropertyInput_UI):
             "reciprocating_pump_excitation"
         ]
 
+        lineEdit = self.lineEdit_node_ids.text()
+        stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
+        if stop:
+            self.lineEdit_node_ids.setFocus()
+            return
+
         tab_index = self.tabWidget_main.currentIndex()      
         if tab_index == TabIndex.CONSTANT:
-            self.constant_values_attribution_callback(properties_to_remove)
+            self.constant_values_attribution_callback(
+                node_ids, 
+                properties_to_remove,
+                )
 
         elif tab_index == TabIndex.TABULAR:
             self.table_values_attribution_callback(
-                lineEdit_node_ids = self.lineEdit_node_ids,
+                node_ids = node_ids,
                 lineEdit_table_path = self.lineEdit_table_path,
                 property_label = "acoustic_pressure",
                 properties_to_remove = properties_to_remove,
                 reset_camera = False,
-            )
+                )
 
     def remove_callback(self):
 

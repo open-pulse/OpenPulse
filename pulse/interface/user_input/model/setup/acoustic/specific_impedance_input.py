@@ -143,12 +143,21 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
 
     def attribute_callback(self):
 
+        lineEdit = self.lineEdit_node_ids.text()
+        stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
+        if stop:
+            self.lineEdit_node_ids.setFocus()
+            return
+
+        if self.are_there_internal_nodes(node_ids):
+            return
+
         tab_index = self.tabWidget_main.currentIndex()
         if tab_index == TabIndex.CONSTANT:
-            self.constant_values_attribution_callback()
+            self.constant_values_attribution_callback(node_ids)
 
         elif tab_index == TabIndex.TABULAR:
-            self.table_values_attribution_callback()
+            self.table_values_attribution_callback(node_ids)
 
     def are_there_internal_nodes(self, node_ids: list[int]):
         for node_id in node_ids:
@@ -163,16 +172,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
                     PrintMessageInput([warning_title, title, message])
                     return True
 
-    def constant_values_attribution_callback(self):
-
-        lineEdit = self.lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(lineEdit, "nodes")
-        if stop:
-            self.lineEdit_node_ids.setFocus()
-            return
-
-        if self.are_there_internal_nodes(node_ids):
-            return
+    def constant_values_attribution_callback(self, node_ids: list[int]):
 
         stop, specific_impedance = self.check_complex_entries(self.lineEdit_real_value, self.lineEdit_imag_value, "specific impedance")
         if stop:
@@ -207,16 +207,7 @@ class SpecificImpedanceInput(AcousticNodesInput, AcousticPropertyInput_UI):
         if self.table_path is None:
             self.line_edit_reset(self.lineEdit_table_path)
 
-    def table_values_attribution_callback(self):
-
-        str_nodes = self.lineEdit_node_ids.text()
-        stop, node_ids = self.before_run.check_selected_ids(str_nodes, "nodes")
-        if stop:
-            self.lineEdit_node_ids.setFocus()
-            return
-
-        if self.are_there_internal_nodes(node_ids):
-            return
+    def table_values_attribution_callback(self, node_ids: list[int]):
 
         self.remove_properties_from_node(node_ids, ["specific_impedance", "radiation_impedance"])
 
