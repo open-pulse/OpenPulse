@@ -126,17 +126,27 @@ class GeometryRenderWidget(CommonRenderWidget):
             self.disable_open_pulse_logo()
 
     def create_logos(self):
+        if not hasattr(self, "_light_logo"):
+            self._light_logo = self.create_logo(ICON_DIR / "logos/op_light_theme.png")
+            self._light_logo.SetPosition(0.845, 0.89)
+            self._light_logo.SetPosition2(0.15, 0.15)
+
+        if not hasattr(self, "_dark_logo"):
+            self._dark_logo = self.create_logo(ICON_DIR / "logos/op_dark_theme.png")
+            self._dark_logo.SetPosition(0.845, 0.89)
+            self._dark_logo.SetPosition2(0.15, 0.15)
+
+        self._apply_logo_theme()
+
+    def _apply_logo_theme(self):
         if app().main_window.config.user_preferences.interface_theme == "light":
-            path = ICON_DIR / "logos/OpenPulse_logo_gray.png"
+            self._light_logo.VisibilityOn()
+            self._dark_logo.VisibilityOff()
+            self.open_pulse_logo = self._light_logo
         else:
-            path = ICON_DIR / "logos/OpenPulse_logo_white.png"
-
-        if hasattr(self, "open_pulse_logo"):
-            self.renderer.RemoveViewProp(self.open_pulse_logo)
-
-        self.open_pulse_logo = self.create_logo(path)
-        self.open_pulse_logo.SetPosition(0.845, 0.89)
-        self.open_pulse_logo.SetPosition2(0.15, 0.15)
+            self._dark_logo.VisibilityOn()
+            self._light_logo.VisibilityOff()
+            self.open_pulse_logo = self._dark_logo
 
     def enable_open_pulse_logo(self):
         return
