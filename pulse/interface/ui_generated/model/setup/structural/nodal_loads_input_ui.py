@@ -83,11 +83,11 @@ class Ui_Dialog(object):
         self.gridLayout_6.setSpacing(4)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.gridLayout_6.setContentsMargins(4, 4, 4, 4)
-        self.tabWidget_nodal_loads = QTabWidget(self.frame_main)
-        self.tabWidget_nodal_loads.setObjectName(u"tabWidget_nodal_loads")
+        self.tabWidget_main = QTabWidget(self.frame_main)
+        self.tabWidget_main.setObjectName(u"tabWidget_main")
         font2 = QFont()
         font2.setPointSize(10)
-        self.tabWidget_nodal_loads.setFont(font2)
+        self.tabWidget_main.setFont(font2)
         self.tab_constant_values = QWidget()
         self.tab_constant_values.setObjectName(u"tab_constant_values")
         self.gridLayout_9 = QGridLayout(self.tab_constant_values)
@@ -361,7 +361,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_9.addWidget(self.frame_3, 0, 0, 1, 1)
 
-        self.tabWidget_nodal_loads.addTab(self.tab_constant_values, "")
+        self.tabWidget_main.addTab(self.tab_constant_values, "")
         self.tab_table_values = QWidget()
         self.tab_table_values.setObjectName(u"tab_table_values")
         self.gridLayout_15 = QGridLayout(self.tab_table_values)
@@ -579,7 +579,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_15.addWidget(self.frame_9, 0, 0, 1, 1)
 
-        self.tabWidget_nodal_loads.addTab(self.tab_table_values, "")
+        self.tabWidget_main.addTab(self.tab_table_values, "")
         self.tab_remove = QWidget()
         self.tab_remove.setObjectName(u"tab_remove")
         self.gridLayout_12 = QGridLayout(self.tab_remove)
@@ -654,9 +654,9 @@ class Ui_Dialog(object):
 
         self.gridLayout_12.addWidget(self.frame_4, 1, 0, 1, 1)
 
-        self.tabWidget_nodal_loads.addTab(self.tab_remove, "")
+        self.tabWidget_main.addTab(self.tab_remove, "")
 
-        self.gridLayout_6.addWidget(self.tabWidget_nodal_loads, 1, 0, 1, 2)
+        self.gridLayout_6.addWidget(self.tabWidget_main, 1, 0, 1, 2)
 
         self.frame = QFrame(self.frame_main)
         self.frame.setObjectName(u"frame")
@@ -732,8 +732,8 @@ class Ui_Dialog(object):
 
         self.gridLayout_4.addWidget(self.frame_bottom_buttons, 2, 0, 1, 1)
 
-        QWidget.setTabOrder(self.lineEdit_node_ids, self.tabWidget_nodal_loads)
-        QWidget.setTabOrder(self.tabWidget_nodal_loads, self.lineEdit_real_Fx)
+        QWidget.setTabOrder(self.lineEdit_node_ids, self.tabWidget_main)
+        QWidget.setTabOrder(self.tabWidget_main, self.lineEdit_real_Fx)
         QWidget.setTabOrder(self.lineEdit_real_Fx, self.lineEdit_imag_Fx)
         QWidget.setTabOrder(self.lineEdit_imag_Fx, self.lineEdit_real_Fy)
         QWidget.setTabOrder(self.lineEdit_real_Fy, self.lineEdit_imag_Fy)
@@ -765,7 +765,7 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
 
-        self.tabWidget_nodal_loads.setCurrentIndex(0)
+        self.tabWidget_main.setCurrentIndex(0)
         self.pushButton_remove.setDefault(False)
         self.pushButton_attribute.setDefault(True)
 
@@ -794,7 +794,7 @@ class Ui_Dialog(object):
         self.label_Ux_constant.setText(QCoreApplication.translate("Dialog", u"Fx:", None))
         self.label_14.setText(QCoreApplication.translate("Dialog", u"[N]", None))
         self.label_Rx_constant.setText(QCoreApplication.translate("Dialog", u"Mx:", None))
-        self.tabWidget_nodal_loads.setTabText(self.tabWidget_nodal_loads.indexOf(self.tab_constant_values), QCoreApplication.translate("Dialog", u"Constant", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_constant_values), QCoreApplication.translate("Dialog", u"Constant", None))
         self.pushButton_load_Mz_table.setText(QCoreApplication.translate("Dialog", u"Search", None))
         self.pushButton_load_My_table.setText(QCoreApplication.translate("Dialog", u"Search", None))
         self.label_Rz_table.setText(QCoreApplication.translate("Dialog", u"Mz:", None))
@@ -807,14 +807,14 @@ class Ui_Dialog(object):
         self.pushButton_load_Fz_table.setText(QCoreApplication.translate("Dialog", u"Search", None))
         self.pushButton_load_Fy_table.setText(QCoreApplication.translate("Dialog", u"Search", None))
         self.label_Uz_table.setText(QCoreApplication.translate("Dialog", u"Fz:", None))
-        self.tabWidget_nodal_loads.setTabText(self.tabWidget_nodal_loads.indexOf(self.tab_table_values), QCoreApplication.translate("Dialog", u"Tabular", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_table_values), QCoreApplication.translate("Dialog", u"Tabular", None))
         ___qtreewidgetitem = self.treeWidget_nodal_info.headerItem()
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"DOFs", None))
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Nodes", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
-        self.tabWidget_nodal_loads.setTabText(self.tabWidget_nodal_loads.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"List", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"List", None))
         self.label_2.setText(QCoreApplication.translate("Dialog", u"Selected nodes:", None))
         self.pushButton_attribute.setText(QCoreApplication.translate("Dialog", u"Attribute", None))
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
@@ -832,7 +832,7 @@ class NodalLoadsInput_UI(QDialog, Ui_Dialog):
                             - label: QLabel
                 - frame_main: QFrame
                     - (Layout): QGridLayout
-                            - tabWidget_nodal_loads: QTabWidget
+                            - tabWidget_main: QTabWidget
                                 - tab_constant_values: QWidget
                                     - (Layout): QGridLayout
                                             - frame_3: QFrame

@@ -183,7 +183,7 @@
        <number>4</number>
       </property>
       <item row="1" column="0" colspan="2">
-       <widget class="QTabWidget" name="tabWidget_nodal_loads">
+       <widget class="QTabWidget" name="tabWidget_main">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -2023,7 +2023,7 @@
  </widget>
  <tabstops>
   <tabstop>lineEdit_node_ids</tabstop>
-  <tabstop>tabWidget_nodal_loads</tabstop>
+  <tabstop>tabWidget_main</tabstop>
   <tabstop>lineEdit_real_Fx</tabstop>
   <tabstop>lineEdit_imag_Fx</tabstop>
   <tabstop>lineEdit_real_Fy</tabstop>
