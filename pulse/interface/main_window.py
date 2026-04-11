@@ -878,7 +878,7 @@ class MainWindow(MainWindow_UI):
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
-            self.icon_color = QColor(color_names.BLUE_6.to_hex())
+            self.icon_color = QColor(color_names.BLUE_7.to_hex())
 
         elif theme == "light":
             self.icon_color = QColor(color_names.BLUE_4.to_hex())
