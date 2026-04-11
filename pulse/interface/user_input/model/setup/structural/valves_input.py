@@ -77,6 +77,21 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
             line_edit.setValidator(validator)
 
+    def _configure_appearance(self):
+        if self.render_type == "model":
+            self.selection_frame.setVisible(True)
+        else:
+            self.selection_frame.setVisible(False)
+            self.tabWidget_main.setTabVisible(1, False)
+
+        self.setMinimumHeight(620)
+
+    def _config_widgets(self):
+        #
+        for i, width in enumerate([100, 120, 160]):
+            self.treeWidget_valves_info.setColumnWidth(i, width)
+            self.treeWidget_valves_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
+
     def _create_connections(self):
         #
         self.comboBox_acoustic_behavior.currentIndexChanged.connect(self.valve_setup_callback)
@@ -141,32 +156,6 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
 
         if "acoustic_behavior" in valve_info.keys():
             self.comboBox_acoustic_behavior.setCurrentIndex(valve_info.get("acoustic_behavior"))
-
-    def _configure_appearance(self):
-        if self.render_type == "model":
-            self.selection_frame.setVisible(True)
-        else:
-            self.selection_frame.setVisible(False)
-            self.tabWidget_main.setTabVisible(1, False)
-
-        self.setMinimumHeight(620)
-
-    def _config_widgets(self):
-        #
-        for i, width in enumerate([100, 120, 160]):
-            self.treeWidget_valves_info.setColumnWidth(i, width)
-            self.treeWidget_valves_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
-
-    def _create_lists_of_lineEdits(self):
-        self.list_lineEdits = [
-            self.lineEdit_selected_id,
-            self.lineEdit_stiffening_factor,
-            self.lineEdit_valve_mass,
-            self.lineEdit_internal_valve_length,
-            self.lineEdit_flange_length,
-            self.lineEdit_flange_diameter,
-            self.lineEdit_valve_name,
-        ]
 
     def tab_event_callback(self):
 
@@ -250,17 +239,23 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         self.update_tab_visibility()
 
     def update_tab_visibility(self):
-        self.tabWidget_main.setTabVisible(1, False)
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         for data in self.properties.line_properties.values():
-            if "valve_info" in data.keys():
-                self.tabWidget_main.setTabVisible(1, True)
-                return
+            if "valve_info" not in data.keys():
+                continue
+
+            self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
+            return
+            
+        self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
+        self.lineEdit_valve_name.setFocus()        
 
     def check_flanges_by_lines(self):
         elements_from_line = defaultdict(list)
         for element_id in app().main_window.list_selected_elements():
             line = self.preprocessor.mesh.line_from_element[element_id]
             elements_from_line[line].append(element_id)
+
         return elements_from_line
 
     def check_selection_type(self, line_ids: list):
