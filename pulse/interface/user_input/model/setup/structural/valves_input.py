@@ -158,22 +158,22 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
             self.comboBox_acoustic_behavior.setCurrentIndex(valve_info.get("acoustic_behavior"))
 
     def tab_event_callback(self):
-
-        tab_list = self.tabWidget_main.currentIndex() == TabIndex.LIST
-        self.lineEdit_selected_id.setDisabled(tab_list)
-        self.pushButton_attribute.setDisabled(tab_list)
         self.pushButton_remove.setDisabled(True)
+        tab_list = self.tabWidget_main.currentIndex() == TabIndex.LIST
+        self.selection_frame.setDisabled(tab_list)
+        self.pushButton_attribute.setDisabled(tab_list)
 
-        if not tab_list:
-            self.lineEdit_selected_id.setEnabled(True)
+        if tab_list:
+            selected_items = self.treeWidget_valves_info.selectedItems()
+            if selected_items == list():
+                self.lineEdit_selected_id.clear()
+            else:
+                self.on_click_item(selected_items[0])
+
             # self.selection_callback()
+            self.lineEdit_selected_id.setEnabled(True)
             return
 
-        selected_items = self.treeWidget_valves_info.selectedItems()
-        if selected_items == list():
-            self.lineEdit_selected_id.clear()
-        else:
-            self.on_click_item(selected_items[0])
 
     def valve_setup_callback(self):
         self.acoustic_effects_callback()
@@ -239,7 +239,8 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
         self.update_tab_visibility()
 
     def update_tab_visibility(self):
-        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
+
+        self.pushButton_remove.setDisabled(True)
         for data in self.properties.line_properties.values():
             if "valve_info" not in data.keys():
                 continue
@@ -247,8 +248,12 @@ class ValvesInput(StructuralLinesInput, ValveInput_UI):
             self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
             return
             
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
-        self.lineEdit_valve_name.setFocus()        
+        self.lineEdit_valve_name.setFocus()
+
+        if not self.lineEdit_selected_id.isEnabled():
+            self.lineEdit_selected_id.setEnabled(True)     
 
     def check_flanges_by_lines(self):
         elements_from_line = defaultdict(list)
