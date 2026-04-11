@@ -655,8 +655,8 @@ class StructuralElement:
             Ue = self.static_element_results_lcs()
             mat_K_geo = self.get_Te_matrix()
             Fp_x = self.force_vector_stress_stiffening(vector_gcs=False)
-            Te = (E*A/L)*(Ue[6] - Ue[0]) - Fp_x
-            K_geo = (Te/L)*mat_K_geo
+            Te = (E*A/L) * (Ue[6] - Ue[0]) - Fp_x
+            K_geo = (Te/L) * mat_K_geo
 
         for point, weigth in zip(points, weigths):
 
@@ -1041,8 +1041,8 @@ class StructuralElement:
         yc_1, zc_1, ys_1, zs_1 = cross_section_first.get_centroide_and_shear_center()
         yc_2, zc_2, ys_2, zs_2  = cross_section_last.get_centroide_and_shear_center()        
 
-        delta_yc = yc_2 - yc_1
-        delta_zc = zc_2 - zc_1
+        # delta_yc = yc_2 - yc_1
+        # delta_zc = zc_2 - zc_1
         delta_ys = ys_2 - ys_1
         delta_zs = zs_2 - zs_1
 

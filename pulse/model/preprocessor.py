@@ -6,7 +6,7 @@ from pulse.interface.user_input.model.setup.structural.expansion_joint_input imp
 from pulse.interface.user_input.model.setup.structural.valves_input import (
     get_V_linear_distribution,
 )
-from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit, convert_pressure_unit
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.acoustic_element import NODES_PER_ELEMENT, AcousticElement
 from pulse.model.cross_section import CrossSection
@@ -1379,53 +1379,51 @@ class Preprocessor:
     def modify_stress_stiffening_effect(self, _bool):
         self.stress_stiffening_enabled = _bool
 
-    def set_stress_stiffening_by_lines(self, lines: int | list, pressures: list | tuple):
+    def set_stress_stiffening_by_lines(self, lines: int | list, data: dict):
         """
-        This method .
+        This method sets the stress stiffening property data to the entered lines.
 
         Parameters
         ----------
         lines : list
             Lines/entities indexes.
 
-        parameters : list
-            ????????.
-            
-        remove : bool, optional
-            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
-            Default is False.
+        data : dict
+            The stress stiffening property data.
         """
         if isinstance(lines, int):
             lines = [lines]
-        for elements in slicer(self.mesh.elements_from_line, lines):
-            self.set_stress_stiffening_by_elements(elements, pressures)
 
-    def set_stress_stiffening_by_elements(self, elements, data: dict):
+        pressure_unit = data.get("pressure_unit", "Pa (a)")
+        external_pressure = data.get("external_pressure")
+        internal_pressure = data.get("internal_pressure")
+
+        external_pressure_Pa = convert_pressure_unit(external_pressure, pressure_unit, "Pa")
+        internal_pressure_Pa = convert_pressure_unit(internal_pressure, pressure_unit, "Pa")
+
+        for elements in slicer(self.mesh.elements_from_line, lines):
+            self.set_stress_stiffening_by_elements(elements, external_pressure_Pa, internal_pressure_Pa)
+
+    def set_stress_stiffening_by_elements(self, elements: list[int], external_pressure: float, internal_pressure: float):
         """
-        This method .
+        This method sets the stress stiffening internal and external pressures to the elements.
 
         Parameters
         ----------
-        lines : list
-            Elements indexes.
+        elements : list
+            List of elements indexes.
 
-        parameters : list
-            ????????.
+        external_pressure : float
+            The internal pressure scaled in Pa units.
 
-        section : ?????
-            ??????
-            Default is None
-            
-        remove : bool, optional
-            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
-            Default is False.
+        internal_pressure : float
+            The internal pressure scaled in Pa units.
         """
-
         self.modify_stress_stiffening_effect(True)
 
         for element in slicer(self.structural_elements, elements):
-            element.external_pressure = data["external_pressure"]
-            element.internal_pressure = data["internal_pressure"]
+            element.external_pressure = external_pressure
+            element.internal_pressure = internal_pressure
 
     def add_expansion_joint_by_lines(self, line_ids: (int | list), parameters: (None | dict)):
         """
@@ -1451,7 +1449,6 @@ class Preprocessor:
                 for element in slicer(self.structural_elements, elements):
                     element.set_expansion_joint_data(parameters)
 
-
     def add_valve_by_lines(self, line_ids: (int | list), valve_data: dict):
         """
         This method .
@@ -1476,7 +1473,6 @@ class Preprocessor:
                 for element in slicer(self.structural_elements, elements):
                     element.set_valve_data(valve_data)
 
-
     def set_stress_intensification_by_line(self, line_ids: (int | list), value: bool):
         """
         This method enables or disables the stress intensification effect to all structural elements that belongs to a line.
@@ -1492,7 +1488,6 @@ class Preprocessor:
         for elements in slicer(self.mesh.elements_from_line, line_ids):
             for element in slicer(self.structural_elements, elements):
                 element.stress_intensification = value
-
 
     # Acoustic physical quantities
     def set_fluid_by_element(self, elements, fluid):
@@ -2214,7 +2209,7 @@ class Preprocessor:
     def get_unprescribed_pipe_indexes(self):
         return self.unprescribed_pipe_indexes
 
-    def update_nodal_solution_info(self, nodal_solution):
+    def update_nodal_solution_info(self, nodal_solution: np.ndarray):
         """ This method sets the static nodal solution for 
             stress stiffening analysis.
         Parameters
@@ -2223,8 +2218,7 @@ class Preprocessor:
         """
 
         for node in self.nodes.values():  
-            global_indexes = node.global_dof
-            node.static_nodal_solution_gcs = nodal_solution[global_indexes, 0]
+            node.static_nodal_solution_gcs = nodal_solution[node.global_dof, 0]
 
         for element in self.structural_elements.values():
             element.static_analysis_evaluated = True
