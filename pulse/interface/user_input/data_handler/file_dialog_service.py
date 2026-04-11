@@ -104,20 +104,11 @@ class FileDialogService:
     
     @staticmethod
     def _generate_file_extensions_str(file_extensions: list[str]):
-        str_extensions = "Files ("
-        for extension in file_extensions:
-            str_extensions += "*."
-            str_extensions += extension
-            str_extensions += " "
-        
-        str_extensions = str_extensions.strip()
-        str_extensions += ")"
-
-        return str_extensions
+        return ";;".join(f"{ext.upper()} Files (*.{ext.lower()})" for ext in file_extensions)
     
     @staticmethod
     def _get_path_extension(string: str) -> str:
-        return string.split(".")[1][:-1]
+        return string.split("*.")[-1].rstrip(")")
     
     @staticmethod
     def get_existing_directory(caption: str, directory: str | Path) -> Path | None:
