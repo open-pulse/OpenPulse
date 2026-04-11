@@ -206,10 +206,9 @@ class AcousticElementTypeInput(LinesInput, AcousticElementTypeInput_UI):
             self.lineEdit_selected_id.setText("All lines")
         
         else:
+            self.lineEdit_selected_id.clear()
             if app().main_window.list_selected_lines():
                 self.selection_callback()
-            else:
-                self.lineEdit_selected_id.clear()
 
     def element_type_change_callback(self):
 
