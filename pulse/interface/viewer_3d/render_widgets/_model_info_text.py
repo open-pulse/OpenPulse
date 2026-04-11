@@ -218,10 +218,15 @@ def lines_info_text() -> str:
             cross_section, 
             structural_element_type, 
             beam_xaxis_rotation, 
-            valve_name
+            valve_name,
             )
 
         info_text += structural_element_info_text()
+
+        stress_stiffening = properties._get_property("stress_stiffening", line_id=line_id)
+        if isinstance(stress_stiffening, dict):
+            info_text += stress_stiffening_info_text(stress_stiffening)
+
 
     return info_text
 
@@ -347,6 +352,18 @@ def structural_element_info_text():
             else:
                 label = "Thin wall"
             tree.add_item("Wall formulation", label)
+
+    return str(tree)
+
+def stress_stiffening_info_text(data: dict):
+
+    pressure_unit = data.get("pressure_unit", "Pa (a)")
+    external_pressure = data.get("external_pressure")
+    internal_pressure = data.get("internal_pressure")
+
+    tree = TreeInfo("Stress stiffening")
+    tree.add_item("External pressure", external_pressure, pressure_unit)
+    tree.add_item("Internal pressure", internal_pressure, pressure_unit)
 
     return str(tree)
 
