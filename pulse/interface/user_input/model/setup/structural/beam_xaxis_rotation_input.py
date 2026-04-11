@@ -185,7 +185,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
                 message += "To proceed, it is necessary to change the lines selection."
                 PrintMessageInput([warning_title, title, message])
 
-        except:
+        except Exception:
             return True, beam_lines
 
         return False, beam_lines
@@ -243,7 +243,7 @@ class BeamXaxisRotationInput(StructuralLinesInput, XaxisBeamRotationInput_UI):
 
         self.hide()
 
-        title = "Reseting x-axis beam rotations"
+        title = "X-axis beam rotations resetting"
         message = "Would you like to remove all x-axis rotations attributed to beam elements?"
 
         buttons_config = {

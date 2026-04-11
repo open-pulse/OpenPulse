@@ -818,7 +818,7 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
 
         self.hide()
 
-        title = "Reseting of compressor excitations"
+        title = "Reciprocating compressor excitations resetting"
         message = "Would you like to remove all compressor excitations from the acoustic model?"
 
         buttons_config = {

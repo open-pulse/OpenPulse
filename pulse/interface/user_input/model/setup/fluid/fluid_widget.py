@@ -720,7 +720,7 @@ class FluidWidget(FluidInputWidget_UI):
 
     def get_confirmation_to_proceed(self):
 
-        title = "Reseting the fluids library"
+        title = "Fluids library resetting"
         message = "Would you like to reset the fluid library to default values?"
 
         buttons_config = {  

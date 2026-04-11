@@ -437,7 +437,7 @@ class MassSpringDamperInput(StructuralNodesInput, MassSpringDamperInput_UI):
 
         self.hide()
 
-        title = "Reseting of lumped elements"
+        title = "Lumped elements resetting"
         message = "Would you like to remove all lumped elements from the structural model?"
 
         buttons_config = {

@@ -346,8 +346,8 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
         self.hide()
 
-        title = "Reseting of prescribed dofs"
-        message = "Would you like to remove all prescribed dofs from the structural model?"
+        title = "Nodal loads resetting"
+        message = "Would you like to remove all nodal loads from the structural model?"
 
         buttons_config = {
             "left_button_label": "Cancel",

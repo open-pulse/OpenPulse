@@ -670,7 +670,7 @@ class PerforatedPlateInput(ElementsInput, PerforatedPlateInput_UI):
 
         self.hide()
 
-        title = "Reseting of perforated plates"
+        title = "Perforated plates resetting"
         message = "Would you like to remove all perforated plates from the acoustic model?"
 
         buttons_config = {

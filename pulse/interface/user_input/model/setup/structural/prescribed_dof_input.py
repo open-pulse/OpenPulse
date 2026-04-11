@@ -656,7 +656,7 @@ class PrescribedDofInput(StructuralNodesInput, PrescribedDofInput_UI):
 
         self.hide()
 
-        title = "Reseting of prescribed dofs"
+        title = "Prescribed dofs resetting"
         message = "Would you like to remove all prescribed dofs from the structural model?"
 
         buttons_config = {
