@@ -106,7 +106,7 @@ class StressStiffeningInput(UserInput, StressStiffeningInput_UI):
         self.comboBox_pressure_units.addItems(pressure_units_labels)
 
         # set default units
-        self.comboBox_pressure_units.setCurrentText("kgf/cm² (a)")
+        self.comboBox_pressure_units.setCurrentText("Pa (a)")
 
     def _create_connections(self):
         #
@@ -173,13 +173,23 @@ class StressStiffeningInput(UserInput, StressStiffeningInput_UI):
 
     def tab_event_callback(self):
         self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_main.currentIndex() == TabIndex.LIST:
+        tab_list = self.tabWidget_main.currentIndex() == TabIndex.LIST
+        self.frame_attribution_options.setDisabled(tab_list)
+        self.pushButton_attribute.setDisabled(tab_list)
+
+        if tab_list:
             self.lineEdit_selected_id.clear()
-        else:
-            self.selection_callback()
+            self.comboBox_attribution_type.setCurrentIndex(AssignmentType.SELECTED_LINES)
 
     def on_click_item(self, item: QTreeWidgetItem):
-        self.lineEdit_selected_id.setText(item.text(0))
+
+        line_ids = list()
+        for item in self.treeWidget_lines_info.selectedItems():
+            line_ids.append(int(item.text(0)))
+
+        text = ", ".join([str(i) for i in line_ids])      
+        self.lineEdit_selected_id.setText(text)
+
         self.lineEdit_selected_id.setDisabled(True)
         self.pushButton_remove.setDisabled(False)
 
@@ -232,7 +242,7 @@ class StressStiffeningInput(UserInput, StressStiffeningInput_UI):
         if not filtered_selection:
             return
 
-        app().main_window.set_selection(lines=filtered_selection)
+        # app().main_window.set_selection(lines=filtered_selection)
 
         self.preprocessor.set_stress_stiffening_by_lines(filtered_selection, parameters)
         self.properties._set_line_property("stress_stiffening", parameters, filtered_selection)
@@ -241,18 +251,18 @@ class StressStiffeningInput(UserInput, StressStiffeningInput_UI):
         self.complete = True
 
     def remove_callback(self):
-        if self.lineEdit_selected_id.text() == "":
-            return
 
-        line_id = int(self.lineEdit_selected_id.text())
+        line_ids = list()
+        for item in self.treeWidget_lines_info.selectedItems():
+            line_ids.append(int(item.text(0)))
 
         parameters = {
             "external_pressure" : 0.,
             "internal_pressure" : 0.,
             }
 
-        self.preprocessor.set_stress_stiffening_by_lines(line_id, parameters)
-        self.properties._remove_line_property("stress_stiffening", line_id)
+        self.preprocessor.set_stress_stiffening_by_lines(line_ids, parameters)
+        self.properties._remove_line_property("stress_stiffening", line_ids)
 
         self.lineEdit_selected_id.clear()
         self.actions_to_finalize()
@@ -325,20 +335,25 @@ class StressStiffeningInput(UserInput, StressStiffeningInput_UI):
 
                 self.treeWidget_lines_info.addTopLevelItem(item)
 
-        self.tabs_visibility()
+        self.update_tabs_visibility()
 
-    def tabs_visibility(self):
+    def update_tabs_visibility(self):
+
         self.pushButton_remove.setDisabled(True)
-        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         for data in self.properties.line_properties.values():
             if "stress_stiffening" not in data.keys():
                 continue
 
-            self.tabWidget_main.setTabVisible(1, True)
+            self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
             return
 
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
-        self.lineEdit_external_pressure.setFocus()   
+        self.lineEdit_external_pressure.setFocus()
+
+        if self.comboBox_attribution_type.currentIndex() == AssignmentType.SELECTED_LINES:
+            if not self.lineEdit_selected_id.isEnabled():
+                self.lineEdit_selected_id.setEnabled(True)
 
     def keyPressEvent(self, event):
 
