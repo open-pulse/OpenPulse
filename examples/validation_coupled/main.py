@@ -164,7 +164,7 @@ preprocessor.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
 
 solution_structural = StructuralSolver(mesh, acoustic_solution = direct)
 modes = 200
-natural_frequencies, mode_shapes = solution_structural.modal_analysis(modes=modes, harmonic_analysis=True)
+natural_frequencies, mode_shapes = solution_structural.modal_analysis(number_of_modes=modes, harmonic_analysis=True)
 
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS
 direct = solution_structural.direct_method(frequencies, is_viscous_lumped=True)

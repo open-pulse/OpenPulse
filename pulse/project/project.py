@@ -631,12 +631,12 @@ class Project:
             self.structural_solution = self.structural_solver.solution
 
         elif self.analysis_id == AnalysisID.STRUCTURAL_MODAL:
-            self.structural_solver.modal_analysis(modes = self.number_of_modes, sigma_factor = self.sigma_factor)
+            self.structural_solver.modal_analysis(number_of_modes = self.number_of_modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_structural = self.structural_solver.natural_frequencies
             self.structural_solution = self.structural_solver.modal_shapes
 
         elif self.analysis_id == AnalysisID.ACOUSTIC_MODAL:
-            self.acoustic_solver.modal_analysis(modes = self.number_of_modes, sigma_factor = self.sigma_factor)
+            self.acoustic_solver.modal_analysis(number_of_modes = self.number_of_modes, sigma_factor = self.sigma_factor)
             self.natural_frequencies_acoustic = self.acoustic_solver.natural_frequencies
             self.complex_natural_frequencies_acoustic = self.acoustic_solver.complex_natural_frequencies
             self.acoustic_solution = self.acoustic_solver.modal_shapes

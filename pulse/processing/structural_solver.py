@@ -187,7 +187,15 @@ class StructuralSolver:
         return F_combined
 
 
-    def modal_analysis(self, **kwargs):
+    def modal_analysis(
+            self, 
+            K: csr_matrix | None = None, 
+            M: csr_matrix | None = None,
+            number_of_modes : int = 40,
+            which : str = "LM",
+            sigma_factor : float = 0.01,
+            harmonic_analysis : bool = False,
+            ):
         """
         This method evaluates the FEM acoustic modal analysis. The FETM formulation is not suitable to performe modal analysis.
 
@@ -223,20 +231,10 @@ class StructuralSolver:
             Modal shapes
         """
 
-        K = kwargs.get("K", list())
-        M = kwargs.get("M", list())
-        modes = kwargs.get("number_of_modes", 40)
-        which = kwargs.get("which", "LM")
-        sigma_factor = kwargs.get("sigma_factor", 1e-2)
-        harmonic_analysis = kwargs.get("harmonic_analysis", False)
-
         self.warning_modal_prescribed_dofs = ""
 
-        if isinstance(K, csr_matrix) and isinstance(M, csr_matrix):
-            Kadd_lump = K
-            Madd_lump = M
+        if not (isinstance(K, csr_matrix) and isinstance(M, csr_matrix)):
 
-        else:
             if self.model.preprocessor.stress_stiffening_enabled:
                 static_solution = self.static_analysis()
                 self.model.preprocessor.update_nodal_solution_info(np.real(static_solution))
@@ -245,10 +243,10 @@ class StructuralSolver:
             # NOTE: stiffness and mass/moment of inertia parameters imported from tables  
             # are not considered in modal analysis, only single values are allowable
 
-            Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
-            Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
+            K = self.K + self.K_exp_joint[0] + self.K_lump[0]
+            M = self.M + self.M_exp_joint + self.M_lump[0]
 
-        eigen_values, eigen_vectors = eigs(Kadd_lump, M=Madd_lump, k=modes, which=which, sigma=sigma_factor)
+        eigen_values, eigen_vectors = eigs(K, M=M, k=number_of_modes, which=which, sigma=sigma_factor)
 
         positive_real = np.absolute(np.real(eigen_values))
         natural_frequencies = np.sqrt(positive_real) / (2 * np.pi)
@@ -371,8 +369,6 @@ class StructuralSolver:
                 self.model.preprocessor.update_nodal_solution_info(np.real(static_solution))
                 self.update_global_matrices()
             
-            # Kadd_lump = self.K + self.K_lump[0]
-            # Madd_lump = self.M + self.M_lump[0]
             Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
             Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
 
@@ -381,14 +377,20 @@ class StructuralSolver:
 
         #TODO: in the future version implement lets F_loaded operational
 
-        natural_frequencies, modal_shape = self.modal_analysis(K=Kadd_lump, M=Madd_lump, modes=number_of_modes, harmonic_analysis=True)
+        natural_frequencies, modal_shape = self.modal_analysis(
+            K = Kadd_lump,
+            M = Madd_lump,
+            number_of_modes = number_of_modes,
+            harmonic_analysis = True,
+            )
+
         rows = Kadd_lump.shape[0]
         cols = len(self.frequencies)
 
         if fastest:
 
             number_modes = len(natural_frequencies)
-            omega = 2 * np.pi * self.frequencies.reshape(cols,1,1)
+            omega = 2 * np.pi * self.frequencies.reshape(cols, 1, 1)
             omega_n = 2 * np.pi * natural_frequencies
 
             F_kg = (omega_n**2)
