@@ -1482,6 +1482,9 @@
                   <property name="text">
                    <string>Reset</string>
                   </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
                   <property name="flat">
                    <bool>false</bool>
                   </property>
@@ -1511,6 +1514,9 @@
                   </property>
                   <property name="text">
                    <string>Remove</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
                   </property>
                   <property name="status" stdset="0">
                    <string>danger</string>
@@ -1820,7 +1826,7 @@
          <bool>false</bool>
         </property>
         <property name="default">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="flat">
          <bool>false</bool>

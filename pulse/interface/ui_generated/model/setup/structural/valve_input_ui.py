@@ -496,6 +496,7 @@ class Ui_Dialog(object):
         self.pushButton_reset.setMaximumSize(QSize(100, 28))
         self.pushButton_reset.setFont(font)
         self.pushButton_reset.setStyleSheet(u"")
+        self.pushButton_reset.setAutoDefault(False)
         self.pushButton_reset.setFlat(False)
 
         self.gridLayout_7.addWidget(self.pushButton_reset, 0, 0, 1, 1)
@@ -506,6 +507,7 @@ class Ui_Dialog(object):
         self.pushButton_remove.setMaximumSize(QSize(100, 28))
         self.pushButton_remove.setFont(font)
         self.pushButton_remove.setStyleSheet(u"")
+        self.pushButton_remove.setAutoDefault(False)
 
         self.gridLayout_7.addWidget(self.pushButton_remove, 0, 1, 1, 1)
 
@@ -660,7 +662,7 @@ class Ui_Dialog(object):
         self.tabWidget_main.setCurrentIndex(0)
         self.comboBox_flange_setup.setCurrentIndex(1)
         self.comboBox_acoustic_behavior.setCurrentIndex(0)
-        self.pushButton_attribute.setDefault(True)
+        self.pushButton_attribute.setDefault(False)
         self.pushButton_exit.setDefault(False)
 
 

@@ -178,7 +178,7 @@
          <bool>false</bool>
         </property>
         <property name="default">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -195,7 +195,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_7">
       <item row="0" column="0">
-       <widget class="QFrame" name="frame_attribution_controls">
+       <widget class="QFrame" name="frame_attribution_options">
         <property name="frameShape">
          <enum>QFrame::Shape::NoFrame</enum>
         </property>
@@ -225,7 +225,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>150</width>
              <height>26</height>
             </size>
            </property>
@@ -271,7 +271,7 @@
           <widget class="QComboBox" name="comboBox_attribution_type">
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>150</width>
              <height>26</height>
             </size>
            </property>
@@ -291,12 +291,12 @@
            </property>
            <item>
             <property name="text">
-             <string> All lines</string>
+             <string>All lines</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string> Selected lines</string>
+             <string>Selected lines</string>
             </property>
            </item>
           </widget>
@@ -806,6 +806,9 @@
             </property>
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:400; font-style:normal;&quot;&gt;Select a group to remove the capped end attributed to lines&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
             </property>
             <property name="indentation">
              <number>0</number>

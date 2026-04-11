@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDialog, QFrame,
-    QGridLayout, QHeaderView, QLabel, QLineEdit,
-    QPushButton, QSizePolicy, QSpacerItem, QTabWidget,
-    QTreeWidget, QTreeWidgetItem, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QDialog,
+    QFrame, QGridLayout, QHeaderView, QLabel,
+    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
+    QTabWidget, QTreeWidget, QTreeWidgetItem, QWidget)
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -94,18 +94,18 @@ class Ui_Dialog(object):
         self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_7 = QGridLayout(self.frame_2)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
-        self.frame_attribution_controls = QFrame(self.frame_2)
-        self.frame_attribution_controls.setObjectName(u"frame_attribution_controls")
-        self.frame_attribution_controls.setFrameShape(QFrame.Shape.NoFrame)
-        self.frame_attribution_controls.setFrameShadow(QFrame.Shadow.Raised)
-        self.gridLayout_6 = QGridLayout(self.frame_attribution_controls)
+        self.frame_attribution_options = QFrame(self.frame_2)
+        self.frame_attribution_options.setObjectName(u"frame_attribution_options")
+        self.frame_attribution_options.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_attribution_options.setFrameShadow(QFrame.Shadow.Raised)
+        self.gridLayout_6 = QGridLayout(self.frame_attribution_options)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
         self.gridLayout_6.setVerticalSpacing(7)
         self.gridLayout_6.setContentsMargins(4, 4, 4, 4)
-        self.lineEdit_selected_id = QLineEdit(self.frame_attribution_controls)
+        self.lineEdit_selected_id = QLineEdit(self.frame_attribution_options)
         self.lineEdit_selected_id.setObjectName(u"lineEdit_selected_id")
         self.lineEdit_selected_id.setEnabled(False)
-        self.lineEdit_selected_id.setMinimumSize(QSize(0, 26))
+        self.lineEdit_selected_id.setMinimumSize(QSize(150, 26))
         self.lineEdit_selected_id.setMaximumSize(QSize(16777215, 26))
         font2 = QFont()
         font2.setPointSize(10)
@@ -120,17 +120,17 @@ class Ui_Dialog(object):
 
         self.gridLayout_6.addItem(self.horizontalSpacer_2, 1, 0, 1, 1)
 
-        self.comboBox_attribution_type = QComboBox(self.frame_attribution_controls)
+        self.comboBox_attribution_type = QComboBox(self.frame_attribution_options)
         self.comboBox_attribution_type.addItem("")
         self.comboBox_attribution_type.addItem("")
         self.comboBox_attribution_type.setObjectName(u"comboBox_attribution_type")
-        self.comboBox_attribution_type.setMinimumSize(QSize(0, 26))
+        self.comboBox_attribution_type.setMinimumSize(QSize(150, 26))
         self.comboBox_attribution_type.setMaximumSize(QSize(16777215, 26))
         self.comboBox_attribution_type.setFont(font2)
 
         self.gridLayout_6.addWidget(self.comboBox_attribution_type, 0, 2, 1, 1)
 
-        self.label_attribute_to = QLabel(self.frame_attribution_controls)
+        self.label_attribute_to = QLabel(self.frame_attribution_options)
         self.label_attribute_to.setObjectName(u"label_attribute_to")
         self.label_attribute_to.setMinimumSize(QSize(110, 26))
         self.label_attribute_to.setMaximumSize(QSize(110, 26))
@@ -139,7 +139,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_6.addWidget(self.label_attribute_to, 0, 1, 1, 1)
 
-        self.label_selected_id = QLabel(self.frame_attribution_controls)
+        self.label_selected_id = QLabel(self.frame_attribution_options)
         self.label_selected_id.setObjectName(u"label_selected_id")
         self.label_selected_id.setMinimumSize(QSize(110, 26))
         self.label_selected_id.setMaximumSize(QSize(110, 26))
@@ -153,7 +153,7 @@ class Ui_Dialog(object):
         self.gridLayout_6.addItem(self.horizontalSpacer_3, 1, 5, 1, 1)
 
 
-        self.gridLayout_7.addWidget(self.frame_attribution_controls, 0, 0, 1, 1)
+        self.gridLayout_7.addWidget(self.frame_attribution_options, 0, 0, 1, 1)
 
         self.tabWidget_main = QTabWidget(self.frame_2)
         self.tabWidget_main.setObjectName(u"tabWidget_main")
@@ -297,6 +297,7 @@ class Ui_Dialog(object):
         font4.setFamilies([u"MS Shell Dlg 2"])
         font4.setPointSize(9)
         self.treeWidget_lines_info.setFont(font4)
+        self.treeWidget_lines_info.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.treeWidget_lines_info.setIndentation(0)
 
         self.gridLayout_4.addWidget(self.treeWidget_lines_info, 0, 1, 1, 1)
@@ -350,7 +351,7 @@ class Ui_Dialog(object):
 
         self.retranslateUi(Dialog)
 
-        self.pushButton_attribute.setDefault(True)
+        self.pushButton_attribute.setDefault(False)
         self.tabWidget_main.setCurrentIndex(0)
         self.comboBox_pressure_units.setCurrentIndex(0)
         self.pushButton_remove.setDefault(False)
@@ -365,8 +366,8 @@ class Ui_Dialog(object):
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
         self.pushButton_attribute.setText(QCoreApplication.translate("Dialog", u"Attribute", None))
         self.lineEdit_selected_id.setText(QCoreApplication.translate("Dialog", u"All lines", None))
-        self.comboBox_attribution_type.setItemText(0, QCoreApplication.translate("Dialog", u" All lines", None))
-        self.comboBox_attribution_type.setItemText(1, QCoreApplication.translate("Dialog", u" Selected lines", None))
+        self.comboBox_attribution_type.setItemText(0, QCoreApplication.translate("Dialog", u"All lines", None))
+        self.comboBox_attribution_type.setItemText(1, QCoreApplication.translate("Dialog", u"Selected lines", None))
 
 #if QT_CONFIG(tooltip)
         self.comboBox_attribution_type.setToolTip(QCoreApplication.translate("Dialog", u"<html><head/><body><p>Enable stress stiffening effects to:</p></body></html>", None))
@@ -425,7 +426,7 @@ class StressStiffeningInput_UI(QDialog, Ui_Dialog):
                             - pushButton_attribute: QPushButton
                 - frame_2: QFrame
                     - (Layout): QGridLayout
-                            - frame_attribution_controls: QFrame
+                            - frame_attribution_options: QFrame
                                 - (Layout): QGridLayout
                                         - lineEdit_selected_id: QLineEdit
                                         - comboBox_attribution_type: QComboBox
