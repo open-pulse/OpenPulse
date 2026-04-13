@@ -87,20 +87,30 @@ class InputUi:
     def set_material(self):
         self.process_input(SetMaterialInput)   
 
-    def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
-        read = self.process_input(   SetCrossSectionInput,
-                                    pipe_to_beam = pipe_to_beam, 
-                                    beam_to_pipe = beam_to_pipe, 
-                                    lines_to_update_cross_section = lines_to_update_cross_section   ) 
+    def set_cross_section(
+            self, pipe_to_beam: bool = False, 
+            beam_to_pipe: bool = False, 
+            lines_to_update_cross_section: list = list(),
+            ):
+
+        read = self.process_input(   
+            SetCrossSectionInput,
+            pipe_to_beam = pipe_to_beam, 
+            beam_to_pipe = beam_to_pipe, 
+            lines_to_update_cross_section = lines_to_update_cross_section,
+            ) 
+
         return read.complete
 
     def set_structural_element_type(self):
         read = self.process_input(StructuralElementTypeInput)
         if read.complete:
             if read.pipe_to_beam or read.beam_to_pipe:         
-                self.set_cross_section( pipe_to_beam = read.pipe_to_beam, 
-                                        beam_to_pipe = read.beam_to_pipe, 
-                                        lines_to_update_cross_section = read.list_lines_to_update_cross_section )
+                self.set_cross_section( 
+                    pipe_to_beam = read.pipe_to_beam,
+                    beam_to_pipe = read.beam_to_pipe,
+                    lines_to_update_cross_section = read.lines_to_update_cross_section,
+                )
 
     def plot_cross_section(self):
         self.process_input(PlotCrossSectionInput)

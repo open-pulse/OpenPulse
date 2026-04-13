@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QDialog, QLineEdit
 from PySide6.QtCore import Qt
 
 from pulse import app
@@ -21,7 +21,7 @@ class CrossSectionWidget(CrossSectionWidget_UI):
 
         self._initialize()
         self._create_connections()
-        self.create_lists_of_entries()
+        self.create_list_of_line_edits()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.Dialog)
@@ -61,78 +61,9 @@ class CrossSectionWidget(CrossSectionWidget_UI):
         #
         self.config_treeWidget()
 
-    def create_lists_of_entries(self):
+    def create_list_of_line_edits(self):
 
-        self.list_pipe_section_entries = [  
-            self.lineEdit_outside_diameter,
-            self.lineEdit_wall_thickness,
-            self.lineEdit_offset_y,
-            self.lineEdit_offset_z,
-            self.lineEdit_insulation_thickness,
-            self.lineEdit_insulation_density,
-            self.lineEdit_outside_diameter_initial,
-            self.lineEdit_wall_thickness_initial,
-            self.lineEdit_offset_y_initial,
-            self.lineEdit_offset_z_initial,
-            self.lineEdit_outside_diameter_final,
-            self.lineEdit_wall_thickness_final,
-            self.lineEdit_offset_y_final,
-            self.lineEdit_offset_z_final,
-            self.lineEdit_insulation_thickness_variable_section,
-            self.lineEdit_insulation_density_variable_section,
-            self.lineEdit_element_id_initial,
-            self.lineEdit_element_id_final,
-            ] 
-
-        self.list_beam_section_entries = [  
-            self.lineEdit_base_rectangular_section,
-            self.lineEdit_height_rectangular_section,
-            self.lineEdit_wall_thickness_rectangular_section,
-            self.lineEdit_offsety_rectangular_section,
-            self.lineEdit_offsetz_rectangular_section,
-            self.lineEdit_outside_diameter_circular_section,
-            self.lineEdit_wall_thickness_circular_section,
-            self.lineEdit_offsety_circular_section,
-            self.lineEdit_offsetz_circular_section,
-            self.lineEdit_height_C_section,
-            self.lineEdit_w1_C_section,
-            self.lineEdit_t1_C_section,
-            self.lineEdit_w2_C_section,
-            self.lineEdit_t2_C_section,
-            self.lineEdit_tw_C_section,
-            self.lineEdit_offsety_C_section,
-            self.lineEdit_offsetz_C_section,
-            self.lineEdit_height_I_section,
-            self.lineEdit_w1_I_section,
-            self.lineEdit_t1_I_section,
-            self.lineEdit_w2_I_section,
-            self.lineEdit_t2_I_section,
-            self.lineEdit_tw_I_section,
-            self.lineEdit_offsety_I_section,
-            self.lineEdit_offsetz_I_section,
-            self.lineEdit_height_T_section,
-            self.lineEdit_w1_T_section,
-            self.lineEdit_t1_T_section,
-            self.lineEdit_tw_T_section,
-            self.lineEdit_offsety_T_section,
-            self.lineEdit_offsetz_T_section,
-            self.lineEdit_area,
-            self.lineEdit_Iyy,
-            self.lineEdit_Izz,
-            self.lineEdit_Iyz,
-            self.lineEdit_shear_coefficient,
-            ]     
-
-        self.list_constant_pipe_entries =   [   
-            self.lineEdit_outside_diameter,
-            self.lineEdit_wall_thickness,
-            self.lineEdit_offset_y,
-            self.lineEdit_offset_z,
-            self.lineEdit_insulation_thickness,
-            self.lineEdit_insulation_density,
-            ]
-
-        self.list_variable_pipe_entries =   [   
+        self.variable_pipe_entries_line_edits =   [   
             self.lineEdit_outside_diameter_initial,
             self.lineEdit_wall_thickness_initial,
             self.lineEdit_offset_y_initial,
@@ -160,14 +91,12 @@ class CrossSectionWidget(CrossSectionWidget_UI):
             ]
 
     def reset_all_input_texts(self):
-        for lineEdit in self.list_pipe_section_entries:
-            lineEdit.clear()
-        for lineEdit in self.list_beam_section_entries:
-            lineEdit.clear()
+        for line_edit in self.findChildren(QLineEdit):
+            line_edit.clear()
 
     def config_treeWidget(self):
-        self.treeWidget_sections_parameters_by_lines.setColumnWidth(0, 40)
-        self.treeWidget_sections_parameters_by_lines.setColumnWidth(1, 120)
+        self.treeWidget_lines_info.setColumnWidth(0, 40)
+        self.treeWidget_lines_info.setColumnWidth(1, 120)
 
     def select_standard_section(self):
         read = GetStandardCrossSection()
@@ -669,11 +598,13 @@ class CrossSectionWidget(CrossSectionWidget_UI):
         if thickness is None:
             self.lineEdit_wall_thickness.setFocus()
             return
-        
-        section_data = {"outside diameter" : outside_diameter,
-                        "wall thickness" : thickness}
 
-        read = GetStandardCrossSection(section_data=section_data)
+        section_data = {
+            "outside diameter" : outside_diameter,
+            "wall thickness" : thickness,
+            }
+
+        GetStandardCrossSection(section_data=section_data)
 
     def plot_section(self):
         
