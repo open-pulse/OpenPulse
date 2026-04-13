@@ -1,4 +1,6 @@
-from PySide6.QtWidgets import QGridLayout
+from enum import IntEnum
+
+from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 from PySide6.QtCore import Qt
 
 from pulse import app
@@ -8,6 +10,11 @@ from pulse.interface.user_input.model.setup.cross_section.cross_section_widget i
 
 window_title_1 = "Error"
 window_title_2 = "Warning"
+
+class TabIndex(IntEnum):
+    PIPE = 0
+    BEAM = 1
+    ACTIVE_SECTIONS = 2
 
 
 class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
@@ -19,6 +26,7 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.project = app().main_window.project
         self.model = app().main_window.project.model
         self.properties = app().main_window.project.model.properties
+        self.pipeline = app().project.pipeline
 
         self._config_window()
         self._initialize()
@@ -67,3 +75,35 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
     def attribute_callback(self):
         self.complete = True
         self.close()
+
+    def load_active_sections(self):
+        self.cross_section_widget.treeWidget_sections_parameters_by_lines.clear()
+        self.cross_section_widget.tabWidget_general.setTabVisible(TabIndex.ACTIVE_SECTIONS, True)
+        self.cross_section_widget.treeWidget_sections_parameters_by_lines.hideColumn(1) # hides the 'Element option' column
+
+
+        active_sections = []
+        for structure in self.pipeline.structures:
+            cross_section_info = structure.extra_info['cross_section_info']
+            section_parameters = cross_section_info['section_parameters']
+
+            if section_parameters not in active_sections:
+                active_sections.append(section_parameters)    
+
+                new = QTreeWidgetItem([str(len(active_sections)), '', cross_section_info['section_type_label'], str(section_parameters)])
+                
+                for i in range(4):
+                    new.setTextAlignment(i, Qt.AlignCenter)
+
+                self.cross_section_widget.treeWidget_sections_parameters_by_lines.addTopLevelItem(new)
+
+            
+        
+    # def main_tab_callback(self):
+    #     if self.cross_section_widget.tabWidget_general.currentIndex() == TabIndex.ACTIVE_SECTIONS:
+    #         self.cross_section_widget.pushButton_edit_section_data.setDisabled(True)
+    #         self.cross_section_widget.pushButton_load_section_data.setDisabled(True)
+    #         self.cross_section_widget.comboBox_attribution_type.setDisabled(True)
+    #         return
+
+        # self.cross_section_widget.comboBox_attribution_type.setDisabled(False)

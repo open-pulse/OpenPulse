@@ -39,6 +39,7 @@ class ReducerOptions(StructureOptions):
         self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
         self.cross_section_widget.lineEdit_outside_diameter_initial.setFocus()
         self.load_data_from_pipe_section()
+        self.cross_section_dialog.load_active_sections()
         self.cross_section_dialog.exec()
 
         if not self.cross_section_dialog.complete:

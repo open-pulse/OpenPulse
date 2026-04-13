@@ -39,6 +39,8 @@ class RectangularBeamOptions(StructureOptions):
         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
         self.cross_section_widget.tabWidget_beam_section.setTabVisible(0, True)
         self.cross_section_widget.lineEdit_height_C_section.setFocus()
+        self.cross_section_dialog.load_active_sections()
+        self.cross_section_dialog.load_active_sections()
         self.cross_section_dialog.exec()
 
         if not self.cross_section_dialog.complete:

@@ -42,6 +42,7 @@ class IBeamOptions(StructureOptions):
         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
         self.cross_section_widget.tabWidget_beam_section.setTabVisible(3, True)
         self.cross_section_widget.lineEdit_height_I_section.setFocus()
+        self.cross_section_dialog.load_active_sections()
         self.cross_section_dialog.exec()
 
         if not self.cross_section_dialog.complete:
