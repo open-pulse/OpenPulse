@@ -1,3 +1,5 @@
+from enum import IntEnum
+
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QTreeWidgetItem
@@ -12,6 +14,12 @@ from pulse.interface.user_input.project.get_user_confirmation_input import (
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.structural_element import decoupling_matrix
+
+
+class TabIndex(IntEnum):
+    SETUP = 0
+    LIST = 1
+
 
 error_title = "Error"
 
@@ -52,54 +60,56 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
     def selection_callback(self):
 
         selected_elements = app().main_window.list_selected_elements()
+        if not selected_elements:
+            return
 
-        if selected_elements:
-            if len(selected_elements) == 1:
-                for (
-                    property,
-                    element_id,
-                ), data in self.properties.element_properties.items():
-                    if (
-                        property == "B2P_rotation_decoupling"
-                        and element_id == selected_elements[0]
-                    ):
-                        self.lineEdit_element_id.setText(str(element_id))
-
-                        coords = np.array(data["coords"], dtype=float)
-                        node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-                        if isinstance(node_id, int):
-                            self.lineEdit_tjoint_node_id.setText(str(node_id))
-
-                        decoupled_dofs = data["decoupled_rotations"]
-                        self.checkBox_rotation_x.setChecked(decoupled_dofs[0])
-                        self.checkBox_rotation_y.setChecked(decoupled_dofs[1])
-                        self.checkBox_rotation_z.setChecked(decoupled_dofs[2])
-                        return
-
-                element_id = selected_elements[0]
+        if len(selected_elements) != 1:
+            return
+    
+        for (
+            property,
+            element_id,
+        ), data in self.properties.element_properties.items():
+            if (
+                property == "B2P_rotation_decoupling"
+                and element_id == selected_elements[0]
+            ):
                 self.lineEdit_element_id.setText(str(element_id))
-                element = self.preprocessor.structural_elements[element_id]
 
-                if element.element_type == "beam_1":
-                    node_ids = [
-                        element.first_node.external_index,
-                        element.last_node.external_index,
-                    ]
+                coords = np.array(data["coords"], dtype=float)
+                node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+                if isinstance(node_id, int):
+                    self.lineEdit_tjoint_node_id.setText(str(node_id))
 
-                    for node_id in node_ids:
-                        neighboor_elements = (
-                            self.preprocessor.structural_elements_connected_to_node[
-                                node_id
-                            ]
-                        )
-                        if len(neighboor_elements) >= 3:
-                            self.lineEdit_tjoint_node_id.setText(str(node_id))
-                            return
-                        self.lineEdit_tjoint_node_id.clear()
+                decoupled_dofs = data["decoupled_rotations"]
+                self.checkBox_rotation_x.setChecked(decoupled_dofs[0])
+                self.checkBox_rotation_y.setChecked(decoupled_dofs[1])
+                self.checkBox_rotation_z.setChecked(decoupled_dofs[2])
+                return
 
-                else:
-                    self.lineEdit_element_id.clear()
-                    self.lineEdit_tjoint_node_id.clear()
+        element_id = selected_elements[0]
+        self.lineEdit_element_id.setText(str(element_id))
+        element = self.preprocessor.structural_elements[element_id]
+
+        if element.element_type != "beam_1":
+            self.reset_line_edits()
+            return
+    
+        node_ids = [
+            element.first_node.external_index,
+            element.last_node.external_index,
+        ]
+
+        for node_id in node_ids:
+            neighboor_elements = (
+                self.preprocessor.structural_elements_connected_to_node[
+                    node_id
+                ]
+            )
+            if len(neighboor_elements) >= 3:
+                self.lineEdit_tjoint_node_id.setText(str(node_id))
+                return
+            self.lineEdit_tjoint_node_id.clear()
 
     def _config_widgets(self):
         for i, width in enumerate([100, 100, 100]):
@@ -109,18 +119,20 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
             )
 
     def tab_event_callback(self):
-        self.lineEdit_selected_id_to_remove.clear()
+        self.reset_line_edits()
         self.pushButton_remove.setDisabled(True)
-        if self.tabWidget_main.currentIndex() == 1:
-            self.pushButton_remove.setDisabled(True)
+        tab_list = self.tabWidget_main.currentIndex() == TabIndex.LIST
+        self.pushButton_attribute.setDisabled(tab_list)
+        if not tab_list:
+            self.treeWidget_elements_info.clearSelection()
 
-    def on_click_item(self, item):
+    def on_click_item(self, item: QTreeWidgetItem):
         element_id = int(item.text(0))
-        self.lineEdit_selected_id_to_remove.setText(str(element_id))
+        self.lineEdit_element_id.setText(str(element_id))
         app().main_window.set_selection(elements=[element_id])
         self.pushButton_remove.setDisabled(False)
 
-    def on_double_click_item(self, item):
+    def on_double_click_item(self, item: QTreeWidgetItem):
         self.on_click_item(item)
 
     def attribute_callback(self):
@@ -166,36 +178,42 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
         element_type = element.element_type
         rotations_mask = self.get_rotation_mask()
 
-        if len(rotations_mask):
-            if element_type == "beam_1":
-                node = app().project.model.preprocessor.nodes[node_id]
-                coords = list(np.round(node.coordinates, 5))
+        if not any(rotations_mask):
+            return
 
-                data = {"coords": coords, "decoupled_rotations": rotations_mask}
+        if element_type != "beam_1":
+            return
 
-                self.preprocessor.set_B2P_rotation_decoupling(element_id, data)
-                self.properties._set_element_property(
-                    "B2P_rotation_decoupling", data, element_ids=element_id
-                )
+        node = app().project.model.preprocessor.nodes[node_id]
+        coords = list(np.round(node.coordinates, 5))
 
-                app().project.file.write_element_properties_in_file()
-                self.load_decoupling_info()
-                app().main_window.set_selection()
-                self.lineEdit_element_id.clear()
-                self.lineEdit_tjoint_node_id.clear()
+        data = {
+            "coords": coords, 
+            "decoupled_rotations": rotations_mask,
+            }
 
-                print(
-                    "[Set B2P Rotation Decoupling] - defined at element {} and at node {}".format(
-                        element_id, node_id
-                    )
-                )
-                self.complete = True
-                return
+        self.preprocessor.set_B2P_rotation_decoupling(element_id, data)
+        self.properties._set_element_property(
+            "B2P_rotation_decoupling", data, element_ids=element_id
+        )
+
+        self.actions_to_finalize()
+        self.complete = True
+
+        return
 
     def remove_callback(self):
 
-        if self.lineEdit_selected_id_to_remove.text() != "":
-            element_id = int(self.lineEdit_selected_id_to_remove.text())
+        selected_items = self.treeWidget_elements_info.selectedItems()
+        if not selected_items:
+            return
+
+        for item in selected_items:
+            
+            if item.text(0) == "":
+                continue
+
+            element_id = int(item.text(0))
             element = self.preprocessor.structural_elements[element_id]
             element.decoupling_matrix = decoupling_matrix
             element.decoupling_info = None
@@ -204,8 +222,7 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
                 "B2P_rotation_decoupling", element_id
             )
 
-            app().project.file.write_element_properties_in_file()
-            self.load_decoupling_info()
+        self.actions_to_finalize()
 
     def reset_callback(self):
 
@@ -238,8 +255,17 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
 
             self.properties._remove_element_property("B2P_rotation_decoupling", element_id)
 
+        self.actions_to_finalize()
+
+    def reset_line_edits(self):
+        self.lineEdit_element_id.clear()
+        self.lineEdit_tjoint_node_id.clear()
+
+    def actions_to_finalize(self):
+        app().main_window.set_selection()
         app().project.file.write_element_properties_in_file()
         self.load_decoupling_info()
+        self.reset_line_edits()
 
     def get_rotation_mask(self):
 
@@ -249,55 +275,75 @@ class DecouplingRotationDOFsInput(ElementsInput, B2pDecouplingRotationDofsInput_
             self.checkBox_rotation_z.isChecked(),
         ]
 
-        if np.sum(rotations_mask) == 0:
+        if not any(rotations_mask):
             self.hide()
             title = "Invalid decoupling setup"
             message = "There are no rotation DOFs decoupling in the current setup. "
             message += "You should tick at least one rotation DOF before continue."
             PrintMessageInput([error_title, title, message])
-            return None
 
-        else:
-            return rotations_mask
+        return rotations_mask
 
-    def text_label(self, mask):
+    def text_label(self, mask: list[bool, bool, bool]):
+
         text = ""
         load_labels = np.array(["Rx", "Ry", "Rz"])
         labels = load_labels[mask]
+
         if list(mask).count(True) == 3:
             text = "[{}, {}, {}]".format(*labels)
+
         elif list(mask).count(True) == 2:
             text = "[{}, {}]".format(*labels)
+
         elif list(mask).count(True) == 1:
             text = "[{}]".format(*labels)
+
         return text
 
     def load_decoupling_info(self):
 
         self.treeWidget_elements_info.clear()
         for (property, element_id), data in self.properties.element_properties.items():
-            if property == "B2P_rotation_decoupling":
-                coords = np.array(data["coords"], dtype=float)
-                node_id = self.preprocessor.get_node_id_by_coordinates(coords)
-                if isinstance(node_id, int):
-                    decoupled_dofs = data["decoupled_rotations"]
-                    decoupled_dofs_labels = self.text_label(decoupled_dofs)
+            if property != "B2P_rotation_decoupling":
+                continue
 
-                    item = QTreeWidgetItem(
-                        [str(element_id), str(node_id), decoupled_dofs_labels]
-                    )
+            coords = np.array(data["coords"], dtype=float)
+            node_id = self.preprocessor.get_node_id_by_coordinates(coords)
+            if not isinstance(node_id, int):
+                continue
 
-                    for i in range(4):
-                        item.setTextAlignment(i, Qt.AlignCenter)
+            decoupled_dofs = data["decoupled_rotations"]
+            decoupled_dofs_labels = self.text_label(decoupled_dofs)
 
-                    self.treeWidget_elements_info.addTopLevelItem(item)
+            item = QTreeWidgetItem(
+                [str(element_id), str(node_id), decoupled_dofs_labels]
+            )
+
+            for i in range(4):
+                item.setTextAlignment(i, Qt.AlignCenter)
+
+            self.treeWidget_elements_info.addTopLevelItem(item)
 
         self.update_tabs_visibility()
 
     def update_tabs_visibility(self):
-        self.lineEdit_selected_id_to_remove.clear()
-        self.tabWidget_main.setTabVisible(1, False)
+        self.reset_line_edits()
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         for property, _ in self.properties.element_properties.keys():
             if property == "B2P_rotation_decoupling":
-                self.tabWidget_main.setTabVisible(1, True)
+                self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
+
+        self.lineEdit_element_id.setFocus()
+
+    def keyPressEvent(self, event):
+
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.attribute_callback()
+
+        if event.key() == Qt.Key_Delete:
+            self.remove_callback()
+
+        if event.key() == Qt.Key_Escape:
+            self.close()
