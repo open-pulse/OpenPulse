@@ -340,10 +340,6 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         if self.current_options is None:
             return
 
-        kwargs = self.current_options.get_kwargs()
-        if kwargs is None:
-            return
-
         length = self._eval_number(self.length_line_edit.text())
         if length is None:
             length = 0

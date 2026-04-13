@@ -325,7 +325,12 @@ class MainEditor(Editor):
 
         structures = list()
         for point in self.pipeline.selected_points:
-            structure = self._add_generic_linear_structure_to_point(structure_type, deltas, point)
+            structure = self._add_generic_linear_structure_to_point(
+                structure_type,
+                deltas,
+                point,
+                **kwargs,
+            )
             structures.append(structure)
         self.pipeline.main_editor._colapse_overloaded_bends()
         return structures

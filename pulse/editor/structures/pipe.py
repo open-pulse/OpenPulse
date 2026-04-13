@@ -8,8 +8,8 @@ class Pipe(LinearStructure):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-        self.diameter = kwargs.get("diameter", 0.1)
-        self.thickness = kwargs.get("thickness", 0.01)
+        self.diameter = kwargs.get("diameter", 0.01)
+        self.thickness = kwargs.get("thickness", 0.001)
         self.offset_y = kwargs.get("offset_y", 0)
         self.offset_z = kwargs.get("offset_z", 0)
 
