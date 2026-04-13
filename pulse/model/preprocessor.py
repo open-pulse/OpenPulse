@@ -1330,7 +1330,7 @@ class Preprocessor:
             for element in slicer(self.structural_elements, elements):
                 element.capped_end = value
 
-    def set_structural_element_wall_formulation_by_lines(self, lines, formulation):
+    def set_structural_element_wall_formulation_by_lines(self, lines: int | list[int], formulation: str):
         """
         This method assign a strutural element wall formulation to the selected lines.
 
@@ -1342,18 +1342,14 @@ class Preprocessor:
         wall_formulation : str, ['thick_wall', 'thin_wall']
             Structural element type to be attributed to the listed elements. 
         """
-        try:
-            if isinstance(lines, int):
-                lines = [lines]
+        if isinstance(lines, int):
+            lines = [lines]
 
-            for elements in slicer(self.mesh.elements_from_line, lines):
-                for element in slicer(self.structural_elements, elements):
-                    element.wall_formulation = formulation
+        for elements in slicer(self.mesh.elements_from_line, lines):
+            for element in slicer(self.structural_elements, elements):
+                element.wall_formulation = formulation
 
-        except Exception as _error:
-            print(str(_error))
-
-    def set_structural_element_force_offset_by_lines(self, lines, force_offset):
+    def set_structural_element_force_offset_by_lines(self, lines: int | list[int], force_offset: bool):
         """
         This method assign a strutural element force offset to the selected lines.
 
@@ -1362,19 +1358,15 @@ class Preprocessor:
         lines : list
             Lines/entities indexes.
             
-        force offset : int, [0, 1]
-            Structural element force offset to be attributed to the listed elements. 
+        force offset : bool
+            This argument controls when the structural element force offset will be activated. 
         """
-        try:
-            if isinstance(lines, int):
-                lines = [lines]
+        if isinstance(lines, int):
+            lines = [lines]
 
-            for elements in slicer(self.mesh.elements_from_line, lines):
-                for element in slicer(self.structural_elements, elements):
-                    element.force_offset = bool(force_offset)
-
-        except Exception as _error:
-            print(str(_error))
+        for elements in slicer(self.mesh.elements_from_line, lines):
+            for element in slicer(self.structural_elements, elements):
+                element.force_offset = force_offset
 
     def modify_stress_stiffening_effect(self, _bool):
         self.stress_stiffening_enabled = _bool

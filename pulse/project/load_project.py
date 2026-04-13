@@ -349,7 +349,7 @@ class LoadProject:
 
 
     def load_capped_ends(self, line_id: int, data: dict):
-        capped_end = data.get("capped_end")
+        capped_end = data.get("capped_end", True)
         self.preprocessor.set_capped_end_by_lines(line_id, capped_end)
 
 
