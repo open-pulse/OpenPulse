@@ -21,7 +21,7 @@ from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs
 
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import CylindersActingMode, ReciprocatingPumpModel
-from pulse.interface.user_input.plots.general.plot_2d_simplified import PlotSettings, Plot2DSimplified 
+from pulse.interface.user_input.plots.general.plot_2d_simplified import Plot2DSimplified 
 
 import numpy as np
 from enum import IntEnum
@@ -911,15 +911,31 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         
         self.plot_2d.set_plot_data(time, flow_rate)
         self.plot_2d.show()
-        self.pump_model.plot_volumetric_flow_rate_at_suction_time()
 
     def plot_volumetric_flow_rate_at_discharge_time(self):
         if self.check_all_parameters():
             return
+        
         N = self.spinBox_number_of_points.value()
         self.pump_model.number_points = N
-        self.pump_model.plot_volumetric_flow_rate_at_discharge_time()
-        return
+
+        flow_rate = self.pump_model.process_sum_of_volumetric_flow_rate('out_flow')
+        if flow_rate is None:
+            return
+
+        Trev = 60 / self.pump_model.rpm
+        N = len(flow_rate)
+
+        time = np.linspace(0, Trev, N)
+
+        self.plot_2d = Plot2DSimplified(
+            title="Volumetric flow rate at discharge",
+            x_label="Time [s]",
+            y_label="Volume [m³/s]"
+        )
+
+        self.plot_2d.set_plot_data(time, flow_rate)
+        self.plot_2d.show()
     
     def plot_rod_pressure_load_frequency(self):
         self.process_aquisition_parameters()
@@ -928,8 +944,27 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
     def plot_rod_pressure_load_time(self):
         self.process_aquisition_parameters()
-        self.pump_model.plot_rod_pressure_load_time()
-        return
+
+        _, pressure_HE_Pa, _ = self.pump_model.process_head_end_volumes_and_pressures()
+        _, pressure_CE_Pa, _ = self.pump_model.process_crank_end_volumes_and_pressures()
+
+        load_head = pressure_HE_Pa * self.pump_model.area_head_end
+        load_crank = -pressure_CE_Pa * self.pump_model.area_crank_end
+
+        rod_pressure_load_time = (load_head + load_crank) / 1000
+
+        Trev = 60 / self.pump_model.rpm
+        N = len(rod_pressure_load_time)
+        time = np.linspace(0, Trev, N)
+
+        self.plot_2d = Plot2DSimplified(
+            title="Time [s]",
+            x_label="Rod pressure load [kN]",
+            y_label="Rod pressure load"
+        )
+
+        self.plot_2d.set_plot_data(time, rod_pressure_load_time, absolute_value=True)
+        self.plot_2d.show()
     
     def plot_piston_position_and_velocity_time(self):
         self.process_aquisition_parameters()

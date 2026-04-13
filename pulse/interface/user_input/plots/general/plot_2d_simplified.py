@@ -103,9 +103,12 @@ class Plot2DSimplified(Plot2dDialog_UI):
         color: tuple = (1, 0, 0),
         marker: str = None,
         marker_size: int = 5,
-        axes_limits: (list | tuple | str) = "auto",
+        absolute_value: bool = False
     ):
-    
+
+        if absolute_value:
+            y_data = np.abs(y_data)
+
         self.results_plot.axes.plot(
             x_data,
             y_data,
