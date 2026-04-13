@@ -256,7 +256,7 @@ class NodalLoadsInput(StructuralNodesInput, NodalLoadsInput_UI):
 
         self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         for property, *_ in self.properties.nodal_properties.keys():
-            if property == "prescribed_dofs":
+            if property == "nodal_loads":
                 self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
                 self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
