@@ -2,7 +2,7 @@ from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import  QTreeWidgetItem
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.handler.geometry_handler import GeometryHandler
@@ -12,18 +12,30 @@ from pulse.interface.ui_generated.model.setup.structural.expansion_joint_input_u
 from pulse.interface.user_input.model.setup.structural.structural_lines_input import (
     StructuralLinesInput,
 )
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.cross_section import CrossSection
 
-error_title = "Error"
+
+class TabIndex(IntEnum):
+    SETUP = 0
+    LIST = 1
 
 
 class DataType(IntEnum):
     CONSTANT_VALUES = 0
     TABULAR_VALUES = 1
+
+
+class AxialStopRod(IntEnum):
+    NOT_INCLUDED = 0
+    INCLUDED = 1
+
+
+error_title = "Error"
 
 
 class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
@@ -32,6 +44,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         self.render_type = kwargs.get("render_type", "model")
 
         self._initialize()
+        self._configure_validators()
         self._create_connections()
         self._configure_appearance()
 
@@ -44,6 +57,20 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
     def exec_callback(self):
         while self.keep_window_open:
             self.exec()
+
+    def _configure_validators(self):
+
+        general_validator = StrictDoubleValidator(0, 1e8, 6)
+        self.lineEdit_effective_diameter.setValidator(general_validator)
+        self.lineEdit_joint_mass.setValidator(general_validator)
+
+        self.lineEdit_axial_locking_criteria.setValidator(StrictDoubleValidator(0, 10, 6))
+
+        stiffness_validator = StrictDoubleValidator(0, 1e12, 6)
+        self.lineEdit_Kx.setValidator(stiffness_validator)
+        self.lineEdit_Krx.setValidator(stiffness_validator)
+        self.lineEdit_Kyz.setValidator(stiffness_validator)
+        self.lineEdit_Kryz.setValidator(stiffness_validator)
 
     def _initialize(self):
         self.stiffness_labels = ["Kx", "Kyz", "Krx", "Kryz"]
@@ -73,6 +100,24 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             self.lineEdit_Kryz_table_path,
         ]
 
+    def _configure_appearance(self):
+
+        if self.render_type == "model":
+            self.selection_frame.setVisible(True)
+
+        else:
+            self.selection_frame.setVisible(False)
+            self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
+            self.tabWidget_inputs.setTabVisible(DataType.TABULAR_VALUES, False)
+
+        self.setMinimumHeight(520)
+
+    def _config_widgets(self):
+        #
+        for i, width in enumerate([70, 120]):
+            self.treeWidget_lines_info.setColumnWidth(i, width)
+            self.treeWidget_lines_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
+
     def _create_connections(self):
         #
         self.comboBox_axial_stop_rod.currentIndexChanged.connect(
@@ -88,8 +133,8 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         #
-        self.treeWidget_expansion_joints_info.itemClicked.connect(self.on_click_item)
-        self.treeWidget_expansion_joints_info.itemDoubleClicked.connect(
+        self.treeWidget_lines_info.itemClicked.connect(self.on_click_item)
+        self.treeWidget_lines_info.itemDoubleClicked.connect(
             self.on_doubleclick_item
         )
         #
@@ -97,55 +142,75 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
     def selection_callback(self):
 
-        try:
-            selected_lines = app().main_window.list_selected_lines()
+        selected_lines = app().main_window.list_selected_lines()
+        if not selected_lines:
+            return
 
-            if selected_lines:
-                text = ", ".join([str(i) for i in selected_lines])
-                self.lineEdit_selected_id.setText(text)
+        self.reset_input_fields()
 
-                if self.check_selection_type():
-                    return
+        text = ", ".join([str(i) for i in selected_lines])
+        self.lineEdit_selected_id.setText(text)
 
-                if len(selected_lines) == 1:
-                    self.load_input_fields(selected_lines[0])
+        if self.check_selection_type():
+            return
 
-        except Exception as log_error:
-            title = "Error in 'update' function"
-            message = str(log_error)
-            PrintMessageInput([error_title, title, message])
+        if len(selected_lines) != 1:
+            return
 
-    def _configure_appearance(self):
+        joint_data = self.properties._get_property("expansion_joint_info", line_id=selected_lines[0])
+        if isinstance(joint_data, dict):
+            self.load_input_fields(joint_data)
 
-        if self.render_type == "model":
-            self.selection_frame.setVisible(True)
+    def load_input_fields(self, joint_data: dict):
 
-        else:
-            self.selection_frame.setVisible(False)
-            self.tabWidget_main.setTabVisible(1, False)
-            self.tabWidget_inputs.setTabVisible(1, False)
+        self.lineEdit_expansion_joint_name.setText(joint_data["expansion_joint_name"])
+        self.lineEdit_effective_diameter.setText(str(joint_data["effective_diameter"]))
+        self.lineEdit_joint_mass.setText(str(joint_data["joint_mass"]))
+        self.lineEdit_axial_locking_criteria.setText(str(joint_data["axial_locking_criteria"]))
+        self.comboBox_axial_stop_rod.setCurrentIndex(int(joint_data["rods"]))
 
-        self.setMinimumHeight(520)
+        if "table_paths" in joint_data.keys():
+            Kx_path, Kyz_path, Krx_path, Kryz_path = joint_data["table_paths"]
+            self.tabWidget_inputs.setCurrentIndex(DataType.TABULAR_VALUES)
+            self.lineEdit_Kx_table_path.setText(Kx_path)
+            self.lineEdit_Kyz_table_path.setText(Kyz_path)
+            self.lineEdit_Krx_table_path.setText(Krx_path)
+            self.lineEdit_Kryz_table_path.setText(Kryz_path)
+            return
 
-    def _config_widgets(self):
-        #
-        for i, width in enumerate([70, 120]):
-            self.treeWidget_expansion_joints_info.setColumnWidth(i, width)
-            self.treeWidget_expansion_joints_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
+        self.tabWidget_inputs.setCurrentIndex(DataType.CONSTANT_VALUES)
+        Kx, Kyz, Krx, Kryz = joint_data['values']
+        self.lineEdit_Kx.setText(f"{Kx : .6e}")
+        self.lineEdit_Kyz.setText(f"{Kyz : .6e}")
+        self.lineEdit_Krx.setText(f"{Krx : .6e}")
+        self.lineEdit_Kryz.setText(f"{Kryz : .6e}")
 
     def axial_stop_rod_callback(self):
-        if self.comboBox_axial_stop_rod.currentIndex() == 0:
-            self.label_axial_lock_criteria.setDisabled(True)
-            self.lineEdit_axial_locking_criteria.clear()
-            self.lineEdit_axial_locking_criteria.setDisabled(True)
+
+        axial_stop_rod = self.comboBox_axial_stop_rod.currentIndex() == AxialStopRod.INCLUDED
+        self.label_axial_lock_criteria.setEnabled(axial_stop_rod)
+        self.lineEdit_axial_locking_criteria.setEnabled(axial_stop_rod)
+
+        if axial_stop_rod:
+            if self.lineEdit_axial_locking_criteria.text() == "":
+                self.lineEdit_axial_locking_criteria.setText("1.0")
+
         else:
-            self.label_axial_lock_criteria.setDisabled(False)
-            self.lineEdit_axial_locking_criteria.setDisabled(False)
+            self.lineEdit_axial_locking_criteria.clear()
 
     def tab_event_callback(self):
+
         self.pushButton_remove.setDisabled(True)
-        tab_remove = self.tabWidget_main.currentIndex() == 1
-        self.selection_frame.setDisabled(tab_remove)
+
+        tab_list = self.tabWidget_main.currentIndex() == TabIndex.LIST
+        self.selection_frame.setDisabled(tab_list)
+        self.pushButton_attribute.setDisabled(tab_list)
+
+        if not tab_list:
+            self.treeWidget_lines_info.clearSelection()
+            return
+
+        self.lineEdit_selected_id.clear()
 
     def check_selection_type(self):
 
@@ -166,117 +231,60 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
         return False
 
-    def load_input_fields(self, line_id: int):
-
-        joint_data = self.properties._get_property(
-            "expansion_joint_info", line_id=line_id
-        )
-        if joint_data is None:
-            return
-
-        try:
-
-            self.reset_input_fields()
-            self.lineEdit_effective_diameter.setText(str(joint_data["effective_diameter"]))
-            self.lineEdit_joint_mass.setText(str(joint_data["joint_mass"]))
-            self.lineEdit_axial_locking_criteria.setText(
-                str(joint_data["axial_locking_criteria"])
-            )
-            self.comboBox_axial_stop_rod.setCurrentIndex(int(joint_data["rods"]))
-
-            if "table_paths" in joint_data.keys():
-                self.tabWidget_inputs.setCurrentIndex(1)
-                self.lineEdit_Kx_table_path.setText(joint_data["table_paths"][0])
-                self.lineEdit_Kyz_table_path.setText(joint_data["table_paths"][1])
-                self.lineEdit_Krx_table_path.setText(joint_data["table_paths"][2])
-                self.lineEdit_Kryz_table_path.setText(joint_data["table_paths"][3])
-
-            else:
-                self.tabWidget_inputs.setCurrentIndex(0)
-                Kx, Kyz, Krx, Kryz = joint_data['values']
-                self.lineEdit_Kx.setText(f"{Kx : .3e}")
-                self.lineEdit_Kyz.setText(f"{Kyz : .3e}")
-                self.lineEdit_Krx.setText(f"{Krx : .3e}")
-                self.lineEdit_Kryz.setText(f"{Kryz : .3e}")
-
-        except Exception as error_log:
-            title = "Error while loading info from entity"
-            message = str(error_log)
-            PrintMessageInput([error_title, title, message])
-
     def check_initial_inputs(self):
 
         self.expansion_joint_info.clear()
 
-        if self.lineEdit_expansion_joint_name.text() == "":
+        joint_name = self.lineEdit_expansion_joint_name.text()
+        if joint_name == "":
             self.lineEdit_expansion_joint_name.setFocus()
             return True
 
-        self.expansion_joint_info["expansion_joint_name"] = (
-            self.lineEdit_expansion_joint_name.text()
-        )
+        self.expansion_joint_info["expansion_joint_name"] = joint_name
 
         if self.render_type == "model":
             if self.check_selection_type():
                 return True
+            
+        line_edits = [
+            self.lineEdit_effective_diameter,
+            self.lineEdit_joint_mass,
+            self.lineEdit_axial_locking_criteria,
+        ]
 
-        stop, value = self.check_input_parameters(
-            self.lineEdit_effective_diameter, "Effective diameter"
-        )
-        if stop:
-            self.lineEdit_effective_diameter.setFocus()
-            return True
-        self.expansion_joint_info["effective_diameter"] = value
+        for line_edit in line_edits:
 
-        stop, value = self.check_input_parameters(
-            self.lineEdit_joint_mass, "Joint mass"
-        )
-        if stop:
-            self.lineEdit_joint_mass.setFocus()
-            return True
-        self.expansion_joint_info["joint_mass"] = value
+            if line_edit.text() == "":
+                line_edit.setFocus()
+                return True
 
-        stop, value = self.check_input_parameters(
-            self.lineEdit_axial_locking_criteria, "Axial locking criteria"
-        )
-        if stop:
-            self.lineEdit_axial_locking_criteria.setFocus()
-            return True
-        self.expansion_joint_info["axial_locking_criteria"] = value
+            obj_name = line_edit.objectName()
+            var_name = obj_name.split("lineEdit_")[1]
 
-        self.expansion_joint_info["rods"] = int(
-            self.comboBox_axial_stop_rod.currentIndex()
-        )
+            self.expansion_joint_info[var_name] = float(line_edit.text())
+
+        self.expansion_joint_info["rods"] = self.comboBox_axial_stop_rod.currentIndex()
 
     def check_constant_values_to_stiffness(self):
 
-        _stiffness = list()
+        constant_stiffness = list()
 
-        stop, value = self.check_input_parameters(self.lineEdit_Kx, 'Kx (axial stiffness)')
-        if stop:
-            self.lineEdit_Kx.setFocus()
-            return True
-        _stiffness.append(value)
+        line_edits = [
+            self.lineEdit_Kx,
+            self.lineEdit_Kyz,
+            self.lineEdit_Krx,
+            self.lineEdit_Kryz,
+        ]
 
-        stop, value = self.check_input_parameters(self.lineEdit_Kyz, 'Kyz (transversal stiffness)')
-        if stop:
-            self.lineEdit_Kyz.setFocus()
-            return True
-        _stiffness.append(value)
+        for line_edit in line_edits:
 
-        stop, value = self.check_input_parameters(self.lineEdit_Krx, 'Krx (torsional stiffness)')
-        if stop:
-            self.lineEdit_Krx.setFocus()
-            return True
-        _stiffness.append(value)
+            if line_edit.text() == "":
+                line_edit.setFocus()
+                return True
 
-        stop, value = self.check_input_parameters(self.lineEdit_Kryz, 'Kryz (angular stiffness)')
-        if stop:
-            self.lineEdit_Kryz.setFocus()
-            return True
-        _stiffness.append(value)
+            constant_stiffness.append(float(line_edit.text()))
 
-        self.expansion_joint_info["values"] = _stiffness
+        self.expansion_joint_info["values"] = constant_stiffness
 
     def load_table_for_line_edit(self, line_edit, dof_label):
         if dof_label == "Kx":
@@ -441,7 +449,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         self.close()
 
     def load_expansion_joints_info(self):
-        self.treeWidget_expansion_joints_info.clear()
+        self.treeWidget_lines_info.clear()
         for line_id, data in self.properties.line_properties.items():
             if "expansion_joint_info" in data.keys():
                 ej_info = data["expansion_joint_info"]
@@ -465,18 +473,21 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
                 item = QTreeWidgetItem([str(line_id), str_joint_info[:-2]])
                 item.setTextAlignment(0, Qt.AlignCenter)
                 item.setTextAlignment(1, Qt.AlignCenter)
-                self.treeWidget_expansion_joints_info.addTopLevelItem(item)
+                self.treeWidget_lines_info.addTopLevelItem(item)
 
         self.update_tab_visibility()
 
     def update_tab_visibility(self):
-        self.tabWidget_main.setTabVisible(1, False)
+
+        self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         for data in self.properties.line_properties.values():
             if "expansion_joint_info" in data.keys():
-                self.tabWidget_main.setTabVisible(1, True)
+                self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
 
-    def on_click_item(self, item):
+        self.lineEdit_expansion_joint_name.setFocus()
+
+    def on_click_item(self, item: QTreeWidgetItem):
         self.lineEdit_selected_id.setText(item.text(0))
         self.pushButton_remove.setEnabled(True)
         if item.text(0) != "":
@@ -487,7 +498,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             if isinstance(data, dict):
                 app().main_window.set_selection(lines=[line_id])
 
-    def on_doubleclick_item(self, item):
+    def on_doubleclick_item(self, item: QTreeWidgetItem):
         self.on_click_item(item)
 
     def restore_the_cross_section(self, line_ids: list):
@@ -539,7 +550,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
         self.properties._remove_line_property("structural_element_type", line_ids)
 
     def remove_callback(self):
-        selected_items = self.treeWidget_expansion_joints_info.selectedItems()
+        selected_items = self.treeWidget_lines_info.selectedItems()
 
         if not selected_items:
             return
