@@ -303,7 +303,7 @@
                 </font>
                </property>
                <property name="text">
-                <string>Length</string>
+                <string>Total length:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
@@ -1925,18 +1925,26 @@
   <tabstop>set_material_button</tabstop>
   <tabstop>bending_options_combobox</tabstop>
   <tabstop>bending_radius_line_edit</tabstop>
+  <tabstop>length_line_edit</tabstop>
   <tabstop>x_line_edit</tabstop>
   <tabstop>y_line_edit</tabstop>
   <tabstop>z_line_edit</tabstop>
-  <tabstop>frame</tabstop>
   <tabstop>delete_button</tabstop>
   <tabstop>attach_button</tabstop>
   <tabstop>add_button</tabstop>
-  <tabstop>division_slider</tabstop>
-  <tabstop>division_amount_spinbox</tabstop>
+  <tabstop>division_combobox</tabstop>
+  <tabstop>selected_point_combo_box</tabstop>
+  <tabstop>distance_axis_combo_box</tabstop>
+  <tabstop>distance_value_line_edit</tabstop>
+  <tabstop>cancel_division_button</tabstop>
+  <tabstop>apply_division_button</tabstop>
   <tabstop>cancel_button</tabstop>
   <tabstop>finalize_button</tabstop>
   <tabstop>scrollArea</tabstop>
+  <tabstop>position_spinbox</tabstop>
+  <tabstop>division_slider</tabstop>
+  <tabstop>position_slider</tabstop>
+  <tabstop>division_amount_spinbox</tabstop>
  </tabstops>
  <resources>
   <include location="../../../icons/resources.qrc"/>
