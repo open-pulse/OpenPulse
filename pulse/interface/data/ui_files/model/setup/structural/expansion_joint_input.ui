@@ -186,7 +186,7 @@
             </font>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab_setup">
             <attribute name="title">
@@ -303,12 +303,12 @@
                       </property>
                       <item>
                        <property name="text">
-                        <string> Not included</string>
+                        <string>Not included</string>
                        </property>
                       </item>
                       <item>
                        <property name="text">
-                        <string> Included</string>
+                        <string>Included</string>
                        </property>
                       </item>
                      </widget>
@@ -1734,7 +1734,7 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="tab_remove">
+           <widget class="QWidget" name="tab_list">
             <property name="font">
              <font>
               <family>MS UI Gothic</family>
@@ -1744,7 +1744,7 @@
              </font>
             </property>
             <attribute name="title">
-             <string>Remove</string>
+             <string>List</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_2">
              <property name="leftMargin">
@@ -1760,7 +1760,7 @@
               <number>4</number>
              </property>
              <item row="1" column="0">
-              <widget class="QTreeWidget" name="treeWidget_expansion_joints_info">
+              <widget class="QTreeWidget" name="treeWidget_lines_info">
                <property name="minimumSize">
                 <size>
                  <width>320</width>
@@ -1782,7 +1782,10 @@
                 </font>
                </property>
                <property name="frameShape">
-                <enum>QFrame::Shape::NoFrame</enum>
+                <enum>QFrame::Shape::Box</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Shadow::Raised</enum>
                </property>
                <property name="indentation">
                 <number>0</number>
@@ -2135,7 +2138,7 @@
          <bool>false</bool>
         </property>
         <property name="default">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
         <property name="flat">
          <bool>false</bool>
@@ -2184,12 +2187,7 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>lineEdit_selected_id</tabstop>
   <tabstop>tabWidget_main</tabstop>
-  <tabstop>lineEdit_expansion_joint_name</tabstop>
-  <tabstop>lineEdit_effective_diameter</tabstop>
-  <tabstop>lineEdit_joint_mass</tabstop>
-  <tabstop>lineEdit_axial_locking_criteria</tabstop>
   <tabstop>comboBox_axial_stop_rod</tabstop>
   <tabstop>lineEdit_Kx</tabstop>
   <tabstop>lineEdit_Kyz</tabstop>
@@ -2208,7 +2206,7 @@
   <tabstop>tabWidget_inputs</tabstop>
   <tabstop>pushButton_remove</tabstop>
   <tabstop>pushButton_reset</tabstop>
-  <tabstop>treeWidget_expansion_joints_info</tabstop>
+  <tabstop>treeWidget_lines_info</tabstop>
   <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources>

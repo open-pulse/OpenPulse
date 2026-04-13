@@ -580,35 +580,36 @@ class Ui_Dialog(object):
         self.gridLayout_13.addWidget(self.scrollArea, 2, 1, 1, 1)
 
         self.tabWidget_main.addTab(self.tab_setup, "")
-        self.tab_remove = QWidget()
-        self.tab_remove.setObjectName(u"tab_remove")
+        self.tab_list = QWidget()
+        self.tab_list.setObjectName(u"tab_list")
         font4 = QFont()
         font4.setFamilies([u"MS UI Gothic"])
         font4.setPointSize(10)
         font4.setBold(False)
         font4.setItalic(False)
-        self.tab_remove.setFont(font4)
-        self.gridLayout_2 = QGridLayout(self.tab_remove)
+        self.tab_list.setFont(font4)
+        self.gridLayout_2 = QGridLayout(self.tab_list)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setContentsMargins(4, 4, 4, 4)
-        self.treeWidget_expansion_joints_info = QTreeWidget(self.tab_remove)
+        self.treeWidget_lines_info = QTreeWidget(self.tab_list)
         __qtreewidgetitem = QTreeWidgetItem()
         __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
         __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_expansion_joints_info.setHeaderItem(__qtreewidgetitem)
-        self.treeWidget_expansion_joints_info.setObjectName(u"treeWidget_expansion_joints_info")
-        self.treeWidget_expansion_joints_info.setMinimumSize(QSize(320, 200))
-        self.treeWidget_expansion_joints_info.setMaximumSize(QSize(460, 200))
+        self.treeWidget_lines_info.setHeaderItem(__qtreewidgetitem)
+        self.treeWidget_lines_info.setObjectName(u"treeWidget_lines_info")
+        self.treeWidget_lines_info.setMinimumSize(QSize(320, 200))
+        self.treeWidget_lines_info.setMaximumSize(QSize(460, 200))
         font5 = QFont()
         font5.setFamilies([u"MS Shell Dlg 2"])
         font5.setPointSize(8)
         font5.setBold(False)
         font5.setItalic(False)
-        self.treeWidget_expansion_joints_info.setFont(font5)
-        self.treeWidget_expansion_joints_info.setFrameShape(QFrame.Shape.NoFrame)
-        self.treeWidget_expansion_joints_info.setIndentation(0)
+        self.treeWidget_lines_info.setFont(font5)
+        self.treeWidget_lines_info.setFrameShape(QFrame.Shape.Box)
+        self.treeWidget_lines_info.setFrameShadow(QFrame.Shadow.Raised)
+        self.treeWidget_lines_info.setIndentation(0)
 
-        self.gridLayout_2.addWidget(self.treeWidget_expansion_joints_info, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.treeWidget_lines_info, 1, 0, 1, 1)
 
         self.verticalSpacer_5 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
@@ -618,7 +619,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_2.addItem(self.verticalSpacer_4, 0, 0, 1, 1)
 
-        self.frame_buttons = QFrame(self.tab_remove)
+        self.frame_buttons = QFrame(self.tab_list)
         self.frame_buttons.setObjectName(u"frame_buttons")
         self.frame_buttons.setMinimumSize(QSize(0, 40))
         self.frame_buttons.setMaximumSize(QSize(16777215, 40))
@@ -656,7 +657,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_2.addWidget(self.frame_buttons, 2, 0, 1, 1)
 
-        self.tabWidget_main.addTab(self.tab_remove, "")
+        self.tabWidget_main.addTab(self.tab_list, "")
 
         self.gridLayout_4.addWidget(self.tabWidget_main, 1, 0, 1, 1)
 
@@ -749,12 +750,7 @@ class Ui_Dialog(object):
 
         self.gridLayout.addWidget(self.frame_confirm, 2, 0, 1, 1)
 
-        QWidget.setTabOrder(self.lineEdit_selected_id, self.tabWidget_main)
-        QWidget.setTabOrder(self.tabWidget_main, self.lineEdit_expansion_joint_name)
-        QWidget.setTabOrder(self.lineEdit_expansion_joint_name, self.lineEdit_effective_diameter)
-        QWidget.setTabOrder(self.lineEdit_effective_diameter, self.lineEdit_joint_mass)
-        QWidget.setTabOrder(self.lineEdit_joint_mass, self.lineEdit_axial_locking_criteria)
-        QWidget.setTabOrder(self.lineEdit_axial_locking_criteria, self.comboBox_axial_stop_rod)
+        QWidget.setTabOrder(self.tabWidget_main, self.comboBox_axial_stop_rod)
         QWidget.setTabOrder(self.comboBox_axial_stop_rod, self.lineEdit_Kx)
         QWidget.setTabOrder(self.lineEdit_Kx, self.lineEdit_Kyz)
         QWidget.setTabOrder(self.lineEdit_Kyz, self.lineEdit_Krx)
@@ -772,15 +768,15 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.pushButton_load_Kryz_table, self.tabWidget_inputs)
         QWidget.setTabOrder(self.tabWidget_inputs, self.pushButton_remove)
         QWidget.setTabOrder(self.pushButton_remove, self.pushButton_reset)
-        QWidget.setTabOrder(self.pushButton_reset, self.treeWidget_expansion_joints_info)
-        QWidget.setTabOrder(self.treeWidget_expansion_joints_info, self.scrollArea)
+        QWidget.setTabOrder(self.pushButton_reset, self.treeWidget_lines_info)
+        QWidget.setTabOrder(self.treeWidget_lines_info, self.scrollArea)
 
         self.retranslateUi(Dialog)
 
-        self.tabWidget_main.setCurrentIndex(0)
+        self.tabWidget_main.setCurrentIndex(1)
         self.comboBox_axial_stop_rod.setCurrentIndex(1)
         self.tabWidget_inputs.setCurrentIndex(0)
-        self.pushButton_attribute.setDefault(True)
+        self.pushButton_attribute.setDefault(False)
         self.pushButton_exit.setDefault(False)
 
 
@@ -790,8 +786,8 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"Expansion joints configuration", None))
-        self.comboBox_axial_stop_rod.setItemText(0, QCoreApplication.translate("Dialog", u" Not included", None))
-        self.comboBox_axial_stop_rod.setItemText(1, QCoreApplication.translate("Dialog", u" Included", None))
+        self.comboBox_axial_stop_rod.setItemText(0, QCoreApplication.translate("Dialog", u"Not included", None))
+        self.comboBox_axial_stop_rod.setItemText(1, QCoreApplication.translate("Dialog", u"Included", None))
 
         self.label_96.setText(QCoreApplication.translate("Dialog", u"[m]", None))
         self.label_101.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Axial stop rods:</p></body></html>", None))
@@ -826,13 +822,13 @@ class Ui_Dialog(object):
         self.label_104.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\"><span style=\" font-size:11pt;\">k</span><span style=\" font-size:11pt; vertical-align:sub;\">yz</span><span style=\" font-size:11pt;\">:</span></p></body></html>", None))
         self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_tabular_values), QCoreApplication.translate("Dialog", u"Tabular values", None))
         self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
-        ___qtreewidgetitem = self.treeWidget_expansion_joints_info.headerItem()
+        ___qtreewidgetitem = self.treeWidget_lines_info.headerItem()
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Joint parameters [L, d_eff, m, \u03b5, rods, kx, kyz, krx, kryz]", None))
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("Dialog", u"Line ID", None))
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
-        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_list), QCoreApplication.translate("Dialog", u"List", None))
         self.label_selected_id.setText(QCoreApplication.translate("Dialog", u"Selected lines:", None))
         self.pushButton_attribute.setText(QCoreApplication.translate("Dialog", u"Attribute", None))
         self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
@@ -901,9 +897,9 @@ class ExpansionJointInput_UI(QDialog, Ui_Dialog):
                                                                                         - pushButton_load_Kyz_table: QPushButton
                                                                                         - label_106: QLabel
                                                                                         - label_104: QLabel
-                                            - tab_remove: QWidget
+                                            - tab_list: QWidget
                                                 - (Layout): QGridLayout
-                                                        - treeWidget_expansion_joints_info: QTreeWidget
+                                                        - treeWidget_lines_info: QTreeWidget
                                                         - frame_buttons: QFrame
                                                             - (Layout): QGridLayout
                                                                     - pushButton_reset: QPushButton

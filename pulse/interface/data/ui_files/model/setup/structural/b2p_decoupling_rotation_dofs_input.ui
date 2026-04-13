@@ -335,9 +335,9 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="tab_remove">
+        <widget class="QWidget" name="tab_list">
          <attribute name="title">
-          <string>Remove</string>
+          <string>List</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_8">
           <property name="leftMargin">

@@ -130,13 +130,13 @@ class Ui_Dialog(object):
         self.gridLayout_13.addWidget(self.frame_7, 1, 0, 1, 1)
 
         self.tabWidget_main.addTab(self.tab_setup, "")
-        self.tab_remove = QWidget()
-        self.tab_remove.setObjectName(u"tab_remove")
-        self.gridLayout_8 = QGridLayout(self.tab_remove)
+        self.tab_list = QWidget()
+        self.tab_list.setObjectName(u"tab_list")
+        self.gridLayout_8 = QGridLayout(self.tab_list)
         self.gridLayout_8.setSpacing(4)
         self.gridLayout_8.setObjectName(u"gridLayout_8")
         self.gridLayout_8.setContentsMargins(4, 4, 4, 4)
-        self.frame_3 = QFrame(self.tab_remove)
+        self.frame_3 = QFrame(self.tab_list)
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setFrameShape(QFrame.Shape.NoFrame)
         self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
@@ -166,7 +166,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_8.addWidget(self.frame_3, 0, 0, 1, 1)
 
-        self.frame_4 = QFrame(self.tab_remove)
+        self.frame_4 = QFrame(self.tab_list)
         self.frame_4.setObjectName(u"frame_4")
         self.frame_4.setMinimumSize(QSize(0, 48))
         font2 = QFont()
@@ -202,7 +202,7 @@ class Ui_Dialog(object):
 
         self.gridLayout_8.addWidget(self.frame_4, 1, 0, 1, 1)
 
-        self.tabWidget_main.addTab(self.tab_remove, "")
+        self.tabWidget_main.addTab(self.tab_list, "")
 
         self.gridLayout_3.addWidget(self.tabWidget_main, 1, 0, 1, 1)
 
@@ -394,7 +394,7 @@ class Ui_Dialog(object):
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
-        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_list), QCoreApplication.translate("Dialog", u"List", None))
         self.label_3.setText(QCoreApplication.translate("Dialog", u"Element ID:", None))
         self.label_7.setText(QCoreApplication.translate("Dialog", u"T-joint node ID:", None))
         self.lineEdit_element_id.setText("")
@@ -424,7 +424,7 @@ class B2pDecouplingRotationDofsInput_UI(QDialog, Ui_Dialog):
                                                                     - checkBox_rotation_x: QCheckBox
                                                                     - checkBox_rotation_y: QCheckBox
                                                                     - checkBox_rotation_z: QCheckBox
-                                - tab_remove: QWidget
+                                - tab_list: QWidget
                                     - (Layout): QGridLayout
                                             - frame_3: QFrame
                                                 - (Layout): QGridLayout
