@@ -333,6 +333,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self._update_permissions()
         self.render_widget.update_plot(reset_camera=False)
         self.update_zoom_to_fit_new_points()
+        self._update_information_text()
         self.render_widget.update()
 
     def length_changed_callback(self):
@@ -360,6 +361,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self._update_permissions()
         self.render_widget.update_plot(reset_camera=False)
         self.update_zoom_to_fit_new_points()
+        self._update_information_text()
         self.render_widget.update()
 
     def update_zoom_to_fit_new_points(self):
@@ -868,7 +870,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             material_id = self.current_material_id
             material = app().project.model.properties.materials_library.get(material_id)
 
-        message = "Active configuration\n\n"
+        message = ""
 
         if cross_section_info:
             if section_label == "reducer":
@@ -895,6 +897,14 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             tree.add_item("dy", dy, unit)
             tree.add_item("dz", dz, unit)
             message += str(tree) + "\n\n"
+
+        if message:
+            message = "Active configuration:\n\n" + message
+
+        total_added_length = 0
+        for structure in self.pipeline.staged_structures:
+            total_added_length += structure.arc_length
+        message += f"Total added length: {total_added_length:.3f}"
 
         self.render_widget.set_info_text(message)
 
