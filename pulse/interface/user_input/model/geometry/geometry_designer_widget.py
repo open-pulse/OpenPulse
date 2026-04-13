@@ -675,6 +675,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.modified = True
         self._reset_xyz()
         self._update_permissions()
+        self._update_information_text()
 
     def cancel_callback(self):
         app().main_window.update_plots()
@@ -852,7 +853,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
             return
 
     def _update_information_text(self):
-        cross_section_info = getattr(self.current_options, "cross_section_info", None)
+        cross_section_info = getattr(self.current_options, "structure_info", None)
 
         section_label = ""
         section_parameters = ""
@@ -897,10 +898,9 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         if message:
             message = "Active configuration:\n\n" + message
 
-        total_added_length = 0
-        for structure in self.pipeline.staged_structures:
-            total_added_length += structure.arc_length
-        message += f"Total added length: {total_added_length:.3f}"
+        total_added_length = sum([s.arc_length for s in self.pipeline.staged_structures])
+        if total_added_length:
+            message += f"Total added length: {total_added_length:.3f}"
 
         self.render_widget.set_info_text(message)
 
