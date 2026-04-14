@@ -102,7 +102,7 @@ class StructureOptions:
             for k, v in kwargs.items():
                 setattr(structure, k, v)
 
-    def update_permissions(self, enable=True):
+    def update_permissions(self):
         if self.structure_info:
             set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
             enable = True
@@ -119,7 +119,7 @@ class StructureOptions:
         self.geometry_designer_widget.configure_button.setEnabled(True)
         self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
 
-        enable_length = self.pipeline.main_editor.is_endpoint()
+        enable_length = self.pipeline.main_editor.can_add_structure_length()
         self.geometry_designer_widget.length_line_edit.setEnabled(enable_length)
 
     def get_kwargs(self) -> dict:
