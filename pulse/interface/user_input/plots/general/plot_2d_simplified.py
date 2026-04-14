@@ -13,8 +13,7 @@ from pulse.interface.user_input.plots.general.mpl_canvas import MplCanvas
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
-from dataclasses import dataclass, field
-from matplotlib.lines import Line2D
+from dataclasses import dataclass
 
 plt.rcParams.update({'font.size': 10})
 
@@ -100,7 +99,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
         label: str = None,
         line_style: str = "-",
         line_width: int = 1.5,
-        color: tuple = (1, 0, 0),
+        color: tuple = (0, 0, 1),
         marker: str = None,
         marker_size: int = 5,
         absolute_value: bool = False
