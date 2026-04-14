@@ -1,19 +1,17 @@
-from PySide6.QtWidgets import QCheckBox, QTreeWidgetItem
+from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QTreeWidgetItem, QWidget
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
-from pulse.interface.ui_generated.data_handler.import_data_to_compare_ui import ImportDataToCompare_UI
+from pulse.interface.ui_generated.data_handler.data_import_assistant_ui import DataImportAssistant_UI
 from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 from pulse.interface.user_input.data_handler.imported_data import ImportedData, SpreadsheetData, SpreadsheetSheet
 from pulse.interface.user_input.data_handler.file_handlers.file_handler import FileHandler
 
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
 
-class ImportDataToCompare(ImportDataToCompare_UI):
+class DataImportAssistant(DataImportAssistant_UI):
     def __init__(self, plotter, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.plotter = plotter
@@ -109,9 +107,16 @@ class ImportDataToCompare(ImportDataToCompare_UI):
         #
         if len(self.imported_results) > 0:
             for i, (id, file) in enumerate(self.imported_results.items()):
+
                 # Creates the QCheckButtons to control data to be plotted
                 self.ids_to_checkBox[id] = QCheckBox()
-                self.ids_to_checkBox[id].setStyleSheet("margin-left:40%; margin-right:50%;")
+
+                checkbox_container = QWidget()
+                cointeiner_layout = QHBoxLayout(checkbox_container)
+                cointeiner_layout.addStretch()
+                cointeiner_layout.addWidget(self.ids_to_checkBox[id])
+                cointeiner_layout.addStretch()
+                cointeiner_layout.setContentsMargins(0, 0, 0, 0)
 
                 if id in self.checkButtons_state.keys():
                     self.ids_to_checkBox[id].setChecked(self.checkButtons_state[id])
@@ -119,11 +124,12 @@ class ImportDataToCompare(ImportDataToCompare_UI):
                 if isinstance(file, SpreadsheetSheet):
                     _item = QTreeWidgetItem([file.source_file, file.name])
                     self.treeWidget_import_sheet_files.addTopLevelItem(_item)
-                    self.treeWidget_import_sheet_files.setItemWidget(_item, 2, self.ids_to_checkBox[id])
+                    self.treeWidget_import_sheet_files.setItemWidget(_item, 2, checkbox_container)
+
                 else:
                     _item = QTreeWidgetItem([file.filename])
                     self.treeWidget_import_text_files.addTopLevelItem(_item)
-                    self.treeWidget_import_text_files.setItemWidget(_item, 1, self.ids_to_checkBox[id])                  
+                    self.treeWidget_import_text_files.setItemWidget(_item, 1, checkbox_container)                  
 
                 for i in range(5):
                     _item.setTextAlignment(i, Qt.AlignCenter)
