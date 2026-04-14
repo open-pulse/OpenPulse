@@ -84,9 +84,9 @@ class NewProjectInput(NewProjectInput_UI):
         geometry_path = FileDialogService.open_file(extensions, last_folder=suggested_path)
 
         if geometry_path is None:
-            return 
+            return
         
-        self.lineEdit_geometry_path.setText(geometry_path)
+        self.lineEdit_geometry_path.setText(str(geometry_path))
         app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
     def check_project_inputs(self):
