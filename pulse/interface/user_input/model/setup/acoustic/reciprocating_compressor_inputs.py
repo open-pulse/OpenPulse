@@ -14,6 +14,7 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     PressureUnits,
     TemperatureUnits,
     convert_temperature_unit,
+    convert_pressure_unit,
     pressure_units_labels,
     temperature_units_labels,
 )
@@ -1043,7 +1044,23 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
-        self.compressor.plot_head_end_pressure_vs_angle()
+
+        _, pressure_HE_Pa, _ = self.compressor.process_head_end_volumes_and_pressures()
+        pressure_unit = self.compressor.pressure_unit
+
+        pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", pressure_unit)
+        
+        N = len(pressure_HE)
+        angle = np.linspace(0, 360, N)
+
+        self.plot_2d = Plot2DSimplified(
+            title="Head end pressure vs Angle",
+            x_label="Crank angle [degree]",
+            y_label=f"Pressure [{pressure_unit}]"
+        )
+
+        self.plot_2d.set_plot_data(angle, pressure_HE)
+        self.plot_2d.show()
 
     def plot_volume_head_end_angle(self):
         if self.check_all_parameters():
@@ -1052,7 +1069,20 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
-        self.compressor.plot_head_end_volume_vs_angle()
+
+        volume_HE, _, _ = self.compressor.process_head_end_volumes_and_pressures()
+
+        N = len(volume_HE)
+        angle = np.linspace(0, 360, N)
+
+        self.plot_2d = Plot2DSimplified(
+            title="Head end volume vs Angle",
+            x_label="Crank angle [degree]",
+            y_label="Volume [m³]"
+        )
+
+        self.plot_2d.set_plot_data(angle, volume_HE)
+        self.plot_2d.show()
 
     def plot_pressure_crank_end_angle(self):
         if self.check_all_parameters():
@@ -1061,7 +1091,23 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
-        self.compressor.plot_crank_end_pressure_vs_angle()
+
+        _, pressure_CE_Pa, _ = self.compressor.process_head_end_volumes_and_pressures()
+        pressure_unit = self.compressor.pressure_unit
+
+        pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", pressure_unit)
+
+        N = len(pressure_CE)
+        angle = np.linspace(0, 360, N)
+
+        self.plot_2d = Plot2DSimplified(
+            title="Crank end pressure vs Angle",
+            x_label="Crank angle [degree]",
+            y_label = f"Pressure [{pressure_unit}]"
+        )
+
+        self.plot_2d.set_plot_data(angle, pressure_CE)
+        self.plot_2d.show()
 
     def plot_volume_crank_end_angle(self):
         if self.check_all_parameters():
@@ -1070,7 +1116,20 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
-        self.compressor.plot_crank_end_volume_vs_angle()
+
+        volume_CE, _, _ = self.compressor.process_crank_end_volumes_and_pressures()
+
+        N = len(volume_CE)
+        angle = np.linspace(0, 360, N)
+
+        self.plot_2d = Plot2DSimplified(
+            title="Crank end volume vs Angle",
+            x_label="Crank angle [degree]",
+            y_label="Volume [m³]"
+        )
+
+        self.plot_2d.set_plot_data(angle, volume_CE)
+        self.plot_2d.show()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

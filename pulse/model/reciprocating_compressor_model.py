@@ -1283,7 +1283,7 @@ class ReciprocatingCompressorModel:
 
     def plot_crank_end_volume_vs_angle(self):
 
-        volume_CE, _, _ = self.process_crank_end_volumes_and_pressures(acting_label="CE")
+        volume_CE, _, _ = self.process_crank_end_volumes_and_pressures()
 
         N = len(volume_CE)
         angle = np.linspace(0, 360, N)
