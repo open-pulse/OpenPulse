@@ -147,6 +147,8 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             return
 
         self.reset_input_fields()
+        if self.comboBox_axial_stop_rod.currentIndex() == AxialStopRod.INCLUDED:
+            self.lineEdit_axial_locking_criteria.setText("1.0")
 
         text = ", ".join([str(i) for i in selected_lines])
         self.lineEdit_selected_id.setText(text)
@@ -241,19 +243,21 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
             return True
 
         self.expansion_joint_info["expansion_joint_name"] = joint_name
+        axial_stop_rod = self.comboBox_axial_stop_rod.currentIndex() == AxialStopRod.INCLUDED
 
         if self.render_type == "model":
             if self.check_selection_type():
                 return True
-            
+
         line_edits = [
             self.lineEdit_effective_diameter,
             self.lineEdit_joint_mass,
-            self.lineEdit_axial_locking_criteria,
         ]
 
-        for line_edit in line_edits:
+        if axial_stop_rod:
+            line_edits.append(self.lineEdit_axial_locking_criteria)
 
+        for line_edit in line_edits:
             if line_edit.text() == "":
                 line_edit.setFocus()
                 return True
@@ -263,7 +267,7 @@ class ExpansionJointInput(StructuralLinesInput, ExpansionJointInput_UI):
 
             self.expansion_joint_info[var_name] = float(line_edit.text())
 
-        self.expansion_joint_info["rods"] = self.comboBox_axial_stop_rod.currentIndex()
+        self.expansion_joint_info["rods"] = axial_stop_rod
 
     def check_constant_values_to_stiffness(self):
 

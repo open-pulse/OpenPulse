@@ -199,11 +199,11 @@ class StructuralElement:
         if isinstance(data, dict):
 
             self.expansion_joint_data = data
-            self.joint_length = data["joint_length"]
-            self.joint_effective_diameter = data["effective_diameter"]
-            self.joint_mass = data["joint_mass"]
-            self.joint_axial_locking_criteria = data["axial_locking_criteria"]
-            self.joint_rods_included = data["rods"]
+            self.joint_length = data.get("joint_length")
+            self.joint_effective_diameter = data.get("effective_diameter")
+            self.joint_mass = data.get("joint_mass")
+            self.joint_rods_included = data.get("rods", False)
+            self.joint_axial_locking_criteria = data.get("axial_locking_criteria", 0)
 
             stiffness_values = data["values"]
 

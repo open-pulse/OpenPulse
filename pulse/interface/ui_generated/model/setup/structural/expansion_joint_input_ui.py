@@ -109,40 +109,91 @@ class Ui_Dialog(object):
         self.gridLayout_11.setHorizontalSpacing(8)
         self.gridLayout_11.setVerticalSpacing(6)
         self.gridLayout_11.setContentsMargins(4, 4, 4, 4)
-        self.comboBox_axial_stop_rod = QComboBox(self.frame_top_inputs)
-        self.comboBox_axial_stop_rod.addItem("")
-        self.comboBox_axial_stop_rod.addItem("")
-        self.comboBox_axial_stop_rod.setObjectName(u"comboBox_axial_stop_rod")
-        self.comboBox_axial_stop_rod.setMinimumSize(QSize(160, 26))
-        self.comboBox_axial_stop_rod.setMaximumSize(QSize(160, 26))
-        self.comboBox_axial_stop_rod.setFont(font1)
+        self.label_94 = QLabel(self.frame_top_inputs)
+        self.label_94.setObjectName(u"label_94")
+        self.label_94.setEnabled(True)
+        self.label_94.setMinimumSize(QSize(148, 26))
+        self.label_94.setMaximumSize(QSize(200, 26))
+        self.label_94.setFont(font1)
+        self.label_94.setMouseTracking(True)
+        self.label_94.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_11.addWidget(self.comboBox_axial_stop_rod, 4, 2, 1, 1)
+        self.gridLayout_11.addWidget(self.label_94, 1, 1, 1, 1)
 
-        self.label_96 = QLabel(self.frame_top_inputs)
-        self.label_96.setObjectName(u"label_96")
-        self.label_96.setEnabled(True)
-        self.label_96.setMinimumSize(QSize(40, 26))
-        self.label_96.setMaximumSize(QSize(200, 26))
-        self.label_96.setFont(font1)
-        self.label_96.setMouseTracking(True)
+        self.lineEdit_expansion_joint_name = QLineEdit(self.frame_top_inputs)
+        self.lineEdit_expansion_joint_name.setObjectName(u"lineEdit_expansion_joint_name")
+        self.lineEdit_expansion_joint_name.setEnabled(True)
+        self.lineEdit_expansion_joint_name.setMinimumSize(QSize(160, 28))
+        self.lineEdit_expansion_joint_name.setMaximumSize(QSize(160, 28))
+        self.lineEdit_expansion_joint_name.setSizeIncrement(QSize(0, 26))
+        self.lineEdit_expansion_joint_name.setFont(font1)
+        self.lineEdit_expansion_joint_name.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_expansion_joint_name.setStyleSheet(u"")
+        self.lineEdit_expansion_joint_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_expansion_joint_name.setClearButtonEnabled(True)
 
-        self.gridLayout_11.addWidget(self.label_96, 1, 3, 1, 1)
+        self.gridLayout_11.addWidget(self.lineEdit_expansion_joint_name, 0, 2, 1, 1)
 
         self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.gridLayout_11.addItem(self.horizontalSpacer_5, 1, 0, 1, 1)
 
-        self.label_101 = QLabel(self.frame_top_inputs)
-        self.label_101.setObjectName(u"label_101")
-        self.label_101.setEnabled(True)
-        self.label_101.setMinimumSize(QSize(148, 26))
-        self.label_101.setMaximumSize(QSize(200, 26))
-        self.label_101.setFont(font1)
-        self.label_101.setMouseTracking(True)
-        self.label_101.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.lineEdit_axial_locking_criteria = QLineEdit(self.frame_top_inputs)
+        self.lineEdit_axial_locking_criteria.setObjectName(u"lineEdit_axial_locking_criteria")
+        self.lineEdit_axial_locking_criteria.setEnabled(True)
+        self.lineEdit_axial_locking_criteria.setMinimumSize(QSize(160, 26))
+        self.lineEdit_axial_locking_criteria.setMaximumSize(QSize(160, 26))
+        self.lineEdit_axial_locking_criteria.setSizeIncrement(QSize(0, 26))
+        self.lineEdit_axial_locking_criteria.setFont(font1)
+        self.lineEdit_axial_locking_criteria.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_axial_locking_criteria.setStyleSheet(u"")
+        self.lineEdit_axial_locking_criteria.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_axial_locking_criteria.setClearButtonEnabled(True)
 
-        self.gridLayout_11.addWidget(self.label_101, 4, 1, 1, 1)
+        self.gridLayout_11.addWidget(self.lineEdit_axial_locking_criteria, 3, 2, 1, 1)
+
+        self.label_selected_id_10 = QLabel(self.frame_top_inputs)
+        self.label_selected_id_10.setObjectName(u"label_selected_id_10")
+        self.label_selected_id_10.setEnabled(True)
+        self.label_selected_id_10.setMinimumSize(QSize(140, 28))
+        self.label_selected_id_10.setMaximumSize(QSize(200, 28))
+        self.label_selected_id_10.setFont(font1)
+        self.label_selected_id_10.setMouseTracking(True)
+        self.label_selected_id_10.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+
+        self.gridLayout_11.addWidget(self.label_selected_id_10, 0, 1, 1, 1)
+
+        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.gridLayout_11.addItem(self.horizontalSpacer_6, 1, 4, 1, 1)
+
+        self.lineEdit_effective_diameter = QLineEdit(self.frame_top_inputs)
+        self.lineEdit_effective_diameter.setObjectName(u"lineEdit_effective_diameter")
+        self.lineEdit_effective_diameter.setEnabled(True)
+        self.lineEdit_effective_diameter.setMinimumSize(QSize(160, 26))
+        self.lineEdit_effective_diameter.setMaximumSize(QSize(160, 26))
+        self.lineEdit_effective_diameter.setSizeIncrement(QSize(0, 0))
+        self.lineEdit_effective_diameter.setFont(font1)
+        self.lineEdit_effective_diameter.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_effective_diameter.setStyleSheet(u"")
+        self.lineEdit_effective_diameter.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_effective_diameter.setClearButtonEnabled(True)
+
+        self.gridLayout_11.addWidget(self.lineEdit_effective_diameter, 1, 2, 1, 1)
+
+        self.lineEdit_joint_mass = QLineEdit(self.frame_top_inputs)
+        self.lineEdit_joint_mass.setObjectName(u"lineEdit_joint_mass")
+        self.lineEdit_joint_mass.setEnabled(True)
+        self.lineEdit_joint_mass.setMinimumSize(QSize(160, 26))
+        self.lineEdit_joint_mass.setMaximumSize(QSize(160, 26))
+        self.lineEdit_joint_mass.setSizeIncrement(QSize(0, 0))
+        self.lineEdit_joint_mass.setFont(font1)
+        self.lineEdit_joint_mass.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.lineEdit_joint_mass.setStyleSheet(u"")
+        self.lineEdit_joint_mass.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lineEdit_joint_mass.setClearButtonEnabled(True)
+
+        self.gridLayout_11.addWidget(self.lineEdit_joint_mass, 2, 2, 1, 1)
 
         self.label_97 = QLabel(self.frame_top_inputs)
         self.label_97.setObjectName(u"label_97")
@@ -165,30 +216,16 @@ class Ui_Dialog(object):
 
         self.gridLayout_11.addWidget(self.label_95, 2, 1, 1, 1)
 
-        self.label_94 = QLabel(self.frame_top_inputs)
-        self.label_94.setObjectName(u"label_94")
-        self.label_94.setEnabled(True)
-        self.label_94.setMinimumSize(QSize(148, 26))
-        self.label_94.setMaximumSize(QSize(200, 26))
-        self.label_94.setFont(font1)
-        self.label_94.setMouseTracking(True)
-        self.label_94.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.label_101 = QLabel(self.frame_top_inputs)
+        self.label_101.setObjectName(u"label_101")
+        self.label_101.setEnabled(True)
+        self.label_101.setMinimumSize(QSize(148, 26))
+        self.label_101.setMaximumSize(QSize(200, 26))
+        self.label_101.setFont(font1)
+        self.label_101.setMouseTracking(True)
+        self.label_101.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
-        self.gridLayout_11.addWidget(self.label_94, 1, 1, 1, 1)
-
-        self.lineEdit_expansion_joint_name = QLineEdit(self.frame_top_inputs)
-        self.lineEdit_expansion_joint_name.setObjectName(u"lineEdit_expansion_joint_name")
-        self.lineEdit_expansion_joint_name.setEnabled(True)
-        self.lineEdit_expansion_joint_name.setMinimumSize(QSize(160, 28))
-        self.lineEdit_expansion_joint_name.setMaximumSize(QSize(160, 28))
-        self.lineEdit_expansion_joint_name.setSizeIncrement(QSize(0, 26))
-        self.lineEdit_expansion_joint_name.setFont(font1)
-        self.lineEdit_expansion_joint_name.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.lineEdit_expansion_joint_name.setStyleSheet(u"")
-        self.lineEdit_expansion_joint_name.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_expansion_joint_name.setClearButtonEnabled(True)
-
-        self.gridLayout_11.addWidget(self.lineEdit_expansion_joint_name, 0, 2, 1, 1)
+        self.gridLayout_11.addWidget(self.label_101, 4, 1, 1, 1)
 
         self.label_axial_lock_criteria = QLabel(self.frame_top_inputs)
         self.label_axial_lock_criteria.setObjectName(u"label_axial_lock_criteria")
@@ -201,62 +238,25 @@ class Ui_Dialog(object):
 
         self.gridLayout_11.addWidget(self.label_axial_lock_criteria, 3, 1, 1, 1)
 
-        self.lineEdit_joint_mass = QLineEdit(self.frame_top_inputs)
-        self.lineEdit_joint_mass.setObjectName(u"lineEdit_joint_mass")
-        self.lineEdit_joint_mass.setEnabled(True)
-        self.lineEdit_joint_mass.setMinimumSize(QSize(160, 26))
-        self.lineEdit_joint_mass.setMaximumSize(QSize(160, 26))
-        self.lineEdit_joint_mass.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_joint_mass.setFont(font1)
-        self.lineEdit_joint_mass.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.lineEdit_joint_mass.setStyleSheet(u"")
-        self.lineEdit_joint_mass.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_joint_mass.setClearButtonEnabled(True)
+        self.comboBox_axial_stop_rod = QComboBox(self.frame_top_inputs)
+        self.comboBox_axial_stop_rod.addItem("")
+        self.comboBox_axial_stop_rod.addItem("")
+        self.comboBox_axial_stop_rod.setObjectName(u"comboBox_axial_stop_rod")
+        self.comboBox_axial_stop_rod.setMinimumSize(QSize(160, 26))
+        self.comboBox_axial_stop_rod.setMaximumSize(QSize(160, 26))
+        self.comboBox_axial_stop_rod.setFont(font1)
 
-        self.gridLayout_11.addWidget(self.lineEdit_joint_mass, 2, 2, 1, 1)
+        self.gridLayout_11.addWidget(self.comboBox_axial_stop_rod, 4, 2, 1, 1)
 
-        self.label_selected_id_10 = QLabel(self.frame_top_inputs)
-        self.label_selected_id_10.setObjectName(u"label_selected_id_10")
-        self.label_selected_id_10.setEnabled(True)
-        self.label_selected_id_10.setMinimumSize(QSize(140, 28))
-        self.label_selected_id_10.setMaximumSize(QSize(200, 28))
-        self.label_selected_id_10.setFont(font1)
-        self.label_selected_id_10.setMouseTracking(True)
-        self.label_selected_id_10.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
+        self.label_96 = QLabel(self.frame_top_inputs)
+        self.label_96.setObjectName(u"label_96")
+        self.label_96.setEnabled(True)
+        self.label_96.setMinimumSize(QSize(40, 26))
+        self.label_96.setMaximumSize(QSize(200, 26))
+        self.label_96.setFont(font1)
+        self.label_96.setMouseTracking(True)
 
-        self.gridLayout_11.addWidget(self.label_selected_id_10, 0, 1, 1, 1)
-
-        self.lineEdit_effective_diameter = QLineEdit(self.frame_top_inputs)
-        self.lineEdit_effective_diameter.setObjectName(u"lineEdit_effective_diameter")
-        self.lineEdit_effective_diameter.setEnabled(True)
-        self.lineEdit_effective_diameter.setMinimumSize(QSize(160, 26))
-        self.lineEdit_effective_diameter.setMaximumSize(QSize(160, 26))
-        self.lineEdit_effective_diameter.setSizeIncrement(QSize(0, 0))
-        self.lineEdit_effective_diameter.setFont(font1)
-        self.lineEdit_effective_diameter.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.lineEdit_effective_diameter.setStyleSheet(u"")
-        self.lineEdit_effective_diameter.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_effective_diameter.setClearButtonEnabled(True)
-
-        self.gridLayout_11.addWidget(self.lineEdit_effective_diameter, 1, 2, 1, 1)
-
-        self.lineEdit_axial_locking_criteria = QLineEdit(self.frame_top_inputs)
-        self.lineEdit_axial_locking_criteria.setObjectName(u"lineEdit_axial_locking_criteria")
-        self.lineEdit_axial_locking_criteria.setEnabled(True)
-        self.lineEdit_axial_locking_criteria.setMinimumSize(QSize(160, 26))
-        self.lineEdit_axial_locking_criteria.setMaximumSize(QSize(160, 26))
-        self.lineEdit_axial_locking_criteria.setSizeIncrement(QSize(0, 26))
-        self.lineEdit_axial_locking_criteria.setFont(font1)
-        self.lineEdit_axial_locking_criteria.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.lineEdit_axial_locking_criteria.setStyleSheet(u"")
-        self.lineEdit_axial_locking_criteria.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.lineEdit_axial_locking_criteria.setClearButtonEnabled(True)
-
-        self.gridLayout_11.addWidget(self.lineEdit_axial_locking_criteria, 3, 2, 1, 1)
-
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.gridLayout_11.addItem(self.horizontalSpacer_6, 1, 4, 1, 1)
+        self.gridLayout_11.addWidget(self.label_96, 1, 3, 1, 1)
 
 
         self.gridLayout_8.addWidget(self.frame_top_inputs, 0, 0, 1, 1)
@@ -576,6 +576,8 @@ class Ui_Dialog(object):
         self.gridLayout_8.addWidget(self.tabWidget_inputs, 1, 0, 1, 1)
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.tabWidget_inputs.raise_()
+        self.frame_top_inputs.raise_()
 
         self.gridLayout_13.addWidget(self.scrollArea, 2, 1, 1, 1)
 
@@ -750,8 +752,14 @@ class Ui_Dialog(object):
 
         self.gridLayout.addWidget(self.frame_confirm, 2, 0, 1, 1)
 
-        QWidget.setTabOrder(self.tabWidget_main, self.comboBox_axial_stop_rod)
-        QWidget.setTabOrder(self.comboBox_axial_stop_rod, self.lineEdit_Kx)
+        QWidget.setTabOrder(self.tabWidget_main, self.scrollArea)
+        QWidget.setTabOrder(self.scrollArea, self.lineEdit_expansion_joint_name)
+        QWidget.setTabOrder(self.lineEdit_expansion_joint_name, self.lineEdit_effective_diameter)
+        QWidget.setTabOrder(self.lineEdit_effective_diameter, self.lineEdit_joint_mass)
+        QWidget.setTabOrder(self.lineEdit_joint_mass, self.lineEdit_axial_locking_criteria)
+        QWidget.setTabOrder(self.lineEdit_axial_locking_criteria, self.comboBox_axial_stop_rod)
+        QWidget.setTabOrder(self.comboBox_axial_stop_rod, self.tabWidget_inputs)
+        QWidget.setTabOrder(self.tabWidget_inputs, self.lineEdit_Kx)
         QWidget.setTabOrder(self.lineEdit_Kx, self.lineEdit_Kyz)
         QWidget.setTabOrder(self.lineEdit_Kyz, self.lineEdit_Krx)
         QWidget.setTabOrder(self.lineEdit_Krx, self.lineEdit_Kryz)
@@ -765,15 +773,13 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.lineEdit_Krx_table_path, self.pushButton_load_Krx_table)
         QWidget.setTabOrder(self.pushButton_load_Krx_table, self.lineEdit_Kryz_table_path)
         QWidget.setTabOrder(self.lineEdit_Kryz_table_path, self.pushButton_load_Kryz_table)
-        QWidget.setTabOrder(self.pushButton_load_Kryz_table, self.tabWidget_inputs)
-        QWidget.setTabOrder(self.tabWidget_inputs, self.pushButton_remove)
+        QWidget.setTabOrder(self.pushButton_load_Kryz_table, self.treeWidget_lines_info)
+        QWidget.setTabOrder(self.treeWidget_lines_info, self.pushButton_remove)
         QWidget.setTabOrder(self.pushButton_remove, self.pushButton_reset)
-        QWidget.setTabOrder(self.pushButton_reset, self.treeWidget_lines_info)
-        QWidget.setTabOrder(self.treeWidget_lines_info, self.scrollArea)
 
         self.retranslateUi(Dialog)
 
-        self.tabWidget_main.setCurrentIndex(1)
+        self.tabWidget_main.setCurrentIndex(0)
         self.comboBox_axial_stop_rod.setCurrentIndex(1)
         self.tabWidget_inputs.setCurrentIndex(0)
         self.pushButton_attribute.setDefault(False)
@@ -786,19 +792,19 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"Expansion joints configuration", None))
+        self.label_94.setText(QCoreApplication.translate("Dialog", u"Effective diameter:", None))
+        self.lineEdit_axial_locking_criteria.setText(QCoreApplication.translate("Dialog", u"1.0", None))
+        self.label_selected_id_10.setText(QCoreApplication.translate("Dialog", u"Expansion joint name:", None))
+        self.lineEdit_effective_diameter.setText("")
+        self.lineEdit_joint_mass.setText("")
+        self.label_97.setText(QCoreApplication.translate("Dialog", u"[kg]", None))
+        self.label_95.setText(QCoreApplication.translate("Dialog", u"Joint mass:", None))
+        self.label_101.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Axial stop rods:</p></body></html>", None))
+        self.label_axial_lock_criteria.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\"><span style=\" font-weight:400; font-style:normal;\">Axial locking criteria \u03b5:</span></p></body></html>", None))
         self.comboBox_axial_stop_rod.setItemText(0, QCoreApplication.translate("Dialog", u"Not included", None))
         self.comboBox_axial_stop_rod.setItemText(1, QCoreApplication.translate("Dialog", u"Included", None))
 
         self.label_96.setText(QCoreApplication.translate("Dialog", u"[m]", None))
-        self.label_101.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">Axial stop rods:</p></body></html>", None))
-        self.label_97.setText(QCoreApplication.translate("Dialog", u"[kg]", None))
-        self.label_95.setText(QCoreApplication.translate("Dialog", u"Joint mass:", None))
-        self.label_94.setText(QCoreApplication.translate("Dialog", u"Effective diameter:", None))
-        self.label_axial_lock_criteria.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\"><span style=\" font-weight:400; font-style:normal;\">Axial locking criteria \u03b5:</span></p></body></html>", None))
-        self.lineEdit_joint_mass.setText("")
-        self.label_selected_id_10.setText(QCoreApplication.translate("Dialog", u"Expansion joint name:", None))
-        self.lineEdit_effective_diameter.setText("")
-        self.lineEdit_axial_locking_criteria.setText(QCoreApplication.translate("Dialog", u"1.0", None))
         self.label_87.setText(QCoreApplication.translate("Dialog", u"[N.m/rad]", None))
         self.lineEdit_Kyz.setText("")
         self.label_91.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\"><span style=\" font-weight:400; font-style:normal;\">k</span><span style=\" font-weight:400; font-style:normal; vertical-align:sub;\">rx</span><span style=\" font-weight:400; font-style:normal;\">:</span></p></body></html>", None))
@@ -856,18 +862,18 @@ class ExpansionJointInput_UI(QDialog, Ui_Dialog):
                                                                 - (Layout): QGridLayout
                                                                         - frame_top_inputs: QFrame
                                                                             - (Layout): QGridLayout
-                                                                                    - comboBox_axial_stop_rod: QComboBox
-                                                                                    - label_96: QLabel
-                                                                                    - label_101: QLabel
-                                                                                    - label_97: QLabel
-                                                                                    - label_95: QLabel
                                                                                     - label_94: QLabel
                                                                                     - lineEdit_expansion_joint_name: QLineEdit
-                                                                                    - label_axial_lock_criteria: QLabel
-                                                                                    - lineEdit_joint_mass: QLineEdit
+                                                                                    - lineEdit_axial_locking_criteria: QLineEdit
                                                                                     - label_selected_id_10: QLabel
                                                                                     - lineEdit_effective_diameter: QLineEdit
-                                                                                    - lineEdit_axial_locking_criteria: QLineEdit
+                                                                                    - lineEdit_joint_mass: QLineEdit
+                                                                                    - label_97: QLabel
+                                                                                    - label_95: QLabel
+                                                                                    - label_101: QLabel
+                                                                                    - label_axial_lock_criteria: QLabel
+                                                                                    - comboBox_axial_stop_rod: QComboBox
+                                                                                    - label_96: QLabel
                                                                         - tabWidget_inputs: QTabWidget
                                                                             - tab_constant_values: QWidget
                                                                                 - (Layout): QGridLayout
