@@ -8,6 +8,7 @@ from molde.stylesheets import set_qproperty
 from molde.utils import TreeInfo
 from PySide6.QtWidgets import (
     QLabel,
+    QLineEdit,
 )
 from vtkmodules.vtkCommonDataModel import vtkRecti
 from vtkmodules.vtkRenderingCore import vtkCamera, vtkCoordinate
@@ -113,6 +114,10 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.x_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
         self.y_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
         self.z_line_edit.editingFinished.connect(self.xyz_apply_evaluation_callback)
+
+        self.invert_x_sign.clicked.connect(lambda: self.invert_signal_text(self.x_line_edit))
+        self.invert_y_sign.clicked.connect(lambda: self.invert_signal_text(self.y_line_edit))
+        self.invert_z_sign.clicked.connect(lambda: self.invert_signal_text(self.z_line_edit))
 
         self.bending_options_combobox.currentIndexChanged.connect(self.bending_options_changed_callback)
         self.bending_radius_line_edit.textChanged.connect(self.bending_options_changed_callback)
@@ -360,6 +365,15 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.update_zoom_to_fit_new_points()
         self._update_information_text()
         self.render_widget.update()
+
+    def invert_signal_text(self, line_edit: QLineEdit):
+        txt = line_edit.text()
+        if not txt:
+            return
+
+        txt = txt[1:] if txt.startswith("-") else "-" + txt
+        line_edit.setText(txt)
+        self.xyz_changed_callback()
 
     def update_zoom_to_fit_new_points(self):
         renderer = self.render_widget.renderer
