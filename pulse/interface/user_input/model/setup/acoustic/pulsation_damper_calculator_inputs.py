@@ -1,11 +1,10 @@
-from PySide6.QtWidgets import QLineEdit
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtCore import Qt
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.acoustic.pulsation_damper_calculator_inputs_ui import PulsationDamperCalculatorInputs_UI
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
-from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
     convert_pressure_unit,
     convert_temperature_unit,
@@ -17,7 +16,6 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     temperature_units_labels,
     volume_units_labels,
 )
-from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from pulse.model.properties.fluid import Fluid
 

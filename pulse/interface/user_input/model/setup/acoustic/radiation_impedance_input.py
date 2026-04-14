@@ -1,29 +1,28 @@
-from PySide6.QtWidgets import QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QTreeWidgetItem
 
 from pulse import app
-from pulse.model import RadiationImpedanceType
-from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import RadiationImpedanceInput_UI
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.ui_generated.model.setup.acoustic.radiation_impedance_input_ui import (
+    RadiationImpedanceInput_UI,
+)
+from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
+    AcousticNodesInput,
+)
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-import numpy as np
-
+from pulse.model import RadiationImpedanceType
 
 warning_title = "Warning"
 
 
-class RadiationImpedanceInput(RadiationImpedanceInput_UI):
+class RadiationImpedanceInput(AcousticNodesInput, RadiationImpedanceInput_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
-
-        self.properties = app().project.model.properties
-        self.before_run = app().project.get_pre_solution_model_checks()
 
         self._initialize()
-        self._config_window()
         self._config_widgets()
         self._create_connections()
 
@@ -35,12 +34,6 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
 
     def _initialize(self):
         self.keep_window_open = True
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _config_widgets(self):
         self.treeWidget_nodal_info.setColumnWidth(0, 120)
@@ -60,7 +53,6 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
         app().main_window.selection_changed.connect(self.selection_callback)
 
     def selection_callback(self):
-
         selected_nodes = app().main_window.list_selected_nodes()
 
         if selected_nodes:
@@ -68,9 +60,11 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
             self.lineEdit_node_ids.setText(text)
 
             if len(selected_nodes) == 1:
-                for (_property, *args), data in self.properties.nodal_properties.items():
+                for (
+                    _property,
+                    *args,
+                ), data in self.properties.nodal_properties.items():
                     if _property == "radiation_impedance" and selected_nodes == args:
-                                    
                         if not isinstance(data, dict):
                             continue
 
@@ -78,13 +72,15 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
                         if impedance_type is None:
                             continue
 
-                        self.comboBox_radiation_impedance_type.setCurrentIndex(impedance_type)
+                        self.comboBox_radiation_impedance_type.setCurrentIndex(
+                            impedance_type
+                        )
 
     def tab_event_callback(self):
-        self.lineEdit_node_ids.setText("")
+        self.lineEdit_node_ids.clear()
         self.pushButton_remove.setDisabled(True)
         if self.tabWidget_main.currentIndex() == 1:
-            self.lineEdit_node_ids.setText("")
+            self.lineEdit_node_ids.clear()
             self.lineEdit_node_ids.setDisabled(True)
         else:
             self.selection_callback()
@@ -120,11 +116,26 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
     def update_tabs_visibility(self):
 
         self.tabWidget_main.setTabVisible(1, False)
-        for (property, *args) in self.properties.nodal_properties.keys():
+        for property, *args in self.properties.nodal_properties.keys():
             if property == "radiation_impedance":
                 self.tabWidget_main.setCurrentIndex(0)
                 self.tabWidget_main.setTabVisible(1, True)
                 return
+
+    def are_there_internal_nodes(self, node_ids: list[int]):
+        for node_id in node_ids:
+            neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node.get(node_id)
+            if isinstance(neigh_elements, list):
+                if len(neigh_elements) != 1:
+                    self.hide()
+                    title = "Internal nodes detected"
+                    message = "At least one internal node was detected in the list of "
+                    message += "nodes entered. The radiation impedances are only allowed "
+                    message += "for termination nodes."
+                    PrintMessageInput([warning_title, title, message])
+                    return True
+
+        return False
 
     def attribute_callback(self):
 
@@ -133,19 +144,18 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
         if stop:
             return
         
+        if self.are_there_internal_nodes(node_ids):
+            return
+        
         self.remove_properties_from_node(node_ids)
 
         impedance_type = self.comboBox_radiation_impedance_type.currentIndex()
 
         for node_id in node_ids:
-
             node = app().project.model.preprocessor.nodes[node_id]
             coords = list(np.round(node.coordinates, 5))
 
-            data = {
-                "coords" : coords,
-                "impedance_type": impedance_type
-                }
+            data = {"coords": coords, "impedance_type": impedance_type}
 
             self.properties._set_nodal_property("radiation_impedance", data, node_id)
 
@@ -160,15 +170,6 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
             return "unflanged"
         else:
             return "invalid impedance type"
-
-    def text_label(self, value):
-        text = ""
-        if isinstance(value, complex):
-            value_label = str(value)
-        elif isinstance(value, np.ndarray):
-            value_label = 'Table'
-        text = "{}".format(value_label)
-        return text
 
     def on_click_item(self, item):
         self.pushButton_remove.setDisabled(False)
@@ -211,37 +212,27 @@ class RadiationImpedanceInput(RadiationImpedanceInput_UI):
 
     def reset_callback(self):
 
-            self.hide()
+        self.hide()
 
-            title = f"Resetting of radiation impedances"
-            message = "Would you like to remove all radiation impedances from the acoustic model?"
+        title = "Resetting of radiation impedances"
+        message = (
+            "Would you like to remove all radiation impedances from the acoustic model?"
+        )
 
-            buttons_config = {"left_button_label" : "No", "right_button_label" : "Yes"}
-            read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
+        buttons_config = {"left_button_label": "No", "right_button_label": "Yes"}
+        read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
-            if read._cancel:
-                return
+        if read._cancel:
+            return
 
-            if not read._continue:
-                return
+        if not read._continue:
+            return
 
-            self.properties._reset_nodal_property("radiation_impedance")
-            self.actions_to_finalize()
+        self.properties._reset_nodal_property("radiation_impedance")
+        self.actions_to_finalize()
 
     def actions_to_finalize(self):
         app().project.file.write_nodal_properties_in_file()
         app().main_window.update_plots(reset_camera=False)
         self.load_nodes_info()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)

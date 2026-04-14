@@ -41,7 +41,6 @@ class AcousticPressureWaveformInputs(AcousticPressureWaveformInputs_UI):
 
     def _create_connections(self):
         #
-        self.pushButton_export_data.clicked.connect(self.export_data_callback)
         self.pushButton_plot_data.clicked.connect(self.plot_data_callback)
         #
         app().main_window.selection_changed.connect(self.selection_callback)

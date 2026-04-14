@@ -6,7 +6,7 @@ from pulse import app
 from pulse.interface.ui_generated.plots.results.general.frequency_response_plot_ui import FrequencyResponsePlot_UI
 from pulse.interface.formatters import icons
 from pulse.interface.user_input.data_handler.export_model_results import ExportModelResults
-from pulse.interface.user_input.data_handler.import_data_to_compare import ImportDataToCompare
+from pulse.interface.user_input.data_handler.data_import_assistant import DataImportAssistant
 from pulse.interface.user_input.plots.general.advanced_cursor import AdvancedCursor
 
 
@@ -91,7 +91,7 @@ class FrequencyResponsePlotter(FrequencyResponsePlot_UI):
             return
 
         elif self.importer is None:
-            self.importer = ImportDataToCompare(self)
+            self.importer = DataImportAssistant(self)
             self.importer.exec()
             app().main_window.set_input_widget(self)
 

@@ -63,7 +63,7 @@ class FileDialogService:
     def save_file(file_extensions: list[str], caption: str = "Save file", last_folder: str = None)-> Path | None:
         
         last_folder, caption, filter_str, kwargs = (
-            FileDialogService._build_dialog_kwargs(file_extensions, caption, last_folder)
+            FileDialogService._build_dialog_kwargs(file_extensions, caption, last_folder, open_file=False)
         )
 
         path, selected_filter = QFileDialog.getSaveFileName(
@@ -89,7 +89,8 @@ class FileDialogService:
     def _build_dialog_kwargs(
         file_extensions: list[str],
         caption: str,
-        last_folder: str | None
+        last_folder: str | None,
+        open_file = True
     ):
         if last_folder is None:
             last_folder = Path().home()
@@ -98,26 +99,27 @@ class FileDialogService:
         if platform.system() == "Linux":
             kwargs["options"] = QFileDialog.Option.DontUseNativeDialog
 
-        filter_str = FileDialogService._generate_file_extensions_str(file_extensions)
+        filter_str = FileDialogService._generate_file_extensions_str(file_extensions, open_file)
 
         return last_folder, caption, filter_str, kwargs
     
     @staticmethod
-    def _generate_file_extensions_str(file_extensions: list[str]):
-        str_extensions = "Files ("
-        for extension in file_extensions:
-            str_extensions += "*."
-            str_extensions += extension
-            str_extensions += " "
-        
-        str_extensions = str_extensions.strip()
-        str_extensions += ")"
+    def _generate_file_extensions_str(file_extensions: list[str], all_files=True):
+        file_extensions.sort(key=FileDialogService._sort_extensions)
 
-        return str_extensions
+        extensions_control = ";;".join(f"""{'Spreadsheet' if ext.lower() in ['xls', 'xlsx'] 
+                                       else 'Text file'} (*.{ext.lower()})""" for ext in file_extensions)
+
+        if not all_files:
+            return extensions_control
+
+        all_files_string = f"All files ({' '.join(f'*.{ext}' for ext in file_extensions)});;"
+
+        return all_files_string + extensions_control
     
     @staticmethod
     def _get_path_extension(string: str) -> str:
-        return string.split(".")[1][:-1]
+        return string.split("*.")[-1].rstrip(")")
     
     @staticmethod
     def get_existing_directory(caption: str, directory: str | Path) -> Path | None:
@@ -126,6 +128,22 @@ class FileDialogService:
 
         if existing_dir.exists():
             return existing_dir
+
+    @staticmethod
+    def _sort_extensions(extension: str) -> int:
+        extension = extension.lower()
+
+        match extension:
+            case "xlsx":
+                return 0
+            case "xls":
+                return 1
+            case "dat":
+                return 2
+            case "txt":
+                return 3
+            case _:
+                return 4
 
 
 

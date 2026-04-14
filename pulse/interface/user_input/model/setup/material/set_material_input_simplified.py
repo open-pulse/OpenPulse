@@ -72,7 +72,7 @@ class SetMaterialSimplified(SetMaterialSimplified_UI):
             app().main_window.update_plots()
 
     def reset_selected_material_lineEdit(self):
-        self.lineEdit_selected_name.setText("")
+        self.lineEdit_selected_name.clear()
 
     def current_cell_changed(self, current_row, current_col, previous_row, previous_col):
         self.selected_column = current_col
@@ -95,8 +95,8 @@ class SetMaterialSimplified(SetMaterialSimplified_UI):
         else:
             material_identifier = item_1.text()
 
-        self.lineEdit_selected_name.setText("")
-        self.lineEdit_identifier.setText("")
+        self.lineEdit_selected_name.clear()
+        self.lineEdit_identifier.clear()
 
         if material_name != "":
             self.lineEdit_selected_name.setText(material_name)

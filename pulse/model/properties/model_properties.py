@@ -66,7 +66,7 @@ class ModelProperties:
         self.structural_imported_tables = dict()
 
         self.global_properties = dict()
-        self.line_properties = dict()
+        self.line_properties: dict[str, dict] = dict()
         self.element_properties = dict()
         self.nodal_properties = dict()
 

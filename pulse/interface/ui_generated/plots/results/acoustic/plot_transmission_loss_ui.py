@@ -34,8 +34,8 @@ class Ui_Form(object):
         self.frame_title.setObjectName(u"frame_title")
         self.frame_title.setMinimumSize(QSize(320, 48))
         self.frame_title.setMaximumSize(QSize(16777215, 48))
-        self.frame_title.setFrameShape(QFrame.Box)
-        self.frame_title.setFrameShadow(QFrame.Raised)
+        self.frame_title.setFrameShape(QFrame.Shape.Box)
+        self.frame_title.setFrameShadow(QFrame.Shadow.Raised)
         self.frame_title.setLineWidth(1)
         self.gridLayout = QGridLayout(self.frame_title)
         self.gridLayout.setSpacing(0)
@@ -51,8 +51,8 @@ class Ui_Form(object):
         font.setBold(False)
         font.setItalic(False)
         self.Title.setFont(font)
-        self.Title.setTextFormat(Qt.AutoText)
-        self.Title.setAlignment(Qt.AlignCenter)
+        self.Title.setTextFormat(Qt.TextFormat.AutoText)
+        self.Title.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout.addWidget(self.Title, 0, 0, 1, 1)
 
@@ -63,8 +63,8 @@ class Ui_Form(object):
         self.frame_main.setObjectName(u"frame_main")
         self.frame_main.setMinimumSize(QSize(320, 0))
         self.frame_main.setMaximumSize(QSize(480, 360))
-        self.frame_main.setFrameShape(QFrame.Box)
-        self.frame_main.setFrameShadow(QFrame.Raised)
+        self.frame_main.setFrameShape(QFrame.Shape.Box)
+        self.frame_main.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_7 = QGridLayout(self.frame_main)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
         self.gridLayout_7.setHorizontalSpacing(4)
@@ -74,8 +74,8 @@ class Ui_Form(object):
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setMinimumSize(QSize(0, 48))
         self.frame_3.setMaximumSize(QSize(16777215, 48))
-        self.frame_3.setFrameShape(QFrame.NoFrame)
-        self.frame_3.setFrameShadow(QFrame.Raised)
+        self.frame_3.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_5 = QGridLayout(self.frame_3)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.gridLayout_5.setHorizontalSpacing(8)
@@ -100,7 +100,7 @@ class Ui_Form(object):
         self.label = QLabel(self.frame_3)
         self.label.setObjectName(u"label")
         self.label.setFont(font1)
-        self.label.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_5.addWidget(self.label, 0, 1, 1, 1)
 
@@ -131,8 +131,8 @@ class Ui_Form(object):
         self.frame_buttons.setObjectName(u"frame_buttons")
         self.frame_buttons.setMinimumSize(QSize(0, 48))
         self.frame_buttons.setMaximumSize(QSize(16777215, 48))
-        self.frame_buttons.setFrameShape(QFrame.NoFrame)
-        self.frame_buttons.setFrameShadow(QFrame.Raised)
+        self.frame_buttons.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_buttons.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_12 = QGridLayout(self.frame_buttons)
         self.gridLayout_12.setSpacing(0)
         self.gridLayout_12.setObjectName(u"gridLayout_12")
@@ -149,17 +149,7 @@ class Ui_Form(object):
         self.pushButton_plot_data.setFont(font3)
         self.pushButton_plot_data.setStyleSheet(u"")
 
-        self.gridLayout_12.addWidget(self.pushButton_plot_data, 0, 1, 1, 1)
-
-        self.pushButton_export_data = QPushButton(self.frame_buttons)
-        self.pushButton_export_data.setObjectName(u"pushButton_export_data")
-        self.pushButton_export_data.setMinimumSize(QSize(100, 30))
-        self.pushButton_export_data.setMaximumSize(QSize(100, 30))
-        self.pushButton_export_data.setFont(font3)
-        self.pushButton_export_data.setStyleSheet(u"")
-        self.pushButton_export_data.setFlat(False)
-
-        self.gridLayout_12.addWidget(self.pushButton_export_data, 0, 0, 1, 1)
+        self.gridLayout_12.addWidget(self.pushButton_plot_data, 0, 0, 1, 1)
 
 
         self.gridLayout_7.addWidget(self.frame_buttons, 2, 0, 1, 1)
@@ -168,8 +158,8 @@ class Ui_Form(object):
         self.frame.setObjectName(u"frame")
         self.frame.setMinimumSize(QSize(0, 48))
         self.frame.setMaximumSize(QSize(16777215, 16777215))
-        self.frame.setFrameShape(QFrame.NoFrame)
-        self.frame.setFrameShadow(QFrame.Raised)
+        self.frame.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_2 = QGridLayout(self.frame)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.gridLayout_2.setHorizontalSpacing(8)
@@ -180,9 +170,9 @@ class Ui_Form(object):
         self.lineEdit_output_node_id.setMinimumSize(QSize(80, 28))
         self.lineEdit_output_node_id.setMaximumSize(QSize(80, 28))
         self.lineEdit_output_node_id.setFont(font1)
-        self.lineEdit_output_node_id.setLayoutDirection(Qt.LeftToRight)
+        self.lineEdit_output_node_id.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.lineEdit_output_node_id.setStyleSheet(u"")
-        self.lineEdit_output_node_id.setAlignment(Qt.AlignCenter)
+        self.lineEdit_output_node_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.lineEdit_output_node_id, 0, 2, 1, 1)
 
@@ -203,7 +193,7 @@ class Ui_Form(object):
         font4.setBold(False)
         font4.setItalic(False)
         self.Output_NodeID.setFont(font4)
-        self.Output_NodeID.setAlignment(Qt.AlignCenter)
+        self.Output_NodeID.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.Output_NodeID, 0, 1, 1, 1)
 
@@ -212,7 +202,7 @@ class Ui_Form(object):
         self.Input_NodeID.setMinimumSize(QSize(100, 28))
         self.Input_NodeID.setMaximumSize(QSize(140, 28))
         self.Input_NodeID.setFont(font4)
-        self.Input_NodeID.setAlignment(Qt.AlignCenter)
+        self.Input_NodeID.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.Input_NodeID, 1, 1, 1, 1)
 
@@ -221,9 +211,9 @@ class Ui_Form(object):
         self.lineEdit_input_node_id.setMinimumSize(QSize(80, 28))
         self.lineEdit_input_node_id.setMaximumSize(QSize(80, 28))
         self.lineEdit_input_node_id.setFont(font1)
-        self.lineEdit_input_node_id.setLayoutDirection(Qt.LeftToRight)
+        self.lineEdit_input_node_id.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.lineEdit_input_node_id.setStyleSheet(u"")
-        self.lineEdit_input_node_id.setAlignment(Qt.AlignCenter)
+        self.lineEdit_input_node_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.lineEdit_input_node_id, 1, 2, 1, 1)
 
@@ -249,8 +239,7 @@ class Ui_Form(object):
 
         QWidget.setTabOrder(self.comboBox_processing_selector, self.pushButton_help)
         QWidget.setTabOrder(self.pushButton_help, self.lineEdit_output_node_id)
-        QWidget.setTabOrder(self.lineEdit_output_node_id, self.pushButton_export_data)
-        QWidget.setTabOrder(self.pushButton_export_data, self.pushButton_plot_data)
+        QWidget.setTabOrder(self.lineEdit_output_node_id, self.pushButton_plot_data)
 
         self.retranslateUi(Form)
 
@@ -269,7 +258,6 @@ class Ui_Form(object):
 #endif // QT_CONFIG(tooltip)
         self.pushButton_help.setText(QCoreApplication.translate("Form", u"?", None))
         self.pushButton_plot_data.setText(QCoreApplication.translate("Form", u"Plot data", None))
-        self.pushButton_export_data.setText(QCoreApplication.translate("Form", u"Export data", None))
         self.Output_NodeID.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\">Output Node ID:</p></body></html>", None))
         self.Input_NodeID.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\">Input Node ID:</p></body></html>", None))
 #if QT_CONFIG(tooltip)
@@ -298,7 +286,6 @@ class PlotTransmissionLoss_UI(QWidget, Ui_Form):
                             - frame_buttons: QFrame
                                 - (Layout): QGridLayout
                                         - pushButton_plot_data: QPushButton
-                                        - pushButton_export_data: QPushButton
                             - frame: QFrame
                                 - (Layout): QGridLayout
                                         - lineEdit_output_node_id: QLineEdit

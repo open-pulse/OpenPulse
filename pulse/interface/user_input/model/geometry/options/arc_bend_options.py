@@ -80,10 +80,10 @@ class ArcBendOptions(StructureOptions):
             self.cross_section_widget.lineEdit_offset_z.setText(offset_z)
 
         for lineEdit in self.cross_section_widget.left_variable_pipe_lineEdits:
-            lineEdit.setText("")
+            lineEdit.clear()
 
         for lineEdit in self.cross_section_widget.right_variable_pipe_lineEdits:
-            lineEdit.setText("")
+            lineEdit.clear()
 
     def _get_extra_info(self):
         return dict(

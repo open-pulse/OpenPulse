@@ -1,21 +1,17 @@
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    pass
-
-
 from copy import deepcopy
-
-from pulse.editor.structures import Valve
 
 from molde.stylesheets import set_qproperty
 
+from pulse import app
+from pulse.editor.structures import Valve
+from pulse.interface.user_input.model.setup.structural.valves_input import ValvesInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+
 from .structure_options import StructureOptions
 
-from pulse import app
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.model.setup.structural.valves_input import ValvesInput
-
 window_title = "Error"
+
+
 class ValveOptions(StructureOptions):
     structure_type = Valve
 
@@ -68,9 +64,9 @@ class ValveOptions(StructureOptions):
             wall_thickness = section_parameters[1]
             effective_diameter = outside_diameter - 2 * wall_thickness
 
-            self.valve_input.lineEdit_effective_diameter.setText(f"{round(effective_diameter, 6)}")
-            self.valve_input.lineEdit_wall_thickness.setText(f"{round(wall_thickness, 6)}")
-        
+            self.valve_input.lineEdit_valve_effective_diameter.setText(f"{round(effective_diameter, 6)}")
+            self.valve_input.lineEdit_valve_wall_thickness.setText(f"{round(wall_thickness, 6)}")
+
         except Exception as error_log:
             title = "Error while tranfering pipe data"
             message = str(error_log)

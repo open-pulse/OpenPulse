@@ -1,14 +1,15 @@
-from PySide6.QtGui import QCloseEvent
+import os
+from pathlib import Path
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
 
 from pulse import app
 from pulse.interface.ui_generated.project.new_project_input_ui import NewProjectInput_UI
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-
-
-import os
-from pathlib import Path
 
 window_title = "Error"
 

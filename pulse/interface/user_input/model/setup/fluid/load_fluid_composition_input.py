@@ -1,10 +1,15 @@
-from PySide6.QtCore import Qt
 from pathlib import Path
 
+from PySide6.QtCore import Qt
+
 from pulse import app
-from pulse.interface.ui_generated.model.setup.fluid.load_fluid_composition_ui import LoadFluidComposition_UI
+from pulse.interface.ui_generated.model.setup.fluid.load_fluid_composition_ui import (
+    LoadFluidComposition_UI,
+)
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
 
 class LoadFluidCompositionInput(LoadFluidComposition_UI):
@@ -75,8 +80,8 @@ class LoadFluidCompositionInput(LoadFluidComposition_UI):
         self.imported_data = dict()
         self.comboBox_sheet_names.clear()
 
-        from polars import read_excel
         from openpyxl import load_workbook
+        from polars import read_excel
 
         wb = load_workbook(self.file_path)
         sheetnames = wb.sheetnames

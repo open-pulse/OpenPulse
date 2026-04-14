@@ -1,15 +1,17 @@
-from PySide6.QtWidgets import QTreeWidgetItem
-from PySide6.QtGui import QBrush, QColor
-from PySide6.QtCore import Qt
-
-from pulse import app
-from pulse.interface.ui_generated.model.setup.structural.standard_cross_section_input_ui import StandardCrossSectionInput_UI
-from pulse.libraries.standard_cross_sections import StandardCrossSections
-from pulse.utils.unit_conversion import in_to_m
-
+from collections import defaultdict
 
 import numpy as np
-from collections import defaultdict
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QBrush, QColor
+from PySide6.QtWidgets import QTreeWidgetItem
+
+from pulse import app
+from pulse.interface.ui_generated.model.setup.structural.standard_cross_section_input_ui import (
+    StandardCrossSectionInput_UI,
+)
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
+from pulse.libraries.standard_cross_sections import StandardCrossSections
+
 
 class GetStandardCrossSection(StandardCrossSectionInput_UI):
     def __init__(self, *args, **kwargs):
@@ -258,9 +260,15 @@ class GetStandardCrossSection(StandardCrossSectionInput_UI):
         self.highlight_standard_section()
 
     def get_std_data(self, data: dict):
-        outside_diameter = in_to_m(data.get("Outside diameter (in)", -1.0))
-        wall_thickness = in_to_m(data.get("Wall thickness (in)", -1.0))
-        nps = in_to_m(data.get("NPS", -1.0))
+
+        _outside_diameter = data.get("Outside diameter (in)", -1.0)
+        _wall_thickness = data.get("Wall thickness (in)", -1.0)
+        _nps = data.get("NPS", -1.0)
+
+        outside_diameter = convert_length_unit(_outside_diameter, "in", "m")
+        wall_thickness = convert_length_unit(_wall_thickness, "in", "m")
+        nps = convert_length_unit(_nps, "in", "m")
+
         return outside_diameter, wall_thickness, nps
 
     def on_click_item(self, item):

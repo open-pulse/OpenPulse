@@ -22,8 +22,9 @@ class SimulationData(ImportedData):
 
 @dataclass
 class SpreadsheetSheet:
-    name: str 
+    name: str
     data: np.ndarray
+    source_file: str = ""
 
     
 @dataclass

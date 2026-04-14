@@ -1,55 +1,68 @@
 
-from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QMessageBox
-from PySide6.QtCore import Qt, Signal, QEvent, QPoint
-from PySide6.QtGui import QColor, QCloseEvent, QCursor, QAction
-
-from molde.render_widgets import CommonRenderWidget
-from molde import stylesheets
-from molde.colors import color_names
-
-# TODO: remove this import
-from pulse import (
-    app,
-    UI_DIR,
-    QSS_DIR,
-    USER_PATH,
-    TEMP_PROJECT_DIR,
-)
-from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
-
-from pulse.interface.formatters import icons
-from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.interface.handler.pcf_file_io import PCFFileIO
-from pulse.interface.welcome_widget import WelcomeWidget
-from pulse.interface.menu.model_setup_widget import ModelSetupWidget
-from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
-from pulse.interface.others.status_bar import StatusBar
-from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
-from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
-from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
-from pulse.interface.toolbars.render_tools_toolbar import RenderToolsToolbar
-from pulse.interface.user_input.input_ui import InputUi
-from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
-from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
-from pulse.interface.user_input.project.new_project import NewProjectInput
-from pulse.interface.user_input.project.reset_project import ResetProjectInput
-from pulse.interface.user_input.project.import_geometry import ImportGeometry
-from pulse.interface.user_input.project.save_project_data_selector import SaveProjectDataSelector
-from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
-from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
-from pulse.interface.user_input.project.loading_window import LoadingWindow
-from pulse.interface.viewer_3d.render_widgets import GeometryRenderWidget, MeshRenderWidget, ResultsRenderWidget
-from pulse.utils.interface_utils import VisualizationFilter, SelectionFilter, ColorMode
-from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
-
 import logging
 import os
-
 from functools import partial
 from pathlib import Path
 from shutil import rmtree
 from sys import argv
 from time import time
+
+from molde import stylesheets
+from molde.colors import color_names
+from molde.render_widgets import CommonRenderWidget
+from PySide6.QtCore import QEvent, QPoint, Qt, Signal
+from PySide6.QtGui import QAction, QCloseEvent, QColor, QCursor
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QApplication,
+    QDialog,
+    QMessageBox,
+)
+
+# TODO: remove this import
+# TODO: remove this import
+from pulse import (
+    QSS_DIR,
+    TEMP_PROJECT_DIR,
+    UI_DIR,
+    USER_PATH,
+    app,
+)
+from pulse.interface.formatters import icons
+from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.handler.pcf_file_io import PCFFileIO
+from pulse.interface.menu.model_setup_widget import ModelSetupWidget
+from pulse.interface.menu.results_viewer_widget import ResultsViewerWidget
+from pulse.interface.others.status_bar import StatusBar
+from pulse.interface.toolbars.analysis_toolbar import AnalysisToolbar
+from pulse.interface.toolbars.animation_toolbar import AnimationToolbar
+from pulse.interface.toolbars.mesh_toolbar import MeshToolbar
+from pulse.interface.toolbars.render_tools_toolbar import RenderToolsToolbar
+from pulse.interface.ui_generated.main_window_ui import MainWindow_UI
+from pulse.interface.user_input.checkers.refprop_check import CheckREFPROP
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
+from pulse.interface.user_input.input_ui import InputUi
+from pulse.interface.user_input.model.geometry.geometry_designer_widget import (
+    GeometryDesignerWidget,
+)
+from pulse.interface.user_input.project.about_open_pulse import AboutOpenPulseInput
+from pulse.interface.user_input.project.import_geometry import ImportGeometry
+from pulse.interface.user_input.project.loading_window import LoadingWindow
+from pulse.interface.user_input.project.new_project import NewProjectInput
+from pulse.interface.user_input.project.reset_project import ResetProjectInput
+from pulse.interface.user_input.project.save_project_data_selector import (
+    SaveProjectDataSelector,
+)
+from pulse.interface.user_input.render.section_plane_widget import SectionPlaneWidget
+from pulse.interface.viewer_3d.render_widgets import (
+    GeometryRenderWidget,
+    MeshRenderWidget,
+    ResultsRenderWidget,
+)
+from pulse.interface.welcome_widget import WelcomeWidget
+from pulse.utils.interface_utils import ColorMode, SelectionFilter, VisualizationFilter
 
 
 class MainWindow(MainWindow_UI):
@@ -257,8 +270,8 @@ class MainWindow(MainWindow_UI):
         return True
     
     def filter_tab_scroll_by_wheel(self):
+        from PySide6.QtCore import QEvent, QObject
         from PySide6.QtWidgets import QTabBar
-        from PySide6.QtCore import QObject, QEvent
 
         class Filter(QObject):
             def eventFilter(self, obj, event):
@@ -450,9 +463,8 @@ class MainWindow(MainWindow_UI):
                 # dt = time() - t0
                 # print(f"initial_project_action: {round(dt, 6)} s")
                 return True
-            else:
-                self.model_and_analysis_items.modify_geometry_item_access(False)
-                return True
+
+            return True
 
         self.project.none_project_action = True
         return False
@@ -866,7 +878,7 @@ class MainWindow(MainWindow_UI):
         self.custom_colors = {}
         if theme == "dark":
             self.custom_colors["[dark]"] = {"toolbar.background": "#202124"}
-            self.icon_color = QColor(color_names.BLUE_6.to_hex())
+            self.icon_color = QColor(color_names.BLUE_7.to_hex())
 
         elif theme == "light":
             self.icon_color = QColor(color_names.BLUE_4.to_hex())
@@ -1055,8 +1067,8 @@ class MainWindow(MainWindow_UI):
 
             logging.info("Saving the project data... [10%]")
 
-            from time import sleep
             from datetime import datetime
+            from time import sleep
 
             path = Path(path)
             self.project.name = path.stem
