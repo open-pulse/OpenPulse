@@ -253,7 +253,7 @@ class GeometryHandler:
         self.export_model_data_file()
 
         _element_size = self.project.model.preprocessor.mesh.element_size
-        element_size = convert_length_unit(_element_size, self.length_unit, "")
+        element_size = convert_length_unit(_element_size, self.length_unit, "m")
 
         if self.length_unit !=  "meter":
             self.project.file.modify_project_attributes(length_unit = "meter", element_size = element_size)
