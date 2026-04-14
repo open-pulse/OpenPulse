@@ -980,7 +980,28 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
             return
 
-        self.compressor.plot_rod_pressure_load_frequency(self.N_rev)
+        _, pressure_HE_Pa, _ = self.compressor.process_head_end_volumes_and_pressures()
+        _, pressure_CE_Pa, _ = self.compressor.process_crank_end_volumes_and_pressures()
+
+        load_head = pressure_HE_Pa * self.compressor.area_head_end
+        load_crank = -pressure_CE_Pa * self.compressor.area_crank_end
+
+        # convert the calculate force in kN
+        rod_pressure_load_time = (load_head + load_crank) / 1000
+
+        freq, rod_pressure_load = self.compressor.process_FFT_of_(rod_pressure_load_time, self.N_rev)
+        mask = freq <= self.compressor.max_frequency
+        freq = freq[mask]
+        rod_pressure_load = rod_pressure_load[mask]
+
+        self.plot_2d = Plot2DSimplified(
+            title="Rod pressure load",
+            x_label="Frequency [Hz]",
+            y_label="Rod pressure load [kN]"
+        )
+
+        self.plot_2d.set_plot_data(freq, rod_pressure_load, absolute_value=True)
+        self.plot_2d.show()        
 
     def plot_rod_pressure_load_time(self):
         if self.process_aquisition_parameters():
@@ -1028,15 +1049,37 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
             return
 
-        self.compressor.plot_volumetric_flow_rate_at_suction_frequency(self.N_rev)
+        freq, flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
+        if flow_rate is None:
+            return
+        
+        self.plot_2d = Plot2DSimplified(
+            title="Volumetric flow rate at suction",
+            x_label="Frequency [Hz]",
+            y_label="Volumetric head flow rate [m³/s]"
+        )
+
+        self.plot_2d.set_plot_data(freq, flow_rate, absolute_value=True)
+        self.plot_2d.show()
 
     def plot_volumetric_flow_rate_at_discharge_frequency(self):
         if self.process_aquisition_parameters():
             self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
             return
+        
+        freq, flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'out_flow')
+        if flow_rate is None:
+            return
+        
+        self.plot_2d = Plot2DSimplified(
+            title="Volumetric flow rate at discharge",
+            x_label="Frequency [Hz]",
+            y_label="Volumetric crank flow rate [m³/s]"
+        )
 
-        self.compressor.plot_volumetric_flow_rate_at_discharge_frequency(self.N_rev)
-
+        self.plot_2d.set_plot_data(freq, flow_rate, absolute_value=True)
+        self.plot_2d.show()
+        
     def plot_pressure_head_end_angle(self):
         if self.check_all_parameters():
             self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
