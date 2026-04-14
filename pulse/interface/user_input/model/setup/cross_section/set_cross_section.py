@@ -362,7 +362,7 @@ class SetCrossSectionInput(SetCrossSection_UI):
         self.pushButton_load_section_data.setEnabled(mapped_section)
 
     def double_click_item_callback(self, item):
-        self.on_click_item_callback()
+        self.on_click_item_callback(item)
         mapped_section = int(item.text(0)) in self.section_data_lines.keys()
         if mapped_section:
             self.edit_section_data()
