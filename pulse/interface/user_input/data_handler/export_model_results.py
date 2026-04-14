@@ -7,8 +7,8 @@ from pulse.interface.user_input.data_handler.file_dialog_service import FileDial
 from pathlib import Path
 import numpy as np
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+
+warning_title = "Warning"
 
 
 class ExportModelResults(QFileDialog):
@@ -92,10 +92,10 @@ class ExportModelResults(QFileDialog):
 
         extensions = list()
         if len(self.data) == 1:
-            extensions = ["dat", "txt", "csv", "xlsx"]
+            extensions = ["xlsx", "xls", "dat", "txt", "csv"]
         else:
             extensions = ["xlsx"]
-            
+
         file_path = FileDialogService.save_file(extensions, caption, directory_path)
     
         if not file_path:
@@ -113,4 +113,4 @@ class ExportModelResults(QFileDialog):
     def print_final_message(self):
         title = "Information"
         message = "The results have been exported."
-        PrintMessageInput([window_title_2, title, message], auto_close=True)
+        PrintMessageInput([warning_title, title, message], auto_close=True)
