@@ -229,6 +229,7 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         self.x_line_edit.setEnabled(key)
         self.y_line_edit.setEnabled(key)
         self.z_line_edit.setEnabled(key)
+        self.length_line_edit.setEnabled(key)
 
     def show_material_widget_callback(self):
         self.material_widget.material_widget.load_data_from_materials_library()
