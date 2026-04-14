@@ -893,7 +893,22 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
-        self.compressor.plot_PV_diagram_head_end()
+
+        volume_HE, pressure_HE_Pa, _ = self.compressor.process_head_end_volumes_and_pressures()
+        pressure_unit = self.compressor.pressure_unit
+        if volume_HE is None:
+            return
+
+        pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", pressure_unit)
+
+        self.plot_2d = Plot2DSimplified(
+            title="P-V diagram (head-end)",
+            x_label="Volume [m³]",
+            y_label=f"Pressure [{pressure_unit}]"
+        )
+
+        self.plot_2d.set_plot_data(volume_HE, pressure_HE)
+        self.plot_2d.show()
 
     def plot_PV_diagram_crank_end(self):
         if self.check_all_parameters():
@@ -901,7 +916,22 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
-        self.compressor.plot_PV_diagram_crank_end()
+        
+        volume_CE, pressure_CE_Pa, _ = self.compressor.process_crank_end_volumes_and_pressures()
+        pressure_unit = self.compressor.pressure_unit
+        if volume_CE is None:
+            return
+
+        pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", pressure_unit)
+
+        self.plot_2d = Plot2DSimplified(
+            title="P-V diagram (crank-end)",
+            x_label="Volume [m³]",
+            y_label=f"Pressure [{pressure_unit}]"
+        )
+
+        self.plot_2d.set_plot_data(volume_CE, pressure_CE)
+        self.plot_2d.show()
 
     def plot_PV_diagram_both_ends(self):
         if self.check_all_parameters():
@@ -909,7 +939,27 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
-        self.compressor.plot_PV_diagram_both_ends()
+
+        volume_HE, pressure_HE_Pa, _ = self.compressor.process_head_end_volumes_and_pressures()
+        volume_CE, pressure_CE_Pa, _ = self.compressor.process_crank_end_volumes_and_pressures()
+
+        pressure_unit = self.compressor.pressure_unit
+
+        if volume_HE is None:
+            return
+        
+        pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", pressure_unit)
+        pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", pressure_unit)
+
+        self.plot_2d = Plot2DSimplified(
+            title="P-V RECIPROCATING COMPRESSOR DIAGRAM",
+            x_label="Volume [m³]",
+            y_label=f"Pressure [{pressure_unit}]"
+        )
+
+        self.plot_2d.set_plot_data(volume_HE, pressure_HE, label="Head End")
+        self.plot_2d.set_plot_data(volume_CE, pressure_CE, label="Crank End", line_style="--", color=(0, 0, 0))
+        self.plot_2d.show()
 
     def plot_pressure_time(self):
         if self.check_all_parameters():
