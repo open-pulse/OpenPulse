@@ -66,8 +66,8 @@ class GeometryHandler:
         if unit in ["meter", "millimeter", "inch"]:
             self.length_unit = unit
 
-    def get_unit_conversion_function(self):
-        return lambda x : convert_length_unit(x, self.length_unit, "mm")
+    def get_unit_conversion_function(self, input_unit: str, output_unit: str):
+        return lambda x : convert_length_unit(x, input_unit, output_unit)
 
     def save_valve_internal_lines_if_exists(self, structure: Valve, line_tags: list):
         valve_info: dict = structure.extra_info["valve_info"]
@@ -88,7 +88,7 @@ class GeometryHandler:
         gmsh.option.setNumber("General.Verbosity", 0)
 
         cad = gmsh.model.occ
-        conversion_function = self.get_unit_conversion_function()
+        conversion_function = self.get_unit_conversion_function(self.length_unit, "mm")
 
         for structure in self.pipeline.structures:
             line_tags = structure.add_to_gmsh(cad, conversion_function)
@@ -216,7 +216,7 @@ class GeometryHandler:
         gmsh.open(str(path))
 
         # TODO: validate this unit conversion using some cad files
-        self.conv_unit = self.get_unit_conversion_function()
+        self.conv_unit = self.get_unit_conversion_function("mm", self.length_unit)
 
         points = gmsh.model.get_entities(0)
         lines = gmsh.model.get_entities(1)
