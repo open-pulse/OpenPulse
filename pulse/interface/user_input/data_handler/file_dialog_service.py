@@ -105,7 +105,10 @@ class FileDialogService:
     
     @staticmethod
     def _generate_file_extensions_str(file_extensions: list[str], all_files=True):
-        extensions_control = ";;".join(f"{ext.upper()} Files (*.{ext.lower()})" for ext in file_extensions)
+        file_extensions.sort(key=FileDialogService._sort_extensions)
+
+        extensions_control = ";;".join(f"""{'Spreadsheet' if ext.lower() in ['xls', 'xlsx'] 
+                                       else 'Text file'} (*.{ext.lower()})""" for ext in file_extensions)
 
         if not all_files:
             return extensions_control
@@ -125,6 +128,22 @@ class FileDialogService:
 
         if existing_dir.exists():
             return existing_dir
+
+    @staticmethod
+    def _sort_extensions(extension: str) -> int:
+        extension = extension.lower()
+
+        match extension:
+            case "xlsx":
+                return 0
+            case "xls":
+                return 1
+            case "dat":
+                return 2
+            case "txt":
+                return 3
+            case _:
+                return 4
 
 
 
