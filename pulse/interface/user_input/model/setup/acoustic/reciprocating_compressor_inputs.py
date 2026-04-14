@@ -1,29 +1,28 @@
-from PySide6.QtWidgets import QLineEdit, QHeaderView, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
+from enum import IntEnum
+
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
+from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
+from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_compressor_inputs_ui import ReciprocatingCompressorInputs_UI
 from pulse.interface.user_input.common import update_analysis_setup_in_file
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
-    convert_temperature_unit, 
-    PressureUnits, 
+    PressureUnits,
     TemperatureUnits,
+    convert_temperature_unit,
     pressure_units_labels,
     temperature_units_labels,
 )
 from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
-from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
-from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
-from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.interface.user_input.plots.general.plot_2d_simplified import Plot2DSimplified
 from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_compressor_inputs_ui import ReciprocatingCompressorInputs_UI
-
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_compressor_model import CylindersActingMode, ReciprocatingCompressorModel
-
-import numpy as np
-from enum import IntEnum
-from time import time
 
 
 class TabIndex(IntEnum):
@@ -68,6 +67,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.complete = False
         self.keep_window_open = True
         self.aquisition_parameters_processed = False
+        self.plot_2d: Plot2DSimplified = None
 
         self.before_run = app().project.get_pre_solution_model_checks()    
 
@@ -932,7 +932,23 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
-        self.compressor.plot_volumetric_flow_rate_at_suction_time()
+
+        flow_rate = self.compressor.process_sum_of_volumetric_flow_rate('in_flow')
+        if flow_rate is None:
+            return
+
+        Trev = 60 / self.compressor.rpm
+        N = len(flow_rate)
+        time = np.linspace(0, Trev, N)
+
+        self.plot_2d = Plot2DSimplified(
+        title="Volumetric flow rate at suction",
+        x_label="Time [s]",
+        y_label="Volume [m³/s]"
+        )
+
+        self.plot_2d.set_plot_data(time, flow_rate)
+        self.plot_2d.show()
 
     def plot_volumetric_flow_rate_at_discharge_time(self):
         if self.check_all_parameters():
@@ -940,7 +956,23 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         N = self.spinBox_number_of_points.value()
         self.compressor.number_points = N
-        self.compressor.plot_volumetric_flow_rate_at_discharge_time()
+
+        flow_rate = self.compressor.process_sum_of_volumetric_flow_rate('out_flow')
+        if flow_rate is None:
+            return
+
+        Trev = 60 / self.compressor.rpm
+        N = len(flow_rate)
+        time = np.linspace(0, Trev, N)
+
+        self.plot_2d = Plot2DSimplified(
+            title="Volumetric flow rate at discharge",
+            x_label="Time [s]",
+            y_label="Volume [m³/s]"
+        )
+
+        self.plot_2d.set_plot_data(time, flow_rate)
+        self.plot_2d.show()
 
     def plot_rod_pressure_load_frequency(self):
         if self.process_aquisition_parameters():
@@ -953,9 +985,29 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         if self.process_aquisition_parameters():
             self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
             return
+        
+        _, pressure_HE_Pa, _ = self.compressor.process_head_end_volumes_and_pressures()
+        _, pressure_CE_Pa, _ = self.compressor.process_crank_end_volumes_and_pressures()
 
-        self.compressor.plot_rod_pressure_load_time()
-    
+        load_head = pressure_HE_Pa * self.compressor.area_head_end
+        load_crank = -pressure_CE_Pa * self.compressor.area_crank_end
+
+        # convert the calculate force in kN
+        rod_pressure_load_time = (load_head + load_crank) / 1000
+
+        Trev = 60 / self.compressor.rpm
+        N = len(rod_pressure_load_time)
+        time = np.linspace(0, Trev, N)
+
+        self.plot_2d = Plot2DSimplified(
+            title="Rod pressure load",
+            x_label="Time [s]",
+            y_label="Rod pressure load [kN]"
+        )
+
+        self.plot_2d.set_plot_data(time, rod_pressure_load_time, absolute_value=True)
+        self.plot_2d.show()
+            
     def plot_piston_position_and_velocity_time(self):
         if self.process_aquisition_parameters():
             self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
