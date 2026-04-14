@@ -153,6 +153,10 @@
                  <pointsize>10</pointsize>
                 </font>
                </property>
+               <property name="toolTip">
+                <string>Sets the structure segment length along its current trajectory.
+(Active at endpoints only).</string>
+               </property>
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
                </property>
@@ -185,6 +189,9 @@
                 <font>
                  <pointsize>10</pointsize>
                 </font>
+               </property>
+               <property name="toolTip">
+                <string>Defines the structure segment length component along the global Z-axis.</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -234,6 +241,9 @@
                 <font>
                  <pointsize>10</pointsize>
                 </font>
+               </property>
+               <property name="toolTip">
+                <string>Defines the structure segment length component along the global Y-axis.</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -401,6 +411,9 @@
                 <font>
                  <pointsize>10</pointsize>
                 </font>
+               </property>
+               <property name="toolTip">
+                <string>Defines the structure segment length component along the global X-axis.</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
