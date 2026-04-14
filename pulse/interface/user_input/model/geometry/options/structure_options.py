@@ -1,8 +1,10 @@
+from typing import TYPE_CHECKING
+
+from molde.stylesheets import set_qproperty
 
 from pulse import app
 from pulse.utils.text_utils import pascal_to_spaced_case
 
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pulse.interface.user_input.model.geometry.geometry_designer_widget import GeometryDesignerWidget
 
@@ -20,14 +22,14 @@ class StructureOptions:
     @classmethod
     def name(cls):
         return pascal_to_spaced_case(cls.__name__).strip().removesuffix("Options")
-    
+
     def xyz_callback(self, xyz: tuple[float, float, float]):
         if self.structure_type is None:
             return
 
         kwargs = self.get_kwargs()
         if kwargs is None:
-            return        
+            return
 
         if self.pipeline.staged_structures or self.pipeline.staged_points:
             self.geometry_designer_widget.load_tmp_camera()
@@ -44,7 +46,7 @@ class StructureOptions:
 
         kwargs = self.get_kwargs()
         if kwargs is None:
-            return        
+            return
 
         if self.pipeline.staged_structures or self.pipeline.staged_points:
             self.geometry_designer_widget.load_tmp_camera()
@@ -101,22 +103,24 @@ class StructureOptions:
                 setattr(structure, k, v)
 
     def update_permissions(self, enable=True):
+        if self.structure_info:
+            set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
+            enable = True
+        else:
+            set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
+            enable = False
+
         enable_attach = len(self.pipeline.selected_points) >= 2
-        enable_add = (
-            len(self.pipeline.selected_structures)
-            + len(self.pipeline.staged_structures)
-            + len(self.pipeline.staged_points)
-            >= 1
-        )
-        enable_delete = (
-            len(self.pipeline.selected_structures)
-            + len(self.pipeline.selected_points)
-            >= 1
-        )
+        enable_add = len(self.pipeline.selected_structures) + len(self.pipeline.staged_structures) + len(self.pipeline.staged_points) >= 1
+        enable_delete = len(self.pipeline.selected_structures) + len(self.pipeline.selected_points) >= 1
         self.geometry_designer_widget.attach_button.setEnabled(enable_attach and enable)
         self.geometry_designer_widget.add_button.setEnabled(enable_add and enable)
         self.geometry_designer_widget.delete_button.setEnabled(enable_delete)
         self.geometry_designer_widget.configure_button.setEnabled(True)
+        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
+
+        enable_length = self.pipeline.main_editor.is_endpoint()
+        self.geometry_designer_widget.length_line_edit.setEnabled(enable_length)
 
     def get_kwargs(self) -> dict:
         raise NotImplementedError(f"Method get_kwargs not implemented on {self.__class__.__name__}")

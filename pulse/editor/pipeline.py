@@ -9,15 +9,7 @@ from pulse.editor.editor_delegate import (
     ReplaceEditor,
     SelectionEditor,
 )
-
-from pulse.editor.structures import (
-    Bend,
-    Elbow,
-    Pipe,
-    Point,
-    Structure,
-    TBeam
-)
+from pulse.editor.structures import Bend, Elbow, Pipe, Point, Structure, TBeam
 
 # only to help the editor, ignore it
 generic_type = TypeVar("generic_type")
@@ -59,9 +51,7 @@ class Pipeline:
     def all_structures(self):
         return chain(self.structures, self.staged_structures)
 
-    def structures_of_type(
-        self, structure_type: generic_type
-    ) -> Generator[generic_type, None, None]:
+    def structures_of_type(self, structure_type: generic_type) -> Generator[generic_type, None, None]:
         for structure in self.all_structures():
             if isinstance(structure, structure_type):
                 yield structure
@@ -122,7 +112,7 @@ class Pipeline:
     def remove_structure(self, structure: Structure, rejoin=True):
         if not isinstance(structure, Structure):
             return
-        
+
         neighbours_to_remove = []
         if isinstance(structure, Pipe):
             for curve in self.structures_of_type(Bend | Elbow):
@@ -137,7 +127,7 @@ class Pipeline:
 
         if rejoin and isinstance(structure, Bend | Elbow):
             self.attatch_point(structure.corner)
-        
+
         self.remove_structures(neighbours_to_remove)
 
     def delete_selection(self):
@@ -278,11 +268,11 @@ class Pipeline:
 
     # Replace Editor
     def replace_selection_by(self, structure_type: type[Structure], **kwargs):
-        return self.replace_editor.replace_selection_by(structure_type, **kwargs) 
+        return self.replace_editor.replace_selection_by(structure_type, **kwargs)
 
     def replace_by_pipe(self, **kwargs):
         return self.replace_editor.replace_selection_by(Pipe, **kwargs)
-    
+
     # def replace_by_bent_pipes(self, curvature_radius, **kwargs):
     #     return self.replace_editor.replace_by_bent_pipes(curvature_radius, **kwargs)
 
@@ -357,7 +347,7 @@ class Pipeline:
 
     def divide_structures_evenly(self, divisions=1):
         self.divide_editor.divide_structures_evenly(divisions)
-    
+
     def divide_structures_by_distance_from_point(self, selected_point, division_data):
         self.divide_editor.divide_structures_by_distance_from_point(selected_point, division_data)
 

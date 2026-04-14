@@ -290,6 +290,24 @@ class MainEditor(Editor):
 
         return directions
 
+    def is_endpoint(self) -> bool:
+        for point in self.pipeline.selected_points:
+            connected_structures = self._structures_containing_point(point)
+            if len(connected_structures) == 1:
+                return True
+        return False
+
+    def _structures_containing_point(self, point: Point) -> list[Structure]:
+        structures = list()
+        for structure in self.pipeline.structures:
+            if not isinstance(structure, Fillet | LinearStructure):
+                continue
+
+            if (point == structure.start) or (point == structure.end):
+                structures.append(structure)
+
+        return structures
+
     def _add_generic_arc(self, structure_type: type[Arc], deltas: tuple[float, float, float], **kwargs):
         if not np.array(deltas).any():  # all zeros
             return []
