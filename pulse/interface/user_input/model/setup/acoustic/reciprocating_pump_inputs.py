@@ -813,7 +813,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="P-V diagram (head end)",
             x_label="Volume [m³]",
-            y_label=f"Pressure [{pressure_unit}]"
+            y_left_label=f"Pressure [{pressure_unit}]"
         )
 
         self.plot_2d.set_plot_data(volume_HE_m3, pressure_HE, label="Head end")
@@ -837,7 +837,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title = "P-V diagram (crank end)",
             x_label = "Volume [m³]",
-            y_label = f"Pressure [{pressure_unit}]"
+            y_left_label = f"Pressure [{pressure_unit}]"
         )
 
         self.plot_2d.set_plot_data(volume_CE, pressure_CE, label="Crank end")
@@ -864,7 +864,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="Reciprocating Pump P-V Diagram",
             x_label="Volume [m³]",
-            y_label=f"Pressure [{pressure_unit}]",
+            y_left_label=f"Pressure [{pressure_unit}]",
         )
 
         self.plot_2d.set_plot_data(volume_HE, pressure_HE, label="Head End",)
@@ -906,7 +906,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title = "Volumetric flow rate at suction",
             x_label = "Time [s]",
-            y_label = "Volume [m³/s]"
+            y_left_label = "Volume [m³/s]"
         )
         
         self.plot_2d.set_plot_data(time, flow_rate)
@@ -931,7 +931,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="Volumetric flow rate at discharge",
             x_label="Time [s]",
-            y_label="Volume [m³/s]"
+            y_left_label="Volume [m³/s]"
         )
 
         self.plot_2d.set_plot_data(time, flow_rate)
@@ -956,7 +956,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="Rod pressure load",
             x_label="Frequency [Hz]",
-            y_label="Rod pressure load [kN]"
+            y_left_label="Rod pressure load [kN]"
         )
 
         self.plot_2d.set_plot_data(freq, rod_pressure_load, absolute_value=True)
@@ -980,7 +980,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="Rod pressure load",
             x_label="Time [s]",
-            y_label="Rod pressure load [kN]"
+            y_left_label="Rod pressure load [kN]"
         )
 
         self.plot_2d.set_plot_data(time, rod_pressure_load_time, absolute_value=True)
@@ -1004,7 +1004,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="Volumetric flow rate at suction",
             x_label="Frequency [Hz]",
-            y_label="Volumetric head flow rate [m³/s]"
+            y_left_label="Volumetric head flow rate [m³/s]"
         )
         
         self.plot_2d.set_plot_data(freq, flow_rate, absolute_value=True)
@@ -1020,7 +1020,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="Volumetric flow rate at discharge",
             x_label="Frequency [Hz]",
-            y_label="Volumetric crank flow rate [m³/s]"
+            y_left_label="Volumetric crank flow rate [m³/s]"
         )
 
         self.plot_2d.set_plot_data(freq, flow_rate, absolute_value=True)
@@ -1044,7 +1044,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="Head end pressure vs Angle",
             x_label="Crank angle [degree]",
-            y_label=f"Pressure [{pressure_unit}]"
+            y_left_label=f"Pressure [{pressure_unit}]"
         )
 
         self.plot_2d.set_plot_data(angle, pressure_HE)
@@ -1065,7 +1065,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="Head end volume vs Angle",
             x_label = "Crank angle [degree]",
-            y_label="Volume [m³]"
+            y_left_label="Volume [m³]"
         )
 
         self.plot_2d.set_plot_data(angle, volume_HE)
@@ -1089,7 +1089,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="Crank end pressure vs Angle",
             x_label="Crank angle [degree]",
-            y_label = f"Pressure [{self.pressure_unit}]"
+            y_left_label = f"Pressure [{self.pressure_unit}]"
         )
 
         self.plot_2d.set_plot_data(angle, pressure_CE)
@@ -1110,7 +1110,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.plot_2d = Plot2DSimplified(
             title="Crank end volume vs Angle",
             x_label="Crank angle [degree]",
-            y_label="Volume [m³]"
+            y_left_label="Volume [m³]"
         )
 
         self.plot_2d.set_plot_data(angle, volume_CE)
