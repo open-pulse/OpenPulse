@@ -66,7 +66,6 @@ class PlotStressesForHarmonicAnalysis(GetStressesForHarmonicAnalysis_UI):
         #
         self.checkBox_damping_effect.stateChanged.connect(self._update_damping_effect)
         #
-        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
         #
         app().main_window.selection_changed.connect(self.selection_callback)

@@ -287,7 +287,7 @@
         </property>
         <widget class="QWidget" name="tab_setup">
          <attribute name="title">
-          <string>Model</string>
+          <string>Setup</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_12">
           <property name="leftMargin">
@@ -586,7 +586,7 @@
         </widget>
         <widget class="QWidget" name="tab_remove">
          <attribute name="title">
-          <string>Remove</string>
+          <string>List</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_9">
           <property name="leftMargin">

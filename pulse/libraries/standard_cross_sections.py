@@ -1,5 +1,5 @@
 from pulse import OPEN_PULSE_DIR
-from pulse.utils.unit_conversion import in_to_mm, lbft_to_kgm
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit, convert_linear_mass_unit
 
 
 class StandardCrossSections:
@@ -62,14 +62,14 @@ class StandardCrossSections:
                 schedule = int(schedule_str)
         
             outside_diameter_in = float(line[4])
-            outside_diameter_mm = in_to_mm(outside_diameter_in)
+            outside_diameter_mm = convert_length_unit(outside_diameter_in, "in", "m")
 
             thickness_in = float(line[6])
-            thickness_mm = in_to_mm(thickness_in)
+            thickness_mm = convert_length_unit(thickness_in, "in", "m")
 
             linear_mass_lb_ft = float(line[8])
-            linear_mass_kg_m = lbft_to_kgm(linear_mass_lb_ft)
-            
+            linear_mass_kg_m = convert_linear_mass_unit(linear_mass_lb_ft, "lb/ft", "kg/m")
+
             self.carbon_steel_cross_sections[index] = { 
                 "NPS" : _NPS,
                 "DN" : _DN,
@@ -129,7 +129,7 @@ class StandardCrossSections:
                 schedule = schedule_str
         
             outside_diameter_in = float(line[3])
-            outside_diameter_mm = in_to_mm(outside_diameter_in)
+            outside_diameter_mm = convert_length_unit(outside_diameter_in, "in", "m")
 
             if line[5] == "...":
                 shift += 1
@@ -138,10 +138,10 @@ class StandardCrossSections:
             else:
 
                 thickness_in = float(line[5])
-                thickness_mm = in_to_mm(thickness_in)
+                thickness_mm = convert_length_unit(thickness_in, "in", "m")
 
                 linear_mass_lb_ft = float(line[7])
-                linear_mass_kg_m = lbft_to_kgm(linear_mass_lb_ft)
+                linear_mass_kg_m = convert_linear_mass_unit(linear_mass_lb_ft, "lb/ft", "kg/m")
 
             self.stainless_steel_cross_sections[index-shift] = {
                 "NPS" : NPS,

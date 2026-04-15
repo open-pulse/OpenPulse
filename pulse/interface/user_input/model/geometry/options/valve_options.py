@@ -6,6 +6,7 @@ if TYPE_CHECKING:
 
 from copy import deepcopy
 
+
 from pulse import app
 from pulse.editor.structures import Valve
 from pulse.interface.user_input.model.setup.structural.valves_input import ValvesInput
@@ -56,8 +57,8 @@ class ValveOptions(StructureOptions):
             wall_thickness = section_parameters[1]
             effective_diameter = outside_diameter - 2 * wall_thickness
 
-            self.valve_input.lineEdit_effective_diameter.setText(f"{round(effective_diameter, 6)}")
-            self.valve_input.lineEdit_wall_thickness.setText(f"{round(wall_thickness, 6)}")
+            self.valve_input.lineEdit_valve_effective_diameter.setText(f"{round(effective_diameter, 6)}")
+            self.valve_input.lineEdit_valve_wall_thickness.setText(f"{round(wall_thickness, 6)}")
 
         except Exception as error_log:
             title = "Error while tranfering pipe data"

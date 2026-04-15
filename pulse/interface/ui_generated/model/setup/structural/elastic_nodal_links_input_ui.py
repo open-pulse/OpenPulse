@@ -78,8 +78,8 @@ class Ui_Dialog(object):
         self.gridLayout_31.setContentsMargins(4, 4, 4, 4)
         self.label_first_node_id = QLabel(self.selection_frame)
         self.label_first_node_id.setObjectName(u"label_first_node_id")
-        self.label_first_node_id.setMinimumSize(QSize(90, 26))
-        self.label_first_node_id.setMaximumSize(QSize(100, 26))
+        self.label_first_node_id.setMinimumSize(QSize(120, 26))
+        self.label_first_node_id.setMaximumSize(QSize(120, 26))
         font1 = QFont()
         font1.setPointSize(10)
         font1.setBold(False)
@@ -113,8 +113,8 @@ class Ui_Dialog(object):
 
         self.label_last_node_id = QLabel(self.selection_frame)
         self.label_last_node_id.setObjectName(u"label_last_node_id")
-        self.label_last_node_id.setMinimumSize(QSize(90, 26))
-        self.label_last_node_id.setMaximumSize(QSize(100, 26))
+        self.label_last_node_id.setMinimumSize(QSize(120, 26))
+        self.label_last_node_id.setMaximumSize(QSize(120, 26))
         self.label_last_node_id.setFont(font1)
         self.label_last_node_id.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
@@ -151,25 +151,11 @@ class Ui_Dialog(object):
         font3 = QFont()
         font3.setPointSize(10)
         self.tabWidget_main.setFont(font3)
-        self.tab_setup = QWidget()
-        self.tab_setup.setObjectName(u"tab_setup")
-        self.gridLayout_15 = QGridLayout(self.tab_setup)
-        self.gridLayout_15.setSpacing(4)
-        self.gridLayout_15.setObjectName(u"gridLayout_15")
-        self.gridLayout_15.setContentsMargins(4, 4, 4, 4)
-        self.tabWidget_inputs = QTabWidget(self.tab_setup)
-        self.tabWidget_inputs.setObjectName(u"tabWidget_inputs")
-        self.tabWidget_inputs.setMinimumSize(QSize(380, 0))
-        self.tabWidget_inputs.setMaximumSize(QSize(420, 400))
-        self.tabWidget_inputs.setSizeIncrement(QSize(0, 0))
-        self.tabWidget_inputs.setFont(font3)
-        self.tab_constant_values = QWidget()
-        self.tab_constant_values.setObjectName(u"tab_constant_values")
-        self.gridLayout_18 = QGridLayout(self.tab_constant_values)
-        self.gridLayout_18.setSpacing(4)
-        self.gridLayout_18.setObjectName(u"gridLayout_18")
-        self.gridLayout_18.setContentsMargins(4, 6, 4, 6)
-        self.tabWidget_constant_values = QTabWidget(self.tab_constant_values)
+        self.tab_constant = QWidget()
+        self.tab_constant.setObjectName(u"tab_constant")
+        self.gridLayout_5 = QGridLayout(self.tab_constant)
+        self.gridLayout_5.setObjectName(u"gridLayout_5")
+        self.tabWidget_constant_values = QTabWidget(self.tab_constant)
         self.tabWidget_constant_values.setObjectName(u"tabWidget_constant_values")
         self.tabWidget_constant_values.setFont(font3)
         self.tab_spring_constant = QWidget()
@@ -571,16 +557,14 @@ class Ui_Dialog(object):
 
         self.tabWidget_constant_values.addTab(self.tab_damper_constant, "")
 
-        self.gridLayout_18.addWidget(self.tabWidget_constant_values, 0, 0, 1, 2)
+        self.gridLayout_5.addWidget(self.tabWidget_constant_values, 0, 0, 1, 1)
 
-        self.tabWidget_inputs.addTab(self.tab_constant_values, "")
-        self.tab_table_values = QWidget()
-        self.tab_table_values.setObjectName(u"tab_table_values")
-        self.gridLayout_19 = QGridLayout(self.tab_table_values)
-        self.gridLayout_19.setSpacing(4)
-        self.gridLayout_19.setObjectName(u"gridLayout_19")
-        self.gridLayout_19.setContentsMargins(4, 6, 4, 6)
-        self.tabWidget_table_values = QTabWidget(self.tab_table_values)
+        self.tabWidget_main.addTab(self.tab_constant, "")
+        self.tab_tabular = QWidget()
+        self.tab_tabular.setObjectName(u"tab_tabular")
+        self.gridLayout_7 = QGridLayout(self.tab_tabular)
+        self.gridLayout_7.setObjectName(u"gridLayout_7")
+        self.tabWidget_table_values = QTabWidget(self.tab_tabular)
         self.tabWidget_table_values.setObjectName(u"tabWidget_table_values")
         self.tabWidget_table_values.setFont(font3)
         self.tab_spring_table = QWidget()
@@ -1049,48 +1033,9 @@ class Ui_Dialog(object):
 
         self.tabWidget_table_values.addTab(self.tab_damper_table, "")
 
-        self.gridLayout_19.addWidget(self.tabWidget_table_values, 0, 0, 1, 2)
+        self.gridLayout_7.addWidget(self.tabWidget_table_values, 0, 0, 1, 1)
 
-        self.tabWidget_inputs.addTab(self.tab_table_values, "")
-
-        self.gridLayout_15.addWidget(self.tabWidget_inputs, 0, 0, 1, 1)
-
-        self.frame_confirm = QFrame(self.tab_setup)
-        self.frame_confirm.setObjectName(u"frame_confirm")
-        self.frame_confirm.setMinimumSize(QSize(0, 48))
-        self.frame_confirm.setMaximumSize(QSize(16777215, 48))
-        self.frame_confirm.setFrameShape(QFrame.Shape.NoFrame)
-        self.frame_confirm.setFrameShadow(QFrame.Shadow.Raised)
-        self.gridLayout_6 = QGridLayout(self.frame_confirm)
-        self.gridLayout_6.setSpacing(4)
-        self.gridLayout_6.setObjectName(u"gridLayout_6")
-        self.gridLayout_6.setContentsMargins(4, 4, 4, 4)
-        self.pushButton_attribute = QPushButton(self.frame_confirm)
-        self.pushButton_attribute.setObjectName(u"pushButton_attribute")
-        self.pushButton_attribute.setMinimumSize(QSize(100, 28))
-        self.pushButton_attribute.setMaximumSize(QSize(100, 28))
-        self.pushButton_attribute.setFont(font3)
-        self.pushButton_attribute.setStyleSheet(u"")
-        self.pushButton_attribute.setAutoDefault(False)
-        self.pushButton_attribute.setFlat(False)
-
-        self.gridLayout_6.addWidget(self.pushButton_attribute, 0, 1, 1, 1)
-
-        self.pushButton_exit = QPushButton(self.frame_confirm)
-        self.pushButton_exit.setObjectName(u"pushButton_exit")
-        self.pushButton_exit.setMinimumSize(QSize(100, 28))
-        self.pushButton_exit.setMaximumSize(QSize(100, 28))
-        self.pushButton_exit.setFont(font3)
-        self.pushButton_exit.setStyleSheet(u"")
-        self.pushButton_exit.setAutoDefault(False)
-        self.pushButton_exit.setFlat(False)
-
-        self.gridLayout_6.addWidget(self.pushButton_exit, 0, 0, 1, 1)
-
-
-        self.gridLayout_15.addWidget(self.frame_confirm, 1, 0, 1, 1)
-
-        self.tabWidget_main.addTab(self.tab_setup, "")
+        self.tabWidget_main.addTab(self.tab_tabular, "")
         self.tab_remove = QWidget()
         self.tab_remove.setObjectName(u"tab_remove")
         font5 = QFont()
@@ -1111,23 +1056,23 @@ class Ui_Dialog(object):
         self.tab_multiple.setObjectName(u"tab_multiple")
         self.gridLayout_4 = QGridLayout(self.tab_multiple)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.checkBox_link_dampings = QCheckBox(self.tab_multiple)
-        self.checkBox_link_dampings.setObjectName(u"checkBox_link_dampings")
-        self.checkBox_link_dampings.setMinimumSize(QSize(200, 26))
-        self.checkBox_link_dampings.setMaximumSize(QSize(280, 26))
-        self.checkBox_link_dampings.setFont(font6)
-        self.checkBox_link_dampings.setChecked(True)
+        self.checkBox_remove_link_damping = QCheckBox(self.tab_multiple)
+        self.checkBox_remove_link_damping.setObjectName(u"checkBox_remove_link_damping")
+        self.checkBox_remove_link_damping.setMinimumSize(QSize(200, 26))
+        self.checkBox_remove_link_damping.setMaximumSize(QSize(280, 26))
+        self.checkBox_remove_link_damping.setFont(font6)
+        self.checkBox_remove_link_damping.setChecked(True)
 
-        self.gridLayout_4.addWidget(self.checkBox_link_dampings, 1, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.checkBox_remove_link_damping, 1, 1, 1, 1)
 
-        self.checkBox_link_stiffness = QCheckBox(self.tab_multiple)
-        self.checkBox_link_stiffness.setObjectName(u"checkBox_link_stiffness")
-        self.checkBox_link_stiffness.setMinimumSize(QSize(200, 26))
-        self.checkBox_link_stiffness.setMaximumSize(QSize(280, 26))
-        self.checkBox_link_stiffness.setFont(font6)
-        self.checkBox_link_stiffness.setChecked(True)
+        self.checkBox_remove_link_stiffness = QCheckBox(self.tab_multiple)
+        self.checkBox_remove_link_stiffness.setObjectName(u"checkBox_remove_link_stiffness")
+        self.checkBox_remove_link_stiffness.setMinimumSize(QSize(200, 26))
+        self.checkBox_remove_link_stiffness.setMaximumSize(QSize(280, 26))
+        self.checkBox_remove_link_stiffness.setFont(font6)
+        self.checkBox_remove_link_stiffness.setChecked(True)
 
-        self.gridLayout_4.addWidget(self.checkBox_link_stiffness, 0, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.checkBox_remove_link_stiffness, 0, 1, 1, 1)
 
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -1229,11 +1174,43 @@ class Ui_Dialog(object):
 
         self.gridLayout.addWidget(self.main_frame, 1, 0, 1, 1)
 
+        self.frame_confirm = QFrame(Dialog)
+        self.frame_confirm.setObjectName(u"frame_confirm")
+        self.frame_confirm.setMinimumSize(QSize(0, 48))
+        self.frame_confirm.setMaximumSize(QSize(16777215, 48))
+        self.frame_confirm.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_confirm.setFrameShadow(QFrame.Shadow.Raised)
+        self.gridLayout_6 = QGridLayout(self.frame_confirm)
+        self.gridLayout_6.setSpacing(4)
+        self.gridLayout_6.setObjectName(u"gridLayout_6")
+        self.gridLayout_6.setContentsMargins(4, 4, 4, 4)
+        self.pushButton_attribute = QPushButton(self.frame_confirm)
+        self.pushButton_attribute.setObjectName(u"pushButton_attribute")
+        self.pushButton_attribute.setMinimumSize(QSize(100, 28))
+        self.pushButton_attribute.setMaximumSize(QSize(100, 28))
+        self.pushButton_attribute.setFont(font3)
+        self.pushButton_attribute.setStyleSheet(u"")
+        self.pushButton_attribute.setAutoDefault(False)
+        self.pushButton_attribute.setFlat(False)
+
+        self.gridLayout_6.addWidget(self.pushButton_attribute, 0, 1, 1, 1)
+
+        self.pushButton_exit = QPushButton(self.frame_confirm)
+        self.pushButton_exit.setObjectName(u"pushButton_exit")
+        self.pushButton_exit.setMinimumSize(QSize(100, 28))
+        self.pushButton_exit.setMaximumSize(QSize(100, 28))
+        self.pushButton_exit.setFont(font3)
+        self.pushButton_exit.setStyleSheet(u"")
+        self.pushButton_exit.setAutoDefault(False)
+        self.pushButton_exit.setFlat(False)
+
+        self.gridLayout_6.addWidget(self.pushButton_exit, 0, 0, 1, 1)
+
+
+        self.gridLayout.addWidget(self.frame_confirm, 2, 0, 1, 1)
+
         QWidget.setTabOrder(self.lineEdit_first_node_id, self.lineEdit_last_node_id)
-        QWidget.setTabOrder(self.lineEdit_last_node_id, self.tabWidget_main)
-        QWidget.setTabOrder(self.tabWidget_main, self.tabWidget_inputs)
-        QWidget.setTabOrder(self.tabWidget_inputs, self.tabWidget_constant_values)
-        QWidget.setTabOrder(self.tabWidget_constant_values, self.lineEdit_Kx)
+        QWidget.setTabOrder(self.lineEdit_last_node_id, self.lineEdit_Kx)
         QWidget.setTabOrder(self.lineEdit_Kx, self.lineEdit_Ky)
         QWidget.setTabOrder(self.lineEdit_Ky, self.lineEdit_Kz)
         QWidget.setTabOrder(self.lineEdit_Kz, self.lineEdit_Krx)
@@ -1245,50 +1222,51 @@ class Ui_Dialog(object):
         QWidget.setTabOrder(self.lineEdit_Cz, self.lineEdit_Crx)
         QWidget.setTabOrder(self.lineEdit_Crx, self.lineEdit_Cry)
         QWidget.setTabOrder(self.lineEdit_Cry, self.lineEdit_Crz)
-        QWidget.setTabOrder(self.lineEdit_Crz, self.tabWidget_table_values)
-        QWidget.setTabOrder(self.tabWidget_table_values, self.lineEdit_Kx_table_path)
-        QWidget.setTabOrder(self.lineEdit_Kx_table_path, self.pushButton_load_Kx_table)
-        QWidget.setTabOrder(self.pushButton_load_Kx_table, self.lineEdit_Ky_table_path)
-        QWidget.setTabOrder(self.lineEdit_Ky_table_path, self.pushButton_load_Ky_table)
-        QWidget.setTabOrder(self.pushButton_load_Ky_table, self.lineEdit_Kz_table_path)
-        QWidget.setTabOrder(self.lineEdit_Kz_table_path, self.pushButton_load_Kz_table)
-        QWidget.setTabOrder(self.pushButton_load_Kz_table, self.lineEdit_Krx_table_path)
-        QWidget.setTabOrder(self.lineEdit_Krx_table_path, self.pushButton_load_Krx_table)
-        QWidget.setTabOrder(self.pushButton_load_Krx_table, self.lineEdit_Kry_table_path)
-        QWidget.setTabOrder(self.lineEdit_Kry_table_path, self.pushButton_load_Kry_table)
-        QWidget.setTabOrder(self.pushButton_load_Kry_table, self.lineEdit_Krz_table_path)
-        QWidget.setTabOrder(self.lineEdit_Krz_table_path, self.pushButton_load_Krz_table)
-        QWidget.setTabOrder(self.pushButton_load_Krz_table, self.lineEdit_Cx_table_path)
-        QWidget.setTabOrder(self.lineEdit_Cx_table_path, self.pushButton_load_Cx_table)
-        QWidget.setTabOrder(self.pushButton_load_Cx_table, self.lineEdit_Cy_table_path)
-        QWidget.setTabOrder(self.lineEdit_Cy_table_path, self.pushButton_load_Cy_table)
-        QWidget.setTabOrder(self.pushButton_load_Cy_table, self.lineEdit_Cz_table_path)
-        QWidget.setTabOrder(self.lineEdit_Cz_table_path, self.pushButton_load_Cz_table)
-        QWidget.setTabOrder(self.pushButton_load_Cz_table, self.lineEdit_Crx_table_path)
-        QWidget.setTabOrder(self.lineEdit_Crx_table_path, self.pushButton_load_Crx_table)
-        QWidget.setTabOrder(self.pushButton_load_Crx_table, self.lineEdit_Cry_table_path)
-        QWidget.setTabOrder(self.lineEdit_Cry_table_path, self.pushButton_load_Cry_table)
-        QWidget.setTabOrder(self.pushButton_load_Cry_table, self.lineEdit_Crz_table_path)
-        QWidget.setTabOrder(self.lineEdit_Crz_table_path, self.pushButton_load_Crz_table)
-        QWidget.setTabOrder(self.pushButton_load_Crz_table, self.pushButton_attribute)
-        QWidget.setTabOrder(self.pushButton_attribute, self.pushButton_exit)
-        QWidget.setTabOrder(self.pushButton_exit, self.checkBox_link_stiffness)
-        QWidget.setTabOrder(self.checkBox_link_stiffness, self.checkBox_link_dampings)
-        QWidget.setTabOrder(self.checkBox_link_dampings, self.pushButton_remove)
-        QWidget.setTabOrder(self.pushButton_remove, self.pushButton_reset)
-        QWidget.setTabOrder(self.pushButton_reset, self.tabWidget_remove)
+        QWidget.setTabOrder(self.lineEdit_Crz, self.lineEdit_Kx_table_path)
+        QWidget.setTabOrder(self.lineEdit_Kx_table_path, self.lineEdit_Ky_table_path)
+        QWidget.setTabOrder(self.lineEdit_Ky_table_path, self.lineEdit_Kz_table_path)
+        QWidget.setTabOrder(self.lineEdit_Kz_table_path, self.lineEdit_Krx_table_path)
+        QWidget.setTabOrder(self.lineEdit_Krx_table_path, self.lineEdit_Kry_table_path)
+        QWidget.setTabOrder(self.lineEdit_Kry_table_path, self.lineEdit_Krz_table_path)
+        QWidget.setTabOrder(self.lineEdit_Krz_table_path, self.lineEdit_Cx_table_path)
+        QWidget.setTabOrder(self.lineEdit_Cx_table_path, self.lineEdit_Cy_table_path)
+        QWidget.setTabOrder(self.lineEdit_Cy_table_path, self.lineEdit_Cz_table_path)
+        QWidget.setTabOrder(self.lineEdit_Cz_table_path, self.lineEdit_Crx_table_path)
+        QWidget.setTabOrder(self.lineEdit_Crx_table_path, self.lineEdit_Cry_table_path)
+        QWidget.setTabOrder(self.lineEdit_Cry_table_path, self.lineEdit_Crz_table_path)
+        QWidget.setTabOrder(self.lineEdit_Crz_table_path, self.pushButton_load_Kx_table)
+        QWidget.setTabOrder(self.pushButton_load_Kx_table, self.pushButton_load_Ky_table)
+        QWidget.setTabOrder(self.pushButton_load_Ky_table, self.pushButton_load_Kz_table)
+        QWidget.setTabOrder(self.pushButton_load_Kz_table, self.pushButton_load_Krx_table)
+        QWidget.setTabOrder(self.pushButton_load_Krx_table, self.pushButton_load_Kry_table)
+        QWidget.setTabOrder(self.pushButton_load_Kry_table, self.pushButton_load_Krz_table)
+        QWidget.setTabOrder(self.pushButton_load_Krz_table, self.pushButton_load_Cx_table)
+        QWidget.setTabOrder(self.pushButton_load_Cx_table, self.pushButton_load_Cy_table)
+        QWidget.setTabOrder(self.pushButton_load_Cy_table, self.pushButton_load_Cz_table)
+        QWidget.setTabOrder(self.pushButton_load_Cz_table, self.pushButton_load_Crx_table)
+        QWidget.setTabOrder(self.pushButton_load_Crx_table, self.pushButton_load_Cry_table)
+        QWidget.setTabOrder(self.pushButton_load_Cry_table, self.pushButton_load_Crz_table)
+        QWidget.setTabOrder(self.pushButton_load_Crz_table, self.checkBox_remove_link_stiffness)
+        QWidget.setTabOrder(self.checkBox_remove_link_stiffness, self.checkBox_remove_link_damping)
+        QWidget.setTabOrder(self.checkBox_remove_link_damping, self.pushButton_reset)
+        QWidget.setTabOrder(self.pushButton_reset, self.pushButton_remove)
+        QWidget.setTabOrder(self.pushButton_remove, self.pushButton_exit)
+        QWidget.setTabOrder(self.pushButton_exit, self.pushButton_attribute)
+        QWidget.setTabOrder(self.pushButton_attribute, self.tabWidget_remove)
         QWidget.setTabOrder(self.tabWidget_remove, self.treeWidget_stiffness_nodal_links)
-        QWidget.setTabOrder(self.treeWidget_stiffness_nodal_links, self.treeWidget_damping_nodal_links)
+        QWidget.setTabOrder(self.treeWidget_stiffness_nodal_links, self.tabWidget_constant_values)
+        QWidget.setTabOrder(self.tabWidget_constant_values, self.tabWidget_main)
+        QWidget.setTabOrder(self.tabWidget_main, self.treeWidget_damping_nodal_links)
+        QWidget.setTabOrder(self.treeWidget_damping_nodal_links, self.tabWidget_table_values)
 
         self.retranslateUi(Dialog)
 
         self.tabWidget_main.setCurrentIndex(0)
-        self.tabWidget_inputs.setCurrentIndex(0)
         self.tabWidget_constant_values.setCurrentIndex(0)
         self.tabWidget_table_values.setCurrentIndex(0)
+        self.tabWidget_remove.setCurrentIndex(0)
         self.pushButton_attribute.setDefault(True)
         self.pushButton_exit.setDefault(False)
-        self.tabWidget_remove.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(Dialog)
@@ -1297,8 +1275,8 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Dialog", None))
         self.label.setText(QCoreApplication.translate("Dialog", u"Elastic nodal links configuration", None))
-        self.label_first_node_id.setText(QCoreApplication.translate("Dialog", u"First node id:", None))
-        self.label_last_node_id.setText(QCoreApplication.translate("Dialog", u"Last node id:", None))
+        self.label_first_node_id.setText(QCoreApplication.translate("Dialog", u"Selected node A:", None))
+        self.label_last_node_id.setText(QCoreApplication.translate("Dialog", u"Selected node B:", None))
         self.lineEdit_Krx.setText("")
         self.label_16.setText(QCoreApplication.translate("Dialog", u"[N/m]", None))
         self.lineEdit_Ky.setText("")
@@ -1337,7 +1315,7 @@ class Ui_Dialog(object):
         self.lineEdit_Cx.setText("")
         self.label_20.setText(QCoreApplication.translate("Dialog", u"[N.s/m]", None))
         self.tabWidget_constant_values.setTabText(self.tabWidget_constant_values.indexOf(self.tab_damper_constant), QCoreApplication.translate("Dialog", u"Damper", None))
-        self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_constant_values), QCoreApplication.translate("Dialog", u"Constant values", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_constant), QCoreApplication.translate("Dialog", u"Constant", None))
         self.pushButton_load_Kx_table.setText(QCoreApplication.translate("Dialog", u"Search", None))
         self.label_117.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\"><span style=\" font-weight:400; font-style:normal;\">k</span><span style=\" font-weight:400; font-style:normal; vertical-align:sub;\">x</span><span style=\" font-weight:400; font-style:normal;\">:</span></p></body></html>", None))
         self.pushButton_load_Ky_table.setText(QCoreApplication.translate("Dialog", u"Search", None))
@@ -1364,12 +1342,9 @@ class Ui_Dialog(object):
         self.label_120.setText(QCoreApplication.translate("Dialog", u"<html><head/><body><p align=\"right\">c<span style=\" vertical-align:sub;\">rz</span>:</p></body></html>", None))
         self.pushButton_load_Crz_table.setText(QCoreApplication.translate("Dialog", u"Search", None))
         self.tabWidget_table_values.setTabText(self.tabWidget_table_values.indexOf(self.tab_damper_table), QCoreApplication.translate("Dialog", u"Damper", None))
-        self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_table_values), QCoreApplication.translate("Dialog", u"Table of values", None))
-        self.pushButton_attribute.setText(QCoreApplication.translate("Dialog", u"Attribute", None))
-        self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
-        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_setup), QCoreApplication.translate("Dialog", u"Setup", None))
-        self.checkBox_link_dampings.setText(QCoreApplication.translate("Dialog", u"Stiffness dampings (translational/torsional)", None))
-        self.checkBox_link_stiffness.setText(QCoreApplication.translate("Dialog", u"Stiffness link (translational/torsional)", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_tabular), QCoreApplication.translate("Dialog", u"Tabular", None))
+        self.checkBox_remove_link_damping.setText(QCoreApplication.translate("Dialog", u"Stiffness dampings (translational/torsional)", None))
+        self.checkBox_remove_link_stiffness.setText(QCoreApplication.translate("Dialog", u"Stiffness link (translational/torsional)", None))
         self.tabWidget_remove.setTabText(self.tabWidget_remove.indexOf(self.tab_multiple), QCoreApplication.translate("Dialog", u"Multiple", None))
         ___qtreewidgetitem = self.treeWidget_stiffness_nodal_links.headerItem()
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Dialog", u"Active parameters", None))
@@ -1382,7 +1357,9 @@ class Ui_Dialog(object):
         self.pushButton_reset.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.pushButton_remove.setText(QCoreApplication.translate("Dialog", u"Remove", None))
         self.pushButton_remove.setProperty(u"status", QCoreApplication.translate("Dialog", u"danger", None))
-        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"Remove", None))
+        self.tabWidget_main.setTabText(self.tabWidget_main.indexOf(self.tab_remove), QCoreApplication.translate("Dialog", u"List", None))
+        self.pushButton_attribute.setText(QCoreApplication.translate("Dialog", u"Attribute", None))
+        self.pushButton_exit.setText(QCoreApplication.translate("Dialog", u"Exit", None))
     # retranslateUi
 
 
@@ -1406,106 +1383,99 @@ class ElasticNodalLinksInput_UI(QDialog, Ui_Dialog):
                             - frame_tabWidgets: QFrame
                                 - (Layout): QGridLayout
                                         - tabWidget_main: QTabWidget
-                                            - tab_setup: QWidget
+                                            - tab_constant: QWidget
                                                 - (Layout): QGridLayout
-                                                        - tabWidget_inputs: QTabWidget
-                                                            - tab_constant_values: QWidget
+                                                        - tabWidget_constant_values: QTabWidget
+                                                            - tab_spring_constant: QWidget
                                                                 - (Layout): QGridLayout
-                                                                        - tabWidget_constant_values: QTabWidget
-                                                                            - tab_spring_constant: QWidget
-                                                                                - (Layout): QGridLayout
-                                                                                        - lineEdit_Krx: QLineEdit
-                                                                                        - label_16: QLabel
-                                                                                        - lineEdit_Ky: QLineEdit
-                                                                                        - label_115: QLabel
-                                                                                        - label_93: QLabel
-                                                                                        - label_113: QLabel
-                                                                                        - label_116: QLabel
-                                                                                        - label_123: QLabel
-                                                                                        - lineEdit_Kz: QLineEdit
-                                                                                        - label_18: QLabel
-                                                                                        - label_112: QLabel
-                                                                                        - label_114: QLabel
-                                                                                        - lineEdit_Krz: QLineEdit
-                                                                                        - label_122: QLabel
-                                                                                        - label_17: QLabel
-                                                                                        - lineEdit_Kx: QLineEdit
-                                                                                        - lineEdit_Kry: QLineEdit
-                                                                                        - label_121: QLabel
-                                                                            - tab_damper_constant: QWidget
-                                                                                - (Layout): QGridLayout
-                                                                                        - lineEdit_Crz: QLineEdit
-                                                                                        - label_131: QLabel
-                                                                                        - label_126: QLabel
-                                                                                        - label_128: QLabel
-                                                                                        - lineEdit_Cy: QLineEdit
-                                                                                        - lineEdit_Cz: QLineEdit
-                                                                                        - label_102: QLabel
-                                                                                        - label_19: QLabel
-                                                                                        - label_21: QLabel
-                                                                                        - lineEdit_Crx: QLineEdit
-                                                                                        - label_127: QLabel
-                                                                                        - label_125: QLabel
-                                                                                        - label_130: QLabel
-                                                                                        - label_124: QLabel
-                                                                                        - lineEdit_Cry: QLineEdit
-                                                                                        - label_129: QLabel
-                                                                                        - lineEdit_Cx: QLineEdit
-                                                                                        - label_20: QLabel
-                                                            - tab_table_values: QWidget
+                                                                        - lineEdit_Krx: QLineEdit
+                                                                        - label_16: QLabel
+                                                                        - lineEdit_Ky: QLineEdit
+                                                                        - label_115: QLabel
+                                                                        - label_93: QLabel
+                                                                        - label_113: QLabel
+                                                                        - label_116: QLabel
+                                                                        - label_123: QLabel
+                                                                        - lineEdit_Kz: QLineEdit
+                                                                        - label_18: QLabel
+                                                                        - label_112: QLabel
+                                                                        - label_114: QLabel
+                                                                        - lineEdit_Krz: QLineEdit
+                                                                        - label_122: QLabel
+                                                                        - label_17: QLabel
+                                                                        - lineEdit_Kx: QLineEdit
+                                                                        - lineEdit_Kry: QLineEdit
+                                                                        - label_121: QLabel
+                                                            - tab_damper_constant: QWidget
                                                                 - (Layout): QGridLayout
-                                                                        - tabWidget_table_values: QTabWidget
-                                                                            - tab_spring_table: QWidget
-                                                                                - (Layout): QGridLayout
-                                                                                        - lineEdit_Kx_table_path: QLineEdit
-                                                                                        - pushButton_load_Kx_table: QPushButton
-                                                                                        - label_117: QLabel
-                                                                                        - pushButton_load_Ky_table: QPushButton
-                                                                                        - pushButton_load_Kz_table: QPushButton
-                                                                                        - lineEdit_Kz_table_path: QLineEdit
-                                                                                        - pushButton_load_Krx_table: QPushButton
-                                                                                        - label_118: QLabel
-                                                                                        - lineEdit_Ky_table_path: QLineEdit
-                                                                                        - label_132: QLabel
-                                                                                        - pushButton_load_Kry_table: QPushButton
-                                                                                        - label_119: QLabel
-                                                                                        - label_135: QLabel
-                                                                                        - lineEdit_Krz_table_path: QLineEdit
-                                                                                        - pushButton_load_Krz_table: QPushButton
-                                                                                        - label_134: QLabel
-                                                                                        - lineEdit_Krx_table_path: QLineEdit
-                                                                                        - lineEdit_Kry_table_path: QLineEdit
-                                                                            - tab_damper_table: QWidget
-                                                                                - (Layout): QGridLayout
-                                                                                        - label_138: QLabel
-                                                                                        - lineEdit_Cx_table_path: QLineEdit
-                                                                                        - pushButton_load_Cx_table: QPushButton
-                                                                                        - label_133: QLabel
-                                                                                        - label_136: QLabel
-                                                                                        - lineEdit_Cy_table_path: QLineEdit
-                                                                                        - pushButton_load_Cy_table: QPushButton
-                                                                                        - lineEdit_Cz_table_path: QLineEdit
-                                                                                        - pushButton_load_Cz_table: QPushButton
-                                                                                        - pushButton_load_Crx_table: QPushButton
-                                                                                        - label_139: QLabel
-                                                                                        - lineEdit_Cry_table_path: QLineEdit
-                                                                                        - label_137: QLabel
-                                                                                        - lineEdit_Crx_table_path: QLineEdit
-                                                                                        - pushButton_load_Cry_table: QPushButton
-                                                                                        - label_120: QLabel
-                                                                                        - pushButton_load_Crz_table: QPushButton
-                                                                                        - lineEdit_Crz_table_path: QLineEdit
-                                                        - frame_confirm: QFrame
-                                                            - (Layout): QGridLayout
-                                                                    - pushButton_attribute: QPushButton
-                                                                    - pushButton_exit: QPushButton
+                                                                        - lineEdit_Crz: QLineEdit
+                                                                        - label_131: QLabel
+                                                                        - label_126: QLabel
+                                                                        - label_128: QLabel
+                                                                        - lineEdit_Cy: QLineEdit
+                                                                        - lineEdit_Cz: QLineEdit
+                                                                        - label_102: QLabel
+                                                                        - label_19: QLabel
+                                                                        - label_21: QLabel
+                                                                        - lineEdit_Crx: QLineEdit
+                                                                        - label_127: QLabel
+                                                                        - label_125: QLabel
+                                                                        - label_130: QLabel
+                                                                        - label_124: QLabel
+                                                                        - lineEdit_Cry: QLineEdit
+                                                                        - label_129: QLabel
+                                                                        - lineEdit_Cx: QLineEdit
+                                                                        - label_20: QLabel
+                                            - tab_tabular: QWidget
+                                                - (Layout): QGridLayout
+                                                        - tabWidget_table_values: QTabWidget
+                                                            - tab_spring_table: QWidget
+                                                                - (Layout): QGridLayout
+                                                                        - lineEdit_Kx_table_path: QLineEdit
+                                                                        - pushButton_load_Kx_table: QPushButton
+                                                                        - label_117: QLabel
+                                                                        - pushButton_load_Ky_table: QPushButton
+                                                                        - pushButton_load_Kz_table: QPushButton
+                                                                        - lineEdit_Kz_table_path: QLineEdit
+                                                                        - pushButton_load_Krx_table: QPushButton
+                                                                        - label_118: QLabel
+                                                                        - lineEdit_Ky_table_path: QLineEdit
+                                                                        - label_132: QLabel
+                                                                        - pushButton_load_Kry_table: QPushButton
+                                                                        - label_119: QLabel
+                                                                        - label_135: QLabel
+                                                                        - lineEdit_Krz_table_path: QLineEdit
+                                                                        - pushButton_load_Krz_table: QPushButton
+                                                                        - label_134: QLabel
+                                                                        - lineEdit_Krx_table_path: QLineEdit
+                                                                        - lineEdit_Kry_table_path: QLineEdit
+                                                            - tab_damper_table: QWidget
+                                                                - (Layout): QGridLayout
+                                                                        - label_138: QLabel
+                                                                        - lineEdit_Cx_table_path: QLineEdit
+                                                                        - pushButton_load_Cx_table: QPushButton
+                                                                        - label_133: QLabel
+                                                                        - label_136: QLabel
+                                                                        - lineEdit_Cy_table_path: QLineEdit
+                                                                        - pushButton_load_Cy_table: QPushButton
+                                                                        - lineEdit_Cz_table_path: QLineEdit
+                                                                        - pushButton_load_Cz_table: QPushButton
+                                                                        - pushButton_load_Crx_table: QPushButton
+                                                                        - label_139: QLabel
+                                                                        - lineEdit_Cry_table_path: QLineEdit
+                                                                        - label_137: QLabel
+                                                                        - lineEdit_Crx_table_path: QLineEdit
+                                                                        - pushButton_load_Cry_table: QPushButton
+                                                                        - label_120: QLabel
+                                                                        - pushButton_load_Crz_table: QPushButton
+                                                                        - lineEdit_Crz_table_path: QLineEdit
                                             - tab_remove: QWidget
                                                 - (Layout): QGridLayout
                                                         - tabWidget_remove: QTabWidget
                                                             - tab_multiple: QWidget
                                                                 - (Layout): QGridLayout
-                                                                        - checkBox_link_dampings: QCheckBox
-                                                                        - checkBox_link_stiffness: QCheckBox
+                                                                        - checkBox_remove_link_damping: QCheckBox
+                                                                        - checkBox_remove_link_stiffness: QCheckBox
                                                             - tab_stiffness_link: QWidget
                                                                 - (Layout): QGridLayout
                                                                         - treeWidget_stiffness_nodal_links: QTreeWidget
@@ -1516,6 +1486,10 @@ class ElasticNodalLinksInput_UI(QDialog, Ui_Dialog):
                                                             - (Layout): QGridLayout
                                                                     - pushButton_reset: QPushButton
                                                                     - pushButton_remove: QPushButton
+                - frame_confirm: QFrame
+                    - (Layout): QGridLayout
+                            - pushButton_attribute: QPushButton
+                            - pushButton_exit: QPushButton
     """
 
     def __init__(self, *args, **kwargs):

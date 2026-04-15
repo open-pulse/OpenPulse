@@ -59,7 +59,7 @@ class PlotNodalResultsForStaticAnalysis(GetNodalResultsForStaticAnalysis_UI):
 
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:
-            lineEdit.setText("")
+            lineEdit.clear()
 
     def reset_selection(self):
         self._reset_lineEdits()

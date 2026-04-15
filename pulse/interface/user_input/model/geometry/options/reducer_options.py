@@ -64,7 +64,7 @@ class ReducerOptions(StructureOptions):
             self.cross_section_widget.left_variable_pipe_lineEdits[i].setText(value)
 
         for lineEdit in self.cross_section_widget.right_variable_pipe_lineEdits:
-            lineEdit.setText("")
+            lineEdit.clear()
 
         if outside_diameter != "" and wall_thickness != "":
             self.cross_section_widget.lineEdit_outside_diameter_final.setFocus()

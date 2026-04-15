@@ -1,27 +1,36 @@
-from pulse.model.cross_section import *
-
-# from pulse.interface.handler.geometry_handler import GeometryHandler
-from pulse.model.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
-from pulse.model.acoustic_element import AcousticElement, NODES_PER_ELEMENT
-from pulse.model.structural_element import StructuralElement, NODES_PER_ELEMENT
-from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
-from pulse.model.perforated_plate import PerforatedPlate
-
-from pulse.interface.user_input.model.setup.structural.expansion_joint_input import get_cross_sections_to_plot_expansion_joint
-from pulse.interface.user_input.model.setup.structural.valves_input import get_V_linear_distribution
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.common_utils import *
-from pulse.utils.unit_conversion import *
-
 from typing import TYPE_CHECKING
+
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import (
+    get_cross_sections_to_plot_expansion_joint,
+)
+from pulse.interface.user_input.model.setup.structural.valves_input import (
+    get_V_linear_distribution,
+)
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit, convert_pressure_unit
+from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.acoustic_element import NODES_PER_ELEMENT, AcousticElement
+from pulse.model.cross_section import CrossSection
+from pulse.model.node import DOF_PER_NODE_ACOUSTIC, DOF_PER_NODE_STRUCTURAL, Node
+from pulse.model.perforated_plate import PerforatedPlate
+from pulse.model.reciprocating_compressor_model import ReciprocatingCompressorModel
+from pulse.model.structural_element import StructuralElement  #, NODES_PER_ELEMENT
+from pulse.utils.common_utils import (
+    get_linear_distribution_for_variable_section,
+    slicer,
+    split_sequence,
+    transformation_matrix_3x3xN,
+    transformation_matrix_Nx3x3_by_angles,
+)
+
 if TYPE_CHECKING:
     from pulse.model.mesh import Mesh
 
 import logging
-import numpy as np
 
 # from time import time
 from collections import defaultdict, deque
+
+import numpy as np
 from scipy.spatial.transform import Rotation
 
 
@@ -124,9 +133,9 @@ class Preprocessor:
         self.map_nodes = map_nodes
         self.nodes.clear()
         for i, coord in zip(indexes, split_sequence(coords, 3)):
-            x = mm_to_m(coord[0])
-            y = mm_to_m(coord[1])
-            z = mm_to_m(coord[2])
+            x = convert_length_unit(coord[0], "mm", "m")
+            y = convert_length_unit(coord[1], "mm", "m")
+            z = convert_length_unit(coord[2], "mm", "m")
             self.nodes[map_nodes[i]] = Node(x, y, z, external_index=int(map_nodes[i]))
         self.number_nodes = len(self.nodes)
 
@@ -520,8 +529,8 @@ class Preprocessor:
             for index, element in enumerate(self.structural_elements.values()):
                 first = element.first_node.global_index
                 last  = element.last_node.global_index
-                first_external = element.first_node.external_index
-                last_external  = element.last_node.external_index
+                # first_external = element.first_node.external_index
+                # last_external  = element.last_node.external_index
                 connectivity[index,:] = index+1, first, last
         else:
             for index, element in enumerate(self.structural_elements.values()):
@@ -617,15 +626,17 @@ class Preprocessor:
         column : array.
             Integers that place the columns.
         """
-        # Process the I and J indexes vector for assembly process
-        rows, cols = self.number_structural_elements, DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
-        cols_nodes = self.connectivity_matrix[:,1:].astype(int)
+
+        rows, cols = self.number_structural_elements, DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
+        cols_nodes = self.connectivity_matrix[:, 1:].astype(int)
         cols_dofs = cols_nodes.reshape(-1,1)*DOF_PER_NODE_STRUCTURAL + np.arange(6, dtype=int)
         cols_dofs = cols_dofs.reshape(rows, cols)
-        J = np.tile(cols_dofs, cols)
-        I = cols_dofs.reshape(-1,1)@np.ones((1,cols), dtype=int) 
-        return I.flatten(), J.flatten()
-    
+
+        ind_j = np.tile(cols_dofs, cols)
+        ind_i = cols_dofs.reshape(-1,1) @ np.ones((1,cols), dtype=int) 
+
+        return ind_i.flatten(), ind_j.flatten()
+
     def get_global_acoustic_indexes(self):
         """
         This method returns the placement of the rows and columns of the acoustic global degrees of freedom in the global matrices.
@@ -638,13 +649,16 @@ class Preprocessor:
         column : array.
             Integers that place the columns.
         """
-        rows, cols = len(self.acoustic_elements), DOF_PER_NODE_ACOUSTIC*NODES_PER_ELEMENT
-        cols_nodes = self.connectivity_matrix[:,1:].astype(int)
+
+        rows, cols = len(self.acoustic_elements), DOF_PER_NODE_ACOUSTIC * NODES_PER_ELEMENT
+        cols_nodes = self.connectivity_matrix[:, 1:].astype(int)
         cols_dofs = cols_nodes.reshape(-1,1)
         cols_dofs = cols_dofs.reshape(rows, cols)
-        J = np.tile(cols_dofs, cols)
-        I = cols_dofs.reshape(-1,1)@np.ones((1,cols), dtype=int) 
-        return I.flatten(), J.flatten()
+
+        ind_j = np.tile(cols_dofs, cols)
+        ind_i = cols_dofs.reshape(-1,1) @ np.ones((1,cols), dtype=int) 
+
+        return ind_i.flatten(), ind_j.flatten()
 
     def map_structural_to_acoustic_elements(self):
         """
@@ -947,7 +961,8 @@ class Preprocessor:
                     offset_z_first, offset_z_last = get_linear_distribution_for_variable_section(offset_z_final, offset_z_initial, N)
                 
                 cross_sections_first = list()
-                cross_sections_last = list()
+                # cross_sections_last = list()
+
                 for index, element_id in enumerate(elements_from_line):
                     
                     element = self.structural_elements[element_id]
@@ -1315,7 +1330,7 @@ class Preprocessor:
             for element in slicer(self.structural_elements, elements):
                 element.capped_end = value
 
-    def set_structural_element_wall_formulation_by_lines(self, lines, formulation):
+    def set_structural_element_wall_formulation_by_lines(self, lines: int | list[int], formulation: str):
         """
         This method assign a strutural element wall formulation to the selected lines.
 
@@ -1327,18 +1342,14 @@ class Preprocessor:
         wall_formulation : str, ['thick_wall', 'thin_wall']
             Structural element type to be attributed to the listed elements. 
         """
-        try:
-            if isinstance(lines, int):
-                lines = [lines]
+        if isinstance(lines, int):
+            lines = [lines]
 
-            for elements in slicer(self.mesh.elements_from_line, lines):
-                for element in slicer(self.structural_elements, elements):
-                    element.wall_formulation = formulation
+        for elements in slicer(self.mesh.elements_from_line, lines):
+            for element in slicer(self.structural_elements, elements):
+                element.wall_formulation = formulation
 
-        except Exception as _error:
-            print(str(_error))
-
-    def set_structural_element_force_offset_by_lines(self, lines, force_offset):
+    def set_structural_element_force_offset_by_lines(self, lines: int | list[int], force_offset: bool):
         """
         This method assign a strutural element force offset to the selected lines.
 
@@ -1347,70 +1358,64 @@ class Preprocessor:
         lines : list
             Lines/entities indexes.
             
-        force offset : int, [0, 1]
-            Structural element force offset to be attributed to the listed elements. 
+        force offset : bool
+            This argument controls when the structural element force offset will be activated. 
         """
-        try:
-            if isinstance(lines, int):
-                lines = [lines]
+        if isinstance(lines, int):
+            lines = [lines]
 
-            for elements in slicer(self.mesh.elements_from_line, lines):
-                for element in slicer(self.structural_elements, elements):
-                    element.force_offset = bool(force_offset)
-
-        except Exception as _error:
-            print(str(_error))
+        for elements in slicer(self.mesh.elements_from_line, lines):
+            for element in slicer(self.structural_elements, elements):
+                element.force_offset = force_offset
 
     def modify_stress_stiffening_effect(self, _bool):
         self.stress_stiffening_enabled = _bool
 
-    def set_stress_stiffening_by_lines(self, lines: int | list, pressures: list | tuple):
+    def set_stress_stiffening_by_lines(self, lines: int | list, data: dict):
         """
-        This method .
+        This method sets the stress stiffening property data to the entered lines.
 
         Parameters
         ----------
         lines : list
             Lines/entities indexes.
 
-        parameters : list
-            ????????.
-            
-        remove : bool, optional
-            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
-            Default is False.
+        data : dict
+            The stress stiffening property data.
         """
         if isinstance(lines, int):
             lines = [lines]
-        for elements in slicer(self.mesh.elements_from_line, lines):
-            self.set_stress_stiffening_by_elements(elements, pressures)
 
-    def set_stress_stiffening_by_elements(self, elements, data: dict):
+        pressure_unit = data.get("pressure_unit", "Pa (a)")
+        external_pressure = data.get("external_pressure")
+        internal_pressure = data.get("internal_pressure")
+
+        external_pressure_Pa = convert_pressure_unit(external_pressure, pressure_unit, "Pa")
+        internal_pressure_Pa = convert_pressure_unit(internal_pressure, pressure_unit, "Pa")
+
+        for elements in slicer(self.mesh.elements_from_line, lines):
+            self.set_stress_stiffening_by_elements(elements, external_pressure_Pa, internal_pressure_Pa)
+
+    def set_stress_stiffening_by_elements(self, elements: list[int], external_pressure: float, internal_pressure: float):
         """
-        This method .
+        This method sets the stress stiffening internal and external pressures to the elements.
 
         Parameters
         ----------
-        lines : list
-            Elements indexes.
+        elements : list
+            List of elements indexes.
 
-        parameters : list
-            ????????.
+        external_pressure : float
+            The internal pressure scaled in Pa units.
 
-        section : ?????
-            ??????
-            Default is None
-            
-        remove : bool, optional
-            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
-            Default is False.
+        internal_pressure : float
+            The internal pressure scaled in Pa units.
         """
-
         self.modify_stress_stiffening_effect(True)
 
         for element in slicer(self.structural_elements, elements):
-            element.external_pressure = data["external_pressure"]
-            element.internal_pressure = data["internal_pressure"]
+            element.external_pressure = external_pressure
+            element.internal_pressure = internal_pressure
 
     def add_expansion_joint_by_lines(self, line_ids: (int | list), parameters: (None | dict)):
         """
@@ -1436,7 +1441,6 @@ class Preprocessor:
                 for element in slicer(self.structural_elements, elements):
                     element.set_expansion_joint_data(parameters)
 
-
     def add_valve_by_lines(self, line_ids: (int | list), valve_data: dict):
         """
         This method .
@@ -1461,7 +1465,6 @@ class Preprocessor:
                 for element in slicer(self.structural_elements, elements):
                     element.set_valve_data(valve_data)
 
-
     def set_stress_intensification_by_line(self, line_ids: (int | list), value: bool):
         """
         This method enables or disables the stress intensification effect to all structural elements that belongs to a line.
@@ -1477,7 +1480,6 @@ class Preprocessor:
         for elements in slicer(self.mesh.elements_from_line, line_ids):
             for element in slicer(self.structural_elements, elements):
                 element.stress_intensification = value
-
 
     # Acoustic physical quantities
     def set_fluid_by_element(self, elements, fluid):
@@ -2199,7 +2201,7 @@ class Preprocessor:
     def get_unprescribed_pipe_indexes(self):
         return self.unprescribed_pipe_indexes
 
-    def update_nodal_solution_info(self, nodal_solution):
+    def update_nodal_solution_info(self, nodal_solution: np.ndarray):
         """ This method sets the static nodal solution for 
             stress stiffening analysis.
         Parameters
@@ -2208,32 +2210,19 @@ class Preprocessor:
         """
 
         for node in self.nodes.values():  
-            global_indexes = node.global_dof
-            node.static_nodal_solution_gcs = nodal_solution[global_indexes, 0]
+            node.static_nodal_solution_gcs = nodal_solution[node.global_dof, 0]
 
         for element in self.structural_elements.values():
             element.static_analysis_evaluated = True
 
-    # def get_radius(self):
-    #     """
-    #     This method updates and returns the ????.
+    def get_cross_sections_from_node(self, node_id: int) -> list[CrossSection]:
 
-    #     Returns
-    #     ----------
-    #     dictionary
-    #         Radius at certain node.
-    #     """
-    #     self.radius = {}
-    #     for element in self.structural_elements.values():
-    #         first = element.first_node.global_index
-    #         last  = element.last_node.global_index
-    #         radius = element.cross_section.external_radius
-    #         if self.radius.get(first, -1) == -1:
-    #             self.radius[first] = radius
-    #         elif self.radius[first] < radius:
-    #             self.radius[first] = radius
-    #         if self.radius.get(last, -1) == -1:
-    #             self.radius[last] = radius
-    #         elif self.radius[last] < radius:
-    #             self.radius[last] = radius
-    #     return self.radius
+        cross_sections_from_node = list()
+        neigh_elements = self.structural_elements_connected_to_node.get(node_id)
+        if isinstance(neigh_elements, list):
+            for element in neigh_elements:
+                cross_section = element.cross_section
+                if cross_section not in cross_sections_from_node:
+                    cross_sections_from_node.append(cross_section)
+
+        return cross_sections_from_node

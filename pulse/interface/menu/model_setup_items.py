@@ -25,7 +25,6 @@ class ModelSetupItems(CommonMenuItems):
     def _create_items(self):
         """Creates all TreeWidgetItems."""
         self.item_top_general_settings = self.add_top_item('General Settings')
-        self.item_child_create_geometry = self.add_item('Create/Edit Geometry', property_name="create_geometry")
         self.item_child_set_material = self.add_item('Material', property_name="set_material")
         self.item_child_set_fluid = self.add_item('Fluid', property_name="set_fluid")
         self.item_child_set_crossSection = self.add_item('Cross-Section', property_name="set_cross_section")
@@ -65,7 +64,6 @@ class ModelSetupItems(CommonMenuItems):
     def _create_connections(self):
         #
         # General Settings
-        self.item_child_create_geometry.clicked.connect(self.item_child_create_geometry_callback)
         self.item_child_set_material.clicked.connect(self.item_child_set_material_callback)
         self.item_child_set_fluid.clicked.connect(self.item_child_set_fluid_callback)
         self.item_child_set_crossSection.clicked.connect(self.item_child_set_cross_section_callback)
@@ -99,8 +97,6 @@ class ModelSetupItems(CommonMenuItems):
         app().main_window.theme_changed.connect(self.set_theme)
 
     # Callbacks
-    def item_child_create_geometry_callback(self):
-        app().main_window.input_ui.call_geometry_editor()
 
     def item_child_set_material_callback(self):
         previous_color_mode = app().main_window.get_color_mode()
@@ -261,18 +257,8 @@ class ModelSetupItems(CommonMenuItems):
             pass
 
     # Items access
-    def modify_geometry_item_access(self, bool_key):
-        self.item_child_create_geometry.setDisabled(bool_key)
-
-    def modify_general_settings_items_access(self, bool_key):
-        self.item_child_create_geometry.setDisabled(bool_key)
-        # self.item_child_set_material.setDisabled(bool_key)
-        # self.item_child_set_fluid.setDisabled(bool_key)
-        # self.item_child_set_crossSection.setDisabled(bool_key)
-
     def modify_model_setup_items_access(self, bool_key):
         #
-        self.item_child_create_geometry.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)

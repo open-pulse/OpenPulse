@@ -66,7 +66,7 @@ modes = 200
 global_damping = [0, 0, 0, 0]
 direct = solution.direct_method(global_damping)
 modal = solution.mode_superposition(modes, global_damping, fastest=True)
-# natural_frequencies, modal_shape = solution.modal_analysis(modes=20)
+# natural_frequencies, modal_shape = solution.modal_analysis(number_of_modes=20)
 dt = time()-t0
 print('Total elapsed time:', dt,'[s]')
 

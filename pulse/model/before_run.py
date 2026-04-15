@@ -3,7 +3,7 @@
 from pulse import app
 from pulse.model import AnalysisID
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.utils.unit_conversion import mm_to_m
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
 
 import numpy as np
 from collections import defaultdict
@@ -49,7 +49,7 @@ class BeforeRun():
 
             try:
                 tokens.remove('')
-            except:
+            except Exception:
                 pass
 
             if selection_type == "lines":
@@ -88,7 +88,7 @@ class BeforeRun():
                             else:
                                 continue
 
-                    except:
+                    except Exception:
                         message = f"Dear user, you have typed an invalid entry at the {label.capitalize()} ID input field. " 
                         message += f"The input value(s) must be integer(s) number(s) greater than 1 and less than {_size}."
 
@@ -359,8 +359,8 @@ class BeforeRun():
             flag_lrf_full = True
             self.dict_criterias['LRF full'] = list_lrf_full
         
-        self.max_valid_freq = np.array(list_max_valid_freq)[np.array(list_max_valid_freq)!=None]
-        self.min_valid_freq = np.array(list_min_valid_freq)[np.array(list_min_valid_freq)!=None]
+        self.max_valid_freq = np.array(list_max_valid_freq)[np.array(list_max_valid_freq) is not None]
+        self.min_valid_freq = np.array(list_min_valid_freq)[np.array(list_min_valid_freq) is not None]
 
         self.max_valid_freq = np.min(self.max_valid_freq)
         self.min_valid_freq = np.max(self.min_valid_freq)
@@ -398,7 +398,7 @@ class BeforeRun():
         acoustic_message += "\n\nAvailable acoustic excitations: acoustic pressure, volume velocity, "
         acoustic_message += "reciprocating compressor excitation, and reciprocating pump excitation."
 
-        if analysis_id == AnalysisID.STRUCTURAL_MODAL:
+        if analysis_id in [AnalysisID.STRUCTURAL_MODAL, AnalysisID.STRUCTURAL_STATIC]:
 
             lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             if self.check_set_material:
@@ -702,19 +702,19 @@ class BeforeRun():
                         lengths = list()
                         for _line_id in neigh_lines:
                             length_mm = self.preprocessor.mesh.curve_length[_line_id]
-                            length_m = mm_to_m(length_mm)
-                            lengths.append(length_m)
+                            length = convert_length_unit(length_mm, "mm", "m")
+                            lengths.append(length)
 
                         total_length = np.sum(lengths)
                         ratio = total_length / parameter
 
                         aux[ind] = {
-                                    "section parameter" : parameter,
-                                    "lines" : neigh_lines,
-                                    "lengths" : lengths,
-                                    "total length" : total_length,
-                                    "ratio" : ratio
-                                    }
+                            "section parameter" : parameter,
+                            "lines" : neigh_lines,
+                            "lengths" : lengths,
+                            "total length" : total_length,
+                            "ratio" : ratio
+                            }
 
                 self.one_section_multiple_lines[section_id] = aux
 
