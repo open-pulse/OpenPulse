@@ -1,15 +1,15 @@
 from enum import IntEnum
 
-from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 
 from pulse import app
 from pulse.interface.ui_generated.model.setup.cross_section.set_cross_section_simplified_ui import SetCrossSectionSimplified_UI
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
 
-
 window_title_1 = "Error"
 window_title_2 = "Warning"
+
 
 class TabIndex(IntEnum):
     PIPE = 0
@@ -19,9 +19,8 @@ class TabIndex(IntEnum):
 
 class SectionsInfo(IntEnum):
     ID = 0
-    SECTION_TYPE = 1
-    SECTION_PARAMETERS = 2
-
+    SECTION_TYPE = 2
+    SECTION_PARAMETERS = 3
 
 
 class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
@@ -49,7 +48,6 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("Configure the cross-section")
 
-
     def _initialize(self):
         self.selected_column = None
         self.complete = False
@@ -73,10 +71,9 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.pushButton_exit_beam.clicked.connect(self.close)
         self.pushButton_confirm_beam.clicked.connect(self.attribute_callback)
         self.pushButton_confirm_pipe.clicked.connect(self.attribute_callback)
-        # self.cross_section_widget.pushButton_load_section_data.clicked.connect(self.load_section_data)
-        self.cross_section_widget.pushButton_edit_section_data.clicked.connect(self.edit_section_data)
+        self.cross_section_widget.pushButton_load_section_data.clicked.connect(self.load_section_data)
+        # self.cross_section_widget.pushButton_edit_section_data.clicked.connect(self.edit_section_data)
         self.cross_section_widget.treeWidget_sections_parameters_by_lines.itemClicked.connect(self.single_click_item_callback)
-
 
     def _add_cross_section_widget(self):
         self.cross_section_widget = CrossSectionWidget(dialog=self)
@@ -94,78 +91,85 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
 
         self.cross_section_widget.treeWidget_sections_parameters_by_lines.clear()
         self.cross_section_widget.tabWidget_general.setTabVisible(TabIndex.ACTIVE_SECTIONS, True)
-        self.cross_section_widget.treeWidget_sections_parameters_by_lines.hideColumn(1) # hides the 'Element option' column
+        self.cross_section_widget.treeWidget_sections_parameters_by_lines.hideColumn(1)  # hides the 'Element option' column
 
         # self.section_data_lines = app().project.loader.get_cross_sections_from_file()
 
         active_sections = []
         for structure in self.pipeline.structures:
-            cross_section_info = structure.extra_info['cross_section_info']
-            section_parameters = cross_section_info['section_parameters']
+            cross_section_info = structure.extra_info["cross_section_info"]
+            section_parameters = cross_section_info["section_parameters"]
 
             if section_parameters not in active_sections:
-                active_sections.append(section_parameters)    
+                active_sections.append(section_parameters)
                 section_id = len(active_sections)
 
-                new = QTreeWidgetItem([str(section_id), '', cross_section_info['section_type_label'], str(section_parameters)])
-                
+                new = QTreeWidgetItem([str(section_id), "", cross_section_info["section_type_label"], str(section_parameters)])
+
                 for i in range(4):
                     new.setTextAlignment(i, Qt.AlignCenter)
 
                 self.cross_section_widget.treeWidget_sections_parameters_by_lines.addTopLevelItem(new)
-            
+
+                self.active_sections[section_id] = section_parameters
 
     def load_section_data(self):
         item = self.cross_section_widget.treeWidget_sections_parameters_by_lines.currentItem()
 
-        id = item[SectionsInfo.ID]
-        section_type = item[SectionsInfo.SECTION_TYPE]
-        parameters = item[SectionsInfo.SECTION_PARAMETERS]
+        id = item.text(SectionsInfo.ID)
+        section_type = item.text(SectionsInfo.SECTION_TYPE)
+        parameters = self.active_sections[int(id)]
 
-        self.load_section_inputs()
-    
-    def load_section_inputs(self):
-        
+        self.load_section_inputs(section_type, parameters)
 
+    def load_section_inputs(self, section_type: str, parameters: str):
 
-        
-    def edit_section_data(self):
+        if section_type is None:
+            raise TypeError()
 
-        self.cross_section_widget.reset_all_input_texts()
-        if self.section_id is None:
-            return
+        if section_type == "pipe":
+            self.update_pipe_section_entries(section_type, parameters)
 
-        [element_type, section_parameters, _, line_ids] = self.section_data_lines[self.section_id]
-        app().main_window.set_selection(lines = line_ids)
+        elif "beam" in section_type:
+            self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
+            self.update_beam_section_entries(section_type, parameters)
 
-        if element_type == "pipe_1":
-            self.cross_section_widget.tabWidget_general.setCurrentIndex(0)
-            if len(section_parameters) != 10:
-                return
+    # def edit_section_data(self):
 
-            if len(line_ids) != 1:
-                return
+    #     self.cross_section_widget.reset_all_input_texts()
+    #     if self.section_id is None:
+    #         return
 
-            line_elements = app().project.model.mesh.elements_from_line[line_ids[0]]
-            self.cross_section_widget.lineEdit_element_id_initial.setText(str(line_elements[0]))
-            self.cross_section_widget.lineEdit_element_id_final.setText(str(line_elements[-1]))
+    #     [element_type, section_parameters, _, line_ids] = self.section_data_lines[self.section_id]
+    #     app().main_window.set_selection(lines = line_ids)
 
-        elif element_type == "beam_1":
-            self.cross_section_widget.tabWidget_general.setCurrentIndex(1)
+    #     if element_type == "pipe_1":
+    #         self.cross_section_widget.tabWidget_general.setCurrentIndex(0)
+    #         if len(section_parameters) != 10:
+    #             return
+
+    #         if len(line_ids) != 1:
+    #             return
+
+    #         line_elements = app().project.model.mesh.elements_from_line[line_ids[0]]
+    #         self.cross_section_widget.lineEdit_element_id_initial.setText(str(line_elements[0]))
+    #         self.cross_section_widget.lineEdit_element_id_final.setText(str(line_elements[-1]))
+
+    #     elif element_type == "beam_1":
+    #         self.cross_section_widget.tabWidget_general.setCurrentIndex(1)
 
     def single_click_item_callback(self, item):
         self.cross_section_widget.reset_all_input_texts()
-        key = item.text(0)
-        if int(key) in self.section_data_lines.keys():
-            self.section_id = int(key)
-            self.cross_section_widget.pushButton_edit_section_data.setEnabled(True)
-            self.cross_section_widget.pushButton_load_section_data.setEnabled(True)
+        # key = item.text(0)
+        # if int(key) in self.section_data_lines.keys():
+        #     self.section_id = int(key)
+        self.cross_section_widget.pushButton_edit_section_data.setEnabled(True)
+        self.cross_section_widget.pushButton_load_section_data.setEnabled(True)
 
     def update_pipe_section_entries(self, section_type: str, section_parameters: list):
 
         if section_type == "pipe":
-
-            self.cross_section_widget.tabWidget_pipe_section.setCurrentIndex(0)
+            self.cross_section_widget.tabWidget_general.setCurrentIndex(0)
 
             outside_diameter = section_parameters[0]
             thickness = section_parameters[1]
@@ -190,74 +194,67 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
                 self.cross_section_widget.lineEdit_insulation_thickness.setText(str(insulation_thickness))
 
         elif section_type == "reducer":
-
             self.cross_section_widget.tabWidget_pipe_section.setCurrentIndex(1)
 
             for index, lineEdit in enumerate(self.cross_section_widget.list_pipe_section_entries[6:-2]):
                 lineEdit.setText(str(section_parameters[index]))
 
-    def update_beam_section_entries(self, section_type: str, section_parameters: list, section_properties: dict):
+    def update_beam_section_entries(self, section_type: str, section_parameters: list):
 
-        if section_type == 'rectangular_beam':
+        if section_type == "rectangular_beam":
+            self.cross_section_widget.tabWidget_beam_section.setTabVisible(0, True)
             [base, height, base_in, height_in, offset_y, offset_z] = section_parameters
-            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(0)
+            self.cross_section_widget.tabWidget_general.setCurrentIndex(0)
             self.cross_section_widget.lineEdit_base_rectangular_section.setText(str(base))
             self.cross_section_widget.lineEdit_height_rectangular_section.setText(str(height))
             self.cross_section_widget.lineEdit_offsety_rectangular_section.setText(str(offset_y))
             self.cross_section_widget.lineEdit_offsetz_rectangular_section.setText(str(offset_z))
             if base_in != 0 and height_in != 0:
-                self.cross_section_widget.lineEdit_wall_thickness_rectangular_section.setText(str(round((base-base_in)/2,4))) 
+                self.cross_section_widget.lineEdit_wall_thickness_rectangular_section.setText(str(round((base - base_in) / 2, 4)))
 
-        elif section_type == 'circular_beam':
+        elif section_type == "circular_beam":
+            self.cross_section_widget.tabWidget_beam_section.setTabVisible(1, True)
             [outside_diameter_beam, thickness, offset_y, offset_z] = section_parameters
-            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(1)
+            self.cross_section_widget.tabWidget_general.setCurrentIndex(1)
             self.cross_section_widget.lineEdit_outside_diameter_circular_section.setText(str(outside_diameter_beam))
             self.cross_section_widget.lineEdit_offsety_circular_section.setText(str(offset_y))
             self.cross_section_widget.lineEdit_offsetz_circular_section.setText(str(offset_z))
             if thickness != 0:
                 self.cross_section_widget.lineEdit_wall_thickness_circular_section.setText(str(thickness))
 
-        elif section_type == 'c_beam':
+        elif section_type == "c_beam":
+            self.cross_section_widget.tabWidget_beam_section.setTabVisible(2, True)
             [h, w1, t1, w2, t2, tw, offset_y, offset_z] = section_parameters
-            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(2)
+            self.cross_section_widget.tabWidget_general.setCurrentIndex(2)
             self.cross_section_widget.lineEdit_height_C_section.setText(str(h))
             self.cross_section_widget.lineEdit_w1_C_section.setText(str(w1))
             self.cross_section_widget.lineEdit_tw_C_section.setText(str(tw))
             self.cross_section_widget.lineEdit_w2_C_section.setText(str(w2))
-            self.cross_section_widget.lineEdit_t1_C_section.setText(str(t1))   
+            self.cross_section_widget.lineEdit_t1_C_section.setText(str(t1))
             self.cross_section_widget.lineEdit_t2_C_section.setText(str(t2))
             self.cross_section_widget.lineEdit_offsety_C_section.setText(str(offset_y))
-            self.cross_section_widget.lineEdit_offsetz_C_section.setText(str(offset_z))             
+            self.cross_section_widget.lineEdit_offsetz_C_section.setText(str(offset_z))
 
-        elif section_type == 'i_beam':
+        elif section_type == "i_beam":
+            self.cross_section_widget.tabWidget_beam_section.setTabVisible(3, True)
             [h, w1, t1, w2, t2, tw, offset_y, offset_z] = section_parameters
-            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(3)
+            self.cross_section_widget.tabWidget_general.setCurrentIndex(3)
             self.cross_section_widget.lineEdit_height_I_section.setText(str(h))
             self.cross_section_widget.lineEdit_w1_I_section.setText(str(w1))
             self.cross_section_widget.lineEdit_tw_I_section.setText(str(tw))
             self.cross_section_widget.lineEdit_w2_I_section.setText(str(w2))
-            self.cross_section_widget.lineEdit_t1_I_section.setText(str(t1))   
+            self.cross_section_widget.lineEdit_t1_I_section.setText(str(t1))
             self.cross_section_widget.lineEdit_t2_I_section.setText(str(t2))
             self.cross_section_widget.lineEdit_offsety_I_section.setText(str(offset_y))
             self.cross_section_widget.lineEdit_offsetz_I_section.setText(str(offset_z))
 
-        elif section_type == 't_beam':
+        elif section_type == "t_beam":
+            self.cross_section_widget.tabWidget_beam_section.setTabVisible(4, True)
             [h, w1, t1, tw, offset_y, offset_z] = section_parameters
-            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(4)
+            self.cross_section_widget.tabWidget_general.setCurrentIndex(4)
             self.cross_section_widget.lineEdit_height_T_section.setText(str(h))
             self.cross_section_widget.lineEdit_w1_T_section.setText(str(w1))
             self.cross_section_widget.lineEdit_tw_T_section.setText(str(tw))
             self.cross_section_widget.lineEdit_t1_T_section.setText(str(t1))
             self.cross_section_widget.lineEdit_offsety_T_section.setText(str(offset_y))
             self.cross_section_widget.lineEdit_offsetz_T_section.setText(str(offset_z))
-
-        elif section_type == 'generic_beam':
-            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(5)
-            [area, Iyy, Izz, Iyz, _, _, shear_coefficient] = list(section_properties.values())
-            self.cross_section_widget.lineEdit_area.setText(str(area))
-            self.cross_section_widget.lineEdit_Iyy.setText(str(Iyy))
-            self.cross_section_widget.lineEdit_Izz.setText(str(Izz))
-            self.cross_section_widget.lineEdit_Iyz.setText(str(Iyz))
-            self.cross_section_widget.lineEdit_shear_coefficient.setText(str(shear_coefficient))
-
-
