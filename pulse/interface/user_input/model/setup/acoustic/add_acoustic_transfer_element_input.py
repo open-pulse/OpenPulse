@@ -1,5 +1,5 @@
-import os
 from enum import IntEnum
+from pathlib import Path
 
 import numpy as np
 from PySide6.QtCore import QEvent, QObject, Qt, Signal
@@ -133,30 +133,36 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
     def attribute_callback(self):
 
         path = self.lineEdit_spreadsheet_path.text()
-
-        if not path:
+        if path == "":
             if self.search_callback():
                 return
-            
+
+            path = self.lineEdit_spreadsheet_path.text()
+
         if self.check_inputs():
             return
 
-        if os.path.exists(path):
+        if not Path(path).exists():
+            return
 
-            try:
-                self.import_element_transfer_data(path)
+        try:
 
-                if self.element_transfer_data:
-                    self.process_acoustic_element_transfer_data(path)
-                    self.actions_to_finalize()
+            self.import_element_transfer_data(Path(path))
 
-            except Exception:
-                self.hide()
-                title = "Invalid data imported"
-                message = "An invalid data has been imported to the acoustic transfer element. "
-                message += "Check the acoustic element transfer data type and modify it if necessary."
-                PrintMessageInput([error_title, title, message])
+            if not self.element_transfer_data:
                 return
+
+            self.process_acoustic_element_transfer_data(path)
+
+        except Exception:
+            self.hide()
+            title = "Invalid data imported"
+            message = "An invalid data has been imported to the acoustic transfer element. "
+            message += "Check the acoustic element transfer data type and modify it if necessary."
+            PrintMessageInput([error_title, title, message])
+            return
+
+        self.actions_to_finalize()
 
     def remove_callback(self):
 
@@ -235,7 +241,7 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
             if sheet.name:
                 self.element_transfer_data[sheet.name] = sheet.data
 
-    def update_frequency_setup(self, frequencies: np.ndarray, path: str):
+    def update_frequency_setup(self, frequencies: np.ndarray, path: Path):
 
         if app().project.model.change_analysis_frequency_setup(list(frequencies)):
 
@@ -245,7 +251,7 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
             message = "The following imported table of values has a frequency setup "
             message += "different from the others already imported. The current "
             message += "project frequency setup will not be modified."
-            message += f"\n\n{os.path.basename(path)}"
+            message += f"\n\n{path.name}"
             PrintMessageInput([error_title, title, message])
             return None, None
 
@@ -381,7 +387,7 @@ class AddAcousticTransferElementInput(UserInput, AcousticTransferElementInput_UI
         self.tabWidget_main.setTabVisible(TabIndex.LIST, False)
         for property, *_ in self.properties.nodal_properties.keys():
             if property == "acoustic_transfer_element":
-                self.tabWidget_main.setCurrentIndex(TabIndex.CONSTANT)
+                self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
                 self.tabWidget_main.setTabVisible(TabIndex.LIST, True)
                 return
 
