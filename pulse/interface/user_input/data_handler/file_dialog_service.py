@@ -107,15 +107,28 @@ class FileDialogService:
     def _generate_file_extensions_str(file_extensions: list[str], all_files=True):
         file_extensions.sort(key=FileDialogService._sort_extensions)
 
-        extensions_control = ";;".join(f"""{'Spreadsheet' if ext.lower() in ['xls', 'xlsx'] 
-                                       else 'Text file'} (*.{ext.lower()})""" for ext in file_extensions)
+        extensions_control = ";;".join(f"{FileDialogService._get_file_label(ext)} (*.{ext.lower()})" for ext in file_extensions)
 
-        if not all_files:
+        if not all_files or len(file_extensions) == 1:
             return extensions_control
 
         all_files_string = f"All files ({' '.join(f'*.{ext}' for ext in file_extensions)});;"
 
         return all_files_string + extensions_control
+    
+    @staticmethod
+    def _get_file_label(extension: str) -> str:
+        extension = extension.lower()
+
+        match extension:
+            case "xlsx" | "xls":
+                return "Spreadsheet"
+            case "dat" | "csv" | "txt":
+                return "Text file"
+            case "pulse":
+                return "Project file"
+            case _: 
+                return f"{extension.title()} file"
     
     @staticmethod
     def _get_path_extension(string: str) -> str:
@@ -142,8 +155,10 @@ class FileDialogService:
                 return 2
             case "txt":
                 return 3
-            case _:
+            case "pulse":
                 return 4
+            case _:
+                return 5
 
 
 
