@@ -320,23 +320,23 @@ class Ui_Form(object):
         self.gridLayout_16 = QGridLayout(self.tab_table_values)
         self.gridLayout_16.setObjectName(u"gridLayout_16")
         self.gridLayout_16.setContentsMargins(4, 6, 4, 6)
-        self.pushButton_load_table_Kryz = QPushButton(self.tab_table_values)
-        self.pushButton_load_table_Kryz.setObjectName(u"pushButton_load_table_Kryz")
-        self.pushButton_load_table_Kryz.setEnabled(True)
+        self.pushButton_load_Kryz_table = QPushButton(self.tab_table_values)
+        self.pushButton_load_Kryz_table.setObjectName(u"pushButton_load_Kryz_table")
+        self.pushButton_load_Kryz_table.setEnabled(True)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButton_load_table_Kryz.sizePolicy().hasHeightForWidth())
-        self.pushButton_load_table_Kryz.setSizePolicy(sizePolicy)
-        self.pushButton_load_table_Kryz.setMinimumSize(QSize(40, 26))
-        self.pushButton_load_table_Kryz.setMaximumSize(QSize(16777215, 16777215))
-        self.pushButton_load_table_Kryz.setStyleSheet(u"")
+        sizePolicy.setHeightForWidth(self.pushButton_load_Kryz_table.sizePolicy().hasHeightForWidth())
+        self.pushButton_load_Kryz_table.setSizePolicy(sizePolicy)
+        self.pushButton_load_Kryz_table.setMinimumSize(QSize(40, 26))
+        self.pushButton_load_Kryz_table.setMaximumSize(QSize(16777215, 16777215))
+        self.pushButton_load_Kryz_table.setStyleSheet(u"")
         icon = QIcon()
         icon.addFile(u":/icons/common/new_file.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.pushButton_load_table_Kryz.setIcon(icon)
-        self.pushButton_load_table_Kryz.setIconSize(QSize(20, 20))
+        self.pushButton_load_Kryz_table.setIcon(icon)
+        self.pushButton_load_Kryz_table.setIconSize(QSize(20, 20))
 
-        self.gridLayout_16.addWidget(self.pushButton_load_table_Kryz, 4, 2, 1, 1)
+        self.gridLayout_16.addWidget(self.pushButton_load_Kryz_table, 4, 2, 1, 1)
 
         self.label_117 = QLabel(self.tab_table_values)
         self.label_117.setObjectName(u"label_117")
@@ -349,18 +349,18 @@ class Ui_Form(object):
 
         self.gridLayout_16.addWidget(self.label_117, 0, 0, 1, 1)
 
-        self.pushButton_load_table_Krx = QPushButton(self.tab_table_values)
-        self.pushButton_load_table_Krx.setObjectName(u"pushButton_load_table_Krx")
-        self.pushButton_load_table_Krx.setEnabled(True)
-        sizePolicy.setHeightForWidth(self.pushButton_load_table_Krx.sizePolicy().hasHeightForWidth())
-        self.pushButton_load_table_Krx.setSizePolicy(sizePolicy)
-        self.pushButton_load_table_Krx.setMinimumSize(QSize(40, 26))
-        self.pushButton_load_table_Krx.setMaximumSize(QSize(16777215, 16777215))
-        self.pushButton_load_table_Krx.setStyleSheet(u"")
-        self.pushButton_load_table_Krx.setIcon(icon)
-        self.pushButton_load_table_Krx.setIconSize(QSize(20, 20))
+        self.pushButton_load_Krx_table = QPushButton(self.tab_table_values)
+        self.pushButton_load_Krx_table.setObjectName(u"pushButton_load_Krx_table")
+        self.pushButton_load_Krx_table.setEnabled(True)
+        sizePolicy.setHeightForWidth(self.pushButton_load_Krx_table.sizePolicy().hasHeightForWidth())
+        self.pushButton_load_Krx_table.setSizePolicy(sizePolicy)
+        self.pushButton_load_Krx_table.setMinimumSize(QSize(40, 26))
+        self.pushButton_load_Krx_table.setMaximumSize(QSize(16777215, 16777215))
+        self.pushButton_load_Krx_table.setStyleSheet(u"")
+        self.pushButton_load_Krx_table.setIcon(icon)
+        self.pushButton_load_Krx_table.setIconSize(QSize(20, 20))
 
-        self.gridLayout_16.addWidget(self.pushButton_load_table_Krx, 3, 2, 1, 1)
+        self.gridLayout_16.addWidget(self.pushButton_load_Krx_table, 3, 2, 1, 1)
 
         self.lineEdit_Kx_table_path = QLineEdit(self.tab_table_values)
         self.lineEdit_Kx_table_path.setObjectName(u"lineEdit_Kx_table_path")
@@ -380,18 +380,18 @@ class Ui_Form(object):
 
         self.gridLayout_16.addWidget(self.lineEdit_Kx_table_path, 0, 1, 1, 1)
 
-        self.pushButton_load_table_Kx = QPushButton(self.tab_table_values)
-        self.pushButton_load_table_Kx.setObjectName(u"pushButton_load_table_Kx")
-        self.pushButton_load_table_Kx.setEnabled(True)
-        sizePolicy.setHeightForWidth(self.pushButton_load_table_Kx.sizePolicy().hasHeightForWidth())
-        self.pushButton_load_table_Kx.setSizePolicy(sizePolicy)
-        self.pushButton_load_table_Kx.setMinimumSize(QSize(40, 0))
-        self.pushButton_load_table_Kx.setMaximumSize(QSize(16777215, 16777215))
-        self.pushButton_load_table_Kx.setStyleSheet(u"")
-        self.pushButton_load_table_Kx.setIcon(icon)
-        self.pushButton_load_table_Kx.setIconSize(QSize(20, 20))
+        self.pushButton_load_Kx_table = QPushButton(self.tab_table_values)
+        self.pushButton_load_Kx_table.setObjectName(u"pushButton_load_Kx_table")
+        self.pushButton_load_Kx_table.setEnabled(True)
+        sizePolicy.setHeightForWidth(self.pushButton_load_Kx_table.sizePolicy().hasHeightForWidth())
+        self.pushButton_load_Kx_table.setSizePolicy(sizePolicy)
+        self.pushButton_load_Kx_table.setMinimumSize(QSize(40, 0))
+        self.pushButton_load_Kx_table.setMaximumSize(QSize(16777215, 16777215))
+        self.pushButton_load_Kx_table.setStyleSheet(u"")
+        self.pushButton_load_Kx_table.setIcon(icon)
+        self.pushButton_load_Kx_table.setIconSize(QSize(20, 20))
 
-        self.gridLayout_16.addWidget(self.pushButton_load_table_Kx, 0, 2, 1, 1)
+        self.gridLayout_16.addWidget(self.pushButton_load_Kx_table, 0, 2, 1, 1)
 
         self.lineEdit_Krx_table_path = QLineEdit(self.tab_table_values)
         self.lineEdit_Krx_table_path.setObjectName(u"lineEdit_Krx_table_path")
@@ -469,18 +469,18 @@ class Ui_Form(object):
 
         self.gridLayout_16.addWidget(self.label_118, 2, 0, 1, 1)
 
-        self.pushButton_load_table_Kyz = QPushButton(self.tab_table_values)
-        self.pushButton_load_table_Kyz.setObjectName(u"pushButton_load_table_Kyz")
-        self.pushButton_load_table_Kyz.setEnabled(True)
-        sizePolicy.setHeightForWidth(self.pushButton_load_table_Kyz.sizePolicy().hasHeightForWidth())
-        self.pushButton_load_table_Kyz.setSizePolicy(sizePolicy)
-        self.pushButton_load_table_Kyz.setMinimumSize(QSize(40, 26))
-        self.pushButton_load_table_Kyz.setMaximumSize(QSize(16777215, 16777215))
-        self.pushButton_load_table_Kyz.setStyleSheet(u"")
-        self.pushButton_load_table_Kyz.setIcon(icon)
-        self.pushButton_load_table_Kyz.setIconSize(QSize(20, 20))
+        self.pushButton_load_Kyz_table = QPushButton(self.tab_table_values)
+        self.pushButton_load_Kyz_table.setObjectName(u"pushButton_load_Kyz_table")
+        self.pushButton_load_Kyz_table.setEnabled(True)
+        sizePolicy.setHeightForWidth(self.pushButton_load_Kyz_table.sizePolicy().hasHeightForWidth())
+        self.pushButton_load_Kyz_table.setSizePolicy(sizePolicy)
+        self.pushButton_load_Kyz_table.setMinimumSize(QSize(40, 26))
+        self.pushButton_load_Kyz_table.setMaximumSize(QSize(16777215, 16777215))
+        self.pushButton_load_Kyz_table.setStyleSheet(u"")
+        self.pushButton_load_Kyz_table.setIcon(icon)
+        self.pushButton_load_Kyz_table.setIconSize(QSize(20, 20))
 
-        self.gridLayout_16.addWidget(self.pushButton_load_table_Kyz, 2, 2, 1, 1)
+        self.gridLayout_16.addWidget(self.pushButton_load_Kyz_table, 2, 2, 1, 1)
 
         self.tabWidget_inputs.addTab(self.tab_table_values, "")
 
@@ -502,11 +502,11 @@ class Ui_Form(object):
         QWidget.setTabOrder(self.lineEdit_Kyz, self.lineEdit_Krx)
         QWidget.setTabOrder(self.lineEdit_Krx, self.lineEdit_Kryz)
         QWidget.setTabOrder(self.lineEdit_Kryz, self.lineEdit_Kx_table_path)
-        QWidget.setTabOrder(self.lineEdit_Kx_table_path, self.pushButton_load_table_Kx)
-        QWidget.setTabOrder(self.pushButton_load_table_Kx, self.lineEdit_Krx_table_path)
-        QWidget.setTabOrder(self.lineEdit_Krx_table_path, self.pushButton_load_table_Krx)
-        QWidget.setTabOrder(self.pushButton_load_table_Krx, self.lineEdit_Kryz_table_path)
-        QWidget.setTabOrder(self.lineEdit_Kryz_table_path, self.pushButton_load_table_Kryz)
+        QWidget.setTabOrder(self.lineEdit_Kx_table_path, self.pushButton_load_Kx_table)
+        QWidget.setTabOrder(self.pushButton_load_Kx_table, self.lineEdit_Krx_table_path)
+        QWidget.setTabOrder(self.lineEdit_Krx_table_path, self.pushButton_load_Krx_table)
+        QWidget.setTabOrder(self.pushButton_load_Krx_table, self.lineEdit_Kryz_table_path)
+        QWidget.setTabOrder(self.lineEdit_Kryz_table_path, self.pushButton_load_Kryz_table)
 
         self.retranslateUi(Form)
 
@@ -544,14 +544,14 @@ class Ui_Form(object):
         self.label_113.setText(QCoreApplication.translate("Form", u"[N.m/rad]", None))
         self.lineEdit_Krx.setText("")
         self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_constant_values), QCoreApplication.translate("Form", u"Constant values", None))
-        self.pushButton_load_table_Kryz.setText("")
+        self.pushButton_load_Kryz_table.setText("")
         self.label_117.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\"><span style=\" font-weight:400; font-style:normal;\">k</span><span style=\" font-weight:400; font-style:normal; vertical-align:sub;\">x</span><span style=\" font-weight:400; font-style:normal;\">:</span></p></body></html>", None))
-        self.pushButton_load_table_Krx.setText("")
-        self.pushButton_load_table_Kx.setText("")
+        self.pushButton_load_Krx_table.setText("")
+        self.pushButton_load_Kx_table.setText("")
         self.label_120.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\">k<span style=\" vertical-align:sub;\">ryz</span>:</p></body></html>", None))
         self.label_119.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\">k<span style=\" vertical-align:sub;\">rx</span>:</p></body></html>", None))
         self.label_118.setText(QCoreApplication.translate("Form", u"<html><head/><body><p align=\"right\">k<span style=\" vertical-align:sub;\">yz</span>:</p></body></html>", None))
-        self.pushButton_load_table_Kyz.setText("")
+        self.pushButton_load_Kyz_table.setText("")
         self.tabWidget_inputs.setTabText(self.tabWidget_inputs.indexOf(self.tab_table_values), QCoreApplication.translate("Form", u"Table of values", None))
     # retranslateUi
 
@@ -593,18 +593,18 @@ class ExpansionJointWidget_UI(QWidget, Ui_Form):
                                             - lineEdit_Krx: QLineEdit
                                 - tab_table_values: QWidget
                                     - (Layout): QGridLayout
-                                            - pushButton_load_table_Kryz: QPushButton
+                                            - pushButton_load_Kryz_table: QPushButton
                                             - label_117: QLabel
-                                            - pushButton_load_table_Krx: QPushButton
+                                            - pushButton_load_Krx_table: QPushButton
                                             - lineEdit_Kx_table_path: QLineEdit
-                                            - pushButton_load_table_Kx: QPushButton
+                                            - pushButton_load_Kx_table: QPushButton
                                             - lineEdit_Krx_table_path: QLineEdit
                                             - label_120: QLabel
                                             - lineEdit_Kryz_table_path: QLineEdit
                                             - label_119: QLabel
                                             - lineEdit_Kyz_table_path: QLineEdit
                                             - label_118: QLabel
-                                            - pushButton_load_table_Kyz: QPushButton
+                                            - pushButton_load_Kyz_table: QPushButton
     """
 
     def __init__(self, *args, **kwargs):

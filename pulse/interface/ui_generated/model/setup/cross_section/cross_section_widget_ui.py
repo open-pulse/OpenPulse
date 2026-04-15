@@ -61,6 +61,26 @@ class Ui_Form(object):
         self.gridLayout_5.setSpacing(4)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
         self.gridLayout_5.setContentsMargins(4, 4, 4, 4)
+        self.pushButton_confirm_pipe = QPushButton(self.bottom_frame_buttons)
+        self.pushButton_confirm_pipe.setObjectName(u"pushButton_confirm_pipe")
+        self.pushButton_confirm_pipe.setMinimumSize(QSize(140, 32))
+        self.pushButton_confirm_pipe.setMaximumSize(QSize(140, 32))
+        self.pushButton_confirm_pipe.setFont(font)
+        self.pushButton_confirm_pipe.setStyleSheet(u"")
+        self.pushButton_confirm_pipe.setAutoDefault(False)
+
+        self.gridLayout_5.addWidget(self.pushButton_confirm_pipe, 0, 3, 1, 1)
+
+        self.pushButton_exit_pipe = QPushButton(self.bottom_frame_buttons)
+        self.pushButton_exit_pipe.setObjectName(u"pushButton_exit_pipe")
+        self.pushButton_exit_pipe.setMinimumSize(QSize(140, 32))
+        self.pushButton_exit_pipe.setMaximumSize(QSize(140, 32))
+        self.pushButton_exit_pipe.setFont(font)
+        self.pushButton_exit_pipe.setStyleSheet(u"")
+        self.pushButton_exit_pipe.setAutoDefault(False)
+
+        self.gridLayout_5.addWidget(self.pushButton_exit_pipe, 0, 0, 1, 1)
+
         self.pushButton_plot_pipe_cross_section = QPushButton(self.bottom_frame_buttons)
         self.pushButton_plot_pipe_cross_section.setObjectName(u"pushButton_plot_pipe_cross_section")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
@@ -72,26 +92,9 @@ class Ui_Form(object):
         self.pushButton_plot_pipe_cross_section.setMaximumSize(QSize(140, 32))
         self.pushButton_plot_pipe_cross_section.setFont(font)
         self.pushButton_plot_pipe_cross_section.setStyleSheet(u"")
+        self.pushButton_plot_pipe_cross_section.setAutoDefault(False)
 
         self.gridLayout_5.addWidget(self.pushButton_plot_pipe_cross_section, 0, 1, 1, 1)
-
-        self.pushButton_confirm_pipe = QPushButton(self.bottom_frame_buttons)
-        self.pushButton_confirm_pipe.setObjectName(u"pushButton_confirm_pipe")
-        self.pushButton_confirm_pipe.setMinimumSize(QSize(140, 32))
-        self.pushButton_confirm_pipe.setMaximumSize(QSize(140, 32))
-        self.pushButton_confirm_pipe.setFont(font)
-        self.pushButton_confirm_pipe.setStyleSheet(u"")
-
-        self.gridLayout_5.addWidget(self.pushButton_confirm_pipe, 0, 3, 1, 1)
-
-        self.pushButton_exit_pipe = QPushButton(self.bottom_frame_buttons)
-        self.pushButton_exit_pipe.setObjectName(u"pushButton_exit_pipe")
-        self.pushButton_exit_pipe.setMinimumSize(QSize(140, 32))
-        self.pushButton_exit_pipe.setMaximumSize(QSize(140, 32))
-        self.pushButton_exit_pipe.setFont(font)
-        self.pushButton_exit_pipe.setStyleSheet(u"")
-
-        self.gridLayout_5.addWidget(self.pushButton_exit_pipe, 0, 0, 1, 1)
 
 
         self.gridLayout_4.addWidget(self.bottom_frame_buttons, 1, 0, 1, 2)
@@ -2252,24 +2255,24 @@ class Ui_Form(object):
 
         self.gridLayout_25.addWidget(self.frame_23, 3, 0, 1, 1)
 
-        self.treeWidget_sections_parameters_by_lines = QTreeWidget(self.tab_sections)
+        self.treeWidget_lines_info = QTreeWidget(self.tab_sections)
         __qtreewidgetitem = QTreeWidgetItem()
         __qtreewidgetitem.setTextAlignment(3, Qt.AlignCenter)
         __qtreewidgetitem.setTextAlignment(2, Qt.AlignCenter)
         __qtreewidgetitem.setTextAlignment(1, Qt.AlignCenter)
         __qtreewidgetitem.setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_sections_parameters_by_lines.setHeaderItem(__qtreewidgetitem)
-        self.treeWidget_sections_parameters_by_lines.setObjectName(u"treeWidget_sections_parameters_by_lines")
-        self.treeWidget_sections_parameters_by_lines.setMinimumSize(QSize(500, 300))
-        self.treeWidget_sections_parameters_by_lines.setMaximumSize(QSize(580, 360))
-        self.treeWidget_sections_parameters_by_lines.setFont(font)
-        self.treeWidget_sections_parameters_by_lines.setIndentation(1)
-        self.treeWidget_sections_parameters_by_lines.setHeaderHidden(False)
-        self.treeWidget_sections_parameters_by_lines.header().setHighlightSections(False)
-        self.treeWidget_sections_parameters_by_lines.header().setProperty(u"showSortIndicator", False)
-        self.treeWidget_sections_parameters_by_lines.header().setStretchLastSection(True)
+        self.treeWidget_lines_info.setHeaderItem(__qtreewidgetitem)
+        self.treeWidget_lines_info.setObjectName(u"treeWidget_lines_info")
+        self.treeWidget_lines_info.setMinimumSize(QSize(500, 300))
+        self.treeWidget_lines_info.setMaximumSize(QSize(580, 360))
+        self.treeWidget_lines_info.setFont(font)
+        self.treeWidget_lines_info.setIndentation(1)
+        self.treeWidget_lines_info.setHeaderHidden(False)
+        self.treeWidget_lines_info.header().setHighlightSections(False)
+        self.treeWidget_lines_info.header().setProperty(u"showSortIndicator", False)
+        self.treeWidget_lines_info.header().setStretchLastSection(True)
 
-        self.gridLayout_25.addWidget(self.treeWidget_sections_parameters_by_lines, 1, 0, 1, 1)
+        self.gridLayout_25.addWidget(self.treeWidget_lines_info, 1, 0, 1, 1)
 
         self.tabWidget_general.addTab(self.tab_sections, "")
 
@@ -2359,7 +2362,6 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
-        self.pushButton_plot_pipe_cross_section.setText(QCoreApplication.translate("Form", u"Plot cross-section", None))
         self.pushButton_confirm_pipe.setText(QCoreApplication.translate("Form", u"Confirm", None))
 #if QT_CONFIG(shortcut)
         self.pushButton_confirm_pipe.setShortcut(QCoreApplication.translate("Form", u"Ctrl+Return", None))
@@ -2368,6 +2370,7 @@ class Ui_Form(object):
 #if QT_CONFIG(shortcut)
         self.pushButton_exit_pipe.setShortcut(QCoreApplication.translate("Form", u"Ctrl+Return", None))
 #endif // QT_CONFIG(shortcut)
+        self.pushButton_plot_pipe_cross_section.setText(QCoreApplication.translate("Form", u"Plot cross-section", None))
         self.pushButton_select_standard_section.setText(QCoreApplication.translate("Form", u"Get a standardized section", None))
         self.pushButton_check_if_section_is_normalized.setText(QCoreApplication.translate("Form", u"Check if section is normalized", None))
         self.label_17.setText(QCoreApplication.translate("Form", u"<html><head/><body><p>[m]</p></body></html>", None))
@@ -2516,7 +2519,7 @@ class Ui_Form(object):
         self.tabWidget_general.setTabText(self.tabWidget_general.indexOf(self.tab_beam), QCoreApplication.translate("Form", u"Beam", None))
         self.pushButton_load_section_data.setText(QCoreApplication.translate("Form", u"Load section data", None))
         self.pushButton_edit_section_data.setText(QCoreApplication.translate("Form", u"Edit section data", None))
-        ___qtreewidgetitem = self.treeWidget_sections_parameters_by_lines.headerItem()
+        ___qtreewidgetitem = self.treeWidget_lines_info.headerItem()
         ___qtreewidgetitem.setText(3, QCoreApplication.translate("Form", u"Section parameters", None))
         ___qtreewidgetitem.setText(2, QCoreApplication.translate("Form", u"Section type", None))
         ___qtreewidgetitem.setText(1, QCoreApplication.translate("Form", u"Element type", None))
@@ -2536,9 +2539,9 @@ class CrossSectionWidget_UI(QDialog, Ui_Form):
                         - (Layout): QGridLayout
                                 - bottom_frame_buttons: QFrame
                                     - (Layout): QGridLayout
-                                            - pushButton_plot_pipe_cross_section: QPushButton
                                             - pushButton_confirm_pipe: QPushButton
                                             - pushButton_exit_pipe: QPushButton
+                                            - pushButton_plot_pipe_cross_section: QPushButton
                                 - tabWidget_pipe_section: QTabWidget
                                     - tab_constant_pipe_section: QWidget
                                         - (Layout): QGridLayout
@@ -2782,7 +2785,7 @@ class CrossSectionWidget_UI(QDialog, Ui_Form):
                                     - (Layout): QGridLayout
                                             - pushButton_load_section_data: QPushButton
                                             - pushButton_edit_section_data: QPushButton
-                                - treeWidget_sections_parameters_by_lines: QTreeWidget
+                                - treeWidget_lines_info: QTreeWidget
     """
 
     def __init__(self, *args, **kwargs):

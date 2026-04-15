@@ -61,7 +61,7 @@ class PlotReactionsForStaticAnalysis(GetReactionsForStaticAnalysis_UI):
 
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:
-            lineEdit.setText("")
+            lineEdit.clear()
 
     def _update_lineEdit(self, node_id: int):
 

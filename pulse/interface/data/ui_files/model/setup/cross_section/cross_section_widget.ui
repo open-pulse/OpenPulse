@@ -122,42 +122,6 @@
           <property name="spacing">
            <number>4</number>
           </property>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="pushButton_plot_pipe_cross_section">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>140</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>140</width>
-              <height>32</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>MS Shell Dlg 2</family>
-              <pointsize>10</pointsize>
-              <italic>false</italic>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true"/>
-            </property>
-            <property name="text">
-             <string>Plot cross-section</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="3">
            <widget class="QPushButton" name="pushButton_confirm_pipe">
             <property name="minimumSize">
@@ -188,6 +152,9 @@
             </property>
             <property name="shortcut">
              <string>Ctrl+Return</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
             </property>
             <property name="default">
              <bool>false</bool>
@@ -225,7 +192,49 @@
             <property name="shortcut">
              <string>Ctrl+Return</string>
             </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
             <property name="default">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="pushButton_plot_pipe_cross_section">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>140</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>140</width>
+              <height>32</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>MS Shell Dlg 2</family>
+              <pointsize>10</pointsize>
+              <italic>false</italic>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="text">
+             <string>Plot cross-section</string>
+            </property>
+            <property name="autoDefault">
              <bool>false</bool>
             </property>
            </widget>
@@ -6789,7 +6798,7 @@
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QTreeWidget" name="treeWidget_sections_parameters_by_lines">
+        <widget class="QTreeWidget" name="treeWidget_lines_info">
          <property name="minimumSize">
           <size>
            <width>500</width>

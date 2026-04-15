@@ -37,7 +37,6 @@ class PlotNodalResultsForHarmonicAnalysis(GetNodalResultsForHarmonicAnalysis_UI)
 
     def _create_connections(self):
         #
-        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
         #
         app().main_window.selection_changed.connect(self.selection_callback)

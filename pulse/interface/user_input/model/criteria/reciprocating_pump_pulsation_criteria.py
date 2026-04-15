@@ -149,6 +149,6 @@ class ReciprocatingPumpPulsationCriteriaInput(ReciprocatingPumpPulsationCriteria
         return 1000 * inner_diameter
 
     def reset_input_fields(self):
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_internal_diameter.setText("")
+        self.lineEdit_selected_id.clear()
+        self.lineEdit_internal_diameter.clear()
         self.pushButton_plot_criteria.setDisabled(True)

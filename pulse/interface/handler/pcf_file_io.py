@@ -2,6 +2,7 @@
 from pulse.interface.handler.pcf_exporter import PCFExporter
 from pulse.interface.handler.pcf_handler import PCFHandler
 from pulse.editor.structures import Pipe, Bend, Flange, Reducer, ExpansionJoint, Valve
+from pulse.interface.user_input.data_handler.file_dialog_service import FileDialogService
 
 from pulse import app
 
@@ -25,13 +26,10 @@ class PCFFileIO:
         if last_path is None:
             last_path = str(Path().home())
 
-        file_path, check = app().main_window.file_dialog.get_open_file_name(
-                                                                            "Open PCF File", 
-                                                                            last_path, 
-                                                                            filter = "PCF File (*.pcf)"
-                                                                            )
+        extensions = ["pcf"]
+        file_path = FileDialogService.open_file(extensions, "Open PCF File", last_path)
 
-        if not check:
+        if file_path is None:
             return
 
         pipeline = app().project.pipeline
@@ -109,13 +107,10 @@ class PCFFileIO:
         if last_path is None:
             last_path = str(Path().home())
 
-        path, check = app().main_window.file_dialog.get_save_file_name( 
-                                                                       'Export PCF file', 
-                                                                       last_path, 
-                                                                       'PCF File (*.pcf)'
-                                                                       )
+        extensions = ["pcf"]
+        path = FileDialogService.save_file(extensions, "Export PCF file", last_path)
 
-        if not check:
+        if path is None:
             return
 
         pipeline = app().project.pipeline

@@ -946,7 +946,7 @@
            <number>6</number>
           </property>
           <item row="4" column="2">
-           <widget class="QPushButton" name="pushButton_load_table_Kryz">
+           <widget class="QPushButton" name="pushButton_load_Kryz_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -1022,7 +1022,7 @@
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QPushButton" name="pushButton_load_table_Krx">
+           <widget class="QPushButton" name="pushButton_load_Krx_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -1105,7 +1105,7 @@
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QPushButton" name="pushButton_load_table_Kx">
+           <widget class="QPushButton" name="pushButton_load_Kx_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -1374,7 +1374,7 @@
            </widget>
           </item>
           <item row="2" column="2">
-           <widget class="QPushButton" name="pushButton_load_table_Kyz">
+           <widget class="QPushButton" name="pushButton_load_Kyz_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -1447,11 +1447,11 @@
   <tabstop>lineEdit_Krx</tabstop>
   <tabstop>lineEdit_Kryz</tabstop>
   <tabstop>lineEdit_Kx_table_path</tabstop>
-  <tabstop>pushButton_load_table_Kx</tabstop>
+  <tabstop>pushButton_load_Kx_table</tabstop>
   <tabstop>lineEdit_Krx_table_path</tabstop>
-  <tabstop>pushButton_load_table_Krx</tabstop>
+  <tabstop>pushButton_load_Krx_table</tabstop>
   <tabstop>lineEdit_Kryz_table_path</tabstop>
-  <tabstop>pushButton_load_table_Kryz</tabstop>
+  <tabstop>pushButton_load_Kryz_table</tabstop>
  </tabstops>
  <resources>
   <include location="../../../../icons/resources.qrc"/>

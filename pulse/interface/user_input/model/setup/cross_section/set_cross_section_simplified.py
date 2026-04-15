@@ -86,7 +86,7 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.pushButton_confirm_pipe.clicked.connect(self.attribute_callback)
         self.cross_section_widget.pushButton_load_section_data.clicked.connect(self.load_section_data)
         self.cross_section_widget.pushButton_edit_section_data.clicked.connect(self.edit_section_data)
-        self.cross_section_widget.treeWidget_sections_parameters_by_lines.itemClicked.connect(self.single_click_item_callback)
+        self.cross_section_widget.treeWidget_lines_info.itemClicked.connect(self.single_click_item_callback)
 
     def _add_cross_section_widget(self):
         self.cross_section_widget = CrossSectionWidget(dialog=self)
@@ -102,9 +102,9 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.cross_section_widget.pushButton_edit_section_data.setDisabled(True)
         self.cross_section_widget.pushButton_load_section_data.setDisabled(True)
 
-        self.cross_section_widget.treeWidget_sections_parameters_by_lines.clear()
+        self.cross_section_widget.treeWidget_lines_info.clear()
         self.cross_section_widget.tabWidget_general.setTabVisible(TabIndex.ACTIVE_SECTIONS, True)
-        self.cross_section_widget.treeWidget_sections_parameters_by_lines.hideColumn(1)  # hides the 'Element option' column
+        self.cross_section_widget.treeWidget_lines_info.hideColumn(1)  # hides the 'Element option' column
 
         # self.section_data_lines = app().project.loader.get_cross_sections_from_file()
 
@@ -122,12 +122,12 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
                 for i in range(4):
                     new.setTextAlignment(i, Qt.AlignCenter)
 
-                self.cross_section_widget.treeWidget_sections_parameters_by_lines.addTopLevelItem(new)
+                self.cross_section_widget.treeWidget_lines_info.addTopLevelItem(new)
 
                 self.active_sections[section_id] = section_parameters
 
     def load_section_data(self):
-        item = self.cross_section_widget.treeWidget_sections_parameters_by_lines.currentItem()
+        item = self.cross_section_widget.treeWidget_lines_info.currentItem()
 
         id = item.text(SectionsInfo.ID)
         section_type = item.text(SectionsInfo.SECTION_TYPE)
@@ -208,7 +208,7 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
             self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
             self.cross_section_widget.tabWidget_pipe_section.setCurrentIndex(1) 
 
-            for index, lineEdit in enumerate(self.cross_section_widget.list_pipe_section_entries[6:-2]):
+            for index, lineEdit in enumerate(self.cross_section_widget.variable_pipe_entries_line_edits):
                 lineEdit.setText(str(section_parameters[index]))
 
     def update_beam_section_entries(self, section_type: str, section_parameters: list):

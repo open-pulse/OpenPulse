@@ -160,7 +160,8 @@ def convert_volume_unit(value: float, input_unit: str, output_unit: str | None=N
     The volume value.
 
     input_unit: str 
-    The input volume unit. Allowable units: m³, m**3, m^3, cubic meters, cm³, cm**3, cm^3, cubic centimeters, L, l, litter.
+    The input volume unit. Allowable units: m³, m**3, m^3, cubic meters,
+    cm³, cm**3, cm^3, cubic centimeters, L, l, litter.
 
     output_unit: str or None, optional
     The output volume unit. Allowable units: same as input.
@@ -188,3 +189,93 @@ def convert_volume_unit(value: float, input_unit: str, output_unit: str | None=N
         return temperature.magnitude
 
     return temperature.to(unit_map.get(output_unit)).magnitude
+
+
+def convert_length_unit(value: float, input_unit: str, output_unit: str | None=None) -> float:
+    """
+    This function converts the length, scaled in 'input_unit',
+    to a length scaled in 'output_unit'.
+
+    Parameters
+    ----------
+    value: float
+    The length value.
+
+    input_unit: str 
+    The input length unit. Allowable units: m, meter, cm, centimeter, 
+    mm, milimiter, um, micrometer, in, inch, ft, feet, yd, yard.
+
+    output_unit: str or None, optional
+    The output length unit. Allowable units: same as input.
+    """
+
+    unit_map = {
+        "m" : "m",
+        "meter" : "m",
+        "cm" : "cm",
+        "centimeter" : "cm",
+        "mm" : "mm",
+        "milimeter" : "mm",
+        "um" : "um",
+        "micrometer" : "um",
+        "in" : "in",
+        "inch" : "in",
+        "ft" : "ft",
+        "feet" : "ft",
+        "yd" : "yd",
+        "yard" : "yd",
+        }
+
+    if input_unit == output_unit:
+        return value
+
+    temperature = u_reg.Quantity(value, unit_map.get(input_unit))
+    if output_unit is None:
+        return temperature.magnitude
+
+    return temperature.to(unit_map.get(output_unit)).magnitude
+
+
+def convert_linear_mass_unit(value: float, input_unit: str, output_unit: str | None=None) -> float:
+    """
+    This function converts the linear mass, scaled in 'input_unit',
+    to a length scaled in 'output_unit'.
+
+    Parameters
+    ----------
+    value: float
+    The linear mass value.
+
+    input_unit: str 
+    The input linear mass unit. Allowable units: lbm/ft, lb/ft, kg/m.
+
+    output_unit: str or None, optional
+    The output linear mass unit. Allowable units: same as input.
+    """
+
+    unit_map = {
+        "lbm/ft" : "lb/ft",
+        "lb/ft" : "lb/ft",
+        "kg/m" : "kg/m",
+        }
+
+    if input_unit == output_unit:
+        return value
+
+    temperature = u_reg.Quantity(value, unit_map.get(input_unit))
+    if output_unit is None:
+        return temperature.magnitude
+
+    return temperature.to(unit_map.get(output_unit)).magnitude
+
+
+
+if __name__ == "__main__":
+
+    input_value = 1
+    input_unit = "lbm/ft"
+    output_unit = "kg/m"
+
+    output_value = convert_linear_mass_unit(input_value, input_unit, output_unit)
+
+    print(f"UNIT CONVERSION: {input_value} [{input_unit}]  >  {output_value} [{output_unit}]")

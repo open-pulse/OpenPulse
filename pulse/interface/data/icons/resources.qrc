@@ -13,17 +13,18 @@
         <file>warnings/error_yellow.png</file>
         <file>warnings/warning_2.png</file>
         <file>warnings/error_blue.png</file>
-        <file>logos/OpenPulse_logo2.png</file>
         <file>logos/mopt_logo3.png</file>
         <file>logos/OpenPulse_logo_gray.png</file>
         <file>logos/mopt_logo_white.png</file>
         <file>logos/mopt_logo2.png</file>
         <file>logos/openpulse_logo.png</file>
         <file>logos/OpenPulse_logo_black.png</file>
+        <file>logos/op_dark_theme.png</file>
         <file>logos/mopt_logo_black.png</file>
         <file>logos/OpenPulse_logo_white.png</file>
         <file>logos/mopt_logo.png</file>
         <file>logos/MOPT.PNG</file>
+        <file>logos/op_light_theme.png</file>
         <file>logos/OpenPulse_logo3.png</file>
         <file>mpltoolbar/copy_icon.png</file>
         <file>cursors/zoom_cursor.png</file>
@@ -84,6 +85,7 @@
         <file>common/top.png</file>
         <file>common/logo_vibra.png</file>
         <file>common/tube_cut.png</file>
+        <file>common/document_search.png</file>
         <file>common/help.png</file>
         <file>common/zoom_icon copy.png</file>
         <file>common/lines.png</file>

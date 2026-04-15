@@ -182,7 +182,7 @@ class MaterialWidget(MaterialInputWidget_UI):
             self.tableWidget_material_data.item(i, last_col).setTextAlignment(Qt.AlignCenter)
 
         self.tableWidget_material_data.selectColumn(last_col)
-        first_item = self.tableWidget_material_data.item(0, last_col)
+        # first_item = self.tableWidget_material_data.item(0, last_col)
         self.tableWidget_material_data.blockSignals(False)
 
     def remove_selected_column(self):
@@ -336,7 +336,7 @@ class MaterialWidget(MaterialInputWidget_UI):
             if int(item.text()) in already_used_ids:
                 item.setText("")
                 return True
-        except:
+        except Exception:
             item.setText("")
             return True
 
@@ -461,7 +461,7 @@ class MaterialWidget(MaterialInputWidget_UI):
         material_library_data = app().project.file.read_material_library_from_file()
 
         str_material_id = str(material.identifier)
-        if not str_material_id in material_library_data.keys():
+        if str_material_id not in material_library_data.keys():
             return
 
         # remove the selected material
@@ -538,13 +538,13 @@ class MaterialWidget(MaterialInputWidget_UI):
             return True
 
         self.set_color_to_item(row, col, picked_color)
-        self.tableWidget_fluid_data.item(row, 0).setSelected(True)
+        self.tableWidget_material_data.item(row, 0).setSelected(True)
 
     def set_color_to_item(self, row: int, col: int, rgb_color: list):
         item = QTableWidgetItem()
         item.setBackground(QColor(*rgb_color))
         item.setForeground(QColor(*rgb_color))
-        self.tableWidget_fluid_data.setItem(row, col, item)
+        self.tableWidget_material_data.setItem(row, col, item)
 
     def get_selected_material_id(self):
         material = self.get_selected_material()
@@ -554,7 +554,7 @@ class MaterialWidget(MaterialInputWidget_UI):
 
     def get_confirmation_to_proceed(self):
 
-        title = "Additional confirmation required to proceed"
+        title = "Materials library resetting"
         message = "Would you like to reset the material library to default values?"
 
         buttons_config = {  
