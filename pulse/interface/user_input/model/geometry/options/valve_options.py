@@ -1,6 +1,11 @@
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    pass
+
+
 from copy import deepcopy
 
-from molde.stylesheets import set_qproperty
 
 from pulse import app
 from pulse.editor.structures import Valve
@@ -20,11 +25,11 @@ class ValveOptions(StructureOptions):
             return
 
         return dict(
-            diameter = self.structure_info.get("valve_effective_diameter", 0),
-            flange_outer_diameter = self.structure_info.get("flange_section_parameters", [0])[0],
-            flange_length = self.structure_info.get("flange_length"),
-            thickness = 0,
-            extra_info = self._get_extra_info(),
+            diameter=self.structure_info.get("valve_effective_diameter", 0),
+            flange_outer_diameter=self.structure_info.get("flange_section_parameters", [0])[0],
+            flange_length=self.structure_info.get("flange_length"),
+            thickness=0,
+            extra_info=self._get_extra_info(),
         )
 
     def configure_structure(self):
@@ -42,23 +47,11 @@ class ValveOptions(StructureOptions):
         self.configure_section_of_selected()
         self.update_permissions()
 
-    def update_permissions(self):
-        if self.structure_info:
-            set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
-            enable = True
-        else:
-            set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
-            enable = False
-
-        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
-        super().update_permissions(enable)
-
     def load_data_from_pipe_section(self):
         outside_diameter = self.cross_section_widget.lineEdit_outside_diameter.text()
         wall_thickness = self.cross_section_widget.lineEdit_wall_thickness.text()
 
         try:
-
             section_parameters = self.cross_section_widget.pipe_section_info["section_parameters"]
             outside_diameter = section_parameters[0]
             wall_thickness = section_parameters[1]
@@ -74,8 +67,8 @@ class ValveOptions(StructureOptions):
 
     def _get_extra_info(self):
         return dict(
-            structural_element_type = "valve",
-            valve_info = deepcopy(self.structure_info),
-            cross_section_info = {"section_type_label" : "valve"},
-            material_id = self.geometry_designer_widget.current_material_id,
+            structural_element_type="valve",
+            valve_info=deepcopy(self.structure_info),
+            cross_section_info={"section_type_label": "valve"},
+            material_id=self.geometry_designer_widget.current_material_id,
         )

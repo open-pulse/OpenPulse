@@ -1,17 +1,18 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     pass
 import numpy as np
+from molde.stylesheets import set_qproperty
 
 from pulse.editor.structures import Point
 
 from .structure_options import StructureOptions
-from molde.stylesheets import set_qproperty
 
 
 class PointOptions(StructureOptions):
     structure_type = Point
-    
+
     def xyz_callback(self, xyz):
         if len(self.pipeline.selected_points) == 1:
             # Edit selected point
