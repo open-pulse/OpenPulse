@@ -85,7 +85,7 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.pushButton_confirm_beam.clicked.connect(self.attribute_callback)
         self.pushButton_confirm_pipe.clicked.connect(self.attribute_callback)
         self.cross_section_widget.pushButton_load_section_data.clicked.connect(self.load_section_data)
-        # self.cross_section_widget.pushButton_edit_section_data.clicked.connect(self.edit_section_data)
+        self.cross_section_widget.pushButton_edit_section_data.clicked.connect(self.edit_section_data)
         self.cross_section_widget.treeWidget_sections_parameters_by_lines.itemClicked.connect(self.single_click_item_callback)
 
     def _add_cross_section_widget(self):
@@ -134,8 +134,9 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         parameters = self.active_sections[int(id)]
 
         self.load_section_inputs(section_type, parameters)
+        return section_type, parameters
 
-    def load_section_inputs(self, section_type: str, parameters: str):
+    def load_section_inputs(self, section_type: str, parameters: list):
 
         if section_type is None:
             raise TypeError()
@@ -149,29 +150,22 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
             self.cross_section_widget.tabWidget_general.setCurrentIndex(1)
             self.update_beam_section_entries(section_type, parameters)
 
-    # def edit_section_data(self):
+    def edit_section_data(self):
+        section_type, target_parameters = self.load_section_data()
+        line_ids = []
+        
+        for structure in self.pipeline.structures:
+            parameters = structure.extra_info["cross_section_info"]["section_parameters"]
+            
+            if parameters == target_parameters:
+                line_ids.append(structure)
 
-    #     self.cross_section_widget.reset_all_input_texts()
-    #     if self.section_id is None:
-    #         return
+        if not line_ids:
+            raise ValueError()
 
-    #     [element_type, section_parameters, _, line_ids] = self.section_data_lines[self.section_id]
-    #     app().main_window.set_selection(lines = line_ids)
+        self.pipeline.select_structures(line_ids)
+        self.main_window.geometry_widget.update_plot()
 
-    #     if element_type == "pipe_1":
-    #         self.cross_section_widget.tabWidget_general.setCurrentIndex(0)
-    #         if len(section_parameters) != 10:
-    #             return
-
-    #         if len(line_ids) != 1:
-    #             return
-
-    #         line_elements = app().project.model.mesh.elements_from_line[line_ids[0]]
-    #         self.cross_section_widget.lineEdit_element_id_initial.setText(str(line_elements[0]))
-    #         self.cross_section_widget.lineEdit_element_id_final.setText(str(line_elements[-1]))
-
-    #     elif element_type == "beam_1":
-    #         self.cross_section_widget.tabWidget_general.setCurrentIndex(1)
 
     def single_click_item_callback(self, item):
         self.cross_section_widget.reset_all_input_texts()
