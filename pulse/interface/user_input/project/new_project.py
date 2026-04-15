@@ -1,14 +1,15 @@
-from PySide6.QtWidgets import QFileDialog
-from PySide6.QtGui import QCloseEvent
+import os
+from pathlib import Path
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
 
 from pulse import app
 from pulse.interface.ui_generated.project.new_project_input_ui import NewProjectInput_UI
+from pulse.interface.user_input.data_handler.file_dialog_service import (
+    FileDialogService,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-
-
-import os
-from pathlib import Path
 
 window_title = "Error"
 
@@ -79,17 +80,14 @@ class NewProjectInput(NewProjectInput_UI):
         else:
             suggested_path = last_geometry_file
 
-        geometry_path, check = QFileDialog.getOpenFileName(
-                                                            None, 
-                                                            'Open file', 
-                                                            suggested_path, 
-                                                            'Files (*.iges *.igs *.step *.stp)'
-                                                            )
+        extensions = ["iges", "igs", "step", "stp"]
+        geometry_path = FileDialogService.open_file(extensions, last_folder=suggested_path)
 
-        if check:
-            self.lineEdit_geometry_path.setText(geometry_path)
-
-            app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
+        if geometry_path is None:
+            return
+        
+        self.lineEdit_geometry_path.setText(str(geometry_path))
+        app().main_window.config.write_last_folder_path_in_file("geometry_folder", geometry_path)
 
     def check_project_inputs(self):
         

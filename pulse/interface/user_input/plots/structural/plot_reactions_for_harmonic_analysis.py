@@ -36,16 +36,17 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
         self.setWindowTitle("OpenPulse")
 
     def _define_qt_variables(self):
-        self.list_radioButtons = [  self.radioButton_Fx, 
-                                    self.radioButton_Fy, 
-                                    self.radioButton_Fz,
-                                    self.radioButton_Mx, 
-                                    self.radioButton_My, 
-                                    self.radioButton_Mz  ]
+        self.list_radioButtons = [  
+            self.radioButton_Fx, 
+            self.radioButton_Fy, 
+            self.radioButton_Fz,
+            self.radioButton_Mx, 
+            self.radioButton_My, 
+            self.radioButton_Mz,
+            ]
 
     def _create_connections(self):
         #
-        self.pushButton_export_data.clicked.connect(self.call_data_exporter)
         self.pushButton_plot_data.clicked.connect(self.call_plotter)
         #
         self.treeWidget_reactions_at_springs.itemClicked.connect(self.on_click_item)
@@ -110,9 +111,9 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
 
         reactions_data = app().project.get_structural_reactions()
 
-        self.reactions_at_constrained_dofs = reactions_data.get("reactions_at_constrained_dofs", None)
-        self.reactions_at_springs = reactions_data.get("reactions_at_springs", None)
-        self.reactions_at_dampers = reactions_data.get("reactions_at_dampers", None)
+        self.reactions_at_constrained_dofs = reactions_data.get("reactions_at_constrained_dofs", dict())
+        self.reactions_at_springs = reactions_data.get("reactions_at_springs", dict())
+        self.reactions_at_dampers = reactions_data.get("reactions_at_dampers", dict())
 
     def _load_nodes_info(self):
 
@@ -155,14 +156,14 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
 
     def _tabWidgets_visibility(self):
 
-        check_1 = self.reactions_at_constrained_dofs is None
-        self.tab_constrained_dofs.setDisabled(check_1)
-        
-        check_2 = self.reactions_at_springs is None
-        self.tab_reactions_at_springs.setDisabled(check_2)
+        check_A = len(self.reactions_at_constrained_dofs) != 0
+        self.tab_constrained_dofs.setEnabled(check_A)
 
-        check_3 = self.reactions_at_dampers is None
-        self.tab_reactions_at_dampers.setDisabled(check_3)
+        check_B =  len(self.reactions_at_springs) != 0
+        self.tab_reactions_at_springs.setEnabled(check_B)
+
+        check_C = len(self.reactions_at_dampers) != 0
+        self.tab_reactions_at_dampers.setEnabled(check_C)
 
     def get_mask_for_values(self, values: list) -> list:
         return [False if value is None else True for value in values]
@@ -220,11 +221,14 @@ class PlotReactionsForHarmonicAnalysis(GetReactionsForHarmonicAnalysis_UI):
                     radioButton.setChecked(True)
                     break
 
-    def on_click_item(self, item):
+    def on_click_item(self, item: QTreeWidgetItem):
         self.lineEdit_node_id.setText(item.text(0))
         self.disable_non_existing_reactions(item.text(0))
 
-    def on_doubleclick_item(self, item):
+        # highlight the node where the reaction was computed
+        app().main_window.set_selection(nodes=[int(item.text(0))])
+
+    def on_doubleclick_item(self, item: QTreeWidgetItem):
         self.lineEdit_node_id.setText(item.text(0))
         self.call_plotter()
 

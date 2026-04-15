@@ -64,8 +64,10 @@ class ElementLinesActor(GhostActor):
         self.make_ghost()
 
     def clear_colors(self):
+        lines_color = self.user_preferences.lines_color.to_rgb()
+
         data = self.GetMapper().GetInput()
-        set_polydata_colors(data, (90, 90, 90))
+        set_polydata_colors(data, lines_color)
 
     def set_color(self, color, elements=None, lines=None):
         mapper = self.GetMapper()

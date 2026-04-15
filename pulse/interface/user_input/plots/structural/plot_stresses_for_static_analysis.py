@@ -77,7 +77,7 @@ class PlotStressesForStaticAnalysis(GetStressesForStaticAnalysis_UI):
 
     def _reset_lineEdits(self):
         for lineEdit in self.lineEdits:
-            lineEdit.setText("")
+            lineEdit.clear()
 
     def _update_lineEdit(self, selected_element : int):
 

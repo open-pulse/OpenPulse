@@ -1,3 +1,6 @@
+import re
+
+import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import (
@@ -11,7 +14,10 @@ from pulse import app
 from pulse.editor.dual_volume_psd import DualVolumePSD
 from pulse.editor.single_volume_psd import SingleVolumePSD
 from pulse.interface.handler.geometry_handler import GeometryHandler
-
+from pulse.interface.ui_generated.model.editor.pulsation_suppression_device_input_ui import (
+    PulsationSuppressionDeviceInput_UI,
+)
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.project.get_user_confirmation_input import (
     GetUserConfirmationInput,
 )
@@ -19,14 +25,6 @@ from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.interface.viewer_3d.render_widgets.psd_preview_render_widget import (
     PSDPreviewRenderWidget,
 )
-from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
-from pulse.interface.ui_generated.model.editor.pulsation_suppression_device_input_ui import (
-    PulsationSuppressionDeviceInput_UI,
-)
-
-import numpy as np
-import re
-
 
 error_title = "Error"
 waning_title = "Warning"
@@ -202,10 +200,10 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
         self.lineEdit_pipe2_distance.setDisabled(bool(index_2))
 
         if bool(index_1):
-            self.lineEdit_pipe1_distance.setText("")
+            self.lineEdit_pipe1_distance.clear()
 
         if bool(index_2):
-            self.lineEdit_pipe2_distance.setText("")
+            self.lineEdit_pipe2_distance.clear()
 
     def number_volumes_callback(self):
         index = self.comboBox_number_volumes.currentIndex()
@@ -238,7 +236,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
     def volumes_spacing_callback(self):
         index = self.comboBox_volumes_connection.currentIndex()
         if index == 2:
-            self.lineEdit_pipe3_distance.setText("")
+            self.lineEdit_pipe3_distance.clear()
             self.lineEdit_pipe3_distance.setDisabled(True)
             vol_spacing = self.spinBox_volumes_spacing.value()
             self.lineEdit_pipe3_length.setText(str(round(vol_spacing, 4)))
@@ -248,7 +246,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
     def volumes_connection_callback(self):
         index = self.comboBox_volumes_connection.currentIndex()
         if index == 2:
-            self.lineEdit_pipe3_distance.setText("")
+            self.lineEdit_pipe3_distance.clear()
             self.lineEdit_pipe3_distance.setDisabled(True)
             vol_spacing = self.spinBox_volumes_spacing.value()
             self.lineEdit_pipe3_length.setText(str(round(vol_spacing, 4)))
@@ -266,7 +264,7 @@ class PulsationSuppressionDeviceInputs(PulsationSuppressionDeviceInput_UI):
             wall_thickness = (vol_diam - choke_diam) / 2
             self.lineEdit_pipe3_wall_thickness.setText(f"{round(wall_thickness, 6)}")
         except Exception:
-            self.lineEdit_pipe3_wall_thickness.setText("")
+            self.lineEdit_pipe3_wall_thickness.clear()
 
     def tuned_filter_callback(self):
         index = self.comboBox_tuned_filter.currentIndex()

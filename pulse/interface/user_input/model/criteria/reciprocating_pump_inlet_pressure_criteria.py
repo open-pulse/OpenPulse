@@ -198,7 +198,7 @@ class ReciprocatingPumpInletPressureCriteriaInput(ReciprocatingPumpInletPressure
                         self.lineEdit_vapor_pressure.setText(_vapor_pressure)
 
                     except:
-                        self.lineEdit_vapor_pressure.setText("")
+                        self.lineEdit_vapor_pressure.clear()
                         return
 
                 return
@@ -263,8 +263,8 @@ class ReciprocatingPumpInletPressureCriteriaInput(ReciprocatingPumpInletPressure
         return vapor_pressure_Pa
 
     def reset_input_fields(self):
-        self.lineEdit_selected_id.setText("")
-        self.lineEdit_fluid_name.setText("")
-        self.lineEdit_vapor_pressure.setText("")
-        self.lineEdit_temperature.setText("")
+        self.lineEdit_selected_id.clear()
+        self.lineEdit_fluid_name.clear()
+        self.lineEdit_vapor_pressure.clear()
+        self.lineEdit_temperature.clear()
         self.pushButton_plot_criteria.setDisabled(True)

@@ -1,3 +1,7 @@
+import re
+from enum import IntEnum
+from numbers import Number
+
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QCloseEvent
@@ -10,33 +14,36 @@ from PySide6.QtWidgets import (
 
 from pulse import app
 from pulse.editor.pulsation_damper import PulsationDamper
+from pulse.editor.structures.point import Point
 from pulse.interface.handler.geometry_handler import GeometryHandler
+from pulse.interface.ui_generated.model.editor.pulsation_damper_editor_inputs_ui import (
+    PulsationDamperEditorInputs_UI,
+)
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
+    SetFluidInputSimplified,
+)
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
-    convert_pressure_unit,
-    convert_temperature_unit, 
-    convert_volume_unit,
-    PressureUnits, 
+    PressureUnits,
     TemperatureUnits,
     VolumeUnits,
+    convert_pressure_unit,
+    convert_temperature_unit,
+    convert_volume_unit,
     pressure_units_labels,
     temperature_units_labels,
     volume_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
-from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget import DamperPreviewRenderWidget
-from pulse.interface.ui_generated.model.editor.pulsation_damper_editor_inputs_ui import PulsationDamperEditorInputs_UI
-
+from pulse.interface.viewer_3d.render_widgets.damper_preview_render_widget import (
+    DamperPreviewRenderWidget,
+)
 from pulse.model.node import Node
 from pulse.model.properties.fluid import Fluid
 from pulse.model.properties.material import Material
-from pulse.editor.structures.point import Point
-
-import re
-from enum import IntEnum
-from numbers import Number
 
 
 class VolumeSections(IntEnum):
