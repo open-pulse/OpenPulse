@@ -2343,7 +2343,7 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
 
-        self.tabWidget_general.setCurrentIndex(2)
+        self.tabWidget_general.setCurrentIndex(0)
         self.pushButton_confirm_pipe.setDefault(False)
         self.pushButton_exit_pipe.setDefault(False)
         self.tabWidget_pipe_section.setCurrentIndex(0)
