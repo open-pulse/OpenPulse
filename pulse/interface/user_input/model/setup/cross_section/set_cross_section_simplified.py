@@ -169,9 +169,6 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
 
     def single_click_item_callback(self, item):
         self.cross_section_widget.reset_all_input_texts()
-        # key = item.text(0)
-        # if int(key) in self.section_data_lines.keys():
-        #     self.section_id = int(key)
         self.cross_section_widget.pushButton_edit_section_data.setEnabled(True)
         self.cross_section_widget.pushButton_load_section_data.setEnabled(True)
 
