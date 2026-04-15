@@ -988,7 +988,24 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
     
     def plot_piston_position_and_velocity_time(self):
         self.process_aquisition_parameters()
-        self.pump_model.plot_piston_position_and_velocity(domain="time")
+    
+        _, x = self.pump_model.recip_x()
+        v = self.pump_model.recip_v()
+        Trev = 60 / self.pump_model.rpm
+        N = len(x)
+
+        x_data = np.linspace(0, Trev, N)
+
+        self.plot_2d = Plot2DSimplified(
+            title="Piston displacement and velocity during a complete cycle",
+            x_label="Time [s]",
+            y_left_label="Piston relative displacement [m]",
+            y_right_label="Piston velocity [m/s]",
+        )
+
+        self.plot_2d.set_plot_data(x_data, x, label="Piston position")
+        self.plot_2d.set_plot_data(x_data, v, label="Piston velocity", color=(0, 0, 0), y_label_position="right")
+        self.plot_2d.show()
 
     def plot_piston_position_and_velocity_angle(self):
         self.process_aquisition_parameters()

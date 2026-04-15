@@ -1103,8 +1103,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.plot_2d.set_plot_data(x_data, v, label="Piston velocity", color=(0, 0, 0), y_label_position="right")
         self.plot_2d.show()
 
-        self.compressor.plot_piston_position_and_velocity(domain="time")
-
     def plot_piston_position_and_velocity_angle(self):
         if self.process_aquisition_parameters():
             self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
