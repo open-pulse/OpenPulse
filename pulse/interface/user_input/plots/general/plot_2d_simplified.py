@@ -16,7 +16,8 @@ class Plot2DSimplified(Plot2dDialog_UI):
         self,
         title: str = "",
         x_label: str = "",
-        y_label: str = "",
+        y_left_label: str = "",
+        y_right_label: str = ""
     ):
 
         super().__init__()
@@ -24,9 +25,9 @@ class Plot2DSimplified(Plot2dDialog_UI):
 
         self._title = title
         self._x_label = x_label
-        self._y_label = y_label
+        self._y_left_label = y_left_label
+        self._y_right_label = y_right_label
         self._toolbar: CustomNavigationToolbar = None
-        self._has_legend = False
 
         self._config_window()
         self._create_connections()
@@ -45,6 +46,9 @@ class Plot2DSimplified(Plot2dDialog_UI):
     def _add_plots_to_widget(self):
         self.results_plot = MplCanvas(self, width=8, height=6, dpi=110)
 
+        self.left_ax = self.results_plot.ax_left
+        self.right_ax = self.results_plot.ax_left.twinx()
+
         if self.plot_2d_widget.layout() is None:
             self._toolbar = CustomNavigationToolbar(self.results_plot, self)
             layout = QVBoxLayout()
@@ -52,16 +56,17 @@ class Plot2DSimplified(Plot2dDialog_UI):
             layout.addWidget(self.results_plot)
             self.plot_2d_widget.setLayout(layout)
 
-        self.results_plot.ax_left.grid(which="both")
+        self.left_ax.grid(which="both")
+        self.right_ax.grid(which="both")
         self.results_plot.draw()
 
     def _configure_plots(self):
-        ax = self.results_plot.ax_left
-        ax.set_xlabel(self._x_label)
-        ax.set_ylabel(self._y_label)
-        ax.set_title(self._title)
-        ax.xaxis.set_major_formatter(ticker.FuncFormatter(self._format_axes_tick))
-        ax.yaxis.set_major_formatter(ticker.FuncFormatter(self._format_axes_tick))
+        self.left_ax.set_xlabel(self._x_label)
+        self.left_ax.set_ylabel(self._y_left_label)
+        self.left_ax.set_title(self._title)
+        self.left_ax.xaxis.set_major_formatter(ticker.FuncFormatter(self._format_axes_tick))
+        self.left_ax.yaxis.set_major_formatter(ticker.FuncFormatter(self._format_axes_tick))
+        self.right_ax.yaxis.set_major_formatter(ticker.FuncFormatter(self._format_axes_tick))
 
     @staticmethod
     def _format_axes_tick(x, _):
@@ -88,28 +93,39 @@ class Plot2DSimplified(Plot2dDialog_UI):
         marker: str = None,
         marker_size: int = 5,
         absolute_value: bool = False,
+        y_label_position: str = "left"
     ):
 
         if absolute_value:
             y_data = np.abs(y_data)
 
-        self.results_plot.ax_left.plot(
-            x_data,
-            y_data,
-            label=label,
-            linestyle=line_style,
-            linewidth=line_width,
-            color=color,
-            marker=marker,
-            markersize=marker_size,
-            markerfacecolor=color,
-        )
-
-        if label is not None:
-            self._has_legend = True
-            self.results_plot.ax_left.legend(loc="upper right")
-
+        if y_label_position == "left":
+            ax = self.left_ax
+        else:
+            ax = self.right_ax
+            ax.set_ylabel(self._y_right_label)
+        
+        ax.plot(
+                x_data,
+                y_data,
+                label=label,
+                linestyle=line_style,
+                linewidth=line_width,
+                color=color,
+                marker=marker,
+                markersize=marker_size,
+                markerfacecolor=color,
+            )
+        
         self.results_plot.draw()
+    
+    def show(self):
+        handles_l, labels_l = self.left_ax.get_legend_handles_labels()
+        handles_r, labels_r = self.right_ax.get_legend_handles_labels()
+        handles = handles_l + handles_r
+        if handles:
+            self.right_ax.legend(handles, labels_l + labels_r, loc="upper right")
+        super().show()
 
     def closeEvent(self, a0):
         return super().closeEvent(a0)
