@@ -22,6 +22,19 @@ class SectionsInfo(IntEnum):
     SECTION_TYPE = 2
     SECTION_PARAMETERS = 3
 
+class TabWidgetGeneral(IntEnum):
+    PIPE = 0
+    BEAM = 1
+    ACTIVE_SECTIONS = 2
+
+class TabWidgetBeams(IntEnum):
+    RECTANGULAR_BEAM = 0
+    CIRCULAR_BEAM = 1
+    C_BEAM = 2
+    I_BEAM = 3
+    T_BEAM = 4
+    
+
 
 class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
     def __init__(self, *args, **kwargs):
@@ -127,11 +140,13 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         if section_type is None:
             raise TypeError()
 
-        if section_type == "pipe":
+        if section_type == "pipe" or section_type == "reducer":
             self.update_pipe_section_entries(section_type, parameters)
 
         elif "beam" in section_type:
+            self.cross_section_widget.tabWidget_general.setTabVisible(0, False)
             self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
+            self.cross_section_widget.tabWidget_general.setCurrentIndex(1)
             self.update_beam_section_entries(section_type, parameters)
 
     # def edit_section_data(self):
@@ -169,6 +184,7 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
     def update_pipe_section_entries(self, section_type: str, section_parameters: list):
 
         if section_type == "pipe":
+            self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
             self.cross_section_widget.tabWidget_general.setCurrentIndex(0)
 
             outside_diameter = section_parameters[0]
@@ -194,7 +210,12 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
                 self.cross_section_widget.lineEdit_insulation_thickness.setText(str(insulation_thickness))
 
         elif section_type == "reducer":
-            self.cross_section_widget.tabWidget_pipe_section.setCurrentIndex(1)
+            self.cross_section_widget.tabWidget_general.setTabVisible(0, True)
+            self.cross_section_widget.tabWidget_general.setCurrentIndex(0)
+
+            self.cross_section_widget.tabWidget_pipe_section.setTabVisible(0, False)
+            self.cross_section_widget.tabWidget_pipe_section.setTabVisible(1, True)
+            self.cross_section_widget.tabWidget_pipe_section.setCurrentIndex(1) 
 
             for index, lineEdit in enumerate(self.cross_section_widget.list_pipe_section_entries[6:-2]):
                 lineEdit.setText(str(section_parameters[index]))
@@ -202,30 +223,36 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
     def update_beam_section_entries(self, section_type: str, section_parameters: list):
 
         if section_type == "rectangular_beam":
-            self.cross_section_widget.tabWidget_beam_section.setTabVisible(0, True)
+            self.cross_section_widget.tabWidget_beam_section.setTabVisible(TabWidgetBeams.RECTANGULAR_BEAM, True)
+            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(TabWidgetBeams.RECTANGULAR_BEAM)
+
             [base, height, base_in, height_in, offset_y, offset_z] = section_parameters
-            self.cross_section_widget.tabWidget_general.setCurrentIndex(0)
+
             self.cross_section_widget.lineEdit_base_rectangular_section.setText(str(base))
             self.cross_section_widget.lineEdit_height_rectangular_section.setText(str(height))
             self.cross_section_widget.lineEdit_offsety_rectangular_section.setText(str(offset_y))
             self.cross_section_widget.lineEdit_offsetz_rectangular_section.setText(str(offset_z))
+            
             if base_in != 0 and height_in != 0:
                 self.cross_section_widget.lineEdit_wall_thickness_rectangular_section.setText(str(round((base - base_in) / 2, 4)))
 
         elif section_type == "circular_beam":
-            self.cross_section_widget.tabWidget_beam_section.setTabVisible(1, True)
+            self.cross_section_widget.tabWidget_beam_section.setTabVisible(TabWidgetBeams.CIRCULAR_BEAM, True)
+            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(TabWidgetBeams.CIRCULAR_BEAM)
+
             [outside_diameter_beam, thickness, offset_y, offset_z] = section_parameters
-            self.cross_section_widget.tabWidget_general.setCurrentIndex(1)
             self.cross_section_widget.lineEdit_outside_diameter_circular_section.setText(str(outside_diameter_beam))
             self.cross_section_widget.lineEdit_offsety_circular_section.setText(str(offset_y))
             self.cross_section_widget.lineEdit_offsetz_circular_section.setText(str(offset_z))
+            
             if thickness != 0:
                 self.cross_section_widget.lineEdit_wall_thickness_circular_section.setText(str(thickness))
 
         elif section_type == "c_beam":
-            self.cross_section_widget.tabWidget_beam_section.setTabVisible(2, True)
+            self.cross_section_widget.tabWidget_beam_section.setTabVisible(TabWidgetBeams.C_BEAM, True)
+            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(TabWidgetBeams.C_BEAM)
+
             [h, w1, t1, w2, t2, tw, offset_y, offset_z] = section_parameters
-            self.cross_section_widget.tabWidget_general.setCurrentIndex(2)
             self.cross_section_widget.lineEdit_height_C_section.setText(str(h))
             self.cross_section_widget.lineEdit_w1_C_section.setText(str(w1))
             self.cross_section_widget.lineEdit_tw_C_section.setText(str(tw))
@@ -236,9 +263,10 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
             self.cross_section_widget.lineEdit_offsetz_C_section.setText(str(offset_z))
 
         elif section_type == "i_beam":
-            self.cross_section_widget.tabWidget_beam_section.setTabVisible(3, True)
+            self.cross_section_widget.tabWidget_beam_section.setTabVisible(TabWidgetBeams.I_BEAM, True)
+            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(TabWidgetBeams.I_BEAM)
+            
             [h, w1, t1, w2, t2, tw, offset_y, offset_z] = section_parameters
-            self.cross_section_widget.tabWidget_general.setCurrentIndex(3)
             self.cross_section_widget.lineEdit_height_I_section.setText(str(h))
             self.cross_section_widget.lineEdit_w1_I_section.setText(str(w1))
             self.cross_section_widget.lineEdit_tw_I_section.setText(str(tw))
@@ -249,9 +277,10 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
             self.cross_section_widget.lineEdit_offsetz_I_section.setText(str(offset_z))
 
         elif section_type == "t_beam":
-            self.cross_section_widget.tabWidget_beam_section.setTabVisible(4, True)
+            self.cross_section_widget.tabWidget_beam_section.setTabVisible(TabWidgetBeams.T_BEAM, True)
+            self.cross_section_widget.tabWidget_beam_section.setCurrentIndex(TabWidgetBeams.T_BEAM)
+
             [h, w1, t1, tw, offset_y, offset_z] = section_parameters
-            self.cross_section_widget.tabWidget_general.setCurrentIndex(4)
             self.cross_section_widget.lineEdit_height_T_section.setText(str(h))
             self.cross_section_widget.lineEdit_w1_T_section.setText(str(w1))
             self.cross_section_widget.lineEdit_tw_T_section.setText(str(tw))
