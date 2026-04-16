@@ -6,9 +6,7 @@ from PySide6.QtWidgets import QGridLayout, QTreeWidgetItem
 from pulse import app
 from pulse.interface.ui_generated.model.setup.cross_section.set_cross_section_simplified_ui import SetCrossSectionSimplified_UI
 from pulse.interface.user_input.model.setup.cross_section.cross_section_widget import CrossSectionWidget
-
-window_title_1 = "Error"
-window_title_2 = "Warning"
+from itertools import count
 
 
 class TabIndex(IntEnum):
@@ -65,6 +63,7 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.selected_column = None
         self.complete = False
         self.keep_window_open = True
+        self.active_sections = dict()
 
     def _define_qt_variables(self):
         # QGridLayout
@@ -96,44 +95,72 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
         self.complete = True
         self.close()
 
-    def load_active_sections(self):
-        self.active_sections = {}
+    def load_active_sections(self, section_type_to_filter: str):
 
         self.cross_section_widget.pushButton_edit_section_data.setDisabled(True)
         self.cross_section_widget.pushButton_load_section_data.setDisabled(True)
 
         self.cross_section_widget.treeWidget_lines_info.clear()
         self.cross_section_widget.tabWidget_general.setTabVisible(TabIndex.ACTIVE_SECTIONS, True)
-        self.cross_section_widget.treeWidget_lines_info.hideColumn(1)  # hides the 'Element option' column
 
-        # self.section_data_lines = app().project.loader.get_cross_sections_from_file()
+        # hides the 'Element option' column
+        self.cross_section_widget.treeWidget_lines_info.hideColumn(1)
 
-        active_sections = []
+        self.active_sections.clear()
+
         for structure in self.pipeline.structures:
-            cross_section_info = structure.extra_info["cross_section_info"]
-            section_parameters = cross_section_info["section_parameters"]
+            cross_section_info = structure.extra_info.get("cross_section_info")
+            if not isinstance(cross_section_info, dict):
+                continue
 
-            if section_parameters not in active_sections:
-                active_sections.append(section_parameters)
-                section_id = len(active_sections)
+            section_type_label = cross_section_info.get("section_type_label")
+            if section_type_label != section_type_to_filter:
+                continue
 
-                new = QTreeWidgetItem([str(section_id), "", cross_section_info["section_type_label"], str(section_parameters)])
+            section_parameters = cross_section_info.get("section_parameters")
+            if section_parameters in self.active_sections.values():
+                continue
 
-                for i in range(4):
-                    new.setTextAlignment(i, Qt.AlignCenter)
+            # define a new section index
+            section_id = self.get_section_index()
 
-                self.cross_section_widget.treeWidget_lines_info.addTopLevelItem(new)
+            # add the new section parameters
+            self.active_sections[section_id] = section_parameters
 
-                self.active_sections[section_id] = section_parameters
+            new = QTreeWidgetItem([
+                str(section_id),
+                "",
+                section_type_label,
+                str(section_parameters),
+                ])
+
+            for i in range(4):
+                new.setTextAlignment(i, Qt.AlignCenter)
+
+            self.cross_section_widget.treeWidget_lines_info.addTopLevelItem(new)
+
+        if not self.active_sections:
+            self.cross_section_widget.tabWidget_general.setTabVisible(TabIndex.ACTIVE_SECTIONS, False)
+
+    def get_section_index(self):
+        for i in count(1):
+            index = i
+            if index in self.active_sections.keys():
+                continue
+
+            return index
 
     def load_section_data(self):
-        item = self.cross_section_widget.treeWidget_lines_info.currentItem()
+        selected_items = self.cross_section_widget.treeWidget_lines_info.selectedItems()
+        if len(selected_items) != 1:
+            return None, None
 
-        id = item.text(SectionsInfo.ID)
-        section_type = item.text(SectionsInfo.SECTION_TYPE)
-        parameters = self.active_sections[int(id)]
+        index = selected_items[0].text(SectionsInfo.ID)
+        section_type = selected_items[0].text(SectionsInfo.SECTION_TYPE)
 
+        parameters = self.active_sections[int(index)]
         self.load_section_inputs(section_type, parameters)
+
         return section_type, parameters
 
     def load_section_inputs(self, section_type: str, parameters: list):
@@ -152,8 +179,10 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
 
     def edit_section_data(self):
         section_type, target_parameters = self.load_section_data()
-        line_ids = []
-        
+        if section_type is None:
+            return
+
+        line_ids = list()       
         for structure in self.pipeline.structures:
             parameters = structure.extra_info["cross_section_info"]["section_parameters"]
             
@@ -165,7 +194,6 @@ class SetCrossSectionSimplified(SetCrossSectionSimplified_UI):
 
         self.pipeline.select_structures(line_ids)
         self.main_window.geometry_widget.update_plot()
-
 
     def single_click_item_callback(self, item):
         self.cross_section_widget.reset_all_input_texts()
