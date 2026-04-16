@@ -121,7 +121,7 @@ class PipeOptions(StructureOptions):
         elif bending_option == "user-defined":
             try:
                 return float(custom_bending_radius)
-            except:
+            except Exception:
                 return 0
 
         else:
