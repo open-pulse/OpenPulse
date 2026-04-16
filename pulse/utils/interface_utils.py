@@ -65,7 +65,14 @@ class SelectionFilter:
         return cls(*args)
 
 
-def check_inputs(lineEdit: QLineEdit, label: str, only_positive=True, zero_included=False, title=None, parent: None | QDialog | QWidget = None):
+def check_inputs(
+        lineEdit: QLineEdit, 
+        label: str, 
+        only_positive: bool = True, 
+        zero_included: bool = False, 
+        title: str | None = None, 
+        parent: None | QDialog | QWidget = None,
+        ):
 
     if title is None:
         title = "Invalid input"

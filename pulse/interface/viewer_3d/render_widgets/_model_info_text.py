@@ -1,13 +1,13 @@
 #fmt: off
 
-from pulse import app
-from pulse.model import AnalysisID, RadiationImpedanceType
-from pulse.utils.unit_conversion import mm_to_m
-
-from molde.utils import TreeInfo, format_long_sequence
+from numbers import Number
 
 import numpy as np
-from numbers import Number
+from molde.utils import TreeInfo, format_long_sequence
+
+from pulse import app
+from pulse.interface.user_input.numeric_checks.unit_utilities import convert_length_unit
+from pulse.model import AnalysisID, RadiationImpedanceType
 
 
 def nodes_info_text() -> str:
@@ -27,7 +27,7 @@ def nodes_info_text() -> str:
         node = preprocessor.nodes[node_id]
 
         tree = TreeInfo(f"Node {node_id}")
-        tree.add_item(f"Position", "[{:.4f}, {:.4f}, {:.4f}]".format(*node.coordinates), "m")
+        tree.add_item("Position", "[{:.4f}, {:.4f}, {:.4f}]".format(*node.coordinates), "m")
         info_text += str(tree)
 
         if not properties.nodal_properties:
@@ -67,13 +67,13 @@ def nodes_info_text() -> str:
             if property == "stiffness_nodal_links" and node_id in args:
                 values = sl_data["values"]
                 loaded_table = "table_names" in sl_data.keys()
-                info_text += _structural_format(f"Stiffness nodal link", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table, linked_nodes=list(args))
+                info_text += _structural_format("Stiffness nodal link", values, ("k", "kr"), ("N/m", "N.m/rad"), loaded_table, linked_nodes=list(args))
 
         for (property, *args), dl_data in properties.nodal_properties.items():
             if property == "damping_nodal_links" and node_id in args:
                 values = dl_data["values"]
                 loaded_table = "table_names" in dl_data.keys()
-                info_text += _structural_format(f"Damping nodal link", values, ("c", "cr"), ("N.s/m", "N.m.s/rad"), loaded_table, linked_nodes=list(args))
+                info_text += _structural_format("Damping nodal link", values, ("c", "cr"), ("N.s/m", "N.m.s/rad"), loaded_table, linked_nodes=list(args))
 
         ap_data = properties._get_property("acoustic_pressure", node_ids=node_id)
         if isinstance(ap_data, dict):
@@ -178,8 +178,9 @@ def lines_info_text() -> str:
         )
 
         total_length = 0
-        for line in lines:
-            line_length = mm_to_m(project.model.mesh.curve_length[line])
+        for line_id in lines:
+            line_length_mm = project.model.mesh.curve_length[line_id]
+            line_length = convert_length_unit(line_length_mm, "mm", "m")
             total_length += line_length
         
         info_text += f"TOTAL LENGTH: {total_length : .6f} [m]\n\n"
@@ -189,10 +190,12 @@ def lines_info_text() -> str:
         line_id, *_ = lines
 
         properties = project.model.properties
-        length = mm_to_m(project.model.mesh.curve_length[line_id])
+        line_length_mm = project.model.mesh.curve_length[line_id]
+        line_length = convert_length_unit(line_length_mm, "mm", "m")
+
         radius_of_curvature = properties._get_property("curvature_radius", line_id=line_id)
 
-        info_text += line_info_text(line_id, length, radius_of_curvature)
+        info_text += line_info_text(line_id, line_length, radius_of_curvature)
 
         material = properties._get_property("material", line_id=line_id)
         if material is not None:
@@ -212,13 +215,18 @@ def lines_info_text() -> str:
             valve_name = valve_info.get("valve_name", "")
 
         info_text += cross_section_info_text(
-                                             cross_section, 
-                                             structural_element_type, 
-                                             beam_xaxis_rotation, 
-                                             valve_name
-                                             )
-        
+            cross_section, 
+            structural_element_type, 
+            beam_xaxis_rotation, 
+            valve_name,
+            )
+
         info_text += structural_element_info_text()
+
+        stress_stiffening = properties._get_property("stress_stiffening", line_id=line_id)
+        if isinstance(stress_stiffening, dict):
+            info_text += stress_stiffening_info_text(stress_stiffening)
+
 
     return info_text
 
@@ -344,6 +352,18 @@ def structural_element_info_text():
             else:
                 label = "Thin wall"
             tree.add_item("Wall formulation", label)
+
+    return str(tree)
+
+def stress_stiffening_info_text(data: dict):
+
+    pressure_unit = data.get("pressure_unit", "Pa (a)")
+    external_pressure = data.get("external_pressure")
+    internal_pressure = data.get("internal_pressure")
+
+    tree = TreeInfo("Stress stiffening")
+    tree.add_item("External pressure", external_pressure, pressure_unit)
+    tree.add_item("Internal pressure", internal_pressure, pressure_unit)
 
     return str(tree)
 

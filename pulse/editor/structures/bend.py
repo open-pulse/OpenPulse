@@ -46,9 +46,14 @@ class Bend(Fillet):
             structure.center_coords = structure.center.coords()
 
         section_info = {
-            "section_type_label": data["section_type_label"],
-            "section_parameters": section_parameters,
+            "section_type_label" : data["section_type_label"],
+            "section_parameters" : section_parameters,
         }
+
         structure.extra_info["cross_section_info"] = section_info
         structure.extra_info["structural_element_type"] = "pipe_1"
+        structure.extra_info["wall_formulation"] = "thin"
+        structure.extra_info["force_offset"] = True
+        structure.extra_info["capped_end"] = True
+
         return structure

@@ -2,14 +2,19 @@ from enum import IntEnum
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QCloseEvent
 from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_compressor_inputs_ui import ReciprocatingCompressorInputs_UI
-from pulse.interface.user_input.common import update_analysis_setup_in_file
+from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_compressor_inputs_ui import (
+    ReciprocatingCompressorInputs_UI,
+)
+from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
+    AcousticNodesInput,
+)
 from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
-from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
+    SetFluidInputSimplified,
+)
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
     PressureUnits,
     TemperatureUnits,
@@ -18,12 +23,17 @@ from pulse.interface.user_input.numeric_checks.unit_utilities import (
     pressure_units_labels,
     temperature_units_labels,
 )
-from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
 from pulse.interface.user_input.plots.general.plot_2d_simplified import Plot2DSimplified
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
 from pulse.model.properties.fluid import Fluid
-from pulse.model.reciprocating_compressor_model import CylindersActingMode, ReciprocatingCompressorModel
+from pulse.model.reciprocating_compressor_model import (
+    CylindersActingMode,
+    ReciprocatingCompressorModel,
+)
 
 
 class TabIndex(IntEnum):
@@ -41,14 +51,10 @@ error_title = "Error"
 warning_title = "Warning"
 
 
-class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
+class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorInputs_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        app().main_window.set_input_widget(self)
-        self.properties = app().project.model.properties
-
-        self._config_window()
         self._initialize()
         self._config_widgets()
         self._create_connections()
@@ -57,20 +63,12 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         while self.keep_window_open:
             self.exec()
 
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
-
     def _initialize(self):
         self.selected_fluid = None
         self.complete = False
         self.keep_window_open = True
         self.aquisition_parameters_processed = False
         self.plot_2d: Plot2DSimplified = None
-
-        self.before_run = app().project.get_pre_solution_model_checks()    
 
     def _config_widgets(self):
 
@@ -177,21 +175,51 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.lineEdit_pressure_ratio.textChanged.connect(self.update_state_properties_at_discharge)
         self.lineEdit_suction_temperature.textChanged.connect(self.update_state_properties_at_discharge)
         #
-        self.pushButton_plot_PV_diagram_head_end.clicked.connect(self.plot_PV_diagram_head_end)
-        self.pushButton_plot_PV_diagram_crank_end.clicked.connect(self.plot_PV_diagram_crank_end)
-        self.pushButton_plot_PV_diagram_both_ends.clicked.connect(self.plot_PV_diagram_both_ends)
-        self.pushButton_plot_volumetric_flow_rate_at_suction_time.clicked.connect(self.plot_volumetric_flow_rate_at_suction_time)
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_time)
-        self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(self.plot_rod_pressure_load_frequency)
-        self.pushButton_plot_rod_pressure_load_time.clicked.connect(self.plot_rod_pressure_load_time)
-        self.pushButton_plot_piston_position_and_velocity_time.clicked.connect(self.plot_piston_position_and_velocity_time)
-        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_suction_frequency)
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_frequency)
-        self.pushButton_plot_pressure_head_end_angle.clicked.connect(self.plot_pressure_head_end_angle)
-        self.pushButton_plot_volume_head_end_angle.clicked.connect(self.plot_volume_head_end_angle)
-        self.pushButton_plot_pressure_crank_end_angle.clicked.connect(self.plot_pressure_crank_end_angle)
-        self.pushButton_plot_volume_crank_end_angle.clicked.connect(self.plot_volume_crank_end_angle)
-        self.pushButton_process_aquisition_parameters.clicked.connect(self.process_aquisition_parameters)
+        self.pushButton_plot_PV_diagram_head_end.clicked.connect(
+            self.plot_PV_diagram_head_end
+        )
+        self.pushButton_plot_PV_diagram_crank_end.clicked.connect(
+            self.plot_PV_diagram_crank_end
+        )
+        self.pushButton_plot_PV_diagram_both_ends.clicked.connect(
+            self.plot_PV_diagram_both_ends
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_suction_time.clicked.connect(
+            self.plot_volumetric_flow_rate_at_suction_time
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(
+            self.plot_volumetric_flow_rate_at_discharge_time
+        )
+        self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(
+            self.plot_rod_pressure_load_frequency
+        )
+        self.pushButton_plot_rod_pressure_load_time.clicked.connect(
+            self.plot_rod_pressure_load_time
+        )
+        self.pushButton_plot_piston_position_and_velocity_time.clicked.connect(
+            self.plot_piston_position_and_velocity_time
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(
+            self.plot_volumetric_flow_rate_at_suction_frequency
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(
+            self.plot_volumetric_flow_rate_at_discharge_frequency
+        )
+        self.pushButton_plot_pressure_head_end_angle.clicked.connect(
+            self.plot_pressure_head_end_angle
+        )
+        self.pushButton_plot_volume_head_end_angle.clicked.connect(
+            self.plot_volume_head_end_angle
+        )
+        self.pushButton_plot_pressure_crank_end_angle.clicked.connect(
+            self.plot_pressure_crank_end_angle
+        )
+        self.pushButton_plot_volume_crank_end_angle.clicked.connect(
+            self.plot_volume_crank_end_angle
+        )
+        self.pushButton_process_aquisition_parameters.clicked.connect(
+            self.process_aquisition_parameters
+        )
         #
         self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.attribute_callback)
@@ -200,9 +228,15 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_reset_entries.clicked.connect(self.reset_entries)
         #
-        self.spinBox_number_of_points.valueChanged.connect(self.spinBox_event_number_of_points)        
-        self.spinBox_max_frequency.valueChanged.connect(self.spinBox_event_max_frequency)
-        self.spinBox_number_of_cylinders.valueChanged.connect(self.spinBox_event_number_of_cylinders)
+        self.spinBox_number_of_points.valueChanged.connect(
+            self.spinBox_event_number_of_points
+        )
+        self.spinBox_max_frequency.valueChanged.connect(
+            self.spinBox_event_max_frequency
+        )
+        self.spinBox_number_of_cylinders.valueChanged.connect(
+            self.spinBox_event_number_of_cylinders
+        )
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         self.treeWidget_nodal_info.itemClicked.connect(self.on_click_item)
@@ -214,7 +248,6 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.spinBox_event_number_of_cylinders()
 
     def selection_callback(self):
-
         selected_nodes = app().main_window.list_selected_nodes()
 
         if len(selected_nodes) != 1:
@@ -252,7 +285,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         if self.comboBox_cylinder_acting.currentIndex() == CylindersActingMode.HEAD_END:
 
-            self.lineEdit_rod_diameter.setText("")
+            self.lineEdit_rod_diameter.clear()
             self.lineEdit_rod_diameter.setDisabled(True)
 
             self.doubleSpinBox_clearance_crank_end.setValue(0.)
@@ -405,7 +438,9 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             self.lineEdit_stroke.setText(str(parameters["stroke"]))
 
         if "connecting_rod_length" in parameters.keys():
-            self.lineEdit_connecting_rod_length.setText(str(parameters["connecting_rod_length"]))
+            self.lineEdit_connecting_rod_length.setText(
+                str(parameters["connecting_rod_length"])
+            )
 
         if "rod_diameter" in parameters.keys():
             self.lineEdit_rod_diameter.setText(str(parameters["rod_diameter"]))
@@ -429,7 +464,9 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             self.spinBox_capacity.setValue(parameters["capacity"])
 
         if "isentropic_exponent" in parameters.keys():
-            self.lineEdit_isentropic_exponent.setText(str(parameters["isentropic_exponent"]))
+            self.lineEdit_isentropic_exponent.setText(
+                str(parameters["isentropic_exponent"])
+            )
 
         if "molar_mass" in parameters.keys():
             self.lineEdit_molar_mass.setText(str(parameters["molar_mass"]))
@@ -457,7 +494,9 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
                     self.spinBox_tdc_crank_angle_2.setValue(parameters["tdc_crank_angle_2"])
 
         if "points_per_revolution" in parameters.keys():
-            self.spinBox_number_of_points.setValue(int(parameters["points_per_revolution"]))
+            self.spinBox_number_of_points.setValue(
+                int(parameters["points_per_revolution"])
+            )
 
         f_min, f_max, f_step, N_rev = self.get_aquisition_parameters(parameters)
         self.lineEdit_number_of_revolutions.setText(str(N_rev))
@@ -476,17 +515,17 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.comboBox_pressure_units.setCurrentText("kgf/cm² (a)")
         self.comboBox_temperature_units.setCurrentText("°C")
 
-        self.lineEdit_bore_diameter.setText("")
-        self.lineEdit_stroke.setText("")
-        self.lineEdit_connecting_rod_length.setText("")
-        self.lineEdit_rod_diameter.setText("")
-        self.lineEdit_pressure_ratio.setText("")
-        self.lineEdit_suction_pressure.setText("")
-        self.lineEdit_suction_temperature.setText("")
-        self.lineEdit_discharge_pressure.setText("")
-        self.lineEdit_discharge_temperature.setText("")
-        self.lineEdit_isentropic_exponent.setText("")
-        self.lineEdit_molar_mass.setText("")
+        self.lineEdit_bore_diameter.clear()
+        self.lineEdit_stroke.clear()
+        self.lineEdit_connecting_rod_length.clear()
+        self.lineEdit_rod_diameter.clear()
+        self.lineEdit_pressure_ratio.clear()
+        self.lineEdit_suction_pressure.clear()
+        self.lineEdit_suction_temperature.clear()
+        self.lineEdit_discharge_pressure.clear()
+        self.lineEdit_discharge_temperature.clear()
+        self.lineEdit_isentropic_exponent.clear()
+        self.lineEdit_molar_mass.clear()
 
         self.spinBox_number_of_cylinders.setValue(1)
         self.spinBox_tdc_crank_angle_1.setValue(0)
@@ -497,17 +536,19 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.doubleSpinBox_rotational_speed.setValue(360.0)
 
     def check_node_id(self, lineEdit: QLineEdit):
-        
+
         stop, node_id = self.before_run.check_selected_ids(
-            lineEdit.text(), 
-            "nodes", 
-            single_id = True,
-            )
+            lineEdit.text(), "nodes", single_id=True
+        )
 
         if stop:
             return True, None
 
-        neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
+        neigh_elements = (
+            app().project.model.preprocessor.structural_elements_connected_to_node[
+                node_id
+            ]
+        )
 
         if len(neigh_elements) == 1:
             return stop, node_id
@@ -519,7 +560,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             message += "It is necessary to change the selection to proceed with the "
             message += "compressor excitation attribution."
             PrintMessageInput([error_title, title, message])
-            lineEdit.setText("")
+            lineEdit.clear()
             return True, None
 
     def check_input_nodes(self):
@@ -607,7 +648,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
         self.compressor.number_points = N
         self.compressor.max_frequency = self.spinBox_max_frequency.value()
 
-        T_rev = 60 / self.parameters['rotational_speed']
+        T_rev = 60 / self.parameters["rotational_speed"]
         list_T = [10, 5, 2, 1, 0.5]
         list_df = [0.1, 0.2, 0.5, 1, 2]
 
@@ -616,56 +657,20 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         if np.remainder(T_selected, T_rev) == 0:
             T = T_selected
-            df = 1/T
+            df = 1 / T
         else:
             i = 0
-            df = 1/(T_rev)
+            df = 1 / (T_rev)
             while df > df_selected:
                 i += 1
-                df = 1/(i*T_rev)
+                df = 1 / (i * T_rev)
 
         self.N_rev = i
 
-        final_df_label = '{} Hz'.format(round(df, 6))
+        final_df_label = "{} Hz".format(round(df, 6))
         self.lineEdit_frequency_resolution.setText(final_df_label)
         self.lineEdit_number_of_revolutions.setText(str(self.N_rev))
         self.aquisition_parameters_processed = True
-
-    def save_table_values(self, table_name: str, imported_values: np.ndarray, filter_zero: bool = True):
-
-        if filter_zero:
-            mask_filter = imported_values[:, 0] > 0
-            _imported_values = imported_values[mask_filter, :]
-        else:
-            _imported_values = imported_values
-
-        # define the frequencies vector
-        frequencies = _imported_values[:, 0]
-
-        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
-            self.hide()
-            title = "Project frequency setup cannot be modified"
-            message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported ones. The current "
-            message += "project frequency setup is not going to be modified."
-            message += f"\n\n{table_name}"
-            PrintMessageInput([error_title, title, message])
-            return True
-
-        update_analysis_setup_in_file(frequencies)
-
-        # real values vector
-        real_values = _imported_values[:, 1]
-        
-        # imaginary values vector
-        imag_values = _imported_values[:, 2]
-
-        # data to be stored
-        data = np.array([frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("acoustic", table_name, data)
-
-        return False
 
     def update_state_properties_at_discharge(self):
 
@@ -683,7 +688,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             # update the discharge pressure text
             self.lineEdit_discharge_pressure.setText(f"{discharge_pressure : .8e}")
 
-        except:
+        except Exception:
             return
 
         try:
@@ -703,7 +708,7 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
             # update the discharge temperature text
             self.lineEdit_discharge_temperature.setText(f"{T_discharge : .6f}")
 
-        except:
+        except Exception:
             return
 
     def attribute_callback(self):
@@ -816,10 +821,13 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         self.hide()
 
-        title = "Reseting of compressor excitations"
+        title = "Reciprocating compressor excitations resetting"
         message = "Would you like to remove all compressor excitations from the acoustic model?"
 
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        buttons_config = {
+            "left_button_label": "Cancel",
+            "right_button_label": "Continue",
+        }
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
@@ -1239,16 +1247,3 @@ class ReciprocatingCompressorInputs(ReciprocatingCompressorInputs_UI):
 
         self.plot_2d.set_plot_data(angle, volume_CE)
         self.plot_2d.show()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Enter:
-            self.remove_callback()
-        if event.key() == Qt.Key_Escape:
-            self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)

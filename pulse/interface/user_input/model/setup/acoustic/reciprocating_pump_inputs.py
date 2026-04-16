@@ -1,30 +1,38 @@
-from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
-from PySide6.QtGui import QCloseEvent
+from enum import IntEnum
+
+import numpy as np
 from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QHeaderView, QLineEdit, QTreeWidgetItem
 
 from pulse import app
-from pulse.interface.user_input.common import update_analysis_setup_in_file
+from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs_ui import (
+    ReciprocatingPumpInputs_UI,
+)
+from pulse.interface.user_input.model.setup.acoustic.acoustic_nodes_input import (
+    AcousticNodesInput,
+)
+from pulse.interface.user_input.model.setup.acoustic.pulsation_damper_calculator_inputs import (
+    PulsationDamperCalculatorInputs,
+)
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
+from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import (
+    SetFluidInputSimplified,
+)
 from pulse.interface.user_input.numeric_checks.unit_utilities import (
-    PressureUnits, 
+    PressureUnits,
     TemperatureUnits,
     pressure_units_labels,
     temperature_units_labels,
     convert_pressure_unit,
 )
-from pulse.interface.user_input.numeric_checks.validator import StrictDoubleValidator
-from pulse.interface.user_input.model.setup.fluid.set_fluid_input import SetFluidInput
-from pulse.interface.user_input.model.setup.fluid.set_fluid_input_simplified import SetFluidInputSimplified
-from pulse.interface.user_input.model.setup.acoustic.pulsation_damper_calculator_inputs import PulsationDamperCalculatorInputs
+from pulse.interface.user_input.numeric_checks.validators import StrictDoubleValidator
+from pulse.interface.user_input.project.get_user_confirmation_input import (
+    GetUserConfirmationInput,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.project.get_user_confirmation_input import GetUserConfirmationInput
-from pulse.interface.ui_generated.model.setup.acoustic.reciprocating_pump_inputs_ui import ReciprocatingPumpInputs_UI
-
 from pulse.model.properties.fluid import Fluid
 from pulse.model.reciprocating_pump_model import CylindersActingMode, ReciprocatingPumpModel
 from pulse.interface.user_input.plots.general.plot_2d_simplified import Plot2DSimplified 
-
-import numpy as np
-from enum import IntEnum
 
 
 class TabIndex(IntEnum):
@@ -42,13 +50,10 @@ error_title = "Error"
 warning_title = "Warning"
 
 
-class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
+class ReciprocatingPumpInputs(AcousticNodesInput, ReciprocatingPumpInputs_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        app().main_window.set_input_widget(self)
-        self.properties = app().project.model.properties
 
-        self._config_window()
         self._initialize()
         self._config_widgets()
         self._create_connections()
@@ -56,12 +61,6 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         while self.keep_window_open:
             self.exec()
-
-    def _config_window(self):
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        self.setWindowIcon(app().main_window.pulse_icon)
-        self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
         self.selected_fluid = None
@@ -165,24 +164,60 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.comboBox_cylinder_acting.currentIndexChanged.connect(self.update_compressing_cylinders_setup)
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
         #
-        self.pushButton_plot_PV_diagram_head_end.clicked.connect(self.plot_PV_diagram_head_end)
-        self.pushButton_plot_PV_diagram_crank_end.clicked.connect(self.plot_PV_diagram_crank_end)
-        self.pushButton_plot_PV_diagram_both_ends.clicked.connect(self.plot_PV_diagram_both_ends)
-        self.pushButton_plot_volumetric_flow_rate_at_suction_time.clicked.connect(self.plot_volumetric_flow_rate_at_suction_time)
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_time)
-        self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(self.plot_rod_pressure_load_frequency)
-        self.pushButton_plot_rod_pressure_load_time.clicked.connect(self.plot_rod_pressure_load_time)
-        self.pushButton_plot_piston_position_and_velocity_time.clicked.connect(self.plot_piston_position_and_velocity_time)
-        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_suction_frequency)
-        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_frequency)
-        self.pushButton_plot_pressure_head_end_angle.clicked.connect(self.plot_pressure_head_end_angle)
-        self.pushButton_plot_volume_head_end_angle.clicked.connect(self.plot_volume_head_end_angle)
-        self.pushButton_plot_pressure_crank_end_angle.clicked.connect(self.plot_pressure_crank_end_angle)
-        self.pushButton_plot_volume_crank_end_angle.clicked.connect(self.plot_volume_crank_end_angle)
-        self.pushButton_plot_fluctuating_volume.clicked.connect(self.plot_integral_fluctuating_volume)
-        self.pushButton_process_aquisition_parameters.clicked.connect(self.process_aquisition_parameters)
-        self.pushButton_process_fluctuating_volume.clicked.connect(self.process_fluctuating_volume)
-        self.pushButton_pulsation_damper_calculator.clicked.connect(self.pulsation_damper_calculator_callback)
+        self.pushButton_plot_PV_diagram_head_end.clicked.connect(
+            self.plot_PV_diagram_head_end
+        )
+        self.pushButton_plot_PV_diagram_crank_end.clicked.connect(
+            self.plot_PV_diagram_crank_end
+        )
+        self.pushButton_plot_PV_diagram_both_ends.clicked.connect(
+            self.plot_PV_diagram_both_ends
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_suction_time.clicked.connect(
+            self.plot_volumetric_flow_rate_at_suction_time
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(
+            self.plot_volumetric_flow_rate_at_discharge_time
+        )
+        self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(
+            self.plot_rod_pressure_load_frequency
+        )
+        self.pushButton_plot_rod_pressure_load_time.clicked.connect(
+            self.plot_rod_pressure_load_time
+        )
+        self.pushButton_plot_piston_position_and_velocity_time.clicked.connect(
+            self.plot_piston_position_and_velocity_time
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(
+            self.plot_volumetric_flow_rate_at_suction_frequency
+        )
+        self.pushButton_plot_volumetric_flow_rate_at_discharge_frequency.clicked.connect(
+            self.plot_volumetric_flow_rate_at_discharge_frequency
+        )
+        self.pushButton_plot_pressure_head_end_angle.clicked.connect(
+            self.plot_pressure_head_end_angle
+        )
+        self.pushButton_plot_volume_head_end_angle.clicked.connect(
+            self.plot_volume_head_end_angle
+        )
+        self.pushButton_plot_pressure_crank_end_angle.clicked.connect(
+            self.plot_pressure_crank_end_angle
+        )
+        self.pushButton_plot_volume_crank_end_angle.clicked.connect(
+            self.plot_volume_crank_end_angle
+        )
+        self.pushButton_plot_fluctuating_volume.clicked.connect(
+            self.plot_integral_fluctuating_volume
+        )
+        self.pushButton_process_aquisition_parameters.clicked.connect(
+            self.process_aquisition_parameters
+        )
+        self.pushButton_process_fluctuating_volume.clicked.connect(
+            self.process_fluctuating_volume
+        )
+        self.pushButton_pulsation_damper_calculator.clicked.connect(
+            self.pulsation_damper_calculator_callback
+        )
         #
         self.pushButton_exit.clicked.connect(self.close)
         self.pushButton_confirm.clicked.connect(self.attribute_callback)
@@ -191,9 +226,15 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.pushButton_reset.clicked.connect(self.reset_callback)
         self.pushButton_reset_entries.clicked.connect(self.reset_entries)
         #
-        self.spinBox_number_of_points.valueChanged.connect(self.spinBox_event_number_of_points)        
-        self.spinBox_max_frequency.valueChanged.connect(self.spinBox_event_max_frequency)
-        self.spinBox_number_of_cylinders.valueChanged.connect(self.spinBox_event_number_of_cylinders)
+        self.spinBox_number_of_points.valueChanged.connect(
+            self.spinBox_event_number_of_points
+        )
+        self.spinBox_max_frequency.valueChanged.connect(
+            self.spinBox_event_max_frequency
+        )
+        self.spinBox_number_of_cylinders.valueChanged.connect(
+            self.spinBox_event_number_of_cylinders
+        )
         #
         self.tabWidget_main.currentChanged.connect(self.tab_event_callback)
         self.treeWidget_nodal_info.itemClicked.connect(self.on_click_item)
@@ -205,7 +246,6 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.selection_callback()
 
     def selection_callback(self):
-
         selected_nodes = app().main_window.list_selected_nodes()
         if len(selected_nodes) != 1:
             return
@@ -248,7 +288,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.pushButton_plot_volume_crank_end_angle.setDisabled(False)
 
         if self.comboBox_cylinder_acting.currentIndex() == CylindersActingMode.HEAD_END:
-            self.lineEdit_rod_diameter.setText("")
+            self.lineEdit_rod_diameter.clear()
             self.lineEdit_rod_diameter.setDisabled(True)
             self.pushButton_plot_PV_diagram_crank_end.setDisabled(True)
             self.pushButton_plot_PV_diagram_both_ends.setDisabled(False)
@@ -351,7 +391,9 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.lineEdit_stroke.setText(str(parameters["stroke"]))
 
         if "connecting_rod_length" in parameters.keys():
-            self.lineEdit_connecting_rod_length.setText(str(parameters["connecting_rod_length"]))
+            self.lineEdit_connecting_rod_length.setText(
+                str(parameters["connecting_rod_length"])
+            )
 
         if "rod_diameter" in parameters.keys():
             self.lineEdit_rod_diameter.setText(str(parameters["rod_diameter"]))
@@ -369,7 +411,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.doubleSpinBox_rotational_speed.setValue(parameters["rotational_speed"])
 
         if "bulk_modulus" in parameters.keys():
-            self.lineEdit_bulk_modulus.setText(f'{parameters["bulk_modulus"] : .8e}')
+            self.lineEdit_bulk_modulus.setText(f"{parameters['bulk_modulus'] : .8e}")
 
         if "suction_pressure" in parameters.keys():
             self.lineEdit_suction_pressure.setText(str(parameters["suction_pressure"]))
@@ -393,10 +435,14 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             self.comboBox_cylinder_acting.setCurrentIndex(parameters["acting_mode"])
 
         if "number_of_cylinders" in parameters.keys():
-            self.spinBox_number_of_cylinders.setValue(int(parameters["number_of_cylinders"]))
+            self.spinBox_number_of_cylinders.setValue(
+                int(parameters["number_of_cylinders"])
+            )
 
         if "points_per_revolution" in parameters.keys():
-            self.spinBox_number_of_points.setValue(int(parameters["points_per_revolution"]))
+            self.spinBox_number_of_points.setValue(
+                int(parameters["points_per_revolution"])
+            )
 
         _, f_max, f_step, N_rev = self.get_aquisition_parameters(parameters)
         self.lineEdit_number_of_revolutions.setText(str(N_rev))
@@ -414,15 +460,15 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.comboBox_pressure_units.setCurrentText("bar (a)")
         self.comboBox_temperature_units.setCurrentText("°C")
 
-        self.lineEdit_bore_diameter.setText("")
-        self.lineEdit_stroke.setText("")
-        self.lineEdit_connecting_rod_length.setText("")
-        self.lineEdit_rod_diameter.setText("")
-        self.lineEdit_suction_pressure.setText("")
-        self.lineEdit_suction_temperature.setText("")
-        self.lineEdit_discharge_pressure.setText("")
-        self.lineEdit_discharge_temperature.setText("")
-        self.lineEdit_bulk_modulus.setText("")
+        self.lineEdit_bore_diameter.clear()
+        self.lineEdit_stroke.clear()
+        self.lineEdit_connecting_rod_length.clear()
+        self.lineEdit_rod_diameter.clear()
+        self.lineEdit_suction_pressure.clear()
+        self.lineEdit_suction_temperature.clear()
+        self.lineEdit_discharge_pressure.clear()
+        self.lineEdit_discharge_temperature.clear()
+        self.lineEdit_bulk_modulus.clear()
 
         self.spinBox_number_of_cylinders.setValue(7)
         self.spinBox_tdc_crank_angle_1.setValue(0)
@@ -431,17 +477,19 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.doubleSpinBox_rotational_speed.setValue(178.0)
 
     def check_node_id(self, lineEdit: QLineEdit):
-        
+
         stop, node_id = self.before_run.check_selected_ids(
-            lineEdit.text(), 
-            "nodes", 
-            single_id = True,
-            )
+            lineEdit.text(), "nodes", single_id=True
+        )
 
         if stop:
             return True, None
 
-        neigh_elements = app().project.model.preprocessor.structural_elements_connected_to_node[node_id]
+        neigh_elements = (
+            app().project.model.preprocessor.structural_elements_connected_to_node[
+                node_id
+            ]
+        )
 
         if len(neigh_elements) == 1:
             return stop, node_id
@@ -453,7 +501,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
             message += "It is necessary to change the selection to proceed with the "
             message += "reciprocating pump excitation attribution."
             PrintMessageInput([error_title, title, message])
-            lineEdit.setText("")
+            lineEdit.clear()
             return True, None
 
     def check_input_nodes(self):
@@ -534,7 +582,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.pump_model.number_points = N
         self.pump_model.max_frequency = self.spinBox_max_frequency.value()
 
-        T_rev = 60 / self.parameters['rotational_speed']
+        T_rev = 60 / self.parameters["rotational_speed"]
         list_T = [10, 5, 2, 1, 0.5]
         list_df = [0.1, 0.2, 0.5, 1, 2]
 
@@ -553,46 +601,10 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         self.N_rev = i
 
-        final_df_label = '{} Hz'.format(round(df, 6))
+        final_df_label = "{} Hz".format(round(df, 6))
         self.lineEdit_frequency_resolution.setText(final_df_label)
         self.lineEdit_number_of_revolutions.setText(str(self.N_rev))
         self.aquisition_parameters_processed = True
-
-    def save_table_values(self, table_name: str, imported_values: np.ndarray, filter_zero: bool = True):
-
-        if filter_zero:
-            mask_filter = imported_values[:, 0] > 0
-            _imported_values = imported_values[mask_filter, :]
-        else:
-            _imported_values = imported_values
-
-        # define the frequencies vector
-        frequencies = _imported_values[:, 0]
-
-        if app().project.model.change_analysis_frequency_setup(list(frequencies)):
-            self.hide()
-            title = "Project frequency setup cannot be modified"
-            message = "The following imported table of values has a frequency setup "
-            message += "different from the others already imported ones. The current "
-            message += "project frequency setup is not going to be modified."
-            message += f"\n\n{table_name}"
-            PrintMessageInput([error_title, title, message])
-            return True
-
-        update_analysis_setup_in_file(frequencies)
-
-        # real values vector
-        real_values = _imported_values[:, 1]
-        
-        # imaginary values vector
-        imag_values = _imported_values[:, 2]
-
-        # data to be stored
-        data = np.array([frequencies, real_values, imag_values], dtype=float).T
-
-        self.properties.add_imported_tables("acoustic", table_name, data)
-
-        return False
 
     def attribute_callback(self):
 
@@ -703,10 +715,13 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         self.hide()
 
-        title = "Reseting of the reciprocating pump excitations"
+        title = "Reciprocating pump excitations resetting"
         message = "Would you like to remove all reciprocating pump excitations from the acoustic model?"
 
-        buttons_config = {"left_button_label" : "Cancel", "right_button_label" : "Continue"}
+        buttons_config = {
+            "left_button_label": "Cancel",
+            "right_button_label": "Continue",
+        }
         read = GetUserConfirmationInput(title, message, buttons_config=buttons_config)
 
         if read._cancel:
@@ -743,7 +758,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
     def update_tabs_visibility(self):
         self.pushButton_remove.setDisabled(True)
-        for (property, *_) in self.properties.nodal_properties.keys():
+        for property, *_ in self.properties.nodal_properties.keys():
             if property == "reciprocating_pump_excitation":
                 self.tabWidget_main.setCurrentIndex(TabIndex.SETUP)
                 self.tabWidget_main.setTabVisible(TabIndex.REMOVE, True)
@@ -773,7 +788,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
 
         self.pump_model.number_points = self.spinBox_number_of_points.value()
         fluctuating_volume, _ = self.pump_model.get_pump_fluctuating_volume(flow_label)
-        str_fluctuating_volume = f"{fluctuating_volume : 0.8e}"
+        str_fluctuating_volume = f"{fluctuating_volume: 0.8e}"
         self.lineEdit_fluctuating_volume.setText(str_fluctuating_volume)
 
         return fluctuating_volume
@@ -887,7 +902,7 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.pump_model.number_points = N
         self.pump_model.plot_volume_vs_time()
         return
-    
+
     def plot_volumetric_flow_rate_at_suction_time(self):
         if self.check_all_parameters():
             return
@@ -1149,16 +1164,3 @@ class ReciprocatingPumpInputs(ReciprocatingPumpInputs_UI):
         self.pump_model.plot_fluctuating_volume(flow_label)
 
         return
-    
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.attribute_callback()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_callback()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.keep_window_open = False
-        app().main_window.selection_changed.disconnect(self.selection_callback)
-        return super().closeEvent(a0)

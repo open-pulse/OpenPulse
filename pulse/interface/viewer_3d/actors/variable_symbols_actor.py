@@ -114,20 +114,20 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
     def add_nodal_load_symbol(
         self,
         position: tuple[float, float, float],
-        displacements: tuple[bool, bool, bool],
-        rotations: tuple[bool, bool, bool],
+        displacements: tuple[int, int, int],
+        rotations: tuple[int, int, int],
     ):
         self.add_symbol_by_axes(
             create_arrow_source,
             position,
-            axes_mask=[(i is not None) for i in displacements],
+            axes_mask=displacements,
             color=color_names.RED,
         )
 
         self.add_symbol_by_axes(
             create_double_arrow_source,
             position,
-            axes_mask=[(i is not None) for i in rotations],
+            axes_mask=rotations,
             color=color_names.TEAL,
         )
 
@@ -176,7 +176,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
         self,
         shape_name: Callable,
         position,
-        axes_mask: tuple[bool, bool, bool],
+        axes_mask: tuple[int | bool, int | bool, int | bool],
         color: Color,
         size: float = 1,
     ):
@@ -188,7 +188,7 @@ class VariableSymbolsActor(CommonSymbolsActorVariableSize):
 
         for axis, mask in zip(axes, axes_mask):
             if mask:
-                self.add_symbol(shape_name, position, axis, color, size)
+                self.add_symbol(shape_name, position, np.real(mask) * axis, color, size)
 
     def add_acoustic_pressure_symbol(self, position):
         self.add_symbol(

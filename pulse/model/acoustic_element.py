@@ -241,13 +241,19 @@ class AcousticElement:
             
         References
         ----------
-        .. T. C. Lin and G. W. Morgan, "Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell," The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
+        .. T. C. Lin and G. W. Morgan, "Wave Propagation through Fluid Contained in a Cylindrical, 
+        Elastic Shell," The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
         """
-        if self.cross_section.section_type_label == 'Expansion joint':
+        if self.cross_section.section_type_label == 'expansion_joint':
             return self.fluid.speed_of_sound
+
         else:
-            factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.elasticity_modulus * self.cross_section.thickness)
-            return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
+            D_in = self.cross_section.inner_diameter
+            K_0 = self.fluid.bulk_modulus
+            E = self.material.elasticity_modulus
+            t = self.cross_section.thickness
+            factor = (D_in * K_0) / (E * t)
+            return (1 / sqrt(1 + factor)) * self.fluid.speed_of_sound
 
     def get_undamped_wave_number_and_acoustic_impedance(self, frequencies: np.ndarray):
 
@@ -751,7 +757,11 @@ class AcousticElement:
 
             # TODO: prt warning por p < 0.5
             prt = 0.87
-            transc = lambda x: (U/x - (2.44 * np.log(x * di/(2*nu)) + 2))**2
+
+            def transc(x):
+                return (U / x - (2.44 * np.log(x * di/(2*nu)) + 2))**2
+
+            # transc = lambda x: (U/x - (2.44 * np.log(x * di/(2*nu)) + 2))**2
             res = root(transc, 1e-4, method='hybr')
 
             ur = res.x[0]

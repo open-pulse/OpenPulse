@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'import_data_to_compare.ui'
+## Form generated from reading UI file 'data_import_assistant.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.11.0
 ##
@@ -36,8 +36,8 @@ class Ui_Dialog(object):
         self.frame.setMinimumSize(QSize(0, 48))
         self.frame.setMaximumSize(QSize(16777215, 48))
         self.frame.setSizeIncrement(QSize(0, 0))
-        self.frame.setFrameShape(QFrame.Box)
-        self.frame.setFrameShadow(QFrame.Raised)
+        self.frame.setFrameShape(QFrame.Shape.Box)
+        self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.frame.setLineWidth(1)
         self.gridLayout_4 = QGridLayout(self.frame)
         self.gridLayout_4.setSpacing(0)
@@ -54,8 +54,8 @@ class Ui_Dialog(object):
         font.setItalic(False)
         font.setKerning(False)
         self.label.setFont(font)
-        self.label.setTextFormat(Qt.AutoText)
-        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setTextFormat(Qt.TextFormat.AutoText)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_4.addWidget(self.label, 0, 0, 1, 1)
 
@@ -64,16 +64,16 @@ class Ui_Dialog(object):
 
         self.frame_lower = QFrame(Dialog)
         self.frame_lower.setObjectName(u"frame_lower")
-        self.frame_lower.setFrameShape(QFrame.Box)
-        self.frame_lower.setFrameShadow(QFrame.Raised)
+        self.frame_lower.setFrameShape(QFrame.Shape.Box)
+        self.frame_lower.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_3 = QGridLayout(self.frame_lower)
         self.gridLayout_3.setSpacing(2)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
         self.gridLayout_3.setContentsMargins(2, 2, 2, 2)
         self.frame_main = QFrame(self.frame_lower)
         self.frame_main.setObjectName(u"frame_main")
-        self.frame_main.setFrameShape(QFrame.NoFrame)
-        self.frame_main.setFrameShadow(QFrame.Raised)
+        self.frame_main.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_main.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_14 = QGridLayout(self.frame_main)
         self.gridLayout_14.setSpacing(8)
         self.gridLayout_14.setObjectName(u"gridLayout_14")
@@ -81,8 +81,8 @@ class Ui_Dialog(object):
         self.frame_skiprows_reset = QFrame(self.frame_main)
         self.frame_skiprows_reset.setObjectName(u"frame_skiprows_reset")
         self.frame_skiprows_reset.setMaximumSize(QSize(16777215, 40))
-        self.frame_skiprows_reset.setFrameShape(QFrame.NoFrame)
-        self.frame_skiprows_reset.setFrameShadow(QFrame.Raised)
+        self.frame_skiprows_reset.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_skiprows_reset.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_12 = QGridLayout(self.frame_skiprows_reset)
         self.gridLayout_12.setObjectName(u"gridLayout_12")
         self.gridLayout_12.setHorizontalSpacing(6)
@@ -90,8 +90,8 @@ class Ui_Dialog(object):
         self.gridLayout_12.setContentsMargins(2, 2, 2, 2)
         self.frame_13 = QFrame(self.frame_skiprows_reset)
         self.frame_13.setObjectName(u"frame_13")
-        self.frame_13.setFrameShape(QFrame.NoFrame)
-        self.frame_13.setFrameShadow(QFrame.Raised)
+        self.frame_13.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_13.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_6 = QGridLayout(self.frame_13)
         self.gridLayout_6.setSpacing(2)
         self.gridLayout_6.setObjectName(u"gridLayout_6")
@@ -119,7 +119,7 @@ class Ui_Dialog(object):
         self.checkBox_skiprows.setObjectName(u"checkBox_skiprows")
         self.checkBox_skiprows.setMinimumSize(QSize(25, 28))
         self.checkBox_skiprows.setMaximumSize(QSize(25, 28))
-        self.checkBox_skiprows.setLayoutDirection(Qt.RightToLeft)
+        self.checkBox_skiprows.setLayoutDirection(Qt.LayoutDirection.RightToLeft)
         self.checkBox_skiprows.setTristate(False)
 
         self.gridLayout_12.addWidget(self.checkBox_skiprows, 0, 1, 1, 1)
@@ -129,7 +129,7 @@ class Ui_Dialog(object):
         self.label_14.setMinimumSize(QSize(160, 28))
         self.label_14.setMaximumSize(QSize(180, 28))
         self.label_14.setFont(font1)
-        self.label_14.setAlignment(Qt.AlignCenter)
+        self.label_14.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_12.addWidget(self.label_14, 0, 2, 1, 1)
 
@@ -140,15 +140,15 @@ class Ui_Dialog(object):
         font2 = QFont()
         font2.setPointSize(10)
         self.spinBox_skiprows.setFont(font2)
-        self.spinBox_skiprows.setAlignment(Qt.AlignCenter)
+        self.spinBox_skiprows.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.spinBox_skiprows.setMaximum(10)
 
         self.gridLayout_12.addWidget(self.spinBox_skiprows, 0, 3, 1, 1)
 
         self.frame_14 = QFrame(self.frame_skiprows_reset)
         self.frame_14.setObjectName(u"frame_14")
-        self.frame_14.setFrameShape(QFrame.NoFrame)
-        self.frame_14.setFrameShadow(QFrame.Raised)
+        self.frame_14.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_14.setFrameShadow(QFrame.Shadow.Raised)
 
         self.gridLayout_12.addWidget(self.frame_14, 0, 0, 1, 1)
 
@@ -157,8 +157,8 @@ class Ui_Dialog(object):
 
         self.frame_spreadsheet_files = QFrame(self.frame_main)
         self.frame_spreadsheet_files.setObjectName(u"frame_spreadsheet_files")
-        self.frame_spreadsheet_files.setFrameShape(QFrame.NoFrame)
-        self.frame_spreadsheet_files.setFrameShadow(QFrame.Raised)
+        self.frame_spreadsheet_files.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_spreadsheet_files.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_5 = QGridLayout(self.frame_spreadsheet_files)
         self.gridLayout_5.setSpacing(2)
         self.gridLayout_5.setObjectName(u"gridLayout_5")
@@ -195,8 +195,8 @@ class Ui_Dialog(object):
 
         self.frame_text_files = QFrame(self.frame_main)
         self.frame_text_files.setObjectName(u"frame_text_files")
-        self.frame_text_files.setFrameShape(QFrame.NoFrame)
-        self.frame_text_files.setFrameShadow(QFrame.Raised)
+        self.frame_text_files.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_text_files.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout = QGridLayout(self.frame_text_files)
         self.gridLayout.setSpacing(2)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -223,8 +223,8 @@ class Ui_Dialog(object):
         self.frame_get_path = QFrame(self.frame_main)
         self.frame_get_path.setObjectName(u"frame_get_path")
         self.frame_get_path.setMaximumSize(QSize(16777215, 48))
-        self.frame_get_path.setFrameShape(QFrame.NoFrame)
-        self.frame_get_path.setFrameShadow(QFrame.Raised)
+        self.frame_get_path.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_get_path.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_11 = QGridLayout(self.frame_get_path)
         self.gridLayout_11.setObjectName(u"gridLayout_11")
         self.gridLayout_11.setHorizontalSpacing(6)
@@ -235,7 +235,7 @@ class Ui_Dialog(object):
         self.label_11.setMinimumSize(QSize(48, 30))
         self.label_11.setMaximumSize(QSize(48, 30))
         self.label_11.setFont(font1)
-        self.label_11.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_11.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_11.addWidget(self.label_11, 0, 0, 1, 1)
 
@@ -249,9 +249,9 @@ class Ui_Dialog(object):
         font5.setBold(False)
         font5.setItalic(False)
         self.lineEdit_import_results_path.setFont(font5)
-        self.lineEdit_import_results_path.setLayoutDirection(Qt.LeftToRight)
+        self.lineEdit_import_results_path.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
         self.lineEdit_import_results_path.setStyleSheet(u"")
-        self.lineEdit_import_results_path.setAlignment(Qt.AlignCenter)
+        self.lineEdit_import_results_path.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_11.addWidget(self.lineEdit_import_results_path, 0, 1, 1, 1)
 
@@ -276,8 +276,8 @@ class Ui_Dialog(object):
 
         self.frame_32 = QFrame(self.frame_get_path)
         self.frame_32.setObjectName(u"frame_32")
-        self.frame_32.setFrameShape(QFrame.NoFrame)
-        self.frame_32.setFrameShadow(QFrame.Raised)
+        self.frame_32.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_32.setFrameShadow(QFrame.Shadow.Raised)
 
         self.gridLayout_11.addWidget(self.frame_32, 0, 3, 1, 1)
 
@@ -286,8 +286,8 @@ class Ui_Dialog(object):
 
         self.frame_add_imported_data = QFrame(self.frame_main)
         self.frame_add_imported_data.setObjectName(u"frame_add_imported_data")
-        self.frame_add_imported_data.setFrameShape(QFrame.NoFrame)
-        self.frame_add_imported_data.setFrameShadow(QFrame.Raised)
+        self.frame_add_imported_data.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_add_imported_data.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_7 = QGridLayout(self.frame_add_imported_data)
         self.gridLayout_7.setSpacing(2)
         self.gridLayout_7.setObjectName(u"gridLayout_7")
@@ -344,7 +344,7 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(QCoreApplication.translate("Dialog", u"Import data to compare", None))
-        self.label.setText(QCoreApplication.translate("Dialog", u"Import data to compare", None))
+        self.label.setText(QCoreApplication.translate("Dialog", u"Data import assistant", None))
         self.pushButton_reset_imported_data.setText(QCoreApplication.translate("Dialog", u"Reset", None))
         self.checkBox_skiprows.setText("")
         self.label_14.setText(QCoreApplication.translate("Dialog", u"Header rows to skip:", None))
@@ -363,7 +363,7 @@ class Ui_Dialog(object):
 
 
 
-class ImportDataToCompare_UI(QDialog, Ui_Dialog):
+class DataImportAssistant_UI(QDialog, Ui_Dialog):
     """
     Component Hierarchy:
     - Dialog: QDialog
