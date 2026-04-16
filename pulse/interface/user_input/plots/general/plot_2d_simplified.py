@@ -8,6 +8,7 @@ from pulse.interface.user_input.plots.general.mpl_canvas import MplCanvas
 
 import matplotlib.ticker as ticker
 import numpy as np
+from matplotlib.axes import Axes
 
 
 class Plot2DSimplified(Plot2dDialog_UI):
@@ -18,7 +19,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
         x_label: str = "",
         y_left_label: str = "",
         y_right_label: str = ""
-    ):
+    ) -> None:
 
         super().__init__()
         app().main_window.set_input_widget(self)
@@ -34,20 +35,20 @@ class Plot2DSimplified(Plot2dDialog_UI):
         self._add_plots_to_widget()
         self._configure_plots()
 
-    def _config_window(self):
+    def _config_window(self) -> None:
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         self.setWindowIcon(app().main_window.pulse_icon)
         self.setWindowTitle("OpenPulse")
 
-    def _create_connections(self):
+    def _create_connections(self) -> None:
         self.pushButton_exit.clicked.connect(self.close)
 
-    def _add_plots_to_widget(self):
+    def _add_plots_to_widget(self) -> None:
         self.results_plot = MplCanvas(self, width=8, height=6, dpi=110)
 
         self.left_ax = self.results_plot.ax_left
-        self.right_ax = self.results_plot.ax_left.twinx()
+        self.right_ax = None
 
         if self.plot_2d_widget.layout() is None:
             self._toolbar = CustomNavigationToolbar(self.results_plot, self)
@@ -57,19 +58,26 @@ class Plot2DSimplified(Plot2dDialog_UI):
             self.plot_2d_widget.setLayout(layout)
 
         self.left_ax.grid(which="both")
-        self.right_ax.grid(which="both")
         self.results_plot.draw()
 
-    def _configure_plots(self):
+    def _configure_plots(self) -> None:
         self.left_ax.set_xlabel(self._x_label)
         self.left_ax.set_ylabel(self._y_left_label)
         self.left_ax.set_title(self._title)
         self.left_ax.xaxis.set_major_formatter(ticker.FuncFormatter(self._format_axes_tick))
         self.left_ax.yaxis.set_major_formatter(ticker.FuncFormatter(self._format_axes_tick))
-        self.right_ax.yaxis.set_major_formatter(ticker.FuncFormatter(self._format_axes_tick))
+
+    def _ensure_right_ax(self) -> Axes:
+        if self.right_ax is None:
+            self.right_ax = self.left_ax.twinx()
+            self.right_ax.set_ylabel(self._y_right_label)
+            self.right_ax.grid(which="both")
+            self.right_ax.yaxis.set_major_formatter(ticker.FuncFormatter(self._format_axes_tick))
+            
+        return self.right_ax
 
     @staticmethod
-    def _format_axes_tick(x, _):
+    def _format_axes_tick(x: float, _) -> str:
         if x == 0:
             return "0"
 
@@ -94,7 +102,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
         marker_size: int = 5,
         absolute_value: bool = False,
         y_label_position: str = "left"
-    ):
+    ) -> None:
 
         if absolute_value:
             y_data = np.abs(y_data)
@@ -102,8 +110,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
         if y_label_position == "left":
             ax = self.left_ax
         else:
-            ax = self.right_ax
-            ax.set_ylabel(self._y_right_label)
+            ax = self._ensure_right_ax()
         
         ax.plot(
                 x_data,
@@ -119,13 +126,16 @@ class Plot2DSimplified(Plot2dDialog_UI):
         
         self.results_plot.draw()
     
-    def show(self):
+    def show(self) -> None:
         handles_l, labels_l = self.left_ax.get_legend_handles_labels()
-        handles_r, labels_r = self.right_ax.get_legend_handles_labels()
+        handles_r, labels_r = self.right_ax.get_legend_handles_labels() if self.right_ax is not None else ([], [])
         handles = handles_l + handles_r
+
         if handles:
-            self.right_ax.legend(handles, labels_l + labels_r, loc="upper right")
+            legend_ax = self.right_ax if self.right_ax is not None else self.left_ax
+            legend_ax.legend(handles, labels_l + labels_r, loc="upper right")
+
         super().show()
 
-    def closeEvent(self, a0):
+    def closeEvent(self, a0) -> None:
         return super().closeEvent(a0)
