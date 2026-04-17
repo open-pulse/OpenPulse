@@ -1,21 +1,20 @@
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:
     pass
 
 
 from copy import deepcopy
 
+from pulse import app
 from pulse.editor.structures import ExpansionJoint
-
-from molde.stylesheets import set_qproperty
+from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
+from pulse.interface.user_input.project.print_message import PrintMessageInput
 
 from .structure_options import StructureOptions
 
-from pulse import app
-from pulse.interface.user_input.project.print_message import PrintMessageInput
-from pulse.interface.user_input.model.setup.structural.expansion_joint_input import ExpansionJointInput
-
 window_title = "Error"
+
 
 class ExpansionJointOptions(StructureOptions):
     structure_type = ExpansionJoint
@@ -25,9 +24,9 @@ class ExpansionJointOptions(StructureOptions):
             return
 
         return dict(
-            diameter = self.structure_info.get("effective_diameter", 0),
-            thickness = 0,
-            extra_info = self._get_extra_info(),
+            diameter=self.structure_info.get("effective_diameter", 0),
+            thickness=0,
+            extra_info=self._get_extra_info(),
         )
 
     def configure_structure(self):
@@ -44,17 +43,6 @@ class ExpansionJointOptions(StructureOptions):
         self.structure_info = self.expansion_joint_input.expansion_joint_info
         self.configure_section_of_selected()
         self.update_permissions()
-
-    def update_permissions(self):
-        if self.structure_info:
-            set_qproperty(self.geometry_designer_widget.configure_button, warning=False, status="default")
-            enable = True
-        else:
-            set_qproperty(self.geometry_designer_widget.configure_button, warning=True, status="danger")
-            enable = False
-
-        self.geometry_designer_widget.set_bound_box_sizes_widgets_enabled(enable)
-        super().update_permissions(enable)
 
     def load_data_from_pipe_section(self):
 
@@ -78,7 +66,7 @@ class ExpansionJointOptions(StructureOptions):
 
     def _get_extra_info(self):
         return dict(
-            structural_element_type = "expansion_joint",
-            expansion_joint_info = deepcopy(self.structure_info),
-            material_id = self.geometry_designer_widget.current_material_id,
+            structural_element_type="expansion_joint",
+            expansion_joint_info=deepcopy(self.structure_info),
+            material_id=self.geometry_designer_widget.current_material_id,
         )
