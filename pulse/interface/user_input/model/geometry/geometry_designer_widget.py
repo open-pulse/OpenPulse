@@ -873,8 +873,8 @@ class GeometryDesignerWidget(GeometryDesignerWidget_UI):
         section_label = ""
         section_parameters = ""
         if cross_section_info:
-            section_label = cross_section_info["section_type_label"]
-            section_parameters = cross_section_info["section_parameters"]
+            section_label = cross_section_info.get("section_type_label")
+            section_parameters = cross_section_info.get("section_parameters")
 
         material_id = ""
         material = None
