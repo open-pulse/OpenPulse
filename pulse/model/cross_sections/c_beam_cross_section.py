@@ -22,8 +22,7 @@ class CBeamCrossSection:
     @property
     def centroid(self):
 
-        [h, w1, t1, w2, t2, tw, offset_y, offset_z] = self.section_parameters
-
+        h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
         hw = h - t1 - t2
 
         A_i = np.array([w1*t1, tw*hw, w2*t2])
@@ -40,8 +39,7 @@ class CBeamCrossSection:
     @property
     def section_properties(self):
 
-        [h, w1, t1, w2, t2, tw, offset_y, offset_z] = self.section_parameters
-
+        h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
         hw = h - t1 - t2
 
         A_i = np.array([w1*t1, tw*hw, w2*t2])
@@ -70,3 +68,19 @@ class CBeamCrossSection:
             "Yc" : Yc, 
             "Zc" : Zc,
             }
+    
+    @property
+    def section_points_to_draw(self):
+
+        h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
+        hw = h - t1 - t2
+
+        Zp = np.array([0, w2, w2, tw, tw, w1, w1, 0, 0]) + offset_y 
+        Yp = np.array([-(h/2), -(h/2), -(hw/2), -(hw/2), (h/2)-t1, (h/2)-t1, (h/2), (h/2), -(h/2)]) + offset_z
+
+        Zc, Yc = self.centroid
+
+        Zc_offset = Zc + offset_z    
+        Yc_offset = Yc + offset_y
+
+        return Zp, Yp, Zc_offset, Yc_offset

@@ -40,8 +40,7 @@ class IBeamCrossSection:
     @property
     def section_properties(self):
 
-        [h, w1, t1, w2, t2, tw, offset_y, offset_z] = self.section_parameters
-
+        h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
         hw = h - t1 - t2
 
         A_i = np.array([w1*t1, tw*hw, w2*t2])
@@ -70,3 +69,24 @@ class IBeamCrossSection:
             "Zc" : Zc,
             "Yc" : Yc, 
             }
+    
+    @property
+    def section_points_to_draw(self):
+
+        h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
+
+        Zp_right = [0, w2/2, w2/2, tw/2, tw/2, w1/2, w1/2, 0]
+        Yp_right = [-(h/2), -(h/2), -((h/2)-t2), -((h/2)-t2), (h/2)-t1, (h/2)-t1, (h/2), (h/2)]
+
+        Zp_left = -np.flip(Zp_right)
+        Yp_left =  np.flip(Yp_right)
+
+        Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
+        Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
+
+        Zc, Yc = self.centroid
+
+        Zc_offset = Zc + offset_z    
+        Yc_offset = Yc + offset_y
+
+        return Zp, Yp, Zc_offset, Yc_offset
