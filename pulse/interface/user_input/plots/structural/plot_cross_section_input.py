@@ -48,7 +48,8 @@ class PlotCrossSectionInput(PlotSection_UI):
         #
         self.comboBox_selection.currentIndexChanged.connect(self.selection_type_update)
         #
-        self.pushButton_plot_cross_section.clicked.connect(self.plot_section)
+        self.pushButton_plot_section.clicked.connect(self.plot_section)
+        self.pushButton_exit.clicked.connect(self.close)
         #
         app().main_window.selection_changed.connect(self.selection_callback)
 
