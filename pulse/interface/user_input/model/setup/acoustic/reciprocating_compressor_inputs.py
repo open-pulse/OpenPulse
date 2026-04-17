@@ -67,7 +67,6 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         self.complete = False
         self.keep_window_open = True
         self.aquisition_parameters_processed = False
-        self.plot_2d: Plot2DSimplified = None
 
     def _config_widgets(self):
 
@@ -907,14 +906,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
 
         pressure_unit = self.compressor.pressure_unit
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="P-V diagram (head-end)",
             x_label="Volume [m³]",
             y_left_label=f"Pressure [{pressure_unit}]"
         )
 
-        self.plot_2d.set_plot_data(volume_HE, pressure_HE)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(volume_HE, pressure_HE)
+        plot_2d.show()
 
     def plot_PV_diagram_crank_end(self):
         if self.check_all_parameters():
@@ -929,14 +928,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
 
         pressure_unit = self.compressor.pressure_unit
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="P-V diagram (crank-end)",
             x_label="Volume [m³]",
             y_left_label=f"Pressure [{pressure_unit}]"
         )
 
-        self.plot_2d.set_plot_data(volume_CE, pressure_CE)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(volume_CE, pressure_CE)
+        plot_2d.show()
 
     def plot_PV_diagram_both_ends(self):
         if self.check_all_parameters():
@@ -953,15 +952,15 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
 
         pressure_unit = self.compressor.pressure_unit
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="P-V reciprocating compressor diagram",
             x_label="Volume [m³]",
             y_left_label=f"Pressure [{pressure_unit}]"
         )
 
-        self.plot_2d.set_plot_data(volume_HE, pressure_HE, label="Head End")
-        self.plot_2d.set_plot_data(volume_CE, pressure_CE, label="Crank End", line_style="--", color=(0, 0, 0))
-        self.plot_2d.show()
+        plot_2d.set_plot_data(volume_HE, pressure_HE, label="Head End")
+        plot_2d.set_plot_data(volume_CE, pressure_CE, label="Crank End", line_style="--", color=(0, 0, 0))
+        plot_2d.show()
 
     def plot_pressure_time(self):
         if self.check_all_parameters():
@@ -990,14 +989,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         if flow_rate is None:
             return
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
         title="Volumetric flow rate at suction",
         x_label="Time [s]",
         y_left_label="Volume [m³/s]"
         )
 
-        self.plot_2d.set_plot_data(time, flow_rate)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(time, flow_rate)
+        plot_2d.show()
 
     def plot_volumetric_flow_rate_at_discharge_time(self):
         if self.check_all_parameters():
@@ -1010,14 +1009,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         if flow_rate is None:
             return
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="Volumetric flow rate at discharge",
             x_label="Time [s]",
             y_left_label="Volume [m³/s]"
         )
 
-        self.plot_2d.set_plot_data(time, flow_rate)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(time, flow_rate)
+        plot_2d.show()
 
     def plot_rod_pressure_load_frequency(self):
         if self.process_aquisition_parameters():
@@ -1026,14 +1025,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
 
         freq, rod_pressure_load = self.compressor.get_rod_pressure_load_frequency_data(self.N_rev)
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="Rod pressure load",
             x_label="Frequency [Hz]",
             y_left_label="Rod pressure load [kN]"
         )
 
-        self.plot_2d.set_plot_data(freq, rod_pressure_load, absolute_value=True)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(freq, rod_pressure_load, absolute_value=True)
+        plot_2d.show()
 
     def plot_rod_pressure_load_time(self):
         if self.process_aquisition_parameters():
@@ -1042,14 +1041,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
 
         time, rod_pressure_load_time = self.compressor.get_rod_pressure_load_time_data()
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="Rod pressure load",
             x_label="Time [s]",
             y_left_label="Rod pressure load [kN]"
         )
 
-        self.plot_2d.set_plot_data(time, rod_pressure_load_time, absolute_value=True)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(time, rod_pressure_load_time, absolute_value=True)
+        plot_2d.show()
             
     def plot_piston_position_and_velocity_time(self):
         if self.process_aquisition_parameters():
@@ -1058,16 +1057,16 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
     
         x_data, x, v = self.compressor.get_piston_position_and_velocity_data()
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="Piston displacement and velocity during a complete cycle",
             x_label="Time [s]",
             y_left_label="Piston relative displacement [m]",
             y_right_label="Piston velocity [m/s]",
         )
 
-        self.plot_2d.set_plot_data(x_data, x, label="Piston position")
-        self.plot_2d.set_plot_data(x_data, v, label="Piston velocity", color=(0, 0, 0), y_label_position="right")
-        self.plot_2d.show()
+        plot_2d.set_plot_data(x_data, x, label="Piston position")
+        plot_2d.set_plot_data(x_data, v, label="Piston velocity", color=(0, 0, 0), y_label_position="right")
+        plot_2d.show()
 
     def plot_piston_position_and_velocity_angle(self):
         if self.process_aquisition_parameters():
@@ -1085,14 +1084,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         if flow_rate is None:
             return
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="Volumetric flow rate at suction",
             x_label="Frequency [Hz]",
             y_left_label="Volumetric head flow rate [m³/s]"
         )
 
-        self.plot_2d.set_plot_data(freq, flow_rate, absolute_value=True)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(freq, flow_rate, absolute_value=True)
+        plot_2d.show()
 
     def plot_volumetric_flow_rate_at_discharge_frequency(self):
         if self.process_aquisition_parameters():
@@ -1103,14 +1102,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         if flow_rate is None:
             return
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="Volumetric flow rate at discharge",
             x_label="Frequency [Hz]",
             y_left_label="Volumetric crank flow rate [m³/s]"
         )
 
-        self.plot_2d.set_plot_data(freq, flow_rate, absolute_value=True)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(freq, flow_rate, absolute_value=True)
+        plot_2d.show()
         
     def plot_pressure_head_end_angle(self):
         if self.check_all_parameters():
@@ -1123,14 +1122,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         angle, pressure_HE = self.compressor.get_pressure_head_end_angle_data()
         pressure_unit = self.compressor.pressure_unit
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="Head end pressure vs Angle",
             x_label="Crank angle [degree]",
             y_left_label=f"Pressure [{pressure_unit}]"
         )
 
-        self.plot_2d.set_plot_data(angle, pressure_HE)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(angle, pressure_HE)
+        plot_2d.show()
 
     def plot_volume_head_end_angle(self):
         if self.check_all_parameters():
@@ -1142,14 +1141,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
 
         angle, volume_HE = self.compressor.get_volume_head_end_angle_data()
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="Head end volume vs Angle",
             x_label="Crank angle [degree]",
             y_left_label="Volume [m³]"
         )
 
-        self.plot_2d.set_plot_data(angle, volume_HE)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(angle, volume_HE)
+        plot_2d.show()
 
     def plot_pressure_crank_end_angle(self):
         if self.check_all_parameters():
@@ -1162,14 +1161,14 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
         angle, pressure_CE = self.compressor.get_pressure_crank_end_angle_data()
         pressure_unit = self.compressor.pressure_unit
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="Crank end pressure vs Angle",
             x_label="Crank angle [degree]",
             y_left_label = f"Pressure [{pressure_unit}]"
         )
 
-        self.plot_2d.set_plot_data(angle, pressure_CE)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(angle, pressure_CE)
+        plot_2d.show()
 
     def plot_volume_crank_end_angle(self):
         if self.check_all_parameters():
@@ -1181,11 +1180,11 @@ class ReciprocatingCompressorInputs(AcousticNodesInput, ReciprocatingCompressorI
 
         angle, volume_CE = self.compressor.get_volume_crank_end_angle_data()
 
-        self.plot_2d = Plot2DSimplified(
+        plot_2d = Plot2DSimplified(
             title="Crank end volume vs Angle",
             x_label="Crank angle [degree]",
             y_left_label="Volume [m³]"
         )
 
-        self.plot_2d.set_plot_data(angle, volume_CE)
-        self.plot_2d.show()
+        plot_2d.set_plot_data(angle, volume_CE)
+        plot_2d.show()

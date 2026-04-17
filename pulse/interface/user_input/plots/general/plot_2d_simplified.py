@@ -12,6 +12,7 @@ from matplotlib.axes import Axes
 
 
 class Plot2DSimplified(Plot2dDialog_UI):
+    _open_plots: list["Plot2DSimplified"] = list()
 
     def __init__(
         self,
@@ -22,13 +23,18 @@ class Plot2DSimplified(Plot2dDialog_UI):
     ) -> None:
 
         super().__init__()
-        app().main_window.set_input_widget(self)
+        self.setAttribute(Qt.WA_DeleteOnClose)
 
         self._title = title
         self._x_label = x_label
         self._y_left_label = y_left_label
         self._y_right_label = y_right_label
         self._toolbar: CustomNavigationToolbar = None
+        self._duplicated_plot = True
+
+        if self not in Plot2DSimplified._open_plots:
+            Plot2DSimplified._open_plots.append(self)
+            self._duplicated_plot = False
 
         self._config_window()
         self._create_connections()
@@ -126,7 +132,28 @@ class Plot2DSimplified(Plot2dDialog_UI):
         
         self.results_plot.draw()
     
+    def __eq__(self, other: "Plot2DSimplified") -> bool:
+        if not isinstance(other, Plot2DSimplified):
+            return NotImplemented
+        
+        return (
+            self._title == other._title
+            and self._x_label == other._x_label
+            and self._y_left_label == other._y_left_label
+            and self._y_right_label == other._y_right_label
+        )
+    
     def show(self) -> None:
+        if self._duplicated_plot:
+            index = Plot2DSimplified._open_plots.index(self)
+            existing = Plot2DSimplified._open_plots[index]
+
+            existing.showNormal()
+            existing.raise_()
+            existing.activateWindow()
+
+            return None
+
         handles_l, labels_l = self.left_ax.get_legend_handles_labels()
         handles_r, labels_r = self.right_ax.get_legend_handles_labels() if self.right_ax is not None else ([], [])
         handles = handles_l + handles_r
@@ -138,4 +165,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
         super().show()
 
     def closeEvent(self, a0) -> None:
+        if self in Plot2DSimplified._open_plots:
+            Plot2DSimplified._open_plots.remove(self)
+
         return super().closeEvent(a0)
