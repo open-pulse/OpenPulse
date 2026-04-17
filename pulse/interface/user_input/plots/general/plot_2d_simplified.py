@@ -91,7 +91,7 @@ class Plot2DSimplified(Plot2dDialog_UI):
         exponent = int(exp_str)
 
         if abs(exponent) <= 2:
-            return f"{x:g}"
+            return f"{x:.2f}"
 
         mantissa = float(mantissa_str)
         return f"{mantissa:.1f}e{exponent}"
