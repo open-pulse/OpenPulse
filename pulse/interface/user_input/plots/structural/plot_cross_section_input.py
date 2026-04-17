@@ -1,28 +1,38 @@
+from enum import IntEnum
+
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QCloseEvent
 
 from pulse import app
 from pulse.interface.ui_generated.plots.model.plot_section_ui import PlotSection_UI
-from pulse.model.cross_section import get_points_to_plot_section
+from pulse.interface.user_input.model.setup.cross_section.cross_section_plotter import (
+    CrossSectionPlotter,
+)
 from pulse.interface.user_input.project.print_message import PrintMessageInput
+from pulse.model.cross_section import CrossSection, get_points_to_plot_section
 
 
-import numpy as np
+class SelectionType(IntEnum):
+    LINES = 0
+    ELEMENTS = 1
 
-window_title_1 = "Error"
-window_title_2 = "Warning"
+
+error_title = "Error"
+warning_title = "Warning"
+
 
 class PlotCrossSectionInput(PlotSection_UI):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         app().main_window.set_input_widget(self)
-        self.project = app().project
-        self.model = app().project.model
 
         self._config_window()
         self._initialize()
         self._create_connections()
         self.selection_callback()
-        self.exec()
+
+        while self.keep_window_open:
+            self.exec()
 
     def _config_window(self):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -31,12 +41,8 @@ class PlotCrossSectionInput(PlotSection_UI):
         self.setWindowTitle("OpenPulse")
 
     def _initialize(self):
-
-        self.project = self.project
-        self.preprocessor = self.project.model.preprocessor
-        self.before_run = self.project.get_pre_solution_model_checks()
-        
-        self.structural_elements = self.project.model.preprocessor.structural_elements
+        self.keep_window_open = True
+        self.before_run = app().project.get_pre_solution_model_checks()
 
     def _create_connections(self):
         #
@@ -78,11 +84,11 @@ class PlotCrossSectionInput(PlotSection_UI):
         
         index = self.comboBox_selection.currentIndex()
 
-        if index == 0:
+        if index == SelectionType.LINES:
             self.label_selected_id.setText("Line ID:")
             app().main_window.plot_lines_with_cross_sections()
 
-        elif index == 1:
+        elif index == SelectionType.ELEMENTS:
             self.label_selected_id.setText("Element ID:")
             app().main_window.plot_mesh()
 
@@ -90,115 +96,80 @@ class PlotCrossSectionInput(PlotSection_UI):
 
     def preprocess_selection(self):
 
-        self.message = ""
-        index = self.comboBox_selection.currentIndex()
-
-        if index == 0:
-
+        if self.comboBox_selection.currentIndex() == SelectionType.LINES:
             lineEdit = self.lineEdit_selected_id.text()
-            stop, self.line_typed = self.before_run.check_selected_ids(lineEdit, "lines", single_id=True)
+            stop, line_id = self.before_run.check_selected_ids(lineEdit, "lines", single_id=True)
             if stop:
                 return True
 
-            cross_section = self.model.properties._get_property("cross_section", line_id=self.line_typed)
-            expansion_joint_data = self.model.properties._get_property("expansion_joint_data", ine_id=self.line_typed)
+            cross_section = app().project.model.properties._get_property("cross_section", line_id=line_id)
 
-            if cross_section is None and expansion_joint_data is None:
-                self.message = "Please, define a cross-section to the \nselected line before trying to plot the section."
-                self.title = "Error: undefined line cross-section"
-                self.window_title = window_title_1
+            if cross_section is None:
+                self.hide()
+                title = "Undefined cross-section"
+                message = "You should define a cross-section to the selected line before trying to plot it."
+                PrintMessageInput([error_title, title, message])
                 return True
 
-        elif index == 1:
-
+        else:
             lineEdit = self.lineEdit_selected_id.text()
-            stop, self.element_typed = self.before_run.check_selected_ids(lineEdit, "elements", single_id=True)
+            stop, element_id = self.before_run.check_selected_ids(lineEdit, "elements", single_id=True)
             if stop:
                 return True
 
-            element = self.structural_elements[self.element_typed]
-            if element.cross_section is None:
-                self.message = "Please, define a cross-section to the selected \nelement before trying to plot the section."
-                self.title = "Error: undefined element cross-section"
-                self.window_title = window_title_1          
-                return True
-
+            element = app().project.model.preprocessor.structural_elements[element_id]
             cross_section = element.cross_section
 
+            if not isinstance(cross_section, CrossSection):
+                self.hide()
+                title = "Undefined cross-section"
+                message = "You should define a cross-section to the selected element before trying to plot it."
+                PrintMessageInput([error_title, title, message])
+                return True
+
         self.section_type_label = cross_section.section_type_label
+
+        message = ""
+        if self.section_type_label == "expansion_joint":
+            title = "Non-plottable cross-section"
+            message = "The expansion joint cross-section cannot be plotted."
+
+        elif self.section_type_label == "valve":
+            title = "Non-plottable cross-section"
+            message = "The valve cross-section cannot be plotted."
+
+        if message != "":
+            self.hide()
+            PrintMessageInput([warning_title, title, message])
+            return True
 
         if self.section_type_label != 'expansion_joint':
             self.section_parameters = cross_section.section_parameters
             # if self.section_type_label != "pipe":
-            #     self.section_properties = cross_section.section_properties    
-        else:
-            self.window_title = window_title_2
-            self.title = "Unable to plot cross-section"
-            self.message = "The cross-section plot has been deactivated to \n\n"
-            self.message += "the 'expansion joint' element type."
-            return True
-            
-        return False
+            #     self.section_properties = cross_section.section_properties
 
+        return False
        
     def plot_section(self):
-        import matplotlib.pyplot as plt    
-
-        plt.ion()
-        plt.close()
 
         if self.preprocess_selection():
-            if self.message != "":
-                PrintMessageInput([self.window_title, self.title, self.message])
-            return
-        
-        if self.section_type_label == "pipe":
-            Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
-        else:
-            Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_type_label, self.section_parameters)
-
-        if self.stop:
-            self.stop = False
             return
 
-        _max = np.max(np.abs(np.array([Yp, Zp])))
+        self.hide()
+        plotter = CrossSectionPlotter()
 
-        fig = plt.figure(figsize=[8,8])
-        ax = fig.add_subplot(1,1,1)
+        points = get_points_to_plot_section(self.section_type_label, self.section_parameters)
 
-        first_plot, = plt.fill(Yp, Zp, color=[0.2,0.2,0.2], linewidth=2, zorder=2)
-        second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
-        third_plot = plt.scatter(0, 0, marker="+", linewidth=1.5, zorder=4, color=[0,0,1], s=120)
-
-        if self.section_type_label == "pipe" and Yp_ins is not None:
-            fourth, = plt.fill(Yp_ins, Zp_ins, color=[0.5,1,1], linewidth=2, zorder=5) 
-            _max = np.max(np.abs(np.array([Zp_ins, Yp_ins])))*1.2
-            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
-            fourth.set_label("Insulation material")
-            plt.legend(handles=[second_plot, fourth], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
-        else:
-            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
-            plt.legend(handles=[second_plot], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
-
-        ax.set_title('CROSS-SECTION PLOT', fontsize = 18, fontweight = 'bold')
-        ax.set_xlabel('y [m]', fontsize = 16, fontweight = 'bold')
-        ax.set_ylabel('z [m]', fontsize = 16, fontweight = 'bold')
-
-        f = 1.25
-        if self.section_type_label == 'c_beam':
-            plt.xlim(-(1/2)*_max, (3/2)*_max)
-        else:
-            plt.xlim(-_max*f, _max*f)
-
-        plt.ylim(-_max*f, _max*f)
-        plt.grid()
-        plt.show()
+        plotter.plot_cross_section(points, self.section_type_label, self.section_type_label)
+        plotter.exec()
 
     def keyPressEvent(self, event):
-        import matplotlib.pyplot as plt    
-
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.plot_section()
+
         if event.key() == Qt.Key_Escape:
-            plt.close()
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.keep_window_open = False
+        return super().closeEvent(a0)
