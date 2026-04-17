@@ -180,7 +180,7 @@ class Ui_Form(object):
         self.comboBox_selection.setItemText(1, QCoreApplication.translate("Form", u"Element", None))
 
         self.label_attribute.setText(QCoreApplication.translate("Form", u"Selection type:", None))
-        self.label_selected_id.setText(QCoreApplication.translate("Form", u"Selected id:", None))
+        self.label_selected_id.setText(QCoreApplication.translate("Form", u"Selected ID:", None))
         self.pushButton_plot_cross_section.setText(QCoreApplication.translate("Form", u"Plot cross-section", None))
     # retranslateUi
 

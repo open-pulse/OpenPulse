@@ -231,7 +231,7 @@
             </font>
            </property>
            <property name="text">
-            <string>Selected id:</string>
+            <string>Selected ID:</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>

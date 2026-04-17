@@ -54,42 +54,35 @@ class PlotCrossSectionInput(PlotSection_UI):
 
     def selection_callback(self):
 
-        selected_id = list()
         selected_lines = app().main_window.list_selected_lines()
         selected_elments = app().main_window.list_selected_elements()
-
         self.comboBox_selection.blockSignals(True)
 
         if selected_lines:
-            self.label_selected_id.setText("Line ID:")
             selected_id = selected_lines
-            self.comboBox_selection.setCurrentIndex(0)
+            self.comboBox_selection.setCurrentIndex(SelectionType.LINES)
         
         elif selected_elments:
-            self.label_selected_id.setText("Element ID:")
             selected_id = selected_elments
-            self.comboBox_selection.setCurrentIndex(1)
-
-        if len(selected_id) == 1:
-            text = ", ".join([str(i) for i in selected_id])
-            self.lineEdit_selected_id.setText(text)
+            self.comboBox_selection.setCurrentIndex(SelectionType.ELEMENTS)
 
         else:
-            self.lineEdit_selected_id.clear()
-            self.comboBox_selection.setCurrentIndex(0)
+            self.comboBox_selection.blockSignals(False)
+            return
 
+        if len(selected_id) != 1:
+            self.comboBox_selection.blockSignals(False)
+            return
+
+        text = ", ".join([str(i) for i in selected_id])
+        self.lineEdit_selected_id.setText(text)
         self.comboBox_selection.blockSignals(False)
 
     def selection_type_update(self):
         
-        index = self.comboBox_selection.currentIndex()
-
-        if index == SelectionType.LINES:
-            self.label_selected_id.setText("Line ID:")
+        if self.comboBox_selection.currentIndex() == SelectionType.LINES:
             app().main_window.plot_lines_with_cross_sections()
-
-        elif index == SelectionType.ELEMENTS:
-            self.label_selected_id.setText("Element ID:")
+        else:
             app().main_window.plot_mesh()
 
         self.selection_callback()
