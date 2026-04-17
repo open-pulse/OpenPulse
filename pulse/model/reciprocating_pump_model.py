@@ -806,6 +806,7 @@ class ReciprocatingPumpModel:
             return None, None
 
         pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", self.pressure_unit)
+
         return volume_HE, pressure_HE
 
     def get_PV_diagram_crank_end_data(self) -> tuple[np.ndarray, np.ndarray]:
@@ -814,6 +815,7 @@ class ReciprocatingPumpModel:
             return None, None
 
         pressure_CE = convert_pressure_unit(pressure_CE_Pa, "Pa", self.pressure_unit)
+
         return volume_CE, pressure_CE
 
     def get_volumetric_flow_rate_at_suction_time_data(self) -> tuple[np.ndarray, np.ndarray]:
@@ -824,6 +826,7 @@ class ReciprocatingPumpModel:
         Trev = 60 / self.rpm
         N = len(flow_rate)
         time = np.linspace(0, Trev, N)
+
         return time, flow_rate
 
     def get_volumetric_flow_rate_at_discharge_time_data(self) -> tuple[np.ndarray, np.ndarray]:
@@ -834,6 +837,7 @@ class ReciprocatingPumpModel:
         Trev = 60 / self.rpm
         N = len(flow_rate)
         time = np.linspace(0, Trev, N)
+
         return time, flow_rate
 
     def get_rod_pressure_load_time_data(self) -> tuple[np.ndarray, np.ndarray]:
@@ -848,6 +852,7 @@ class ReciprocatingPumpModel:
         Trev = 60 / self.rpm
         N = len(rod_pressure_load)
         time = np.linspace(0, Trev, N)
+
         return time, rod_pressure_load
 
     def get_rod_pressure_load_frequency_data(self, revolutions: int) -> tuple[np.ndarray, np.ndarray]:
@@ -855,6 +860,7 @@ class ReciprocatingPumpModel:
 
         freq, rod_pressure_load = self.process_FFT_of_(rod_pressure_load_time, revolutions)
         mask = freq <= self.max_frequency
+
         return freq[mask], rod_pressure_load[mask]
 
     def get_volumetric_flow_rate_at_suction_frequency_data(self, revolutions: int) -> tuple[np.ndarray, np.ndarray]:
@@ -870,6 +876,7 @@ class ReciprocatingPumpModel:
 
         N = len(pressure_HE)
         angle = np.linspace(0, 360, N)
+
         return angle, pressure_HE
 
     def get_volume_head_end_angle_data(self) -> tuple[np.ndarray, np.ndarray]:
@@ -877,6 +884,7 @@ class ReciprocatingPumpModel:
 
         N = len(volume_HE)
         angle = np.linspace(0, 360, N)
+
         return angle, volume_HE
 
     def get_pressure_crank_end_angle_data(self) -> tuple[np.ndarray, np.ndarray]:
@@ -886,6 +894,7 @@ class ReciprocatingPumpModel:
 
         N = len(pressure_CE)
         angle = np.linspace(0, 360, N)
+
         return angle, pressure_CE
 
     def get_volume_crank_end_angle_data(self) -> tuple[np.ndarray, np.ndarray]:
@@ -893,6 +902,7 @@ class ReciprocatingPumpModel:
 
         N = len(volume_CE)
         angle = np.linspace(0, 360, N)
+        
         return angle, volume_CE
 
     def plot_PV_diagram_both_ends(self):
@@ -945,10 +955,10 @@ class ReciprocatingPumpModel:
         _, pressure_CE_Pa, _ = self.process_crank_end_volumes_and_pressures()
         
         Trev = 60 / self.rpm
-        N = len(pressure_HE)
+        N = len(pressure_HE_Pa)
         time = np.linspace(0, Trev, N)
 
-        if pressure_HE is None:
+        if pressure_HE_Pa is None:
             return
 
         pressure_HE = convert_pressure_unit(pressure_HE_Pa, "Pa", self.pressure_unit)
