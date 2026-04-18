@@ -41,7 +41,6 @@ def apply_transform(data, dx=0, dy=0, dz=0, rx=0, ry=0, rz=0, sx=1, sy=1, sz=1):
 
 VALVE_WHEEL = load_symbol(SYMBOLS_DIR / "other/valve_wheel.obj")
 
-
 def closed_pipe_data(length, outside_diameter, offset_y=0, offset_z=0, sides=20):
     cilinder = vtkCylinderSource()
     cilinder.SetResolution(sides)
@@ -51,7 +50,6 @@ def closed_pipe_data(length, outside_diameter, offset_y=0, offset_z=0, sides=20)
     cilinder.CappingOn()
     cilinder.Update()
     return apply_transform(cilinder.GetOutput(), rz=-90)
-
 
 def pipe_data(length, outside_diameter, thickness, offset_y=0, offset_z=0, sides=20):
     if (thickness == 0) or (2 * thickness > outside_diameter):
@@ -101,7 +99,6 @@ def pipe_data(length, outside_diameter, thickness, offset_y=0, offset_z=0, sides
 
     return apply_transform(append_polydata.GetOutput(), rz=-90)
 
-
 def circular_beam_data(length, outside_diameter, thickness, offset_y=0, offset_z=0):
     cilinder = vtkCylinderSource()
     cilinder.SetResolution(12)
@@ -113,7 +110,6 @@ def circular_beam_data(length, outside_diameter, thickness, offset_y=0, offset_z
 
     return apply_transform(cilinder.GetOutput(), rz=-90)
 
-
 def closed_rectangular_beam_data(length, b, h, offset_y=0, offset_z=0):
     rectangle = vtkCubeSource()
     rectangle.SetXLength(length)
@@ -121,8 +117,8 @@ def closed_rectangular_beam_data(length, b, h, offset_y=0, offset_z=0):
     rectangle.SetZLength(b)
     rectangle.SetCenter(length / 2, offset_y, offset_z)
     rectangle.Update()
-    return rectangle.GetOutput()
 
+    return rectangle.GetOutput()
 
 def rectangular_beam_data(length, b, h, b_in, h_in, offset_y=0, offset_z=0):
 
@@ -170,7 +166,6 @@ def rectangular_beam_data(length, b, h, b_in, h_in, offset_y=0, offset_z=0):
 
     return append_polydata.GetOutput()
 
-
 def c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
 
     Zc, Yc = CBeamCrossSection(h, w1, t1, w2, t2, tw, offset_y, offset_z).centroid
@@ -183,19 +178,18 @@ def c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
     rectangular_top.SetYLength(t1)
     rectangular_top.SetZLength(w1)
     rectangular_top.SetCenter(length / 2, h / 2 - t1 / 2 + offset_y - Yc, (w1 / 2) - Zc + offset_z)
+    rectangular_top.Update()
 
     rectangular_left.SetXLength(length)
     rectangular_left.SetYLength(h)
     rectangular_left.SetZLength(tw)
     rectangular_left.SetCenter(length / 2, -Yc + offset_y, (tw / 2) - Zc + offset_z)
+    rectangular_left.Update()
 
     rectangular_bottom.SetXLength(length)
     rectangular_bottom.SetYLength(t2)
     rectangular_bottom.SetZLength(w2)
     rectangular_bottom.SetCenter(length / 2, -h / 2 + t2 / 2 + offset_y - Yc,  (w2 / 2) - Zc + offset_z)
-
-    rectangular_top.Update()
-    rectangular_left.Update()
     rectangular_bottom.Update()
 
     append_polydata = vtkAppendPolyData()
@@ -205,7 +199,6 @@ def c_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
     append_polydata.Update()
 
     return append_polydata.GetOutput()
-
 
 def i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
 
@@ -219,19 +212,18 @@ def i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
     rectangular_top.SetYLength(t1)
     rectangular_top.SetZLength(w1)
     rectangular_top.SetCenter(length / 2, h / 2 - t1 / 2 - Yc + offset_y, -Zc + offset_z)
+    rectangular_top.Update()
 
     rectangular_center.SetXLength(length)
-    rectangular_center.SetYLength(h)
+    rectangular_center.SetYLength(h - (t1 + t2))
     rectangular_center.SetZLength(tw)
     rectangular_center.SetCenter(length / 2, -Yc + offset_y, -Zc + offset_z)
+    rectangular_center.Update()
 
     rectangular_bottom.SetXLength(length)
     rectangular_bottom.SetYLength(t2)
     rectangular_bottom.SetZLength(w2)
     rectangular_bottom.SetCenter(length / 2, -h / 2 + t2 / 2 - Yc + offset_y, -Zc + offset_z)
-
-    rectangular_top.Update()
-    rectangular_center.Update()
     rectangular_bottom.Update()
 
     append_polydata = vtkAppendPolyData()
@@ -241,7 +233,6 @@ def i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
     append_polydata.Update()
 
     return append_polydata.GetOutput()
-
 
 def t_beam_data(length, h, w1, t1, tw, offset_y=0, offset_z=0):
 
@@ -255,13 +246,12 @@ def t_beam_data(length, h, w1, t1, tw, offset_y=0, offset_z=0):
     rectangular_top.SetYLength(t1)
     rectangular_top.SetZLength(w1)
     rectangular_top.SetCenter(length / 2, (hw - t1) / 2 - Yc + offset_y, -Zc + offset_z)
+    rectangular_top.Update()
 
     rectangular_center.SetXLength(length)
     rectangular_center.SetYLength(hw)
     rectangular_center.SetZLength(tw)
     rectangular_center.SetCenter(length / 2, - Yc + offset_y, -Zc + offset_z)
-
-    rectangular_top.Update()
     rectangular_center.Update()
 
     append_polydata = vtkAppendPolyData()
@@ -271,7 +261,6 @@ def t_beam_data(length, h, w1, t1, tw, offset_y=0, offset_z=0):
     append_polydata.SetObjectName("t_beam_data")
 
     return append_polydata.GetOutput()
-
 
 def reducer_data(
     length,
@@ -333,7 +322,6 @@ def reducer_data(
     return apply_transform(append_polydata.GetOutput(), rz=-90)
     # return append_polydata.GetOutput()
 
-
 def flange_data(length, outside_diameter, thickness, n_bolts=8, offset_y=0, offset_z=0):
     pipe = closed_pipe_data(length, outside_diameter, offset_y, offset_z)
     append_polydata = vtkAppendPolyData()
@@ -357,7 +345,6 @@ def flange_data(length, outside_diameter, thickness, n_bolts=8, offset_y=0, offs
 
     return apply_transform(append_polydata.GetOutput(), rz=-90)
     # return append_polydata.GetOutput()
-
 
 def expansion_joint_data(length, outside_diameter, thickness):
     append_polydata = vtkAppendPolyData()
@@ -427,7 +414,6 @@ def expansion_joint_data(length, outside_diameter, thickness):
     return apply_transform(append_polydata.GetOutput(), rz=-90)
     # return append_polydata.GetOutput()
 
-
 def valve_data(length, outside_diameter, thickness, flange_diameter, flange_length):
     append_polydata = vtkAppendPolyData()
 
@@ -450,7 +436,6 @@ def valve_data(length, outside_diameter, thickness, flange_diameter, flange_leng
 
     return apply_transform(append_polydata.GetOutput(), rz=-90)
     # return append_polydata.GetOutput()
-
 
 def valve_handle(outside_diameter):
     height = 1.5 * outside_diameter
