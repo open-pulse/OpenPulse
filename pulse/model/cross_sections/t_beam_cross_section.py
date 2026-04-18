@@ -70,7 +70,7 @@ class TBeamCrossSection:
     @property
     def section_points_to_draw(self):
 
-        h, w1, tw, t1, offset_y, offset_z = self.section_parameters
+        h, w1, t1, tw, offset_y, offset_z = self.section_parameters
         hw = h - t1
 
         Zp_right = [0, tw/2, tw/2, w1/2, w1/2, 0]
