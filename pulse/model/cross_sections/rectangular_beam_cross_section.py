@@ -50,11 +50,11 @@ class RectangularBeamCrossSection:
         Zp_right = [0, (b/2), (b/2), 0, 0, (b_in/2), (b_in/2), 0, 0]
         Yp_right = [-(h/2), -(h/2), (h/2), (h/2), (h_in/2), (h_in/2), -(h_in/2), -(h_in/2), -(h/2)]
 
-        Zp_left = -np.flip(Yp_right)
-        Yp_left =  np.flip(Zp_right)
+        Zp_left = -np.flip(Zp_right)
+        Yp_left =  np.flip(Yp_right)
 
-        Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
         Zp = np.array([Zp_right, Zp_left]).flatten() + offset_z
+        Yp = np.array([Yp_right, Yp_left]).flatten() + offset_y
 
         Zc, Yc = self.centroid
 

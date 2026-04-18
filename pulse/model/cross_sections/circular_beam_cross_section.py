@@ -64,8 +64,8 @@ class CircularBeamCrossSection:
         Zp_in = (d_in / 2) * np.cos(-theta)
         Yp_in = (d_in / 2) * np.sin(-theta)
 
-        Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
-        Yp_list = [list(Yp_out), list(Yp_in), [0]]
+        Zp_list = [list(Zp_out), list(Zp_in), [0]]
+        Yp_list = [list(Yp_out), list(Yp_in), [-(d_out/2)]]
 
         Zp_right = [value for _list in Zp_list for value in _list]
         Yp_right = [value for _list in Yp_list for value in _list]
