@@ -68,7 +68,6 @@ class TubeActor(vtkActor):
         colors.Fill(255)
         colors.SetName("colors")
 
-
         section_index = dict()
         for element in visible_elements.values():
             points.InsertNextPoint(self.get_element_coordinates(element))
@@ -127,9 +126,7 @@ class TubeActor(vtkActor):
 
         elif cross_section.section_type_label == "rectangular_beam":
             b, h, b_in, h_in, offset_y, offset_z, *_ = element.section_parameters_render
-            t0 = (b - b_in) / 2
-            t1 = (h - h_in) / 2
-            return cross_section_sources.rectangular_beam_data(length, b, h, t0, t1, offset_y=offset_y, offset_z=offset_z)
+            return cross_section_sources.rectangular_beam_data(length, b, h, b_in, h_in, offset_y=offset_y, offset_z=offset_z)
 
         elif cross_section.section_type_label == "circular_beam":
             d_out, t, offset_y, offset_z, *_ = element.section_parameters_render
@@ -324,18 +321,19 @@ class TubeActor(vtkActor):
         if source is None:
             return vtkPolyData()
 
-        transform = vtkTransform()
-        transform.RotateZ(-90)
-        transform.RotateY(90)
-        transform.Update()
+        # transform = vtkTransform()
+        # transform.RotateZ(-90)
+        # transform.RotateY(90)
+        # transform.Update()
 
-        transform_filter = vtkTransformFilter()
-        transform_filter.SetInputData(source)
-        transform_filter.SetTransform(transform)
-        transform_filter.Update()
+        # transform_filter = vtkTransformFilter()
+        # transform_filter.SetInputData(source)
+        # transform_filter.SetTransform(transform)
+        # transform_filter.Update()
 
         normals_filter = vtkPolyDataNormals()
-        normals_filter.AddInputData(transform_filter.GetOutput())
+        normals_filter.AddInputData(source)
+        # normals_filter.AddInputData(transform_filter.GetOutput())
         normals_filter.Update()
 
         return normals_filter.GetOutput()
