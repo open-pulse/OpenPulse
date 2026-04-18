@@ -37,6 +37,7 @@ def apply_transform(data, dx=0, dy=0, dz=0, rx=0, ry=0, rz=0, sx=1, sy=1, sz=1):
     transform_filter.SetInputData(data)
     transform_filter.SetTransform(transform)
     transform_filter.Update()
+
     return transform_filter.GetOutput()
 
 VALVE_WHEEL = load_symbol(SYMBOLS_DIR / "other/valve_wheel.obj")
@@ -49,6 +50,7 @@ def closed_pipe_data(length, outside_diameter, offset_y=0, offset_z=0, sides=20)
     cilinder.SetHeight(length)
     cilinder.CappingOn()
     cilinder.Update()
+
     return apply_transform(cilinder.GetOutput(), rz=-90)
 
 def pipe_data(length, outside_diameter, thickness, offset_y=0, offset_z=0, sides=20):
@@ -320,7 +322,6 @@ def reducer_data(
     append_polydata.Update()
 
     return apply_transform(append_polydata.GetOutput(), rz=-90)
-    # return append_polydata.GetOutput()
 
 def flange_data(length, outside_diameter, thickness, n_bolts=8, offset_y=0, offset_z=0):
     pipe = closed_pipe_data(length, outside_diameter, offset_y, offset_z)
@@ -344,7 +345,6 @@ def flange_data(length, outside_diameter, thickness, n_bolts=8, offset_y=0, offs
     append_polydata.Update()
 
     return apply_transform(append_polydata.GetOutput(), rz=-90)
-    # return append_polydata.GetOutput()
 
 def expansion_joint_data(length, outside_diameter, thickness):
     append_polydata = vtkAppendPolyData()
@@ -412,7 +412,6 @@ def expansion_joint_data(length, outside_diameter, thickness):
     append_polydata.Update()
 
     return apply_transform(append_polydata.GetOutput(), rz=-90)
-    # return append_polydata.GetOutput()
 
 def valve_data(length, outside_diameter, thickness, flange_diameter, flange_length):
     append_polydata = vtkAppendPolyData()
@@ -435,7 +434,6 @@ def valve_data(length, outside_diameter, thickness, flange_diameter, flange_leng
     append_polydata.Update()
 
     return apply_transform(append_polydata.GetOutput(), rz=-90)
-    # return append_polydata.GetOutput()
 
 def valve_handle(outside_diameter):
     height = 1.5 * outside_diameter
@@ -467,4 +465,3 @@ def valve_handle(outside_diameter):
     append_polydata.Update()
 
     return apply_transform(append_polydata.GetOutput(), rz=-90)
-    # return append_polydata.GetOutput()
