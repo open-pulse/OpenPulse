@@ -23,8 +23,8 @@ class Ui_Form(object):
     def setupUi(self, Form):
         if not Form.objectName():
             Form.setObjectName(u"Form")
-        Form.resize(300, 210)
-        Form.setMaximumSize(QSize(300, 210))
+        Form.resize(340, 260)
+        Form.setMaximumSize(QSize(340, 260))
         self.gridLayout = QGridLayout(Form)
         self.gridLayout.setSpacing(4)
         self.gridLayout.setObjectName(u"gridLayout")
@@ -33,8 +33,8 @@ class Ui_Form(object):
         self.frame.setObjectName(u"frame")
         self.frame.setMinimumSize(QSize(0, 48))
         self.frame.setMaximumSize(QSize(16777215, 48))
-        self.frame.setFrameShape(QFrame.Box)
-        self.frame.setFrameShadow(QFrame.Raised)
+        self.frame.setFrameShape(QFrame.Shape.Box)
+        self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_2 = QGridLayout(self.frame)
         self.gridLayout_2.setSpacing(2)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
@@ -44,7 +44,7 @@ class Ui_Form(object):
         font = QFont()
         font.setPointSize(11)
         self.label.setFont(font)
-        self.label.setAlignment(Qt.AlignCenter)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
 
@@ -53,8 +53,8 @@ class Ui_Form(object):
 
         self.frame_2 = QFrame(Form)
         self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setFrameShape(QFrame.Box)
-        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.frame_2.setFrameShape(QFrame.Shape.Box)
+        self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_3 = QGridLayout(self.frame_2)
         self.gridLayout_3.setSpacing(4)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
@@ -62,9 +62,9 @@ class Ui_Form(object):
         self.selection_frame = QFrame(self.frame_2)
         self.selection_frame.setObjectName(u"selection_frame")
         self.selection_frame.setMinimumSize(QSize(0, 80))
-        self.selection_frame.setMaximumSize(QSize(16777215, 80))
-        self.selection_frame.setFrameShape(QFrame.NoFrame)
-        self.selection_frame.setFrameShadow(QFrame.Raised)
+        self.selection_frame.setMaximumSize(QSize(16777215, 120))
+        self.selection_frame.setFrameShape(QFrame.Shape.NoFrame)
+        self.selection_frame.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_26 = QGridLayout(self.selection_frame)
         self.gridLayout_26.setObjectName(u"gridLayout_26")
         self.gridLayout_26.setHorizontalSpacing(6)
@@ -74,8 +74,8 @@ class Ui_Form(object):
         self.comboBox_selection.addItem("")
         self.comboBox_selection.addItem("")
         self.comboBox_selection.setObjectName(u"comboBox_selection")
-        self.comboBox_selection.setMinimumSize(QSize(0, 28))
-        self.comboBox_selection.setMaximumSize(QSize(80, 28))
+        self.comboBox_selection.setMinimumSize(QSize(100, 28))
+        self.comboBox_selection.setMaximumSize(QSize(100, 28))
         font1 = QFont()
         font1.setPointSize(10)
         self.comboBox_selection.setFont(font1)
@@ -87,7 +87,7 @@ class Ui_Form(object):
         self.label_attribute.setMinimumSize(QSize(100, 28))
         self.label_attribute.setMaximumSize(QSize(100, 28))
         self.label_attribute.setFont(font1)
-        self.label_attribute.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_attribute.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_attribute, 0, 1, 1, 1)
 
@@ -99,22 +99,21 @@ class Ui_Form(object):
         font2.setPointSize(10)
         font2.setBold(False)
         self.label_selected_id.setFont(font2)
-        self.label_selected_id.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.label_selected_id.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
 
         self.gridLayout_26.addWidget(self.label_selected_id, 1, 1, 1, 1)
 
         self.lineEdit_selected_id = QLineEdit(self.selection_frame)
         self.lineEdit_selected_id.setObjectName(u"lineEdit_selected_id")
-        self.lineEdit_selected_id.setMinimumSize(QSize(0, 28))
-        self.lineEdit_selected_id.setMaximumSize(QSize(80, 28))
+        self.lineEdit_selected_id.setMinimumSize(QSize(100, 28))
+        self.lineEdit_selected_id.setMaximumSize(QSize(100, 28))
         font3 = QFont()
         font3.setPointSize(10)
         font3.setKerning(False)
         self.lineEdit_selected_id.setFont(font3)
-        self.lineEdit_selected_id.setFocusPolicy(Qt.ClickFocus)
-        self.lineEdit_selected_id.setStyleSheet(u"QLineEdit{color: rgb(0, 0, 0); background-color: rgb(250, 250, 250)}\n"
-"QLineEdit:disabled{color: rgb(100, 100, 100); background-color: rgb(240, 240, 240)}")
-        self.lineEdit_selected_id.setAlignment(Qt.AlignCenter)
+        self.lineEdit_selected_id.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
+        self.lineEdit_selected_id.setStyleSheet(u"")
+        self.lineEdit_selected_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_26.addWidget(self.lineEdit_selected_id, 1, 2, 1, 1)
 
@@ -129,48 +128,59 @@ class Ui_Form(object):
 
         self.gridLayout_3.addWidget(self.selection_frame, 0, 0, 1, 1)
 
-        self.frame_3 = QFrame(self.frame_2)
+
+        self.gridLayout.addWidget(self.frame_2, 1, 0, 1, 1)
+
+        self.frame_3 = QFrame(Form)
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setMinimumSize(QSize(0, 42))
         self.frame_3.setMaximumSize(QSize(16777215, 42))
-        self.frame_3.setFrameShape(QFrame.NoFrame)
-        self.frame_3.setFrameShadow(QFrame.Raised)
+        self.frame_3.setFrameShape(QFrame.Shape.NoFrame)
+        self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
         self.gridLayout_4 = QGridLayout(self.frame_3)
         self.gridLayout_4.setSpacing(0)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setContentsMargins(0, 0, 0, 0)
-        self.pushButton_plot_cross_section = QPushButton(self.frame_3)
-        self.pushButton_plot_cross_section.setObjectName(u"pushButton_plot_cross_section")
+        self.pushButton_plot_section = QPushButton(self.frame_3)
+        self.pushButton_plot_section.setObjectName(u"pushButton_plot_section")
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButton_plot_cross_section.sizePolicy().hasHeightForWidth())
-        self.pushButton_plot_cross_section.setSizePolicy(sizePolicy)
-        self.pushButton_plot_cross_section.setMinimumSize(QSize(140, 32))
-        self.pushButton_plot_cross_section.setMaximumSize(QSize(140, 32))
+        sizePolicy.setHeightForWidth(self.pushButton_plot_section.sizePolicy().hasHeightForWidth())
+        self.pushButton_plot_section.setSizePolicy(sizePolicy)
+        self.pushButton_plot_section.setMinimumSize(QSize(100, 28))
+        self.pushButton_plot_section.setMaximumSize(QSize(100, 28))
         font4 = QFont()
         font4.setFamilies([u"MS Shell Dlg 2"])
         font4.setPointSize(10)
         font4.setBold(False)
         font4.setItalic(False)
-        self.pushButton_plot_cross_section.setFont(font4)
-        self.pushButton_plot_cross_section.setStyleSheet(u"QPushButton{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(240, 240, 240)}\n"
-"QPushButton:hover{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgba(174, 213, 255, 100)}\n"
-"QPushButton:pressed{border-radius: 6px; border-color: rgb(0, 170, 255); border-style: ridge; border-width: 2px; color: rgb(0, 0, 0); background-color: rgb(174, 213, 255)}\n"
-"QPushButton:disabled{border-radius: 6px; border-color: rgb(150, 150, 150); border-style: ridge; border-width: 0px; color: rgb(150,150, 150); background-color: rgb(220, 220, 220)}")
+        self.pushButton_plot_section.setFont(font4)
+        self.pushButton_plot_section.setStyleSheet(u"")
+        self.pushButton_plot_section.setAutoDefault(False)
 
-        self.gridLayout_4.addWidget(self.pushButton_plot_cross_section, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.pushButton_plot_section, 0, 1, 1, 1)
+
+        self.pushButton_exit = QPushButton(self.frame_3)
+        self.pushButton_exit.setObjectName(u"pushButton_exit")
+        sizePolicy.setHeightForWidth(self.pushButton_exit.sizePolicy().hasHeightForWidth())
+        self.pushButton_exit.setSizePolicy(sizePolicy)
+        self.pushButton_exit.setMinimumSize(QSize(100, 28))
+        self.pushButton_exit.setMaximumSize(QSize(100, 28))
+        self.pushButton_exit.setFont(font4)
+        self.pushButton_exit.setStyleSheet(u"")
+        self.pushButton_exit.setAutoDefault(False)
+
+        self.gridLayout_4.addWidget(self.pushButton_exit, 0, 0, 1, 1)
 
 
-        self.gridLayout_3.addWidget(self.frame_3, 1, 0, 1, 1)
-
-
-        self.gridLayout.addWidget(self.frame_2, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.frame_3, 2, 0, 1, 1)
 
 
         self.retranslateUi(Form)
 
-        self.pushButton_plot_cross_section.setDefault(True)
+        self.pushButton_plot_section.setDefault(False)
+        self.pushButton_exit.setDefault(False)
 
 
         QMetaObject.connectSlotsByName(Form)
@@ -179,12 +189,13 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(QCoreApplication.translate("Form", u"Form", None))
         self.label.setText(QCoreApplication.translate("Form", u"Cross-section plotter", None))
-        self.comboBox_selection.setItemText(0, QCoreApplication.translate("Form", u" Line", None))
-        self.comboBox_selection.setItemText(1, QCoreApplication.translate("Form", u" Element", None))
+        self.comboBox_selection.setItemText(0, QCoreApplication.translate("Form", u"Lines", None))
+        self.comboBox_selection.setItemText(1, QCoreApplication.translate("Form", u"Elements", None))
 
         self.label_attribute.setText(QCoreApplication.translate("Form", u"Selection type:", None))
-        self.label_selected_id.setText(QCoreApplication.translate("Form", u"Selected id:", None))
-        self.pushButton_plot_cross_section.setText(QCoreApplication.translate("Form", u"Plot cross-section", None))
+        self.label_selected_id.setText(QCoreApplication.translate("Form", u"Selected ID:", None))
+        self.pushButton_plot_section.setText(QCoreApplication.translate("Form", u"Plot section", None))
+        self.pushButton_exit.setText(QCoreApplication.translate("Form", u"Exit", None))
     # retranslateUi
 
 
@@ -205,9 +216,10 @@ class PlotSection_UI(QDialog, Ui_Form):
                                         - label_attribute: QLabel
                                         - label_selected_id: QLabel
                                         - lineEdit_selected_id: QLineEdit
-                            - frame_3: QFrame
-                                - (Layout): QGridLayout
-                                        - pushButton_plot_cross_section: QPushButton
+                - frame_3: QFrame
+                    - (Layout): QGridLayout
+                            - pushButton_plot_section: QPushButton
+                            - pushButton_exit: QPushButton
     """
 
     def __init__(self, *args, **kwargs):

@@ -6750,8 +6750,11 @@
             <property name="text">
              <string>Load section data</string>
             </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
             <property name="default">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -6783,8 +6786,11 @@
             <property name="text">
              <string>Edit section data</string>
             </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
             <property name="default">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>

@@ -37,6 +37,7 @@ class CircularBeamOptions(StructureOptions):
         self.cross_section_widget.tabWidget_general.setTabVisible(1, True)
         self.cross_section_widget.tabWidget_beam_section.setTabVisible(1, True)
         self.cross_section_widget.lineEdit_outside_diameter_circular_section.setFocus()
+        self.cross_section_dialog.load_active_sections("circular_beam")
         self.cross_section_dialog.exec()
 
         if not self.cross_section_dialog.complete:
