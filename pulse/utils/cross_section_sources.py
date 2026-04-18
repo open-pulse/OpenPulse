@@ -217,7 +217,7 @@ def i_beam_data(length, h, w1, w2, t1, t2, tw, offset_y=0, offset_z=0):
     rectangular_top.Update()
 
     rectangular_center.SetXLength(length)
-    rectangular_center.SetYLength(h - (t1 + t2))
+    rectangular_center.SetYLength(h)
     rectangular_center.SetZLength(tw)
     rectangular_center.SetCenter(length / 2, -Yc + offset_y, -Zc + offset_z)
     rectangular_center.Update()
