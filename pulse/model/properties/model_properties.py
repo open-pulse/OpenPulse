@@ -273,7 +273,6 @@ class ModelProperties:
                 return True
 
         for key in self.nodal_properties:
-            print(key)
             if key[0] == property:
                 return True
 
